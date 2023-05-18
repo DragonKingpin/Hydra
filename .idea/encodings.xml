@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Console" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/File" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/File/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logger" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Logger/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Messenger" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Messenger/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Nonjron" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecone" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecone/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurye" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TaskJuggler" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TaskJuggler/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Ulfhedinn" charset="UTF-8" />
+  </component>
+</project>

@@ -1,0 +1,44 @@
+# Any private port must start with '75', eg.7580, 7577, etc.
+
+server:
+  port: 7580
+
+spring:
+  datasource:
+    url: jdbc:mysql://node1.nutgit.com:13393/predator?useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    password: Genius123
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: 100
+        time-between-eviction-runs: 10s
+  rabbitmq:
+    host: node1.nutgit.com # 主机名
+    port: 13394 # 端口
+    virtual-host: /wolf # 虚拟主机
+    username: undefined # 用户名
+    password: wolf19310918 # 密码
+
+
+nonjron:
+  system:
+    config:
+      serviceId: Nonaron-Kingpin-Prime
+      minionName: Nonaron
+      tracer:
+        consoleTrace: true
+        infoTracer: "./system/logs/%s_SysTrace.log"
+        errTracer: "./system/logs/%s_SysError.log"
+    components:
+      heist:
+        failure-retry-times: 3
+        heist-num: 5
+        rob-task-name: douban

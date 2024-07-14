@@ -1,0 +1,184 @@
+{
+  "System" : {
+    "MinionName"    : "ShadowKingpin",
+    "ServiceID"     : "Shadow-Kingpin-Prime",
+    "ServiceArch"   : "Master", // Master, Paladin, Minion, Slave
+    "MasterQuery"   : false,
+    "DebugMode"     : true,
+
+    // For, C/C++ Edition, Java todo.
+    "Tracer"        : {
+      "ConsoleTrace"       : true,
+      "InfoTracer"         : "./system/logs/${pid}_SysTrace.log",
+      "ErrTracer"          : "./system/logs/${pid}_SysError.log",
+    },
+
+    "Middleware"    : {
+      "RDBs": {
+        "Configs": {
+          "Engine": "com.sauron.radium.ally.rdb.GenericIbatisClient",
+          "Enable": true,
+          "JDBC": {
+            "Driver": "com.mysql.cj.jdbc.Driver",
+          },
+          "Ibatis": {
+            "Environment"       : "development",
+            "DataSource"        : "org.apache.ibatis.datasource.pooled.PooledDataSource",
+            "TransactionFactory": "org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory",
+            "PooledConfig"      : {
+              "InitialSize": 0,
+              "MaxActive"  : 20,
+              "MaxIdle"    : 20,
+              "MinIdle"    : 1,
+              "MaxWait"    : 60000
+            },
+            "DataAccessObject"  : {
+              "Scanner"    : "com.pinecone.slime.jelly.source.ibatis.IbatisDAOScanner",
+              "ScanScopes" : []
+            }
+          }
+        },
+
+        "Databases": {
+          "MySQLKingSystem": {
+            "dbType"     : "mysql",
+            "host"       : "b-serverkingpin",
+            "username"   : "root",
+            "password"   : "root",
+            "database"   : "nonaron",
+            "port"       : 3306,
+            "charset"    : "utf8",
+            "tablePrefix": "nona_",
+            "Enable"     : true
+          },
+          "MySQLKingData0": {
+            "dbType"     : "mysql",
+            "host"       : "b-serverkingpin",
+            "username"   : "root",
+            "password"   : "root",
+            "database"   : "nonaron",
+            "port"       : 33062,
+            "charset"    : "utf8",
+            "tablePrefix": "nona_",
+            "Enable"     : true
+          }
+        }
+      },
+
+      "Indexables": {
+        "Configs": {
+
+        },
+
+        "Databases": {
+          "RedisKingpin": {
+            "host"        : "b-serverkingpin",
+            "password"    : "wolf19310918",
+            "port"        : 6379,
+            "Enable"      : true
+          }
+        }
+      },
+
+      "Messagers": {
+        "Configs": {
+          "Enable"                 : true,
+          "IsRecipient"            : false,  // Is recipient or server.
+          "AutoStartInMasterMode"  : false   // For client or messenger.
+        },
+
+        "Messagers": {
+          "CenterMessagram" : "./system/setup/CenterMessagram.json5",
+
+          "RabbitMQKingpin" : {
+            "host"        : "b-serverkingpin",
+            "username"    : "undefined",
+            "password"    : "wolf19310918",
+            "port"        : 5672,
+            "vhost"       : "/wolf",
+            "frame_max"   : 131072,
+            "channel_max" : 0,
+            "heartbeat"   : 0,
+            "Enable"      : false
+          },
+
+          "WolfKing"        : { // For RPC-Server
+            "host"                : "0.0.0.0",
+            "port"                : 5777,
+            "username"            : "undefined",     // TODO, UMCs
+            "password"            : "wolf19310918",  // TODO, UMCs
+            "SocketTimeout"       : 800,
+            "KeepAliveTimeout"    : 3600,
+            "MaximumConnections"  : 1e6,
+            "ExtraHeadCoder"      : "com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder",
+            "DefaultExtraEncode"  : "JSONString", // JSONString / Binary
+            "Engine"              : "com.pinecone.hydra.umc.wolfmc.server.WolfMCServer",
+            "MessageHandler"      : "WolfMCExpress",
+            "IsRecipient"         : true,
+            "Enable"              : true
+          },
+
+          "WolfMCKingpin"   : { // For RPC-Client
+            "host"                   : "localhost",
+            "port"                   : 5777,
+            "SocketTimeout"          : 800,
+            "KeepAliveTimeout"       : 3600, // 0 to close keep-alive
+            "ParallelChannels"       : 5,
+            "ExtraHeadCoder"         : "com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder",
+            "DefaultExtraEncode"     : "JSONString", // JSONString / Binary
+            "Engine"                 : "com.pinecone.hydra.umc.wolfmc.client.WolfMCClient",
+            "MessageHandler"         : "WolfMCExpress",
+            "Enable"                 : true
+          }
+        }
+      }
+    },
+
+    "Servers"       : "./system/setup/ServersScope.json5",
+
+    "StorageSystem" : "./system/setup/StorageSystem.json5",
+
+    "WolfKingOFS"   : { // TODO, OFS
+      "ParentServiceID"        : "", // "" is the root server service(Kingpin), else is the paladin server service.
+      "EnableWolfUMService"    : true,
+      "Port"                   : 7577,
+      "KeepAliveTimeout"       : 3600, // 0 to close keep-alive
+      "MaximumClients"         : 10000,
+      "MaxSoloQueue"           : 100,  // Inner solo task-thread maximum MessageQueue length.
+      "UIOFS"                  : {     // Ulfhedinn Unified Interface OSS file system
+        "EnableDirectPost"        : true,        // Enable any-size file frame, e.g. Tiny 4K file (1MB <).
+        "FileFrameSize"           : 1048576,     // Multiple files of FileFrame size 1 MB
+        "FilePagedPoolSize"       : 104857600,   // FileBufferPagedPool:: Buffered file caches size(100 MB) in resident memory waiting for store in disk.
+        "ForceBufferedWrite"      : false        // Any disk-IO must store in resident memory first waiting for write.
+      }
+    },
+
+    "SystemDaemon"  : {
+      "SurveillanceTime": 1000
+    }
+  },
+
+  "MasterOrchestrator": {
+    "Orchestration"         : {
+      "Name": "ServgramOrchestrator",
+      "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+      // Servgram-Classes scanning package-scopes
+      "ServgramScopes": [
+        "com.sauron.radium.heistron"
+      ],
+
+      "Transactions": [
+        { "Name": "Heist", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/, "Primary": true }
+      ]
+    },
+
+    "Servgrams": {
+
+      "Heist": "./system/setup/heist.json5",
+
+      "Sparta": ""
+
+    }
+  }
+}

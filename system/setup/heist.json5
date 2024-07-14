@@ -1,0 +1,286 @@
+{
+  "ExertAffinity"    : "SerKingpin", // Which server to execute, if is in joint-mission which must located at ONLY SerKingpin.
+  "TraceLifecycle"   : true,
+  "EnableCmdCall"    : true,         // Designate with startup command: --heist==Heist
+
+  "Orchestration"    : {
+    "Name": "HeistronOrchestrator",
+    "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+    "DirectlyLoad" : {
+      "Prefix": [],
+      "Suffix": [ "Heist" ]
+    },
+
+    "ServgramScopes": [
+      "com.sauron.shadow.heists",
+      "com.sauron.shadow.chronicle"
+    ],
+
+    "Transactions": [
+
+      { "Name": "Chronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ }
+    ]
+  },
+
+  "ConfigScope"      : {
+    "LocalConfigs": {
+      "PathScopes": [
+        "${SystemConfRoot}/heists/",
+        "${SystemConfRoot}/chronicle/"
+      ],
+      "FileExtends": [
+        "json5", "jplus", "json"
+      ]
+    }
+  },
+
+  "TemplatedConfig"  : {
+    "HeistArch"             : "Radium",
+    "HeistType"             : "Templated",
+    "HeistURL"             : "",
+
+    "StorageDriver"         : "${OmniumKingpin0}",
+    "IndexPath"             : "${this.DriverPath}Sauron\\${ProjectName}\\index\\",
+    "SpoilPath"             : "${this.DriverPath}Sauron\\${ProjectName}\\Pages\\",
+    "FragBase"              : 0,
+    "FragRange"             : 100,
+
+    "WorkingPath"           : ".\\Sauron\\Heist\\${ProjectName}\\",
+    "InfoTracer"            : "heistInfo.log",
+    "ErrTracer"             : "heistErr.log",
+    "SysTracer"             : "heistSys.log",
+    "DyingMsgFile"          : "dyingMsg.json5",  // Enable full-status tombstone dying msg. Empty string to close.
+    "MasterConfQuery"       : false, // Enable Task::ConfQuery from master server, else use next arguments.
+    "TaskFrom"              : 0,
+    "TaskTo"                : 0,
+    "MaximumThread"         : 5,
+    "ReaverTasks"           : 10000,
+    "EnableRawIdQuery"      : false, // 'True' to open the MutualIndexFile.
+    "MutualIndexFile"       : "index_list.json5",
+
+    "FromDeathPoint"        : true,
+    "Metier"                : "Stalker", // Reaver(To loot), Stalker(To search index), Embezzler(To profile and store spoils)
+
+    "FailureConf"           : {
+      "FailedFileSize"         : 2000,
+      "FileRetrieveTime"       : 3        // 1 for no retrieve retrying.
+    },
+
+    "ExParentHeist"         : "",
+
+    "Children"              : {
+
+    },
+
+    "Orchestration"         : {
+      "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+      "ServgramScopes": [
+      ],
+
+      "Transactions": [
+      ]
+    }
+  },
+
+  "Heists"           : {
+    "Void"              : "${SystemConfRoot}/heists/Void.json5",
+
+    "Urukhai"           : "${SystemConfRoot}/heists/UrukhaiHeists.json5",
+
+    "Wikipedia"         : "${SystemConfRoot}/heists/Wikipedia.json5",
+
+    "IMDB"              : {
+      "HeistType"             : "Templated",
+      "HeistURL"             : "https://www.imdb.com",
+      "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\IMDB\\index\\",
+      "SpoilPath"             :  "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\IMDB\\Pages\\",
+      "FragBase"              : 10000,
+      "FragRange"             : 1000000,
+
+      "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\IMDB\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 11064506, // 11064506
+      "MaximumThread"         : 5,
+      "ReaverTasks"           : 1000,
+
+      "FromDeathPoint"        : true,
+      "Metier"                : "Stalker",
+
+      "IndexSniffer"          : {
+        "Type"                  : "NextPageBased",
+        "IndexApiHref"          : "/search/title/?release_date=1970-01-01,2023-01-01&count=250", // IMDB Only support Video since 1970. To update use last date.
+        "NextSelector"          : ".lister-page-next.next-page",
+        "NextPageKeyWord"       : "Next »"
+      }
+    },
+
+    "DouBan"            : "${SystemConfRoot}/heists/DouBan.json5",
+
+    "NeteaseMusic"      : "${SystemConfRoot}/heists/NeteaseMusic.json5",
+
+    "DownCC"            : "${SystemConfRoot}/heists/DownCC.json5",
+
+    "GeoNames"          : "${SystemConfRoot}/heists/GeoNames.json5",
+
+    "ArtStation"        : "${SystemConfRoot}/heists/ArtStation.json5",
+
+    "MobyGames"         : "${SystemConfRoot}/heists/MobyGames.json5",
+
+    "AZLyrics"          : {
+      "HeistType"             : "Templated",
+      "HeistURL"             : "https://www.azlyrics.com",
+      "IndexPath"             : "${OmniumFacility}\\Heist\\AZLyrics\\index\\",
+      "SpoilPath"             : "${OmniumFacility}\\Heist\\AZLyrics\\pages\\",
+      "WorkingPath"           : "${OmniumFacility}\\Sauron\\Heist\\AZLyrics\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 500000, // 2491995
+      "MaximumThread"         : 5,
+      "Metier"                : "Stalker",
+
+      "FailureConf"           : {
+        "FailedFileSize"         : 10000,
+        "FileRetrieveTime"       : 1        // 1 for no retrieve retrying.
+      },
+
+      "BrowserSimConf"        : {
+        "HeadConfigGroup"        : [
+          {
+            "MaxHTTPPackageSize"     : 1024,
+            "AgentName"              : "Mozilla/5.0",
+            "UserAgentHead"          : "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+          }
+        ],
+        "GroupConfusion"         : true,
+        "EnableRandomDelay"      : true,
+        "RandomDelayMin"         : 25000,
+        "RandomDelayMax"         : 30000
+      },
+
+      "IndexSniffer"          : {
+        "Type"                  : "NextPageBased",
+        "IndexApiHref"          : "/wiki/Special:AllPages",
+        "NextSelector"          : ".mw-allpages-nav",
+        "NextPageKeyWord"       : "Next page"
+      }
+    },
+
+    "LyricsTranslate"   : {
+      "HeistType"             : "Sophisticate",
+      "HeistURL"             : "https://lyricstranslate.com",
+      "IndexPath"             : "${OmniumFacility}\\Heist\\LyricsTranslate\\index\\",
+      "SpoilPath"             : "${OmniumKingpin0}/Sauron/Heist/LyricsTranslate/Pages/",
+      "FragBase"              : 10000,
+      "FragRange"             : 1000000,
+
+      "WorkingPath"           : "${OmniumFacility}\\Sauron\\Heist\\LyricsTranslate\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 2355032, //2355032
+      "MaximumThread"         : 10,
+      "ReaverTasks"           : 1000,
+      "MutualIndexFile"       : "MutualSongIndex.json5",
+
+      "FromDeathPoint"        : true,
+      //"Metier"                : "Stalker",
+      "Metier"                : "Reaver",
+
+      "ArtistsAPIHref"        : "/en/artists",
+      "IndexSniffer"          : {
+        "Type"                  : "NextPageBased",
+        "IndexApiHref"          : "",
+        "NextSelector"          : ".pager-next",
+        "NextPageKeyWord"       : "next",
+        // Defaulted
+        "StorageFmt"            : "index_${mutualId}.html",
+        "NextHrefFmt"           : "${DomainHref}${this}"
+      }
+    },
+
+    "LatinIsSimple"     : {
+      "HeistType"             : "Templated",
+      "HeistURL"             : "https://www.latin-is-simple.com",
+      "IndexPath"             : "${OmniumFacility}\\Heist\\LatinIsSimple\\index\\",
+      "SpoilPath"             : "${OmniumFacility}\\Heist\\LatinIsSimple\\Pages\\",
+      "FragBase"              : 1000,
+      "FragRange"             : 100000,
+
+      "WorkingPath"           : "${OmniumFacility}\\Sauron\\Heist\\LatinIsSimple\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 49980,
+      "MaximumThread"         : 5,
+      "ReaverTasks"           : 1000,
+
+      "FromDeathPoint"        : true,
+      "Metier"                : "Reaver",
+      //"Metier"                : "Stalker",
+      //"Metier"                : "Embezzler",
+      "CategoryIdxMap"        : [ "Nouns", "Verbs", "Adjectives", "Adverbs", "OtherWords", "Phrases" ],
+
+      "ArtistsAPIHref"        : "/en/artists",
+      "IndexSniffer"          : {
+        "Type"                  : "NextPageBased",
+        "IndexApiHref"          : "",
+        "NextSelector"          : ".pager-next",
+        "NextPageKeyWord"       : "next",
+        // Defaulted
+        "StorageFmt"            : "index_${mutualId}.html",
+        "NextHrefFmt"           : "${DomainHref}${this}"
+      }
+    },
+
+    "NewsChronicle"     : {
+      "HeistType"           : "Period",
+      "InfoTracer"          : "./Heist/Chronicle/News/info.log",
+      "ChronicPerAcc"       : 2, // Sec
+      "ChronicPeriods"      : [
+        [00, 00], [06, 00], [12, 00], [18, 00], [21, 00]
+      ],
+      "AjaxBasedNews"       : [
+        { "ObjectName": "JinRiTouTiaoTops", "Api": "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc" },
+        { "ObjectName": "BaiduIndex",  "Api": "https://index.baidu.com/Interface/homePage/wiseConfig" }
+      ]
+    }
+  },
+
+  "Components"       : {
+
+    "HttpBrowser"      : {
+      "HeadConfigGroup"        : [
+        {
+          "AgentName"              : "Mozilla/5.0",
+          "UserAgent"              : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+        },
+        {
+          "AgentName"              : "Baiduspider",
+          "UserAgent"              : "Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+        }
+      ],
+      "AgentConfusion"         : true,
+
+      "SystemProxy"            : {
+        "host": "127.0.0.1",
+        "port": 7890
+      },
+      "ProxyGroup"             : [
+        { "host": "127.0.0.1", "port": 7890 }
+      ],
+
+      //"ProxyStrategy"          : "NoProxy",
+      "ProxyStrategy"          : "SystemOnly",
+      //"ProxyStrategy"          : "ProxyGroup",
+      "EnableRandomDelay"      : false,
+      "RandomDelayMin"         : 9200,
+      "RandomDelayMax"         : 10500,
+      "SocketTimeout"          : 20000,
+
+      "Charset"                : "UTF-8"
+    }
+
+  }
+
+
+}

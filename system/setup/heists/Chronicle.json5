@@ -1,0 +1,107 @@
+{
+  "HeistType"                : "Period",
+
+  "ChronicPerAcc"            : 500, // ms
+  "ChronicPeriods"           : [
+    "00:00", "06:00", "12:00", "18:00", "21:00", "11:27"
+  ],
+
+  "PrimaryRDB"               : "MySQLKingData0",
+
+  "NewsDataTable"            : "nona_news_index_chronic",
+
+  "RaiderMarshaling"         : {
+    "DirectlyLoad" : {
+      "Prefix": [],
+      "Suffix": [ "Raider", "Clerk" ]
+    },
+
+    "RaiderScopes": []
+  },
+
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+
+  "Children"                  : {
+    "Newstron": {
+      "RaiderMarshaling"      : {
+        "UsingSedation"  : true,
+
+        "Raiders"        : {
+
+          "SimpleAjaxBased"      : {
+            "Tasks": [
+              { "ObjectName": "JinRiTouTiaoTops",  "Api": "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc" },
+              { "ObjectName": "BaiduIndex"      ,  "Api": "https://index.baidu.com/Interface/homePage/wiseConfig"          },
+              { "ObjectName": "WeiboHot"        ,  "Api": "https://weibo.com/ajax/side/hotSearch"                          },
+              { "ObjectName": "BaiduTiebaHot"   ,  "Api": "https://tieba.baidu.com/hottopic/browse/topicList"              }
+            ]
+          },
+
+          "Zhihu"                : {
+            "HotlineApi": "https://www.zhihu.com/api/v4/creators/rank/hot?domain=0",  //https://www.zhihu.com/api/v4/creators/rank/hot?domain=0&limit=20&offset=20&period=hour
+            "Global"    : {
+              "IndexFrom" : 0,
+              "IndexTo"   : 100,
+              "IndexStep" : 100
+            }
+          },
+
+          "Baidu"                : {
+            "TopHref": "https://top.baidu.com/board?tab=realtime"
+          },
+
+          "BaiduTieba"                   : {
+            "TopHref": "https://search.prod.di.api.cnn.io/content?q=&size=%d&from=0&page=1&sort=newest&request_id=%s"
+          },
+
+          "Google"                : {
+            "NewsHref": "https://www.google.com/search?q=news&source=lnms&tbm=nws&start=", "TopN": 5
+          },
+
+          "CNN"                   : {
+            "NewsHref": "https://search.prod.di.api.cnn.io/content?q=&size=%d&from=0&page=1&sort=newest&request_id=%s", "TopN": 50, "request_id": "pdx-search"
+          }
+
+        },
+
+        "MarshalingList" : [
+          "SimpleAjaxBased",
+          "Zhihu",
+          "Baidu",
+          "Google",
+          "CNN"
+        ]
+      },
+
+      "Orchestration"         : {
+        "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+        "Transactions": [
+          //{ "Name": "Jesus", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+        ]
+      },
+
+      "HttpBrowser"      : {
+      }
+    },
+
+    "ss": ""
+  },
+
+  "Orchestration"         : {
+    "Name": "ChronicleOrchestrator",
+    "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+    "Transactions": [
+      { "Name": "Newstron", "Type": "Parallel"  },
+      //{ "Name": "Newstron", "Type": "Parallel"  }
+    ]
+  },
+
+  "HttpBrowser"      : {
+  }
+}

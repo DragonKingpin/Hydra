@@ -1,0 +1,54 @@
+{
+  "HeistType"                : "Templated",
+  "HeistURL"                : "https://www.douban.com",
+  "HeistTopicName"           : "book",//"music", // Null using id-index.
+  "IndexPath"                : "${OmniumKingpin0}/Sauron/Heist/DouBan/index/",
+  "SpoilPath"                : "${OmniumKingpin0}/Sauron/Heist/DouBan/Pages/",
+  //"SpoilPath"                : "${OmniumKingStream0}/Sauron/Heist/DouBan/Pages/",
+
+  "WorkingPath"              : "${ARBOmnium}/Sauron/Heist/DouBan/",
+  "TaskFrom"                 : 4900000,
+  "TaskTo"                   : 5811459, //1002823, // book 5811459 ilmen 38091 location 37372 movie 7131301 music 1002823 www 420893077 8700 435014842
+  //"TaskFrom"                 : 0,
+  //"TaskTo"                   : 100, //1002823, // book 5811459 ilmen 38091 location 37372 movie 7131301 music 1002823 www 420893077 8700 435014842
+  "MaximumThread"            : 1, // Do not too fast, fuck douban !
+  "ReaverTasks"              : 1000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 14000,
+    "FileRetrieveTime"         : 1
+  },
+  "FromDeathPoint"           : true,
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "BrowserSimConf"        : {
+    "HeadConfigGroup"        : [
+      //                {
+      //                  "MaxHTTPPackageSize"     : 1024,
+      //                  "AgentName"              : "Mozilla/5.0",
+      //                  "UserAgentHead"          : "User-Agent: Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+      //                },
+      {
+        "MaxHTTPPackageSize"     : 1024,
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgentHead"          : "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+      }
+    ],
+    "GroupConfusion"         : true,
+    "EnableRandomDelay"      : true,
+    "RandomDelayMin"         : 9200,
+    "RandomDelayMax"         : 10500
+  },
+
+  "EdgeGuerrillaHeist"    : {
+    "EnableGuerrilla"        : false,
+    "KingpinHost"            : "127.0.0.1",
+    "KingpinPort"            : 9901
+  },
+
+  "SitemapApiHref"           : "sitemap_index.xml",
+  "MapIndexPath"             : "${OmniumFacility}/Heist/DouBan/",
+  "UsingBuffIdxQuery"        : true,
+  "BuffIdxQuerySize"         : 10000,   // -1 for SELECT ALL.
+}

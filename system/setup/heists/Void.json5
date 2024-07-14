@@ -1,0 +1,111 @@
+{
+  "HeistType"                : "Templated",
+  "HeistURL"                 : "https://pubchem.ncbi.nlm.nih.gov",
+  //"WorkingMode"              : "", // Exhaust all possible inlet pages (Artist pages as inlet)
+
+  "IndexPath"                : "${OmniumKingpin0}/ARBOmnium/EnderChest/Kingpin0/Sauron/Heist/PubChem/index/",
+  "SpoilPath"                : "${OmniumKingpin0}/ARBOmnium/EnderChest/Kingpin0/Sauron/Heist/PubChem/pages/",
+
+  "WorkingPath"              : "\\\\b-serverkingpin/ARBOmnium/EnderChest/ARBOmnium/Sauron/Heist/PubChem/",
+
+  "TaskFrom"                 : 0,
+  "TaskTo"                   : 1,
+  "MaximumThread"            : 5,
+  "FragBase"                 : 10000,
+  "FragRange"                : 1000000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 1000,
+    "FileRetrieveTime"         : 1,
+  },
+
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "Children"                  : {
+    "Jesus": {
+      "IndexPath"                : "Hello hi, I am Jesucristo",
+      "parentk"                  : "${super.k}",
+      "TaskFrom"                 : 777,
+      "TaskTo"                   : 778,
+
+      "Orchestration"         : {
+        "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+        "Transactions": [
+          //{ "Name": "Jesus", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+        ]
+      },
+
+      "HttpBrowser"      : {
+        "Charset"                : "UTF-10"
+      }
+    },
+
+    "Satan": {
+      "IndexPath"                : "Hello hi, I am Satanas",
+      "TaskFrom"                 : 666,
+      "TaskTo"                   : 667,
+    },
+
+    "Rick": {
+      "IndexPath"                : "Hello hi, I am Rick",
+      "TaskFrom"                 : 137,
+      "TaskTo"                   : 138,
+
+      "Children"                  : {
+        "Sauron": {
+          "IndexPath"                : "Hello hi, I am Sauron",
+          "TaskFrom"                 : 999,
+          "TaskTo"                   : 1000,
+        },
+        "Cthulhu": {
+          "IndexPath"                : "Hello hi, I am Cthulhu",
+          "TaskFrom"                 : 1024,
+          "TaskTo"                   : 1025,
+        },
+        "Absolute": {
+          "IndexPath"                : "Hello hi, I am Elder Brain",
+          "TaskFrom"                 : 2048,
+          "TaskTo"                   : 2049,
+        }
+      },
+
+      "Orchestration"         : {
+        "Type": "Parallel",
+
+        "Transactions": [
+          { "Name": "Sauron", "Type": "Sequential"  },
+
+          {
+            "Name": "Child" , "Type": "ParallelActions", "Transactions": [
+            { "Name": "Cthulhu", "Type": "Parallel"  },
+            { "Name": "Absolute", "Type": "Parallel"  }
+            ]
+          },
+
+        ]
+      }
+    }
+  },
+
+  "Orchestration"         : {
+    "Name": "VoidOrchestrator",
+    "Type": "Parallel", // Enum: { Sequential, Parallel, Loop }
+
+    "Transactions": [
+      /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/
+      { "Name": "Jesus", "Type": "Sequential"  },
+      { "Name": "Satan", "Type": "Sequential"  },
+      { "Name": "Rick" , "Type": "Sequential"  }
+    ]
+  },
+
+  "HttpBrowser"      : {
+    "RandomDelayMin"         : 7418,
+
+    "Charset"                : "UTF-9"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "Engine"            : "com.sauron.radium.messagron.Messagron",
+  "Enable"            : true,
+  "ExpressFactory"    : "com.pinecone.framework.util.lang.GenericDynamicFactory",
+
+  "Expresses"         : {
+    "WolfMCExpress": {
+      "Engine": "com.pinecone.hydra.messagram.WolfMCExpress"
+    }
+  }
+}

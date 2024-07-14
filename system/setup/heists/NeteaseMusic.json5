@@ -1,0 +1,48 @@
+{
+  "HeistType"                : "Templated",
+  "HeistURL"                : "https://music.163.com",
+  //"WorkingMode"              : "", // Exhaust all possible inlet pages (Artist pages as inlet)
+  "SubPathNode"              : "Pages/",
+
+  "WorkingMode"              : "Expansion",
+  //"SubPathNode"              : "${this.WorkingMode}/",
+  "IndexPath"                : "${OmniumKingpin0}/Sauron/Heist/NeteaseMusic/index/",
+  //"SpoilPath"                : "I:/Sauron/Heist/NeteaseMusic/${this.SubPathNode}",
+  "SpoilPath"                : "${OmniumKingpin0}/Sauron/Heist/NeteaseMusic/Pages/",
+
+  "WorkingPath"              : "${ARBOmnium}/Sauron/Heist/NeteaseMusic/",
+  "TaskFrom"                 : 1000000,    // 1872 -> Due to the range of Netease is indefinite, this record is the min inlet point.
+  "TaskTo"                   : 10000000, // 13959689 !!! -> Exhaustion methodology to exhaust all possible artists, this record is an overestimated compact upper bound.
+  "MaximumThread"            : 4,
+  "ReaverTasks"              : 1000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 14000, // For Netease abort this validates metric, but use key-word to validate.
+    "FileRetrieveTime"         : 1
+  },
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "BrowserSimConf"        : {
+    "HeadConfigGroup"        : [
+      {
+        "MaxHTTPPackageSize"     : 64,
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgentHead"          : "User-Agent: Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+      },
+      {
+        "MaxHTTPPackageSize"     : 64,
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgentHead"          : "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+      }
+    ],
+    "GroupConfusion"         : true,
+    "EnableRandomDelay"      : false,
+    "RandomDelayMin"         : 9200,
+    "RandomDelayMax"         : 10500,
+
+    "CompressHTTPCon"        : false, // Only read compressed stream-content, but will disable persistent-connection.
+  }
+}

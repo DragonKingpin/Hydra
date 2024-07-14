@@ -1,0 +1,145 @@
+/**
+  Bean Nuts Hazelnut Sauron Nonabyte(Nonaron) Heistum-Urukhai-heists Model Configs
+  Templated Reprogrammable Auto-Crawler Sub-system
+
+  [ ReaverSystem ->override<Extended>-> OrcsSystem ]
+  Nomenclature:
+    for those Explicit-Index or Explicit-Inlet-Terminator naming with corporeal-fantasy-figure.
+    [ Troll, Orc, Ghoul, Hellhound ]
+
+    for those Conundrum-Index or Conundrum-Inlet-Terminator naming with incorporeal-fantasy-figure.
+    [ Wraith, Ghast ]
+  this->Archetypes: {
+    "Troll"     => [SimpletonIndex] DOM-Page-Index-Based Auto-Massive-Crawler [DataUnitRange: 1 GB ~ 1 TB],
+    "Orc"       => [SimpletonIndex] Sitemap-Index-Based Auto-Massive-Crawler [DataUnitRange: 1 GB ~ 1 TB],
+    "Ghoul"     => [SavageSniffer ] Recursive Whole-Site-Links-Parse Savage-Sniffer-Crawler [DataUnitRange: 100 GB ≤],
+    "Cerberus"  => [PursuitSniffer] Full-Text-Index-Based Pursuit-Sniffer-Crawler [DataUnitRange: Unlimited]
+  }
+
+  Templated:
+  this->Archetypes: [
+    DictionaryWebsites, WikiLikesWebsites, MovieWebsites, NewsWebsites
+  ]
+**/
+
+{
+  "HeistType"             : "Templated",
+  //"HeistURL"             : "",  // @Override
+  "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\Urukhai\\index\\",
+  "SpoilPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\MegaH\\Sauron\\Urukhai\\pages\\",
+  "FragBase"              : 10000,
+  "FragRange"             : 1000000,
+
+  "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\Urukhai\\",
+  "InfoTracer"            : "heistInfo.log",
+  "ErrTracer"             : "heistErr.log",
+  "SysTracer"             : "heistSys.log",
+  "DyingMsgFile"          : "dyingMsg.json5",  // Enable full-status tombstone dying msg. Empty string to close.
+  "TaskFrom"              : 0,
+  "TaskTo"                : 1000000, // 16906325
+  "MaximumThread"         : 5,
+  "ReaverTasks"           : 10000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 2000,
+    "FileRetrieveTime"         : 3
+  },
+  "FromDeathPoint"        : true,
+  "Metier"                : "Reaver",
+  "SnifferMode"           : "IndexSniffer",
+
+  "IndexSniffer"          : {
+    "Type"                  : "NextPageBased",
+    "IndexApiHref"          : "wiki/Special:AllPages",
+    "NextPageClassName"     : ".mw-allpages-nav",
+    "NextPageKeyWord"       : "Next page",
+    // Defaulted
+    "StorageFmt"            : "index_${id}.html",
+    "NextHrefFmt"           : "${DomainHref}${this}"
+  },
+  /*"IndexSniffer"          : {
+    "Type"                  : "DOMPageIdBased",
+    "IndexApiHref"          : "wiki/Special:AllPages",
+    "PageIdFrom"            : 0,
+    "PageIdTo"              : 10000,
+  },*/
+  /*"IndexSniffer"          : {
+    "Type"                  : "SitemapBased",
+    "SitemapApiHref"        : "sitemap_index.xml",
+    "MapIndexPath"          : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\DouBan\\"
+  },*/
+
+
+  "ExtendMode"            : "Instance",
+  //"InstanceExtend"        : "WikipediaCN",
+  "InstanceExtend"        : "LatinIsSimple",
+  //"InstanceExtend"        : "AZLyrics",
+  "Children"               : {
+    "LatinIsSimple"  : {
+      "HeistURL"             : "https://www.latin-is-simple.com",
+      "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\LatinIsSimple\\index\\",
+      "SpoilPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\LatinIsSimple\\pages\\",
+      "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\LatinIsSimple\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 500000, // 2491995
+      "MaximumThread"         : 5,
+      "ReaverTasks"           : 10000,
+      "Metier"                : "Embezzler", //"Stalker",
+      "SnifferMode"           : "GraphCerberus",
+
+      "IndexSniffer"          : {
+        "IndexApiHref"          : "/en/vocabulary/noun/",
+        "NextSelector"          : ".next",
+        "NextPageKeyWord"       : "Next",
+        "NextHrefFmt"           : "${DomainHref}${IndexApiHref}${this}"
+      },
+
+      "GraphCerberus"         : {
+        "DomainHref"            : "https://www.latin-is-simple.com",
+        "DirectionPath"         : [
+          {
+            "StratumName"    : "MajorStratum",
+            "SiblingLayers"  : [
+              {
+                "LayerName"             : "EnumAllTypeWords",
+                "DomainHref"            : "https://www.latin-is-simple.com",
+                "IndexMajorHref"        : "/en/vocabulary/",
+                "LayerType"             : "SnifferLayer",
+                "StoragePathFmt"        : "",
+                "NextHrefFmt"           : "https:${this}",
+                "NextLayerSelector"     : "section:nth-child(7) p:nth-child(2) a",
+                "NextLayerFetchType"    : "BFS",
+                "NextLayers"            : {
+                  "LayerName"             : "FetchStorageLayer",
+                  "DomainHref"            : "https://www.latin-is-simple.com",
+                  "IndexMajorHref"        : "",
+                  "LayerType"             : "FetchStorageLayer",
+                  "CategoryIdxMap"        : [ "Nouns", "Verbs", "Adjectives", "Adverbs", "OtherWords", "Phrases", "Groups" ],
+                  "StoragePathFmt"        : "${parent.IndexPath}${LayerID}_${this.CategoryIdxMap[LayerID]}/${PageID}.html",
+                  "NextHrefFmt"           : "${DomainHref}${IterMajorHref}${this}",
+                  "NextHrefKeyWord"       : "Next",
+                  "NextLayerSelector"     : ".next a",
+                  "NextLayerFetchType"    : "ChainIterUntil",
+                  "NextLayers"            : null
+                }
+              }
+            ]
+          }
+        ]
+
+      },
+
+      "DOMCentaur"            : {
+        "Templated": [
+          [{ // Make array
+            "WordGroup"     : [ "$primary td:nth-child(1)" ],
+            "EnglishGroup"  : [ "$array td:nth-child(1)"   ]
+          }],
+        ]
+      }
+
+
+    }
+
+  }
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>Saurons</artifactId>
+        <groupId>com.saurons</groupId>
+        <version>1.2.7</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.saurons.shadow</groupId>
+    <artifactId>Shadow</artifactId>
+    <version>1.2.7</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.pinecone</groupId>
+            <artifactId>Pinecone</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra</groupId>
+            <artifactId>Hydra</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.slime</groupId>
+            <artifactId>Slime</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.ulf</groupId>
+            <artifactId>Ulfhedinn</artifactId>
+            <version>1.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sauron.radium</groupId>
+            <artifactId>Radium</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

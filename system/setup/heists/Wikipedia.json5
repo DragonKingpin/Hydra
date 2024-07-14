@@ -1,0 +1,101 @@
+{
+  "HeistType"             : "Templated",
+  "HeistURL"             : "https://en.wikipedia.org",
+  "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\Wiki\\index\\",
+  "SpoilPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\MegaH\\Sauron\\Wiki\\Pages\\", //"Z:\\ARBFacility\\Wiki\\Pages\\",
+  "FragBase"              : 10000,
+  "FragRange"             : 1000000,
+
+  "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\Wiki\\",
+  "TaskFrom"              : 0,
+  "TaskTo"                : 1000000, // 16906325
+  "MaximumThread"         : 5,
+  "ReaverTasks"           : 10000,
+
+  "FromDeathPoint"        : true,
+  "Metier"                : "Reaver",
+
+  "IndexSniffer"          : {
+    "Type"                  : "NextPageBased",
+    "IndexApiHref"          : "/wiki/Special:AllPages",
+    "NextSelector"          : ".mw-allpages-nav",
+    "NextPageKeyWord"       : "Next page"
+  },
+
+  "ExtendMode"            : "Instance",
+  //"InstanceExtend"        : "WikipediaCN",
+  //"InstanceExtend"        : "YiXueCom",
+  "InstanceExtend"        : "Wiktionary",
+  //"InstanceExtend"        : "Wikipedia",
+  "Children"               : {
+    "Wikipedia"    : {
+      "Metier"                : "Embezzler"
+    },
+    "WikipediaCN"  : {
+      "HeistURL"             : "https://zh.wikipedia.org",
+      "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\WikiCN\\index\\",
+      "SpoilPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Kingpin0\\Sauron\\Heist\\WikiCN\\pages\\",
+      "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\WikiCN\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 500000, // 2491995
+      "MaximumThread"         : 5,
+      "ReaverTasks"           : 10000,
+      "Metier"                : "Reaver",
+
+      "IndexSniffer"          : {
+        "IndexApiHref"          : "/wiki/Special:%E6%89%80%E6%9C%89%E9%A1%B5%E9%9D%A2",
+        "NextSelector"          : ".mw-allpages-nav",
+        "NextPageKeyWord"       : "下一页"
+      }
+    },
+    "Wiktionary"   : {
+      "HeistURL"             : "https://en.wiktionary.org",
+      "IndexPath"             : "${OmniumKingStream0}\\Sauron\\Heist\\Wiktionary\\index\\",
+      "SpoilPath"             : "${OmniumKingStream0}\\Sauron\\Heist\\Wiktionary\\pages\\",
+      "WorkingPath"           : "${OmniumFacility}\\Sauron\\Heist\\Wiktionary\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 7268746, // 2491995
+      "MaximumThread"         : 8,
+      "ReaverTasks"           : 1000000,
+      //"SQLPath"               : "${OmniumKingpin0}\\Sauron\\Heist\\",
+      "SQLPath"               : "${OmniumFacility}\\SQLs/",
+      //"SQLPath"               : "E:\\",
+
+      "Metier"                : "Embezzler",
+      //"Metier"                : "Reaver",
+      "WordTypeProperties"    : {
+        "Noun": "Noun", "Proper noun": "ProperNoun", "Adjective": "Adjective", "Adverb": "Adverb", "Verb": "Verb", "Conjugation": "Conjugation", "Interjection": "Interjection",
+        "Article": "Article", "Preposition": "Preposition", "Abbreviations": "Abbreviations", "Abbreviation": "Abbreviation", "Determiner": "Determiner", "Particle": "Particle",
+        "Letter": "Letter", "Pronoun": "Pronoun", "Auxiliary": "Auxiliary", "Contraction": "Contraction", "Numeral": "Numeral",
+        "Proverb": "Proverb", "Participle": "Participle", "Conjunction": "Conjunction", "Phrase": "Phrase", "Number": "Number",
+        "Postposition": "PostPosition", "Symbol": "Symbol", "Suffix": "Suffix", "Root": "Root", "Prefix": "Prefix", "Han character": "HanCharacter",
+        "Decimal fractions": "DecimalFractions", "Affix": "Affix","Stem": "Stem", "Preverb": "Preverb", "Infix": "Infix","Interfix": "Interfix", "Romanization": "Romanization",
+        "Proverbs": "Proverbs", "Abstract nouns": "AbstractNouns", "Concrete nouns": "ConcreteNouns"
+      },
+
+
+      "IndexSniffer"          : {
+        "IndexApiHref"          : "/wiki/Special:AllPages",
+        "NextSelector"          : ".mw-allpages-nav",
+        "NextPageKeyWord"       : "Next page"
+      }
+    },
+    "YiXueCom"     : {
+      "HeistURL"             : "https://www.yixue.com",
+      "IndexPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\YiXueCom\\index\\",
+      "SpoilPath"             : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Heist\\YiXueCom\\Pages\\",
+      "WorkingPath"           : "\\\\B-SERVERKINGPIN\\ARBOmnium\\EnderChest\\Facility\\Sauron\\Heist\\YiXueCom\\",
+      "TaskFrom"              : 0,
+      "TaskTo"                : 500000,
+      "MaximumThread"         : 5,
+      "ReaverTasks"           : 10000,
+      "Metier"                : "Stalker",
+
+      "IndexSniffer"          : {
+        "IndexApiHref"          : "/%E7%89%B9%E6%AE%8A:%E6%89%80%E6%9C%89%E9%A1%B5%E9%9D%A2",
+        "NextSelector"          : ".mw-allpages-nav",
+        "NextPageKeyWord"       : "下一页"
+      }
+    }
+  }
+}

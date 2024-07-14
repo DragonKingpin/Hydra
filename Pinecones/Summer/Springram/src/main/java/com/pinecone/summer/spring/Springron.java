@@ -1,0 +1,106 @@
+package com.pinecone.summer.spring;
+
+import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.hydra.servgram.ArchServgramium;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.concurrent.TimeoutException;
+
+public class Springron extends ArchServgramium implements Springram {
+    protected String[]                 mSpringbootArgs;
+    protected Thread                   mSpringPrimaryThread;
+    protected SpringKernel             mSpringKernel;
+
+    public Springron( String szName, Processum parent, String[] springbootArgs ) {
+        super( szName, parent );
+        this.mSpringbootArgs      = springbootArgs;
+        this.mSpringKernel        = new SpringKernel();
+
+        this.mSpringPrimaryThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Springron.this.infoLifecycle( "VitalizingSubsystem", "Start" );
+                Springron.this.mSpringKernel.execute( Springron.this.mSpringbootArgs );
+                Springron.this.infoLifecycle( "VitalizingSubsystem", "Subsystem readied" );
+                while ( Springron.this.mSpringKernel.getContext().isActive() ) {
+                    try {
+                        Thread.sleep( 100 );
+                    }
+                    catch ( InterruptedException e ) {
+                        Springron.this.mSpringKernel.terminate();
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+
+                Springron.this.infoLifecycle( "SubsystemTermination", "Subsystem terminated" );
+            }
+        });
+
+        this.mSpringPrimaryThread.setName( this.getName() + "Primary" + this.mSpringPrimaryThread.getName() );
+        this.setThreadAffinity( this.mSpringPrimaryThread );
+    }
+
+    public Springron( String szName, Processum parent ) {
+        this( szName, parent, new String[0] );
+    }
+
+
+    @Override
+    public void join() throws InterruptedException {
+        this.mSpringPrimaryThread.join();
+    }
+
+    @Override
+    public void join( long millis ) throws InterruptedException {
+        this.mSpringPrimaryThread.join( millis );
+    }
+
+    @Override
+    public void execute() throws Exception {
+        this.mSpringPrimaryThread.start();
+    }
+
+    @Override
+    public ConfigurableApplicationContext getContext() {
+        return this.mSpringKernel.getContext();
+    }
+
+    @Override
+    public void terminate() {
+        this.mSpringKernel.terminate();
+
+        long nStart = System.currentTimeMillis();
+        try{
+            while ( this.mSpringKernel.getContext().isActive() ){
+                Thread.sleep( 50 );
+                if( System.currentTimeMillis() - nStart > 5000 ) {
+                    throw new TimeoutException( "Terminating springboot timeout." );
+                }
+            }
+
+            this.mSpringPrimaryThread.join();
+        }
+        catch ( InterruptedException | TimeoutException e ) {
+            throw new ProxyProvokeHandleException( e );
+        }
+    }
+
+    @Override
+    public void interrupt() {
+        super.interrupt();
+    }
+
+    @Override
+    public void apoptosis() {
+        this.terminate();
+    }
+
+    @Override
+    public void kill() {
+        this.terminate();
+        super.kill();
+    }
+}

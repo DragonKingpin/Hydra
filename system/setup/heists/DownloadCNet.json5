@@ -1,0 +1,63 @@
+{
+  "HeistType"                : "Templated",
+  "HeistURL"                : "https://download.cnet.com",
+  //"WorkingMode"              : "", // Exhaust all possible inlet pages (Artist pages as inlet)
+
+  "IndexPath"                : "\\\\B-ServerPaladin/PaladinHive/EnderChest/Sauotion3/Sauron/Heist/DownloadCNet/index/",
+  "SpoilPath"                : "\\\\B-ServerPaladin/PaladinHive/EnderChest/Sauotion3/Sauron/Heist/DownloadCNet/pages/",
+
+  "WorkingPath"              : "\\\\b-serverkingpin/ARBOmnium/EnderChest/ARBOmnium/Sauron/Heist/DownloadCNet/",
+  "TaskFrom"                 : 0000000,
+  "TaskTo"                   : 1383854,
+  "MaximumThread"            : 5,
+  "FragBase"                 : 10000,
+  "FragRange"                : 1000000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 1000,
+    "FileRetrieveTime"         : 1
+  },
+
+  "HttpBrowser"              : {
+    "HeadConfigGroup"        : [
+      {
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgent"              : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+      },
+      {
+        "AgentName"              : "Baiduspider",
+        "UserAgent"              : "Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+      }
+    ],
+    "AgentConfusion"         : true,
+
+    "SystemProxy"            : {
+      "host": "127.0.0.1",
+      "port": 7890
+    },
+    "ProxyGroup"             : [
+      { "host": "127.0.0.1", "port": 7890 }
+    ],
+
+    //"ProxyStrategy"          : "NoProxy",
+    "ProxyStrategy"          : "SystemOnly",
+    //"ProxyStrategy"          : "ProxyGroup",
+    "EnableRandomDelay"      : false,
+    "RandomDelayMin"         : 1000,
+    "RandomDelayMax"         : 2000,
+    "SocketTimeout"          : 20000,
+
+    "Charset"                : "UTF-8"
+  },
+
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "SiteMaps": {
+   "products": {
+      "href": "https://download.cnet.com/sitemaps/products_index.xml"
+    },
+  }
+}

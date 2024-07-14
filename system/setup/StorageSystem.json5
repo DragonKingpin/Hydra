@@ -1,0 +1,41 @@
+{
+  "PathScope" : {
+
+    "Reinterpret": {
+      "ARBOmnium"          : "\\\\${SerKingpin}\\ARBOmnium",
+      "OmniumEnderChest"   : "${ARBOmnium}/EnderChest",
+      "OmniumFacility"     : "${OmniumEnderChest}/Facility",
+      "OmniumMegaH"        : "${OmniumEnderChest}/MegaH",
+      "OmniumKingpin0"     : "${OmniumEnderChest}/Kingpin0",
+      "OmniumKingStream0"  : "${OmniumEnderChest}/SauronL3Stream",
+
+      "PaladinHive"        : "\\\\${SerPaladinMT}\\PaladinHive",
+      "EnderPaladin"       : "${PaladinHive}/EnderChest",
+      "PalSauotion0"       : "${EnderPaladin}/Sauotion0",
+      "PalSauotion1"       : "${EnderPaladin}/Sauotion1",
+      "PalSaurmion2"       : "${EnderPaladin}/Saurmion2",
+      "PalSauotion3"       : "${EnderPaladin}/Sauotion3",
+      "PalSaurtion4"       : "${EnderPaladin}/Saurtion4",
+      "PalSauotion5"       : "${EnderPaladin}/Sauotion5",
+      "PalSauegaion0"      : "${EnderPaladin}/Sauegaion0",
+      "PalSauegaion1"      : "${EnderPaladin}/Sauegaion1",
+
+
+      "SystemConfRoot"     : "./system/setup"
+    },
+
+  },
+
+  "Protocols" : {
+    "files"  : { "Provide": "" }, // Default local filesystem.
+    "http"   : { "Provide": "org.apache.commons.vfs2.provider.http5.Http5FileProvider"  },
+    "https"  : { "Provide": "org.apache.commons.vfs2.provider.http5s.Http5sFileProvider" },
+    "smb"    : { "Provide": "" }, // Using windows.
+    "webdav" : { "Provide": "org.apache.commons.vfs2.provider.webdav.WebdavFileProvider" },
+    "hdfs"   : { "Provide": "" }, // TODO
+  },
+
+  "CacheStrategy" : "ON_CALL",
+  "FilesCache"    : "org.apache.commons.vfs2.cache.SoftRefFilesCache",
+
+}

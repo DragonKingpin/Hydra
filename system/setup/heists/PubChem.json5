@@ -1,0 +1,87 @@
+{
+  "HeistType"                : "Templated",
+  "HeistURL"                : "https://pubchem.ncbi.nlm.nih.gov",
+  //"WorkingMode"              : "", // Exhaust all possible inlet pages (Artist pages as inlet)
+
+  "IndexPath"                : "\\\\b-serverkingpin/ARBOmnium/EnderChest/Kingpin0/Sauron/Heist/PubChem/index/",
+  "SpoilPath"                : "\\\\B-ServerPaladin/PaladinHive/EnderChest/Sauotion4/Sauron/Heist/PubChem/pages/",
+
+  "WorkingPath"              : "\\\\b-serverkingpin/ARBOmnium/EnderChest/ARBOmnium/Sauron/Heist/PubChem/",
+  "TaskFrom"                 : 00111000,
+  "TaskTo"                   : 01000000, //20501203
+  "MaximumThread"            : 8,
+  "FragBase"                 : 10000,
+  "FragRange"                : 1000000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 1000,
+    "FileRetrieveTime"         : 1
+  },
+
+  "HttpBrowser"              : {
+    "HeadConfigGroup"        : [
+      {
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgent"              : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+      },
+      {
+        "AgentName"              : "Baiduspider",
+        "UserAgent"              : "Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+      }
+    ],
+    "AgentConfusion"         : true,
+
+    "SystemProxy"            : {
+      "host": "127.0.0.1",
+      "port": 7890
+    },
+    "ProxyGroup"             : [
+      { "host": "127.0.0.1", "port": 7890 }
+    ],
+
+    //"ProxyStrategy"          : "NoProxy",
+    "ProxyStrategy"          : "SystemOnly",
+    //"ProxyStrategy"          : "ProxyGroup",
+    "EnableRandomDelay"      : true,
+    "RandomDelayMin"         : 1000,
+    "RandomDelayMax"         : 2000,
+    "SocketTimeout"          : 20000,
+
+    "Charset"                : "UTF-8"
+  },
+
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "SiteMaps": {
+    annotation: {
+      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=annotation/sitemap_index.xml"
+    },
+//    "assay": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=assay/sitemap_index.xml"
+//    },
+////    "source": {
+////      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=source/sitemap.xml"
+////    },
+//    "gene": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=gene/sitemap_index.xml"
+//    },
+//    "protein": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=protein/sitemap_index.xml"
+//    },
+//    "patent": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=patent/sitemap_index.xml"
+//    },
+////    "concept": {
+////      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=concept/sitemap_1.xml"
+////    },
+//    "cell": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=cell/sitemap_index.xml"
+//    },
+//    "taxonomy": {
+//      "href": "https://pubchem.ncbi.nlm.nih.gov/sitemap/sitemap.cgi?p=taxonomy/sitemap_index.xml"
+//    }
+  }
+}

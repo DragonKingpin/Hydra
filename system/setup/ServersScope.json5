@@ -1,0 +1,64 @@
+{
+  "CentralCluster": {
+    "Kingpin": { // Intranet out-bound master
+      "Name"              : "BeanServerKingpin",
+      "NickName"          : "SerKingpin",
+      "LocalDomain"       : "B-ServerKingpin",
+      "WideDomain"        : "",
+      "Location"          : "LocalNetwork",
+      "Enable"            : true,
+      "Station"           : "Master",
+      "DevArchitecture"   : [ "CPU", "MEM", "SSD", "HDD" ]
+    },
+    "Paladin": [ // Intranet sub-net master
+      {
+        "Name"             : "BeanServerPaladinMasterTask",
+        "NickName"         : "SerPaladinMT",
+        "LocalDomain"      : "B-ServerPaladin",
+        "WideDomain"       : "",
+        "Location"         : "LocalNetwork",
+        "Enable"           : true,
+        "Station"          : "MasterTask",
+        "DevArchitecture"  : [ "CPU", "MEM", "SSD", "HDD" ]
+      },
+      {
+        "Name"             : "BeanServerPaladinMasterProcess",
+        "NickName"         : "SerPaladinMP",
+        "LocalDomain"      : "Bean-PC-PH317",
+        "WideDomain"       : "",
+        "Location"         : "LocalNetwork",
+        "Enable"           : true,
+        "Station"          : "MasterProcess",
+        "DevArchitecture"  : [ "CPU", "MEM", "GPU", "NVMe", "SSD" ]
+      }
+    ],
+    "Minion": [
+      {
+        "Name"             : "BeanServerNutRoot",
+        "NickName"         : "SerNutRoot",
+        "LocalDomain"      : "B-ServerNutRoot",
+        "WideDomain"       : "root.nutgit.com",
+        "Location"         : "WideNetwork",
+        "Enable"           : true,
+        "Station"          : "MasterOutBoundRouter",
+        "DevArchitecture"  : [ "NET" ]
+      },
+      {
+        "Name"             : "BeanServerNutNode1",
+        "NickName"         : "SerNutNode1",
+        "LocalDomain"      : "B-ServerNutNode1",
+        "WideDomain"       : "node1.nutgit.com",
+        "Location"         : "WideNetwork",
+        "Enable"           : true,
+        "Station"          : "AuxiliaryOutBoundRouter",
+        "DevArchitecture"  : [ "NET" ]
+      }
+    ],
+    "Slave": [
+
+    ]
+  },
+  "EdgeChains": {
+
+  }
+}

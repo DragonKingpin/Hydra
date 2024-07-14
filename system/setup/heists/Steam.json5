@@ -1,0 +1,66 @@
+{
+  "HeistArch"                : "Radium",
+  "HeistType"                : "Templated",
+  "HeistURL"                : "https://store.steampowered.com", //"https://store.steampowered.com/search/?ndl=1&ignore_preferences=1&page=",
+
+  //"WorkingMode"              : "", // Exhaust all possible inlet pages (Artist pages as inlet)
+
+  "IndexPath"                : "\\\\B-ServerPaladin/PaladinHive/EnderChest/Sauotion5/Sauron/Heist/Steam/inlet/index/",
+  "SpoilPath"                : "\\\\B-ServerPaladin/PaladinHive/EnderChest/Sauotion5/Sauron/Heist/Steam/inlet/pages/",
+
+  "WorkingPath"              : "\\\\b-serverkingpin/ARBOmnium/EnderChest/ARBOmnium/Sauron/Heist/Steam/",
+  "TaskFrom"                 : 0000000,
+  "TaskTo"                   : 0006169,
+  "MaximumThread"            : 8,
+  "FragBase"                 : 10000,
+  "FragRange"                : 1000000,
+
+  "FailureConf"              : {
+    "FailedFileSize"           : 1000,
+    "FileRetrieveTime"         : 1
+  },
+
+  "HttpBrowser"              : {
+    "HeadConfigGroup"        : [
+      {
+        "AgentName"              : "Mozilla/5.0",
+        "UserAgent"              : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.4750.0 Safari/537.36\n"
+      },
+      {
+        "AgentName"              : "Baiduspider",
+        "UserAgent"              : "Mozilla/5.0 (compatible; Baiduspider/2.0;+http://www.baidu.com/search/spider.html)\n"
+      }
+    ],
+    "AgentConfusion"         : true,
+
+    "SystemProxy"            : {
+      "host": "127.0.0.1",
+      "port": 7890
+    },
+    "ProxyGroup"             : [
+      { "host": "127.0.0.1", "port": 7890 }
+    ],
+
+    //"ProxyStrategy"          : "NoProxy",
+    "ProxyStrategy"          : "SystemOnly",
+    //"ProxyStrategy"          : "ProxyGroup",
+    "EnableRandomDelay"      : false,
+    "RandomDelayMin"         : 1000,
+    "RandomDelayMax"         : 2000,
+    "SocketTimeout"          : 20000,
+
+    "Charset"                : "UTF-8"
+  },
+
+  "FromDeathPoint"           : true,
+  //"Metier"                   : "Stalker",
+  "Metier"                   : "Reaver",
+  //"Metier"                   : "Embezzler",
+
+  "QueryCookie"              : "__cf_bm=ESNiAVu2p_Y6rt7WJ7vJ7y33tb127eCuyKzMP8Rm7oc-1687420936-0-Ac+moMROCH1X8OGPiE5dFWa+RHj2/FPNrWoFM/s02gXSOrvdxl/x5663yOEIvOgeWxGcFIpZT4fYrytMMCPcuTEbOWFXbbgRNOUr65juI3JH",
+
+  "ExtendMode"               : "Instance",
+  "InstanceExtend"           : "FetchInletList"
+}
+
+

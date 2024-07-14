@@ -1,0 +1,11 @@
+{
+  #extends 'super.obj',
+  so : &super.obj,
+
+  parentScope:{
+    keykey: "satan",
+  },
+
+  "key": 'self->key',
+  "utl": #"this->key: '${this.key}' ${ __scope__[ parentScope.keykey ] } fucks ${jesus} and ${key} so super harder | ${__root__}",
+}

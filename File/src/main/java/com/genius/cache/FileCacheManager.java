@@ -1,7 +1,6 @@
 package com.genius.cache;
 
-
-import com.genius.util.TimeUtil;
+import org.example.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

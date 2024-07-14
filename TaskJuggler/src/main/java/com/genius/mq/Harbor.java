@@ -1,10 +1,8 @@
 package com.genius.mq;
 
-import com.genius.common.Message;
-import com.genius.common.MessageType;
-import com.genius.config.SystemConfig;
-import com.genius.core.FunctionNamePool;
-import com.genius.core.MqPool;
+import com.genius.common.UlfUMC.*;
+import com.genius.pool.FunctionNamePool;
+import com.genius.pool.MqPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -30,34 +28,38 @@ public class Harbor {
     @Resource
     RabbitTemplate mqPublisher;
 
-    private BlockingDeque<Message> messageQueue = new LinkedBlockingDeque<>();
+    private BlockingDeque<UlfUMCMessage> messageQueue = new LinkedBlockingDeque<>();
 
     private Logger logger = LoggerFactory.getLogger("<Harbor>");
 
     public void stockWithGoods(String goodsName){
-        Message message = new Message();
 
-        message.setMethod(MessageType.QUERY);
-        message.setFunction(FunctionNamePool.QUERY_TASK_RANGE);
-        message.setData(Map.of(
-                "task", goodsName,
-                "serviceId",SystemConfig.ServiceId
-        ));
+        UlfUMCMessage message = MessageFactory.getMessageBuilder(MessageFactory.MessageBuilderType.SLAVE)
+                .method(UlfUMCMessageType.GET)
+                .func(FunctionNamePool.QUERY_TASK_RANGE)
+                .data(Map.of("task", goodsName)).build();
 
-        mqPublisher.convertAndSend(MqPool.MASTER_TASK_SEND_CENTER,message);
+
+        mqPublisher.convertAndSend(MqPool.MASTER_TASK_SEND_CENTER,UlfUMCMessage.encode(message));
     }
 
     //TODO need MQ confirm to optimize Message robustness
-    @RabbitListener(queues = "#{taskReplyQueue.name}")
-    private void getSpoilFromMaster(Message msg){
-        if(!Objects.isNull(msg)){
-            logger.info("Get instructions from the boss :{}",msg);
-            messageQueue.add(msg);
+    @RabbitListener(queues = "task.Nonaron-Kingpin-Prime.reply")
+    private void getSpoilFromMaster(byte[] data){
+        if(!Objects.isNull(data)){
+            try {
+                UlfUMCMessage msg = UlfUMCMessage.decode(data);
+                logger.info("Get instructations from the boss :{}",msg);
+                messageQueue.add(msg);
+            }catch (UlfUMCMessageException e){
+                ErrorMessageBuilder messageBuilder = (ErrorMessageBuilder) MessageFactory.getMessageBuilder(MessageFactory.MessageBuilderType.ERROR);
+                messageQueue.add(messageBuilder.error(e.getMessage()).build());
+            }
         }
     }
 
-    public Message getSpoil(String name) throws InterruptedException {
-        Message msg = messageQueue.poll(10L, TimeUnit.SECONDS);
+    public UlfUMCMessage getSpoil(String name) throws InterruptedException {
+        UlfUMCMessage msg = messageQueue.poll(2L, TimeUnit.SECONDS);
         if(msg == null){
             stockWithGoods(name);
             return null;

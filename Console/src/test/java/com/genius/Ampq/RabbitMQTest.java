@@ -1,11 +1,9 @@
 package com.genius.Ampq;
 
-import com.genius.common.Message;
-import com.genius.common.MessageType;
 import com.genius.config.SystemConfig;
 import com.genius.mq.Harbor;
-import com.genius.core.FunctionNamePool;
-import com.genius.core.MqPool;
+import com.genius.pool.FunctionNamePool;
+import com.genius.pool.MqPool;
 import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,20 +47,4 @@ public class RabbitMQTest {
         }
     }
 
-    @RabbitListener(queues=MqPool.MASTER_TASK_SEND_CENTER)
-    public void master(Object msg){
-        logger.info(msg.toString());
-
-        Message message = new Message();
-        message.setMethod(MessageType.REPLY);
-        message.setFunction(FunctionNamePool.QUERY_TASK_RANGE);
-        message.setData(Map.of("lowLimit",0,"upLimit",100));
-
-        rabbitTemplate.convertAndSend(MqPool.EXCHANGE_TOPIC_NONJRON_TASK,SystemConfig.ServiceId,message);
-    }
-
-    @Test
-    public void testSendMessage2SimpleQueue() {
-        harbor.stockWithGoods("douban");
-    }
 }

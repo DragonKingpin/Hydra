@@ -4,20 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.Sauron</groupId>
+    <groupId>com.sauron</groupId>
     <artifactId>Sauron</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2.7</version>
     <modules>
-        <module>TaskJuggler</module>
-        <module>Pinecone</module>
-        <module>Messenger</module>
-        <module>Console</module>
-        <module>File</module>
-        <module>Logger</module>
-        <module>Ulfhedinn</module>
-        <module>Nonjron</module>
-        <module>Saurye</module>
+        <module>Pinecones</module>
+        <module>Saurons</module>
+        <module>Walnuts</module>
+        <!--<module>TaskJuggler</module>-->
+        <!--<module>Messenger</module>-->
+        <!--<module>Console</module>-->
+        <!--<module>file</module>-->
+        <!--<module>Logger</module>-->
     </modules>
 
     <parent>
@@ -164,6 +163,5 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
-
     </dependencies>
 </project>

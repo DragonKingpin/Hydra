@@ -28,7 +28,7 @@ public class Heist implements Runnable{
         this.heistCenter = heistCenter;
         this.heistName = "Heist:"+this.hashCode();
         this.spoilSum = this.heistCenter.getSpoilNum() + this.heistCenter.getSpoilBase();
-        this.failureRetryTimes = this.heistCenter.getHeistConfig().getFailureRetryTimes();
+        this.failureRetryTimes = this.heistCenter.getProtoConfig().getFailureRetryTimes();
 
         logger = LoggerFactory.getLogger(SystemUtils.getLoggerFormatName(heistName));
     }

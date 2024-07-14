@@ -88,7 +88,7 @@ public class JsonFileUtil {
     * @param filePath 文件路径，应该为全路径
     * @param fileName 文件名
     * @param data 写入Json数据
-    * @return File
+    * @return file
      */
     public static File writeJsonFile(String filePath, String fileName, Map<String, Object> data) {
         return writeJsonFile(Paths.get(filePath, fileName).toString(), data);
@@ -98,7 +98,7 @@ public class JsonFileUtil {
      * 读取json文件
      * @param fullPath 文件路径，应该为全路径
      * @param data 写入Json数据
-     * @return File
+     * @return file
      */
     public static File writeJsonFile(String fullPath, Map<String, Object> data) {
        return writeJsonFile0(fullPath, JSON.toJSONString(data,true),true);
@@ -109,7 +109,7 @@ public class JsonFileUtil {
      * @param filePath 文件路径，应该为全路径
      * @param fileName 文件名
      * @param data 写入Json数据
-     * @return File
+     * @return file
      */
     public static <T> File writeJsonFileIsExist(String filePath, String fileName, T data) {
         return writeJsonFileIsExist(Paths.get(filePath, fileName).toString(), data);
@@ -119,7 +119,7 @@ public class JsonFileUtil {
      * 写入json文件,如果文件不存在则报错
      * @param fullPath 文件路径，应该为全路径
      * @param data 写入Json数据
-     * @return File
+     * @return file
      */
     public static <T> File writeJsonFileIsExist(String fullPath, T data) {
         return writeJsonFile0(fullPath, JSON.toJSONString(data,true),false);
@@ -130,7 +130,7 @@ public class JsonFileUtil {
      * @param filePath 文件路径，应该为全路径
      * @param fileName 文件名
      * @param obj 写入Json数据
-     * @return File
+     * @return file
      */
     public static <T> File writeJsonFile(String filePath, String fileName, T obj) {
         return writeJsonFile(Paths.get(filePath, fileName).toString(), obj);
@@ -140,7 +140,7 @@ public class JsonFileUtil {
      * 将Obj写入json文件
      * @param fullPath 文件路径，应该为全路径
      * @param obj 写入Json数据
-     * @return File
+     * @return file
      */
     public static <T> File writeJsonFile(String fullPath, T obj) {
         return writeJsonFile0(fullPath, JSON.toJSONString(obj,true),true);
@@ -151,7 +151,7 @@ public class JsonFileUtil {
      * @param fullPath 文件路径，应该为全路径
      * @param json  写入Json数据
      * @param autoCreate  是否自动创建文件
-     * @return  File
+     * @return  file
      */
     public static File writeJsonFile0(String fullPath, String json,boolean autoCreate) {
         Path dir = Paths.get(fullPath);
@@ -178,7 +178,7 @@ public class JsonFileUtil {
      * 写入大j对象到Json文件中
      * @param fullPath  文件路径，应该为全路径
      * @param data 写入Json数据
-     * @return File
+     * @return file
      */
     public static File writeBigJsonFile(String fullPath, Map<String, Object> data) {
         Path dir = Paths.get(fullPath);
@@ -215,7 +215,7 @@ public class JsonFileUtil {
      * 写入大j对象到Json文件中
      * @param fullPath  文件路径，应该为全路径
      * @param Objs 写入大对象的数组
-     * @return File
+     * @return file
      */
     public static <T> File writeBigJsonFile(String fullPath, List<T> Objs) {
         Path dir = Paths.get(fullPath);

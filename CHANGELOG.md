@@ -22,9 +22,15 @@
 
 ------
 # 目录
+* [V 1.0.1]()
 * [V 1.0.0]()
 ------
-
+## [V 1.0.0] - 2023.5.18
+### Messenger
+- ❌移除: `Message,MessageType`,移除所有的模块中与`Message`有关的代码
+- 🧹重构: 重构`Message`为`UlfUMCMessage`,构建了全新协议UlfUMC
+- 🎈新增: 新增`MessageBuilder,MessageFactory`用来构建专属的`UlfUMCMessage`类
+------
 ## [V 1.0.0] - 2023.5.13
 ### 🎈 TaskJuggler
 任务调度模块，主要负责节点的任务分配和处理
@@ -33,10 +39,10 @@
 - 🎈新增: 新增`HeistConfig` 作为整个`Heist`家族的配置类
 - 🎈新增: 新增`Harbor 港口` 与 Master节点通信的核心类，目前具备向master节点发送任务查询申请，任务缓存，`HeistCenter`任务获取
 - 🎈新增: 新增`MqConfig` 消息队列初始化
-### 🎈 Pinecone
+### 🎈 com.pinecone
 整个项目的核心公共代码所在地
 - 🎈新增: 新增`SystemConfig` 整个系统的配置类，可获取一些系统的全局变量
-- 🎈新增: 新增`NonjronConstPool` 项目的公共常量池，存放一些常量
+- 🎈新增: 新增`RadiumConstPool` 项目的公共常量池，存放一些常量
 - 🎈新增: 新增`SystemUtils` 系统工具类,定制一些独属于该系统的工具
 - 🎈🚧新增: 新增`TimeUtil` 时间工具 (不推荐使用)
 ### 🎈 Messenger
@@ -60,14 +66,3 @@
 - 🎈新增: 新增 `FileCacheManager` 文件缓冲池管理类，管理所有文件缓存池，轮询查看每个文件是否需要自动刷入，目前包含巡逻线程与刷入线程
 - 🎈新增: 新增 `FileCacheManagerInit` 用于启动初始化FileCacheManager
 ------
-## [V JHW.2.1] - 2023.5.18
-There must be 4 root-directories under the Saurons-dir:
-- Pinecone: Bean Nuts Pinecone Ursus for Java, The Java Runtime boost Framework.
-- Ulfhedinn: Bean Nuts Walnut Ulfhedinn Kernel Framework of Pinecone C/C++ for Java, for support ASM/OS boost.
-- Nonjron: Bean Nuts Hazelnut Sauron Nonabyte Java-Edition, the massive arch spider, Nona Java Sauron => Non,j,ron, (索伦大规模分布式爬虫系统)
-- Saurye: Bean Nuts Hazelnut Sauron Eyes, for apply the SauronGPT, Sauron PanGu. (索伦之眼，索伦盘古数据库和大模型查询系统)
-
-The whole project is founded on the Maven project.
-
-
-

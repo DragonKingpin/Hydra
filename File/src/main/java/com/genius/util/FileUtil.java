@@ -39,7 +39,7 @@ public class FileUtil {
      *
      * @param srcPath  源文件路径
      * @param destPath 目标文件路径
-     * @return File
+     * @return file
      */
     public static File copyFile(String srcPath, String destPath) {
         try (
@@ -112,7 +112,7 @@ public class FileUtil {
      * 递归删除
      *
      * @param path 文件路径
-     * @return File
+     * @return file
      */
     private static boolean deleteDirectory0(String path, FileCondition visit, FileCondition preVisit, FileCondition postVisit) throws IOException {
         Files.walkFileTree(Paths.get(path), new SimpleFileVisitor<Path>() {

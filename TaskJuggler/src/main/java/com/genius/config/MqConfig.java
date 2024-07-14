@@ -1,6 +1,6 @@
 package com.genius.config;
 
-import com.genius.core.MqPool;
+import com.genius.pool.MqPool;
 import org.springframework.amqp.core.*;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 @AutoConfigureAfter(SystemConfig.class)
 public class MqConfig {
 
+
+    public static final String TASK_REPLY= String.format("task.%s.reply",SystemConfig.ServiceId);
     @Bean
     public DirectExchange nonjronTaskDirectExchange(){
         return new DirectExchange(MqPool.EXCHANGE_TOPIC_NONJRON_TASK);
@@ -28,7 +30,7 @@ public class MqConfig {
 
     @Bean
     public Queue taskReplyQueue(){
-        return new Queue( String.format("task.%s.reply",SystemConfig.ServiceId));
+        return new Queue( "task.Nonaron-Kingpin-Prime.reply");
 
     }
 

@@ -23,7 +23,7 @@ spring:
     port: 13394 # 端口
     virtual-host: /wolf # 虚拟主机
     username: undefined # 用户名
-    password: wolf19140728 # 密码
+    password: wolf19310918 # 密码
 
 
 nonjron:
@@ -31,6 +31,10 @@ nonjron:
     config:
       serviceId: Nonaron-Kingpin-Prime
       minionName: Nonaron
+      tracer:
+        consoleTrace: true
+        infoTracer: "./system/logs/%s_SysTrace.log"
+        errTracer: "./system/logs/%s_SysError.log"
     components:
       heist:
         failure-retry-times: 3

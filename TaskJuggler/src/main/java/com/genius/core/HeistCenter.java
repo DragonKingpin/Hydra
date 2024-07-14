@@ -1,11 +1,11 @@
 package com.genius.core;
 
 import com.genius.common.Heist;
-import com.genius.common.Message;
-import com.genius.common.MessageType;
+import com.genius.common.UlfUMC.UlfUMCMessage;
 import com.genius.config.HeistConfig;
 import com.genius.config.SystemConfig;
 import com.genius.mq.Harbor;
+import com.genius.pool.FunctionNamePool;
 import com.genius.util.SystemUtils;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -69,22 +69,25 @@ public class HeistCenter {
         spoilsLock = new CountDownLatch(spoilNum+1);
         return true;
     }
+
     public void getSpoil(){
         //从港口获取任务数量
         try {
-            Message msg;
+            UlfUMCMessage msg;
 
             while((msg = harbor.getSpoil(heistConfig.getRobTaskName()))==null);
 
-            if(msg.getMethod().equals(MessageType.SHUTDOWN)){
+            if(msg.getFunction().equals(FunctionNamePool.SHUTDOWN)||msg.getFunction().equals(FunctionNamePool.ERROR)){
                 spoilNum = -1;
-            }else{
+            }
+            else{
                 int upLimit = Integer.parseInt(msg.getData().get("upLimit").toString());
                 int lowLimit = Integer.parseInt(msg.getData().get("lowLimit").toString());
                 spoilNum = upLimit-lowLimit;
                 spoilBase = lowLimit;
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             spoilNum = -1;
         }
     }
@@ -92,7 +95,7 @@ public class HeistCenter {
     public void start() throws InterruptedException {
         while (init()) {
             logger.info("{} Robbing {}[{}~{}]", SystemConfig.ServiceId,heistConfig.getRobTaskName(),spoilBase,spoilBase+spoilNum);
-            for (int i = 0; i < heistConfig.getHeistNum(); i++) {
+            for ( int i = 0; i < heistConfig.getHeistNum(); i++ ) {
                 heistPool.submit(new Heist(this));
             }
             this.spoilsLock.await();

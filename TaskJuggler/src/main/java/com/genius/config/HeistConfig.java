@@ -1,6 +1,6 @@
 package com.genius.config;
 
-import com.genius.constpool.NonjronConstPool;
+import com.genius.constpool.RadiumConstPool;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties(prefix = NonjronConstPool.CONFIG_COMPONENTS_PREFIX+"heist")
+@ConfigurationProperties(prefix = RadiumConstPool.CONFIG_COMPONENTS_PREFIX+"heist")
 public class HeistConfig {
 
     private Integer failureRetryTimes;

@@ -1,7 +1,6 @@
 package com.pinecone.hydra.messagram;
 
-import com.pinecone.hydra.system.component.Log4jTraceable;
-import com.pinecone.hydra.umc.msg.MessageNode;
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.express.Deliver;
 import com.pinecone.hydra.system.Hydrarum;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  *  [Server -> send message -> (out)] -> [(in) -> Messenger -> Express -> Deliver -> Messagelet ]
  *  *****************************************************************************************
  */
-public abstract class ArchMsgExpress implements MessageExpress, Log4jTraceable {
+public abstract class ArchMsgExpress implements MessageExpress, Slf4jTraceable {
     protected String        mszName      ;
     protected Hydrarum      mSystem      ;
     protected ArchMessagram mMessagram   ;

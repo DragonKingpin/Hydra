@@ -7,7 +7,7 @@ import com.pinecone.hydra.system.Hydrarum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GenericTracerScope extends ArchSystemCascadeComponent implements Log4jTracerScope {
+public class GenericTracerScope extends ArchSystemCascadeComponent implements Slf4jTracerScope {
     public GenericTracerScope(Namespace name, Hydrarum system, HyComponent parent ) {
         super( name, system, system.getComponentManager(), parent );
     }

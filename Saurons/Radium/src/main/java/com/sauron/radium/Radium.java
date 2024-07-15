@@ -2,11 +2,10 @@ package com.sauron.radium;
 
 import com.pinecone.hydra.Hydra;
 import com.pinecone.hydra.Hydradom;
-import com.pinecone.hydra.auto.ArchInstructation;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
 import com.pinecone.hydra.system.component.GenericTracerScope;
-import com.pinecone.hydra.system.component.Log4jTraceable;
-import com.pinecone.hydra.system.component.Log4jTracerScope;
+import com.pinecone.hydra.system.component.Slf4jTraceable;
+import com.pinecone.hydra.system.component.Slf4jTracerScope;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.sauron.radium.system.*;
 import com.pinecone.framework.unit.MultiScopeMap;
@@ -25,7 +24,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *  Bean Nuts Hazelnut Sauron Radium
@@ -37,7 +35,7 @@ import java.util.Set;
  *  *****************************************************************************************
  *  DragonKing.me of Harold
  */
-public class Radium extends Hydradom implements RadiumSystem, Log4jTraceable {
+public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Nonabyte Radium";
     public static final long    VER_PINE            =  202506L;
     public static final String  VERSION             = "2.1.0";
@@ -59,7 +57,7 @@ public class Radium extends Hydradom implements RadiumSystem, Log4jTraceable {
     protected DirectObjectInjector                 mObjectInjector           ;
     protected ServersScope                         mServersScope             ;
     protected StorageSystem                        mStorageSystem            ;
-    protected Log4jTracerScope                     mTracerScope              ;
+    protected Slf4jTracerScope mTracerScope              ;
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
     protected MiddlewareManager                    mMiddlewareManager        ;
@@ -67,7 +65,7 @@ public class Radium extends Hydradom implements RadiumSystem, Log4jTraceable {
 
     protected void prepare_system_log4j_logger() {
         this.mLogger = LoggerFactory.getLogger( this.className() + "<PrimarySystem>" );
-        this.pout().print( "[System] [TracerReassignment] <Transfer console -> Log4j>\n" );
+        this.pout().print( "[System] [TracerReassignment] <Transfer console -> Slf4j>\n" );
     }
 
     private void load_this_class_config() {
@@ -253,7 +251,7 @@ public class Radium extends Hydradom implements RadiumSystem, Log4jTraceable {
     }
 
     @Override
-    public Log4jTracerScope getTracerScope() {
+    public Slf4jTracerScope getTracerScope() {
         return this.mTracerScope;
     }
 

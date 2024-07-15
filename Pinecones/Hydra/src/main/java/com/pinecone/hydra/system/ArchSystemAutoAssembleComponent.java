@@ -6,10 +6,10 @@ import com.pinecone.framework.unit.affinity.RecursiveUnitOverrider;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
-import com.pinecone.hydra.system.component.Log4jTraceable;
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import org.slf4j.Logger;
 
-public class ArchSystemAutoAssembleComponent extends ArchSystemCascadeComponent implements Log4jTraceable {
+public class ArchSystemAutoAssembleComponent extends ArchSystemCascadeComponent implements Slf4jTraceable {
     protected Logger                             mLogger;
     protected ObjectOverrider<String, Object >   mObjectOverrider        ;
     protected DynamicFactory                     mUniformFactory         ;

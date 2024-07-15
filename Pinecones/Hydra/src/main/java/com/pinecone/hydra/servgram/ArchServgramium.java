@@ -4,16 +4,14 @@ import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.system.GenericMasterTaskManager;
 import com.pinecone.framework.system.executum.ArchProcessum;
 import com.pinecone.framework.system.executum.Processum;
-import com.genius.util.SystemUtils;
-import com.pinecone.hydra.system.component.Log4jTraceable;
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.pinecone.hydra.system.Hydrarum;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class ArchServgramium extends ArchProcessum implements Servgramium, Log4jTraceable {
+public abstract class ArchServgramium extends ArchProcessum implements Servgramium, Slf4jTraceable {
     protected Logger                 mLogger;
     protected String                 mszGramName;
 

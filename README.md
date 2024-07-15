@@ -16,7 +16,7 @@
         <img src="https://img.shields.io/badge/JDK-11+-green.svg" />
     </a>
    <a target="_blank" href='https://github.com/Geniusay/ChopperBot'>
-        <img src="https://img.shields.io/github/stars/DragonsPrime/Shadow.svg" alt="github stars"/>
+        <img src="https://img.shields.io/github/stars/DragonsPrime/Hydra.svg" alt="github stars"/>
    </a>
 
    <a target="_blank" href=''>

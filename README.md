@@ -1,6 +1,9 @@
 # Bean Nuts Acorn Hydra\<Beta V2.1\> (九头龙，分布式操作系统)
 <p align="center">
-  <strong>事务编排, 多域配置, 自定义线程进程模型, 任务管理器, 自定义文件系统, 抽象化部署模式和抽象云部署, 高性能RPC, 爬虫搜索引擎 </strong>
+  <strong>
+  事务编排, 多域配置, 自定义线程进程模型, 任务编排管理器, 自定义文件系统, 
+  抽象化部署模式和抽象云部署, 高性能RPC, 爬虫，搜索引擎，大数据处理，数据仓库，云计算
+   </strong>
 </p>
 
 <p align="center">
@@ -25,10 +28,12 @@
 </p>
 
 <p align='center'>
-  <b>简体中文</b> | <a href="https://omnis.nutgit.com">友情链接</a> 
+  <b>简体中文</b> | <a href="https://www.nutsky.com">友情链接</a> | <a href="https://www.dragonking.me">DragonKing</a> 
 </p>
 
 ## 📖 摘要 / 简介
+你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！\
+Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中，为你构造独一无二的的个人数仓，一切数据为所欲为！
 ### 什么是 Hydra，他能干嘛？
 Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级别云计算、数据仓库、多任务调度、MapReduce、通信、服务化、抽象化分布式操作系统。
 01. 支持统一高度抽象化的任务、事务、服务等编排，一套接口，可分级、可本地、可集群。

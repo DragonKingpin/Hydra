@@ -1,5 +1,34 @@
 # Bean Nuts Acorn Hydra\<Beta V2.1\> (九头龙，分布式操作系统)
-## 摘要 / 简介
+<p align="center">
+  <strong>事务编排, 多域配置, 自定义线程进程模型, 任务管理器, 自定义文件系统, 抽象化部署模式和抽象云部署, 高性能RPC, 爬虫搜索引擎 </strong>
+</p>
+
+<p align="center">
+  <a href="https://Geniusay.github.io/ChopperBot-Doc/">
+    <img src="https://img.shields.io/badge/文档-简体中文-blue.svg" alt="简体中文文档" />
+  </a>
+
+   <a href="https://github.com/Geniusay/ChopperBot/blob/master/CHANGELOG.md" >
+    <img src="https://img.shields.io/badge/ChangeLog-English-blue.svg" alt="Update Log" />
+  </a>
+
+   <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
+        <img src="https://img.shields.io/badge/JDK-11+-green.svg" />
+    </a>
+   <a target="_blank" href='https://github.com/Geniusay/ChopperBot'>
+        <img src="https://img.shields.io/github/stars/DragonsPrime/Shadow.svg" alt="github stars"/>
+   </a>
+
+   <a target="_blank" href=''>
+        <img src="https://img.shields.io/badge/Process-Developing-yellow" alt="github stars"/>
+   </a>
+</p>
+
+<p align='center'>
+  <b>简体中文</b> | <a href="https://omnis.nutgit.com">友情链接</a> 
+</p>
+
+## 📖 摘要 / 简介
 ### 什么是 Hydra，他能干嘛？
 Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级别云计算、数据仓库、多任务调度、MapReduce、通信、服务化、抽象化分布式操作系统。
 01. 支持统一高度抽象化的任务、事务、服务等编排，一套接口，可分级、可本地、可集群。
@@ -19,7 +48,7 @@ Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级�
 15. 无需担心抽象，无需担心"吹牛逼"，我们尽可能通过实际案例和有效代码，展示系统功能，也欢迎commit。——以实现小型爬虫搜索引擎为例。
 
 
-### 10万行源码，原创巨献
+### 🏆 10万行源码，原创巨献
 该仓库为Java 11实现版本（由C/C++版本重构），非GUI部分大部分不直接基于第三方框架。
 此外由于本项目工程量、复杂度和工作量较大，本人精力、能力有限，错误和功能完整性不足是不可避免的，还希望各位读者大佬批评指正。\
 其次已知Issue部分还有一定工作量，如项目Maven管理目前还不够完善、部分远端任务还未完全实现、C/C++味太重等。\
@@ -59,10 +88,10 @@ Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级�
 * [五、参考文献](#五参考文献)
 * [六、致谢](#六致谢)
 
-## 一、描述
+## 一、📝 描述
 ### 1.1、框架组成
 #### 1.1.1、Pinecone 基础运行支持库
-##### 1.1.1.1、扩展容器
+##### 1.1.1.1、 扩展容器
 1. LinkedTreeMap
 2. ScopeMap (多域查找树、Map), 实现和支持类似动态语言（如JS、PHP、Python等）的底层继承数据结构，支持两类子模型（单继承、多继承），
 可以实现多域查找的功能。
@@ -106,10 +135,10 @@ TODO
 
 
 
-## 四、使用许可
+## 四、🔬 使用许可
 - MIT (保留本许可后，可随意分发、修改，欢迎参与贡献)
 
-## 五、参考文献
+## 五、📚 参考文献
 (参考文献包括Nuts家族 C/C++、Java等子语言运行支持库、本项目框架、本项目等所有涉及的子项目的总参考文献、源码、设计、
 专利等相关资料。便于读者了解相关技术（设计）的源头和底层方法论，作者向相关参考项目（以及未直接列出项目）作者表示崇高敬意和感谢。)
 01. C/C++ STL (容器、运行支持库设计，算法、设计模式和数据结构)
@@ -126,3 +155,6 @@ TODO
 12. Python TensorFlow (Graph, how it orchestras)
 13. Javascript DOM 设计、CSS选择器等
 14. 其他若干个小框架、工具库、语言等（如Apache Commons、org.json、fastcgi、libevent等），本文表示崇高敬意和感谢。
+
+# 📈 项目活跃表
+![Alt](https://repobeats.axiom.co/api/embed/0ae23655bb105addf8d90a999df36f690d615af7.svg "Repobeats analytics image")

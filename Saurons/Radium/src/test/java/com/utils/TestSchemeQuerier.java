@@ -19,7 +19,6 @@ import com.pinecone.slime.jelly.source.redis.GenericRedisMasterManipulator;
 import com.pinecone.slime.map.LocalMapQuerier;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.*;
 
 import com.pinecone.slime.map.indexable.IndexableMapQuerier;

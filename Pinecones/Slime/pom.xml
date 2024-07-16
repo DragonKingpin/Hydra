@@ -13,9 +13,6 @@
     <artifactId>Slime</artifactId>
     <packaging>pom</packaging>
     <version>2.1.0</version>
-    <modules>
-        <module>Jelly</module>
-    </modules>
 
     <dependencies>
         <dependency>

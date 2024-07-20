@@ -1,0 +1,2 @@
+PATH=%PATH%D:\ProgramFiles\ToolChains\Java\jdk11x64\bin;
+START java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -jar ./Saurons/Shadow/target/shadow-1.2.7.jar --server.port=8000

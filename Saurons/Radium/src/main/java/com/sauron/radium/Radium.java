@@ -53,11 +53,13 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected boolean                              mMasterQuery;
     protected Logger                               mLogger;
 
+    protected Path                                 mPrimaryConfigPath        ;
+
 
     protected DirectObjectInjector                 mObjectInjector           ;
     protected ServersScope                         mServersScope             ;
     protected StorageSystem                        mStorageSystem            ;
-    protected Slf4jTracerScope mTracerScope              ;
+    protected Slf4jTracerScope                     mTracerScope              ;
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
     protected MiddlewareManager                    mMiddlewareManager        ;
@@ -116,11 +118,12 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
 
             args = map.get( "config" );
             if( args != null && args.length > 0 ) {
-                this.mjoGlobalConfig =  (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( Path.of( args[ 0 ] ).toFile() );
+                this.mPrimaryConfigPath = Path.of( args[ 0 ] );
             }
             else {
-                this.mjoGlobalConfig   = (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( this.getWorkingPath().resolve( Radium.MAIN_CONFIG_FILE ).toFile() );
+                this.mPrimaryConfigPath = this.getWorkingPath().resolve( Radium.MAIN_CONFIG_FILE );
             }
+            this.mjoGlobalConfig   = (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( this.mPrimaryConfigPath.toFile() );
         }
         catch ( IOException e ) {
             this.handleKillException( e );
@@ -175,6 +178,9 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
         this.console().echo( "ReleaseDate: " + Radium.RELEASE_DATE, "\n"   );
         this.console().echo( "ServiceID  : " + this.mServiceID, "\n"   );
         this.console().echo( "ServiceArch: " + this.mServiceHierarchy.getName(), "\n" );
+        this.console().echo( "RuntimePath: " + this.getRuntimePath(), "\n" );
+        this.console().echo( "ContextPath: " + this.getRuntimeContextPath(), "\n" );
+        this.console().echo( "PrimaryConf: " + this.mPrimaryConfigPath.toString(), "\n" );
         this.console().echo( "StartTime  : " + now.format( DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS") ), "\n"   );
         this.console().echo( "---------------------------------------------------------------\n" );
     }

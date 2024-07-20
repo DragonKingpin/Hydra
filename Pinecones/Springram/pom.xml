@@ -3,21 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>Summer</artifactId>
-        <groupId>com.pinecone.summer</groupId>
-        <version>2.1.0</version>
+        <artifactId>pinecones</artifactId>
+        <groupId>com.pinecones</groupId>
+        <version>2.5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pinecone.summer.springram</groupId>
-    <packaging>pom</packaging>
-    <artifactId>Springram</artifactId>
+    <artifactId>springram</artifactId>
     <version>2.1.0</version>
 
     <dependencies>
         <dependency>
             <groupId>com.pinecone.hydra</groupId>
-            <artifactId>Hydra</artifactId>
+            <artifactId>hydra</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

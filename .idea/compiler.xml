@@ -7,11 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="Hydra" />
         <module name="Jelly" />
         <module name="Pinecone" />
         <module name="Radium" />
         <module name="Saurye" />
         <module name="Shadow" />
+        <module name="Slime" />
+        <module name="Sparta" />
+        <module name="Springram" />
+        <module name="Summer" />
         <module name="Ulfhedinn" />
       </profile>
     </annotationProcessing>
@@ -45,6 +50,7 @@
       <module name="Saurye" options="-parameters" />
       <module name="Shadow" options="-parameters" />
       <module name="Slime" options="-parameters" />
+      <module name="Sparta" options="-parameters" />
       <module name="Springram" options="-parameters" />
       <module name="Summer" options="-parameters" />
       <module name="TaskJuggler" options="-parameters" />

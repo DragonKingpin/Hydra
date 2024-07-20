@@ -3,26 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>Slime</artifactId>
-        <groupId>com.pinecone.slime</groupId>
-        <version>2.1.0</version>
+        <artifactId>pinecones</artifactId>
+        <groupId>com.pinecones</groupId>
+        <version>2.5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pinecone.slime.jelly</groupId>
-    <artifactId>Jelly</artifactId>
+    <artifactId>jelly</artifactId>
     <version>2.1.0</version>
 
     <dependencies>
         <dependency>
             <groupId>com.pinecone.hydra</groupId>
-            <artifactId>Hydra</artifactId>
+            <artifactId>hydra</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.pinecone.slime</groupId>
-            <artifactId>Slime</artifactId>
+            <artifactId>slime</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

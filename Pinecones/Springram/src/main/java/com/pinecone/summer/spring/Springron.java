@@ -3,7 +3,6 @@ package com.pinecone.summer.spring;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.servgram.ArchServgramium;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.concurrent.TimeoutException;

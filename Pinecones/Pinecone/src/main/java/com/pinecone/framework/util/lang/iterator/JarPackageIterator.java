@@ -1,6 +1,7 @@
-package com.pinecone.framework.util.lang;
+package com.pinecone.framework.util.lang.iterator;
 
 import com.pinecone.framework.util.StringUtils;
+import com.pinecone.framework.util.lang.NamespaceCollector;
 
 import java.io.IOException;
 import java.util.NoSuchElementException;
@@ -17,6 +18,10 @@ public class JarPackageIterator extends JarClassIterator {
             JarEntry entry = this.mEntries.nextElement();
             String entryName = entry.getName();
             if ( entry.isDirectory() ) {
+                if( this.mClassesScopePath != null && entryName.startsWith( this.mClassesScopePath ) ) {
+                    entryName = entryName.replace( this.mClassesScopePath, "" );
+                }
+
                 if ( entryName.startsWith( this.mPackagePath ) ) {
                     String childSegment = entryName.substring( this.mPackagePath.length() );
                     if( StringUtils.countOccurrencesOf( childSegment, NamespaceCollector.RESOURCE_NAME_SEPARATOR, 3 ) > 2 ) {
@@ -41,6 +46,11 @@ public class JarPackageIterator extends JarClassIterator {
         }
 
         String entryName   = this.mCurrentEntry.getName();
+        if( this.mClassesScopePath != null ) {
+            if( entryName.startsWith( this.mClassesScopePath ) ) {
+                entryName = entryName.replace( this.mClassesScopePath, "" );
+            }
+        }
         String packageName = entryName.replace( NamespaceCollector.RESOURCE_NAME_SEPARATOR, NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR ).substring( 0, entryName.length() - 1 );
 
         this.skipEntries();

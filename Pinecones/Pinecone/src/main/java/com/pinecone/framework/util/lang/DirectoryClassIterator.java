@@ -1,5 +1,7 @@
 package com.pinecone.framework.util.lang;
 
+import com.pinecone.framework.util.lang.iterator.NamespaceIterator;
+
 import java.io.File;
 import java.util.NoSuchElementException;
 import java.util.Objects;

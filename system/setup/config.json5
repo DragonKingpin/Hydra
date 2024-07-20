@@ -115,7 +115,7 @@
             "Engine"              : "com.pinecone.hydra.umc.wolfmc.server.WolfMCServer",
             "MessageHandler"      : "WolfMCExpress",
             "IsRecipient"         : true,
-            "Enable"              : true
+            "Enable"              : false
           },
 
           "WolfMCKingpin"   : { // For RPC-Client

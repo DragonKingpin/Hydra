@@ -10,18 +10,19 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class FileUtils {
+public final class FileUtils {
     public static byte[] readByteAll( File pFile ) throws IOException {
         Long fileLength = pFile.length();
         byte[] fileContent = new byte[ fileLength.intValue() ];
 
-        FileInputStream fileInputStream = new FileInputStream(pFile);
-        int nRealReadied = fileInputStream.read(fileContent);
-        fileInputStream.close();
+        try ( FileInputStream fileInputStream = new FileInputStream(pFile) ){
+            int nRealReadied = fileInputStream.read(fileContent);
 
-        if ( nRealReadied != fileLength.intValue() ) {
-            throw new IOException( "Read all content failed !" );
+            if ( nRealReadied != fileLength.intValue() ) {
+                throw new IOException( "Read all content failed !" );
+            }
         }
+
         return fileContent;
     }
 

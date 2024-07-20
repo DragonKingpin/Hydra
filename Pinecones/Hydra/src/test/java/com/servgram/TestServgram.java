@@ -4,8 +4,10 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.lang.*;
+import com.pinecone.framework.util.lang.iterator.JarClassIterator;
+import com.pinecone.framework.util.lang.iterator.JarEntryIterator;
+import com.pinecone.framework.util.lang.iterator.NamespaceIterator;
 import com.pinecone.ulf.util.lang.PooledClassCandidateScanner;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +41,36 @@ public class TestServgram {
     }
 
     public static void testIterator() throws Exception {
-        //NamespaceIterator iterator = new DirectoryClassIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Hydra/target/classes/com/pinecone/hydra/umc/wolfmc", "com.pinecone.hydra.umc.wolfmc" );
-        //NamespaceIterator iterator = new DirectoryPackageIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Hydra/target/classes/com/pinecone/hydra/umc", "com.pinecone.hydra.umc" );
-        //NamespaceIterator iterator = new JarClassIterator( "jar:file:/C:/Users/undefined/.m2/repository/mysql/mysql-connector-java/8.0.23/mysql-connector-java-8.0.23.jar!/com/mysql/jdbc" );
-        NamespaceIterator iterator = new JarPackageIterator( "jar:file:/C:/Users/undefined/.m2/repository/mysql/mysql-connector-java/8.0.23/mysql-connector-java-8.0.23.jar!/com/mysql" );
+        //NamespaceIterator iterator = new DirectoryClassIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Pinecones/Hydra/target/classes/com/pinecone/hydra/umc/wolfmc", "com.pinecone.hydra.umc.wolfmc" );
+        //NamespaceIterator iterator = new DirectoryPackageIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Pinecones/Hydra/target/classes/com/pinecone/hydra/umc", "com.pinecone.hydra.umc" );
+        NamespaceIterator iterator = new JarClassIterator( "jar:file:/C:/Users/undefined/.m2/repository/mysql/mysql-connector-java/8.0.23/mysql-connector-java-8.0.23.jar!/com/mysql/jdbc" );
+        //NamespaceIterator iterator = new JarClassIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/lib/radium-2.1.0.jar!/com/sauron/radium/heistron" );
+        //NamespaceIterator iterator = new JarClassIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-c-1.2.7.jar!/BOOT-INF/lib/shadow-c-1.2.7.jar!/BOOT-INF/lib/radium-2.1.0.jar!/com/sauron/radium/heistron" );
+        //NamespaceIterator iterator = new JarClassIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow/chronicle" );
+        //NamespaceIterator iterator = new JarPackageIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow/chronicle" );
+
+        //NamespaceIterator iterator = new JarPackageIterator( "jar:file:/C:/Users/undefined/.m2/repository/mysql/mysql-connector-java/8.0.23/mysql-connector-java-8.0.23.jar!/com/mysql" );
 
         while ( iterator.hasNext() ) {
             Debug.trace( iterator.next() );
         }
+
+//        JarEntryIterator iterator2 = new JarEntryIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow/chronicle" );
+//        while ( iterator2.hasNext() ) {
+//            Debug.trace( iterator2.next().getRealName() );
+//        }
+
+        PathNamespaceCollectum collectum = new JarClassCollectorAdapter();
+        // PathNamespaceCollectum collectum = new JarPackageCollectorAdapter();
+        List<String > classNames = new ArrayList<>();
+        collectum.collect(
+                //"jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-c-1.2.7.jar!/BOOT-INF/lib/shadow-c-1.2.7.jar!/BOOT-INF/lib/radium-2.1.0.jar!/com/sauron/radium/heistron",
+                "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow/chronicle",
+                "",
+                classNames, false
+        );
+
+        Debug.fmt( 2, classNames );
     }
 
     public static void testScanner() throws Exception {
@@ -67,8 +91,8 @@ public class TestServgram {
 
             //TestServgram.testPackageCollector();
             //TestServgram.testPackageScope();
-            //TestServgram.testIterator();
-            TestServgram.testScanner();
+            TestServgram.testIterator();
+            //TestServgram.testScanner();
 
 
             return 0;

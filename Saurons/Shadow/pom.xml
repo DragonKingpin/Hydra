@@ -3,45 +3,71 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>Saurons</artifactId>
+        <artifactId>saurons</artifactId>
         <groupId>com.saurons</groupId>
         <version>1.2.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.saurons.shadow</groupId>
-    <artifactId>Shadow</artifactId>
+    <groupId>com.sauron.shadow</groupId>
+    <artifactId>shadow</artifactId>
     <version>1.2.7</version>
+    <packaging>jar</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                    <mainClass>com.sauron.shadow.ShadowBoot</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.pinecone</groupId>
-            <artifactId>Pinecone</artifactId>
+            <artifactId>pinecone</artifactId>
             <version>2.5.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.pinecone.hydra</groupId>
-            <artifactId>Hydra</artifactId>
+            <artifactId>hydra</artifactId>
             <version>2.1.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.pinecone.slime</groupId>
-            <artifactId>Slime</artifactId>
+            <artifactId>slime</artifactId>
             <version>2.1.0</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.pinecone.ulf</groupId>
-            <artifactId>Ulfhedinn</artifactId>
+            <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.sauron.radium</groupId>
-            <artifactId>Radium</artifactId>
+            <artifactId>radium</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

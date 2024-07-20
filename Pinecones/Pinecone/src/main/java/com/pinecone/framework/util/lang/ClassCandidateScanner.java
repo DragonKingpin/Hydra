@@ -1,13 +1,9 @@
 package com.pinecone.framework.util.lang;
 
-import com.pinecone.framework.system.ProvokeHandleException;
-import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.lang.iterator.NamespaceIterator;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 public class ClassCandidateScanner implements ClassScanner {
@@ -42,7 +38,7 @@ public class ClassCandidateScanner implements ClassScanner {
     }
 
     @Override
-    public void addIterator          ( NamespaceIterator classIter, NamespaceIterator packageIter ) {
+    public void addIterator          (NamespaceIterator classIter, NamespaceIterator packageIter ) {
         this.addIterator( new ClassIteratorPair( classIter, packageIter ) );
     }
 

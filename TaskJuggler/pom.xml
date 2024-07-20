@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.Sauron</groupId>
-        <artifactId>Sauron</artifactId>
+        <artifactId>sauron</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -21,7 +21,7 @@
 
         <dependency>
             <groupId>com.Sauron</groupId>
-            <artifactId>Pinecone</artifactId>
+            <artifactId>pinecone</artifactId>
             <version>3.3.1</version>
         </dependency>
 

@@ -1,10 +1,12 @@
 package com.pinecone.framework.util.lang;
 
+import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.lang.iterator.JarEntryIterator;
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class JarClassCollectorAdapter implements PathNamespaceCollectum {
     @Override
@@ -23,16 +25,12 @@ public class JarClassCollectorAdapter implements PathNamespaceCollectum {
     }
 
     public String collect0 ( String szResourcePath, String szPackageName, List<String > classNames, boolean bCollectChildren ) {
-        String[] jarInfo   = szResourcePath.split ( "!" );
-        String jarFilePath = jarInfo[0].substring ( jarInfo[0].indexOf ( NamespaceCollector.RESOURCE_NAME_SEPARATOR ) );
-        String packagePath = szResourcePath;
-        if( jarInfo.length > 1 ) {
-            packagePath = jarInfo[1].substring ( 1 );
-        }
-
         try {
-            JarFile jarFile = new JarFile( jarFilePath );
-            Enumeration<JarEntry> entries = jarFile.entries ();
+            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath );
+            Enumeration<JarEntry> entries    = iterator.entries ();
+            String packagePath               = iterator.getPackagePath();
+            String classesScopePath          = iterator.getClassesScopePath();
+
             while ( entries.hasMoreElements () ) {
                 JarEntry jarEntry = entries.nextElement ();
                 String entryName = jarEntry.getName ();
@@ -52,8 +50,21 @@ public class JarClassCollectorAdapter implements PathNamespaceCollectum {
                         else {
                             myPackagePath = entryName;
                         }
-                        if ( myPackagePath.equals ( packagePath ) ) {
-                            entryName = entryName.replace ( NamespaceCollector.RESOURCE_NAME_SEPARATOR, "." ).substring ( 0, entryName.lastIndexOf ( "." ) );
+
+                        boolean bQualified = false;
+                        if( classesScopePath == null ) {
+                            if( myPackagePath.equals( packagePath ) ) {
+                                bQualified = true;
+                            }
+                        }
+                        else {
+                            if ( myPackagePath.startsWith( classesScopePath ) && myPackagePath.endsWith( packagePath ) ) {
+                                bQualified = true;
+                            }
+                        }
+
+                        if ( bQualified ) {
+                            entryName = JarUtils.normalizeJarClassName( entryName, classesScopePath );
 
                             if( classNames == null ) {
                                 return entryName;
@@ -67,7 +78,7 @@ public class JarClassCollectorAdapter implements PathNamespaceCollectum {
             }
         }
         catch ( IOException e ) {
-            e.printStackTrace ();
+            throw new ProxyProvokeHandleException( e );
         }
 
         return null;

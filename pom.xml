@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sauron</groupId>
-    <artifactId>Sauron</artifactId>
+    <artifactId>sauron</artifactId>
     <packaging>pom</packaging>
     <version>1.2.7</version>
     <modules>
-        <module>Pinecones</module>
-        <module>Saurons</module>
-        <module>Walnuts</module>
+        <module>pinecones</module>
+        <module>saurons</module>
+        <module>walnuts</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->
         <!--<module>Console</module>-->

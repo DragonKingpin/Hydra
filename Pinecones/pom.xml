@@ -3,24 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>Sauron</artifactId>
+        <artifactId>sauron</artifactId>
         <groupId>com.sauron</groupId>
         <version>1.2.7</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pinecones</groupId>
-    <artifactId>Pinecones</artifactId>
+    <artifactId>pinecones</artifactId>
     <packaging>pom</packaging>
     <version>2.5.1</version>
 
     <modules>
-        <module>Pinecone</module>
-        <module>Ulfhedinn</module>
-        <module>Hydra</module>
-        <module>Slime</module>
-        <module>Jelly</module>
-        <module>Summer</module>
+        <module>pinecone</module>
+        <module>ulfhedinn</module>
+        <module>hydra</module>
+        <module>slime</module>
+        <module>jelly</module>
+        <module>summer</module>
+        <module>springram</module>
     </modules>
 
     <dependencies>

@@ -1,33 +1,17 @@
-package com.pinecone.framework.util.lang;
+package com.pinecone.framework.util.lang.iterator;
+import com.pinecone.framework.util.lang.JarUtils;
+import com.pinecone.framework.util.lang.NamespaceCollector;
+
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 
-public class JarClassIterator implements NamespaceIterator {
-    protected JarFile                  mJarFile;
-    protected Enumeration<JarEntry >   mEntries;
-    protected String                   mPackagePath;
-    protected JarEntry                 mCurrentEntry;
-
+public class JarClassIterator extends ArchJarEntryIterator implements NamespaceIterator {
     public JarClassIterator( String szResourcePath ) throws IOException {
-        String[] jarInfo   = szResourcePath.split ( "!" );
-        String jarFilePath = jarInfo[0].substring ( jarInfo[0].indexOf ( NamespaceCollector.RESOURCE_NAME_SEPARATOR ) );
-
-        this.mJarFile      = new JarFile( jarFilePath );
-        this.mEntries      = this.mJarFile.entries();
-
-        String packagePath = szResourcePath;
-        if( jarInfo.length > 1 ) {
-            packagePath = jarInfo[1].substring ( 1 );
-        }
-        this.mPackagePath  = packagePath;
-
-        this.skipEntries();
+        super( szResourcePath );
     }
 
     @Override
@@ -42,9 +26,7 @@ public class JarClassIterator implements NamespaceIterator {
         }
 
         String entryName = this.mCurrentEntry.getName();
-        String className = entryName.replace( NamespaceCollector.RESOURCE_NAME_SEPARATOR, NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR ).substring(
-                0, entryName.lastIndexOf( NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR_C )
-        );
+        String className = JarUtils.normalizeJarClassName( entryName, this.mClassesScopePath );
 
         this.skipEntries();
 
@@ -59,10 +41,12 @@ public class JarClassIterator implements NamespaceIterator {
         }
     }
 
+    @Override
     protected void skipEntries() {
         while ( this.mEntries.hasMoreElements() ) {
             JarEntry entry   = this.mEntries.nextElement();
             String entryName = entry.getName();
+            //Debug.trace( entryName );
             if ( entryName.endsWith( ".class" ) ) {
                 int index = entryName.lastIndexOf( NamespaceCollector.RESOURCE_NAME_SEPARATOR );
                 String myPackagePath;
@@ -73,9 +57,17 @@ public class JarClassIterator implements NamespaceIterator {
                     myPackagePath = entryName.substring( 0, index );
                 }
 
-                if ( myPackagePath.equals( this.mPackagePath ) ) {
-                    this.mCurrentEntry = entry;
-                    return;
+                if( this.mClassesScopePath == null ) {
+                    if ( myPackagePath.equals( this.mPackagePath ) ) {
+                        this.mCurrentEntry = entry;
+                        return;
+                    }
+                }
+                else {
+                    if ( myPackagePath.startsWith( this.mClassesScopePath ) && myPackagePath.endsWith( this.mPackagePath ) ) {
+                        this.mCurrentEntry = entry;
+                        return;
+                    }
                 }
             }
         }

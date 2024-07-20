@@ -1,6 +1,8 @@
 package com.pinecone.framework.util.lang;
 
+import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.StringUtils;
+import com.pinecone.framework.util.lang.iterator.JarEntryIterator;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -25,12 +27,12 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
     }
 
     public String collect0 ( String szResourcePath, String szNSName, List<String > packageNames, boolean bCollectChildren ) {
-        String[] jarInfo   = szResourcePath.split ( "!" );
-        String jarFilePath = jarInfo[0].substring ( jarInfo[0].indexOf ( NamespaceCollector.RESOURCE_NAME_SEPARATOR ) );
-        String packagePath = jarInfo.length > 1 ? jarInfo[1].substring ( 1 ) : szResourcePath;
         try {
-            JarFile jarFile = new JarFile ( jarFilePath );
-            Enumeration<JarEntry> entries = jarFile.entries ();
+            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath );
+            Enumeration<JarEntry> entries    = iterator.entries ();
+            String packagePath               = iterator.getPackagePath();
+            String classesScopePath          = iterator.getClassesScopePath();
+
             while ( entries.hasMoreElements () ) {
                 JarEntry jarEntry = entries.nextElement ();
                 String entryName  = jarEntry.getName ();
@@ -44,6 +46,10 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
                     }
                     else {
                         //Debug.trace( jarEntry.getName(),packagePath  );
+                        if( classesScopePath != null && entryName.startsWith( classesScopePath ) ) {
+                            entryName = entryName.replace( classesScopePath, "" );
+                        }
+
                         if ( entryName.startsWith ( packagePath ) ) {
                             String childSegment = entryName.substring ( packagePath.length() );
                             if( StringUtils.countOccurrencesOf( childSegment, NamespaceCollector.RESOURCE_NAME_SEPARATOR, 3 ) > 2 ) {
@@ -68,7 +74,7 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
             }
         }
         catch ( IOException e ) {
-            e.printStackTrace ();
+            throw new ProxyProvokeHandleException( e );
         }
 
         return null;

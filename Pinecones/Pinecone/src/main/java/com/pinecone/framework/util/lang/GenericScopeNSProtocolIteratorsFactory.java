@@ -1,5 +1,8 @@
 package com.pinecone.framework.util.lang;
 
+import com.pinecone.framework.util.lang.iterator.JarClassIterator;
+import com.pinecone.framework.util.lang.iterator.JarPackageIterator;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -24,7 +27,7 @@ public class GenericScopeNSProtocolIteratorsFactory implements NSProtocolIterato
         }
         else if ( protocol.equals ( NamespaceCollector.KEY_JAR_PROTOCOL ) ) {
             return new ClassIteratorPair(
-                    new JarClassIterator  ( url.getPath () ), new JarPackageIterator( url.getPath () )
+                    new JarClassIterator( url.getPath () ), new JarPackageIterator( url.getPath () )
             );
         }
 
@@ -50,7 +53,7 @@ public class GenericScopeNSProtocolIteratorsFactory implements NSProtocolIterato
     @Override
     public void prepareIterators ( String szNSName, List<ClassIteratorPair > pairs ) throws IOException {
         String packagePath          = szNSName.replace ( NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR, NamespaceCollector.RESOURCE_NAME_SEPARATOR );
-        Enumeration<URL > resources = getClass().getClassLoader().getResources(packagePath);
+        Enumeration<URL > resources = this.mClassLoader.getResources(packagePath);
         if ( !resources.hasMoreElements() ) {
             return;
         }

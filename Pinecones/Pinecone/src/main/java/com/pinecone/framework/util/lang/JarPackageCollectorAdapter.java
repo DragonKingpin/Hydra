@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
     @Override
@@ -37,6 +36,10 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
                 JarEntry jarEntry = entries.nextElement ();
                 String entryName  = jarEntry.getName ();
                 if( jarEntry.isDirectory() ) {
+                    if( classesScopePath != null && entryName.startsWith( classesScopePath ) ) {
+                        entryName = entryName.replace( classesScopePath, "" );
+                    }
+
                     if ( bCollectChildren && packageNames != null ) { // [@Harold Notice] No need for recursion, for JAR files, this flag is usually processed in a tiled manner
                         if ( entryName.startsWith ( packagePath ) && !entryName.equals( packagePath + NamespaceCollector.RESOURCE_NAME_SEPARATOR ) ) {
                             entryName = entryName.replace ( NamespaceCollector.RESOURCE_NAME_SEPARATOR, NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR );
@@ -46,9 +49,6 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
                     }
                     else {
                         //Debug.trace( jarEntry.getName(),packagePath  );
-                        if( classesScopePath != null && entryName.startsWith( classesScopePath ) ) {
-                            entryName = entryName.replace( classesScopePath, "" );
-                        }
 
                         if ( entryName.startsWith ( packagePath ) ) {
                             String childSegment = entryName.substring ( packagePath.length() );

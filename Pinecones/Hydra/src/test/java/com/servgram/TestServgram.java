@@ -60,14 +60,14 @@ public class TestServgram {
 //            Debug.trace( iterator2.next().getRealName() );
 //        }
 
-        PathNamespaceCollectum collectum = new JarClassCollectorAdapter();
-        // PathNamespaceCollectum collectum = new JarPackageCollectorAdapter();
+        // PathNamespaceCollectum collectum = new JarClassCollectorAdapter();
+        PathNamespaceCollectum collectum = new JarPackageCollectorAdapter();
         List<String > classNames = new ArrayList<>();
         collectum.collect(
                 //"jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-c-1.2.7.jar!/BOOT-INF/lib/shadow-c-1.2.7.jar!/BOOT-INF/lib/radium-2.1.0.jar!/com/sauron/radium/heistron",
-                "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow/chronicle",
+                "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/classes!/com/sauron/shadow",
                 "",
-                classNames, false
+                classNames, true
         );
 
         Debug.fmt( 2, classNames );

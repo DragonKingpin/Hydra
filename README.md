@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/badge/ChangeLog-English-blue.svg" alt="Update Log" />
   </a>
 
-   <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html">
+   <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html"
         <img src="https://img.shields.io/badge/JDK-11+-green.svg" />
     </a>
    <a target="_blank" href='https://github.com/Geniusay/ChopperBot'>
@@ -31,9 +31,15 @@
   <b>简体中文</b> | <a href="https://www.nutsky.com">友情链接</a> | <a href="https://www.dragonking.me">DragonKing</a> 
 </p>
 
+## 📖 Abstract
+Would you like to possess the "Eye of God"? Do you crave power? Do you wish to have all information at your fingertips? In this era, data is the world!
+
+Hydra + Radium fulfills your dreams, creating a data "mastermind" specifically for "TJ" individuals, 'all information all I need'. 
+We build a unique personal TB-PB level data warehouse and search engine just for you, your exclusive "Eye of God," data is all you need!
+
 ## 📖 摘要 / 简介
 <p><strong>你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！</strong></p>
-<p><strong>Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中，为你构造独一无二的的个人TB-PB级数仓，一切数据为所欲为！</p></strong>
+<p><strong>Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中。为你打造独一无二的的个人TB-PB级数仓和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</p></strong>
 <p>简易和多种部署模式，不一定非要Linux！不一定非要K8S！不一定非要Hadoop！集成统一的丐版配置也能玩转TB-PB级数据。</p>
 <p>不会集群？不会中间件？不会分布式？不会云计算？我是小白？Don`t worry，持续更新的保姆级教程和实例最小系统，系统可大可小，丐版技术也能玩转云和大数据。</p>
 

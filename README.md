@@ -37,6 +37,8 @@ Would you like to possess the "Eye of God"? Do you crave power? Do you wish to h
 Hydra + Radium fulfills your dreams, creating a data "mastermind" specifically for "TJ" individuals, 'all information all I need'. 
 We build a unique personal TB-PB level data warehouse and search engine just for you, your exclusive "Eye of God," data is all you need!
 
+Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communication, service-oriented, which is the distributed operating system.
+
 ## 📖 摘要 / 简介
 <p><strong>你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！</strong></p>
 <p><strong>Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中。为你打造独一无二的的个人TB-PB级数仓和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</p></strong>

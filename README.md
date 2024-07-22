@@ -15,7 +15,7 @@
     <img src="https://img.shields.io/badge/ChangeLog-English-blue.svg" alt="Update Log" />
   </a>
 
-   <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html"
+   <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html" >
         <img src="https://img.shields.io/badge/JDK-11+-green.svg" />
     </a>
    <a target="_blank" href='https://github.com/Geniusay/ChopperBot'>

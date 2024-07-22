@@ -2,6 +2,7 @@ package com.sauron.radium.heistron.chronic;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.RuntimeSystem;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.hometype.AnnotatedObjectInjector;
 import com.pinecone.framework.util.json.hometype.JSONGet;
@@ -9,6 +10,7 @@ import com.pinecone.framework.util.lang.NamespaceCollector;
 import com.pinecone.framework.util.lang.PackageNameFetcher;
 import com.pinecone.framework.util.name.FixScopeName;
 import com.pinecone.framework.util.name.Name;
+import com.pinecone.hydra.auto.Instructation;
 import com.pinecone.hydra.auto.PeriodicAutomaton;
 import com.pinecone.hydra.auto.PeriodicAutomatron;
 import com.sauron.radium.heistron.HTTPHeist;
@@ -182,7 +184,13 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
 //            }
 
         }
-
+//        this.getAutomatron().command(new Instructation() {
+//            @Override
+//            public void execute() throws Exception {
+//                Debug.sleep(30000);
+//                Debug.trace("shit");
+//            }
+//        });
         if( this.mbUsingSedation ){
             this.getAutomatron().command( new SedationInstructation( this ) );
         }

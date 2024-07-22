@@ -5,9 +5,11 @@ import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 
 import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.hometype.JSONGet;
+import com.pinecone.hydra.auto.Instructation;
 import com.pinecone.slime.jelly.source.ibatis.AppliedMapperPool;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.sauron.radium.heistron.CascadeHeist;
@@ -16,6 +18,7 @@ import com.sauron.radium.heistron.HTTPHeist;
 import com.sauron.radium.heistron.Heistgram;
 import com.sauron.radium.heistron.chronic.PeriodicHeistRehearsal;
 import com.sauron.radium.heistron.orchestration.Heistlet;
+import com.sauron.shadow.chronicle.Newstron.ZhihuClerk;
 import com.sauron.shadow.chronicle.dao.BasicChronicleManipulator;
 import org.apache.ibatis.session.SqlSession;
 
@@ -98,6 +101,12 @@ public class ChronicleHeist extends HTTPHeist implements Chronicle {
     @Override
     public BasicChronicleManipulator getBasicChronicleManipulator(){
         return this.mBasicChronicleManipulator;
+//        return new BasicChronicleManipulator() {
+//            @Override
+//            public void insertOneNews(String szTableName, String szObjectName, String szDateTime, String szNewsIndex) {
+//
+//            }
+//        };
     }
 
     @Override
@@ -109,6 +118,12 @@ public class ChronicleHeist extends HTTPHeist implements Chronicle {
     public void toRavage(){
         ChronicleHeist.this.infoLifecycle( "Chronicle Heist Vitalization","Vitalized" );
 
+//        ZhihuClerk clerk = new ZhihuClerk(
+//                this, 1999, this.mPeriodicHeistKernel.getRaiderConfigs().optJSONObject( "Zhihu" )
+//        );
+//        clerk.toRavage();
+//        clerk.toRavage();
+//        clerk.toRavage();
         try{
             this.mPeriodicHeistKernel.joinVitalize();
         }

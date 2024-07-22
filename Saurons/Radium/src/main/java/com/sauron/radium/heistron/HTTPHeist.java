@@ -2,6 +2,7 @@ package com.sauron.radium.heistron;
 
 import com.pinecone.framework.system.NonNull;
 import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.sauron.radium.util.HttpBrowserConf;
 import com.sauron.radium.util.HttpBrowserDownloader;
@@ -14,6 +15,7 @@ import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.selector.PlainText;
 
+import javax.net.ssl.SSLException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,19 +129,41 @@ public abstract class HTTPHeist extends Heist {
     }
 
     public Page queryHTTPPage( Request request ) {
-        return this.httpBrowser.download( request, this.majorSpider );
+        try{
+            return this.httpBrowser.download( request, this.majorSpider, true );
+        }
+        catch ( ProxyProvokeHandleException e ) {
+            if( e.getCause() instanceof SSLException ) {
+                this.tracer().warn( "[queryHTTPPage:Warning] [What: SSLException, " + e.getMessage() + "]" );
+                // Fixed: CloseableHttpClient SSL exception using none pooled.
+                return this.httpBrowser.download( request, this.majorSpider, false );
+            }
+            throw e;
+        }
     }
 
-    public Page getHTTPPage( String szHref ) {
+    public Page queryHTTPPage( Request request, boolean bPooled ) {
+        return this.httpBrowser.download( request, this.majorSpider, bPooled );
+    }
+
+    public Page getHTTPPage( String szHref, boolean bPooled ) {
         Request request = new Request( szHref );
         request.putExtra("requestType", "HeistDefault");
         request.setMethod( "GET" );
 
-        return this.queryHTTPPage( request );
+        return this.queryHTTPPage( request, bPooled );
+    }
+
+    public Page getHTTPPage( String szHref ) {
+        return this.getHTTPPage( szHref, true );
+    }
+
+    public String getHTTPFile( String szHref, boolean bPooled ) {
+        return this.getHTTPPage( szHref, bPooled ).getHtml().toString();
     }
 
     public String getHTTPFile( String szHref ) {
-        return this.getHTTPPage( szHref ).getHtml().toString();
+        return this.getHTTPFile( szHref, true );
     }
 
 

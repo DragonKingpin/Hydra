@@ -50,7 +50,7 @@ public class ZhihuClerk extends ArchClerk implements Clerk {
         if ( nRound == 1 ) {
             szApi = this.mszHotlineApi + "&limit=" + nStep + "&offset=" + nFrom + "&period=hour";
             try {
-                String szHtml = this.getHTTPPage( szApi ).getRawText();
+                String szHtml = this.getHTTPPage( szApi, false ).getRawText();
                 jIndex.jsonDecode( szHtml );
             }
             catch ( Exception e ) {
@@ -67,7 +67,7 @@ public class ZhihuClerk extends ArchClerk implements Clerk {
 
                 szApi = this.mszHotlineApi + "&limit=" + nStepPace + "&offset=" + nMoving + "&period=hour";
                 try {
-                    String szHtml = this.getHTTPPage( szApi ).getRawText();
+                    String szHtml = this.getHTTPPage( szApi, false ).getRawText();
                     jEach.jsonDecode(szHtml);
                     JSONArray   data = jIndex.optJSONArray("data");
                     for ( int j = 0; j < data.length(); ++j ) {

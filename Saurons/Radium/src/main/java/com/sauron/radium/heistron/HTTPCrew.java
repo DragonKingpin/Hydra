@@ -35,8 +35,8 @@ public abstract class HTTPCrew extends ArchCrew {
     }
 
     // [Query, Get] Inlet method.
-    public Page queryHTTPPage( Request request ) {
-        Page cache = this.parentHeist().queryHTTPPage( request );
+    public Page queryHTTPPage( Request request, boolean bPooled ) {
+        Page cache = this.parentHeist().queryHTTPPage( request, bPooled );
         try{
             HttpBrowserConf browserConf = this.parentHeist().getBrowserConf();
             if( browserConf.enableRandomDelay ){
@@ -52,16 +52,28 @@ public abstract class HTTPCrew extends ArchCrew {
         return cache;
     }
 
-    public Page getHTTPPage( String szHref ) {
+    public Page queryHTTPPage( Request request ) {
+        return this.queryHTTPPage( request, true );
+    }
+
+    public Page getHTTPPage( String szHref, boolean bPooled ) {
         Request request = new Request( szHref );
         request.putExtra("requestType", "CrewDefault");
         request.setMethod( "GET" );
 
-        return this.queryHTTPPage( request );
+        return this.queryHTTPPage( request, bPooled );
+    }
+
+    public Page getHTTPPage( String szHref ) {
+        return this.getHTTPPage( szHref, true );
+    }
+
+    public String getHTTPFile( String szHref, boolean bPooled ) {
+        return this.getHTTPPage( szHref, bPooled ).getRawText();
     }
 
     public String getHTTPFile( String szHref ) {
-        return this.getHTTPPage( szHref ).getRawText();
+        return this.getHTTPFile( szHref, true );
     }
 
     // No validate

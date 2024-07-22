@@ -3,7 +3,7 @@
 
   "ChronicPerAcc"            : 1000, // ms
   "ChronicPeriods"           : [
-    "00:00", "06:00", "12:00", "18:00", "21:00", "02:28:30"
+    "00:00", "06:00", "12:00", "16:00", "18:00", "21:00", "04:00"
   ],
 
   "PrimaryRDB"               : "MySQLKingData0",
@@ -28,7 +28,7 @@
   "Children"                  : {
     "Newstron": {
       "RaiderMarshaling"      : {
-        "UsingSedation"  : true,
+        "UsingSedation"  : false,
 
         "Raiders"        : {
 

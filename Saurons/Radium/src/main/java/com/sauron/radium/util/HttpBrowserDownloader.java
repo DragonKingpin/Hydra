@@ -1,5 +1,7 @@
 package com.sauron.radium.util;
 
+import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -11,13 +13,16 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Task;
-import us.codecraft.webmagic.downloader.*;
+
+import us.codecraft.webmagic.downloader.HttpClientRequestContext;
+import us.codecraft.webmagic.downloader.HttpUriRequestConverter;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.ProxyProvider;
 import us.codecraft.webmagic.selector.PlainText;
 import us.codecraft.webmagic.utils.CharsetUtils;
 import us.codecraft.webmagic.utils.HttpClientUtils;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -25,8 +30,8 @@ import java.util.Map;
 
 public class HttpBrowserDownloader extends AbstractDownloader {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected final Map<String, CloseableHttpClient> httpClients = new HashMap();
-    protected HttpClientGenerator httpClientGenerator = new HttpClientGenerator();
+    protected final Map<String, CloseableHttpClient> httpClients = new HashMap<>();
+    protected HttpClientGenerator httpClientGenerator = new GenericHttpClientGenerator();
     protected HttpUriRequestConverter httpUriRequestConverter = new HttpUriRequestConverter();
     protected ProxyProvider proxyProvider;
     protected boolean responseHeader = true;
@@ -44,17 +49,23 @@ public class HttpBrowserDownloader extends AbstractDownloader {
         this.httpUriRequestConverter = httpUriRequestConverter;
     }
 
-    public void setProxyProvider(ProxyProvider proxyProvider) {
+    public void setProxyProvider( ProxyProvider proxyProvider ) {
         this.proxyProvider = proxyProvider;
     }
 
-    private CloseableHttpClient getHttpClient(Site site) {
-        if (site == null) {
+    protected CloseableHttpClient getHttpClient( Site site, boolean bPooled ) {
+        if( !bPooled ) {
+            // Explicit using false.
+            return this.httpClientGenerator.getClient( site, false );
+        }
+
+        if ( site == null ) {
             return this.httpClientGenerator.getClient((Site)null);
-        } else {
+        }
+        else {
             String domain = site.getDomain();
             CloseableHttpClient httpClient = (CloseableHttpClient)this.httpClients.get(domain);
-            if (httpClient == null) {
+            if ( httpClient == null ) {
                 synchronized(this) {
                     httpClient = (CloseableHttpClient)this.httpClients.get(domain);
                     if (httpClient == null) {
@@ -63,48 +74,60 @@ public class HttpBrowserDownloader extends AbstractDownloader {
                     }
                 }
             }
-
             return httpClient;
         }
     }
 
-
-
     @Override
     public Page download( Request request, Task task ) {
-        if (task != null && task.getSite() != null) {
+        return this.download( request, task, true );
+    }
+
+    @Override
+    public Page download( Request request, Task task, boolean bPooled ) {
+        if ( task != null && task.getSite() != null ) {
             CloseableHttpResponse httpResponse = null;
-            CloseableHttpClient httpClient = this.getHttpClient(task.getSite());
+            CloseableHttpClient httpClient = this.getHttpClient( task.getSite(), bPooled );
             Proxy proxy = this.proxyProvider != null ? this.proxyProvider.getProxy(task) : null;
             HttpClientRequestContext requestContext = this.httpUriRequestConverter.convert(request, task.getSite(), proxy);
             Page page = Page.fail();
 
-            Page var9;
+            Page pa;
             try {
                 httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
                 page = this.handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
                 this.onSuccess(request, task);
                 this.logger.info("downloading page success {}", request.getUrl());
-                Page var8 = page;
-                return var8;
+
+                if( !bPooled ) {
+                    try{
+                        httpClient.close();
+                    }
+                    catch ( IOException e ) {
+                        throw new ProxyProvokeHandleException( e );
+                    }
+                }
+                return page;
             }
-            catch (IOException var13) {
-                this.onError(request, task, var13);
-                this.logger.info("download page {} error", request.getUrl(), var13);
-                var9 = page;
+            catch ( SSLException sse ) {
+                throw new ProxyProvokeHandleException( sse );
+            }
+            catch ( IOException e ) {
+                this.onError( request, task, e );
+                this.logger.info( "download page {} error", request.getUrl(), e );
+                pa = page;
             }
             finally {
                 if (httpResponse != null) {
                     EntityUtils.consumeQuietly(httpResponse.getEntity());
                 }
 
-                if (this.proxyProvider != null && proxy != null) {
+                if ( this.proxyProvider != null && proxy != null ) {
                     this.proxyProvider.returnProxy(proxy, page, task);
                 }
-
             }
 
-            return var9;
+            return pa;
         }
         else {
             throw new NullPointerException("task or site can not be null");
@@ -112,8 +135,8 @@ public class HttpBrowserDownloader extends AbstractDownloader {
     }
 
     @Override
-    public void setThread(int thread) {
-        this.httpClientGenerator.setPoolSize(thread);
+    public void setThread( int threads ) {
+        this.httpClientGenerator.setPoolSize( threads );
     }
 
     protected Page handleResponse(Request request, String charset, HttpResponse httpResponse, Task task) throws IOException {

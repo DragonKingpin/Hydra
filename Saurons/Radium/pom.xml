@@ -56,6 +56,11 @@
             <artifactId>springram</artifactId>
             <version>2.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.walnut.sparta</groupId>
+            <artifactId>sparta</artifactId>
+            <version>2.1.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.javassist</groupId>

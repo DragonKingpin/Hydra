@@ -129,8 +129,12 @@ public abstract class HTTPHeist extends Heist {
     }
 
     public Page queryHTTPPage( Request request ) {
+        return this.queryHTTPPage( request, true );
+    }
+
+    public Page queryHTTPPage( Request request, boolean bPooled ) {
         try{
-            return this.httpBrowser.download( request, this.majorSpider, true );
+            return this.httpBrowser.download( request, this.majorSpider, bPooled );
         }
         catch ( ProxyProvokeHandleException e ) {
             if( e.getCause() instanceof SSLException ) {
@@ -140,10 +144,6 @@ public abstract class HTTPHeist extends Heist {
             }
             throw e;
         }
-    }
-
-    public Page queryHTTPPage( Request request, boolean bPooled ) {
-        return this.httpBrowser.download( request, this.majorSpider, bPooled );
     }
 
     public Page getHTTPPage( String szHref, boolean bPooled ) {

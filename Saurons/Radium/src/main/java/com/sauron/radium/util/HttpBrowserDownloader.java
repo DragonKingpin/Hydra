@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class HttpBrowserDownloader extends AbstractDownloader {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -83,51 +84,63 @@ public class HttpBrowserDownloader extends AbstractDownloader {
         return this.download( request, task, true );
     }
 
+    protected Page download0( Request request, Task task, boolean bPooled ) throws IOException {
+        CloseableHttpResponse httpResponse = null;
+        CloseableHttpClient httpClient = this.getHttpClient( task.getSite(), bPooled );
+        Proxy proxy = this.proxyProvider != null ? this.proxyProvider.getProxy(task) : null;
+        HttpClientRequestContext requestContext = this.httpUriRequestConverter.convert(request, task.getSite(), proxy);
+        Page page = Page.fail();
+
+        try {
+            httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
+            page = this.handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
+            this.onSuccess( request, task );
+            this.logger.info( "downloading page success {}", request.getUrl() );
+
+            if( !bPooled ) {
+                try{
+                    httpClient.close();
+                }
+                catch ( IOException e ) {
+                    throw new ProxyProvokeHandleException( e );
+                }
+            }
+            return page;
+        }
+        finally {
+            if (httpResponse != null) {
+                EntityUtils.consumeQuietly(httpResponse.getEntity());
+            }
+
+            if ( this.proxyProvider != null && proxy != null ) {
+                this.proxyProvider.returnProxy(proxy, page, task);
+            }
+        }
+    }
+
     @Override
     public Page download( Request request, Task task, boolean bPooled ) {
         if ( task != null && task.getSite() != null ) {
-            CloseableHttpResponse httpResponse = null;
-            CloseableHttpClient httpClient = this.getHttpClient( task.getSite(), bPooled );
-            Proxy proxy = this.proxyProvider != null ? this.proxyProvider.getProxy(task) : null;
-            HttpClientRequestContext requestContext = this.httpUriRequestConverter.convert(request, task.getSite(), proxy);
-            Page page = Page.fail();
+            try{
+                return this.download0( request, task, bPooled );
+            }
+            catch ( IOException firstIOE ) { // First try
+                this.httpClientGenerator.getConnectionManager().closeExpiredConnections();
+                this.httpClientGenerator.getConnectionManager().closeIdleConnections( 0, TimeUnit.SECONDS );
+                this.logger.info( "First connection {} in error, retrying.", request.getUrl() );
 
-            Page pa;
-            try {
-                httpResponse = httpClient.execute(requestContext.getHttpUriRequest(), requestContext.getHttpClientContext());
-                page = this.handleResponse(request, request.getCharset() != null ? request.getCharset() : task.getSite().getCharset(), httpResponse, task);
-                this.onSuccess(request, task);
-                this.logger.info("downloading page success {}", request.getUrl());
-
-                if( !bPooled ) {
-                    try{
-                        httpClient.close();
-                    }
-                    catch ( IOException e ) {
-                        throw new ProxyProvokeHandleException( e );
-                    }
+                try{
+                    return this.download0( request, task, bPooled );
                 }
-                return page;
-            }
-            catch ( SSLException sse ) {
-                throw new ProxyProvokeHandleException( sse );
-            }
-            catch ( IOException e ) {
-                this.onError( request, task, e );
-                this.logger.info( "download page {} error", request.getUrl(), e );
-                pa = page;
-            }
-            finally {
-                if (httpResponse != null) {
-                    EntityUtils.consumeQuietly(httpResponse.getEntity());
+                catch ( SSLException sse ) {
+                    throw new ProxyProvokeHandleException( sse );
                 }
-
-                if ( this.proxyProvider != null && proxy != null ) {
-                    this.proxyProvider.returnProxy(proxy, page, task);
+                catch ( IOException e ) {
+                    this.onError( request, task, e );
+                    this.logger.info( "download page {} error", request.getUrl(), e );
                 }
+                return Page.fail();
             }
-
-            return pa;
         }
         else {
             throw new NullPointerException("task or site can not be null");

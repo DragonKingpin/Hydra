@@ -275,7 +275,7 @@
       "EnableRandomDelay"      : false,
       "RandomDelayMin"         : 9200,
       "RandomDelayMax"         : 10500,
-      "SocketTimeout"          : 20000,
+      "SocketTimeout"          : 60000,
 
       "Charset"                : "UTF-8"
     }

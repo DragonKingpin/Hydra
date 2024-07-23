@@ -22,6 +22,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
@@ -56,6 +57,11 @@ public class GenericHttpClientGenerator implements HttpClientGenerator {
     protected void initConnectionManager(){
         this.connectionManager = new PoolingHttpClientConnectionManager( this.registry );
         this.connectionManager.setDefaultMaxPerRoute(100);
+    }
+
+    @Override
+    public HttpClientConnectionManager getConnectionManager() {
+        return this.connectionManager;
     }
 
     private SSLConnectionSocketFactory buildSSLConnectionSocketFactory() {

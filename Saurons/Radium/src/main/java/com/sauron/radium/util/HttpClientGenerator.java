@@ -6,6 +6,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.client.CookieStore;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.HttpContext;
@@ -28,4 +29,6 @@ public interface HttpClientGenerator extends Saunut {
     void close();
 
     void clearPool();
+
+    HttpClientConnectionManager getConnectionManager();
 }

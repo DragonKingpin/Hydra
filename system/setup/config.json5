@@ -177,7 +177,7 @@
 
       "Heist": "./system/setup/heist.json5",
 
-      "Sparta": ""
+      "Sparta": "./system/setup/SpringBootApplication.json5"
 
     }
   }

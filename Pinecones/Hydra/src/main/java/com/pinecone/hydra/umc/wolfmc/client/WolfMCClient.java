@@ -165,7 +165,7 @@ public class WolfMCClient extends ArchAsyncMessenger {
                 }
             }
             catch ( InterruptedException e ) {
-                this.getSystem().handleLiveException( e );
+                Thread.currentThread().interrupt();
             }
         }
 

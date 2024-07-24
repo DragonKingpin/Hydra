@@ -16,6 +16,7 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.selector.PlainText;
 
 import javax.net.ssl.SSLException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,8 +138,8 @@ public abstract class HTTPHeist extends Heist {
             return this.httpBrowser.download( request, this.majorSpider, bPooled );
         }
         catch ( ProxyProvokeHandleException e ) {
-            if( e.getCause() instanceof SSLException ) {
-                this.tracer().warn( "[queryHTTPPage:Warning] [What: SSLException, " + e.getMessage() + "]" );
+            if( e.getCause() instanceof IOException) {
+                this.tracer().warn( "[queryHTTPPage:Warning] [What: IOException, " + e.getMessage() + "]" );
                 // Fixed: CloseableHttpClient SSL exception using none pooled.
                 return this.httpBrowser.download( request, this.majorSpider, false );
             }

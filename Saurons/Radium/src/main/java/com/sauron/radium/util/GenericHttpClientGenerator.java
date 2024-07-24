@@ -57,6 +57,7 @@ public class GenericHttpClientGenerator implements HttpClientGenerator {
     protected void initConnectionManager(){
         this.connectionManager = new PoolingHttpClientConnectionManager( this.registry );
         this.connectionManager.setDefaultMaxPerRoute(100);
+        this.connectionManager.setValidateAfterInactivity(10000);
     }
 
     @Override

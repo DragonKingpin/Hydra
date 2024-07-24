@@ -1,91 +1,38 @@
 package com.walnut.sparta;
 
-import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.framework.unit.MultiScopeMap;
-import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.config.JSONSystemConfig;
-import com.pinecone.framework.util.io.Tracerson;
-import com.pinecone.hydra.Hydradom;
-import com.pinecone.hydra.system.HyHierarchy;
+import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
-import com.pinecone.hydra.system.component.Slf4jTracerScope;
-import com.pinecone.hydra.system.types.HydraKingdom;
 import com.pinecone.summer.spring.Springron;
-import org.slf4j.Logger;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class Sparta extends Hydradom implements HydraKingdom, Slf4jTraceable {
-    public Sparta( CascadeSystem parent ) {
-        this( parent.getStartupCommand(), null, parent );
+import java.io.IOException;
+import java.nio.file.Path;
+
+public class Sparta extends Springron implements Slf4jTraceable {
+    public Sparta( String szName, Processum parent, String[] springbootArgs ) {
+        super( szName, parent, springbootArgs );
+        this.mSpringKernel.setPrimarySources( SpartaBoot.class );
     }
 
-    public Sparta( String[] args, CascadeSystem parent ) {
-        this( args, null, parent );
-    }
-
-    public Sparta( String[] args, String szName, CascadeSystem parent ){
-        super( args, szName, parent );
-    }
-
-    protected void loadTracer() {
-        this.mConsole = new Tracerson();
+    public Sparta( String szName, Processum parent ) {
+        this( szName, parent, new String[0] );
     }
 
     @Override
     protected void loadConfig() {
-        this.mjoGlobalConfig   = (JSONSystemConfig) this.parentExecutum().getGlobalConfig();
-    }
-
-    public void vitalize () throws Exception {
-        Springron springron = new Springron( "Springron", this );
-        springron.execute();
-
-        Thread shutdowner = new Thread(()->{
-            Debug.sleep( 5000 );
-            springron.terminate();
-        });
-        //shutdowner.start();
-
-        this.getTaskManager().add( springron );
-        this.getTaskManager().syncWaitingTerminated();
-    }
-
-    @Override
-    public Logger getLogger() {
-        return null;
-    }
-
-    @Override
-    public Slf4jTracerScope getTracerScope() {
-        return null;
-    }
-
-    @Override
-    public HyHierarchy getServiceArch() {
-        return null;
-    }
-
-    @Override
-    public boolean isTopmostArchy() {
-        return false;
-    }
-
-    @Override
-    public HyHierarchy getTopmostArchy() {
-        return null;
-    }
-
-    @Override
-    public boolean isBottommostArchy() {
-        return false;
-    }
-
-    @Override
-    public HyHierarchy getBottommostArchy() {
-        return null;
-    }
-
-    @Override
-    public MultiScopeMap<String, Object> getGlobalConfigScope() {
-        return null;
+        this.mServgramList     = this.getAttachedOrchestrator().getSectionConfig().getChild( Servgram.ConfigServgramsKey );
+        Object dyServgramConf  = this.mServgramList.get( this.gramName() );
+        if( dyServgramConf instanceof String ) {
+            try{
+                this.mServgramConf = this.mServgramList.getChildFromPath( Path.of((String) dyServgramConf) );
+            }
+            catch ( IOException ignore ) {
+                this.getLogger().info( "[Notice] Spring will use the default config `application.yaml`." );
+            }
+        }
+        else {
+            this.mServgramConf = this.mServgramList.getChild( this.gramName() );
+        }
     }
 }

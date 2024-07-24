@@ -16,6 +16,7 @@ public class Springron extends ArchServgramium implements Springram {
         super( szName, parent );
         this.mSpringbootArgs      = springbootArgs;
         this.mSpringKernel        = new SpringKernel();
+        this.mSpringKernel.setSpringram( this );
 
         this.mSpringPrimaryThread = new Thread(new Runnable() {
             @Override
@@ -82,8 +83,11 @@ public class Springron extends ArchServgramium implements Springram {
 
             this.mSpringPrimaryThread.join();
         }
-        catch ( InterruptedException | TimeoutException e ) {
-            throw new ProxyProvokeHandleException( e );
+        catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+        }
+        catch ( TimeoutException e1 ) {
+            throw new ProxyProvokeHandleException( e1 );
         }
     }
 

@@ -74,7 +74,7 @@ Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级�
 该部分为分布式爬虫引擎、爬虫大数据处理、清洗、持久化框架系统的实现。
 #### Bean Nuts Hazelnut Sauron Shadow (索伦·暗影，以爬虫、小型搜索引擎为例)
 该部分基于Pinecone、Ulfhedinn、Slime、Hydra、Radium等子框架最终设计的搜索引擎（数据采集、数据处理侧）应用实例。
-数据检索引擎演示实例参考SauronEyes (https://omnis.nutgit.com, 暂时基于本团队Summer框架、后续会用Springboot重构)
+数据检索引擎演示实例参考SauronEyes (https://god.nutsky.com | https://godview.net)
 
 
 

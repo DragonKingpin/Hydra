@@ -1,8 +1,8 @@
 package com.walnut.sparta.service;
 
-import com.walnut.sparta.entity.node;
+import com.walnut.sparta.entity.Node;
 
 public interface SystemService {
-    void save_node(node node);
-     String delete_node(String uuid);
+    void saveNode(Node node);
+     String deleteNode(String uuid);
 }

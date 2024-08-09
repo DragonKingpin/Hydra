@@ -1,0 +1,9 @@
+# 数据库相关配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://node1.nutgit.com:13393/hydranium
+    username: root
+    password: root
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

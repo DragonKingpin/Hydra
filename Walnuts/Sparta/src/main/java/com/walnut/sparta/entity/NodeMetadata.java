@@ -1,31 +1,31 @@
 package com.walnut.sparta.entity;
 
-import java.util.UUID;
-public class node_metadata {
+public class NodeMetadata {
     //id
     private String id;
     //元信息uuid
-    private UUID uuid;
+    private String UUID;
     //场景
     private String scenario;
     //主语言
-    private String primary_impl_lang;
+    private String primaryImplLang;
     //额外信息
-    private String extra_information;
+    private String extraInformation;
     //等级
     private String level;
     //描述
     private String description;
 
-    public node_metadata() {
+
+    public NodeMetadata() {
     }
 
-    public node_metadata(String id, UUID uuid, String scenario, String primary_impl_lang, String extra_information, String level, String description) {
+    public NodeMetadata(String id, String UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
         this.id = id;
-        this.uuid = uuid;
+        this.UUID = UUID;
         this.scenario = scenario;
-        this.primary_impl_lang = primary_impl_lang;
-        this.extra_information = extra_information;
+        this.primaryImplLang = primaryImplLang;
+        this.extraInformation = extraInformation;
         this.level = level;
         this.description = description;
     }
@@ -48,18 +48,18 @@ public class node_metadata {
 
     /**
      * 获取
-     * @return uuid
+     * @return UUID
      */
-    public UUID getUuid() {
-        return uuid;
+    public String getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
-     * @param uuid
+     * @param UUID
      */
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     /**
@@ -80,34 +80,34 @@ public class node_metadata {
 
     /**
      * 获取
-     * @return primary_impl_lang
+     * @return primaryImplLang
      */
-    public String getPrimary_impl_lang() {
-        return primary_impl_lang;
+    public String getPrimaryImplLang() {
+        return primaryImplLang;
     }
 
     /**
      * 设置
-     * @param primary_impl_lang
+     * @param primaryImplLang
      */
-    public void setPrimary_impl_lang(String primary_impl_lang) {
-        this.primary_impl_lang = primary_impl_lang;
+    public void setPrimaryImplLang(String primaryImplLang) {
+        this.primaryImplLang = primaryImplLang;
     }
 
     /**
      * 获取
-     * @return extra_information
+     * @return extraInformation
      */
-    public String getExtra_information() {
-        return extra_information;
+    public String getExtraInformation() {
+        return extraInformation;
     }
 
     /**
      * 设置
-     * @param extra_information
+     * @param extraInformation
      */
-    public void setExtra_information(String extra_information) {
-        this.extra_information = extra_information;
+    public void setExtraInformation(String extraInformation) {
+        this.extraInformation = extraInformation;
     }
 
     /**
@@ -143,6 +143,6 @@ public class node_metadata {
     }
 
     public String toString() {
-        return "node_metadata{id = " + id + ", uuid = " + uuid + ", scenario = " + scenario + ", primary_impl_lang = " + primary_impl_lang + ", extra_information = " + extra_information + ", level = " + level + ", description = " + description + "}";
+        return "nodeMetadata{id = " + id + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
     }
 }

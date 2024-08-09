@@ -1,12 +1,11 @@
 package com.walnut.sparta.entity;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
-public class service_description {
+public class ServiceDescription {
     //服务id
     private String id;
     //服务uuid
-    private UUID uuid;
+    private String UUID;
     //服务名称
     private String name;
     //服务路径
@@ -16,28 +15,29 @@ public class service_description {
     //服务别名
     private String alias;
     //资源类型
-    private String resource_type;
+    private String resourceType;
     //服务类型
-    private String service_type;
+    private String serviceType;
     //创建时间
-    private LocalDateTime create_time;
+    private LocalDateTime createTime;
     //最近更新时间
-    private LocalDateTime update_time;
+    private LocalDateTime updateTime;
 
-    public service_description() {
+
+    public ServiceDescription() {
     }
 
-    public service_description(String id, UUID uuid, String name, String path, String type, String alias, String resource_type, String service_type, LocalDateTime create_time, LocalDateTime update_time) {
+    public ServiceDescription(String id, String UUID, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
         this.id = id;
-        this.uuid = uuid;
+        this.UUID = UUID;
         this.name = name;
         this.path = path;
         this.type = type;
         this.alias = alias;
-        this.resource_type = resource_type;
-        this.service_type = service_type;
-        this.create_time = create_time;
-        this.update_time = update_time;
+        this.resourceType = resourceType;
+        this.serviceType = serviceType;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
     }
 
     /**
@@ -58,18 +58,18 @@ public class service_description {
 
     /**
      * 获取
-     * @return uuid
+     * @return UUID
      */
-    public UUID getUuid() {
-        return uuid;
+    public String getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
-     * @param uuid
+     * @param UUID
      */
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     /**
@@ -138,69 +138,69 @@ public class service_description {
 
     /**
      * 获取
-     * @return resource_type
+     * @return resourceType
      */
-    public String getResource_type() {
-        return resource_type;
+    public String getResourceType() {
+        return resourceType;
     }
 
     /**
      * 设置
-     * @param resource_type
+     * @param resourceType
      */
-    public void setResource_type(String resource_type) {
-        this.resource_type = resource_type;
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
 
     /**
      * 获取
-     * @return service_type
+     * @return serviceType
      */
-    public String getService_type() {
-        return service_type;
+    public String getServiceType() {
+        return serviceType;
     }
 
     /**
      * 设置
-     * @param service_type
+     * @param serviceType
      */
-    public void setService_type(String service_type) {
-        this.service_type = service_type;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     /**
      * 获取
-     * @return create_time
+     * @return createTime
      */
-    public LocalDateTime getCreate_time() {
-        return create_time;
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 
     /**
      * 设置
-     * @param create_time
+     * @param createTime
      */
-    public void setCreate_time(LocalDateTime create_time) {
-        this.create_time = create_time;
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
     }
 
     /**
      * 获取
-     * @return update_time
+     * @return updateTime
      */
-    public LocalDateTime getUpdate_time() {
-        return update_time;
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
     }
 
     /**
      * 设置
-     * @param update_time
+     * @param updateTime
      */
-    public void setUpdate_time(LocalDateTime update_time) {
-        this.update_time = update_time;
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 
     public String toString() {
-        return "service_baseInformation{id = " + id + ", uuid = " + uuid + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resource_type = " + resource_type + ", service_type = " + service_type + ", create_time = " + create_time + ", update_time = " + update_time + "}";
+        return "serviceDescription{id = " + id + ", UUID = " + UUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
     }
 }

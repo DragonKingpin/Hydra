@@ -7,17 +7,28 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Hydra" />
-        <module name="Jelly" />
-        <module name="Pinecone" />
-        <module name="Radium" />
+        <module name="Sparta" />
+        <module name="springram" />
+        <module name="radium" />
+        <module name="shadow" />
+        <module name="ulfhedinn" />
         <module name="Saurye" />
         <module name="Shadow" />
-        <module name="Slime" />
-        <module name="Sparta" />
-        <module name="Springram" />
         <module name="Summer" />
+        <module name="Pinecone" />
+        <module name="Slime" />
+        <module name="Hydra" />
+        <module name="summer" />
+        <module name="sparta" />
+        <module name="slime" />
+        <module name="hydra" />
+        <module name="Springram" />
+        <module name="pinecone" />
         <module name="Ulfhedinn" />
+        <module name="jelly" />
+        <module name="Jelly" />
+        <module name="saurye" />
+        <module name="Radium" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -56,6 +67,17 @@
       <module name="TaskJuggler" options="-parameters" />
       <module name="Ulfhedinn" options="-parameters" />
       <module name="Walnuts" options="-parameters" />
+      <module name="hydra" options="-parameters" />
+      <module name="jelly" options="-parameters" />
+      <module name="pinecone" options="-parameters" />
+      <module name="radium" options="-parameters" />
+      <module name="saurye" options="-parameters" />
+      <module name="shadow" options="-parameters" />
+      <module name="slime" options="-parameters" />
+      <module name="sparta" options="-parameters" />
+      <module name="springram" options="-parameters" />
+      <module name="summer" options="-parameters" />
+      <module name="ulfhedinn" options="-parameters" />
     </option>
   </component>
 </project>

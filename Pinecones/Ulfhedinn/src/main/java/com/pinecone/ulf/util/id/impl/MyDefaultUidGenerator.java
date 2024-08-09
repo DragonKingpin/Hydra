@@ -5,7 +5,7 @@ import com.pinecone.ulf.util.id.BitsAllocator;
 import com.pinecone.ulf.util.id.UidGenerator;
 import com.pinecone.ulf.util.id.exception.UidGenerateException;
 import com.pinecone.ulf.util.id.utils.DateUtils;
-import com.pinecone.ulf.util.id.worker.myDisposableWorkerIdAssigner;
+import com.pinecone.ulf.util.id.worker.MyDisposableWorkerIdAssigner;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +13,8 @@ import org.springframework.beans.factory.InitializingBean;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-public class myDefaultUidGenerator implements UidGenerator, InitializingBean {
-    private static final Logger LOGGER = LoggerFactory.getLogger(myDefaultUidGenerator.class);
+public class MyDefaultUidGenerator implements UidGenerator, InitializingBean {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyDefaultUidGenerator.class);
 
     /** Bits allocate */
     protected int timeBits = 28;
@@ -34,9 +34,9 @@ public class myDefaultUidGenerator implements UidGenerator, InitializingBean {
     protected long lastSecond = -1L;
 
     /** Spring property */
-    myDisposableWorkerIdAssigner workerIdAssigner = new myDisposableWorkerIdAssigner();
+    MyDisposableWorkerIdAssigner workerIdAssigner = new MyDisposableWorkerIdAssigner();
 
-    public myDefaultUidGenerator() {
+    public MyDefaultUidGenerator() {
         try {
             afterPropertiesSet(); // 手动调用初始化方法
         } catch (Exception e) {

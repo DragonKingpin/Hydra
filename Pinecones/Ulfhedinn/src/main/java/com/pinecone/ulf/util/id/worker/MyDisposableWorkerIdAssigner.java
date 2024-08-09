@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class myDisposableWorkerIdAssigner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(myDisposableWorkerIdAssigner.class);
+public class MyDisposableWorkerIdAssigner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyDisposableWorkerIdAssigner.class);
 
     // 使用 ConcurrentHashMap 保存已分配的 worker ID，键是 worker ID，值是 WorkerNodeEntity
     private static final ConcurrentHashMap<Long, WorkerNodeEntity> WORKER_NODES = new ConcurrentHashMap<>();

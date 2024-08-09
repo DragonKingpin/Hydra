@@ -1,24 +1,25 @@
 package com.walnut.sparta.entity;
 
 import java.util.UUID;
-public class classification_node {
+public class ClassificationNode {
     //节点id
     private String id;
     //节点uuid
-    private UUID uuid;
+    private String UUID;
     //节点名称
     private String name;
     //分类规则uuid
-    private UUID rules_uuid;
+    private UUID rulesUUID;
 
-    public classification_node() {
+
+    public ClassificationNode() {
     }
 
-    public classification_node(String id, UUID uuid, String name, UUID rules_uuid) {
+    public ClassificationNode(String id, String UUID, String name, UUID rulesUUID) {
         this.id = id;
-        this.uuid = uuid;
+        this.UUID = UUID;
         this.name = name;
-        this.rules_uuid = rules_uuid;
+        this.rulesUUID = rulesUUID;
     }
 
     /**
@@ -39,18 +40,18 @@ public class classification_node {
 
     /**
      * 获取
-     * @return uuid
+     * @return UUID
      */
-    public UUID getUuid() {
-        return uuid;
+    public String getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
-     * @param uuid
+     * @param UUID
      */
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     /**
@@ -71,21 +72,21 @@ public class classification_node {
 
     /**
      * 获取
-     * @return rules_uuid
+     * @return rulesUUID
      */
-    public UUID getRules_uuid() {
-        return rules_uuid;
+    public UUID getRulesUUID() {
+        return rulesUUID;
     }
 
     /**
      * 设置
-     * @param rules_uuid
+     * @param rulesUUID
      */
-    public void setRules_uuid(UUID rules_uuid) {
-        this.rules_uuid = rules_uuid;
+    public void setRulesUUID(UUID rulesUUID) {
+        this.rulesUUID = rulesUUID;
     }
 
     public String toString() {
-        return "classification_node{id = " + id + ", uuid = " + uuid + ", name = " + name + ", rules_uuid = " + rules_uuid + "}";
+        return "classificationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
     }
 }

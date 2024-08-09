@@ -1,11 +1,10 @@
 package com.walnut.sparta.entity;
 
-import java.util.UUID;
-public class classification_rules {
+public class ClassificationRules {
     //规则id
     private String id;
     //规则uuid
-    private UUID uuid;
+    private String UUID;
     //作用域
     private String scope;
     //名称
@@ -14,12 +13,12 @@ public class classification_rules {
     private String description;
 
 
-    public classification_rules() {
+    public ClassificationRules() {
     }
 
-    public classification_rules(String id, UUID uuid, String scope, String name, String description) {
+    public ClassificationRules(String id, String UUID, String scope, String name, String description) {
         this.id = id;
-        this.uuid = uuid;
+        this.UUID = UUID;
         this.scope = scope;
         this.name = name;
         this.description = description;
@@ -43,18 +42,18 @@ public class classification_rules {
 
     /**
      * 获取
-     * @return uuid
+     * @return UUID
      */
-    public UUID getUuid() {
-        return uuid;
+    public String getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
-     * @param uuid
+     * @param UUID
      */
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     /**
@@ -106,6 +105,6 @@ public class classification_rules {
     }
 
     public String toString() {
-        return "classification_rules{id = " + id + ", uuid = " + uuid + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
+        return "classificationRules{id = " + id + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
     }
 }

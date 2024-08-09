@@ -1,9 +1,15 @@
 package com.walnut.sparta.system;
 
-import com.walnut.sparta.entity.node;
+import com.walnut.sparta.entity.Node;
 import com.walnut.sparta.service.SystemService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping( "/system" )
@@ -21,9 +27,9 @@ public class SystemController {
      * @param node 节点信息
      * @return 返回保存情况
      */
-    @PostMapping("/save_node")
-    public String save_node(@RequestBody node node){
-        systemService.save_node(node);
+    @PostMapping("/saveNode")
+    public String saveNode(@RequestBody Node node){
+        systemService.saveNode(node);
         return "保存节点成功";
     }
 
@@ -32,8 +38,8 @@ public class SystemController {
      * @param uuid 节点唯一标识
      * @return 返回删除情况
      */
-    @DeleteMapping("/delete_node/{uuid}")
-    public String delete_node(@PathVariable("uuid") String uuid){
-        return systemService.delete_node(uuid);
+    @DeleteMapping("/deleteNode/{UUID}")
+    public String delete_node(@PathVariable("UUID") String uuid){
+        return systemService.deleteNode(uuid);
     }
 }

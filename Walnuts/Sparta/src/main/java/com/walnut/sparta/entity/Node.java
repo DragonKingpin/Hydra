@@ -10,23 +10,26 @@ public class Node {
     //节点名称
     private String name;
     //父节点uuid
-    private UUID parentUUID;
+    private String parentUUID;
     //基础信息uuid
-    private UUID baseDataUUID;
+    private String baseDataUUID;
     //元信息uuid
-    private UUID nodeMetadataUUID;
+    private String nodeMetadataUUID;
+    //节点的类型方便获取数据
+    private String type;
 
 
     public Node() {
     }
 
-    public Node(String id, String UUID, String name, UUID parentUUID, UUID baseDataUUID, UUID nodeMetadataUUID) {
+    public Node(String id, String UUID, String name, String parentUUID, String baseDataUUID, String nodeMetadataUUID, String type) {
         this.id = id;
         this.UUID = UUID;
         this.name = name;
         this.parentUUID = parentUUID;
         this.baseDataUUID = baseDataUUID;
         this.nodeMetadataUUID = nodeMetadataUUID;
+        this.type = type;
     }
 
     /**
@@ -81,7 +84,7 @@ public class Node {
      * 获取
      * @return parentUUID
      */
-    public UUID getParentUUID() {
+    public String getParentUUID() {
         return parentUUID;
     }
 
@@ -89,7 +92,7 @@ public class Node {
      * 设置
      * @param parentUUID
      */
-    public void setParentUUID(UUID parentUUID) {
+    public void setParentUUID(String parentUUID) {
         this.parentUUID = parentUUID;
     }
 
@@ -97,7 +100,7 @@ public class Node {
      * 获取
      * @return baseDataUUID
      */
-    public UUID getBaseDataUUID() {
+    public String getBaseDataUUID() {
         return baseDataUUID;
     }
 
@@ -105,7 +108,7 @@ public class Node {
      * 设置
      * @param baseDataUUID
      */
-    public void setBaseDataUUID(UUID baseDataUUID) {
+    public void setBaseDataUUID(String baseDataUUID) {
         this.baseDataUUID = baseDataUUID;
     }
 
@@ -113,7 +116,7 @@ public class Node {
      * 获取
      * @return nodeMetadataUUID
      */
-    public UUID getNodeMetadataUUID() {
+    public String getNodeMetadataUUID() {
         return nodeMetadataUUID;
     }
 
@@ -121,11 +124,27 @@ public class Node {
      * 设置
      * @param nodeMetadataUUID
      */
-    public void setNodeMetadataUUID(UUID nodeMetadataUUID) {
+    public void setNodeMetadataUUID(String nodeMetadataUUID) {
         this.nodeMetadataUUID = nodeMetadataUUID;
     }
 
+    /**
+     * 获取
+     * @return type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * 设置
+     * @param type
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String toString() {
-        return "node{id = " + id + ", UUID = " + UUID + ", name = " + name + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + "}";
+        return "Node{id = " + id + ", UUID = " + UUID + ", name = " + name + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + ", type = " + type + "}";
     }
 }

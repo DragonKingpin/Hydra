@@ -1,10 +1,12 @@
 package com.pinecone.framework.system.prototype;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.util.json.JSON;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class ObjectiveList<T> implements Objectom {
     protected List<T > mList;
@@ -90,6 +92,23 @@ public class ObjectiveList<T> implements Objectom {
     @Override
     public String toJSONString() {
         return JSON.stringify(this.mList);
+    }
+
+    @Override
+    public Map<String, Object > toMap(Class<? > mapType ) {
+        Map<String, Object > map = Units.newInstance( mapType );
+        int i = 0;
+        for( Object e : this.mList ) {
+            map.put( Integer.toString( i ), e );
+            ++i;
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
     }
 
     @Override

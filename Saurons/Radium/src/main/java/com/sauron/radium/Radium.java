@@ -293,6 +293,10 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
         return (ServgramOrchestrator) this.mTaskManager;
     }
 
+    public Path getPrimaryConfigsPath() {
+        return this.getWorkingPath().resolve( Radium.SETUP_PATH );
+    }
+
     public void vitalize () throws Exception {
         this.getServgramOrchestrator().tracer().info( "[Lifecycle] <System committed prime directive>" );
         this.getServgramOrchestrator().orchestrate();

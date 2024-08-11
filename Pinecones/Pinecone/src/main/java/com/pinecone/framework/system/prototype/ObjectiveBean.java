@@ -1,15 +1,18 @@
 package com.pinecone.framework.system.prototype;
 
-import com.pinecone.framework.system.stereotype.JavaBeans;
-import com.pinecone.framework.unit.KeyValue;
-import com.pinecone.framework.util.StringUtils;
-import com.pinecone.framework.util.json.JSONEncoder;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import com.pinecone.framework.system.stereotype.JavaBeans;
+import com.pinecone.framework.unit.KeyValue;
+import com.pinecone.framework.unit.Units;
+import com.pinecone.framework.util.StringUtils;
+import com.pinecone.framework.util.json.JSONEncoder;
 
 public class ObjectiveBean implements Objectom {
     protected Object    mObj;
@@ -75,6 +78,7 @@ public class ObjectiveBean implements Objectom {
         return this.size() == 0;
     }
 
+    @Override
     public Object get( Object key ) {
         String szKey = key.toString();
         try {
@@ -110,6 +114,7 @@ public class ObjectiveBean implements Objectom {
         return -(low + 1);
     }
 
+    @Override
     public void set( Object key, Object val ) {
         String szKey = key.toString();
         try {
@@ -156,6 +161,29 @@ public class ObjectiveBean implements Objectom {
         }
 
         return JSONEncoder.stringifyMapFormat( dummy );
+    }
+
+    @Override
+    public Map<String, Object > toMap( Class<? > mapType ) {
+        Map<String, Object > map = Units.newInstance( mapType );
+        for( Entry kv : this.mGetMethods ) {
+            Object val;
+            try {
+                kv.method.setAccessible( true );
+                val = kv.method.invoke( this.mObj );
+                map.put( kv.name, val );
+            }
+            catch ( IllegalAccessException | InvocationTargetException e ) {
+                break;
+            }
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
     }
 
     @Override

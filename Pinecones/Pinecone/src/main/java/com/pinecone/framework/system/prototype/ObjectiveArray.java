@@ -1,10 +1,11 @@
 package com.pinecone.framework.system.prototype;
 
-import com.pinecone.framework.util.json.JSON;
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.pinecone.framework.unit.Units;
+import com.pinecone.framework.util.json.JSON;
 
 
 public class ObjectiveArray implements Objectom {
@@ -66,6 +67,23 @@ public class ObjectiveArray implements Objectom {
     @Override
     public String toJSONString() {
         return JSON.stringify( this.mArray );
+    }
+
+    @Override
+    public Map<String, Object > toMap(Class<? > mapType ) {
+        Map<String, Object > map = Units.newInstance( mapType );
+        int i = 0;
+        for( Object e : this.mArray ) {
+            map.put( Integer.toString( i ), e );
+            ++i;
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
     }
 
     @Override

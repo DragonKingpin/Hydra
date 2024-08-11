@@ -1,5 +1,6 @@
 package com.pinecone.framework.system.prototype;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +38,18 @@ public interface Objectom extends PineUnit {
     // const Object* keys() const;
     Object[] keys();
 
+    Map<String, Object > toMap( Class<? > mapType );
+
+    default Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
+    }
+
     @SuppressWarnings("unchecked")
     static Objectom wrap( Object that ) {
-        if( that instanceof Map ) {
+        if( that instanceof Objectom ) {
+            return (Objectom) that;
+        }
+        else if( that instanceof Map ) {
             return new ObjectiveMap<>( (Map) that );
         }
         else if( that instanceof List) {
@@ -49,6 +59,6 @@ public interface Objectom extends PineUnit {
             return new ObjectiveArray( (Object[]) that );
         }
 
-        return new ObjectiveClass(that);
+        return new ObjectiveBean(that);
     }
 }

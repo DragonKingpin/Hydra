@@ -1,13 +1,13 @@
 package com.pinecone.framework.system.prototype;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.json.hometype.DirectJSONInjector;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 public class ObjectiveClass implements Objectom {
     protected Object    mObj;
@@ -143,6 +143,37 @@ public class ObjectiveClass implements Objectom {
     @Override
     public String toJSONString() {
         return DirectJSONInjector.instance().inject( this.mObj ).toString();
+    }
+
+    @Override
+    public Map<String, Object > toMap( Class<? > mapType ) {
+        Map<String, Object > map = Units.newInstance( mapType );
+        Field[] classFields = this.mObj.getClass().getFields();
+        this.mFields = new Entry[ classFields.length ];
+        for ( int i = 0; i < classFields.length; ++i ) {
+            Field field        = classFields[ i ];
+            String fieldName   = field.getName();
+            try {
+                map.put( fieldName, field.get( this.mObj ) );
+            }
+            catch ( IllegalAccessException e ) {
+                try {
+                    field.setAccessible( true );
+                    map.put( fieldName, field.get( this.mObj ) );
+                    field.setAccessible( false );
+                }
+                catch ( IllegalAccessException ignore ) {
+                    // Do nothing.
+                }
+            }
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
     }
 
     @Override

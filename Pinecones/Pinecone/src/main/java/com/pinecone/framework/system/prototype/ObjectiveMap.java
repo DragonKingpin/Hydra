@@ -1,8 +1,9 @@
 package com.pinecone.framework.system.prototype;
 
+import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.util.json.JSON;
 
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ObjectiveMap<K, V> implements Objectom {
@@ -47,6 +48,23 @@ public class ObjectiveMap<K, V> implements Objectom {
     @Override
     public String toJSONString() {
         return JSON.stringify(this.mMap);
+    }
+
+    @Override
+    public Map<String, Object > toMap( Class<? > mapType ) {
+        Map<String, Object > map = Units.newInstance( mapType );
+        int i = 0;
+        for( Map.Entry<K, V > kv : this.mMap.entrySet() ) {
+            map.put( kv.getKey().toString(), kv.getValue() );
+            ++i;
+        }
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object > toMap() {
+        return this.toMap( LinkedHashMap.class );
     }
 
     @Override

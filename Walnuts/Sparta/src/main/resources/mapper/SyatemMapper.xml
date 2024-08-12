@@ -4,4 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.sparta.mapper.SystemMapper">
 
+
+    <select id="getPathInformation" resultType="com.walnut.sparta.entity.Node">
+        SELECT hn2.id, hn2.uuid, hn2.parent_uuid, hn2.base_data_uuid, hn2.node_metadata_uuid, hn2.type
+        FROM hydra_node hn
+                 INNER JOIN hydra_node hn2
+        WHERE hn.parent_uuid = hn2.uuid AND hn.uuid=#{UUID}
+    </select>
 </mapper>

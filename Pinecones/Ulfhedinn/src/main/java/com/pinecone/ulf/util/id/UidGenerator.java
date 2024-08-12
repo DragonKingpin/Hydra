@@ -42,4 +42,5 @@ public interface UidGenerator {
      */
    String parseUID(long uid);
 
+   UUID getUUID(long uid);
 }

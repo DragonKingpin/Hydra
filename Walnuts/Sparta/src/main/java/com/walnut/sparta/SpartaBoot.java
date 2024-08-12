@@ -20,7 +20,7 @@ public class SpartaBoot {
 //            ShadowBoot.shadow.console().cerr( e.getMessage() );
 //        }
 //    }
-    public static void main(String[] args) {
-        SpringApplication.run(SpartaBoot.class, args);
-    }
+//    public static void main(String[] args) {
+//        SpringApplication.run(SpartaBoot.class, args);
+//    }
 }

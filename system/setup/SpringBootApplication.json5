@@ -8,11 +8,15 @@
 
   "spring": {
     "datasource": {
-      "url": "jdbc:mysql://node1.nutgit.com:13393/predator?useSSL=false&serverTimezone=UTC",
+      "url": "jdbc:mysql://localhost:3306/hydranium?useSSL=false&serverTimezone=UTC",
       "username": "root",
-      "password": "root",
-      "driver-class-name": "com.mysql.jdbc.Driver"
+      "password": "123456",
+      "driver-class-name": "com.mysql.cj.jdbc.Driver"
     },
+    "mybatis":{
+      "mapper-locations": "classpath:mapper/*.xml"
+    },
+
     "redis": {
       "host": "localhost",
       "port": 6379,

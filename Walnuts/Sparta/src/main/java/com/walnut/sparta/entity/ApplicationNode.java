@@ -1,25 +1,20 @@
 package com.walnut.sparta.entity;
 
-import java.util.UUID;
-public class ClassificationNode {
-    //节点id
+public class ApplicationNode {
+    //应用节点id
     private String id;
-    //节点uuid
+    //应用节点UUID
     private String UUID;
-    //节点名称
+    //应用节点名称
     private String name;
-    //分类规则uuid
-    private String rulesUUID;
 
-
-    public ClassificationNode() {
+    public ApplicationNode() {
     }
 
-    public ClassificationNode(String id, String UUID, String name, String rulesUUID) {
+    public ApplicationNode(String id, String UUID, String name) {
         this.id = id;
         this.UUID = UUID;
         this.name = name;
-        this.rulesUUID = rulesUUID;
     }
 
     /**
@@ -70,23 +65,7 @@ public class ClassificationNode {
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return rulesUUID
-     */
-    public String getRulesUUID() {
-        return rulesUUID;
-    }
-
-    /**
-     * 设置
-     * @param rulesUUID
-     */
-    public void setRulesUUID(String rulesUUID) {
-        this.rulesUUID = rulesUUID;
-    }
-
     public String toString() {
-        return "ClassificationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
+        return "ApplicationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + "}";
     }
 }

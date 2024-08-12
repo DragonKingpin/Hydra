@@ -7,8 +7,6 @@ public class Node {
     private String id;
     //节点uuid
     private String UUID;
-    //节点名称
-    private String name;
     //父节点uuid
     private String parentUUID;
     //基础信息uuid
@@ -22,10 +20,9 @@ public class Node {
     public Node() {
     }
 
-    public Node(String id, String UUID, String name, String parentUUID, String baseDataUUID, String nodeMetadataUUID, String type) {
+    public Node(String id, String UUID, String parentUUID, String baseDataUUID, String nodeMetadataUUID, String type) {
         this.id = id;
         this.UUID = UUID;
-        this.name = name;
         this.parentUUID = parentUUID;
         this.baseDataUUID = baseDataUUID;
         this.nodeMetadataUUID = nodeMetadataUUID;
@@ -62,22 +59,6 @@ public class Node {
      */
     public void setUUID(String UUID) {
         this.UUID = UUID;
-    }
-
-    /**
-     * 获取
-     * @return name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * 设置
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -145,6 +126,6 @@ public class Node {
     }
 
     public String toString() {
-        return "Node{id = " + id + ", UUID = " + UUID + ", name = " + name + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + ", type = " + type + "}";
+        return "Node{id = " + id + ", UUID = " + UUID + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + ", type = " + type + "}";
     }
 }

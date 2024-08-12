@@ -2,6 +2,7 @@ package com.pinecone.ulf.util.id.impl;
 
 
 import com.pinecone.ulf.util.id.BitsAllocator;
+import com.pinecone.ulf.util.id.UUID;
 import com.pinecone.ulf.util.id.UidGenerator;
 import com.pinecone.ulf.util.id.exception.UidGenerateException;
 import com.pinecone.ulf.util.id.utils.DateUtils;
@@ -87,6 +88,25 @@ public class MyDefaultUidGenerator implements UidGenerator, InitializingBean {
         // format as string
         return String.format("{\"UID\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}",
                 uid, thatTimeStr, workerId, sequence);
+    }
+    @Override
+    public UUID getUUID(long uid) {
+        long totalBits = BitsAllocator.TOTAL_BITS;
+        long signBits = bitsAllocator.getSignBits();
+        long timestampBits = bitsAllocator.getTimestampBits();
+        long workerIdBits = bitsAllocator.getWorkerIdBits();
+        long sequenceBits = bitsAllocator.getSequenceBits();
+
+        // parse UID
+        long sequence = (uid << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
+        long workerId = (uid << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
+        long deltaSeconds = uid >>> (workerIdBits + sequenceBits);
+
+        Date thatTime = new Date(TimeUnit.SECONDS.toMillis(epochSeconds + deltaSeconds));
+        String thatTimeStr = DateUtils.formatByDateTimePattern(thatTime);
+
+        // format as string
+        return new UUID(sequence,workerId,deltaSeconds);
     }
 
     /**

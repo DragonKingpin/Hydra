@@ -11,15 +11,15 @@
     <img src="https://img.shields.io/badge/文档-简体中文-blue.svg" alt="简体中文文档" />
   </a>
 
-   <a href="https://github.com/DragonsPrime/Hydra/blob/beta/CHANGELOG.md" >
+   <a href="https://github.com/DragonKingpin/Hydra/blob/beta/CHANGELOG.md" >
     <img src="https://img.shields.io/badge/ChangeLog-English-blue.svg" alt="Update Log" />
   </a>
 
    <a target="_blank" href="https://www.oracle.com/technetwork/java/javase/downloads/index.html" >
         <img src="https://img.shields.io/badge/JDK-11+-green.svg" />
     </a>
-   <a target="_blank" href='https://github.com/DragonsPrime/Hydra'>
-        <img src="https://img.shields.io/github/stars/DragonsPrime/Hydra.svg" alt="github stars"/>
+   <a target="_blank" href='https://github.com/DragonKingpin/Hydra'>
+        <img src="https://img.shields.io/github/stars/DragonKingpin/Hydra.svg" alt="github stars"/>
    </a>
 
    <a target="_blank" href=''>
@@ -97,10 +97,10 @@ Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级�
 
 ### 更新 TODO 日历
 8，9双月
-- [Major] 下一次文档全量更新：(08月15日前更新)
+- [Major] 下一次文档全量更新：(08月30日前更新)
 - [Major] 下一次代码全量更新：(09月01日前更新)
-- [Minor] 附属项目开源，God View，Springboot 重构中。（08月10日前）
-- [Minor] 任务系统调整，增加全局列表注册器（给嵌套模型加顶级收集器）。（08月10日前）
+- [Minor] 附属项目开源，God View，Springboot 重构中。（08月30日前）
+- [Minor] 任务系统调整，增加全局列表注册器（给嵌套模型加顶级收集器）。（08月30日前）
 - [Major] 服务系统调整，全量更新系统级服务中心、服务注册等基础设施系统。（09月10日前）
 - [Minor] 消息控制组件，RPC应用层调整、规范化，增加类Thrift，统一序列化、接口化系统。（09月01日前）
 - [Major] Sparta子系统，Web 图形界面操作系统增量、灰度构建。（09月30日前）

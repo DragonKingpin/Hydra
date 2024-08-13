@@ -1,5 +1,7 @@
 package com.walnut.sparta.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 public class ServiceDescription {
     //服务id
@@ -19,8 +21,10 @@ public class ServiceDescription {
     //服务类型
     private String serviceType;
     //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     //最近更新时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
 

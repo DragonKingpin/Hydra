@@ -12,15 +12,24 @@ import com.walnut.sparta.entity.ServiceNode;
 import com.walnut.sparta.mapper.SystemMapper;
 import com.walnut.sparta.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * 提供服务树的相应方法
  */
 @Component
 public class ServiceTree {
+
     @Autowired
     private SystemMapper systemMapper;
+    private final ApplicationEventPublisher eventPublisher;
+
+    public ServiceTree( ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
     //保存节点
     public void saveApplicationNode(ApplicationNodeInformation applicationNodeInformation){
         //将信息写入数据库
@@ -40,11 +49,12 @@ public class ServiceTree {
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = applicationNodeInformation.getNode();
+        Node node = new Node();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("applicationNode");
+        systemMapper.saveNode(node);
     }
     public void saveServiceNode(ServiceNodeInformation serviceNodeInformation){
         //将信息写入数据库
@@ -64,11 +74,12 @@ public class ServiceTree {
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = serviceNodeInformation.getNode();
+        Node node = new Node();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("serviceNode");
+        systemMapper.saveNode(node);
     }
     public void saveClassifNode(ClassifNodeInformation classifNodeInformation){
         //将应用节点基础信息存入信息表
@@ -89,11 +100,12 @@ public class ServiceTree {
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = classifNodeInformation.getNode();
+        Node node = new Node();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("classifNode");
+        systemMapper.saveNode(node);
     }
     //删除节点
     public void deleteNode(String UUID){
@@ -117,6 +129,14 @@ public class ServiceTree {
             systemMapper.deleteNode(node.getUUID());
             systemMapper.deleteNodeMetadata(node.getNodeMetadataUUID());
         }
+        //更新路径逻辑
+        List<Node> childNodes = systemMapper.selectChildNode(node.getUUID());
+        for (Node childNode:childNodes){
+            childNode.setParentUUID(node.getParentUUID());
+            systemMapper.updateNode(childNode);
+            updatePath(childNode.getUUID());
+        }
+
     }
     //查找节点信息
     public Object selectNode(String UUID){
@@ -124,15 +144,13 @@ public class ServiceTree {
         String path = systemMapper.selectPath(UUID);
         if (path==null){
             Node node = systemMapper.selectNodeUUID(UUID);
+            String nodeName = getNodeName(node);
             String pathString="";
-            pathString=pathString+node.getUUID()+".";
-            while (node.getParentUUID()!=null){
+            pathString=pathString+nodeName;
+            while (node.getParentUUID() != null){
                 node=systemMapper.selectNodeUUID(node.getParentUUID());
-                if (node.getParentUUID()==null){
-                    pathString=pathString+node.getUUID();
-                    break;
-                }
-                pathString=pathString+node.getUUID()+".";
+                 nodeName = getNodeName(node);
+                pathString=nodeName + "." + pathString;
             }
             systemMapper.savePath(pathString,UUID);
         }
@@ -166,8 +184,50 @@ public class ServiceTree {
         }
         return null;
     }
-    //查找节点父节点信息
+    //打印路径信息
+    public String getPath(String UUID){
+        String path = systemMapper.selectPath(UUID);
+        //若不存在path信息则更新缓存表
+        if (path==null){
+            Node node = systemMapper.selectNodeUUID(UUID);
+            String nodeName = getNodeName(node);
+            String pathString="";
+            pathString=pathString+nodeName;
+            while (node.getParentUUID() != null){
+                node=systemMapper.selectNodeUUID(node.getParentUUID());
+                nodeName = getNodeName(node);
+                pathString=nodeName + "." + pathString;
+            }
+            systemMapper.savePath(pathString,UUID);
+            return pathString;
+        }
+        return path;
+    }
 
+    private String getNodeName(Node node){
+        if (node.getType().equals("applicationNode")){
+          return systemMapper.selectApplicationNode(node.getUUID()).getName();
+        }else if(node.getType().equals("serviceNode")){
+
+            return systemMapper.selectServiceNode(node.getUUID()).getName();
+        } else if (node.getType().equals("classifNode")) {
+
+            return systemMapper.selectClassificationNode(node.getUUID()).getName();
+        }
+        return null;
+    }
+    private void updatePath(String UUID){
+        Node node = systemMapper.selectNodeUUID(UUID);
+        String nodeName = getNodeName(node);
+        String pathString="";
+        pathString=pathString+nodeName;
+        while (node.getParentUUID() != null){
+            node=systemMapper.selectNodeUUID(node.getParentUUID());
+            nodeName = getNodeName(node);
+            pathString=nodeName + "." + pathString;
+        }
+        systemMapper.updatePath(UUID,pathString);
+    }
 
 
 }

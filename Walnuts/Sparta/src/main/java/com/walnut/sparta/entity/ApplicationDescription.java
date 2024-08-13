@@ -1,5 +1,7 @@
 package com.walnut.sparta.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 public class ApplicationDescription {
     //应用id
@@ -19,8 +21,10 @@ public class ApplicationDescription {
     //部署方式
     private String deploymentMethod;
     //创建时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
     //最近更新时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
 

@@ -2,6 +2,7 @@ package com.walnut.sparta.service.serviceImpl;
 
 import com.walnut.sparta.entity.Node;
 import com.walnut.sparta.mapper.SystemMapper;
+import com.walnut.sparta.pojo.ServiceTree;
 import com.walnut.sparta.service.SystemService;
 import com.walnut.sparta.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 public class SystemServiceImpl implements SystemService {
     @Autowired
     private SystemMapper systemMapper;
+    @Autowired
+    private ServiceTree serviceTree;
     @Override
     public void saveNode(Node node) {
         //生成uuid

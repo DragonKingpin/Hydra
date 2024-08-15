@@ -150,14 +150,42 @@ public class TestUnits {
     }
 
 
+    public static void testMergeSharedList(){
+        List<String> list1 = new ArrayList<>(List.of("a", "b", "c","d","e"));
+        List<String> list2 = new ArrayList<>(List.of("X", "D", "F","X","Y"));
+        System.out.println("list1: "+list1);
+        System.out.println("list2: "+list2);
+
+        SharedList<String> mergeList = SharedList.SharedListBuilder.merge(list1, list2);
+
+        System.out.println("merge list1 and list2 : "+ mergeList);
+
+        SharedList<String> slice = SharedList.SharedListBuilder.slice(2, 6, mergeList);
+        System.out.println("slice mergeList from 2 to 6 : "+ slice);
+
+        SharedList<String> merge2List = SharedList.SharedListBuilder.merge(list1, list2, slice);
+        System.out.println("merge list1 and list2 and slice : "+ merge2List);
+        System.out.println("merge2 get index 1: "+ merge2List.get(1));
+
+        SharedList<String> subList = merge2List.subList(4, 5);
+        System.out.println("merge2 subList from 4 to 5 :"+ subList);
+
+        subList.set(1, "hello");
+        System.out.println("sublist after set sublist index 1 to hello: "+subList);
+        System.out.println("merge2 after set sublist index 1 to hello: "+merge2List);
+    }
+
+
+
+
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
 
             //TestUnits.testUniScopeMap();
             //TestUnits.testMultiScopeMap();
             //TestUnits.testPrecedeMultiMap();
-            TestUnits.testRecursiveEntryIterator();
-
+            //TestUnits.testRecursiveEntryIterator();
+            TestUnits.testMergeSharedList();
 
             return 0;
         }, (Object[]) args );

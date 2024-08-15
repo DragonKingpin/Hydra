@@ -365,6 +365,20 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("[");
+        for (T t : this) {
+            sb.append(t).append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append("]");
+
+        return sb.toString();
+    }
+
+    @Override
     public boolean containsKey( Object elm ) {
         try {
             if( elm instanceof Number ) {
@@ -375,7 +389,7 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
                 }
                 return nLength > nElm;
             }
-            return this.containsKey( (int)Integer.valueOf(elm.toString()) );
+            return this.containsKey( Integer.parseInt(elm.toString()) );
         }
         catch ( NumberFormatException e ){
             return false;

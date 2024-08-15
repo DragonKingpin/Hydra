@@ -25,7 +25,7 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public String deleteNode(String uuid) {
         //检测节点是否存在
-        Node node = systemMapper.selectNodeUUID(uuid);
+        Node node = systemMapper.selectNode(uuid);
         if (node==null){
             return "删除失败，节点不存在";
         }

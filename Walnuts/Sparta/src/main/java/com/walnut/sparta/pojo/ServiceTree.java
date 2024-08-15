@@ -1,6 +1,8 @@
 package com.walnut.sparta.pojo;
 
 
+import com.walnut.sparta.ServiceTree.DataSourceFactory;
+import com.walnut.sparta.ServiceTree.Interface.ServiceTreeDao;
 import com.walnut.sparta.entity.ApplicationDescription;
 import com.walnut.sparta.entity.ApplicationNode;
 import com.walnut.sparta.entity.ClassificationNode;
@@ -9,10 +11,8 @@ import com.walnut.sparta.entity.Node;
 import com.walnut.sparta.entity.NodeMetadata;
 import com.walnut.sparta.entity.ServiceDescription;
 import com.walnut.sparta.entity.ServiceNode;
-import com.walnut.sparta.mapper.SystemMapper;
 import com.walnut.sparta.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,14 +22,11 @@ import java.util.List;
  */
 @Component
 public class ServiceTree {
-
     @Autowired
-    private SystemMapper systemMapper;
-    private final ApplicationEventPublisher eventPublisher;
+    private ServiceTreeDao systemMapper;
+    @Autowired
+    private DataSourceFactory dataSourceFactory;
 
-    public ServiceTree( ApplicationEventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
     //保存节点
     public void saveApplicationNode(ApplicationNodeInformation applicationNodeInformation){
         //将信息写入数据库
@@ -110,7 +107,7 @@ public class ServiceTree {
     //删除节点
     public void deleteNode(String UUID){
         //获取节点信息
-        Node node = systemMapper.selectNodeUUID(UUID);
+        Node node = systemMapper.selectNode(UUID);
         //根据类型删除节点
         String type = node.getType();
         if (type.equals("applicationNode")){
@@ -143,12 +140,12 @@ public class ServiceTree {
         //先查看缓存表中是否存在路径信息，不存在则补齐
         String path = systemMapper.selectPath(UUID);
         if (path==null){
-            Node node = systemMapper.selectNodeUUID(UUID);
+            Node node = systemMapper.selectNode(UUID);
             String nodeName = getNodeName(node);
             String pathString="";
             pathString=pathString+nodeName;
             while (node.getParentUUID() != null){
-                node=systemMapper.selectNodeUUID(node.getParentUUID());
+                node=systemMapper.selectNode(node.getParentUUID());
                  nodeName = getNodeName(node);
                 pathString=nodeName + "." + pathString;
             }
@@ -156,7 +153,7 @@ public class ServiceTree {
         }
         //先搜索出节点信息再根据节点类型进行完善
         // todo 继承机制还没有实现
-        Node node = systemMapper.selectNodeUUID(UUID);
+        Node node = systemMapper.selectNode(UUID);
         if (node.getType().equals("applicationNode")){
             ApplicationNodeInformation applicationNodeInformation = new ApplicationNodeInformation();
             ApplicationDescription applicationDescription = systemMapper.selectApplicationDescription(node.getBaseDataUUID());
@@ -177,28 +174,46 @@ public class ServiceTree {
         } else if (node.getType().equals("classifNode")) {
             ClassifNodeInformation classifNodeInformation = new ClassifNodeInformation();
             classifNodeInformation.setNode(node);
-            classifNodeInformation.setClassificationNode(systemMapper.selectClassificationNode(node.getUUID()));
+            classifNodeInformation.setClassificationNode(systemMapper.selectClassifNode(node.getUUID()));
             classifNodeInformation.setNodeMetadata(systemMapper.selectNodeMetadata(node.getNodeMetadataUUID()));
-            classifNodeInformation.setClassificationRules(systemMapper.selectClassificationRules(node.getBaseDataUUID()));
+            classifNodeInformation.setClassificationRules(systemMapper.selectClassifRules(node.getBaseDataUUID()));
             return classifNodeInformation;
         }
         return null;
     }
     //打印路径信息
     public String getPath(String UUID){
-        String path = systemMapper.selectPath(UUID);
+        ServiceTreeDao dataAccess = dataSourceFactory.createDataAccess();
+//        String path = systemMapper.selectPath(UUID);
+//        //若不存在path信息则更新缓存表
+//        if (path==null){
+//            Node node = systemMapper.selectNode(UUID);
+//            String nodeName = getNodeName(node);
+//            String pathString="";
+//            pathString=pathString+nodeName;
+//            while (node.getParentUUID() != null){
+//                node=systemMapper.selectNode(node.getParentUUID());
+//                nodeName = getNodeName(node);
+//                pathString=nodeName + "." + pathString;
+//            }
+//            systemMapper.savePath(pathString,UUID);
+//            return pathString;
+//        }
+//        return path;
+        //测试通过数据工厂注入
+        String path = dataAccess.selectPath(UUID);
         //若不存在path信息则更新缓存表
         if (path==null){
-            Node node = systemMapper.selectNodeUUID(UUID);
+            Node node = dataAccess.selectNode(UUID);
             String nodeName = getNodeName(node);
             String pathString="";
             pathString=pathString+nodeName;
             while (node.getParentUUID() != null){
-                node=systemMapper.selectNodeUUID(node.getParentUUID());
+                node=dataAccess.selectNode(node.getParentUUID());
                 nodeName = getNodeName(node);
                 pathString=nodeName + "." + pathString;
             }
-            systemMapper.savePath(pathString,UUID);
+            dataAccess.savePath(pathString,UUID);
             return pathString;
         }
         return path;
@@ -212,17 +227,17 @@ public class ServiceTree {
             return systemMapper.selectServiceNode(node.getUUID()).getName();
         } else if (node.getType().equals("classifNode")) {
 
-            return systemMapper.selectClassificationNode(node.getUUID()).getName();
+            return systemMapper.selectClassifNode(node.getUUID()).getName();
         }
         return null;
     }
     private void updatePath(String UUID){
-        Node node = systemMapper.selectNodeUUID(UUID);
+        Node node = systemMapper.selectNode(UUID);
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
         while (node.getParentUUID() != null){
-            node=systemMapper.selectNodeUUID(node.getParentUUID());
+            node=systemMapper.selectNode(node.getParentUUID());
             nodeName = getNodeName(node);
             pathString=nodeName + "." + pathString;
         }

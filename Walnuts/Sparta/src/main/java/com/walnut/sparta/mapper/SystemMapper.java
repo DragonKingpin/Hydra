@@ -1,5 +1,6 @@
 package com.walnut.sparta.mapper;
 
+import com.walnut.sparta.ServiceTree.Interface.ServiceTreeDao;
 import com.walnut.sparta.entity.ApplicationDescription;
 import com.walnut.sparta.entity.ApplicationNode;
 import com.walnut.sparta.entity.ClassificationNode;
@@ -14,17 +15,17 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 
-import java.nio.file.Path;
 import java.util.List;
 
 
 @Mapper
-public interface SystemMapper {
+public interface SystemMapper extends ServiceTreeDao {
     @Insert("INSERT INTO  `hydra_node` (`uuid`, parentUUID, baseDataUUID, nodeMetadataUUID,`type`) VALUES (#{UUID},#{parentUUID},#{baseDataUUID},#{nodeMetadataUUID},#{type})")
     void saveNode(Node node);
     @Select("SELECT `id`, `uuid`, parentUUID, baseDataUUID, nodeMetadataUUID ,`type` FROM `hydra_node` where uuid=#{uuid}")
-    Node selectNodeUUID( @Param("uuid") String uuid);
+    Node selectNode( @Param("uuid") String uuid);
     @Delete("DELETE FROM `hydra_node` WHERE uuid=#{uuid}")
     void deleteNode(@Param("uuid") String uuid);
     @Insert("INSERT INTO  `hydra_application_node` (`uuid`, `name`) VALUES (#{UUID},#{name})")
@@ -71,9 +72,9 @@ public interface SystemMapper {
      @Select("SELECT `id`, UUID, `name`, `path`, `type`, `alias`, resourceType, serviceType, createTime, updateTime FROM `hydra_service_description` WHERE UUID=#{UUID}")
      ServiceDescription selectServiceDescription(String UUID);
      @Select("SELECT `id`, `uuid`, `scope`, `name`, `description` FROM `hydra_classif_rules` WHERE `uuid`=#{UUID}")
-     ClassificationRules selectClassificationRules(String UUID);
+     ClassificationRules selectClassifRules(String UUID);
      @Select("SELECT `id`, `uuid`, `name`, `rulesUUID` FROM `hydra_classif_node` WHERE `uuid`=#{UUID}")
-     ClassificationNode selectClassificationNode(String UUID);
+     ClassificationNode selectClassifNode(String UUID);
      @Select("SELECT `id`, `UUID`, `parentUUID`, `baseDataUUID`, `nodeMetadataUUID`, `type` FROM `hydra_node` WHERE `parentUUID`=#{UUID}")
      List<Node> selectChildNode(@Param("UUID") String UUID);
      @Update("UPDATE `hydra_node` SET `parentUUID`=#{UUID} WHERE `UUID`=#{UUID}")

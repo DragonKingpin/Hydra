@@ -37,6 +37,9 @@
       "virtual-host": "/wolf", // 虚拟主机
       "username": "test", // 用户名
       "password": "test" // 密码
+    },
+    "sparta": {
+      "datasource": "mysql"
     }
   }
 }

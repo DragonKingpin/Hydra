@@ -4,7 +4,17 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SharedList<T> extends AbstractList<T> implements List<T>, Serializable {
+import com.pinecone.framework.system.prototype.PineUnit;
+
+/**
+ *  Pinecone Ursus For Java SharedList
+ *  SharedList Author: Genius (https://geniusay.com)
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  **********************************************************
+ *  Thanks for genius`s contribution.
+ *  **********************************************************
+ */
+public class SharedList<T> extends AbstractList<T> implements List<T>, Serializable, PineUnit {
 
     public interface SharedListBuilder{
 
@@ -355,16 +365,25 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("[");
-        for (T t : this) {
-            sb.append(t).append(",");
+    public boolean containsKey( Object elm ) {
+        try {
+            if( elm instanceof Number ) {
+                int nElm = ( (Number)elm ).intValue();
+                int nLength = this.size();
+                if( nElm < 0 || nLength == 0 ){
+                    return false;
+                }
+                return nLength > nElm;
+            }
+            return this.containsKey( (int)Integer.valueOf(elm.toString()) );
         }
-        sb.deleteCharAt(sb.length()-1);
-        sb.append("]");
+        catch ( NumberFormatException e ){
+            return false;
+        }
+    }
 
-        return sb.toString();
+    @Override
+    public boolean hasOwnProperty( Object elm ) {
+        return this.containsKey( elm );
     }
 }

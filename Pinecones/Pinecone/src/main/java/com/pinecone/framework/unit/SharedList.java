@@ -296,6 +296,7 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
     private Iterator<T> skipIterator(int skipNum){
         return new Itr(skipNum);
     }
+
     private class Itr implements Iterator<T> {
 
         private int cursor;
@@ -307,6 +308,8 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
         private Iterator<T> selfItr = null;
 
         private boolean selfFlag = false;
+
+        private final boolean selfElementIsShared = elementData instanceof SharedList;
 
         private int lastCursor = -1;
 
@@ -331,11 +334,14 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
         public T next() {
             int i = cursor++;
 
-            indexOutOfSizeThrow(i);
+            if(currentSharedItr!=null && currentSharedItr.hasNext()){
+                return currentSharedItr.next();
+            }
+
             for(;;){
-                if(sharedLists.isEmpty() || selfFlag){
+                if(selfFlag || sharedLists.isEmpty()){
                     int ptr = invokeIndex(i, selfSizeIndex());
-                    if(elementData instanceof SharedList){
+                    if(selfElementIsShared){
                         if(selfItr == null) {
                             selfItr = ((SharedList<T>) elementData).skipIterator(ptr);
                         }
@@ -345,19 +351,31 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
                     }
                 }
 
-                if(nowSharedListIndex == -1 || Objects.isNull(currentSharedItr) || !currentSharedItr.hasNext()){
-                    nowSharedListIndex++;
-                    if(nowSharedListIndex>=sharedLists.size()){
-                        selfFlag = true;
-                        continue;
-                    }
-                    currentSharedItr = sharedLists.get(nowSharedListIndex).skipIterator(invokeIndex(i, nowSharedListIndex));
+                nowSharedListIndex++;
+                if(nowSharedListIndex>=sharedLists.size()){
+                    selfFlag = true;
+                    continue;
                 }
+                currentSharedItr = sharedLists.get(nowSharedListIndex).skipIterator(invokeIndex(i, nowSharedListIndex));
 
                 return currentSharedItr.next();
             }
 
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("[");
+        for (T t : this) {
+            sb.append(t).append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        sb.append("]");
+
+        return sb.toString();
     }
 
     @Override
@@ -371,7 +389,7 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
                 }
                 return nLength > nElm;
             }
-            return this.containsKey( (int)Integer.valueOf(elm.toString()) );
+            return this.containsKey( Integer.parseInt(elm.toString()) );
         }
         catch ( NumberFormatException e ){
             return false;

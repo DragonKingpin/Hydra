@@ -1,26 +1,31 @@
-package com.walnut.sparta.entity;
+package com.pinecone.hydra.service;
 
-public class NodeMetadata {
-    //id
+public class GenericNodeMetadata implements NodeMetadata {
+    // id
     private String id;
-    //元信息uuid
+
+    // 元信息uuid
     private String UUID;
-    //场景
+
+    // 场景
     private String scenario;
-    //主语言
+
+    // 主语言
     private String primaryImplLang;
-    //额外信息
+
+    // 额外信息
     private String extraInformation;
-    //等级
+
+    // 等级
     private String level;
-    //描述
+
+    // 描述
     private String description;
 
-
-    public NodeMetadata() {
+    public GenericNodeMetadata() {
     }
 
-    public NodeMetadata(String id, String UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericNodeMetadata(String id, String UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
         this.id = id;
         this.UUID = UUID;
         this.scenario = scenario;
@@ -34,6 +39,7 @@ public class NodeMetadata {
      * 获取
      * @return id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -42,6 +48,7 @@ public class NodeMetadata {
      * 设置
      * @param id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -50,6 +57,7 @@ public class NodeMetadata {
      * 获取
      * @return UUID
      */
+    @Override
     public String getUUID() {
         return UUID;
     }
@@ -58,6 +66,7 @@ public class NodeMetadata {
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(String UUID) {
         this.UUID = UUID;
     }
@@ -66,6 +75,7 @@ public class NodeMetadata {
      * 获取
      * @return scenario
      */
+    @Override
     public String getScenario() {
         return scenario;
     }
@@ -74,6 +84,7 @@ public class NodeMetadata {
      * 设置
      * @param scenario
      */
+    @Override
     public void setScenario(String scenario) {
         this.scenario = scenario;
     }
@@ -82,6 +93,7 @@ public class NodeMetadata {
      * 获取
      * @return primaryImplLang
      */
+    @Override
     public String getPrimaryImplLang() {
         return primaryImplLang;
     }
@@ -90,6 +102,7 @@ public class NodeMetadata {
      * 设置
      * @param primaryImplLang
      */
+    @Override
     public void setPrimaryImplLang(String primaryImplLang) {
         this.primaryImplLang = primaryImplLang;
     }
@@ -98,6 +111,7 @@ public class NodeMetadata {
      * 获取
      * @return extraInformation
      */
+    @Override
     public String getExtraInformation() {
         return extraInformation;
     }
@@ -106,6 +120,7 @@ public class NodeMetadata {
      * 设置
      * @param extraInformation
      */
+    @Override
     public void setExtraInformation(String extraInformation) {
         this.extraInformation = extraInformation;
     }
@@ -114,6 +129,7 @@ public class NodeMetadata {
      * 获取
      * @return level
      */
+    @Override
     public String getLevel() {
         return level;
     }
@@ -122,6 +138,7 @@ public class NodeMetadata {
      * 设置
      * @param level
      */
+    @Override
     public void setLevel(String level) {
         this.level = level;
     }
@@ -130,6 +147,7 @@ public class NodeMetadata {
      * 获取
      * @return description
      */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -138,11 +156,13 @@ public class NodeMetadata {
      * 设置
      * @param description
      */
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public String toString() {
-        return "nodeMetadata{id = " + id + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return "GenericNodeMetadata{id = " + id + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
     }
 }

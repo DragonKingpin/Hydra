@@ -1,16 +1,16 @@
 package com.walnut.sparta.event;
 
-import com.walnut.sparta.entity.Node;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.List;
 
 public class NodeDeleteEvent extends ApplicationEvent {
 
-    private final Node node;
-    private final List<Node> childNodes;
+    private final UUIDDistributedScopeNode node;
+    private final List<UUIDDistributedScopeNode> childNodes;
 
-    public NodeDeleteEvent(Object source, Node node, List<Node> childNodes) {
+    public NodeDeleteEvent(Object source, UUIDDistributedScopeNode node, List<UUIDDistributedScopeNode> childNodes) {
         super(source); // 调用父类的带参数构造方法
         this.node = node;
         this.childNodes = childNodes;
@@ -26,7 +26,7 @@ public class NodeDeleteEvent extends ApplicationEvent {
      * 获取被删除的节点
      * @return node
      */
-    public Node getNode() {
+    public UUIDDistributedScopeNode getNode() {
         return node;
     }
 
@@ -34,7 +34,7 @@ public class NodeDeleteEvent extends ApplicationEvent {
      * 获取被删除节点的子节点列表
      * @return 子节点列表
      */
-    public List<Node> getChildNodes() {
+    public List<UUIDDistributedScopeNode> getChildNodes() {
         return childNodes;
     }
 

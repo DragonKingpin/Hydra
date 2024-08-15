@@ -1,21 +1,23 @@
-package com.walnut.sparta.entity;
+package com.pinecone.hydra.service;
 
-import java.util.UUID;
-public class ClassificationNode {
-    //节点id
+
+public class GenericClassificationNode implements ClassificationNode {
+    // 节点id
     private String id;
-    //节点uuid
+
+    // 节点uuid
     private String UUID;
-    //节点名称
+
+    // 节点名称
     private String name;
-    //分类规则uuid
+
+    // 分类规则uuid
     private String rulesUUID;
 
-
-    public ClassificationNode() {
+    public GenericClassificationNode() {
     }
 
-    public ClassificationNode(String id, String UUID, String name, String rulesUUID) {
+    public GenericClassificationNode(String id, String UUID, String name, String rulesUUID) {
         this.id = id;
         this.UUID = UUID;
         this.name = name;
@@ -26,6 +28,7 @@ public class ClassificationNode {
      * 获取
      * @return id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -34,6 +37,7 @@ public class ClassificationNode {
      * 设置
      * @param id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -42,6 +46,7 @@ public class ClassificationNode {
      * 获取
      * @return UUID
      */
+    @Override
     public String getUUID() {
         return UUID;
     }
@@ -50,6 +55,7 @@ public class ClassificationNode {
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(String UUID) {
         this.UUID = UUID;
     }
@@ -58,6 +64,7 @@ public class ClassificationNode {
      * 获取
      * @return name
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -66,6 +73,7 @@ public class ClassificationNode {
      * 设置
      * @param name
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -74,6 +82,7 @@ public class ClassificationNode {
      * 获取
      * @return rulesUUID
      */
+    @Override
     public String getRulesUUID() {
         return rulesUUID;
     }
@@ -82,11 +91,13 @@ public class ClassificationNode {
      * 设置
      * @param rulesUUID
      */
+    @Override
     public void setRulesUUID(String rulesUUID) {
         this.rulesUUID = rulesUUID;
     }
 
+    @Override
     public String toString() {
-        return "ClassificationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
+        return "GenericClassificationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
     }
 }

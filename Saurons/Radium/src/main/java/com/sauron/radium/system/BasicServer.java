@@ -1,7 +1,7 @@
 package com.sauron.radium.system;
 
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.services.ArchServer;
+import com.pinecone.hydra.server.ArchServer;
 
 public class BasicServer extends ArchServer {
     protected ServersScope serversScope;

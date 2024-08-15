@@ -1,23 +1,23 @@
 package com.walnut.sparta.pojo;
 
-import com.walnut.sparta.entity.ApplicationDescription;
-import com.walnut.sparta.entity.ApplicationNode;
-import com.walnut.sparta.entity.Node;
-import com.walnut.sparta.entity.NodeMetadata;
+import com.pinecone.hydra.service.GenericApplicationDescription;
+import com.pinecone.hydra.service.GenericApplicationNode;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.service.GenericNodeMetadata;
 
 /**
  * 用于便捷获取节点数据与生成json数据
  */
 public class ApplicationNodeInformation {
-    private Node node;
-    private ApplicationNode applicationNode;
-    private ApplicationDescription applicationDescription;
-    private NodeMetadata metadata;
+    private UUIDDistributedScopeNode node;
+    private GenericApplicationNode applicationNode;
+    private GenericApplicationDescription applicationDescription;
+    private GenericNodeMetadata metadata;
 
     public ApplicationNodeInformation() {
     }
 
-    public ApplicationNodeInformation(Node node, ApplicationNode applicationNode, ApplicationDescription applicationDescription, NodeMetadata metadata) {
+    public ApplicationNodeInformation(UUIDDistributedScopeNode node, GenericApplicationNode applicationNode, GenericApplicationDescription applicationDescription, GenericNodeMetadata metadata) {
         this.node = node;
         this.applicationNode = applicationNode;
         this.applicationDescription = applicationDescription;
@@ -28,7 +28,7 @@ public class ApplicationNodeInformation {
      * 获取
      * @return node
      */
-    public Node getNode() {
+    public UUIDDistributedScopeNode getNode() {
         return node;
     }
 
@@ -36,7 +36,7 @@ public class ApplicationNodeInformation {
      * 设置
      * @param node
      */
-    public void setNode(Node node) {
+    public void setNode(UUIDDistributedScopeNode node) {
         this.node = node;
     }
 
@@ -44,7 +44,7 @@ public class ApplicationNodeInformation {
      * 获取
      * @return applicationNode
      */
-    public ApplicationNode getApplicationNode() {
+    public GenericApplicationNode getApplicationNode() {
         return applicationNode;
     }
 
@@ -52,7 +52,7 @@ public class ApplicationNodeInformation {
      * 设置
      * @param applicationNode
      */
-    public void setApplicationNode(ApplicationNode applicationNode) {
+    public void setApplicationNode(GenericApplicationNode applicationNode) {
         this.applicationNode = applicationNode;
     }
 
@@ -60,7 +60,7 @@ public class ApplicationNodeInformation {
      * 获取
      * @return applicationDescription
      */
-    public ApplicationDescription getApplicationDescription() {
+    public GenericApplicationDescription getApplicationDescription() {
         return applicationDescription;
     }
 
@@ -68,7 +68,7 @@ public class ApplicationNodeInformation {
      * 设置
      * @param applicationDescription
      */
-    public void setApplicationDescription(ApplicationDescription applicationDescription) {
+    public void setApplicationDescription(GenericApplicationDescription applicationDescription) {
         this.applicationDescription = applicationDescription;
     }
 
@@ -76,7 +76,7 @@ public class ApplicationNodeInformation {
      * 获取
      * @return metadata
      */
-    public NodeMetadata getMetadata() {
+    public GenericNodeMetadata getMetadata() {
         return metadata;
     }
 
@@ -84,7 +84,7 @@ public class ApplicationNodeInformation {
      * 设置
      * @param metadata
      */
-    public void setMetadata(NodeMetadata metadata) {
+    public void setMetadata(GenericNodeMetadata metadata) {
         this.metadata = metadata;
     }
 

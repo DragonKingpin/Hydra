@@ -1,8 +1,6 @@
-package com.walnut.sparta.entity;
+package com.pinecone.hydra.unit.udsn;
 
-import java.util.UUID;
-
-public class Node {
+public class UUIDDistributedScopeNode implements DistributedScopeNode {
     //节点id
     private String id;
     //节点uuid
@@ -17,10 +15,10 @@ public class Node {
     private String type;
 
 
-    public Node() {
+    public UUIDDistributedScopeNode() {
     }
 
-    public Node(String id, String UUID, String parentUUID, String baseDataUUID, String nodeMetadataUUID, String type) {
+    public UUIDDistributedScopeNode(String id, String UUID, String parentUUID, String baseDataUUID, String nodeMetadataUUID, String type) {
         this.id = id;
         this.UUID = UUID;
         this.parentUUID = parentUUID;
@@ -33,6 +31,7 @@ public class Node {
      * 获取
      * @return id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -41,6 +40,7 @@ public class Node {
      * 设置
      * @param id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -49,6 +49,7 @@ public class Node {
      * 获取
      * @return UUID
      */
+    @Override
     public String getUUID() {
         return UUID;
     }
@@ -57,6 +58,7 @@ public class Node {
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(String UUID) {
         this.UUID = UUID;
     }
@@ -65,6 +67,7 @@ public class Node {
      * 获取
      * @return parentUUID
      */
+    @Override
     public String getParentUUID() {
         return parentUUID;
     }
@@ -73,6 +76,7 @@ public class Node {
      * 设置
      * @param parentUUID
      */
+    @Override
     public void setParentUUID(String parentUUID) {
         this.parentUUID = parentUUID;
     }
@@ -81,6 +85,7 @@ public class Node {
      * 获取
      * @return baseDataUUID
      */
+    @Override
     public String getBaseDataUUID() {
         return baseDataUUID;
     }
@@ -89,6 +94,7 @@ public class Node {
      * 设置
      * @param baseDataUUID
      */
+    @Override
     public void setBaseDataUUID(String baseDataUUID) {
         this.baseDataUUID = baseDataUUID;
     }
@@ -97,6 +103,7 @@ public class Node {
      * 获取
      * @return nodeMetadataUUID
      */
+    @Override
     public String getNodeMetadataUUID() {
         return nodeMetadataUUID;
     }
@@ -105,6 +112,7 @@ public class Node {
      * 设置
      * @param nodeMetadataUUID
      */
+    @Override
     public void setNodeMetadataUUID(String nodeMetadataUUID) {
         this.nodeMetadataUUID = nodeMetadataUUID;
     }
@@ -113,6 +121,7 @@ public class Node {
      * 获取
      * @return type
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -121,10 +130,12 @@ public class Node {
      * 设置
      * @param type
      */
+    @Override
     public void setType(String type) {
         this.type = type;
     }
 
+    @Override
     public String toString() {
         return "Node{id = " + id + ", UUID = " + UUID + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + ", type = " + type + "}";
     }

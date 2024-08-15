@@ -1,23 +1,23 @@
 package com.walnut.sparta.pojo;
 
-import com.walnut.sparta.entity.ClassificationNode;
-import com.walnut.sparta.entity.ClassificationRules;
-import com.walnut.sparta.entity.Node;
-import com.walnut.sparta.entity.NodeMetadata;
+import com.pinecone.hydra.service.GenericClassificationNode;
+import com.pinecone.hydra.service.GenericClassificationRules;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.service.GenericNodeMetadata;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
 public class ClassifNodeInformation {
-    private Node node;
-    private NodeMetadata nodeMetadata;
-    private ClassificationNode classificationNode;
-    private ClassificationRules classificationRules;
+    private UUIDDistributedScopeNode node;
+    private GenericNodeMetadata nodeMetadata;
+    private GenericClassificationNode classificationNode;
+    private GenericClassificationRules classificationRules;
 
 
     public ClassifNodeInformation() {
     }
 
-    public ClassifNodeInformation(Node node, NodeMetadata nodeMetadata, ClassificationNode classificationNode, ClassificationRules classificationRules) {
+    public ClassifNodeInformation(UUIDDistributedScopeNode node, GenericNodeMetadata nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
         this.node = node;
         this.nodeMetadata = nodeMetadata;
         this.classificationNode = classificationNode;
@@ -28,7 +28,7 @@ public class ClassifNodeInformation {
      * 获取
      * @return node
      */
-    public Node getNode() {
+    public UUIDDistributedScopeNode getNode() {
         return node;
     }
 
@@ -36,7 +36,7 @@ public class ClassifNodeInformation {
      * 设置
      * @param node
      */
-    public void setNode(Node node) {
+    public void setNode(UUIDDistributedScopeNode node) {
         this.node = node;
     }
 
@@ -44,7 +44,7 @@ public class ClassifNodeInformation {
      * 获取
      * @return nodeMetadata
      */
-    public NodeMetadata getNodeMetadata() {
+    public GenericNodeMetadata getNodeMetadata() {
         return nodeMetadata;
     }
 
@@ -52,7 +52,7 @@ public class ClassifNodeInformation {
      * 设置
      * @param nodeMetadata
      */
-    public void setNodeMetadata(NodeMetadata nodeMetadata) {
+    public void setNodeMetadata(GenericNodeMetadata nodeMetadata) {
         this.nodeMetadata = nodeMetadata;
     }
 
@@ -60,7 +60,7 @@ public class ClassifNodeInformation {
      * 获取
      * @return classificationNode
      */
-    public ClassificationNode getClassificationNode() {
+    public GenericClassificationNode getClassificationNode() {
         return classificationNode;
     }
 
@@ -68,7 +68,7 @@ public class ClassifNodeInformation {
      * 设置
      * @param classificationNode
      */
-    public void setClassificationNode(ClassificationNode classificationNode) {
+    public void setClassificationNode(GenericClassificationNode classificationNode) {
         this.classificationNode = classificationNode;
     }
 
@@ -76,7 +76,7 @@ public class ClassifNodeInformation {
      * 获取
      * @return classificationRules
      */
-    public ClassificationRules getClassificationRules() {
+    public GenericClassificationRules getClassificationRules() {
         return classificationRules;
     }
 
@@ -84,7 +84,7 @@ public class ClassifNodeInformation {
      * 设置
      * @param classificationRules
      */
-    public void setClassificationRules(ClassificationRules classificationRules) {
+    public void setClassificationRules(GenericClassificationRules classificationRules) {
         this.classificationRules = classificationRules;
     }
 

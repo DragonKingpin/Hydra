@@ -10,7 +10,7 @@ public class UUIDUtil {
     public static String createUUID() {
         long uid = UUIDBuilder.getBuilder().getUID(); // 获取64位的UID
         UUID uuid = UUIDBuilder.getBuilder().getUUID(uid);
-       String UUID=generateUUID(uuid.getSequence(),uuid.getWorkerId(),uuid.getDeltaSeconds());
+        String UUID=generateUUID(uuid.getSequence(),uuid.getWorkerId(),uuid.getDeltaSeconds());
         String nanoSecondsSeed = getNanoSecondsSeed(); // 获取8位的纳秒种子
 
         // 将64位的UID与8位的纳秒种子合并成一个72位的字符串
@@ -45,6 +45,7 @@ public class UUIDUtil {
 
         return combinedUID;
     }
+
     public static String generateUUID(long sequence, long workerId, long deltaSeconds) {
         // 将sequence转换为16进制，并确保长度为4位
         String seqHex = String.format("%04X", sequence);

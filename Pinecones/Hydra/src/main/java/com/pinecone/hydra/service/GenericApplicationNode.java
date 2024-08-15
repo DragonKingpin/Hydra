@@ -1,17 +1,19 @@
-package com.walnut.sparta.entity;
+package com.pinecone.hydra.service;
 
-public class ServiceNode {
-    //服务节点id
+public class GenericApplicationNode implements ApplicationNode {
+    // 应用节点id
     private String id;
-    //服务节点UUID
+
+    // 应用节点UUID
     private String UUID;
-    //服务节点名称
+
+    // 应用节点名称
     private String name;
 
-    public ServiceNode() {
+    public GenericApplicationNode() {
     }
 
-    public ServiceNode(String id, String UUID, String name) {
+    public GenericApplicationNode(String id, String UUID, String name) {
         this.id = id;
         this.UUID = UUID;
         this.name = name;
@@ -21,14 +23,16 @@ public class ServiceNode {
      * 获取
      * @return id
      */
+    @Override
     public String getId() {
-        return id;
+        return this.id;
     }
 
     /**
      * 设置
      * @param id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -37,14 +41,16 @@ public class ServiceNode {
      * 获取
      * @return UUID
      */
+    @Override
     public String getUUID() {
-        return UUID;
+        return this.UUID;
     }
 
     /**
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(String UUID) {
         this.UUID = UUID;
     }
@@ -53,19 +59,22 @@ public class ServiceNode {
      * 获取
      * @return name
      */
+    @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**
      * 设置
      * @param name
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public String toString() {
-        return "ServiceNode{id = " + id + ", UUID = " + UUID + ", name = " + name + "}";
+        return "GenericApplicationNode{id = " + this.id + ", UUID = " + this.UUID + ", name = " + this.name + "}";
     }
 }

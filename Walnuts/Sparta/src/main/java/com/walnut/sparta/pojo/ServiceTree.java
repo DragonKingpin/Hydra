@@ -3,28 +3,30 @@ package com.walnut.sparta.pojo;
 
 import com.walnut.sparta.ServiceTree.DataSourceFactory;
 import com.walnut.sparta.ServiceTree.Interface.ServiceTreeDao;
-import com.walnut.sparta.entity.ApplicationDescription;
-import com.walnut.sparta.entity.ApplicationNode;
-import com.walnut.sparta.entity.ClassificationNode;
-import com.walnut.sparta.entity.ClassificationRules;
-import com.walnut.sparta.entity.Node;
-import com.walnut.sparta.entity.NodeMetadata;
-import com.walnut.sparta.entity.ServiceDescription;
-import com.walnut.sparta.entity.ServiceNode;
+import com.pinecone.hydra.service.GenericApplicationDescription;
+import com.pinecone.hydra.service.GenericApplicationNode;
+import com.pinecone.hydra.service.GenericClassificationNode;
+import com.pinecone.hydra.service.GenericClassificationRules;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.service.GenericNodeMetadata;
+import com.pinecone.hydra.service.GenericServiceDescription;
+import com.pinecone.hydra.service.GenericServiceNode;
 import com.walnut.sparta.utils.UUIDUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import javax.annotation.Resource;
 
 /**
  * 提供服务树的相应方法
  */
 @Component
 public class ServiceTree {
-    @Autowired
+    @Resource
     private ServiceTreeDao systemMapper;
-    @Autowired
+
+    @Resource
     private DataSourceFactory dataSourceFactory;
 
     //保存节点
@@ -32,82 +34,85 @@ public class ServiceTree {
         //将信息写入数据库
         //将节点信息存入应用节点表
         String nodeUUID = UUIDUtil.createUUID();
-        ApplicationNode applicationNode = applicationNodeInformation.getApplicationNode();
+        GenericApplicationNode applicationNode = applicationNodeInformation.getApplicationNode();
         applicationNode.setUUID(nodeUUID);
         systemMapper.saveApplicationNode(applicationNode);
         //将应用节点基础信息存入信息表
         String descriptionUUID = UUIDUtil.createUUID();
-        ApplicationDescription applicationDescription = applicationNodeInformation.getApplicationDescription();
+        GenericApplicationDescription applicationDescription = applicationNodeInformation.getApplicationDescription();
         applicationDescription.setUUID(descriptionUUID);
         systemMapper.saveApplicationDescription(applicationDescription);
         //将应用元信息存入元信息表
         String metadataUUID = UUIDUtil.createUUID();
-        NodeMetadata metadata = applicationNodeInformation.getMetadata();
+        GenericNodeMetadata metadata = applicationNodeInformation.getMetadata();
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = new Node();
+        UUIDDistributedScopeNode node = new UUIDDistributedScopeNode();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("applicationNode");
         systemMapper.saveNode(node);
     }
+
     public void saveServiceNode(ServiceNodeInformation serviceNodeInformation){
         //将信息写入数据库
         //将节点信息存入应用节点表
         String nodeUUID = UUIDUtil.createUUID();
-        ServiceNode serviceNode = serviceNodeInformation.getServiceNode();
+        GenericServiceNode serviceNode = serviceNodeInformation.getServiceNode();
         serviceNode.setUUID(nodeUUID);
         systemMapper.saveServiceNode(serviceNode);
         //将应用节点基础信息存入信息表
         String descriptionUUID = UUIDUtil.createUUID();
-        ServiceDescription serviceDescription = serviceNodeInformation.getServiceDescription();
+        GenericServiceDescription serviceDescription = serviceNodeInformation.getServiceDescription();
         serviceDescription.setUUID(descriptionUUID);
         systemMapper.saveServiceDescription(serviceDescription);
         //将应用元信息存入元信息表
         String metadataUUID = UUIDUtil.createUUID();
-        NodeMetadata metadata = serviceNodeInformation.getNodeMetadata();
+        GenericNodeMetadata metadata = serviceNodeInformation.getNodeMetadata();
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = new Node();
+        UUIDDistributedScopeNode node = new UUIDDistributedScopeNode();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("serviceNode");
         systemMapper.saveNode(node);
     }
+
     public void saveClassifNode(ClassifNodeInformation classifNodeInformation){
         //将应用节点基础信息存入信息表
         String descriptionUUID = UUIDUtil.createUUID();
-        ClassificationRules classificationRules = classifNodeInformation.getClassificationRules();
+        GenericClassificationRules classificationRules = classifNodeInformation.getClassificationRules();
         classificationRules.setUUID(descriptionUUID);
         systemMapper.saveClassifRules(classificationRules);
         //将信息写入数据库
         //将节点信息存入应用节点表
         String nodeUUID = UUIDUtil.createUUID();
-        ClassificationNode classificationNode = classifNodeInformation.getClassificationNode();
+        GenericClassificationNode classificationNode = classifNodeInformation.getClassificationNode();
         classificationNode.setUUID(nodeUUID);
         classificationNode.setRulesUUID(descriptionUUID);
         systemMapper.saveClassifNode(classificationNode);
         //将应用元信息存入元信息表
         String metadataUUID = UUIDUtil.createUUID();
-        NodeMetadata metadata = classifNodeInformation.getNodeMetadata();
+        GenericNodeMetadata metadata = classifNodeInformation.getNodeMetadata();
         metadata.setUUID(metadataUUID);
         systemMapper.saveNodeMetadata(metadata);
         //将节点信息存入主表
-        Node node = new Node();
+        UUIDDistributedScopeNode node = new UUIDDistributedScopeNode();
         node.setBaseDataUUID(descriptionUUID);
         node.setUUID(nodeUUID);
         node.setNodeMetadataUUID(metadataUUID);
         node.setType("classifNode");
         systemMapper.saveNode(node);
     }
+
     //删除节点
     public void deleteNode(String UUID){
         //获取节点信息
-        Node node = systemMapper.selectNode(UUID);
+        UUIDDistributedScopeNode node = systemMapper.selectNode(UUID);
         //根据类型删除节点
         String type = node.getType();
         if (type.equals("applicationNode")){
@@ -127,20 +132,21 @@ public class ServiceTree {
             systemMapper.deleteNodeMetadata(node.getNodeMetadataUUID());
         }
         //更新路径逻辑
-        List<Node> childNodes = systemMapper.selectChildNode(node.getUUID());
-        for (Node childNode:childNodes){
+        List<UUIDDistributedScopeNode> childNodes = systemMapper.selectChildNode(node.getUUID());
+        for (UUIDDistributedScopeNode childNode:childNodes){
             childNode.setParentUUID(node.getParentUUID());
             systemMapper.updateNode(childNode);
             updatePath(childNode.getUUID());
         }
 
     }
+
     //查找节点信息
     public Object selectNode(String UUID){
         //先查看缓存表中是否存在路径信息，不存在则补齐
         String path = systemMapper.selectPath(UUID);
         if (path==null){
-            Node node = systemMapper.selectNode(UUID);
+            UUIDDistributedScopeNode node = systemMapper.selectNode(UUID);
             String nodeName = getNodeName(node);
             String pathString="";
             pathString=pathString+nodeName;
@@ -153,12 +159,12 @@ public class ServiceTree {
         }
         //先搜索出节点信息再根据节点类型进行完善
         // todo 继承机制还没有实现
-        Node node = systemMapper.selectNode(UUID);
+        UUIDDistributedScopeNode node = systemMapper.selectNode(UUID);
         if (node.getType().equals("applicationNode")){
             ApplicationNodeInformation applicationNodeInformation = new ApplicationNodeInformation();
-            ApplicationDescription applicationDescription = systemMapper.selectApplicationDescription(node.getBaseDataUUID());
-            ApplicationNode applicationNode = systemMapper.selectApplicationNode(node.getUUID());
-            NodeMetadata nodeMetadata = systemMapper.selectNodeMetadata(node.getNodeMetadataUUID());
+            GenericApplicationDescription applicationDescription = systemMapper.selectApplicationDescription(node.getBaseDataUUID());
+            GenericApplicationNode applicationNode = systemMapper.selectApplicationNode(node.getUUID());
+            GenericNodeMetadata nodeMetadata = systemMapper.selectNodeMetadata(node.getNodeMetadataUUID());
             applicationNodeInformation.setNode(node);
             applicationNodeInformation.setApplicationDescription(applicationDescription);
             applicationNodeInformation.setMetadata(nodeMetadata);
@@ -181,6 +187,7 @@ public class ServiceTree {
         }
         return null;
     }
+
     //打印路径信息
     public String getPath(String UUID){
         ServiceTreeDao dataAccess = dataSourceFactory.createDataAccess();
@@ -204,7 +211,7 @@ public class ServiceTree {
         String path = dataAccess.selectPath(UUID);
         //若不存在path信息则更新缓存表
         if (path==null){
-            Node node = dataAccess.selectNode(UUID);
+            UUIDDistributedScopeNode node = dataAccess.selectNode(UUID);
             String nodeName = getNodeName(node);
             String pathString="";
             pathString=pathString+nodeName;
@@ -219,7 +226,7 @@ public class ServiceTree {
         return path;
     }
 
-    private String getNodeName(Node node){
+    private String getNodeName(UUIDDistributedScopeNode node){
         if (node.getType().equals("applicationNode")){
           return systemMapper.selectApplicationNode(node.getUUID()).getName();
         }else if(node.getType().equals("serviceNode")){
@@ -231,8 +238,9 @@ public class ServiceTree {
         }
         return null;
     }
+
     private void updatePath(String UUID){
-        Node node = systemMapper.selectNode(UUID);
+        UUIDDistributedScopeNode node = systemMapper.selectNode(UUID);
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
@@ -243,6 +251,5 @@ public class ServiceTree {
         }
         systemMapper.updatePath(UUID,pathString);
     }
-
 
 }

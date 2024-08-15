@@ -5,9 +5,9 @@ import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.hometype.DirectObjectInjector;
-import com.pinecone.hydra.services.ArchServer;
-import com.pinecone.hydra.services.ArchServersCenter;
-import com.pinecone.hydra.services.Server;
+import com.pinecone.hydra.server.ArchServer;
+import com.pinecone.hydra.server.ArchServersCenter;
+import com.pinecone.hydra.server.Server;
 import com.pinecone.hydra.system.Hydrarum;
 import com.sauron.radium.util.ConfigHelper;
 

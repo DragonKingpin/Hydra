@@ -1,22 +1,25 @@
-package com.walnut.sparta.entity;
+package com.pinecone.hydra.service;
 
-public class ClassificationRules {
-    //规则id
+public class GenericClassificationRules implements ClassificationRules {
+    // 规则id
     private String id;
-    //规则uuid
+
+    // 规则uuid
     private String UUID;
-    //作用域
+
+    // 作用域
     private String scope;
-    //名称
+
+    // 名称
     private String name;
-    //规则描述
+
+    // 规则描述
     private String description;
 
-
-    public ClassificationRules() {
+    public GenericClassificationRules() {
     }
 
-    public ClassificationRules(String id, String UUID, String scope, String name, String description) {
+    public GenericClassificationRules(String id, String UUID, String scope, String name, String description) {
         this.id = id;
         this.UUID = UUID;
         this.scope = scope;
@@ -28,6 +31,7 @@ public class ClassificationRules {
      * 获取
      * @return id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -36,6 +40,7 @@ public class ClassificationRules {
      * 设置
      * @param id
      */
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -44,6 +49,7 @@ public class ClassificationRules {
      * 获取
      * @return UUID
      */
+    @Override
     public String getUUID() {
         return UUID;
     }
@@ -52,6 +58,7 @@ public class ClassificationRules {
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(String UUID) {
         this.UUID = UUID;
     }
@@ -60,6 +67,7 @@ public class ClassificationRules {
      * 获取
      * @return scope
      */
+    @Override
     public String getScope() {
         return scope;
     }
@@ -68,6 +76,7 @@ public class ClassificationRules {
      * 设置
      * @param scope
      */
+    @Override
     public void setScope(String scope) {
         this.scope = scope;
     }
@@ -76,6 +85,7 @@ public class ClassificationRules {
      * 获取
      * @return name
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -84,6 +94,7 @@ public class ClassificationRules {
      * 设置
      * @param name
      */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -92,6 +103,7 @@ public class ClassificationRules {
      * 获取
      * @return description
      */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -100,11 +112,13 @@ public class ClassificationRules {
      * 设置
      * @param description
      */
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public String toString() {
-        return "classificationRules{id = " + id + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
+        return "GenericClassificationRules{id = " + id + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
     }
 }

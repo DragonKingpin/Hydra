@@ -1,15 +1,12 @@
 package com.walnut.sparta.system;
 
 import com.pinecone.framework.util.json.JSON;
-import com.walnut.sparta.ServiceTree.DataSourceFactory;
-import com.walnut.sparta.ServiceTree.Interface.ServiceTreeDao;
-import com.walnut.sparta.entity.Node;
 import com.walnut.sparta.pojo.ApplicationNodeInformation;
 import com.walnut.sparta.pojo.ClassifNodeInformation;
 import com.walnut.sparta.pojo.ServiceNodeInformation;
 import com.walnut.sparta.pojo.ServiceTree;
 import com.walnut.sparta.service.SystemService;
-import org.apache.ibatis.annotations.Delete;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

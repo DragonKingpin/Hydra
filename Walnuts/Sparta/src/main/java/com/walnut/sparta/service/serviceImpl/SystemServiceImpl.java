@@ -1,6 +1,6 @@
 package com.walnut.sparta.service.serviceImpl;
 
-import com.walnut.sparta.entity.Node;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
 import com.walnut.sparta.mapper.SystemMapper;
 import com.walnut.sparta.pojo.ServiceTree;
 import com.walnut.sparta.service.SystemService;
@@ -15,7 +15,7 @@ public class SystemServiceImpl implements SystemService {
     @Autowired
     private ServiceTree serviceTree;
     @Override
-    public void saveNode(Node node) {
+    public void saveNode(UUIDDistributedScopeNode node) {
         //生成uuid
         String uuid = UUIDUtil.createUUID();
         node.setUUID(uuid);
@@ -25,7 +25,7 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public String deleteNode(String uuid) {
         //检测节点是否存在
-        Node node = systemMapper.selectNode(uuid);
+        UUIDDistributedScopeNode node = systemMapper.selectNode(uuid);
         if (node==null){
             return "删除失败，节点不存在";
         }

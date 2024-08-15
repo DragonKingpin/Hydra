@@ -1,23 +1,22 @@
 package com.walnut.sparta.pojo;
 
-import com.walnut.sparta.entity.ApplicationNode;
-import com.walnut.sparta.entity.Node;
-import com.walnut.sparta.entity.NodeMetadata;
-import com.walnut.sparta.entity.ServiceDescription;
-import com.walnut.sparta.entity.ServiceNode;
+import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.service.GenericNodeMetadata;
+import com.pinecone.hydra.service.GenericServiceDescription;
+import com.pinecone.hydra.service.GenericServiceNode;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
 public class ServiceNodeInformation {
-    private Node node;
-    private ServiceNode serviceNode;
-    private NodeMetadata nodeMetadata;
-    private ServiceDescription serviceDescription;
+    private UUIDDistributedScopeNode node;
+    private GenericServiceNode serviceNode;
+    private GenericNodeMetadata nodeMetadata;
+    private GenericServiceDescription serviceDescription;
 
     public ServiceNodeInformation() {
     }
 
-    public ServiceNodeInformation(Node node, ServiceNode serviceNode, NodeMetadata nodeMetadata, ServiceDescription serviceDescription) {
+    public ServiceNodeInformation(UUIDDistributedScopeNode node, GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
         this.node = node;
         this.serviceNode = serviceNode;
         this.nodeMetadata = nodeMetadata;
@@ -28,7 +27,7 @@ public class ServiceNodeInformation {
      * 获取
      * @return node
      */
-    public Node getNode() {
+    public UUIDDistributedScopeNode getNode() {
         return node;
     }
 
@@ -36,7 +35,7 @@ public class ServiceNodeInformation {
      * 设置
      * @param node
      */
-    public void setNode(Node node) {
+    public void setNode(UUIDDistributedScopeNode node) {
         this.node = node;
     }
 
@@ -44,7 +43,7 @@ public class ServiceNodeInformation {
      * 获取
      * @return serviceNode
      */
-    public ServiceNode getServiceNode() {
+    public GenericServiceNode getServiceNode() {
         return serviceNode;
     }
 
@@ -52,7 +51,7 @@ public class ServiceNodeInformation {
      * 设置
      * @param serviceNode
      */
-    public void setServiceNode(ServiceNode serviceNode) {
+    public void setServiceNode(GenericServiceNode serviceNode) {
         this.serviceNode = serviceNode;
     }
 
@@ -60,7 +59,7 @@ public class ServiceNodeInformation {
      * 获取
      * @return nodeMetadata
      */
-    public NodeMetadata getNodeMetadata() {
+    public GenericNodeMetadata getNodeMetadata() {
         return nodeMetadata;
     }
 
@@ -68,7 +67,7 @@ public class ServiceNodeInformation {
      * 设置
      * @param nodeMetadata
      */
-    public void setNodeMetadata(NodeMetadata nodeMetadata) {
+    public void setNodeMetadata(GenericNodeMetadata nodeMetadata) {
         this.nodeMetadata = nodeMetadata;
     }
 
@@ -76,7 +75,7 @@ public class ServiceNodeInformation {
      * 获取
      * @return serviceDescription
      */
-    public ServiceDescription getServiceDescription() {
+    public GenericServiceDescription getServiceDescription() {
         return serviceDescription;
     }
 
@@ -84,7 +83,7 @@ public class ServiceNodeInformation {
      * 设置
      * @param serviceDescription
      */
-    public void setServiceDescription(ServiceDescription serviceDescription) {
+    public void setServiceDescription(GenericServiceDescription serviceDescription) {
         this.serviceDescription = serviceDescription;
     }
 

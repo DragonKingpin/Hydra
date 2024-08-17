@@ -150,7 +150,7 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
      * @return
      */
     private int invokeIndex(int index, int sharedIndex){
-        return quickInvokeIndex(offsetIndex(index), (sharedIndex == 0?0:sharedSizeList.get(sharedIndex-1)));
+        return quickInvokeIndex(index, (sharedIndex == 0?0:sharedSizeList.get(sharedIndex-1)));
     }
 
 

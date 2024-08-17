@@ -150,7 +150,12 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
      * @return
      */
     private int invokeIndex(int index, int sharedIndex){
-        return offsetIndex(index) - (sharedIndex == 0?0:sharedSizeList.get(sharedIndex-1));
+        return quickInvokeIndex(index, (sharedIndex == 0?0:sharedSizeList.get(sharedIndex-1)));
+    }
+
+
+    private int quickInvokeIndex(int index, int offset){
+        return offsetIndex(index) - offset;
     }
 
     /**
@@ -307,6 +312,8 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
 
         private Iterator<T> selfItr = null;
 
+        int sum = 0;
+
         private boolean selfFlag = false;
 
         private final boolean selfElementIsShared = elementData instanceof SharedList;
@@ -340,7 +347,7 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
 
             for(;;){
                 if(selfFlag || sharedLists.isEmpty()){
-                    int ptr = invokeIndex(i, selfSizeIndex());
+                    int ptr = quickInvokeIndex(i, sum);
                     if(selfElementIsShared){
                         if(selfItr == null) {
                             selfItr = ((SharedList<T>) elementData).skipIterator(ptr);
@@ -356,8 +363,9 @@ public class SharedList<T> extends AbstractList<T> implements List<T>, Serializa
                     selfFlag = true;
                     continue;
                 }
-                currentSharedItr = sharedLists.get(nowSharedListIndex).skipIterator(invokeIndex(i, nowSharedListIndex));
-
+                SharedList<T> sharedList = sharedLists.get(nowSharedListIndex);
+                currentSharedItr = sharedList.skipIterator(quickInvokeIndex(i, sum));
+                sum += sharedList.size();
                 return currentSharedItr.next();
             }
 

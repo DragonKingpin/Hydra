@@ -1,13 +1,16 @@
 package com.pinecone.hydra.service;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
 
 public interface ClassificationRules extends Pinenut {
-    String getId();
-    void setId(String id);
+    long getEnumId();
+    void setEnumId(long id);
 
-    String getUUID();
-    void setUUID(String UUID);
+    GUID getUUID();
+    void setUUID(GUID UUID);
 
     String getScope();
     void setScope(String scope);

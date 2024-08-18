@@ -1,57 +1,58 @@
 package com.pinecone.hydra.service;
 
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
+
 public class GenericServiceNode implements ServiceNode {
     // 服务节点id
-    private String id;
+    private long enumId;
 
     // 服务节点UUID
-    private String UUID;
+    private GUID UUID;
 
     // 服务节点名称
     private String name;
 
+
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(String id, String UUID, String name) {
-        this.id = id;
+    public GenericServiceNode(long enumId, GUID UUID, String name) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.name = name;
     }
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return this.id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
-        return this.UUID;
+    public GUID getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -59,22 +60,19 @@ public class GenericServiceNode implements ServiceNode {
      * 获取
      * @return name
      */
-    @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     /**
      * 设置
      * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String toString() {
-        return "ServiceNode{id = " + this.id + ", UUID = " + this.UUID + ", name = " + this.name + "}";
+        return "GenericServiceNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + "}";
     }
 }

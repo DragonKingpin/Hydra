@@ -1,6 +1,9 @@
 package com.pinecone.hydra.unit.udsn;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
 
 /**
  *  Pinecone Ursus For Java
@@ -11,20 +14,20 @@ import com.pinecone.framework.system.prototype.Pinenut;
  *  *****************************************************************************************
  */
 public interface DistributedScopeNode extends Pinenut {
-    String getId();
-    void setId(String id);
+    long getEnumId();
+    void setEnumId(long enumId);
 
-    String getUUID();
-    void setUUID(String UUID);
+    GUID getUUID();
+    void setUUID(GUID UUID);
 
-    String getParentUUID();
-    void setParentUUID(String parentUUID);
+    GUID getParentUUID();
+    void setParentUUID(GUID parentUUID);
 
-    String getBaseDataUUID();
-    void setBaseDataUUID(String baseDataUUID);
+    GUID getBaseDataUUID();
+    void setBaseDataUUID(GUID baseDataUUID);
 
-    String getNodeMetadataUUID();
-    void setNodeMetadataUUID(String nodeMetadataUUID);
+    GUID getNodeMetadataUUID();
+    void setNodeMetadataUUID(GUID nodeMetadataUUID);
 
     String getType();
     void setType(String type);

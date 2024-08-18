@@ -1,6 +1,6 @@
 package com.walnut.sparta.listener;
 
-import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.walnut.sparta.event.NodeDeleteEvent;
 
 import org.springframework.context.ApplicationListener;
@@ -11,11 +11,11 @@ public class NodeDeletedEventListener implements ApplicationListener<NodeDeleteE
     @Override
     public void onApplicationEvent(NodeDeleteEvent event) {
         // 进行更新服务树的操作
-        UUIDDistributedScopeNode node = event.getNode();
-        List<UUIDDistributedScopeNode> childNodes = event.getChildNodes();
+        GUIDDistributedScopeNode node = event.getNode();
+        List<GUIDDistributedScopeNode> childNodes = event.getChildNodes();
 
         // 以该节点为父节点的节点，将其挂载到该节点的父节点下
-        for (UUIDDistributedScopeNode childNode : childNodes) {
+        for (GUIDDistributedScopeNode childNode : childNodes) {
             childNode.setParentUUID(node.getParentUUID());
         }
 

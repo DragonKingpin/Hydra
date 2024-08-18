@@ -1,15 +1,16 @@
 package com.pinecone.hydra.service;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
 public class GenericApplicationDescription implements ApplicationDescription {
     // 应用ID
-    private String id;
+    private long enumId;
 
     // 应用UUID
-    private String UUID;
+    private GUID UUID;
 
     // 应用名称
     private String name;
@@ -30,34 +31,17 @@ public class GenericApplicationDescription implements ApplicationDescription {
     private String deploymentMethod;
 
     // 创建时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     // 最近更新时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
-    /**
-     * 无参构造方法
-     */
+
     public GenericApplicationDescription() {
     }
 
-    /**
-     * 全参构造方法
-     * @param id 应用ID
-     * @param UUID 应用UUID
-     * @param name 应用名称
-     * @param path 应用路径
-     * @param type 应用类型
-     * @param alias 应用别名
-     * @param resourceType 资源类型
-     * @param deploymentMethod 部署方式
-     * @param createTime 创建时间
-     * @param updateTime 最近更新时间
-     */
-    public GenericApplicationDescription(String id, String UUID, String name, String path, String type, String alias, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime) {
-        this.id = id;
+    public GenericApplicationDescription(long enumId, GUID UUID, String name, String path, String type, String alias, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.name = name;
         this.path = path;
@@ -70,191 +54,166 @@ public class GenericApplicationDescription implements ApplicationDescription {
     }
 
     /**
-     * 获取应用ID
-     * @return 应用ID
+     * 获取
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return this.id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
-     * 设置应用ID
-     * @param id 应用ID
+     * 设置
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
-     * 获取应用UUID
-     * @return 应用UUID
+     * 获取
+     * @return UUID
      */
-    @Override
-    public String getUUID() {
-        return this.UUID;
+    public GUID getUUID() {
+        return UUID;
     }
 
     /**
-     * 设置应用UUID
-     * @param UUID 应用UUID
+     * 设置
+     * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
     /**
-     * 获取应用名称
-     * @return 应用名称
+     * 获取
+     * @return name
      */
-    @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     /**
-     * 设置应用名称
-     * @param name 应用名称
+     * 设置
+     * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * 获取应用路径
-     * @return 应用路径
+     * 获取
+     * @return path
      */
-    @Override
     public String getPath() {
-        return this.path;
+        return path;
     }
 
     /**
-     * 设置应用路径
-     * @param path 应用路径
+     * 设置
+     * @param path
      */
-    @Override
     public void setPath(String path) {
         this.path = path;
     }
 
     /**
-     * 获取应用类型
-     * @return 应用类型
+     * 获取
+     * @return type
      */
-    @Override
     public String getType() {
-        return this.type;
+        return type;
     }
 
     /**
-     * 设置应用类型
-     * @param type 应用类型
+     * 设置
+     * @param type
      */
-    @Override
     public void setType(String type) {
         this.type = type;
     }
 
     /**
-     * 获取应用别名
-     * @return 应用别名
+     * 获取
+     * @return alias
      */
-    @Override
     public String getAlias() {
-        return this.alias;
+        return alias;
     }
 
     /**
-     * 设置应用别名
-     * @param alias 应用别名
+     * 设置
+     * @param alias
      */
-    @Override
     public void setAlias(String alias) {
         this.alias = alias;
     }
 
     /**
-     * 获取资源类型
-     * @return 资源类型
+     * 获取
+     * @return resourceType
      */
-    @Override
     public String getResourceType() {
-        return this.resourceType;
+        return resourceType;
     }
 
     /**
-     * 设置资源类型
-     * @param resourceType 资源类型
+     * 设置
+     * @param resourceType
      */
-    @Override
     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
     }
 
     /**
-     * 获取部署方式
-     * @return 部署方式
+     * 获取
+     * @return deploymentMethod
      */
-    @Override
     public String getDeploymentMethod() {
-        return this.deploymentMethod;
+        return deploymentMethod;
     }
 
     /**
-     * 设置部署方式
-     * @param deploymentMethod 部署方式
+     * 设置
+     * @param deploymentMethod
      */
-    @Override
     public void setDeploymentMethod(String deploymentMethod) {
         this.deploymentMethod = deploymentMethod;
     }
 
     /**
-     * 获取创建时间
-     * @return 创建时间
+     * 获取
+     * @return createTime
      */
-    @Override
     public LocalDateTime getCreateTime() {
-        return this.createTime;
+        return createTime;
     }
 
     /**
-     * 设置创建时间
-     * @param createTime 创建时间
+     * 设置
+     * @param createTime
      */
-    @Override
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
     /**
-     * 获取最近更新时间
-     * @return 最近更新时间
+     * 获取
+     * @return updateTime
      */
-    @Override
     public LocalDateTime getUpdateTime() {
-        return this.updateTime;
+        return updateTime;
     }
 
     /**
-     * 设置最近更新时间
-     * @param updateTime 最近更新时间
+     * 设置
+     * @param updateTime
      */
-    @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 
-    /**
-     * 返回对象的字符串表示
-     * @return 对象的字符串表示
-     */
-    @Override
     public String toString() {
-        return "GenericApplicationDescription{id = " + id + ", UUID = " + UUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
+        return "GenericApplicationDescription{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
     }
 }

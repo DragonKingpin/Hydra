@@ -1,15 +1,17 @@
 package com.pinecone.hydra.service;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class GenericServiceDescription implements ServiceDescription {
     // 服务id
-    private String id;
+    private long enumId;
 
     // 服务uuid
-    private String UUID;
+    private GUID UUID;
 
     // 服务名称
     private String name;
@@ -30,18 +32,17 @@ public class GenericServiceDescription implements ServiceDescription {
     private String serviceType;
 
     // 创建时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     // 最近更新时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
+
 
     public GenericServiceDescription() {
     }
 
-    public GenericServiceDescription(String id, String UUID, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
-        this.id = id;
+    public GenericServiceDescription(long enumId, GUID UUID, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.name = name;
         this.path = path;
@@ -55,37 +56,33 @@ public class GenericServiceDescription implements ServiceDescription {
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return this.id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
-        return this.UUID;
+    public GUID getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -93,16 +90,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return name
      */
-    @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     /**
      * 设置
      * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -111,16 +106,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return path
      */
-    @Override
     public String getPath() {
-        return this.path;
+        return path;
     }
 
     /**
      * 设置
      * @param path
      */
-    @Override
     public void setPath(String path) {
         this.path = path;
     }
@@ -129,16 +122,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return type
      */
-    @Override
     public String getType() {
-        return this.type;
+        return type;
     }
 
     /**
      * 设置
      * @param type
      */
-    @Override
     public void setType(String type) {
         this.type = type;
     }
@@ -147,16 +138,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return alias
      */
-    @Override
     public String getAlias() {
-        return this.alias;
+        return alias;
     }
 
     /**
      * 设置
      * @param alias
      */
-    @Override
     public void setAlias(String alias) {
         this.alias = alias;
     }
@@ -165,16 +154,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return resourceType
      */
-    @Override
     public String getResourceType() {
-        return this.resourceType;
+        return resourceType;
     }
 
     /**
      * 设置
      * @param resourceType
      */
-    @Override
     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
     }
@@ -183,16 +170,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return serviceType
      */
-    @Override
     public String getServiceType() {
-        return this.serviceType;
+        return serviceType;
     }
 
     /**
      * 设置
      * @param serviceType
      */
-    @Override
     public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
@@ -201,16 +186,14 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return createTime
      */
-    @Override
     public LocalDateTime getCreateTime() {
-        return this.createTime;
+        return createTime;
     }
 
     /**
      * 设置
      * @param createTime
      */
-    @Override
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
@@ -219,22 +202,19 @@ public class GenericServiceDescription implements ServiceDescription {
      * 获取
      * @return updateTime
      */
-    @Override
     public LocalDateTime getUpdateTime() {
-        return this.updateTime;
+        return updateTime;
     }
 
     /**
      * 设置
      * @param updateTime
      */
-    @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 
-    @Override
     public String toString() {
-        return "GenericServiceDescription{id = " + this.id + ", UUID = " + this.UUID + ", name = " + this.name + ", path = " + this.path + ", type = " + this.type + ", alias = " + this.alias + ", resourceType = " + this.resourceType + ", serviceType = " + this.serviceType + ", createTime = " + this.createTime + ", updateTime = " + this.updateTime + "}";
+        return "GenericServiceDescription{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
     }
 }

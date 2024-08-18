@@ -1,11 +1,15 @@
 package com.pinecone.hydra.service;
 
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
+
 public class GenericClassificationRules implements ClassificationRules {
     // 规则id
-    private String id;
+    private long enumId;
 
     // 规则uuid
-    private String UUID;
+    private GUID UUID;
 
     // 作用域
     private String scope;
@@ -16,11 +20,12 @@ public class GenericClassificationRules implements ClassificationRules {
     // 规则描述
     private String description;
 
+
     public GenericClassificationRules() {
     }
 
-    public GenericClassificationRules(String id, String UUID, String scope, String name, String description) {
-        this.id = id;
+    public GenericClassificationRules(long enumId, GUID UUID, String scope, String name, String description) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.scope = scope;
         this.name = name;
@@ -29,28 +34,25 @@ public class GenericClassificationRules implements ClassificationRules {
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
+    public GUID getUUID() {
         return UUID;
     }
 
@@ -58,8 +60,7 @@ public class GenericClassificationRules implements ClassificationRules {
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -67,7 +68,6 @@ public class GenericClassificationRules implements ClassificationRules {
      * 获取
      * @return scope
      */
-    @Override
     public String getScope() {
         return scope;
     }
@@ -76,7 +76,6 @@ public class GenericClassificationRules implements ClassificationRules {
      * 设置
      * @param scope
      */
-    @Override
     public void setScope(String scope) {
         this.scope = scope;
     }
@@ -85,7 +84,6 @@ public class GenericClassificationRules implements ClassificationRules {
      * 获取
      * @return name
      */
-    @Override
     public String getName() {
         return name;
     }
@@ -94,7 +92,6 @@ public class GenericClassificationRules implements ClassificationRules {
      * 设置
      * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -103,7 +100,6 @@ public class GenericClassificationRules implements ClassificationRules {
      * 获取
      * @return description
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -112,13 +108,11 @@ public class GenericClassificationRules implements ClassificationRules {
      * 设置
      * @param description
      */
-    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @Override
     public String toString() {
-        return "GenericClassificationRules{id = " + id + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
+        return "GenericClassificationRules{enumId = " + enumId + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
     }
 }

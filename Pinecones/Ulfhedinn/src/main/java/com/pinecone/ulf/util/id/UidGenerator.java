@@ -16,6 +16,7 @@
 package com.pinecone.ulf.util.id;
 
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.ulf.util.id.exception.UidGenerateException;
 
 /**
@@ -42,5 +43,7 @@ public interface UidGenerator {
      */
    String parseUID(long uid);
 
-   UUID getUUID(long uid);
+   GUID64 parseGUID64(long uid);
+
+   GUID getGUID72();
 }

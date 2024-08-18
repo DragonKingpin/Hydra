@@ -1,24 +1,29 @@
 package com.pinecone.hydra.service;
 
 
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
+
 public class GenericClassificationNode implements ClassificationNode {
     // 节点id
-    private String id;
+    private long enumId;
 
     // 节点uuid
-    private String UUID;
+    private GUID UUID;
 
     // 节点名称
     private String name;
 
     // 分类规则uuid
-    private String rulesUUID;
+    private GUID rulesUUID;
+
 
     public GenericClassificationNode() {
     }
 
-    public GenericClassificationNode(String id, String UUID, String name, String rulesUUID) {
-        this.id = id;
+    public GenericClassificationNode(long enumId, GUID UUID, String name, GUID rulesUUID) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.name = name;
         this.rulesUUID = rulesUUID;
@@ -26,28 +31,25 @@ public class GenericClassificationNode implements ClassificationNode {
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
+    public GUID getUUID() {
         return UUID;
     }
 
@@ -55,8 +57,7 @@ public class GenericClassificationNode implements ClassificationNode {
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -64,7 +65,6 @@ public class GenericClassificationNode implements ClassificationNode {
      * 获取
      * @return name
      */
-    @Override
     public String getName() {
         return name;
     }
@@ -73,7 +73,6 @@ public class GenericClassificationNode implements ClassificationNode {
      * 设置
      * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -82,8 +81,7 @@ public class GenericClassificationNode implements ClassificationNode {
      * 获取
      * @return rulesUUID
      */
-    @Override
-    public String getRulesUUID() {
+    public GUID getRulesUUID() {
         return rulesUUID;
     }
 
@@ -91,13 +89,11 @@ public class GenericClassificationNode implements ClassificationNode {
      * 设置
      * @param rulesUUID
      */
-    @Override
-    public void setRulesUUID(String rulesUUID) {
+    public void setRulesUUID(GUID rulesUUID) {
         this.rulesUUID = rulesUUID;
     }
 
-    @Override
     public String toString() {
-        return "GenericClassificationNode{id = " + id + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
+        return "GenericClassificationNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
     }
 }

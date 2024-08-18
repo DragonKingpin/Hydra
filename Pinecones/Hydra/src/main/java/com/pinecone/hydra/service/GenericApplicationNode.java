@@ -1,57 +1,58 @@
 package com.pinecone.hydra.service;
 
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
+
 public class GenericApplicationNode implements ApplicationNode {
     // 应用节点id
-    private String id;
+    private long enumId;
 
     // 应用节点UUID
-    private String UUID;
+    private GUID UUID;
 
     // 应用节点名称
     private String name;
 
+
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(String id, String UUID, String name) {
-        this.id = id;
+    public GenericApplicationNode(long enumId, GUID UUID, String name) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.name = name;
     }
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return this.id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
-        return this.UUID;
+    public GUID getUUID() {
+        return UUID;
     }
 
     /**
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -59,22 +60,19 @@ public class GenericApplicationNode implements ApplicationNode {
      * 获取
      * @return name
      */
-    @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     /**
      * 设置
      * @param name
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String toString() {
-        return "GenericApplicationNode{id = " + this.id + ", UUID = " + this.UUID + ", name = " + this.name + "}";
+        return "GenericApplicationNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + "}";
     }
 }

@@ -1,15 +1,17 @@
 package com.pinecone.hydra.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.GUID;
 
 public interface ServiceDescription extends Pinenut {
-    String getId();
-    void setId(String id);
+    long getEnumId();
+    void setEnumId(long id);
 
-    String getUUID();
-    void setUUID(String UUID);
+    GUID getUUID();
+    void setUUID(GUID UUID);
 
     String getName();
     void setName(String name);

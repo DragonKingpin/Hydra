@@ -1,11 +1,15 @@
 package com.pinecone.hydra.service;
 
+import com.pinecone.framework.util.id.GUID;
+
+import java.util.UUID;
+
 public class GenericNodeMetadata implements NodeMetadata {
     // id
-    private String id;
+    private long enumId;
 
     // 元信息uuid
-    private String UUID;
+    private GUID UUID;
 
     // 场景
     private String scenario;
@@ -22,11 +26,12 @@ public class GenericNodeMetadata implements NodeMetadata {
     // 描述
     private String description;
 
+
     public GenericNodeMetadata() {
     }
 
-    public GenericNodeMetadata(String id, String UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
-        this.id = id;
+    public GenericNodeMetadata(long enumId, GUID UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+        this.enumId = enumId;
         this.UUID = UUID;
         this.scenario = scenario;
         this.primaryImplLang = primaryImplLang;
@@ -37,28 +42,25 @@ public class GenericNodeMetadata implements NodeMetadata {
 
     /**
      * 获取
-     * @return id
+     * @return enumId
      */
-    @Override
-    public String getId() {
-        return id;
+    public long getEnumId() {
+        return enumId;
     }
 
     /**
      * 设置
-     * @param id
+     * @param enumId
      */
-    @Override
-    public void setId(String id) {
-        this.id = id;
+    public void setEnumId(long enumId) {
+        this.enumId = enumId;
     }
 
     /**
      * 获取
      * @return UUID
      */
-    @Override
-    public String getUUID() {
+    public GUID getUUID() {
         return UUID;
     }
 
@@ -66,8 +68,7 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param UUID
      */
-    @Override
-    public void setUUID(String UUID) {
+    public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
 
@@ -75,7 +76,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 获取
      * @return scenario
      */
-    @Override
     public String getScenario() {
         return scenario;
     }
@@ -84,7 +84,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param scenario
      */
-    @Override
     public void setScenario(String scenario) {
         this.scenario = scenario;
     }
@@ -93,7 +92,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 获取
      * @return primaryImplLang
      */
-    @Override
     public String getPrimaryImplLang() {
         return primaryImplLang;
     }
@@ -102,7 +100,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param primaryImplLang
      */
-    @Override
     public void setPrimaryImplLang(String primaryImplLang) {
         this.primaryImplLang = primaryImplLang;
     }
@@ -111,7 +108,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 获取
      * @return extraInformation
      */
-    @Override
     public String getExtraInformation() {
         return extraInformation;
     }
@@ -120,7 +116,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param extraInformation
      */
-    @Override
     public void setExtraInformation(String extraInformation) {
         this.extraInformation = extraInformation;
     }
@@ -129,7 +124,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 获取
      * @return level
      */
-    @Override
     public String getLevel() {
         return level;
     }
@@ -138,7 +132,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param level
      */
-    @Override
     public void setLevel(String level) {
         this.level = level;
     }
@@ -147,7 +140,6 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 获取
      * @return description
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -156,13 +148,11 @@ public class GenericNodeMetadata implements NodeMetadata {
      * 设置
      * @param description
      */
-    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @Override
     public String toString() {
-        return "GenericNodeMetadata{id = " + id + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return "GenericNodeMetadata{enumId = " + enumId + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
     }
 }

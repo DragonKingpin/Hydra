@@ -1,6 +1,6 @@
 package com.walnut.sparta.utils;
 
-import com.pinecone.ulf.util.id.UUID;
+import com.pinecone.ulf.util.id.GUID64;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 public class UUIDUtil {
     public static String createUUID() {
         long uid = UUIDBuilder.getBuilder().getUID(); // 获取64位的UID
-        UUID uuid = UUIDBuilder.getBuilder().getUUID(uid);
+        GUID64 uuid = UUIDBuilder.getBuilder().parseGUID64(uid);
         String UUID=generateUUID(uuid.getSequence(),uuid.getWorkerId(),uuid.getDeltaSeconds());
         String nanoSecondsSeed = getNanoSecondsSeed(); // 获取8位的纳秒种子
 

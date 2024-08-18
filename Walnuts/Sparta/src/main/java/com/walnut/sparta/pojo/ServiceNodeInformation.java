@@ -1,6 +1,6 @@
 package com.walnut.sparta.pojo;
 
-import com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.GenericNodeMetadata;
 import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
@@ -8,7 +8,7 @@ import com.pinecone.hydra.service.GenericServiceNode;
  * 用于便捷获取节点数据与生成json数据
  */
 public class ServiceNodeInformation {
-    private UUIDDistributedScopeNode node;
+    private GUIDDistributedScopeNode node;
     private GenericServiceNode serviceNode;
     private GenericNodeMetadata nodeMetadata;
     private GenericServiceDescription serviceDescription;
@@ -16,7 +16,7 @@ public class ServiceNodeInformation {
     public ServiceNodeInformation() {
     }
 
-    public ServiceNodeInformation(UUIDDistributedScopeNode node, GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
+    public ServiceNodeInformation(GUIDDistributedScopeNode node, GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
         this.node = node;
         this.serviceNode = serviceNode;
         this.nodeMetadata = nodeMetadata;
@@ -27,7 +27,7 @@ public class ServiceNodeInformation {
      * 获取
      * @return node
      */
-    public UUIDDistributedScopeNode getNode() {
+    public GUIDDistributedScopeNode getNode() {
         return node;
     }
 
@@ -35,7 +35,7 @@ public class ServiceNodeInformation {
      * 设置
      * @param node
      */
-    public void setNode(UUIDDistributedScopeNode node) {
+    public void setNode(GUIDDistributedScopeNode node) {
         this.node = node;
     }
 

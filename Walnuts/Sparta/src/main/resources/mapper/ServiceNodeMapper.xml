@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.walnut.sparta.mapper.SystemMapper">
+<mapper namespace="com.walnut.sparta.mapper.ServiceNodeMapper">
 
 
-    <select id="getPathInformation" resultType="com.pinecone.hydra.unit.udsn.UUIDDistributedScopeNode">
+    <select id="getPathInformation" resultType="com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode">
         SELECT hn2.id, hn2.uuid, hn2.parent_uuid, hn2.base_data_uuid, hn2.node_metadata_uuid, hn2.type
         FROM hydra_service_node_tree hn
                  INNER JOIN hydra_service_node_tree hn2

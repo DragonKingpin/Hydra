@@ -2,69 +2,73 @@ package com.pinecone.ulf.util.id;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
-import com.pinecone.ulf.util.id.utils.DateUtils;
-
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import com.pinecone.framework.util.id.IllegalIdentificationException;
 
 public class GUID64 implements GUID {
-    private long sequence;
-    private  long workerId;
-    private long deltaSeconds;
+    public static final long SignBits      =  1;
+    public static final long TimestampBits = 29;
+    public static final long WorkerIdBits  = 21;
+    public static final long SequenceBits  = 13;
+
+    protected long guid;
 
     public GUID64() {
 
     }
 
-    public GUID64(long sequence, long workerId, long deltaSeconds) {
-        this.sequence = sequence;
-        this.workerId = workerId;
-        this.deltaSeconds = deltaSeconds;
+    public GUID64( String hexID64 ) {
+        this.parse( hexID64 );
+    }
+
+    public GUID64( long guid ) {
+        this.guid = guid;
     }
 
     public long getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(long sequence) {
-        this.sequence = sequence;
+        long totalBits     = BitsAllocator.TOTAL_BITS;
+        return (this.guid << (totalBits - GUID64.SequenceBits)) >>> (totalBits - GUID64.SequenceBits);
     }
 
     public long getWorkerId() {
-        return workerId;
-    }
-
-    public void setWorkerId(long workerId) {
-        this.workerId = workerId;
+        long totalBits     = BitsAllocator.TOTAL_BITS;
+        return (this.guid << (GUID64.TimestampBits + GUID64.SignBits)) >>> (totalBits - GUID64.WorkerIdBits);
     }
 
     public long getDeltaSeconds() {
-        return deltaSeconds;
+        return this.guid >>> (GUID64.WorkerIdBits + GUID64.SequenceBits);
     }
 
-    public void setDeltaSeconds(long deltaSeconds) {
-        this.deltaSeconds = deltaSeconds;
+
+    protected void parseByStringParts( String[] parts ) throws IllegalIdentificationException {
+        try{
+            // 将十六进制字符串转换为十进制整数
+            long deltaSeconds = Long.parseLong(parts[0], 16);
+            long workerId     = Long.parseLong(parts[1], 16);
+            long sequence     = Long.parseLong(parts[2], 16);
+
+            long deltaSecondsPart = deltaSeconds << (GUID64.WorkerIdBits + GUID64.SequenceBits);
+            long workerIdPart = workerId << GUID64.SequenceBits;
+            this.guid = deltaSecondsPart | workerIdPart | sequence;
+        }
+        catch ( RuntimeException e ) {
+            throw new IllegalIdentificationException( e );
+        }
     }
 
     @Override
-    public Identification parse(String GUID64) {
+    public Identification parse( String hexID64 ) throws IllegalIdentificationException {
         // 分离UUID的各个部分
-        String[] parts = GUID64.split("-");
+        String[] parts = hexID64.split("-");
 
-        // 将十六进制字符串转换为十进制整数
-        long deltaSecondsDec = new BigInteger(parts[0], 16).longValue();
-        long workerIdDec = new BigInteger(parts[1], 16).longValue();
-        long sequenceDec = new BigInteger(parts[2], 16).longValue();
-
-        // 创建一个新的GUID64实例
-        return new GUID64(sequenceDec, workerIdDec, deltaSecondsDec);
+        this.parseByStringParts( parts );
+        return this;
     }
+
     @Override
     public String toString(){
-        String deltaSecondsHex = String.format("%07x", deltaSeconds);
-        String workerIdHex = String.format("%06x", workerId);
-        String sequenceHex = String.format("%04x", sequence);
-        return deltaSecondsHex+"-"+workerIdHex+"-"+sequenceHex;
+        String deltaSecondsHex = String.format( "%07x", this.getDeltaSeconds() );
+        String workerIdHex     = String.format( "%06x", this.getWorkerId()     );
+        String sequenceHex     = String.format( "%04x", this.getSequence()     );
+        return deltaSecondsHex + "-" + workerIdHex + "-" + sequenceHex;
     }
 }

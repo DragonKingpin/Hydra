@@ -1,6 +1,7 @@
 package com.pinecone.ulf.util.id.impl;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.ulf.util.id.BitsAllocator;
 import com.pinecone.ulf.util.id.GUID64;
@@ -93,42 +94,39 @@ public class MyDefaultUidGenerator implements UidGenerator, InitializingBean {
         return String.format("{\"UID\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}",
                 uid, thatTimeStr, workerId, sequence);
     }
-    @Override
-    public GUID64 parseGUID64(long uid) {
-        long totalBits = BitsAllocator.TOTAL_BITS;
-        long signBits = bitsAllocator.getSignBits();
-        long timestampBits = bitsAllocator.getTimestampBits();
-        long workerIdBits = bitsAllocator.getWorkerIdBits();
-        long sequenceBits = bitsAllocator.getSequenceBits();
 
-        // parse UID
-        long sequence = (uid << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
-        long workerId = (uid << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
-        long deltaSeconds = uid >>> (workerIdBits + sequenceBits);
-
-        Date thatTime = new Date(TimeUnit.SECONDS.toMillis(epochSeconds + deltaSeconds));
-        String thatTimeStr = DateUtils.formatByDateTimePattern(thatTime);
-
-        // format as string
-        return new GUID64(sequence,workerId,deltaSeconds);
-    }
-
+//    @Override
+//    public GUID64 parseGUID64(long uid) {
+//        long totalBits = BitsAllocator.TOTAL_BITS;
+//        long signBits = bitsAllocator.getSignBits();
+//        long timestampBits = bitsAllocator.getTimestampBits();
+//        long workerIdBits = bitsAllocator.getWorkerIdBits();
+//        long sequenceBits = bitsAllocator.getSequenceBits();
+//
+//        // parse UID
+//        long sequence = (uid << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
+//        long workerId = (uid << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
+//        long deltaSeconds = uid >>> (workerIdBits + sequenceBits);
+//
+//        Date thatTime = new Date(TimeUnit.SECONDS.toMillis(epochSeconds + deltaSeconds));
+//        String thatTimeStr = DateUtils.formatByDateTimePattern(thatTime);
+//
+//        // format as string
+//        return new GUID64(sequence, workerId, deltaSeconds);
+//    }
+//
     @Override
     public GUID getGUID72() {
         //先获取GUID64
-        long uid = getUID();
-        GUID64 guid64 = parseGUID64(uid);
-        System.out.println("获取到GUID64："+guid64.toString());
+        long uid = this.getUID();
+        Debug.trace( uid );
         //获取纳秒种子
         LocalDateTime now = LocalDateTime.now();
         long nanoseconds = now.toLocalTime().truncatedTo(ChronoUnit.NANOS).getNano();
         int truncatedNanos = (int) (nanoseconds % 256L); // 截取为8位
         String nanoSeed = String.format("%02x", truncatedNanos);
-        // 转换为16进制并保证指定长度
-        String deltaSecondsHex = String.format("%07x", guid64.getDeltaSeconds());
-        String workerIdHex = String.format("%06x", guid64.getWorkerId());
-        String sequenceHex = String.format("%04x", guid64.getSequence());
-        return new GUID72(guid64.getDeltaSeconds(),guid64.getWorkerId(),guid64.getSequence(),truncatedNanos);
+
+        return new GUID72( uid, (byte) truncatedNanos );
     }
 
     /**

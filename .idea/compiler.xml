@@ -7,28 +7,28 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Sparta" />
-        <module name="springram" />
-        <module name="radium" />
-        <module name="shadow" />
-        <module name="ulfhedinn" />
-        <module name="Saurye" />
-        <module name="Shadow" />
-        <module name="Summer" />
-        <module name="Pinecone" />
-        <module name="Slime" />
-        <module name="Hydra" />
-        <module name="summer" />
-        <module name="sparta" />
-        <module name="slime" />
         <module name="hydra" />
-        <module name="Springram" />
-        <module name="pinecone" />
-        <module name="Ulfhedinn" />
-        <module name="jelly" />
+        <module name="Hydra" />
         <module name="Jelly" />
-        <module name="saurye" />
+        <module name="jelly" />
+        <module name="pinecone" />
+        <module name="Pinecone" />
+        <module name="radium" />
         <module name="Radium" />
+        <module name="Saurye" />
+        <module name="saurye" />
+        <module name="shadow" />
+        <module name="Shadow" />
+        <module name="Slime" />
+        <module name="slime" />
+        <module name="Sparta" />
+        <module name="sparta" />
+        <module name="springram" />
+        <module name="Springram" />
+        <module name="summer" />
+        <module name="Summer" />
+        <module name="ulfhedinn" />
+        <module name="Ulfhedinn" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

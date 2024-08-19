@@ -28,15 +28,7 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        String[] parts = value.split("-");
-        // 将十六进制字符串转换为十进制整数
-        long deltaSecondsDec = new BigInteger(parts[0], 16).longValue();
-        long workerIdDec = new BigInteger(parts[1], 16).longValue();
-        long sequenceDec = new BigInteger(parts[2], 16).longValue();
-        long nanoSeedDec = new BigInteger(parts[3], 16).longValue();
-
-        // 创建一个新的GUID64实例
-        return new GUID72(deltaSecondsDec, workerIdDec, sequenceDec, nanoSeedDec);
+        return new GUID72( value );
     }
 
     @Override
@@ -45,15 +37,7 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        String[] parts = value.split("-");
-        // 将十六进制字符串转换为十进制整数
-        long deltaSecondsDec = new BigInteger(parts[0], 16).longValue();
-        long workerIdDec = new BigInteger(parts[1], 16).longValue();
-        long sequenceDec = new BigInteger(parts[2], 16).longValue();
-        long nanoSeedDec = new BigInteger(parts[3], 16).longValue();
-
-        // 创建一个新的GUID64实例
-        return new GUID72(deltaSecondsDec, workerIdDec, sequenceDec, nanoSeedDec);
+        return new GUID72( value );
     }
 
     @Override
@@ -62,14 +46,6 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        String[] parts = value.split("-");
-        // 将十六进制字符串转换为十进制整数
-        long deltaSecondsDec = new BigInteger(parts[0], 16).longValue();
-        long workerIdDec = new BigInteger(parts[1], 16).longValue();
-        long sequenceDec = new BigInteger(parts[2], 16).longValue();
-        long nanoSeedDec = new BigInteger(parts[3], 16).longValue();
-
-        // 创建一个新的GUID64实例
-        return new GUID72(deltaSecondsDec, workerIdDec, sequenceDec, nanoSeedDec);
+        return new GUID72( value );
     }
 }

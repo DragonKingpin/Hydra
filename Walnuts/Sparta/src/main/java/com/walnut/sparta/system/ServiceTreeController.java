@@ -1,5 +1,6 @@
 package com.walnut.sparta.system;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.NodeInformation;
 import com.pinecone.hydra.service.ServiceTreeMapper;
@@ -15,7 +16,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping( "/service" )
-public class ServiceController {
+public class ServiceTreeController {
     @Resource
     DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate;
     @Resource
@@ -31,6 +32,7 @@ public class ServiceController {
         DistributedScopeTree distributedScopeTree = new DistributedScopeTree(this.serviceTreeMapper,this.distrubuteScopeTreeDataManipinate);
         GUID72 guid72 = new GUID72();
         GUID parse = guid72.parse(UUID);
+        Debug.trace( parse.toString() );
         return distributedScopeTree.getPath(parse);
     }
 
@@ -39,8 +41,8 @@ public class ServiceController {
      * @param UUID 节点UUID
      * @return 返回节点信息
      */
-    @GetMapping("/selectNode/{UUID}")
-    public NodeInformation selectNode(@PathVariable("UUID") String UUID){
+    @GetMapping("/queryNodeInfoByGUID/{UUID}")
+    public NodeInformation queryNodeInfoByGUID(@PathVariable("UUID") String UUID){
         DistributedScopeTree distributedScopeTree = new DistributedScopeTree(this.serviceTreeMapper,this.distrubuteScopeTreeDataManipinate);
         GUID72 guid72 = new GUID72();
         GUID parse = guid72.parse(UUID);
@@ -52,8 +54,8 @@ public class ServiceController {
      * @param path 节点路径
      * @return 返回节点信息
      */
-    @GetMapping("/parsePath/{path}")
-    public NodeInformation parsePath(@PathVariable("path") String path){
+    @GetMapping("/queryNodeInfoByPath/{path}")
+    public NodeInformation queryNodeInfoByPath(@PathVariable("path") String path){
         DistributedScopeTree distributedScopeTree = new DistributedScopeTree(this.serviceTreeMapper,this.distrubuteScopeTreeDataManipinate);
         return distributedScopeTree.parsePath(path);
     }

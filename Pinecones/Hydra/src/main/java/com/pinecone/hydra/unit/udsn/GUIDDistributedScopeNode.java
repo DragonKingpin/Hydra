@@ -1,9 +1,18 @@
 package com.pinecone.hydra.unit.udsn;
 
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
+import com.pinecone.framework.util.json.JSONEncoder;
 
-import java.util.UUID;
-
+/**
+ *  Pinecone Ursus For Java GUIDDistributedScopeNode
+ *  Author:
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  **********************************************************
+ *  Thanks for genius`s contribution.
+ *  **********************************************************
+ */
 public class GUIDDistributedScopeNode implements DistributedScopeNode {
     //节点id
     private long enumId;
@@ -35,14 +44,16 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return enumId
      */
+    @Override
     public long getEnumId() {
-        return enumId;
+        return this.enumId;
     }
 
     /**
      * 设置
      * @param enumId
      */
+    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
@@ -51,14 +62,16 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return UUID
      */
+    @Override
     public GUID getUUID() {
-        return UUID;
+        return this.UUID;
     }
 
     /**
      * 设置
      * @param UUID
      */
+    @Override
     public void setUUID(GUID UUID) {
         this.UUID = UUID;
     }
@@ -67,14 +80,16 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return parentUUID
      */
+    @Override
     public GUID getParentUUID() {
-        return parentUUID;
+        return this.parentUUID;
     }
 
     /**
      * 设置
      * @param parentUUID
      */
+    @Override
     public void setParentUUID(GUID parentUUID) {
         this.parentUUID = parentUUID;
     }
@@ -83,14 +98,16 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return baseDataUUID
      */
+    @Override
     public GUID getBaseDataUUID() {
-        return baseDataUUID;
+        return this.baseDataUUID;
     }
 
     /**
      * 设置
      * @param baseDataUUID
      */
+    @Override
     public void setBaseDataUUID(GUID baseDataUUID) {
         this.baseDataUUID = baseDataUUID;
     }
@@ -99,14 +116,16 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return nodeMetadataUUID
      */
+    @Override
     public GUID getNodeMetadataUUID() {
-        return nodeMetadataUUID;
+        return this.nodeMetadataUUID;
     }
 
     /**
      * 设置
      * @param nodeMetadataUUID
      */
+    @Override
     public void setNodeMetadataUUID(GUID nodeMetadataUUID) {
         this.nodeMetadataUUID = nodeMetadataUUID;
     }
@@ -115,19 +134,29 @@ public class GUIDDistributedScopeNode implements DistributedScopeNode {
      * 获取
      * @return type
      */
+    @Override
     public String getType() {
-        return type;
+        return this.type;
     }
 
     /**
      * 设置
      * @param type
      */
+    @Override
     public void setType(String type) {
         this.type = type;
     }
 
+    @Override
     public String toString() {
-        return "GUIDDistributedScopeNode{enumId = " + enumId + ", UUID = " + UUID + ", parentUUID = " + parentUUID + ", baseDataUUID = " + baseDataUUID + ", nodeMetadataUUID = " + nodeMetadataUUID + ", type = " + type + "}";
+        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
+                new KeyValue<>( "EnumId"           , this.enumId            ),
+                new KeyValue<>( "UUID"             , this.UUID              ),
+                new KeyValue<>( "ParentUUID"       , this.parentUUID        ),
+                new KeyValue<>( "BaseDataUUID"     , this.baseDataUUID      ),
+                new KeyValue<>( "NodeMetadataUUID" , this.nodeMetadataUUID  ),
+                new KeyValue<>( "Type"             , this.type              ),
+        } );
     }
 }

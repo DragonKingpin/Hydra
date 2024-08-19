@@ -14,6 +14,7 @@ import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.GenericNodeMetadata;
 import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
+import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -22,14 +23,14 @@ import java.util.List;
 /**
  * 提供服务树的相应方法
  */public class DistributedScopeTree implements Pinenut {
-     private ServiceTreeMapper serviceTreeMapper;
+    private ServiceTreeMapper serviceTreeMapper;
 
-     private DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate;
+    private DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate;
 
-     public DistributedScopeTree(ServiceTreeMapper serviceTreeMapper,DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate){
-         this.serviceTreeMapper=serviceTreeMapper;
-         this.distrubuteScopeTreeDataManipinate=distrubuteScopeTreeDataManipinate;
-     }
+    public DistributedScopeTree(ServiceTreeMapper serviceTreeMapper,DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate){
+        this.serviceTreeMapper=serviceTreeMapper;
+        this.distrubuteScopeTreeDataManipinate=distrubuteScopeTreeDataManipinate;
+    }
 
     private final static String ApplicationNode="applicationNode";
 
@@ -163,7 +164,7 @@ import java.util.List;
             pathString=pathString+nodeName;
             while (node.getParentUUID() != null){
                 node=this.serviceTreeMapper.selectNode(node.getParentUUID());
-                 nodeName = getNodeName(node);
+                nodeName = getNodeName(node);
                 pathString=nodeName + "." + pathString;
             }
             this.serviceTreeMapper.savePath(pathString,UUID);
@@ -225,11 +226,12 @@ import java.util.List;
 
     private String getNodeName(GUIDDistributedScopeNode node){
         if (node.getType().equals(ApplicationNode)){
-          return this.distrubuteScopeTreeDataManipinate.selectApplicationNode(node.getUUID()).getName();
-        }else if(node.getType().equals(ServiceNode)){
-
+            return this.distrubuteScopeTreeDataManipinate.selectApplicationNode(node.getUUID()).getName();
+        }
+        else if(node.getType().equals(ServiceNode)){
             return this.distrubuteScopeTreeDataManipinate.selectServiceNode(node.getUUID()).getName();
-        } else if (node.getType().equals(ClassifNode)) {
+        }
+        else if (node.getType().equals(ClassifNode)) {
 
             return this.distrubuteScopeTreeDataManipinate.selectClassifNode(node.getUUID()).getName();
         }
@@ -248,6 +250,7 @@ import java.util.List;
         }
         this.serviceTreeMapper.updatePath(UUID,pathString);
     }
+
     public NodeInformation parsePath(String path){
         //先查看缓存表中是否存在路径信息
         GUID guid = this.serviceTreeMapper.parsePath(path);

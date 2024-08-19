@@ -2,13 +2,14 @@ package com.walnut.sparta.pojo;
 
 import com.pinecone.hydra.service.GenericApplicationDescription;
 import com.pinecone.hydra.service.GenericApplicationNode;
+import com.pinecone.hydra.service.NodeInformation;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.GenericNodeMetadata;
 
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ApplicationNodeInformation {
+public class ApplicationNodeInformation implements NodeInformation {
     private GUIDDistributedScopeNode node;
     private GenericApplicationNode applicationNode;
     private GenericApplicationDescription applicationDescription;

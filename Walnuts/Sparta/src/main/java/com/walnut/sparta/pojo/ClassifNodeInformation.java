@@ -2,12 +2,13 @@ package com.walnut.sparta.pojo;
 
 import com.pinecone.hydra.service.GenericClassificationNode;
 import com.pinecone.hydra.service.GenericClassificationRules;
+import com.pinecone.hydra.service.NodeInformation;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.GenericNodeMetadata;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ClassifNodeInformation {
+public class ClassifNodeInformation implements NodeInformation {
     private GUIDDistributedScopeNode node;
     private GenericNodeMetadata nodeMetadata;
     private GenericClassificationNode classificationNode;

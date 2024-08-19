@@ -31,4 +31,6 @@ public interface TreeMapper extends ServiceTreeMapper {
     void savePath(@Param("path") String path,@Param("UUID") GUID UUID);
     @Select("SELECT `id`, `UUID`, `parent_uuid`, `base_data_uuid`, `node_metadata_uuid`, `type` FROM `hydra_service_node_tree` WHERE `parent_uuid`=#{UUID}")
     List<GUIDDistributedScopeNode> selectChildNode(@Param("UUID")GUID UUID);
+    @Select("SELECT UUID FROM hydra_node_path WHERE path=#{path}")
+    GUID parsePath(@Param("path") String path);
 }

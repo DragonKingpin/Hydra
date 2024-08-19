@@ -3,6 +3,5 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/mapper/ServiceNodeMapper.java" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/mapper/TreeMapper.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/resources/mapper/ServiceNodeMapper.xml" dialect="MySQL" />
   </component>
 </project>

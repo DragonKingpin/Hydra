@@ -1,11 +1,13 @@
 package com.walnut.sparta.pojo;
 
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.GenericApplicationDescription;
 import com.pinecone.hydra.service.GenericApplicationNode;
 import com.pinecone.hydra.service.GenericClassificationNode;
 import com.pinecone.hydra.service.GenericClassificationRules;
+import com.pinecone.hydra.service.NodeInformation;
 import com.pinecone.hydra.service.ServiceTreeMapper;
 import com.pinecone.hydra.unit.udsn.DistrubuteScopeTreeDataManipinate;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
@@ -14,14 +16,12 @@ import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
-import com.walnut.sparta.utils.UUIDUtil;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 提供服务树的相应方法
- */public class DistributedScopeTree {
+ */public class DistributedScopeTree implements Pinenut {
      private ServiceTreeMapper serviceTreeMapper;
 
      private DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate;
@@ -153,7 +153,7 @@ import java.util.UUID;
     }
 
     //查找节点信息
-    public Object selectNode(GUID UUID){
+    public NodeInformation selectNode(GUID UUID){
         //先查看缓存表中是否存在路径信息，不存在则补齐
         String path = this.serviceTreeMapper.selectPath(UUID);
         if (path==null){
@@ -247,6 +247,37 @@ import java.util.UUID;
             pathString=nodeName + "." + pathString;
         }
         this.serviceTreeMapper.updatePath(UUID,pathString);
+    }
+    public NodeInformation parsePath(String path){
+        //先查看缓存表中是否存在路径信息
+        GUID guid = this.serviceTreeMapper.parsePath(path);
+        if (guid!=null){
+            return selectNode(guid);
+        }
+        //如果不存在则根据路径信息获取节点信息并且更新缓存表
+        String[] parts = path.split("\\.");
+        List<GenericServiceNode> genericServiceNodes = this.distrubuteScopeTreeDataManipinate.selectServiceNodeByName(parts[parts.length - 1]);
+        for (GenericServiceNode genericServiceNode:genericServiceNodes){
+            String nodePath = getPath(genericServiceNode.getUUID());
+            if (nodePath.equals(path)){
+                return selectNode(genericServiceNode.getUUID());
+            }
+        }
+        List<GenericApplicationNode> genericApplicationNodes = this.distrubuteScopeTreeDataManipinate.selectApplicationNodeByName(parts[parts.length - 1]);
+        for (GenericApplicationNode genericApplicationNode:genericApplicationNodes){
+            String nodePath = getPath(genericApplicationNode.getUUID());
+            if (nodePath.equals(path)){
+                return selectNode(genericApplicationNode.getUUID());
+            }
+        }
+        List<GenericClassificationNode> genericClassificationNodes = this.distrubuteScopeTreeDataManipinate.selectClassifNodeByName(parts[parts.length - 1]);
+        for(GenericClassificationNode genericClassificationNode:genericClassificationNodes){
+            String nodePath = getPath(genericClassificationNode.getUUID());
+            if (nodePath.equals(path)){
+                return selectNode(genericClassificationNode.getUUID());
+            }
+        }
+        return null;
     }
 
 }

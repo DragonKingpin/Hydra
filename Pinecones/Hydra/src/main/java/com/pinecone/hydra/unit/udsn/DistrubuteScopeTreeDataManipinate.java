@@ -10,6 +10,7 @@ import com.pinecone.hydra.service.GenericNodeMetadata;
 import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface DistrubuteScopeTreeDataManipinate extends Pinenut {
@@ -24,13 +25,12 @@ public interface DistrubuteScopeTreeDataManipinate extends Pinenut {
     void deleteServiceDescription(GUID UUID);
     void updateServiceDescription(GenericServiceDescription serviceDescription);
     GenericServiceDescription selectServiceDescription(GUID UUID);
-
     //ServiceNode的CRUD
     void saveServiceNode(GenericServiceNode serviceNode);
     void deleteServiceNode(GUID UUID);
     GenericServiceNode selectServiceNode(GUID UUID);
     void updateServiceNode(GenericServiceNode serviceNode);
-
+    List<GenericServiceNode> selectServiceNodeByName(String name);
     //ClassifcationRules的CRUD
     void saveClassifRules(GenericClassificationRules classificationRules);
     void deleteClassifRules(GUID UUID);
@@ -42,16 +42,19 @@ public interface DistrubuteScopeTreeDataManipinate extends Pinenut {
     void deleteClassifNode(GUID UUID);
     GenericClassificationNode selectClassifNode(GUID UUID);
     void updateClassifNode(GenericClassificationNode classificationNode);
+    List<GenericClassificationNode> selectClassifNodeByName(String name);
 
     //ApplicationNode的CRUD
     void saveApplicationNode(GenericApplicationNode applicationNode);
     void deleteApplicationNode(GUID UUID);
     GenericApplicationNode selectApplicationNode(GUID UUID);
     void updateApplicationNode(GenericApplicationNode applicationNode);
-
+    List<GenericApplicationNode> selectApplicationNodeByName(String name);
     //ApplicationDescription的CRUD
     void saveApplicationDescription(GenericApplicationDescription applicationDescription);
     void deleteApplicationDescription(GUID UUID);
     GenericApplicationDescription selectApplicationDescription(GUID UUID);
     void updateApplicationDescription(GenericApplicationDescription applicationDescription);
+    void saveClassifNodeType(GUID classifNodeUUID,GUID classifTypeUUID);
+    GUID selectClassifNodeType(GUID classifNodeUUID);
 }

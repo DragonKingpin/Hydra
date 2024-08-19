@@ -52,7 +52,6 @@ public interface ServiceNodeMapper extends DistrubuteScopeTreeDataManipinate {
     void deleteClassifNode(@Param("UUID")GUID UUID);
     @Delete("DELETE FROM `hydra_classif_rules` WHERE `uuid`=#{UUID}")
     void deleteClassifRules(@Param("UUID")GUID UUID);
-     GUIDDistributedScopeNode getPathInformation(String UUID);
      @Select("SELECT `id`, `uuid`, `name` FROM `hydra_application_node` WHERE `uuid`=#{UUID}")
      GenericApplicationNode selectApplicationNode(@Param("UUID")GUID UUID);
      @Select("SELECT `id`, UUID, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `deployment_method` AS deploymentMethod, `create_time` AS createTime, `create_time` AS createTime FROM `hydra_application_description` WHERE UUID=#{UUID}")
@@ -67,6 +66,14 @@ public interface ServiceNodeMapper extends DistrubuteScopeTreeDataManipinate {
      GenericClassificationRules selectClassifRules(@Param("UUID")GUID UUID);
      @Select("SELECT `id`, `uuid`, `name`, `rules_uuid` AS rulesUUID FROM `hydra_classif_node` WHERE `uuid`=#{UUID}")
      GenericClassificationNode selectClassifNode(@Param("UUID")GUID UUID);
-
-
+     @Select("SELECT `id`, `UUID`, `name` FROM `hydra_service_node` WHERE name=#{name}")
+     List<GenericServiceNode> selectServiceNodeByName(@Param("name") String name);
+     @Select("SELECT `id`, `UUID`, `name`, `rules_uuid` FROM `hydra_classif_node` WHERE name=#{name}")
+     List<GenericClassificationNode> selectClassifNodeByName(@Param("name") String name);
+     @Select("SELECT `id`, `UUID`, `name` FROM `hydra_application_node` WHERE name=#{name}")
+     List<GenericApplicationNode> selectApplicationNodeByName(@Param("name") String name);
+     @Insert("INSERT INTO `hydra_classif_node_rules` (`classif_node_uuid`, `classif_rule_uuid`) VALUES (#{classifNodeUUID},#{classifTypeUUID})")
+     void saveClassifNodeType(@Param("classifNodeUUID") GUID classifNodeUUID,@Param("classifTypeUUID") GUID classifTypeUUID);
+     @Select("SELECT `classif_rule_uuid` FROM `hydra_classif_node_rules`")
+     GUID selectClassifNodeType(GUID classifNodeUUID);
 }

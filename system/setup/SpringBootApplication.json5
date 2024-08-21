@@ -8,9 +8,9 @@
 
   "spring": {
     "datasource": {
-        "url": "jdbc:mysql://b-serverkingpin:33062/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+        "url": "jdbc:mysql://localhost:3306/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
         "username": "root",
-        "password": "$IDCWolf19310918",
+        "password": "123456",
         "driver-class-name": "com.mysql.cj.jdbc.Driver"
     },
     "mybatis":{

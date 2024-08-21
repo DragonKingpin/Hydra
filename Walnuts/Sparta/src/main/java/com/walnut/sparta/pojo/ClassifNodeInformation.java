@@ -9,7 +9,6 @@ import com.pinecone.hydra.service.GenericNodeMetadata;
  * 用于便捷获取节点数据与生成json数据
  */
 public class ClassifNodeInformation implements NodeInformation {
-    private GUIDDistributedScopeNode node;
     private GenericNodeMetadata nodeMetadata;
     private GenericClassificationNode classificationNode;
     private GenericClassificationRules classificationRules;
@@ -18,27 +17,10 @@ public class ClassifNodeInformation implements NodeInformation {
     public ClassifNodeInformation() {
     }
 
-    public ClassifNodeInformation(GUIDDistributedScopeNode node, GenericNodeMetadata nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
-        this.node = node;
+    public ClassifNodeInformation(GenericNodeMetadata nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
         this.nodeMetadata = nodeMetadata;
         this.classificationNode = classificationNode;
         this.classificationRules = classificationRules;
-    }
-
-    /**
-     * 获取
-     * @return node
-     */
-    public GUIDDistributedScopeNode getNode() {
-        return node;
-    }
-
-    /**
-     * 设置
-     * @param node
-     */
-    public void setNode(GUIDDistributedScopeNode node) {
-        this.node = node;
     }
 
     /**
@@ -90,6 +72,6 @@ public class ClassifNodeInformation implements NodeInformation {
     }
 
     public String toString() {
-        return "NodeInformation{node = " + node + ", nodeMetadata = " + nodeMetadata + ", classificationNode = " + classificationNode + ", classificationRules = " + classificationRules + "}";
+        return "ClassifNodeInformation{nodeMetadata = " + nodeMetadata + ", classificationNode = " + classificationNode + ", classificationRules = " + classificationRules + "}";
     }
 }

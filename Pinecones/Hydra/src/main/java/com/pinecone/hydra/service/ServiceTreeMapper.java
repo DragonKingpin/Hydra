@@ -16,4 +16,7 @@ public interface ServiceTreeMapper extends Pinenut {
     void updatePath( GUID UUID, String path);
     List<GUIDDistributedScopeNode> selectChildNode(GUID UUID);
     GUID parsePath(String path);
+    void addNodeToParent(GUID nodeGUID,GUID parentGUID);
+    //方法放在这是否有问题
+    String getClassifNodeClassif(GUID classifNodeGUID);
 }

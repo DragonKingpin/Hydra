@@ -10,35 +10,18 @@ import com.pinecone.hydra.service.GenericNodeMetadata;
  * 用于便捷获取节点数据与生成json数据
  */
 public class ApplicationNodeInformation implements NodeInformation {
-    private GUIDDistributedScopeNode node;
     private GenericApplicationNode applicationNode;
     private GenericApplicationDescription applicationDescription;
     private GenericNodeMetadata metadata;
 
+
     public ApplicationNodeInformation() {
     }
 
-    public ApplicationNodeInformation(GUIDDistributedScopeNode node, GenericApplicationNode applicationNode, GenericApplicationDescription applicationDescription, GenericNodeMetadata metadata) {
-        this.node = node;
+    public ApplicationNodeInformation(GenericApplicationNode applicationNode, GenericApplicationDescription applicationDescription, GenericNodeMetadata metadata) {
         this.applicationNode = applicationNode;
         this.applicationDescription = applicationDescription;
         this.metadata = metadata;
-    }
-
-    /**
-     * 获取
-     * @return node
-     */
-    public GUIDDistributedScopeNode getNode() {
-        return node;
-    }
-
-    /**
-     * 设置
-     * @param node
-     */
-    public void setNode(GUIDDistributedScopeNode node) {
-        this.node = node;
     }
 
     /**
@@ -90,6 +73,6 @@ public class ApplicationNodeInformation implements NodeInformation {
     }
 
     public String toString() {
-        return "ApplicationNodeInformation{node = " + node + ", applicationNode = " + applicationNode + ", applicationDescription = " + applicationDescription + ", metadata = " + metadata + "}";
+        return "ApplicationNodeInformation{applicationNode = " + applicationNode + ", applicationDescription = " + applicationDescription + ", metadata = " + metadata + "}";
     }
 }

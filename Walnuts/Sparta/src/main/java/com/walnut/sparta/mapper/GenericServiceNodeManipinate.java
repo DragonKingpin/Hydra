@@ -15,13 +15,13 @@ import java.util.UUID;
 @Mapper
 public interface GenericServiceNodeManipinate extends ServiceNodeManipinate {
 
-    @Insert("INSERT INTO `hydra_service_node` (`uuid`, `name`) VALUES (#{UUID},#{name})")
+    @Insert("INSERT INTO `hydra_service_node` (`guid`, `name`) VALUES (#{UUID},#{name})")
     void saveServiceNode(GenericServiceNode serviceNode);
-    @Delete("DELETE FROM `hydra_service_node` WHERE `uuid`=#{UUID}")
+    @Delete("DELETE FROM `hydra_service_node` WHERE `guid`=#{UUID}")
     void deleteServiceNode(@Param("UUID")GUID UUID);
-    @Select("SELECT `id`, `UUID`, `name` FROM `hydra_service_node` WHERE `UUID`=#{UUID}")
+    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_service_node` WHERE `guid`=#{UUID}")
     GenericServiceNode selectServiceNode(@Param("UUID") GUID UUID);
     void updateServiceNode(GenericServiceNode serviceNode);
-    @Select("SELECT `id`, `UUID`, `name` FROM `hydra_service_node` WHERE name=#{name}")
+    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_service_node` WHERE name=#{name}")
     List<GenericServiceNode> selectServiceNodeByName(@Param("name") String name);
 }

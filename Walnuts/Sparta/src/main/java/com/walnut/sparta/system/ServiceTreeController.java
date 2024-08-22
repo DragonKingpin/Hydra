@@ -16,6 +16,9 @@ import com.walnut.sparta.mapper.GenericServiceDescriptionManipinate;
 import com.walnut.sparta.mapper.GenericServiceNodeManipinate;
 import com.walnut.sparta.pojo.DistributedScopeService;
 import com.walnut.sparta.pojo.DistributedScopeTree;
+import com.walnut.sparta.service.ServiceTreeService;
+import org.apache.ibatis.annotations.Delete;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +39,8 @@ public class ServiceTreeController {
     GenericClassifNodeManipinate genericClassifNodeManipinate;
     @Resource
     GenericServiceNodeManipinate genericServiceNodeManipinate;
+    @Resource
+    ServiceTreeService serviceTreeService;
 
     /**
      * 用于渲染路径信息
@@ -58,9 +63,21 @@ public class ServiceTreeController {
      * @return 返回添加情况
      */
     @PostMapping("/addNodeToParent")
-    public String addNodeToParent(@RequestParam("nodeGUID") GUID nodeGUID,@RequestParam("parentGUID") GUID parentGUID ){
-        this.serviceTreeMapper.addNodeToParent(nodeGUID,parentGUID);
+    public String addNodeToParent(@RequestParam("nodeGUID") String nodeGUID,@RequestParam("parentGUID") String parentGUID ){
+        GUID72 nodeGUID72 = new GUID72(nodeGUID);
+        GUID72 parentGUID72 = new GUID72(parentGUID);
+        this.serviceTreeService.addNodeToParent(nodeGUID72,parentGUID72);
         return "添加成功";
     }
 
+    /**
+     * 删除节点
+     * @param nodeGUID 节点GUID
+     * @return 返回删除情况
+     */
+    @DeleteMapping("/deleteNode")
+    public String deleteNode(@RequestParam("nodeGUID") String nodeGUID){
+        this.serviceTreeService.deleteNode(new GUID72(nodeGUID));
+        return "删除成功";
+    }
 }

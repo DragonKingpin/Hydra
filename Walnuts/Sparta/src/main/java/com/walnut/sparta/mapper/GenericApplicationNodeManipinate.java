@@ -12,13 +12,13 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 @Mapper
 public interface GenericApplicationNodeManipinate extends ApplicationNodeManipinate {
-    @Insert("INSERT INTO  `hydra_application_node` (`uuid`, `name`) VALUES (#{UUID},#{name})")
+    @Insert("INSERT INTO  `hydra_application_node` (`guid`, `name`) VALUES (#{UUID},#{name})")
     void saveApplicationNode(GenericApplicationNode applicationNode);
-    @Delete("DELETE FROM `hydra_application_node` WHERE `uuid`=#{UUID}")
+    @Delete("DELETE FROM `hydra_application_node` WHERE `guid`=#{UUID}")
     void deleteApplicationNode(@Param("UUID")GUID UUID);
-    @Select("SELECT `id`, `uuid`, `name` FROM `hydra_application_node` WHERE `uuid`=#{UUID}")
+    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_application_node` WHERE `guid`=#{UUID}")
     GenericApplicationNode selectApplicationNode(@Param("UUID")GUID UUID);
     void updateApplicationNode(GenericApplicationNode applicationNode);
-    @Select("SELECT `id`, `UUID`, `name` FROM `hydra_application_node` WHERE name=#{name}")
+    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_application_node` WHERE name=#{name}")
     List<GenericApplicationNode> selectApplicationNodeByName(@Param("name") String name);
 }

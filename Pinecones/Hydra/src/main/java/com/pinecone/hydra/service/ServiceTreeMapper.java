@@ -19,4 +19,6 @@ public interface ServiceTreeMapper extends Pinenut {
     void addNodeToParent(GUID nodeGUID,GUID parentGUID);
     //方法放在这是否有问题
     String getClassifNodeClassif(GUID classifNodeGUID);
+    List<GUIDDistributedScopeNode> getChildNode(GUID guid);
+    void deletePath(GUID guid);
 }

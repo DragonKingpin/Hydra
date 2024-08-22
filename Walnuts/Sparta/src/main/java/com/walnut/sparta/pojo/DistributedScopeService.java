@@ -1,6 +1,7 @@
 package com.walnut.sparta.pojo;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.GenericApplicationDescription;
 import com.pinecone.hydra.service.GenericApplicationNode;
@@ -10,6 +11,7 @@ import com.pinecone.hydra.service.GenericNodeMetadata;
 import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
 import com.pinecone.hydra.service.NodeInformation;
+import com.pinecone.hydra.service.NodeOperation;
 import com.pinecone.hydra.service.ServiceTreeMapper;
 import com.pinecone.hydra.unit.udsn.ApplicationDescriptionManipinate;
 import com.pinecone.hydra.unit.udsn.ApplicationNodeManipinate;
@@ -22,6 +24,7 @@ import com.pinecone.hydra.unit.udsn.ServiceDescriptionManipinate;
 import com.pinecone.hydra.unit.udsn.ServiceNodeManipinate;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
+import com.walnut.sparta.adapter.NodeAdapter;
 
 import java.util.List;
 
@@ -34,6 +37,9 @@ public class DistributedScopeService implements Pinenut {
     private ClassifRulesManipinate classifRulesManipinate;
     private ClassifNodeManipinate classifNodeManipinate;
     private NodeMetadataManipinate nodeMetadataManipinate;
+    private NodeOperation classifNodeOperation;
+    private NodeOperation applicationNodeOperation;
+    private NodeOperation serviceNodeOperation;
 
     public DistributedScopeService(ServiceTreeMapper serviceTreeMapper,ApplicationNodeManipinate applicationNodeManipinate,
                                    ApplicationDescriptionManipinate applicationDescriptionManipinate,ServiceDescriptionManipinate serviceDescriptionManipinate,
@@ -47,6 +53,14 @@ public class DistributedScopeService implements Pinenut {
         this.classifNodeManipinate=classifNodeManipinate;
         this.classifRulesManipinate=classifRulesManipinate;
         this.nodeMetadataManipinate=nodeMetadataManipinate;
+    }
+    public DistributedScopeService(NodeOperation classifNodeOperation,NodeOperation applicationNodeOperation,NodeOperation serviceNodeOperation){
+        this.classifNodeOperation=classifNodeOperation;
+        this.applicationNodeOperation=applicationNodeOperation;
+        this.serviceNodeOperation=serviceNodeOperation;
+        NodeAdapter.registration(ApplicationNodeInformation.class,applicationNodeOperation);
+        NodeAdapter.registration(ClassifNodeInformation.class,classifNodeOperation);
+        NodeAdapter.registration(ServiceNodeInformation.class,serviceNodeOperation);
     }
 
     private final static String ApplicationNode="applicationNode";
@@ -147,35 +161,37 @@ public class DistributedScopeService implements Pinenut {
 
     //删除节点
     public void deleteNode(GUID UUID){
-        //获取节点信息
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(UUID);
-        //根据类型删除节点
-        //todo 改为适配器模式
-        String type = node.getType();
+//        //获取节点信息
+//        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(UUID);
+//        //根据类型删除节点
+//        //todo 改为适配器模式
+//        String type = node.getType();
 //        if (type.equals(ApplicationNode)){
-//            this.distrubuteScopeTreeDataManipinate.deleteApplicationDescription(node.getBaseDataUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteApplicationNode(node.getUUID());
+//            this.applicationDescriptionManipinate.deleteApplicationDescription(node.getBaseDataUUID());
+//            this.nodeMetadataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
+//            this.applicationNodeManipinate.deleteApplicationNode(node.getUUID());
 //            this.serviceTreeMapper.deleteNode(node.getUUID());
 //        }else if (type.equals(ServiceNode)){
-//            this.distrubuteScopeTreeDataManipinate.deleteServiceNode(node.getUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteServiceDescription(node.getBaseDataUUID());
+//            this.serviceNodeManipinate.deleteServiceNode(node.getUUID());
+//            this.serviceDescriptionManipinate.deleteServiceDescription(node.getBaseDataUUID());
 //            this.serviceTreeMapper.deleteNode(node.getUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
+//            this.nodeMetadataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
 //        }else if(type.equals(ClassifNode)){
-//            this.distrubuteScopeTreeDataManipinate.deleteClassifNode(node.getUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteClassifRules(node.getUUID());
+//            this.classifNodeManipinate.deleteClassifNode(node.getUUID());
+//            this.classifRulesManipinate.deleteClassifRules(node.getUUID());
 //            this.serviceTreeMapper.deleteNode(node.getUUID());
-//            this.distrubuteScopeTreeDataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
+//            this.nodeMetadataManipinate.deleteNodeMetadata(node.getNodeMetadataUUID());
 //        }
-        //更新路径逻辑
-        List<GUIDDistributedScopeNode> childNodes = this.serviceTreeMapper.selectChildNode(node.getUUID());
-        for (GUIDDistributedScopeNode childNode:childNodes){
-            childNode.setParentUUID(node.getParentUUID());
-            this.serviceTreeMapper.updateNode(childNode);
-            updatePath(childNode.getUUID());
-        }
-
+//        //更新路径逻辑
+//        List<GUIDDistributedScopeNode> childNodes = this.serviceTreeMapper.selectChildNode(node.getUUID());
+//        for (GUIDDistributedScopeNode childNode:childNodes){
+//            childNode.setParentUUID(node.getParentUUID());
+//            this.serviceTreeMapper.updateNode(childNode);
+//            updatePath(childNode.getUUID());
+//        }
+        NodeOperation nodeOperation = NodeAdapter.getNodeOperation(new ServiceNodeInformation());
+        Debug.trace(nodeOperation);
+        nodeOperation.deleteOperation(UUID);
     }
 
     //查找节点信息
@@ -287,37 +303,53 @@ public class DistributedScopeService implements Pinenut {
         }
         this.serviceTreeMapper.updatePath(UUID,pathString);
     }
-    public NodeInformation parsePath(String path){
-        DistributedScopeTree distributedScopeTree = new DistributedScopeTree(this.serviceTreeMapper,this.applicationNodeManipinate,this.serviceNodeManipinate,this.classifNodeManipinate);
-        //先查看缓存表中是否存在路径信息
+    public NodeInformation parsePath(String path) {
+        DistributedScopeTree distributedScopeTree = new DistributedScopeTree(this.serviceTreeMapper,
+                this.applicationNodeManipinate,
+                this.serviceNodeManipinate,
+                this.classifNodeManipinate);
+
+        // 先查看缓存表中是否存在路径信息
         GUID guid = this.serviceTreeMapper.parsePath(path);
-        if (guid!=null){
+        if (guid != null) {
             return selectNode(guid);
         }
-        //如果不存在则根据路径信息获取节点信息并且更新缓存表
-        String[] parts = path.split("\\.");
+
+        // 如果不存在，则根据路径信息获取节点信息并且更新缓存表
+        // 分割路径，并处理括号
+        String[] parts = processPath(path).split("\\.");
+
+        // 根据最后一个节点尝试查找 ServiceNode
         List<GenericServiceNode> genericServiceNodes = this.serviceNodeManipinate.selectServiceNodeByName(parts[parts.length - 1]);
-        for (GenericServiceNode genericServiceNode:genericServiceNodes){
+        for (GenericServiceNode genericServiceNode : genericServiceNodes) {
             String nodePath = distributedScopeTree.getPath(genericServiceNode.getUUID());
-            if (nodePath.equals(path)){
+            if (nodePath.equals(path)) {
                 return selectNode(genericServiceNode.getUUID());
             }
         }
+
+        // 根据最后一个节点尝试查找 ApplicationNode
         List<GenericApplicationNode> genericApplicationNodes = this.applicationNodeManipinate.selectApplicationNodeByName(parts[parts.length - 1]);
-        for (GenericApplicationNode genericApplicationNode:genericApplicationNodes){
+        for (GenericApplicationNode genericApplicationNode : genericApplicationNodes) {
             String nodePath = distributedScopeTree.getPath(genericApplicationNode.getUUID());
-            if (nodePath.equals(path)){
+            if (nodePath.equals(path)) {
                 return selectNode(genericApplicationNode.getUUID());
             }
         }
+
+        // 根据最后一个节点尝试查找 ClassificationNode
         List<GenericClassificationNode> genericClassificationNodes = this.classifNodeManipinate.selectClassifNodeByName(parts[parts.length - 1]);
-        for(GenericClassificationNode genericClassificationNode:genericClassificationNodes){
+        for (GenericClassificationNode genericClassificationNode : genericClassificationNodes) {
             String nodePath = distributedScopeTree.getPath(genericClassificationNode.getUUID());
-            if (nodePath.equals(path)){
+            if (nodePath.equals(path)) {
                 return selectNode(genericClassificationNode.getUUID());
             }
         }
+
         return null;
     }
-
+    private String processPath(String path) {
+        // 使用正则表达式移除所有的括号及其内容
+        return path.replaceAll("\\(.*?\\)", "");
+    }
 }

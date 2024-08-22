@@ -11,11 +11,11 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface GenericNodeMetadataManipinate extends NodeMetadataManipinate {
-    @Insert("INSERT INTO `hydra_node_metadata` (UUID, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{UUID},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
+    @Insert("INSERT INTO `hydra_node_metadata` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{UUID},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
     void saveNodeMetadata(GenericNodeMetadata nodeMetadata);
-    @Delete("DELETE FROM `hydra_node_metadata` WHERE UUID=#{UUID}")
+    @Delete("DELETE FROM `hydra_node_metadata` WHERE `guid`=#{UUID}")
     void deleteNodeMetadata(@Param("UUID")GUID UUID);
-    @Select("SELECT `id`, UUID, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_node_metadata` WHERE UUID=#{UUID}")
+    @Select("SELECT `id`, `guid` AS UUID, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_node_metadata` WHERE `guid`=#{UUID}")
     GenericNodeMetadata selectNodeMetadata(@Param("UUID")GUID UUID);
     void updateNodeMetadata(GenericNodeMetadata nodeMetadata);
 }

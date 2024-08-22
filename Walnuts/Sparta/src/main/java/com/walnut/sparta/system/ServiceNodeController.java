@@ -13,10 +13,14 @@ import com.walnut.sparta.mapper.GenericNodeMetadataManipinate;
 import com.walnut.sparta.mapper.GenericServiceDescriptionManipinate;
 import com.walnut.sparta.mapper.GenericServiceNodeManipinate;
 import com.walnut.sparta.pojo.ApplicationNodeInformation;
+import com.walnut.sparta.pojo.ApplicationNodeOperation;
 import com.walnut.sparta.pojo.ClassifNodeInformation;
+import com.walnut.sparta.pojo.ClassifNodeOperation;
 import com.walnut.sparta.pojo.DistributedScopeService;
 import com.walnut.sparta.pojo.DistributedScopeTree;
 import com.walnut.sparta.pojo.ServiceNodeInformation;
+import com.walnut.sparta.pojo.ServiceNodeOperation;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -103,5 +107,20 @@ public class ServiceNodeController {
     public GUID saveClassifNode(@RequestBody ClassifNodeInformation classifNodeInformation){
         DistributedScopeService distributedScopeService = new DistributedScopeService(this.serviceTreeMapper,this.genericApplicationNodeManipinate,this.genericApplicationDescriptionManipinate,this.genericServiceDescriptionManipinate,this.genericServiceNodeManipinate,this.genericClassifNodeManipinate,this.genericClassifRulesManipinate,this.genericNodeMetadataManipinate);
         return distributedScopeService.saveClassifNode(classifNodeInformation);
+    }
+
+    /**
+     * 删除节点
+     * @param guid 节点的guid
+     * @return 返回删除情况
+     */
+    @DeleteMapping("/deleteNode")
+    public String deleteNode(@RequestParam("nodeGUID") String guid){
+        ServiceNodeOperation serviceNodeOperation = new ServiceNodeOperation(this.genericServiceNodeManipinate,this.genericServiceDescriptionManipinate,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        ApplicationNodeOperation applicationNodeOperation = new ApplicationNodeOperation(this.genericApplicationNodeManipinate,this.genericApplicationDescriptionManipinate,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        ClassifNodeOperation classifNodeOperation = new ClassifNodeOperation(this.genericClassifNodeManipinate,this.genericClassifRulesManipinate,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation);
+        distributedScopeService.deleteNode(new GUID72(guid));
+        return "删除成功";
     }
 }

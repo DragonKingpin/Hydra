@@ -1,23 +1,22 @@
 package com.walnut.sparta.pojo;
 
-import com.pinecone.hydra.service.NodeInformation;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.service.FunctionalNodeInformation;
 import com.pinecone.hydra.service.GenericNodeMetadata;
 import com.pinecone.hydra.service.GenericServiceDescription;
 import com.pinecone.hydra.service.GenericServiceNode;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ServiceNodeInformation implements NodeInformation {
+public class ServiceFunctionalNodeInformation implements FunctionalNodeInformation {
     private GenericServiceNode serviceNode;
     private GenericNodeMetadata nodeMetadata;
     private GenericServiceDescription serviceDescription;
 
 
-    public ServiceNodeInformation() {
+    public ServiceFunctionalNodeInformation() {
     }
 
-    public ServiceNodeInformation(GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
+    public ServiceFunctionalNodeInformation(GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
         this.serviceNode = serviceNode;
         this.nodeMetadata = nodeMetadata;
         this.serviceDescription = serviceDescription;

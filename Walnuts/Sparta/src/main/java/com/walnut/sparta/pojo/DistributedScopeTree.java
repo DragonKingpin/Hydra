@@ -3,25 +3,11 @@ package com.walnut.sparta.pojo;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.GenericApplicationDescription;
-import com.pinecone.hydra.service.GenericApplicationNode;
-import com.pinecone.hydra.service.GenericClassificationNode;
-import com.pinecone.hydra.service.GenericClassificationRules;
-import com.pinecone.hydra.service.NodeInformation;
 import com.pinecone.hydra.service.ServiceTreeMapper;
 import com.pinecone.hydra.unit.udsn.ApplicationNodeManipinate;
 import com.pinecone.hydra.unit.udsn.ClassifNodeManipinate;
-import com.pinecone.hydra.unit.udsn.DistrubuteScopeTreeDataManipinate;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.service.GenericNodeMetadata;
-import com.pinecone.hydra.service.GenericServiceDescription;
-import com.pinecone.hydra.service.GenericServiceNode;
 import com.pinecone.hydra.unit.udsn.ServiceNodeManipinate;
-import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
-
-import java.util.List;
 
 /**
  * 提供服务树的相应方法
@@ -97,6 +83,7 @@ import java.util.List;
     }
 
     private String getNodeName(GUIDDistributedScopeNode node){
+
         if (node.getType().equals(ApplicationNode)){
             return this.applicationNodeManipinate.selectApplicationNode(node.getUUID()).getName();
         }

@@ -2,7 +2,6 @@ package com.pinecone.hydra.unit.udsn;
 
 import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONEncoder;
 
 /**
@@ -13,7 +12,7 @@ import com.pinecone.framework.util.json.JSONEncoder;
  *  Thanks for genius`s contribution.
  *  **********************************************************
  */
-public class GUIDDistributedScopeNode implements DistributedScopeNode {
+public class GUIDDistributedScopeNode implements DistributedTreeNode {
     //节点id
     private long enumId;
     //节点uuid

@@ -34,8 +34,6 @@ import javax.annotation.Resource;
 @RequestMapping( "/serviceNode" )
 public class ServiceNodeController {
     @Resource
-    DistrubuteScopeTreeDataManipinate distrubuteScopeTreeDataManipinate;
-    @Resource
     GenericApplicationNodeManipinate genericApplicationNodeManipinate;
     @Resource
     GenericApplicationDescriptionManipinate genericApplicationDescriptionManipinate;

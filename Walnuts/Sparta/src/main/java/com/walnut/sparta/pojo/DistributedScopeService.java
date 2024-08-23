@@ -37,6 +37,7 @@ public class DistributedScopeService implements Pinenut {
     private FunctionalNodeOperation classifFunctionalNodeOperation;
     private FunctionalNodeOperation applicationFunctionalNodeOperation;
     private FunctionalNodeOperation serviceFunctionalNodeOperation;
+    private NodeAdapter nodeAdapter;
 
     public DistributedScopeService(FunctionalNodeOperation classifFunctionalNodeOperation, FunctionalNodeOperation applicationFunctionalNodeOperation,
                                    FunctionalNodeOperation serviceFunctionalNodeOperation,ServiceTreeMapper serviceTreeMapper,
@@ -48,9 +49,10 @@ public class DistributedScopeService implements Pinenut {
         this.applicationNodeManipinate=applicationNodeManipinate;
         this.serviceNodeManipinate=serviceNodeManipinate;
         this.classifNodeManipinate=classifNodeManipinate;
-        NodeAdapter.registration(ApplicationFunctionalNodeInformation.class, applicationFunctionalNodeOperation);
-        NodeAdapter.registration(ClassifFunctionalNodeInformation.class, classifFunctionalNodeOperation);
-        NodeAdapter.registration(ServiceFunctionalNodeInformation.class, serviceFunctionalNodeOperation);
+        nodeAdapter=new NodeAdapter();
+        nodeAdapter.registration(ApplicationFunctionalNodeInformation.class, applicationFunctionalNodeOperation);
+        nodeAdapter.registration(ClassifFunctionalNodeInformation.class, classifFunctionalNodeOperation);
+        nodeAdapter.registration(ServiceFunctionalNodeInformation.class, serviceFunctionalNodeOperation);
     }
 
     private final static String ApplicationNode="applicationNode";
@@ -65,7 +67,7 @@ public class DistributedScopeService implements Pinenut {
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
-            FunctionalNodeOperation nodeOperation = NodeAdapter.getNodeOperation(nodeInformationClass);
+            FunctionalNodeOperation nodeOperation = nodeAdapter.getNodeOperation(nodeInformationClass);
             return nodeOperation.addOperation(applicationNodeInformation);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -77,7 +79,7 @@ public class DistributedScopeService implements Pinenut {
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ServiceFunctionalNodeInformation", null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
-            FunctionalNodeOperation nodeOperation = NodeAdapter.getNodeOperation(nodeInformationClass);
+            FunctionalNodeOperation nodeOperation = nodeAdapter.getNodeOperation(nodeInformationClass);
             return nodeOperation.addOperation(serviceNodeInformation);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -89,7 +91,7 @@ public class DistributedScopeService implements Pinenut {
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ClassifFunctionalNodeInformation", null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
-            FunctionalNodeOperation nodeOperation = NodeAdapter.getNodeOperation(nodeInformationClass);
+            FunctionalNodeOperation nodeOperation = nodeAdapter.getNodeOperation(nodeInformationClass);
             return nodeOperation.addOperation(classifNodeInformation);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -108,7 +110,7 @@ public class DistributedScopeService implements Pinenut {
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
-            FunctionalNodeOperation nodeOperation = NodeAdapter.getNodeOperation(nodeInformationClass);
+            FunctionalNodeOperation nodeOperation = nodeAdapter.getNodeOperation(nodeInformationClass);
             nodeOperation.deleteOperation(UUID);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -158,7 +160,7 @@ public class DistributedScopeService implements Pinenut {
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
-            FunctionalNodeOperation nodeOperation = NodeAdapter.getNodeOperation(nodeInformationClass);
+            FunctionalNodeOperation nodeOperation = nodeAdapter.getNodeOperation(nodeInformationClass);
             return nodeOperation.SelectOperation(UUID);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);

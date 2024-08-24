@@ -1,11 +1,18 @@
 package com.pinecone.hydra.unit.udsn;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.lang.GenericDynamicFactory;
+import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.MetaNodeOperator;
+import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
-import com.pinecone.hydra.service.tree.source.ServiceNodeManipinate;
+import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * 提供服务树的相应方法
@@ -15,17 +22,20 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private ApplicationNodeManipulator applicationNodeManipinate;
 
-    private ServiceNodeManipinate serviceNodeManipinate;
+    private ServiceNodeManipulator serviceNodeManipulator;
 
     private ClassifNodeManipulator classifNodeManipinate;
 
+    private MetaNodeOperatorProxy metaNodeOperatorProxy;
 
     public GenericDistributedScopeTree(ServiceTreeMapper serviceTreeMapper, ApplicationNodeManipulator applicationNodeManipinate,
-                                       ServiceNodeManipinate serviceNodeManipinate, ClassifNodeManipulator classifNodeManipinate){
+                                       ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipinate,
+                                       MetaNodeOperatorProxy functionalNodeFactory){
         this.serviceTreeMapper=serviceTreeMapper;
         this.applicationNodeManipinate=applicationNodeManipinate;
-        this.serviceNodeManipinate=serviceNodeManipinate;
+        this.serviceNodeManipulator = serviceNodeManipulator;
         this.classifNodeManipinate=classifNodeManipinate;
+        this.metaNodeOperatorProxy=functionalNodeFactory;
     }
 
     private final static String ApplicationNode="com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation";
@@ -42,40 +52,13 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         //若不存在path信息则更新缓存表
         if ( path == null ){
             GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
-            //如果是分类节点还要查询分类节点的分类表
-            System.out.println("查询到节点:"+node);
             String nodeName = getNodeName(node);
             String pathString="";
-
-            if( node.getType().equals( ClassifNode ) ){
-                String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif( node.getUUID() );
-                if ( classifNodeClassif != null ){
-                    pathString=pathString+"("+classifNodeClassif+")"+nodeName;
-                }
-                else {
-                    pathString=pathString+"("+"默认分类"+")"+nodeName;
-                }
-            }
-            else {
-                pathString=pathString+nodeName;
-            }
-
-            while ( node.getParentUUID() != null ){
-                node = this.serviceTreeMapper.selectNode(node.getParentUUID());
-                System.out.println( "查询到节点:" + node );
-                nodeName = getNodeName( node );
-                if(node.getType().equals(ClassifNode)){
-                    String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getUUID());
-                    if (classifNodeClassif!=null){
-                        pathString="("+classifNodeClassif+")"+nodeName+"."+pathString;
-                    }
-                    else {
-                        pathString="("+"默认分类"+")"+nodeName+"."+pathString;
-                    }
-                }
-                else {
-                    pathString=nodeName + "." + pathString;
-                }
+            pathString=pathString+nodeName;
+            while (node.getParentGUID() != null){
+                node=this.serviceTreeMapper.selectNode(node.getParentGUID());
+                nodeName = getNodeName(node);
+                pathString=nodeName + "." + pathString;
             }
             this.serviceTreeMapper.savePath(pathString,guid);
             return pathString;
@@ -88,19 +71,23 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         this.serviceTreeMapper.addNodeToParent(nodeGUID,parentGUID);
     }
 
-    private String getNodeName( GUIDDistributedScopeNode node ){
+    public GUIDDistributedScopeNode getNode(GUID guid){
+        return this.serviceTreeMapper.selectNode(guid);
+    }
 
-        if (node.getType().equals(ApplicationNode)){
-            return this.applicationNodeManipinate.selectApplicationNode(node.getUUID()).getName();
+    private String getNodeName( GUIDDistributedScopeNode node ){
+        String type = node.getType();
+        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
+        try {
+            Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
+            Class<?> nodeInformationClass = nodeInformation.getClass();
+            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
+            FunctionalNodeMeta functionalNodeMeta = nodeOperation.get(node.getGuid());
+            Debug.trace(functionalNodeMeta);
+            return functionalNodeMeta.getName();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
         }
-        else if(node.getType().equals(ServiceNode)){
-            System.out.println(node.getUUID());
-            return this.serviceNodeManipinate.selectServiceNode(node.getUUID()).getName();
-        }
-        else if (node.getType().equals(ClassifNode)) {
-            return this.classifNodeManipinate.selectClassifNode(node.getUUID()).getName();
-        }
-        return null;
     }
 
     @Override

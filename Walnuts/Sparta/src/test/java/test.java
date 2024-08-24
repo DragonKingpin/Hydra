@@ -7,11 +7,13 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.ulf.util.id.UidGenerator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
+import com.walnut.sparta.services.pojo.pathURI;
 import org.assertj.core.error.ShouldAccept;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.net.URI;
 import java.util.HashMap;
 
 @SpringBootTest
@@ -34,17 +36,19 @@ public class test {
 //        GUID72 guid72 = new GUID72();
 //        Identification parse = guid72.parse(guid721);
 //        System.out.println(parse.toString());
-        GUID72 guid72 = new GUID72();
-        Debug.trace(guid72);
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        String s="f83ccfc-0002f9-0000-b4";
-        Object[] constructorArgs={s};
-        try {
-            Object GUID = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null,null );
-            Debug.trace(GUID.toString());
-        } catch (Exception e){
-            Debug.trace(e.toString());
-        }
-
+//        GUID72 guid72 = new GUID72();
+//        Debug.trace(guid72);
+//        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
+//        String s="f83ccfc-0002f9-0000-b4";
+//        Object[] constructorArgs={s};
+//        try {
+//            Object GUID = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null,null );
+//            Debug.trace(GUID.toString());
+//        } catch (Exception e){
+//            Debug.trace(e.toString());
+//        }
+        pathURI pathURI = new pathURI("java-service//com.walnut.sparta.services.pojo.ServiceFunctionalNodeMeta");
+        String className = pathURI.getClassName();
+        Debug.trace(className);
     }
 }

@@ -2,12 +2,12 @@ package com.pinecone.hydra.service.tree;
 
 import com.pinecone.framework.util.id.GUID;
 
-public class GenericNodeMetadata implements NodeMetadata {
+public class GenericNodeCommonData implements NodeCommonData {
     // id
     private long enumId;
 
     // 元信息uuid
-    private GUID UUID;
+    private GUID guid;
 
     // 场景
     private String scenario;
@@ -25,12 +25,12 @@ public class GenericNodeMetadata implements NodeMetadata {
     private String description;
 
 
-    public GenericNodeMetadata() {
+    public GenericNodeCommonData() {
     }
 
-    public GenericNodeMetadata(long enumId, GUID UUID, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericNodeCommonData(long enumId, GUID guid, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.scenario = scenario;
         this.primaryImplLang = primaryImplLang;
         this.extraInformation = extraInformation;
@@ -56,18 +56,18 @@ public class GenericNodeMetadata implements NodeMetadata {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -151,6 +151,6 @@ public class GenericNodeMetadata implements NodeMetadata {
     }
 
     public String toString() {
-        return "GenericNodeMetadata{enumId = " + enumId + ", UUID = " + UUID + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return "GenericNodeMetadata{enumId = " + enumId + ", guid = " + guid + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
     }
 }

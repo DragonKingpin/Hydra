@@ -8,23 +8,23 @@ public class GenericClassificationNode implements ClassificationNode {
     private long enumId;
 
     // 节点uuid
-    private GUID UUID;
+    private GUID guid;
 
     // 节点名称
     private String name;
 
     // 分类规则uuid
-    private GUID rulesUUID;
+    private GUID rulesGUID;
 
 
     public GenericClassificationNode() {
     }
 
-    public GenericClassificationNode(long enumId, GUID UUID, String name, GUID rulesUUID) {
+    public GenericClassificationNode(long enumId, GUID guid, String name, GUID rulesGUID) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.name = name;
-        this.rulesUUID = rulesUUID;
+        this.rulesGUID = rulesGUID;
     }
 
     /**
@@ -45,18 +45,18 @@ public class GenericClassificationNode implements ClassificationNode {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -77,21 +77,21 @@ public class GenericClassificationNode implements ClassificationNode {
 
     /**
      * 获取
-     * @return rulesUUID
+     * @return rulesGUID
      */
-    public GUID getRulesUUID() {
-        return rulesUUID;
+    public GUID getRulesGUID() {
+        return rulesGUID;
     }
 
     /**
      * 设置
-     * @param rulesUUID
+     * @param rulesGUID
      */
-    public void setRulesUUID(GUID rulesUUID) {
-        this.rulesUUID = rulesUUID;
+    public void setRulesGUID(GUID rulesGUID) {
+        this.rulesGUID = rulesGUID;
     }
 
     public String toString() {
-        return "GenericClassificationNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + ", rulesUUID = " + rulesUUID + "}";
+        return "GenericClassificationNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", rulesGUID = " + rulesGUID + "}";
     }
 }

@@ -1,22 +1,22 @@
 package com.walnut.sparta.services.pojo;
 
-import com.pinecone.hydra.service.tree.FunctionalNodeInformation;
-import com.pinecone.hydra.service.tree.GenericNodeMetadata;
-import com.pinecone.hydra.service.tree.GenericServiceDescription;
+import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
+import com.pinecone.hydra.service.tree.GenericServiceNodeMetadata;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ServiceFunctionalNodeInformation implements FunctionalNodeInformation {
+public class ServiceFunctionalNodeMeta implements FunctionalNodeMeta {
     private GenericServiceNode serviceNode;
-    private GenericNodeMetadata nodeMetadata;
-    private GenericServiceDescription serviceDescription;
+    private GenericNodeCommonData nodeMetadata;
+    private GenericServiceNodeMetadata serviceDescription;
 
 
-    public ServiceFunctionalNodeInformation() {
+    public ServiceFunctionalNodeMeta() {
     }
 
-    public ServiceFunctionalNodeInformation(GenericServiceNode serviceNode, GenericNodeMetadata nodeMetadata, GenericServiceDescription serviceDescription) {
+    public ServiceFunctionalNodeMeta(GenericServiceNode serviceNode, GenericNodeCommonData nodeMetadata, GenericServiceNodeMetadata serviceDescription) {
         this.serviceNode = serviceNode;
         this.nodeMetadata = nodeMetadata;
         this.serviceDescription = serviceDescription;
@@ -42,7 +42,7 @@ public class ServiceFunctionalNodeInformation implements FunctionalNodeInformati
      * 获取
      * @return nodeMetadata
      */
-    public GenericNodeMetadata getNodeMetadata() {
+    public GenericNodeCommonData getNodeMetadata() {
         return nodeMetadata;
     }
 
@@ -50,7 +50,7 @@ public class ServiceFunctionalNodeInformation implements FunctionalNodeInformati
      * 设置
      * @param nodeMetadata
      */
-    public void setNodeMetadata(GenericNodeMetadata nodeMetadata) {
+    public void setNodeMetadata(GenericNodeCommonData nodeMetadata) {
         this.nodeMetadata = nodeMetadata;
     }
 
@@ -58,7 +58,7 @@ public class ServiceFunctionalNodeInformation implements FunctionalNodeInformati
      * 获取
      * @return serviceDescription
      */
-    public GenericServiceDescription getServiceDescription() {
+    public GenericServiceNodeMetadata getServiceDescription() {
         return serviceDescription;
     }
 
@@ -66,11 +66,16 @@ public class ServiceFunctionalNodeInformation implements FunctionalNodeInformati
      * 设置
      * @param serviceDescription
      */
-    public void setServiceDescription(GenericServiceDescription serviceDescription) {
+    public void setServiceDescription(GenericServiceNodeMetadata serviceDescription) {
         this.serviceDescription = serviceDescription;
     }
 
     public String toString() {
         return "ServiceNodeInformation{serviceNode = " + serviceNode + ", nodeMetadata = " + nodeMetadata + ", serviceDescription = " + serviceDescription + "}";
+    }
+
+    @Override
+    public String getName() {
+        return this.serviceNode.getName();
     }
 }

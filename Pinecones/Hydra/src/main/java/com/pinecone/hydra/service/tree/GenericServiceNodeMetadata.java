@@ -4,30 +4,30 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public class GenericApplicationDescription implements ApplicationDescription {
-    // 应用ID
+public class GenericServiceNodeMetadata implements ServiceNodeMetadata {
+    // 服务id
     private long enumId;
 
-    // 应用UUID
-    private GUID UUID;
+    // 服务uuid
+    private GUID guid;
 
-    // 应用名称
+    // 服务名称
     private String name;
 
-    // 路径
+    // 服务路径
     private String path;
 
     // 类型
     private String type;
 
-    // 别名
+    // 服务别名
     private String alias;
 
     // 资源类型
     private String resourceType;
 
-    // 部署方式
-    private String deploymentMethod;
+    // 服务类型
+    private String serviceType;
 
     // 创建时间
     private LocalDateTime createTime;
@@ -36,18 +36,18 @@ public class GenericApplicationDescription implements ApplicationDescription {
     private LocalDateTime updateTime;
 
 
-    public GenericApplicationDescription() {
+    public GenericServiceNodeMetadata() {
     }
 
-    public GenericApplicationDescription(long enumId, GUID UUID, String name, String path, String type, String alias, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericServiceNodeMetadata(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.name = name;
         this.path = path;
         this.type = type;
         this.alias = alias;
         this.resourceType = resourceType;
-        this.deploymentMethod = deploymentMethod;
+        this.serviceType = serviceType;
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
@@ -70,18 +70,18 @@ public class GenericApplicationDescription implements ApplicationDescription {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -166,18 +166,18 @@ public class GenericApplicationDescription implements ApplicationDescription {
 
     /**
      * 获取
-     * @return deploymentMethod
+     * @return serviceType
      */
-    public String getDeploymentMethod() {
-        return deploymentMethod;
+    public String getServiceType() {
+        return serviceType;
     }
 
     /**
      * 设置
-     * @param deploymentMethod
+     * @param serviceType
      */
-    public void setDeploymentMethod(String deploymentMethod) {
-        this.deploymentMethod = deploymentMethod;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     /**
@@ -213,6 +213,6 @@ public class GenericApplicationDescription implements ApplicationDescription {
     }
 
     public String toString() {
-        return "GenericApplicationDescription{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
+        return "GenericServiceDescription{enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
     }
 }

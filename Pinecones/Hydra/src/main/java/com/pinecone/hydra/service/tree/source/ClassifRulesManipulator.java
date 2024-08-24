@@ -5,8 +5,8 @@ import com.pinecone.hydra.service.tree.GenericClassificationRules;
 
 public interface ClassifRulesManipulator {
     //ClassifcationRules的CRUD
-    void saveClassifRules(GenericClassificationRules classificationRules);
-    void deleteClassifRules(GUID UUID);
-    GenericClassificationRules selectClassifRules(GUID UUID);
+    void insertClassifRules(GenericClassificationRules classificationRules);
+    void deleteClassifRules(GUID guid);
+    GenericClassificationRules selectClassifRules(GUID guid);
     void updateClassifRules(GenericClassificationRules classificationRules);
 }

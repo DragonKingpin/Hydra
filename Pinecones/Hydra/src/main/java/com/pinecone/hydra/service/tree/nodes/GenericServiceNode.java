@@ -7,7 +7,7 @@ public class GenericServiceNode implements ServiceNode {
     private long enumId;
 
     // 服务节点UUID
-    private GUID UUID;
+    private GUID guid;
 
     // 服务节点名称
     private String name;
@@ -16,9 +16,9 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(long enumId, GUID UUID, String name) {
+    public GenericServiceNode(long enumId, GUID guid, String name) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.name = name;
     }
 
@@ -40,18 +40,18 @@ public class GenericServiceNode implements ServiceNode {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -71,6 +71,6 @@ public class GenericServiceNode implements ServiceNode {
     }
 
     public String toString() {
-        return "GenericServiceNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + "}";
+        return "GenericServiceNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

@@ -2,28 +2,28 @@ package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericApplicationDescription;
+import com.pinecone.hydra.service.tree.GenericApplicationNodeMetadata;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
-import com.pinecone.hydra.service.tree.GenericNodeMetadata;
-import com.pinecone.hydra.service.tree.GenericServiceDescription;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
+import com.pinecone.hydra.service.tree.GenericServiceNodeMetadata;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 
 import java.util.List;
 
 public interface DistrubuteScopeTreeDataManipulator extends Pinenut {
     //NodeMetadata节点的CRUD
-    void saveNodeMetadata(GenericNodeMetadata nodeMetadata);
+    void saveNodeMetadata(GenericNodeCommonData nodeMetadata);
     void deleteNodeMetadata(GUID UUID);
-    GenericNodeMetadata selectNodeMetadata(GUID UUID);
-    void updateNodeMetadata(GenericNodeMetadata nodeMetadata);
+    GenericNodeCommonData selectNodeMetadata(GUID UUID);
+    void updateNodeMetadata(GenericNodeCommonData nodeMetadata);
 
     //ServiceDescription的CRUD
-    void saveServiceDescription(GenericServiceDescription UUID);
+    void saveServiceDescription(GenericServiceNodeMetadata UUID);
     void deleteServiceDescription(GUID UUID);
-    void updateServiceDescription(GenericServiceDescription serviceDescription);
-    GenericServiceDescription selectServiceDescription(GUID UUID);
+    void updateServiceDescription(GenericServiceNodeMetadata serviceDescription);
+    GenericServiceNodeMetadata selectServiceDescription(GUID UUID);
     //ServiceNode的CRUD
     void saveServiceNode(GenericServiceNode serviceNode);
     void deleteServiceNode(GUID UUID);
@@ -50,10 +50,10 @@ public interface DistrubuteScopeTreeDataManipulator extends Pinenut {
     void updateApplicationNode(GenericApplicationNode applicationNode);
     List<GenericApplicationNode> selectApplicationNodeByName(String name);
     //ApplicationDescription的CRUD
-    void saveApplicationDescription(GenericApplicationDescription applicationDescription);
+    void saveApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
     void deleteApplicationDescription(GUID UUID);
-    GenericApplicationDescription selectApplicationDescription(GUID UUID);
-    void updateApplicationDescription(GenericApplicationDescription applicationDescription);
+    GenericApplicationNodeMetadata selectApplicationDescription(GUID UUID);
+    void updateApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
     void saveClassifNodeType(GUID classifNodeUUID,GUID classifTypeUUID);
     GUID selectClassifNodeType(GUID classifNodeUUID);
 }

@@ -7,8 +7,8 @@ public interface ApplicationNode extends Pinenut {
     long getEnumId();
     void setEnumId(long id);
 
-    GUID getUUID();
-    void setUUID(GUID UUID);
+    GUID getGuid();
+    void setGuid(GUID guid);
 
     String getName();
     void setName(String name);

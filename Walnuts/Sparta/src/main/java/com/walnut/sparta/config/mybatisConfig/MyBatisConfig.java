@@ -13,7 +13,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan("com.walnut.sparta.mapper") // 指定Mapper的包路径
+@MapperScan("com.walnut.sparta.services.mapper") // 指定Mapper的包路径
 public class MyBatisConfig {
 
     @Bean

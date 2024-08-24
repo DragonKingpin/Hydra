@@ -2,11 +2,14 @@ package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.mapper.GenericApplicationNodeManipinate;
-import com.walnut.sparta.services.mapper.GenericClassifNodeManipinate;
-import com.walnut.sparta.services.mapper.GenericServiceNodeManipinate;
+import com.walnut.sparta.services.mapper.GenericApplicationNodeManipulator;
+import com.walnut.sparta.services.mapper.GenericClassifNodeManipulator;
+import com.walnut.sparta.services.mapper.GenericServiceNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,11 +28,11 @@ public class ServiceTreeController {
     @Resource
     ServiceTreeMapper serviceTreeMapper;
     @Resource
-    GenericApplicationNodeManipinate genericApplicationNodeManipinate;
+    ApplicationNodeManipulator genericApplicationNodeManipulator;
     @Resource
-    GenericClassifNodeManipinate genericClassifNodeManipinate;
+    ClassifNodeManipulator genericClassifNodeManipulator;
     @Resource
-    GenericServiceNodeManipinate genericServiceNodeManipinate;
+    GenericServiceNodeManipulator genericServiceNodeManipulator;
     @Resource
     ServiceTreeService serviceTreeService;
 
@@ -40,7 +43,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public String getPath(@PathVariable("GUID") String GUID){
-        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,this.genericApplicationNodeManipinate,this.genericServiceNodeManipinate,this.genericClassifNodeManipinate);
+        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy());
         GUID72 guid72 = new GUID72();
         GUID parse = guid72.parse(GUID);
         Debug.trace( parse.toString() );

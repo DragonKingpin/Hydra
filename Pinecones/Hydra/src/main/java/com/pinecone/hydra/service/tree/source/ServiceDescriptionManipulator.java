@@ -1,12 +1,12 @@
 package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericServiceDescription;
+import com.pinecone.hydra.service.tree.GenericServiceNodeMetadata;
 
 public interface ServiceDescriptionManipulator {
     //ServiceDescription的CRUD
-    void saveServiceDescription(GenericServiceDescription UUID);
-    void deleteServiceDescription(GUID UUID);
-    void updateServiceDescription(GenericServiceDescription serviceDescription);
-    GenericServiceDescription selectServiceDescription(GUID UUID);
+    void insertServiceDescription(GenericServiceNodeMetadata genericServiceDescription);
+    void deleteServiceDescription(GUID guid);
+    void updateServiceDescription(GenericServiceNodeMetadata serviceDescription);
+    GenericServiceNodeMetadata getServiceDescription(GUID guid);
 }

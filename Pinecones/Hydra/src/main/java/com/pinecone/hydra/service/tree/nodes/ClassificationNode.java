@@ -7,13 +7,13 @@ public interface ClassificationNode extends Pinenut {
     long getEnumId();
     void setEnumId(long id);
 
-    GUID getUUID();
-    void setUUID(GUID UUID);
+    GUID getGuid();
+    void setGuid(GUID guid);
 
     String getName();
     void setName(String name);
 
-    GUID getRulesUUID();
-    void setRulesUUID(GUID rulesUUID);
+    GUID getRulesGUID();
+    void setRulesGUID(GUID rulesGUID);
 
 }

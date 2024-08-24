@@ -9,8 +9,8 @@ public interface ClassificationRules extends Pinenut {
     long getEnumId();
     void setEnumId(long id);
 
-    GUID getUUID();
-    void setUUID(GUID UUID);
+    GUID getGuid();
+    void setGuid(GUID guid);
 
     String getScope();
     void setScope(String scope);

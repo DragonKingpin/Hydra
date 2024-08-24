@@ -3,14 +3,12 @@ package com.pinecone.hydra.service.tree;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-import java.util.UUID;
-
-public interface NodeMetadata extends Pinenut {
+public interface NodeCommonData extends Pinenut {
     long getEnumId();
     void setEnumId(long id);
 
-    GUID getUUID();
-    void setUUID(GUID UUID);
+    GUID getGuid();
+    void setGuid(GUID guid);
 
     String getScenario();
     void setScenario(String scenario);

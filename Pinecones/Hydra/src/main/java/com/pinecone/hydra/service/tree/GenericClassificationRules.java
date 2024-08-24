@@ -7,7 +7,7 @@ public class GenericClassificationRules implements ClassificationRules {
     private long enumId;
 
     // 规则uuid
-    private GUID UUID;
+    private GUID guid;
 
     // 作用域
     private String scope;
@@ -22,9 +22,9 @@ public class GenericClassificationRules implements ClassificationRules {
     public GenericClassificationRules() {
     }
 
-    public GenericClassificationRules(long enumId, GUID UUID, String scope, String name, String description) {
+    public GenericClassificationRules(long enumId, GUID guid, String scope, String name, String description) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.scope = scope;
         this.name = name;
         this.description = description;
@@ -48,18 +48,18 @@ public class GenericClassificationRules implements ClassificationRules {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -111,6 +111,6 @@ public class GenericClassificationRules implements ClassificationRules {
     }
 
     public String toString() {
-        return "GenericClassificationRules{enumId = " + enumId + ", UUID = " + UUID + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
+        return "GenericClassificationRules{enumId = " + enumId + ", guid = " + guid + ", scope = " + scope + ", name = " + name + ", description = " + description + "}";
     }
 }

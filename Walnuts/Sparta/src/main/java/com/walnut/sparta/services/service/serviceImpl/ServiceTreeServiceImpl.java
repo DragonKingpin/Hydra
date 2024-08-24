@@ -4,9 +4,9 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.walnut.sparta.services.mapper.GenericApplicationNodeManipinate;
-import com.walnut.sparta.services.mapper.GenericClassifNodeManipinate;
-import com.walnut.sparta.services.mapper.GenericServiceNodeManipinate;
+import com.walnut.sparta.services.mapper.GenericApplicationNodeManipulator;
+import com.walnut.sparta.services.mapper.GenericClassifNodeManipulator;
+import com.walnut.sparta.services.mapper.GenericServiceNodeManipulator;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +19,11 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
     ServiceTreeMapper serviceTreeMapper;
     @Resource
-    GenericApplicationNodeManipinate genericApplicationNodeManipinate;
+    GenericApplicationNodeManipulator genericApplicationNodeManipulator;
     @Resource
-    GenericClassifNodeManipinate genericClassifNodeManipinate;
+    GenericClassifNodeManipulator genericClassifNodeManipulator;
     @Resource
-    GenericServiceNodeManipinate genericServiceNodeManipinate;
+    GenericServiceNodeManipulator genericServiceNodeManipulator;
     private final static String ApplicationNode="applicationNode";
 
     private final static String ServiceNode="serviceNode";
@@ -50,7 +50,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         this.serviceTreeMapper.deletePath(nodeGUID);
         if (childNodes==null) return;
         for (GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
-            deleteNode(guidDistributedScopeNode.getUUID());
+            deleteNode(guidDistributedScopeNode.getGuid());
         }
     }
 
@@ -60,7 +60,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         Debug.trace("节点"+guid+"的子节点有"+childNodes.toString());
         for(GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
             if (guidDistributedScopeNode!=null){
-                upDateAllPath(guidDistributedScopeNode.getUUID());
+                upDateAllPath(guidDistributedScopeNode.getGuid());
             }
         }
     }
@@ -71,7 +71,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         String nodeName = getNodeName(node);
         String pathString="";
         if(node.getType().equals(ClassifNode)){
-            String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getUUID());
+            String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getGuid());
             if (classifNodeClassif!=null){
                 pathString=pathString+"("+classifNodeClassif+")"+nodeName;
             }else {
@@ -80,12 +80,12 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         }else {
             pathString=pathString+nodeName;
         }
-        while (node.getParentUUID() != null){
-            node=this.serviceTreeMapper.selectNode(node.getParentUUID());
+        while (node.getParentGUID() != null){
+            node=this.serviceTreeMapper.selectNode(node.getParentGUID());
             System.out.println("查询到节点:"+node);
             nodeName = getNodeName(node);
             if(node.getType().equals(ClassifNode)){
-                String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getUUID());
+                String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getGuid());
                 if (classifNodeClassif!=null){
                     pathString="("+classifNodeClassif+")"+nodeName+"."+pathString;
                 }else {
@@ -99,13 +99,13 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     }
     private String getNodeName(GUIDDistributedScopeNode node){
         if (node.getType().equals(ApplicationNode)){
-            return this.genericApplicationNodeManipinate.selectApplicationNode(node.getUUID()).getName();
+            return this.genericApplicationNodeManipulator.selectApplicationNode(node.getGuid()).getName();
         }
         else if(node.getType().equals(ServiceNode)){
-            return this.genericServiceNodeManipinate.selectServiceNode(node.getUUID()).getName();
+            return this.genericServiceNodeManipulator.selectServiceNode(node.getGuid()).getName();
         }
         else if (node.getType().equals(ClassifNode)) {
-            return this.genericClassifNodeManipinate.selectClassifNode(node.getUUID()).getName();
+            return this.genericClassifNodeManipulator.selectClassifNode(node.getGuid()).getName();
         }
         return null;
     }

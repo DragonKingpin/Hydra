@@ -17,17 +17,17 @@ public interface DistributedTreeNode extends Pinenut {
     long getEnumId();
     void setEnumId(long enumId);
 
-    GUID getUUID();
-    void setUUID(GUID UUID);
+    GUID getGuid();
+    void setGuid(GUID guid);
 
-    GUID getParentUUID();
-    void setParentUUID(GUID parentUUID);
+    GUID getParentGUID();
+    void setParentGUID(GUID parentGUID);
 
-    GUID getBaseDataUUID();
-    void setBaseDataUUID(GUID baseDataUUID);
+    GUID getBaseDataGUID();
+    void setBaseDataGUID(GUID baseDataGUID);
 
-    GUID getNodeMetadataUUID();
-    void setNodeMetadataUUID(GUID nodeMetadataUUID);
+    GUID getNodeMetadataGUID();
+    void setNodeMetadataGUID(GUID nodeMetadataGUID);
 
     String getType();
     void setType(String type);

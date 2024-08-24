@@ -1,23 +1,23 @@
 package com.walnut.sparta.services.pojo;
 
-import com.pinecone.hydra.service.tree.GenericApplicationDescription;
+import com.pinecone.hydra.service.tree.GenericApplicationNodeMetadata;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.tree.FunctionalNodeInformation;
-import com.pinecone.hydra.service.tree.GenericNodeMetadata;
+import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ApplicationFunctionalNodeInformation implements FunctionalNodeInformation {
+public class ApplicationFunctionalNodeMeta implements FunctionalNodeMeta {
     private GenericApplicationNode applicationNode;
-    private GenericApplicationDescription applicationDescription;
-    private GenericNodeMetadata metadata;
+    private GenericApplicationNodeMetadata applicationDescription;
+    private GenericNodeCommonData metadata;
 
 
-    public ApplicationFunctionalNodeInformation() {
+    public ApplicationFunctionalNodeMeta() {
     }
 
-    public ApplicationFunctionalNodeInformation(GenericApplicationNode applicationNode, GenericApplicationDescription applicationDescription, GenericNodeMetadata metadata) {
+    public ApplicationFunctionalNodeMeta(GenericApplicationNode applicationNode, GenericApplicationNodeMetadata applicationDescription, GenericNodeCommonData metadata) {
         this.applicationNode = applicationNode;
         this.applicationDescription = applicationDescription;
         this.metadata = metadata;
@@ -43,7 +43,7 @@ public class ApplicationFunctionalNodeInformation implements FunctionalNodeInfor
      * 获取
      * @return applicationDescription
      */
-    public GenericApplicationDescription getApplicationDescription() {
+    public GenericApplicationNodeMetadata getApplicationDescription() {
         return applicationDescription;
     }
 
@@ -51,7 +51,7 @@ public class ApplicationFunctionalNodeInformation implements FunctionalNodeInfor
      * 设置
      * @param applicationDescription
      */
-    public void setApplicationDescription(GenericApplicationDescription applicationDescription) {
+    public void setApplicationDescription(GenericApplicationNodeMetadata applicationDescription) {
         this.applicationDescription = applicationDescription;
     }
 
@@ -59,7 +59,7 @@ public class ApplicationFunctionalNodeInformation implements FunctionalNodeInfor
      * 获取
      * @return metadata
      */
-    public GenericNodeMetadata getMetadata() {
+    public GenericNodeCommonData getMetadata() {
         return metadata;
     }
 
@@ -67,11 +67,16 @@ public class ApplicationFunctionalNodeInformation implements FunctionalNodeInfor
      * 设置
      * @param metadata
      */
-    public void setMetadata(GenericNodeMetadata metadata) {
+    public void setMetadata(GenericNodeCommonData metadata) {
         this.metadata = metadata;
     }
 
     public String toString() {
         return "ApplicationNodeInformation{applicationNode = " + applicationNode + ", applicationDescription = " + applicationDescription + ", metadata = " + metadata + "}";
+    }
+
+    @Override
+    public String getName() {
+        return this.applicationNode.getName();
     }
 }

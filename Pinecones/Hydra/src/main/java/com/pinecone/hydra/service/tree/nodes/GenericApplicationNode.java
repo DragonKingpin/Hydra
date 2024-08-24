@@ -7,7 +7,7 @@ public class GenericApplicationNode implements ApplicationNode {
     private long enumId;
 
     // 应用节点UUID
-    private GUID UUID;
+    private GUID guid;
 
     // 应用节点名称
     private String name;
@@ -16,9 +16,9 @@ public class GenericApplicationNode implements ApplicationNode {
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(long enumId, GUID UUID, String name) {
+    public GenericApplicationNode(long enumId, GUID guid, String name) {
         this.enumId = enumId;
-        this.UUID = UUID;
+        this.guid = guid;
         this.name = name;
     }
 
@@ -40,18 +40,18 @@ public class GenericApplicationNode implements ApplicationNode {
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    public GUID getUUID() {
-        return UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
@@ -71,6 +71,6 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
     public String toString() {
-        return "GenericApplicationNode{enumId = " + enumId + ", UUID = " + UUID + ", name = " + name + "}";
+        return "GenericApplicationNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

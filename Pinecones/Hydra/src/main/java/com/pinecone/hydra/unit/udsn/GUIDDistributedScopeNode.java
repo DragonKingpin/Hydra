@@ -16,26 +16,25 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
     //节点id
     private long enumId;
     //节点uuid
-    private GUID UUID;
+    private GUID guid;
     //父节点uuid
-    private GUID parentUUID;
+    private GUID parentGUID;
     //基础信息uuid
-    private GUID baseDataUUID;
+    private GUID baseDataGUID;
     //元信息uuid
-    private GUID nodeMetadataUUID;
+    private GUID nodeMetadataGUID;
     //节点的类型方便获取数据
     private String type;
-
 
     public GUIDDistributedScopeNode() {
     }
 
-    public GUIDDistributedScopeNode(long enumId, GUID UUID, GUID parentUUID, GUID baseDataUUID, GUID nodeMetadataUUID, String type) {
+    public GUIDDistributedScopeNode(long enumId, GUID guid, GUID parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, String type) {
         this.enumId = enumId;
-        this.UUID = UUID;
-        this.parentUUID = parentUUID;
-        this.baseDataUUID = baseDataUUID;
-        this.nodeMetadataUUID = nodeMetadataUUID;
+        this.guid = guid;
+        this.parentGUID = parentGUID;
+        this.baseDataGUID = baseDataGUID;
+        this.nodeMetadataGUID = nodeMetadataGUID;
         this.type = type;
     }
 
@@ -43,119 +42,99 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return enumId
      */
-    @Override
     public long getEnumId() {
-        return this.enumId;
+        return enumId;
     }
 
     /**
      * 设置
      * @param enumId
      */
-    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
     /**
      * 获取
-     * @return UUID
+     * @return guid
      */
-    @Override
-    public GUID getUUID() {
-        return this.UUID;
+    public GUID getGuid() {
+        return guid;
     }
 
     /**
      * 设置
-     * @param UUID
+     * @param guid
      */
-    @Override
-    public void setUUID(GUID UUID) {
-        this.UUID = UUID;
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     /**
      * 获取
-     * @return parentUUID
+     * @return parentGUID
      */
-    @Override
-    public GUID getParentUUID() {
-        return this.parentUUID;
+    public GUID getParentGUID() {
+        return parentGUID;
     }
 
     /**
      * 设置
-     * @param parentUUID
+     * @param parentGUID
      */
-    @Override
-    public void setParentUUID(GUID parentUUID) {
-        this.parentUUID = parentUUID;
+    public void setParentGUID(GUID parentGUID) {
+        this.parentGUID = parentGUID;
     }
 
     /**
      * 获取
-     * @return baseDataUUID
+     * @return baseDataGUID
      */
-    @Override
-    public GUID getBaseDataUUID() {
-        return this.baseDataUUID;
+    public GUID getBaseDataGUID() {
+        return baseDataGUID;
     }
 
     /**
      * 设置
-     * @param baseDataUUID
+     * @param baseDataGUID
      */
-    @Override
-    public void setBaseDataUUID(GUID baseDataUUID) {
-        this.baseDataUUID = baseDataUUID;
+    public void setBaseDataGUID(GUID baseDataGUID) {
+        this.baseDataGUID = baseDataGUID;
     }
 
     /**
      * 获取
-     * @return nodeMetadataUUID
+     * @return nodeMetadataGUID
      */
-    @Override
-    public GUID getNodeMetadataUUID() {
-        return this.nodeMetadataUUID;
+    public GUID getNodeMetadataGUID() {
+        return nodeMetadataGUID;
     }
 
     /**
      * 设置
-     * @param nodeMetadataUUID
+     * @param nodeMetadataGUID
      */
-    @Override
-    public void setNodeMetadataUUID(GUID nodeMetadataUUID) {
-        this.nodeMetadataUUID = nodeMetadataUUID;
+    public void setNodeMetadataGUID(GUID nodeMetadataGUID) {
+        this.nodeMetadataGUID = nodeMetadataGUID;
     }
 
     /**
      * 获取
      * @return type
      */
-    @Override
     public String getType() {
-        return this.type;
+        return type;
     }
 
     /**
      * 设置
      * @param type
      */
-    @Override
     public void setType(String type) {
         this.type = type;
     }
 
-    @Override
     public String toString() {
-        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
-                new KeyValue<>( "EnumId"           , this.enumId            ),
-                new KeyValue<>( "UUID"             , this.UUID              ),
-                new KeyValue<>( "ParentUUID"       , this.parentUUID        ),
-                new KeyValue<>( "BaseDataUUID"     , this.baseDataUUID      ),
-                new KeyValue<>( "NodeMetadataUUID" , this.nodeMetadataUUID  ),
-                new KeyValue<>( "Type"             , this.type              ),
-        } );
+        return "GUIDDistributedScopeNode{enumId = " + enumId + ", guid = " + guid + ", parentGUID = " + parentGUID + ", baseDataGUID = " + baseDataGUID + ", nodeMetadataGUID = " + nodeMetadataGUID + ", type = " + type + "}";
     }
 }

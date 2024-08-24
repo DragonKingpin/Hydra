@@ -11,14 +11,14 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 @Mapper
-public interface GenericApplicationNodeManipinate extends ApplicationNodeManipulator {
-    @Insert("INSERT INTO  `hydra_application_node` (`guid`, `name`) VALUES (#{UUID},#{name})")
+public interface GenericApplicationNodeManipulator extends ApplicationNodeManipulator {
+    @Insert("INSERT INTO  `hydra_application_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void saveApplicationNode(GenericApplicationNode applicationNode);
     @Delete("DELETE FROM `hydra_application_node` WHERE `guid`=#{UUID}")
-    void deleteApplicationNode(@Param("UUID")GUID UUID);
-    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_application_node` WHERE `guid`=#{UUID}")
-    GenericApplicationNode selectApplicationNode(@Param("UUID")GUID UUID);
+    void deleteApplicationNode(@Param("guid")GUID guid);
+    @Select("SELECT `id`, `guid`, `name` FROM `hydra_application_node` WHERE `guid`=#{guid}")
+    GenericApplicationNode selectApplicationNode(@Param("guid")GUID guid);
     void updateApplicationNode(GenericApplicationNode applicationNode);
-    @Select("SELECT `id`, `guid` AS UUID, `name` FROM `hydra_application_node` WHERE name=#{name}")
+    @Select("SELECT `id`, `guid`, `name` FROM `hydra_application_node` WHERE name=#{name}")
     List<GenericApplicationNode> selectApplicationNodeByName(@Param("name") String name);
 }

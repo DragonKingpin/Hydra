@@ -2,21 +2,21 @@ package com.walnut.sparta.services.pojo;
 
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
-import com.pinecone.hydra.service.tree.FunctionalNodeInformation;
-import com.pinecone.hydra.service.tree.GenericNodeMetadata;
+import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ClassifFunctionalNodeInformation implements FunctionalNodeInformation {
-    private GenericNodeMetadata nodeMetadata;
+public class ClassifFunctionalNodeMeta implements FunctionalNodeMeta {
+    private GenericNodeCommonData nodeMetadata;
     private GenericClassificationNode classificationNode;
     private GenericClassificationRules classificationRules;
 
 
-    public ClassifFunctionalNodeInformation() {
+    public ClassifFunctionalNodeMeta() {
     }
 
-    public ClassifFunctionalNodeInformation(GenericNodeMetadata nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
+    public ClassifFunctionalNodeMeta(GenericNodeCommonData nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
         this.nodeMetadata = nodeMetadata;
         this.classificationNode = classificationNode;
         this.classificationRules = classificationRules;
@@ -26,7 +26,7 @@ public class ClassifFunctionalNodeInformation implements FunctionalNodeInformati
      * 获取
      * @return nodeMetadata
      */
-    public GenericNodeMetadata getNodeMetadata() {
+    public GenericNodeCommonData getNodeMetadata() {
         return nodeMetadata;
     }
 
@@ -34,7 +34,7 @@ public class ClassifFunctionalNodeInformation implements FunctionalNodeInformati
      * 设置
      * @param nodeMetadata
      */
-    public void setNodeMetadata(GenericNodeMetadata nodeMetadata) {
+    public void setNodeMetadata(GenericNodeCommonData nodeMetadata) {
         this.nodeMetadata = nodeMetadata;
     }
 
@@ -72,5 +72,10 @@ public class ClassifFunctionalNodeInformation implements FunctionalNodeInformati
 
     public String toString() {
         return "ClassifNodeInformation{nodeMetadata = " + nodeMetadata + ", classificationNode = " + classificationNode + ", classificationRules = " + classificationRules + "}";
+    }
+
+    @Override
+    public String getName() {
+        return this.classificationNode.getName();
     }
 }

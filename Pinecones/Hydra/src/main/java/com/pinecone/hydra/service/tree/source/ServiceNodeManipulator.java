@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ServiceNodeManipulator extends Pinenut {
     //ServiceNode的CRUD
-    void saveServiceNode(GenericServiceNode serviceNode);
-    void deleteServiceNode(GUID UUID);
-    GenericServiceNode selectServiceNode(GUID UUID);
-    void updateServiceNode(GenericServiceNode serviceNode);
-    List<GenericServiceNode> selectServiceNodeByName(String name);
+    void insert(GenericServiceNode serviceNode);
+    void delete(GUID UUID);
+    GenericServiceNode getServiceNode(GUID UUID);
+    void update(GenericServiceNode serviceNode);
+    List<GenericServiceNode> fetchServiceNodeByName(String name);
 }

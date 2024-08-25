@@ -1,8 +1,14 @@
 package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.ApplicationNodeMeta;
+import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
 public class GenericApplicationNode implements ApplicationNode {
+
+    private DistributedTreeNode distributedTreeNode;
+
+    private ApplicationNodeMeta applicationNodeMeta;
     // 应用节点id
     private long enumId;
 
@@ -16,61 +22,65 @@ public class GenericApplicationNode implements ApplicationNode {
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(long enumId, GUID guid, String name) {
+    public GenericApplicationNode(DistributedTreeNode distributedTreeNode, ApplicationNodeMeta applicationNodeMeta, long enumId, GUID guid, String name) {
+        this.distributedTreeNode = distributedTreeNode;
+        this.applicationNodeMeta = applicationNodeMeta;
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return enumId
-     */
+
+    public DistributedTreeNode getDistributedTreeNode() {
+        return distributedTreeNode;
+    }
+
+
+    public void setDistributedTreeNode(DistributedTreeNode distributedTreeNode) {
+        this.distributedTreeNode = distributedTreeNode;
+    }
+
+
+    public ApplicationNodeMeta getApplicationNodeMeta() {
+        return applicationNodeMeta;
+    }
+
+
+    public void setApplicationNodeMeta(ApplicationNodeMeta applicationNodeMeta) {
+        this.applicationNodeMeta = applicationNodeMeta;
+    }
+
+
     public long getEnumId() {
         return enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
+
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
+
     public GUID getGuid() {
         return guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
+
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return name
-     */
+
     public String getName() {
         return name;
     }
 
-    /**
-     * 设置
-     * @param name
-     */
+
     public void setName(String name) {
         this.name = name;
     }
 
     public String toString() {
-        return "GenericApplicationNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
+        return "GenericApplicationNode{distributedTreeNode = " + distributedTreeNode + ", applicationNodeMeta = " + applicationNodeMeta + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

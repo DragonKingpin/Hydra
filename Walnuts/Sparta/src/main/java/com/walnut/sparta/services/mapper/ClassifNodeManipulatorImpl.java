@@ -14,16 +14,16 @@ import java.util.List;
 @Mapper
 public interface ClassifNodeManipulatorImpl extends ClassifNodeManipulator {
     @Insert("INSERT INTO `hydra_classif_node` (`guid`, `name`, `rules_guid`) VALUES (#{guid},#{name},#{rulesGUID})")
-    void saveClassifNode(GenericClassificationNode classificationNode);
+    void insert(GenericClassificationNode classificationNode);
 
     @Delete("DELETE FROM `hydra_classif_node` WHERE `guid`=#{guid}")
-    void deleteClassifNode(@Param("guid")GUID GUID);
+    void delete(@Param("guid")GUID GUID);
 
     @Select("SELECT `id`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_classif_node` WHERE `guid`=#{guid}")
-    GenericClassificationNode selectClassifNode(@Param("guid")GUID guid);
+    GenericClassificationNode getClassifNode(@Param("guid")GUID guid);
 
-    void updateClassifNode(GenericClassificationNode classificationNode);
+    void update(GenericClassificationNode classificationNode);
 
     @Select("SELECT `id`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_classif_node` WHERE name=#{name}")
-    List<GenericClassificationNode> selectClassifNodeByName(@Param("name") String name);
+    List<GenericClassificationNode> fetchClassifNodeByName(@Param("name") String name);
 }

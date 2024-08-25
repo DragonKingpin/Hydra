@@ -15,12 +15,12 @@ import java.util.List;
 public interface ServiceNodeManipulatorImpl extends ServiceNodeManipulator {
 
     @Insert("INSERT INTO `hydra_service_node` (`guid`, `name`) VALUES (#{guid},#{name})")
-    void saveServiceNode(GenericServiceNode serviceNode);
+    void insert(GenericServiceNode serviceNode);
     @Delete("DELETE FROM `hydra_service_node` WHERE `guid`=#{guid}")
-    void deleteServiceNode(@Param("guid")GUID guid);
+    void delete(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_node` WHERE `guid`=#{guid}")
-    GenericServiceNode selectServiceNode(@Param("guid") GUID guid);
+    GenericServiceNode getServiceNode(@Param("guid") GUID guid);
     void updateServiceNode(GenericServiceNode serviceNode);
     @Select("SELECT `id`, `guid` , `name` FROM `hydra_service_node` WHERE name=#{name}")
-    List<GenericServiceNode> selectServiceNodeByName(@Param("name") String name);
+    List<GenericServiceNode> fetchServiceNodeByName(@Param("name") String name);
 }

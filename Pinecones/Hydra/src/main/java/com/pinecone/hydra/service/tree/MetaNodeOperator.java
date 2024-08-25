@@ -4,11 +4,11 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
 public interface MetaNodeOperator extends Pinenut {
-    GUID insert(FunctionalNodeMeta functionalNodeMeta);
+    GUID insert(NodeWideData nodeWideData);
 
     void remove(GUID guid);
 
-    FunctionalNodeMeta get(GUID guid);
+    NodeWideData get(GUID guid);
 
-    void update(FunctionalNodeMeta functionalNodeMeta);
+    void update(NodeWideData nodeWideData);
 }

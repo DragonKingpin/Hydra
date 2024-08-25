@@ -13,12 +13,12 @@ import java.util.List;
 @Mapper
 public interface ApplicationNodeManipulatorImpl extends ApplicationNodeManipulator {
     @Insert("INSERT INTO  `hydra_application_node` (`guid`, `name`) VALUES (#{guid},#{name})")
-    void saveApplicationNode(GenericApplicationNode applicationNode);
+    void insert(GenericApplicationNode applicationNode);
     @Delete("DELETE FROM `hydra_application_node` WHERE `guid`=#{UUID}")
-    void deleteApplicationNode(@Param("guid")GUID guid);
+    void delete(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_application_node` WHERE `guid`=#{guid}")
-    GenericApplicationNode selectApplicationNode(@Param("guid")GUID guid);
-    void updateApplicationNode(GenericApplicationNode applicationNode);
+    GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);
+    void update(GenericApplicationNode applicationNode);
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_application_node` WHERE name=#{name}")
-    List<GenericApplicationNode> selectApplicationNodeByName(@Param("name") String name);
+    List<GenericApplicationNode> fetchApplicationNodeByName(@Param("name") String name);
 }

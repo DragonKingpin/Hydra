@@ -1,6 +1,6 @@
 package com.walnut.sparta.services.pojo;
 
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
@@ -8,16 +8,16 @@ import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ServiceNodeMeta implements FunctionalNodeMeta {
+public class ServiceNodeWideData implements NodeWideData {
     private GenericServiceNode            serviceNode;
     private GenericNodeCommonData         nodeMetadata;
     private GenericServiceNodeMeta serviceDescription;
 
 
-    public ServiceNodeMeta() {
+    public ServiceNodeWideData() {
     }
 
-    public ServiceNodeMeta(GenericServiceNode serviceNode, GenericNodeCommonData nodeMetadata, GenericServiceNodeMeta serviceDescription ) {
+    public ServiceNodeWideData(GenericServiceNode serviceNode, GenericNodeCommonData nodeMetadata, GenericServiceNodeMeta serviceDescription ) {
         this.serviceNode        = serviceNode;
         this.nodeMetadata       = nodeMetadata;
         this.serviceDescription = serviceDescription;

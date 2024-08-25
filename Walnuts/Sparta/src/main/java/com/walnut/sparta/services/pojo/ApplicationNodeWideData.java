@@ -2,22 +2,22 @@ package com.walnut.sparta.services.pojo;
 
 import com.pinecone.hydra.service.tree.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ApplicationNodeMeta implements FunctionalNodeMeta {
+public class ApplicationNodeWideData implements NodeWideData {
     private GenericApplicationNode applicationNode;
     private GenericApplicationNodeMeta applicationDescription;
     private GenericNodeCommonData metadata;
 
 
-    public ApplicationNodeMeta() {
+    public ApplicationNodeWideData() {
     }
 
-    public ApplicationNodeMeta(GenericApplicationNode applicationNode, GenericApplicationNodeMeta applicationDescription, GenericNodeCommonData metadata) {
+    public ApplicationNodeWideData(GenericApplicationNode applicationNode, GenericApplicationNodeMeta applicationDescription, GenericNodeCommonData metadata) {
         this.applicationNode = applicationNode;
         this.applicationDescription = applicationDescription;
         this.metadata = metadata;

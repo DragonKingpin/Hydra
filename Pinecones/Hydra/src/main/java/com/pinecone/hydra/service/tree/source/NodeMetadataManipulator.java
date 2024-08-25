@@ -5,8 +5,8 @@ import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 
 public interface NodeMetadataManipulator {
     //NodeMetadata节点的CRUD
-    void insertNodeMetadata(GenericNodeCommonData nodeMetadata);
-    void deleteNodeMetadata(GUID guid);
+    void insert(GenericNodeCommonData nodeMetadata);
+    void delete(GUID guid);
     GenericNodeCommonData getNodeMetadata(GUID guid);
-    void updateNodeMetadata(GenericNodeCommonData nodeMetadata);
+    void update(GenericNodeCommonData nodeMetadata);
 }

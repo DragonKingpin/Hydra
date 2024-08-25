@@ -8,13 +8,13 @@ import java.util.List;
 
 public interface ClassifNodeManipulator extends Pinenut {
     //ClassifcationNode的CRUD
-    void insertClassifNode(GenericClassificationNode classificationNode);
+    void insert(GenericClassificationNode classificationNode);
 
-    void deleteClassifNode(GUID guid);
+    void delete(GUID guid);
 
     GenericClassificationNode getClassifNode(GUID guid);
 
-    void updateClassifNode(GenericClassificationNode classificationNode);
+    void update(GenericClassificationNode classificationNode);
 
     List<GenericClassificationNode> fetchClassifNodeByName(String name);
 }

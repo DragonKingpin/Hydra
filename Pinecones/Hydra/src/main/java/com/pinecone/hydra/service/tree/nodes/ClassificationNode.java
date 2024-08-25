@@ -1,9 +1,11 @@
 package com.pinecone.hydra.service.tree.nodes;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.ClassificationRules;
+import com.pinecone.hydra.service.tree.NodeWideData;
+import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
-public interface ClassificationNode extends Pinenut {
+public interface ClassificationNode extends NodeWideData {
     long getEnumId();
     void setEnumId(long id);
 
@@ -15,5 +17,11 @@ public interface ClassificationNode extends Pinenut {
 
     GUID getRulesGUID();
     void setRulesGUID(GUID rulesGUID);
+
+    ClassificationRules getClassificationRules();
+    void setClassificationRules(ClassificationRules classificationRules);
+
+    DistributedTreeNode getDistributedTreeNode();
+    void setDistributedTreeNode(DistributedTreeNode distributedTreeNode);
 
 }

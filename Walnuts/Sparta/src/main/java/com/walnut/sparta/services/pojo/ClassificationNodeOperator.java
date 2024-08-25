@@ -2,9 +2,8 @@ package com.walnut.sparta.services.pojo;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.nodes.ClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
@@ -17,7 +16,7 @@ import com.pinecone.ulf.util.id.UidGenerator;
 
 
 public class ClassificationNodeOperator implements MetaNodeOperator {
-    public static final Class<? > TargetNode = ClassificationNodeMeta.class;
+    public static final Class<? > TargetNode = ClassificationNodeWideData.class;
 
     private ClassifNodeManipulator  classifNodeManipulator;
     private NodeMetadataManipulator nodeMetadataManipulator;
@@ -33,8 +32,8 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     }
 
     @Override
-    public GUID insert( FunctionalNodeMeta functionalNodeMeta ) {
-        ClassificationNodeMeta classifNodeInformation = (ClassificationNodeMeta) functionalNodeMeta;
+    public GUID insert( NodeWideData nodeWideData) {
+        ClassificationNodeWideData classifNodeInformation = (ClassificationNodeWideData) nodeWideData;
 
         //将应用节点基础信息存入信息表
         UidGenerator uidGenerator = UUIDBuilder.getBuilder();
@@ -48,7 +47,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         GenericClassificationNode classificationNode = classifNodeInformation.getClassificationNode();
         classificationNode.setGuid(classifNodeGUID);
         classificationNode.setRulesGUID(descriptionGUID);
-        this.classifNodeManipulator.insertClassifNode(classificationNode);
+        this.classifNodeManipulator.insert(classificationNode);
 
         //将应用元信息存入元信息表
         GUID metadataGUID = uidGenerator.getGUID72();
@@ -69,21 +68,21 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     @Override
     public void remove(GUID guid) {
         GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
-        this.classifNodeManipulator.deleteClassifNode(node.getGuid());
+        this.classifNodeManipulator.delete(node.getGuid());
         this.nodeMetadataManipulator.deleteNodeMetadata(node.getNodeMetadataGUID());
     }
 
     @Override
-    public FunctionalNodeMeta get( GUID guid ) {
+    public NodeWideData get(GUID guid ) {
         GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
-        ClassificationNodeMeta classifNodeInformation = new ClassificationNodeMeta();
+        ClassificationNodeWideData classifNodeInformation = new ClassificationNodeWideData();
         classifNodeInformation.setClassificationNode(this.classifNodeManipulator.getClassifNode(node.getGuid()));
         classifNodeInformation.setNodeMetadata(this.nodeMetadataManipulator.getNodeMetadata(node.getNodeMetadataGUID()));
         return classifNodeInformation;
     }
 
     @Override
-    public void update(FunctionalNodeMeta functionalNodeMeta) {
+    public void update(NodeWideData nodeWideData) {
 
     }
 

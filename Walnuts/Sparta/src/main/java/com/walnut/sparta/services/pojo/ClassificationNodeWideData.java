@@ -2,21 +2,21 @@ package com.walnut.sparta.services.pojo;
 
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ClassificationNodeMeta implements FunctionalNodeMeta {
+public class ClassificationNodeWideData implements NodeWideData {
     private GenericNodeCommonData nodeMetadata;
     private GenericClassificationNode classificationNode;
     private GenericClassificationRules classificationRules;
 
 
-    public ClassificationNodeMeta() {
+    public ClassificationNodeWideData() {
     }
 
-    public ClassificationNodeMeta(GenericNodeCommonData nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
+    public ClassificationNodeWideData(GenericNodeCommonData nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
         this.nodeMetadata = nodeMetadata;
         this.classificationNode = classificationNode;
         this.classificationRules = classificationRules;

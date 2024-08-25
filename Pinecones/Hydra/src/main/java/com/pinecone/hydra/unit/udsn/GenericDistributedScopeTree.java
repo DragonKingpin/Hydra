@@ -6,7 +6,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
@@ -84,9 +84,9 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
             Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            FunctionalNodeMeta functionalNodeMeta = nodeOperation.get(node.getGuid());
-            Debug.trace(functionalNodeMeta);
-            return functionalNodeMeta.getName();
+            NodeWideData nodeWideData = nodeOperation.get(node.getGuid());
+            Debug.trace(nodeWideData);
+            return nodeWideData.getName();
         }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new ProxyProvokeHandleException(e);

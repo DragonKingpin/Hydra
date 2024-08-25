@@ -8,7 +8,7 @@ import com.pinecone.hydra.service.tree.ApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
+import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.service.tree.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
@@ -43,13 +43,13 @@ public class DistributedScopeService implements Pinenut {
         this.classifNodeManipulator=classifNodeManipulator;
         this.metaNodeOperatorProxy=new MetaNodeOperatorProxy();
         this.metaNodeOperatorProxy.registration(ApplicationNodeMeta.class.getName(), applicationFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ClassificationNodeMeta.class.getName(), classifFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ServiceNodeMeta.class.getName(), serviceFunctionalNodeOperation);
+        this.metaNodeOperatorProxy.registration(ClassificationNodeWideData.class.getName(), classifFunctionalNodeOperation);
+        this.metaNodeOperatorProxy.registration(ServiceNodeWideData.class.getName(), serviceFunctionalNodeOperation);
     }
 
     //保存节点
     //这里有个问题，将这个移入Operator中但是现在这里的逻辑就是在获取Operator,要不要传入szClassFullName
-    public GUID saveApplicationNode(com.walnut.sparta.services.pojo.ApplicationNodeMeta applicationNodeInformation){
+    public GUID saveApplicationNode(ApplicationNodeWideData applicationNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null, null);
@@ -61,7 +61,7 @@ public class DistributedScopeService implements Pinenut {
         }
     }
 
-    public GUID saveServiceNode(ServiceNodeMeta serviceNodeInformation){
+    public GUID saveServiceNode(ServiceNodeWideData serviceNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ServiceFunctionalNodeInformation", null, null);
@@ -73,7 +73,7 @@ public class DistributedScopeService implements Pinenut {
         }
     }
 
-    public GUID saveClassifNode(ClassificationNodeMeta classifNodeInformation){
+    public GUID saveClassifNode(ClassificationNodeWideData classifNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ClassifFunctionalNodeInformation", null, null);
@@ -102,7 +102,7 @@ public class DistributedScopeService implements Pinenut {
     }
 
     //查找节点信息
-    public FunctionalNodeMeta selectNode(GUID guid){
+    public NodeWideData selectNode(GUID guid){
         //先查看缓存表中是否存在路径信息，不存在则补齐
         String path = this.serviceTreeMapper.selectPath(guid);
         if (path==null){
@@ -137,8 +137,8 @@ public class DistributedScopeService implements Pinenut {
             Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            FunctionalNodeMeta functionalNodeMeta = nodeOperation.get(node.getGuid());
-            return functionalNodeMeta.getName();
+            NodeWideData nodeWideData = nodeOperation.get(node.getGuid());
+            return nodeWideData.getName();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -157,7 +157,7 @@ public class DistributedScopeService implements Pinenut {
         this.serviceTreeMapper.updatePath(guid,pathString);
     }
 
-    public FunctionalNodeMeta parsePath(String path) {
+    public NodeWideData parsePath(String path) {
         GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,
                 this.applicationNodeManipulator,
                 this.serviceNodeManipulator,

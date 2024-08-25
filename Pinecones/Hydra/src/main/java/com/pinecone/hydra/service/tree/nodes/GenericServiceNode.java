@@ -22,45 +22,65 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode( long enumId, GUID guid, String name ) {
+    public GenericServiceNode(DistributedTreeNode distributedTreeNode, ServiceNodeMetadata serviceNodeMetadata, long enumId, GUID guid, String name) {
+        this.distributedTreeNode = distributedTreeNode;
+        this.serviceNodeMetadata = serviceNodeMetadata;
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
     }
 
 
-    @Override
+    public DistributedTreeNode getDistributedTreeNode() {
+        return distributedTreeNode;
+    }
+
+
+    public void setDistributedTreeNode(DistributedTreeNode distributedTreeNode) {
+        this.distributedTreeNode = distributedTreeNode;
+    }
+
+
+    public ServiceNodeMetadata getServiceNodeMetadata() {
+        return serviceNodeMetadata;
+    }
+
+
+    public void setServiceNodeMetadata(ServiceNodeMetadata serviceNodeMetadata) {
+        this.serviceNodeMetadata = serviceNodeMetadata;
+    }
+
+
     public long getEnumId() {
         return enumId;
     }
 
-    @Override
+
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    @Override
+
     public GUID getGuid() {
         return guid;
     }
 
-    @Override
+
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    @Override
+
     public String getName() {
         return name;
     }
 
-    @Override
+
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String toString() {
-        return "GenericServiceNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
+        return "GenericServiceNode{distributedTreeNode = " + distributedTreeNode + ", serviceNodeMetadata = " + serviceNodeMetadata + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

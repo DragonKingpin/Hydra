@@ -12,10 +12,10 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface NodeMetaManipulatorImpl extends NodeMetadataManipulator {
     @Insert("INSERT INTO `hydra_node_common_data` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{guid},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
-    void saveNodeMetadata(GenericNodeCommonData nodeMetadata);
+    void insert(GenericNodeCommonData nodeMetadata);
     @Delete("DELETE FROM `hydra_node_common_data` WHERE `guid`=#{guid}")
-    void deleteNodeMetadata(@Param("guid")GUID guid);
+    void delete(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_node_common_data` WHERE `guid`=#{guid}")
-    GenericNodeCommonData selectNodeMetadata(@Param("guid")GUID guid);
-    void updateNodeMetadata(GenericNodeCommonData nodeMetadata);
+    GenericNodeCommonData getNodeMetadata(@Param("guid")GUID guid);
+    void update(GenericNodeCommonData nodeMetadata);
 }

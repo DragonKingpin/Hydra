@@ -11,10 +11,10 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface ClassifRulesManipulatorImpl extends ClassifRulesManipulator {
     @Insert("INSERT INTO `hydra_classif_rules` (`guid`, `scope`, `name`, `description`) VALUES (#{guid},#{scope},#{name},#{description})")
-    void insertClassifRules(GenericClassificationRules classificationRules);
+    void insert(GenericClassificationRules classificationRules);
     @Delete("DELETE FROM `hydra_classif_rules` WHERE `guid`=#{guid}")
-    void deleteClassifRules(@Param("guid")GUID guid);
+    void delete(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `scope`, `name`, `description` FROM `hydra_classif_rules` WHERE `guid`=#{guid}")
-    GenericClassificationRules selectClassifRules(@Param("guid")GUID guid);
-    void updateClassifRules(GenericClassificationRules classificationRules);
+    GenericClassificationRules getClassifRules(@Param("guid")GUID guid);
+    void update(GenericClassificationRules classificationRules);
 }

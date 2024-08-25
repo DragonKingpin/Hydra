@@ -1,13 +1,13 @@
 package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ServiceNodeMetadata;
+import com.pinecone.hydra.service.tree.meta.ServiceNodeMeta;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
 public class GenericServiceNode implements ServiceNode {
     private DistributedTreeNode distributedTreeNode;
 
-    private ServiceNodeMetadata serviceNodeMetadata;
+    private ServiceNodeMeta serviceNodeMetadata;
 
     // 服务节点id
     private long enumId;
@@ -22,7 +22,7 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(DistributedTreeNode distributedTreeNode, ServiceNodeMetadata serviceNodeMetadata, long enumId, GUID guid, String name) {
+    public GenericServiceNode(DistributedTreeNode distributedTreeNode, ServiceNodeMeta serviceNodeMetadata, long enumId, GUID guid, String name) {
         this.distributedTreeNode = distributedTreeNode;
         this.serviceNodeMetadata = serviceNodeMetadata;
         this.enumId = enumId;
@@ -41,12 +41,12 @@ public class GenericServiceNode implements ServiceNode {
     }
 
 
-    public ServiceNodeMetadata getServiceNodeMetadata() {
+    public ServiceNodeMeta getServiceNodeMetadata() {
         return serviceNodeMetadata;
     }
 
 
-    public void setServiceNodeMetadata(ServiceNodeMetadata serviceNodeMetadata) {
+    public void setServiceNodeMetadata(ServiceNodeMeta serviceNodeMetadata) {
         this.serviceNodeMetadata = serviceNodeMetadata;
     }
 

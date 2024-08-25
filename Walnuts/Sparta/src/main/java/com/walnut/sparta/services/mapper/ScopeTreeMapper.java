@@ -1,7 +1,7 @@
 package com.walnut.sparta.services.mapper;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 @Mapper
-public interface TreeMapper extends ServiceTreeMapper {
+public interface ScopeTreeMapper extends ScopeTreeManipulator {
     @Insert("INSERT INTO  `hydra_service_node_tree` (`guid`, `parent_guid`, `base_data_guid`, `node_metadata_guid`,`type`) VALUES (#{guid},#{parentGUID},#{baseDataGUID},#{nodeMetadataGUID},#{type})")
     void saveNode(GUIDDistributedScopeNode node);
 

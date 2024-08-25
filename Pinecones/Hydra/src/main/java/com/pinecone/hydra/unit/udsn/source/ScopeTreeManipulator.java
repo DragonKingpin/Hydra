@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.tree;
+package com.pinecone.hydra.unit.udsn.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
@@ -6,7 +6,7 @@ import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 import java.util.List;
 
-public interface ServiceTreeMapper extends Pinenut {
+public interface ScopeTreeManipulator extends Pinenut {
     void saveNode(GUIDDistributedScopeNode node);
 
     GUIDDistributedScopeNode selectNode(GUID guid);

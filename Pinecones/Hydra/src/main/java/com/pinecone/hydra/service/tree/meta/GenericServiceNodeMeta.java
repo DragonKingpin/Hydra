@@ -1,33 +1,33 @@
-package com.pinecone.hydra.service.tree;
+package com.pinecone.hydra.service.tree.meta;
 
 import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public class GenericApplicationNodeMeta implements ApplicationNodeMeta {
-    // 应用ID
+public class GenericServiceNodeMeta implements ServiceNodeMeta {
+    // 服务id
     private long enumId;
 
-    // 应用UUID
+    // 服务uuid
     private GUID guid;
 
-    // 应用名称
+    // 服务名称
     private String name;
 
-    // 路径
+    // 服务路径
     private String path;
 
     // 类型
     private String type;
 
-    // 别名
+    // 服务别名
     private String alias;
 
     // 资源类型
     private String resourceType;
 
-    // 部署方式
-    private String deploymentMethod;
+    // 服务类型
+    private String serviceType;
 
     // 创建时间
     private LocalDateTime createTime;
@@ -36,10 +36,10 @@ public class GenericApplicationNodeMeta implements ApplicationNodeMeta {
     private LocalDateTime updateTime;
 
 
-    public GenericApplicationNodeMeta() {
+    public GenericServiceNodeMeta() {
     }
 
-    public GenericApplicationNodeMeta(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericServiceNodeMeta(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
@@ -47,7 +47,7 @@ public class GenericApplicationNodeMeta implements ApplicationNodeMeta {
         this.type = type;
         this.alias = alias;
         this.resourceType = resourceType;
-        this.deploymentMethod = deploymentMethod;
+        this.serviceType = serviceType;
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
@@ -166,18 +166,18 @@ public class GenericApplicationNodeMeta implements ApplicationNodeMeta {
 
     /**
      * 获取
-     * @return deploymentMethod
+     * @return serviceType
      */
-    public String getDeploymentMethod() {
-        return deploymentMethod;
+    public String getServiceType() {
+        return serviceType;
     }
 
     /**
      * 设置
-     * @param deploymentMethod
+     * @param serviceType
      */
-    public void setDeploymentMethod(String deploymentMethod) {
-        this.deploymentMethod = deploymentMethod;
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     /**
@@ -213,6 +213,6 @@ public class GenericApplicationNodeMeta implements ApplicationNodeMeta {
     }
 
     public String toString() {
-        return "GenericApplicationDescription{enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
+        return "GenericServiceDescription{enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
     }
 }

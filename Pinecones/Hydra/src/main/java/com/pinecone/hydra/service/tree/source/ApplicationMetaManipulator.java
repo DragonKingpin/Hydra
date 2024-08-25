@@ -1,7 +1,7 @@
 package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericApplicationNodeMeta;
+import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 
 public interface ApplicationMetaManipulator {
     //ApplicationDescription的CRUD

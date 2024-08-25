@@ -2,12 +2,12 @@ package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.mapper.ServiceNodeManipulatorImpl;
+import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,13 +24,13 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    ServiceTreeMapper serviceTreeMapper;
+    ScopeTreeManipulator scopeTreeManipulator;
     @Resource
     ApplicationNodeManipulator genericApplicationNodeManipulator;
     @Resource
     ClassifNodeManipulator genericClassifNodeManipulator;
     @Resource
-    ServiceNodeManipulatorImpl genericServiceNodeManipulator;
+    ServiceNodeMapper genericServiceNodeManipulator;
     @Resource
     ServiceTreeService serviceTreeService;
 
@@ -42,7 +42,7 @@ public class ServiceTreeController {
     @GetMapping("/getPath/{GUID}")
     public String getPath(@PathVariable("GUID") String GUID){
         GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(
-                this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy()
+                this.scopeTreeManipulator,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy()
         );
         GUID72 guid72 = new GUID72();
         GUID parse = guid72.parse(GUID);

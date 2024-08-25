@@ -2,11 +2,11 @@ package com.walnut.sparta.services.service.serviceImpl;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.walnut.sparta.services.mapper.ApplicationNodeManipulatorImpl;
-import com.walnut.sparta.services.mapper.ClassifNodeManipulatorImpl;
-import com.walnut.sparta.services.mapper.ServiceNodeManipulatorImpl;
+import com.walnut.sparta.services.mapper.ApplicationNodeMapper;
+import com.walnut.sparta.services.mapper.ClassifNodeMapper;
+import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +17,13 @@ import java.util.List;
 
 public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
-    ServiceTreeMapper serviceTreeMapper;
+    ScopeTreeManipulator scopeTreeManipulator;
     @Resource
-    ApplicationNodeManipulatorImpl genericApplicationNodeManipulator;
+    ApplicationNodeMapper genericApplicationNodeManipulator;
     @Resource
-    ClassifNodeManipulatorImpl genericClassifNodeManipulator;
+    ClassifNodeMapper genericClassifNodeManipulator;
     @Resource
-    ServiceNodeManipulatorImpl genericServiceNodeManipulator;
+    ServiceNodeMapper genericServiceNodeManipulator;
     private final static String ApplicationNode="applicationNode";
 
     private final static String ServiceNode="serviceNode";
@@ -32,7 +32,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Override
     public void addNodeToParent(GUID nodeGUID, GUID parentGUID) {
         //将节点加入指定位置
-        this.serviceTreeMapper.addNodeToParent(nodeGUID,parentGUID);
+        this.scopeTreeManipulator.addNodeToParent(nodeGUID,parentGUID);
         //添加后要更新节点路径
         //递归查询所有要更新的节点
         upDateAllPath(nodeGUID);
@@ -45,9 +45,9 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     }
 
     private void deleteAllNode(GUID nodeGUID){
-        List<GUIDDistributedScopeNode> childNodes = this.serviceTreeMapper.getChildNode(nodeGUID);
-        this.serviceTreeMapper.deleteNode(nodeGUID);
-        this.serviceTreeMapper.deletePath(nodeGUID);
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(nodeGUID);
+        this.scopeTreeManipulator.deleteNode(nodeGUID);
+        this.scopeTreeManipulator.deletePath(nodeGUID);
         if (childNodes==null) return;
         for (GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
             deleteNode(guidDistributedScopeNode.getGuid());
@@ -56,7 +56,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
 
     private void upDateAllPath(GUID guid){
         updatePath(guid);
-        List<GUIDDistributedScopeNode> childNodes = this.serviceTreeMapper.getChildNode(guid);
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
         Debug.trace("节点"+guid+"的子节点有"+childNodes.toString());
         for(GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
             if (guidDistributedScopeNode!=null){
@@ -65,13 +65,13 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         }
     }
     private void updatePath(GUID UUID){
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(UUID);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(UUID);
         //如果是分类节点还要查询分类节点的分类表
         System.out.println("查询到节点:"+node);
         String nodeName = getNodeName(node);
         String pathString="";
         if(node.getType().equals(ClassifNode)){
-            String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getGuid());
+            String classifNodeClassif = scopeTreeManipulator.getClassifNodeClassif(node.getGuid());
             if (classifNodeClassif!=null){
                 pathString=pathString+"("+classifNodeClassif+")"+nodeName;
             }else {
@@ -81,11 +81,11 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
             pathString=pathString+nodeName;
         }
         while (node.getParentGUID() != null){
-            node=this.serviceTreeMapper.selectNode(node.getParentGUID());
+            node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
             System.out.println("查询到节点:"+node);
             nodeName = getNodeName(node);
             if(node.getType().equals(ClassifNode)){
-                String classifNodeClassif = serviceTreeMapper.getClassifNodeClassif(node.getGuid());
+                String classifNodeClassif = scopeTreeManipulator.getClassifNodeClassif(node.getGuid());
                 if (classifNodeClassif!=null){
                     pathString="("+classifNodeClassif+")"+nodeName+"."+pathString;
                 }else {
@@ -95,17 +95,17 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
                 pathString=nodeName + "." + pathString;
             }
         }
-        this.serviceTreeMapper.updatePath(UUID,pathString);
+        this.scopeTreeManipulator.updatePath(UUID,pathString);
     }
     private String getNodeName(GUIDDistributedScopeNode node){
         if (node.getType().equals(ApplicationNode)){
-            return this.genericApplicationNodeManipulator.selectApplicationNode(node.getGuid()).getName();
+            return this.genericApplicationNodeManipulator.getApplicationNode(node.getGuid()).getName();
         }
         else if(node.getType().equals(ServiceNode)){
-            return this.genericServiceNodeManipulator.selectServiceNode(node.getGuid()).getName();
+            return this.genericServiceNodeManipulator.getServiceNode(node.getGuid()).getName();
         }
         else if (node.getType().equals(ClassifNode)) {
-            return this.genericClassifNodeManipulator.selectClassifNode(node.getGuid()).getName();
+            return this.genericClassifNodeManipulator.getClassifNode(node.getGuid()).getName();
         }
         return null;
     }

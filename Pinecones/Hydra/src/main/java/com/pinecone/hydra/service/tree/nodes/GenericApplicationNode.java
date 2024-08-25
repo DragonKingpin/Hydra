@@ -1,7 +1,7 @@
 package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ApplicationNodeMeta;
+import com.pinecone.hydra.service.tree.meta.ApplicationNodeMeta;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
 public class GenericApplicationNode implements ApplicationNode {

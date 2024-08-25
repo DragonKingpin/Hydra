@@ -1,14 +1,14 @@
-package com.walnut.sparta.services.pojo;
+package com.pinecone.hydra.service.tree.operator;
 
-import com.pinecone.hydra.service.tree.NodeWideData;
+import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.GenericServiceNodeMeta;
+import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ServiceNodeWideData implements NodeWideData {
+public class ServiceNodeWideData implements ServiceTreeNode {
     private GenericServiceNode            serviceNode;
     private GenericNodeCommonData         nodeMetadata;
     private GenericServiceNodeMeta serviceDescription;

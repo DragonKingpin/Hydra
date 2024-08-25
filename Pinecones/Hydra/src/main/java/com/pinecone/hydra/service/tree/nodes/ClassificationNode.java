@@ -2,10 +2,9 @@ package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.ClassificationRules;
-import com.pinecone.hydra.service.tree.NodeWideData;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
-public interface ClassificationNode extends NodeWideData {
+public interface ClassificationNode extends ServiceTreeNode {
     long getEnumId();
     void setEnumId(long id);
 

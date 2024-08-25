@@ -1,38 +1,45 @@
-package com.walnut.sparta.services.pojo;
+package com.pinecone.hydra.service.tree.operator;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.NodeWideData;
-import com.pinecone.hydra.service.tree.MetaNodeOperator;
+import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.service.tree.source.NodeMetadataManipulator;
+import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
 
 public class ClassificationNodeOperator implements MetaNodeOperator {
-    public static final Class<? > TargetNode = ClassificationNodeWideData.class;
-
     private ClassifNodeManipulator  classifNodeManipulator;
-    private NodeMetadataManipulator nodeMetadataManipulator;
-    private ServiceTreeMapper       serviceTreeMapper;
+    private CommonDataManipulator commonDataManipulator;
+    private ScopeTreeManipulator scopeTreeManipulator;
 
-
-    public ClassificationNodeOperator(
-            ClassifNodeManipulator classifNodeManipulator, NodeMetadataManipulator nodeMetadataManipulator, ServiceTreeMapper serviceTreeMapper
-    ){
-        this.classifNodeManipulator  = classifNodeManipulator;
-        this.nodeMetadataManipulator = nodeMetadataManipulator;
-        this.serviceTreeMapper      = serviceTreeMapper;
+    public ClassificationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
+        this(
+                manipulators.getClassifNodeManipulator(),
+                manipulators.getCommonDataManipulator(),
+                manipulators.getScopeTreeManipulator()
+        );
     }
 
+    public ClassificationNodeOperator(
+            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator, ScopeTreeManipulator scopeTreeManipulator
+    ){
+        this.classifNodeManipulator  = classifNodeManipulator;
+        this.commonDataManipulator = commonDataManipulator;
+        this.scopeTreeManipulator      = scopeTreeManipulator;
+    }
+
+
+
     @Override
-    public GUID insert( NodeWideData nodeWideData) {
+    public GUID insert( ServiceTreeNode nodeWideData) {
         ClassificationNodeWideData classifNodeInformation = (ClassificationNodeWideData) nodeWideData;
 
         //将应用节点基础信息存入信息表
@@ -53,7 +60,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         GUID metadataGUID = uidGenerator.getGUID72();
         GenericNodeCommonData metadata = classifNodeInformation.getNodeMetadata();
         metadata.setGuid(metadataGUID);
-        this.nodeMetadataManipulator.insertNodeMetadata(metadata);
+        this.commonDataManipulator.insert(metadata);
 
         //将节点信息存入主表
         GUIDDistributedScopeNode node = new GUIDDistributedScopeNode();
@@ -61,28 +68,28 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         node.setGuid(classifNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOI.create( "java-class:///com.walnut.sparta.pojo.ClassifFunctionalNodeInformation" ) );
-        this.serviceTreeMapper.saveNode(node);
+        this.scopeTreeManipulator.saveNode(node);
         return classifNodeGUID;
     }
 
     @Override
     public void remove(GUID guid) {
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
         this.classifNodeManipulator.delete(node.getGuid());
-        this.nodeMetadataManipulator.deleteNodeMetadata(node.getNodeMetadataGUID());
+        this.commonDataManipulator.delete(node.getNodeMetadataGUID());
     }
 
     @Override
-    public NodeWideData get(GUID guid ) {
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
+    public ServiceTreeNode get(GUID guid ) {
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
         ClassificationNodeWideData classifNodeInformation = new ClassificationNodeWideData();
         classifNodeInformation.setClassificationNode(this.classifNodeManipulator.getClassifNode(node.getGuid()));
-        classifNodeInformation.setNodeMetadata(this.nodeMetadataManipulator.getNodeMetadata(node.getNodeMetadataGUID()));
+        classifNodeInformation.setNodeMetadata(this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID()));
         return classifNodeInformation;
     }
 
     @Override
-    public void update(NodeWideData nodeWideData) {
+    public void update(ServiceTreeNode nodeWideData) {
 
     }
 

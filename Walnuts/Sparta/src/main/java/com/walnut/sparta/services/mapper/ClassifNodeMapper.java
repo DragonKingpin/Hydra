@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface ClassifNodeManipulatorImpl extends ClassifNodeManipulator {
+public interface ClassifNodeMapper extends ClassifNodeManipulator {
     @Insert("INSERT INTO `hydra_classif_node` (`guid`, `name`, `rules_guid`) VALUES (#{guid},#{name},#{rulesGUID})")
     void insert(GenericClassificationNode classificationNode);
 

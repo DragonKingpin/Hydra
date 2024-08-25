@@ -1,50 +1,50 @@
 package com.walnut.sparta.services.pojo;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.ApplicationNodeMeta;
+import com.pinecone.hydra.service.tree.ScopeServiceTree;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.NodeWideData;
-import com.pinecone.hydra.service.tree.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.ServiceTreeMapper;
+import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
+import com.pinecone.hydra.service.tree.operator.ApplicationNodeWideData;
+import com.pinecone.hydra.service.tree.operator.ClassificationNodeWideData;
+import com.pinecone.hydra.service.tree.operator.ServiceNodeWideData;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
-import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
+import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-public class DistributedScopeService implements Pinenut {
-    private ServiceTreeMapper serviceTreeMapper;
-    private ApplicationNodeManipulator applicationNodeManipulator;
-    private ServiceNodeManipulator serviceNodeManipulator;
-    private ClassifNodeManipulator classifNodeManipulator;
-    private MetaNodeOperator classifFunctionalNodeOperation;
-    private MetaNodeOperator applicationFunctionalNodeOperation;
-    private MetaNodeOperator serviceFunctionalNodeOperation;
-    private MetaNodeOperatorProxy metaNodeOperatorProxy;
+public class DistributedScopeServiceTree implements ScopeServiceTree {
+    //GenericDistributedScopeTree
 
-    public DistributedScopeService(MetaNodeOperator classifFunctionalNodeOperation, MetaNodeOperator applicationFunctionalNodeOperation,
-                                   MetaNodeOperator serviceFunctionalNodeOperation, ServiceTreeMapper serviceTreeMapper,
-                                   ApplicationNodeManipulator applicationNodeManipulator, ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipulator){
-        this.classifFunctionalNodeOperation = classifFunctionalNodeOperation;
-        this.applicationFunctionalNodeOperation = applicationFunctionalNodeOperation;
-        this.serviceFunctionalNodeOperation = serviceFunctionalNodeOperation;
-        this.serviceTreeMapper=serviceTreeMapper;
-        this.applicationNodeManipulator=applicationNodeManipulator;
-        this.serviceNodeManipulator = serviceNodeManipulator;
-        this.classifNodeManipulator=classifNodeManipulator;
-        this.metaNodeOperatorProxy=new MetaNodeOperatorProxy();
-        this.metaNodeOperatorProxy.registration(ApplicationNodeMeta.class.getName(), applicationFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ClassificationNodeWideData.class.getName(), classifFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ServiceNodeWideData.class.getName(), serviceFunctionalNodeOperation);
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private MetaNodeOperatorProxy       metaNodeOperatorProxy;
+
+    private ScopeTreeManipulator        scopeTreeManipulator;
+    private ApplicationNodeManipulator  applicationNodeManipulator;
+    private ServiceNodeManipulator      serviceNodeManipulator;
+    private ClassifNodeManipulator      classifNodeManipulator;
+
+
+
+    public DistributedScopeServiceTree( DefaultMetaNodeManipulators manipulators ){
+        this.defaultMetaNodeManipulators = manipulators;
+        this.scopeTreeManipulator        = manipulators.getScopeTreeManipulator();
+        this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
+        this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
+        this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
+        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators );
     }
 
     //保存节点
@@ -56,8 +56,9 @@ public class DistributedScopeService implements Pinenut {
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
             return nodeOperation.insert(applicationNodeInformation);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        }
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ProxyProvokeHandleException(e);
         }
     }
 
@@ -88,7 +89,7 @@ public class DistributedScopeService implements Pinenut {
 
     //删除节点
     public void deleteNode(GUID UUID){
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(UUID);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(UUID);
         UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
@@ -102,22 +103,22 @@ public class DistributedScopeService implements Pinenut {
     }
 
     //查找节点信息
-    public NodeWideData selectNode(GUID guid){
+    public ServiceTreeNode selectNode(GUID guid){
         //先查看缓存表中是否存在路径信息，不存在则补齐
-        String path = this.serviceTreeMapper.selectPath(guid);
+        String path = this.scopeTreeManipulator.selectPath(guid);
         if (path==null){
-            GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
+            GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
             String nodeName = getNodeName(node);
             String pathString="";
             pathString=pathString+nodeName;
             while (node.getParentGUID() != null){
-                node=this.serviceTreeMapper.selectNode(node.getParentGUID());
+                node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
                 nodeName = getNodeName(node);
                 pathString=nodeName + "." + pathString;
             }
-            this.serviceTreeMapper.savePath(pathString,guid);
+            this.scopeTreeManipulator.savePath(pathString,guid);
         }
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
         UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
@@ -137,7 +138,7 @@ public class DistributedScopeService implements Pinenut {
             Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            NodeWideData nodeWideData = nodeOperation.get(node.getGuid());
+            ServiceTreeNode nodeWideData = nodeOperation.get(node.getGuid());
             return nodeWideData.getName();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -145,26 +146,26 @@ public class DistributedScopeService implements Pinenut {
     }
 
     private void updatePath(GUID guid){
-        GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
         while (node.getParentGUID() != null){
-            node=this.serviceTreeMapper.selectNode(node.getParentGUID());
+            node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
             nodeName = getNodeName(node);
             pathString=nodeName + "." + pathString;
         }
-        this.serviceTreeMapper.updatePath(guid,pathString);
+        this.scopeTreeManipulator.updatePath(guid,pathString);
     }
 
-    public NodeWideData parsePath(String path) {
-        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,
+    public ServiceTreeNode parsePath(String path) {
+        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.scopeTreeManipulator,
                 this.applicationNodeManipulator,
                 this.serviceNodeManipulator,
                 this.classifNodeManipulator,
                 new MetaNodeOperatorProxy());
         // 先查看缓存表中是否存在路径信息
-        GUID guid = this.serviceTreeMapper.parsePath(path);
+        GUID guid = this.scopeTreeManipulator.parsePath(path);
         if (guid != null) {
             return selectNode(guid);
         }
@@ -174,7 +175,7 @@ public class DistributedScopeService implements Pinenut {
         String[] parts = processPath(path).split("\\.");
 
         // 根据最后一个节点尝试查找 ServiceNode
-        List<GenericServiceNode> genericServiceNodes = this.serviceNodeManipulator.selectServiceNodeByName(parts[parts.length - 1]);
+        List<GenericServiceNode> genericServiceNodes = this.serviceNodeManipulator.fetchServiceNodeByName(parts[parts.length - 1]);
         for (GenericServiceNode genericServiceNode : genericServiceNodes) {
             String nodePath = distributedScopeTree.getPath(genericServiceNode.getGuid());
             if (nodePath.equals(path)) {

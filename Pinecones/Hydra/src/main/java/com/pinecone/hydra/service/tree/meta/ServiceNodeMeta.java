@@ -1,11 +1,10 @@
-package com.pinecone.hydra.service.tree;
+package com.pinecone.hydra.service.tree.meta;
 
 import java.time.LocalDateTime;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-public interface ApplicationNodeMeta extends Pinenut {
+public interface ServiceNodeMeta extends NodeMetadata {
     long getEnumId();
     void setEnumId(long id);
 
@@ -27,8 +26,8 @@ public interface ApplicationNodeMeta extends Pinenut {
     String getResourceType();
     void setResourceType(String resourceType);
 
-    String getDeploymentMethod();
-    void setDeploymentMethod(String deploymentMethod);
+    String getServiceType();
+    void setServiceType(String serviceType);
 
     LocalDateTime getCreateTime();
     void setCreateTime(LocalDateTime createTime);

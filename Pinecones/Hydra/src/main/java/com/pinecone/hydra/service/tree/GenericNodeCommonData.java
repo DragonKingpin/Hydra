@@ -28,7 +28,7 @@ public class GenericNodeCommonData implements NodeCommonData {
     public GenericNodeCommonData() {
     }
 
-    public GenericNodeCommonData(long enumId, GUID guid, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericNodeCommonData( long enumId, GUID guid, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
         this.enumId = enumId;
         this.guid = guid;
         this.scenario = scenario;

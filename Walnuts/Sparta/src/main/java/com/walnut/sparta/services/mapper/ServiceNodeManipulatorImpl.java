@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface GenericServiceNodeManipulator extends ServiceNodeManipulator {
+public interface ServiceNodeManipulatorImpl extends ServiceNodeManipulator {
 
     @Insert("INSERT INTO `hydra_service_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void saveServiceNode(GenericServiceNode serviceNode);

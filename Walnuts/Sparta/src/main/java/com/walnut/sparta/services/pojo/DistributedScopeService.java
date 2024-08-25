@@ -3,7 +3,8 @@ package com.walnut.sparta.services.pojo;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
-import com.pinecone.hydra.service.tree.ApplicationNodeMetadata;
+import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.tree.ApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
@@ -18,14 +19,13 @@ import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.List;
 
 public class DistributedScopeService implements Pinenut {
     private ServiceTreeMapper serviceTreeMapper;
-    private ApplicationNodeManipulator applicationNodeManipinate;
+    private ApplicationNodeManipulator applicationNodeManipulator;
     private ServiceNodeManipulator serviceNodeManipulator;
-    private ClassifNodeManipulator classifNodeManipinate;
+    private ClassifNodeManipulator classifNodeManipulator;
     private MetaNodeOperator classifFunctionalNodeOperation;
     private MetaNodeOperator applicationFunctionalNodeOperation;
     private MetaNodeOperator serviceFunctionalNodeOperation;
@@ -33,23 +33,23 @@ public class DistributedScopeService implements Pinenut {
 
     public DistributedScopeService(MetaNodeOperator classifFunctionalNodeOperation, MetaNodeOperator applicationFunctionalNodeOperation,
                                    MetaNodeOperator serviceFunctionalNodeOperation, ServiceTreeMapper serviceTreeMapper,
-                                   ApplicationNodeManipulator applicationNodeManipinate, ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipinate){
+                                   ApplicationNodeManipulator applicationNodeManipulator, ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipulator){
         this.classifFunctionalNodeOperation = classifFunctionalNodeOperation;
         this.applicationFunctionalNodeOperation = applicationFunctionalNodeOperation;
         this.serviceFunctionalNodeOperation = serviceFunctionalNodeOperation;
         this.serviceTreeMapper=serviceTreeMapper;
-        this.applicationNodeManipinate=applicationNodeManipinate;
+        this.applicationNodeManipulator=applicationNodeManipulator;
         this.serviceNodeManipulator = serviceNodeManipulator;
-        this.classifNodeManipinate=classifNodeManipinate;
+        this.classifNodeManipulator=classifNodeManipulator;
         this.metaNodeOperatorProxy=new MetaNodeOperatorProxy();
-        this.metaNodeOperatorProxy.registration(ApplicationNodeMetadata.class.getName(), applicationFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ClassifFunctionalNodeMeta.class.getName(), classifFunctionalNodeOperation);
-        this.metaNodeOperatorProxy.registration(ServiceFunctionalNodeMeta.class.getName(), serviceFunctionalNodeOperation);
+        this.metaNodeOperatorProxy.registration(ApplicationNodeMeta.class.getName(), applicationFunctionalNodeOperation);
+        this.metaNodeOperatorProxy.registration(ClassificationNodeMeta.class.getName(), classifFunctionalNodeOperation);
+        this.metaNodeOperatorProxy.registration(ServiceNodeMeta.class.getName(), serviceFunctionalNodeOperation);
     }
 
     //保存节点
     //这里有个问题，将这个移入Operator中但是现在这里的逻辑就是在获取Operator,要不要传入szClassFullName
-    public GUID saveApplicationNode(ApplicationFunctionalNodeMeta applicationNodeInformation){
+    public GUID saveApplicationNode(com.walnut.sparta.services.pojo.ApplicationNodeMeta applicationNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null, null);
@@ -61,7 +61,7 @@ public class DistributedScopeService implements Pinenut {
         }
     }
 
-    public GUID saveServiceNode(ServiceFunctionalNodeMeta serviceNodeInformation){
+    public GUID saveServiceNode(ServiceNodeMeta serviceNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ServiceFunctionalNodeInformation", null, null);
@@ -73,7 +73,7 @@ public class DistributedScopeService implements Pinenut {
         }
     }
 
-    public GUID saveClassifNode(ClassifFunctionalNodeMeta classifNodeInformation){
+    public GUID saveClassifNode(ClassificationNodeMeta classifNodeInformation){
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
             Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ClassifFunctionalNodeInformation", null, null);
@@ -89,10 +89,10 @@ public class DistributedScopeService implements Pinenut {
     //删除节点
     public void deleteNode(GUID UUID){
         GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(UUID);
-        String type = node.getType();
+        UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
+            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
             nodeOperation.remove(UUID);
@@ -118,10 +118,10 @@ public class DistributedScopeService implements Pinenut {
             this.serviceTreeMapper.savePath(pathString,guid);
         }
         GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
-        String type = node.getType();
+        UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
+            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
             return nodeOperation.get(guid);
@@ -129,11 +129,12 @@ public class DistributedScopeService implements Pinenut {
             throw new RuntimeException(e);
         }
     }
+
     private String getNodeName(GUIDDistributedScopeNode node){
-        String type = node.getType();
+        UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
+            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
             FunctionalNodeMeta functionalNodeMeta = nodeOperation.get(node.getGuid());
@@ -142,6 +143,7 @@ public class DistributedScopeService implements Pinenut {
             throw new RuntimeException(e);
         }
     }
+
     private void updatePath(GUID guid){
         GUIDDistributedScopeNode node = this.serviceTreeMapper.selectNode(guid);
         String nodeName = getNodeName(node);
@@ -154,11 +156,12 @@ public class DistributedScopeService implements Pinenut {
         }
         this.serviceTreeMapper.updatePath(guid,pathString);
     }
+
     public FunctionalNodeMeta parsePath(String path) {
         GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,
-                this.applicationNodeManipinate,
+                this.applicationNodeManipulator,
                 this.serviceNodeManipulator,
-                this.classifNodeManipinate,
+                this.classifNodeManipulator,
                 new MetaNodeOperatorProxy());
         // 先查看缓存表中是否存在路径信息
         GUID guid = this.serviceTreeMapper.parsePath(path);
@@ -180,7 +183,7 @@ public class DistributedScopeService implements Pinenut {
         }
 
         // 根据最后一个节点尝试查找 ApplicationNode
-        List<GenericApplicationNode> genericApplicationNodes = this.applicationNodeManipinate.fetchApplicationNodeByName(parts[parts.length - 1]);
+        List<GenericApplicationNode> genericApplicationNodes = this.applicationNodeManipulator.fetchApplicationNodeByName(parts[parts.length - 1]);
         for (GenericApplicationNode genericApplicationNode : genericApplicationNodes) {
             String nodePath = distributedScopeTree.getPath(genericApplicationNode.getGuid());
             if (nodePath.equals(path)) {
@@ -189,7 +192,7 @@ public class DistributedScopeService implements Pinenut {
         }
 
         // 根据最后一个节点尝试查找 ClassificationNode
-        List<GenericClassificationNode> genericClassificationNodes = this.classifNodeManipinate.fetchClassifNodeByName(parts[parts.length - 1]);
+        List<GenericClassificationNode> genericClassificationNodes = this.classifNodeManipulator.fetchClassifNodeByName(parts[parts.length - 1]);
         for (GenericClassificationNode genericClassificationNode : genericClassificationNodes) {
             String nodePath = distributedScopeTree.getPath(genericClassificationNode.getGuid());
             if (nodePath.equals(path)) {
@@ -199,6 +202,7 @@ public class DistributedScopeService implements Pinenut {
 
         return null;
     }
+
     private String processPath(String path) {
         // 使用正则表达式移除所有的括号及其内容
         return path.replaceAll("\\(.*?\\)", "");

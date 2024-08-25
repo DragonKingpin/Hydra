@@ -1,8 +1,14 @@
 package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.ServiceNodeMetadata;
+import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 
 public class GenericServiceNode implements ServiceNode {
+    private DistributedTreeNode distributedTreeNode;
+
+    private ServiceNodeMetadata serviceNodeMetadata;
+
     // 服务节点id
     private long enumId;
 
@@ -16,60 +22,44 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(long enumId, GUID guid, String name) {
+    public GenericServiceNode( long enumId, GUID guid, String name ) {
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return enumId
-     */
+
+    @Override
     public long getEnumId() {
         return enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
+    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
+    @Override
     public GUID getGuid() {
         return guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return name
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * 设置
-     * @param name
-     */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public String toString() {
         return "GenericServiceNode{enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }

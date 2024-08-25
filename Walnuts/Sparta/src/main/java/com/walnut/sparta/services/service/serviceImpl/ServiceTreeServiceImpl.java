@@ -4,9 +4,9 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.ServiceTreeMapper;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.walnut.sparta.services.mapper.GenericApplicationNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericClassifNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericServiceNodeManipulator;
+import com.walnut.sparta.services.mapper.ApplicationNodeManipulatorImpl;
+import com.walnut.sparta.services.mapper.ClassifNodeManipulatorImpl;
+import com.walnut.sparta.services.mapper.ServiceNodeManipulatorImpl;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +19,11 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
     ServiceTreeMapper serviceTreeMapper;
     @Resource
-    GenericApplicationNodeManipulator genericApplicationNodeManipulator;
+    ApplicationNodeManipulatorImpl genericApplicationNodeManipulator;
     @Resource
-    GenericClassifNodeManipulator genericClassifNodeManipulator;
+    ClassifNodeManipulatorImpl genericClassifNodeManipulator;
     @Resource
-    GenericServiceNodeManipulator genericServiceNodeManipulator;
+    ServiceNodeManipulatorImpl genericServiceNodeManipulator;
     private final static String ApplicationNode="applicationNode";
 
     private final static String ServiceNode="serviceNode";

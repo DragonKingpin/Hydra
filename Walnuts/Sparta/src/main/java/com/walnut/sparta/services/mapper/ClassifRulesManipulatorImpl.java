@@ -9,9 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 @Mapper
-public interface GenericClassifRulesManipulator extends ClassifRulesManipulator {
+public interface ClassifRulesManipulatorImpl extends ClassifRulesManipulator {
     @Insert("INSERT INTO `hydra_classif_rules` (`guid`, `scope`, `name`, `description`) VALUES (#{guid},#{scope},#{name},#{description})")
-    void saveClassifRules(GenericClassificationRules classificationRules);
+    void insertClassifRules(GenericClassificationRules classificationRules);
     @Delete("DELETE FROM `hydra_classif_rules` WHERE `guid`=#{guid}")
     void deleteClassifRules(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `scope`, `name`, `description` FROM `hydra_classif_rules` WHERE `guid`=#{guid}")

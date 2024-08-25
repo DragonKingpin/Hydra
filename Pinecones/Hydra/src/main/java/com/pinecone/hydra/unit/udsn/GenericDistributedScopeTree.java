@@ -1,9 +1,11 @@
 package com.pinecone.hydra.unit.udsn;
 
 
+import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.FunctionalNodeMeta;
 import com.pinecone.hydra.service.tree.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.MetaNodeOperatorProxy;
@@ -20,21 +22,21 @@ import java.lang.reflect.InvocationTargetException;
 public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     private ServiceTreeMapper serviceTreeMapper;
 
-    private ApplicationNodeManipulator applicationNodeManipinate;
+    private ApplicationNodeManipulator applicationNodeManipulator;
 
     private ServiceNodeManipulator serviceNodeManipulator;
 
-    private ClassifNodeManipulator classifNodeManipinate;
+    private ClassifNodeManipulator classifNodeManipulator;
 
     private MetaNodeOperatorProxy metaNodeOperatorProxy;
 
-    public GenericDistributedScopeTree(ServiceTreeMapper serviceTreeMapper, ApplicationNodeManipulator applicationNodeManipinate,
-                                       ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipinate,
+    public GenericDistributedScopeTree(ServiceTreeMapper serviceTreeMapper, ApplicationNodeManipulator applicationNodeManipulator,
+                                       ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipulator,
                                        MetaNodeOperatorProxy functionalNodeFactory){
         this.serviceTreeMapper=serviceTreeMapper;
-        this.applicationNodeManipinate=applicationNodeManipinate;
+        this.applicationNodeManipulator=applicationNodeManipulator;
         this.serviceNodeManipulator = serviceNodeManipulator;
-        this.classifNodeManipinate=classifNodeManipinate;
+        this.classifNodeManipulator=classifNodeManipulator;
         this.metaNodeOperatorProxy=functionalNodeFactory;
     }
 
@@ -76,17 +78,18 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
     private String getNodeName( GUIDDistributedScopeNode node ){
-        String type = node.getType();
+        UOI type = node.getType();
         GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
         try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type, null, null);
+            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
             Class<?> nodeInformationClass = nodeInformation.getClass();
             MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
             FunctionalNodeMeta functionalNodeMeta = nodeOperation.get(node.getGuid());
             Debug.trace(functionalNodeMeta);
             return functionalNodeMeta.getName();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        }
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ProxyProvokeHandleException(e);
         }
     }
 

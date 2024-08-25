@@ -11,20 +11,13 @@ import com.pinecone.hydra.service.tree.source.NodeMetadataManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceDescriptionManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.mapper.GenericApplicationDescriptionManipulator;
-import com.walnut.sparta.services.mapper.GenericApplicationNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericClassifNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericClassifRulesManipulator;
-import com.walnut.sparta.services.mapper.GenericNodeMetadataManipulator;
-import com.walnut.sparta.services.mapper.GenericServiceDescriptionManipulator;
-import com.walnut.sparta.services.mapper.GenericServiceNodeManipulator;
-import com.walnut.sparta.services.pojo.ApplicationFunctionalNodeMeta;
-import com.walnut.sparta.services.pojo.ApplicationFunctionalNodeOperator;
-import com.walnut.sparta.services.pojo.ClassifFunctionalNodeMeta;
-import com.walnut.sparta.services.pojo.ClassifFunctionalNodeOperator;
+import com.walnut.sparta.services.pojo.ApplicationNodeMeta;
+import com.walnut.sparta.services.pojo.ApplicationNodeOperator;
+import com.walnut.sparta.services.pojo.ClassificationNodeMeta;
+import com.walnut.sparta.services.pojo.ClassificationNodeOperator;
 import com.walnut.sparta.services.pojo.DistributedScopeService;
-import com.walnut.sparta.services.pojo.ServiceFunctionalNodeMeta;
-import com.walnut.sparta.services.pojo.ServiceFunctionalNodeOperator;
+import com.walnut.sparta.services.pojo.ServiceNodeMeta;
+import com.walnut.sparta.services.pojo.ServiceNodeOperator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,13 +41,14 @@ public class ServiceMetaController {
     @Resource
     ClassifRulesManipulator genericClassifRulesManipulator;
     @Resource
-    NodeMetadataManipulator genericNodeMetadataManipinate;
+    NodeMetadataManipulator genericNodeMetadataManipulator;
     @Resource
     ServiceNodeManipulator genericServiceNodeManipulator;
     @Resource
     ServiceDescriptionManipulator genericServiceDescriptionManipulator;
     @Resource
     ServiceTreeMapper serviceTreeMapper;
+
     /**
      * 渲染单节点信息
      * @param GUID 节点UUID
@@ -62,9 +56,9 @@ public class ServiceMetaController {
      */
     @GetMapping("/queryNodeInfoByGUID/{GUID}")
     public FunctionalNodeMeta queryNodeInfoByGUID(@PathVariable("GUID") String GUID){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         GUID72 guid72 = new GUID72();
         com.pinecone.framework.util.id.GUID parse = guid72.parse(GUID);
@@ -78,9 +72,9 @@ public class ServiceMetaController {
      */
     @GetMapping("/queryNodeInfoByPath")
     public FunctionalNodeMeta queryNodeInfoByPath(@RequestParam("path") String path){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         return distributedScopeService.parsePath(path);
     }
@@ -91,10 +85,10 @@ public class ServiceMetaController {
      * @return 创建的节点的GUID
      */
     @PostMapping("/saveServiceNode")
-    public GUID saveServiceNode(@RequestBody ServiceFunctionalNodeMeta serviceNodeInformation){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+    public GUID saveServiceNode(@RequestBody ServiceNodeMeta serviceNodeInformation){
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         return distributedScopeService.saveServiceNode(serviceNodeInformation);
     }
@@ -105,10 +99,10 @@ public class ServiceMetaController {
      * @return  创建的节点的GUID
      */
     @PostMapping("/saveApplicationNode")
-    public GUID saveApplicationNode(@RequestBody ApplicationFunctionalNodeMeta applicationNodeInformation){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+    public GUID saveApplicationNode(@RequestBody ApplicationNodeMeta applicationNodeInformation){
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         return distributedScopeService.saveApplicationNode(applicationNodeInformation);
     }
@@ -119,10 +113,10 @@ public class ServiceMetaController {
      * @return 创建的节点的GUID
      */
     @PostMapping("/saveClassifNode")
-    public GUID saveClassifNode(@RequestBody ClassifFunctionalNodeMeta classifNodeInformation){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+    public GUID saveClassifNode(@RequestBody ClassificationNodeMeta classifNodeInformation){
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         return distributedScopeService.saveClassifNode(classifNodeInformation);
     }
@@ -134,9 +128,9 @@ public class ServiceMetaController {
      */
     @DeleteMapping("/deleteNode")
     public String deleteNode(@RequestParam("nodeGUID") String guid){
-        ServiceFunctionalNodeOperator serviceNodeOperation = new ServiceFunctionalNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ApplicationFunctionalNodeOperator applicationNodeOperation = new ApplicationFunctionalNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
-        ClassifFunctionalNodeOperator classifNodeOperation = new ClassifFunctionalNodeOperator(this.genericClassifNodeManipulator,this.genericClassifRulesManipulator,this.genericNodeMetadataManipinate,this.serviceTreeMapper);
+        ServiceNodeOperator serviceNodeOperation = new ServiceNodeOperator(this.genericServiceNodeManipulator,this.genericServiceDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ApplicationNodeOperator applicationNodeOperation = new ApplicationNodeOperator(this.genericApplicationNodeManipulator,this.genericApplicationDescriptionManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
+        ClassificationNodeOperator classifNodeOperation = new ClassificationNodeOperator(this.genericClassifNodeManipulator,this.genericNodeMetadataManipulator,this.serviceTreeMapper);
         DistributedScopeService distributedScopeService = new DistributedScopeService(classifNodeOperation,applicationNodeOperation,serviceNodeOperation,this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator);
         distributedScopeService.deleteNode(new GUID72(guid));
         return "删除成功";

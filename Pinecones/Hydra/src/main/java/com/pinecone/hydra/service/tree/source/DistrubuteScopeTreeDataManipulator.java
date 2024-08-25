@@ -2,12 +2,12 @@ package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericApplicationNodeMetadata;
+import com.pinecone.hydra.service.tree.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.GenericServiceNodeMetadata;
+import com.pinecone.hydra.service.tree.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 
 import java.util.List;
@@ -20,10 +20,10 @@ public interface DistrubuteScopeTreeDataManipulator extends Pinenut {
     void updateNodeMetadata(GenericNodeCommonData nodeMetadata);
 
     //ServiceDescription的CRUD
-    void saveServiceDescription(GenericServiceNodeMetadata UUID);
+    void saveServiceDescription(GenericServiceNodeMeta UUID);
     void deleteServiceDescription(GUID UUID);
-    void updateServiceDescription(GenericServiceNodeMetadata serviceDescription);
-    GenericServiceNodeMetadata selectServiceDescription(GUID UUID);
+    void updateServiceDescription(GenericServiceNodeMeta serviceDescription);
+    GenericServiceNodeMeta selectServiceDescription(GUID UUID);
     //ServiceNode的CRUD
     void saveServiceNode(GenericServiceNode serviceNode);
     void deleteServiceNode(GUID UUID);
@@ -50,10 +50,10 @@ public interface DistrubuteScopeTreeDataManipulator extends Pinenut {
     void updateApplicationNode(GenericApplicationNode applicationNode);
     List<GenericApplicationNode> selectApplicationNodeByName(String name);
     //ApplicationDescription的CRUD
-    void saveApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
+    void saveApplicationDescription(GenericApplicationNodeMeta applicationDescription);
     void deleteApplicationDescription(GUID UUID);
-    GenericApplicationNodeMetadata selectApplicationDescription(GUID UUID);
-    void updateApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
+    GenericApplicationNodeMeta selectApplicationDescription(GUID UUID);
+    void updateApplicationDescription(GenericApplicationNodeMeta applicationDescription);
     void saveClassifNodeType(GUID classifNodeUUID,GUID classifTypeUUID);
     GUID selectClassifNodeType(GUID classifNodeUUID);
 }

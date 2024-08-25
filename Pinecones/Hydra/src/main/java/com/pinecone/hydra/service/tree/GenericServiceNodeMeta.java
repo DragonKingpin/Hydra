@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public class GenericServiceNodeMetadata implements ServiceNodeMetadata {
+public class GenericServiceNodeMeta implements ServiceNodeMetadata {
     // 服务id
     private long enumId;
 
@@ -36,10 +36,10 @@ public class GenericServiceNodeMetadata implements ServiceNodeMetadata {
     private LocalDateTime updateTime;
 
 
-    public GenericServiceNodeMetadata() {
+    public GenericServiceNodeMeta() {
     }
 
-    public GenericServiceNodeMetadata(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericServiceNodeMeta(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;

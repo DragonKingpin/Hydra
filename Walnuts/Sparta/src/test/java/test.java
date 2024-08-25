@@ -1,26 +1,15 @@
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.Identification;
-import com.pinecone.framework.util.lang.ArchDynamicFactory;
-import com.pinecone.framework.util.lang.DynamicFactory;
-import com.pinecone.framework.util.lang.GenericDynamicFactory;
-import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.ulf.util.id.UidGenerator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.walnut.sparta.services.pojo.pathURI;
-import org.assertj.core.error.ShouldAccept;
+import com.pinecone.framework.util.uoi.UOI;
+
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.net.URI;
-import java.util.HashMap;
 
 @SpringBootTest
 @ContextConfiguration(locations = { "classpath:uid/default-uid-spring.xml" })
 public class test {
     @Test
-   public void test(){
+    public void test(){
 //       UidGenerator uidGenerator= UUIDBuilder.getBuilder();
 //       for (int i=0;i<4;i++){
 //           GUID guid72 = uidGenerator.getGUID72();
@@ -47,8 +36,14 @@ public class test {
 //        } catch (Exception e){
 //            Debug.trace(e.toString());
 //        }
-        pathURI pathURI = new pathURI("java-service//com.walnut.sparta.services.pojo.ServiceFunctionalNodeMeta");
-        String className = pathURI.getClassName();
-        Debug.trace(className);
+//        pathURI pathURI = new pathURI("java-service:///com.walnut.sparta.services.pojo.ServiceFunctionalNodeMeta");
+//        String className = pathURI.getClassName();
+//        Debug.trace(className);
+
+
+        UOI uri = UOI.create( "java-class:///java.util.ArrayList" );
+
+        Debug.trace( uri, uri.getObjectName(), uri.newInstance() );
+
     }
 }

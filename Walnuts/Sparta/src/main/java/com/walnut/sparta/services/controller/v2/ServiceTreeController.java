@@ -7,9 +7,7 @@ import com.pinecone.hydra.service.tree.ServiceTreeMapper;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.mapper.GenericApplicationNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericClassifNodeManipulator;
-import com.walnut.sparta.services.mapper.GenericServiceNodeManipulator;
+import com.walnut.sparta.services.mapper.ServiceNodeManipulatorImpl;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +30,7 @@ public class ServiceTreeController {
     @Resource
     ClassifNodeManipulator genericClassifNodeManipulator;
     @Resource
-    GenericServiceNodeManipulator genericServiceNodeManipulator;
+    ServiceNodeManipulatorImpl genericServiceNodeManipulator;
     @Resource
     ServiceTreeService serviceTreeService;
 
@@ -43,7 +41,9 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public String getPath(@PathVariable("GUID") String GUID){
-        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy());
+        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(
+                this.serviceTreeMapper,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy()
+        );
         GUID72 guid72 = new GUID72();
         GUID parse = guid72.parse(GUID);
         Debug.trace( parse.toString() );

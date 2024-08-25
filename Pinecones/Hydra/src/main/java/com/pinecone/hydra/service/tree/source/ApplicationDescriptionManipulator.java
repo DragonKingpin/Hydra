@@ -1,15 +1,15 @@
 package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericApplicationNodeMetadata;
+import com.pinecone.hydra.service.tree.GenericApplicationNodeMeta;
 
 public interface ApplicationDescriptionManipulator {
     //ApplicationDescription的CRUD
-    void insertApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
+    void insertApplicationDescription(GenericApplicationNodeMeta applicationDescription);
 
     void deleteApplicationDescription(GUID guid);
 
-    GenericApplicationNodeMetadata getApplicationDescription(GUID guid);
+    GenericApplicationNodeMeta getApplicationDescription(GUID guid);
 
-    void updateApplicationDescription(GenericApplicationNodeMetadata applicationDescription);
+    void updateApplicationDescription(GenericApplicationNodeMeta applicationDescription);
 }

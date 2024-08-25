@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 @Mapper
-public interface GenericApplicationNodeManipulator extends ApplicationNodeManipulator {
+public interface ApplicationNodeManipulatorImpl extends ApplicationNodeManipulator {
     @Insert("INSERT INTO  `hydra_application_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void saveApplicationNode(GenericApplicationNode applicationNode);
     @Delete("DELETE FROM `hydra_application_node` WHERE `guid`=#{UUID}")

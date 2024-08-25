@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udsn;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 
 import java.util.UUID;
 
@@ -29,6 +30,6 @@ public interface DistributedTreeNode extends Pinenut {
     GUID getNodeMetadataGUID();
     void setNodeMetadataGUID(GUID nodeMetadataGUID);
 
-    String getType();
-    void setType(String type);
+    UOI getType();
+    void setType( UOI type );
 }

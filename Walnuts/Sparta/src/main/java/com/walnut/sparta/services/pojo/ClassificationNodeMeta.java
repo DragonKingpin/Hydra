@@ -7,16 +7,16 @@ import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 /**
  * 用于便捷获取节点数据与生成json数据
  */
-public class ClassifFunctionalNodeMeta implements FunctionalNodeMeta {
+public class ClassificationNodeMeta implements FunctionalNodeMeta {
     private GenericNodeCommonData nodeMetadata;
     private GenericClassificationNode classificationNode;
     private GenericClassificationRules classificationRules;
 
 
-    public ClassifFunctionalNodeMeta() {
+    public ClassificationNodeMeta() {
     }
 
-    public ClassifFunctionalNodeMeta(GenericNodeCommonData nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
+    public ClassificationNodeMeta(GenericNodeCommonData nodeMetadata, GenericClassificationNode classificationNode, GenericClassificationRules classificationRules) {
         this.nodeMetadata = nodeMetadata;
         this.classificationNode = classificationNode;
         this.classificationRules = classificationRules;

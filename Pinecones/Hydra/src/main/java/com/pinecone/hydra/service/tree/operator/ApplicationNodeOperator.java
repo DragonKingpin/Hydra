@@ -73,7 +73,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
-        node.setType( UOIUtils.createLocalJavaClass( "java-class:///"+nodeWideData.getClass().getName() ) );
+        node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
         this.scopeTreeManipulator.saveNode(node);
         return applicationNodeGUID;
     }

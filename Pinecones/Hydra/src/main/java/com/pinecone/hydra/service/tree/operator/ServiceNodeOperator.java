@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.tree.operator;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.service.tree.nodes.ApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
@@ -72,7 +73,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(serviceNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
-        node.setType( UOI.create( "java-class:///"+nodeWideData.getClass().getName() ) );
+        node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
         this.scopeTreeManipulator.saveNode(node);
         return serviceNodeGUID;
     }

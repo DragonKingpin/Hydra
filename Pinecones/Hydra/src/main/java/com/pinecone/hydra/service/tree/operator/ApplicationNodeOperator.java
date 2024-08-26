@@ -1,5 +1,6 @@
 package com.pinecone.hydra.service.tree.operator;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.UOIUtils;
@@ -45,6 +46,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
 
     @Override
     public GUID insert( ServiceTreeNode nodeWideData ) {
+        Debug.trace("保存节点"+nodeWideData);
         ApplicationNodeWideData applicationNodeInformation = (ApplicationNodeWideData) nodeWideData;
         //将信息写入数据库
         //将节点信息存入应用节点表
@@ -71,7 +73,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
-        node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
+        node.setType( UOIUtils.createLocalJavaClass( "java-class:///"+nodeWideData.getClass().getName() ) );
         this.scopeTreeManipulator.saveNode(node);
         return applicationNodeGUID;
     }
@@ -79,22 +81,27 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
     @Override
     public void remove(GUID guid) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        this.applicationMetaManipulator.delete(node.getBaseDataGUID());
-        this.commonDataManipulator.delete(node.getNodeMetadataGUID());
-        this.applicationNodeManipulator.delete(node.getGuid());
+        this.applicationMetaManipulator.remove(node.getBaseDataGUID());
+        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
+        this.applicationNodeManipulator.remove(node.getGuid());
     }
 
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        ApplicationNodeWideData applicationNodeInformation = new ApplicationNodeWideData();
+        GenericApplicationNode genericApplicationNode = new GenericApplicationNode();
+
         GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getBaseDataGUID());
-        GenericApplicationNode applicationNode = this.applicationNodeManipulator.getApplicationNode(node.getGuid());
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(guid);
         GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        applicationNodeInformation.setApplicationDescription(applicationDescription);
-        applicationNodeInformation.setMetadata(nodeMetadata);
-        applicationNodeInformation.setApplicationNode(applicationNode);
-        return applicationNodeInformation;
+
+        genericApplicationNode.setApplicationNodeMeta(applicationDescription);
+        genericApplicationNode.setNodeCommonData(nodeMetadata);
+        genericApplicationNode.setDistributedTreeNode(guidDistributedScopeNode);
+
+        genericApplicationNode.setName(applicationDescription.getName());
+        genericApplicationNode.setGuid(genericApplicationNode.getGuid());
+        return genericApplicationNode;
     }
 
     @Override

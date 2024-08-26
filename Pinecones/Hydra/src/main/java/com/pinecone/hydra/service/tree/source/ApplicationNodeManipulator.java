@@ -8,7 +8,7 @@ import java.util.List;
 public interface ApplicationNodeManipulator {
     //ApplicationNode的CRUD
     void insert(GenericApplicationNode applicationNode);
-    void delete(GUID guid);
+    void remove(GUID guid);
     GenericApplicationNode getApplicationNode(GUID guid);
     void update(GenericApplicationNode applicationNode);
     List<GenericApplicationNode> fetchApplicationNodeByName(String name);

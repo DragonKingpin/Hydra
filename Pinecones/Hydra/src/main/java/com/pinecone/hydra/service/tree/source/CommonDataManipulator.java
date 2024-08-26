@@ -8,7 +8,7 @@ public interface CommonDataManipulator extends Pinenut {
     //NodeMetadata节点的CRUD
     void insert(GenericNodeCommonData nodeMetadata);
 
-    void delete(GUID guid);
+    void remove(GUID guid);
 
     GenericNodeCommonData getNodeMetadata(GUID guid);
 

@@ -6,7 +6,7 @@ import com.pinecone.hydra.service.tree.GenericClassificationRules;
 public interface ClassifRulesManipulator {
     //ClassifcationRules的CRUD
     void insert(GenericClassificationRules classificationRules);
-    void delete(GUID guid);
+    void remove(GUID guid);
     GenericClassificationRules getClassifRules(GUID guid);
     void update(GenericClassificationRules classificationRules);
 }

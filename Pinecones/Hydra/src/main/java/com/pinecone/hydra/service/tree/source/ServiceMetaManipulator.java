@@ -6,7 +6,7 @@ import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 public interface ServiceMetaManipulator {
     //ServiceDescription的CRUD
     void insert(GenericServiceNodeMeta genericServiceDescription);
-    void delete(GUID guid);
+    void remove(GUID guid);
     void update(GenericServiceNodeMeta serviceDescription);
     GenericServiceNodeMeta getServiceMeta(GUID guid);
 }

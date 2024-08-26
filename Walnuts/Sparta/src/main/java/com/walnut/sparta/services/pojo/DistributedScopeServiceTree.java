@@ -1,13 +1,17 @@
 package com.walnut.sparta.services.pojo;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.ScopeServiceTree;
+import com.pinecone.hydra.service.tree.nodes.ApplicationNode;
+import com.pinecone.hydra.service.tree.nodes.ClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.ApplicationNodeWideData;
@@ -27,6 +31,7 @@ import java.util.List;
 
 public class DistributedScopeServiceTree implements ScopeServiceTree {
     //GenericDistributedScopeTree
+    private GenericDistributedScopeTree genericDistributedScopeTree;
 
     private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
@@ -44,68 +49,39 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
         this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
+        this.genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
         this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators );
     }
 
-    //保存节点
-    //这里有个问题，将这个移入Operator中但是现在这里的逻辑就是在获取Operator,要不要传入szClassFullName
-    public GUID saveApplicationNode(ApplicationNodeWideData applicationNodeInformation){
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation", null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
+    public GUID saveApplicationNode(ApplicationNode applicationNodeInformation){
+            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeApplication);
             return nodeOperation.insert(applicationNodeInformation);
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new ProxyProvokeHandleException(e);
-        }
     }
 
-    public GUID saveServiceNode(ServiceNodeWideData serviceNodeInformation){
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ServiceFunctionalNodeInformation", null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            return nodeOperation.insert(serviceNodeInformation);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    public GUID saveServiceNode(ServiceNode serviceNodeInformation){
+        MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeService);
+        return nodeOperation.insert(serviceNodeInformation);
     }
 
-    public GUID saveClassifNode(ClassificationNodeWideData classifNodeInformation){
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance("com.walnut.sparta.pojo.ClassifFunctionalNodeInformation", null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            return nodeOperation.insert(classifNodeInformation);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    public GUID saveClassifNode(ClassificationNode classifNodeInformation){
+        MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeClassification);
+        return nodeOperation.insert(classifNodeInformation);
     }
 
 
     //删除节点
-    public void deleteNode(GUID UUID){
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(UUID);
-        UOI type = node.getType();
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            nodeOperation.remove(UUID);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+    public void removeNode(GUID guid){
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(guid);
+        UOI type = guidDistributedScopeNode.getType();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        operator.remove(guid);
+        this.genericDistributedScopeTree.remove(guid);
     }
 
     //查找节点信息
     public ServiceTreeNode selectNode(GUID guid){
-        //先查看缓存表中是否存在路径信息，不存在则补齐
         String path = this.scopeTreeManipulator.selectPath(guid);
+
         if (path==null){
             GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
             String nodeName = getNodeName(node);
@@ -114,35 +90,23 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
             while (node.getParentGUID() != null){
                 node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
                 nodeName = getNodeName(node);
-                pathString=nodeName + "." + pathString;
+                pathString = nodeName + "." + pathString;
             }
             this.scopeTreeManipulator.savePath(pathString,guid);
         }
+
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
         UOI type = node.getType();
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            return nodeOperation.get(guid);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        return operator.get(guid);
     }
 
     private String getNodeName(GUIDDistributedScopeNode node){
         UOI type = node.getType();
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            ServiceTreeNode nodeWideData = nodeOperation.get(node.getGuid());
-            return nodeWideData.getName();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
+        Debug.trace("获取到了节点"+serviceTreeNode);
+        return serviceTreeNode.getName();
     }
 
     private void updatePath(GUID guid){
@@ -159,11 +123,6 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     }
 
     public ServiceTreeNode parsePath(String path) {
-        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(this.scopeTreeManipulator,
-                this.applicationNodeManipulator,
-                this.serviceNodeManipulator,
-                this.classifNodeManipulator,
-                new MetaNodeOperatorProxy());
         // 先查看缓存表中是否存在路径信息
         GUID guid = this.scopeTreeManipulator.parsePath(path);
         if (guid != null) {
@@ -177,7 +136,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ServiceNode
         List<GenericServiceNode> genericServiceNodes = this.serviceNodeManipulator.fetchServiceNodeByName(parts[parts.length - 1]);
         for (GenericServiceNode genericServiceNode : genericServiceNodes) {
-            String nodePath = distributedScopeTree.getPath(genericServiceNode.getGuid());
+            String nodePath = this.genericDistributedScopeTree.getPath(genericServiceNode.getGuid());
             if (nodePath.equals(path)) {
                 return selectNode(genericServiceNode.getGuid());
             }
@@ -186,7 +145,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ApplicationNode
         List<GenericApplicationNode> genericApplicationNodes = this.applicationNodeManipulator.fetchApplicationNodeByName(parts[parts.length - 1]);
         for (GenericApplicationNode genericApplicationNode : genericApplicationNodes) {
-            String nodePath = distributedScopeTree.getPath(genericApplicationNode.getGuid());
+            String nodePath = this.genericDistributedScopeTree.getPath(genericApplicationNode.getGuid());
             if (nodePath.equals(path)) {
                 return selectNode(genericApplicationNode.getGuid());
             }
@@ -195,7 +154,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ClassificationNode
         List<GenericClassificationNode> genericClassificationNodes = this.classifNodeManipulator.fetchClassifNodeByName(parts[parts.length - 1]);
         for (GenericClassificationNode genericClassificationNode : genericClassificationNodes) {
-            String nodePath = distributedScopeTree.getPath(genericClassificationNode.getGuid());
+            String nodePath = this.genericDistributedScopeTree.getPath(genericClassificationNode.getGuid());
             if (nodePath.equals(path)) {
                 return selectNode(genericClassificationNode.getGuid());
             }

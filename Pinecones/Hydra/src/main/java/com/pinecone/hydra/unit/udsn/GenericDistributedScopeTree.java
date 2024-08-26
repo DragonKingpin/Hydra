@@ -9,6 +9,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
@@ -16,6 +17,7 @@ import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * 提供服务树的相应方法
@@ -31,21 +33,15 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private MetaNodeOperatorProxy metaNodeOperatorProxy;
 
-    public GenericDistributedScopeTree(ScopeTreeManipulator scopeTreeManipulator, ApplicationNodeManipulator applicationNodeManipulator,
-                                       ServiceNodeManipulator serviceNodeManipulator, ClassifNodeManipulator classifNodeManipulator,
-                                       MetaNodeOperatorProxy functionalNodeFactory){
-        this.scopeTreeManipulator=scopeTreeManipulator;
-        this.applicationNodeManipulator=applicationNodeManipulator;
-        this.serviceNodeManipulator = serviceNodeManipulator;
-        this.classifNodeManipulator=classifNodeManipulator;
-        this.metaNodeOperatorProxy=functionalNodeFactory;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+
+    public GenericDistributedScopeTree(DefaultMetaNodeManipulators defaultMetaNodeManipulators){
+        this.scopeTreeManipulator       =   defaultMetaNodeManipulators.getScopeTreeManipulator();
+        this.applicationNodeManipulator =   defaultMetaNodeManipulators.getApplicationNodeManipulator();
+        this.serviceNodeManipulator     =   defaultMetaNodeManipulators.getServiceNodeManipulator();
+        this.classifNodeManipulator     =   defaultMetaNodeManipulators.getClassifNodeManipulator();
+        this.metaNodeOperatorProxy      =   new MetaNodeOperatorProxy(defaultMetaNodeManipulators);
     }
-
-    private final static String ApplicationNode="com.walnut.sparta.pojo.ApplicationFunctionalNodeInformation";
-
-    private final static String ServiceNode="com.walnut.sparta.pojo.ServiceFunctionalNodeInformation";
-
-    private final static String ClassifNode="com.walnut.sparta.pojo.ClassifFunctionalNodeInformation";
 
 
     //打印路径信息
@@ -70,7 +66,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     }
 
-    public void addNodeToParent(GUID nodeGUID,GUID parentGUID){
+    public void insertNodeToParent(GUID nodeGUID,GUID parentGUID){
         this.scopeTreeManipulator.addNodeToParent(nodeGUID,parentGUID);
     }
 
@@ -78,36 +74,36 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         return this.scopeTreeManipulator.selectNode(guid);
     }
 
-    private String getNodeName( GUIDDistributedScopeNode node ){
+    private String getNodeName(GUIDDistributedScopeNode node){
         UOI type = node.getType();
-        GenericDynamicFactory genericDynamicFactory = new GenericDynamicFactory();
-        try {
-            Object nodeInformation = genericDynamicFactory.loadInstance(type.getObjectName(), null, null);
-            Class<?> nodeInformationClass = nodeInformation.getClass();
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getNodeOperation(nodeInformationClass.getName());
-            ServiceTreeNode nodeWideData = nodeOperation.get(node.getGuid());
-            Debug.trace(nodeWideData);
-            return nodeWideData.getName();
-        }
-        catch ( ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException e ) {
-            throw new ProxyProvokeHandleException(e);
-        }
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
+        return serviceTreeNode.getName();
     }
 
 
-    // DistributedTreeNode getNode
 
-    // DistributedTreeNode remove( GUID guid )
+    public void  remove( GUID guid ){
+        removeNode(guid);
+    }
 
-    // void put( GUID guid, DistributedTreeNode )
+    public void put( GUID guid, GUIDDistributedScopeNode distributedTreeNode ){
+        this.scopeTreeManipulator.putNode(guid,distributedTreeNode);
+    }
 
-    // bool isEmpty
+    public boolean isEmpty(){
+        long size = this.scopeTreeManipulator.size();
+        return size == 0;
+    }
 
-    // long size
+    public long size(){
+        return this.scopeTreeManipulator.size();
+    }
 
 
     public boolean containsKey(GUID key) {
-        return false;
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(key);
+        return guidDistributedScopeNode==null;
     }
 
 
@@ -125,5 +121,12 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
             return this.containsKey( (new GUID72((String)key)) );
         }
         return false;
+    }
+    private void removeNode(GUID guid){
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
+        this.scopeTreeManipulator.removeNode(guid);
+        for(GUIDDistributedScopeNode guidDistributedScopeNode : childNodes){
+            removeNode(guidDistributedScopeNode.getGuid());
+        }
     }
 }

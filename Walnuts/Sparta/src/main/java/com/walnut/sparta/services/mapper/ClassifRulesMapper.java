@@ -13,7 +13,7 @@ public interface ClassifRulesMapper extends ClassifRulesManipulator {
     @Insert("INSERT INTO `hydra_classif_rules` (`guid`, `scope`, `name`, `description`) VALUES (#{guid},#{scope},#{name},#{description})")
     void insert(GenericClassificationRules classificationRules);
     @Delete("DELETE FROM `hydra_classif_rules` WHERE `guid`=#{guid}")
-    void delete(@Param("guid")GUID guid);
+    void remove(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `scope`, `name`, `description` FROM `hydra_classif_rules` WHERE `guid`=#{guid}")
     GenericClassificationRules getClassifRules(@Param("guid")GUID guid);
     void update(GenericClassificationRules classificationRules);

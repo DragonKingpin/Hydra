@@ -7,7 +7,7 @@ public interface ApplicationMetaManipulator {
     //ApplicationDescription的CRUD
     void insert(GenericApplicationNodeMeta applicationMeta);
 
-    void delete(GUID guid);
+    void remove(GUID guid);
 
     GenericApplicationNodeMeta getApplicationMeta(GUID guid);
 

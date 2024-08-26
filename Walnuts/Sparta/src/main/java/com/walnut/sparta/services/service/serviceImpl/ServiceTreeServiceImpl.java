@@ -39,18 +39,18 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     }
 
     @Override
-    public void deleteNode(GUID nodeGUID) {
+    public void removeNode(GUID nodeGUID) {
         //像文件夹一样删除父文件会连带一起输出子文件
-        deleteAllNode(nodeGUID);
+        removeAllNode(nodeGUID);
     }
 
-    private void deleteAllNode(GUID nodeGUID){
+    private void removeAllNode(GUID nodeGUID){
         List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(nodeGUID);
-        this.scopeTreeManipulator.deleteNode(nodeGUID);
-        this.scopeTreeManipulator.deletePath(nodeGUID);
+        this.scopeTreeManipulator.removeNode(nodeGUID);
+        this.scopeTreeManipulator.removePath(nodeGUID);
         if (childNodes==null) return;
         for (GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
-            deleteNode(guidDistributedScopeNode.getGuid());
+            removeNode(guidDistributedScopeNode.getGuid());
         }
     }
 

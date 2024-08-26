@@ -3,12 +3,14 @@ package com.walnut.sparta.services.controller.v2;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
+import com.walnut.sparta.services.pojo.DistributedScopeServiceTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,30 +26,19 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    ScopeTreeManipulator scopeTreeManipulator;
-    @Resource
-    ApplicationNodeManipulator genericApplicationNodeManipulator;
-    @Resource
-    ClassifNodeManipulator genericClassifNodeManipulator;
-    @Resource
-    ServiceNodeMapper genericServiceNodeManipulator;
-    @Resource
     ServiceTreeService serviceTreeService;
 
+    @Resource
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
     /**
      * 用于渲染路径信息
-     * @param GUID 节点UUID
+     * @param guid 节点UUID
      * @return 返回路径信息
      */
     @GetMapping("/getPath/{GUID}")
-    public String getPath(@PathVariable("GUID") String GUID){
-        GenericDistributedScopeTree distributedScopeTree = new GenericDistributedScopeTree(
-                this.scopeTreeManipulator,this.genericApplicationNodeManipulator,this.genericServiceNodeManipulator,this.genericClassifNodeManipulator,new MetaNodeOperatorProxy()
-        );
-        GUID72 guid72 = new GUID72();
-        GUID parse = guid72.parse(GUID);
-        Debug.trace( parse.toString() );
-        return distributedScopeTree.getPath(parse);
+    public String getPath(@PathVariable("GUID") String guid){
+        GenericDistributedScopeTree genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
+        return genericDistributedScopeTree.getPath(new GUID72(guid));
     }
 
     /**
@@ -62,16 +53,5 @@ public class ServiceTreeController {
         GUID72 parentGUID72 = new GUID72(parentGUID);
         this.serviceTreeService.addNodeToParent(nodeGUID72,parentGUID72);
         return "添加成功";
-    }
-
-    /**
-     * 删除节点
-     * @param nodeGUID 节点GUID
-     * @return 返回删除情况
-     */
-    @DeleteMapping("/deleteNode")
-    public String deleteNode(@RequestParam("nodeGUID") String nodeGUID){
-        this.serviceTreeService.deleteNode(new GUID72(nodeGUID));
-        return "删除成功";
     }
 }

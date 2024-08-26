@@ -14,7 +14,7 @@ public interface GenericServiceMetaMapper extends ServiceMetaManipulator {
     void insert(GenericServiceNodeMeta serviceDescription);
 
     @Delete("DELETE FROM `hydra_service_node_meta` WHERE `guid`=#{guid}")
-    void delete(@Param("guid")GUID guid);
+    void remove(@Param("guid")GUID guid);
 
     void update(GenericServiceNodeMeta serviceDescription);
 

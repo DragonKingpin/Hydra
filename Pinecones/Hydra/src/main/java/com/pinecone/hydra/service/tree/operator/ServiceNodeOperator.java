@@ -1,5 +1,6 @@
 package com.pinecone.hydra.service.tree.operator;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.ApplicationNode;
@@ -45,25 +46,24 @@ public class ServiceNodeOperator implements MetaNodeOperator {
 
     @Override
     public GUID insert(ServiceTreeNode nodeWideData) {
-        ServiceNodeWideData serviceNodeInformation=(ServiceNodeWideData) nodeWideData;
+        GenericServiceNode serviceNodeInformation=(GenericServiceNode) nodeWideData;
 
         //将信息写入数据库
         //将节点信息存入应用节点表
         UidGenerator uidGenerator= UUIDBuilder.getBuilder();
         GUID serviceNodeGUID = uidGenerator.getGUID72();
-        GenericServiceNode serviceNode = serviceNodeInformation.getServiceNode();
-        serviceNode.setGuid(serviceNodeGUID);
-        this.serviceNodeManipulator.insert(serviceNode);
+        serviceNodeInformation.setGuid(serviceNodeGUID);
+        this.serviceNodeManipulator.insert(serviceNodeInformation);
 
         //将应用节点基础信息存入信息表
         GUID descriptionGUID = uidGenerator.getGUID72();
-        GenericServiceNodeMeta serviceDescription = serviceNodeInformation.getServiceDescription();
+        GenericServiceNodeMeta serviceDescription = serviceNodeInformation.getServiceNodeMetadata();
         serviceDescription.setGuid(descriptionGUID);
         this.serviceMetaManipulator.insert(serviceDescription);
 
         //将应用元信息存入元信息表
         GUID metadataGUID = uidGenerator.getGUID72();
-        GenericNodeCommonData metadata = serviceNodeInformation.getNodeMetadata();
+        GenericNodeCommonData metadata = serviceNodeInformation.getNodeCommonData();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -72,7 +72,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(serviceNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
-        node.setType( UOI.create( "java-class:///com.walnut.sparta.pojo.ServiceFunctionalNodeInformation" ) );
+        node.setType( UOI.create( "java-class:///"+nodeWideData.getClass().getName() ) );
         this.scopeTreeManipulator.saveNode(node);
         return serviceNodeGUID;
     }
@@ -80,19 +80,26 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     @Override
     public void remove(GUID guid) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        this.serviceNodeManipulator.delete(node.getGuid());
-        this.serviceMetaManipulator.delete(node.getBaseDataGUID());
-        this.commonDataManipulator.delete(node.getNodeMetadataGUID());
+        this.serviceNodeManipulator.remove(node.getGuid());
+        this.serviceMetaManipulator.remove(node.getBaseDataGUID());
+        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        ServiceNodeWideData serviceNodeInformation = new ServiceNodeWideData();
-        serviceNodeInformation.setServiceNode(this.serviceNodeManipulator.getServiceNode(node.getGuid()));
-        serviceNodeInformation.setNodeMetadata(this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID()));
-        serviceNodeInformation.setServiceDescription(this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID()));
-        return serviceNodeInformation;
+        GenericServiceNode genericServiceNode = new GenericServiceNode();
+        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());
+        GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(guid);
+
+        genericServiceNode.setServiceNodeMetadata(serviceMeta);
+        genericServiceNode.setNodeCommonData(commonData);
+        genericServiceNode.setDistributedTreeNode(guidDistributedScopeNode);
+        genericServiceNode.setGuid(guid);
+        genericServiceNode.setName(serviceMeta.getName());
+
+        return genericServiceNode;
     }
 
     @Override

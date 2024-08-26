@@ -21,10 +21,10 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     GUIDDistributedScopeNode selectNode(@Param("guid") GUID guid);
 
     @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid`=#{guid}")
-    void deleteNode(@Param("guid") GUID guid);
+    void removeNode(@Param("guid") GUID guid);
 
     @Update("UPDATE `hydra_service_node_tree` SET `parent_guid`=#{guid} WHERE `guid`=#{UUID}")
-    void updateNode(GUIDDistributedScopeNode node);
+    void updateParentGUID(GUIDDistributedScopeNode node);
 
     @Update("UPDATE `hydra_node_path` SET `path`=#{Path} WHERE `guid`=#{guid}")
     void updatePath(@Param("guid") GUID guid, @Param("Path") String path);
@@ -51,5 +51,11 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     List<GUIDDistributedScopeNode> getChildNode(GUID guid);
 
     @Delete("DELETE FROM `hydra_node_path` WHERE `guid`=#{guid}")
-    void deletePath(GUID guid);
+    void removePath(GUID guid);
+
+    @Update("UPDATE hydra_service_node_tree set `parent_guid`=#{node.parentGUID},`base_data_guid`=#{node.baseDataGUID},`node_metadata_guid`=#{node.nodeMetadataGUID} WHERE `guid`=#{guid}")
+    void putNode(@Param("guid") GUID guid,@Param("node") GUIDDistributedScopeNode distributedTreeNode);
+
+    @Select(" SELECT COUNT(*) FROM hydra_service_node_tree ")
+    long size();
 }

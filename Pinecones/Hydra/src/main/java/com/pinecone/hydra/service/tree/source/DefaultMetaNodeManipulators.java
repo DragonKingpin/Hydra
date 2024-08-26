@@ -18,5 +18,7 @@ public interface DefaultMetaNodeManipulators extends Pinenut {
 
     ClassifNodeManipulator getClassifNodeManipulator();
 
+    ClassifRulesManipulator getClassifRulesManipulator();
+
     ScopeTreeManipulator getServiceTreeMapper();
 }

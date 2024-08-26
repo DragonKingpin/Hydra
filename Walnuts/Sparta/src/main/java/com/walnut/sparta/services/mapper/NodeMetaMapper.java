@@ -14,7 +14,7 @@ public interface NodeMetaMapper extends CommonDataManipulator {
     @Insert("INSERT INTO `hydra_node_common_data` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{guid},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
     void insert(GenericNodeCommonData nodeMetadata);
     @Delete("DELETE FROM `hydra_node_common_data` WHERE `guid`=#{guid}")
-    void delete(@Param("guid")GUID guid);
+    void remove(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_node_common_data` WHERE `guid`=#{guid}")
     GenericNodeCommonData getNodeMetadata(@Param("guid")GUID guid);
     void update(GenericNodeCommonData nodeMetadata);

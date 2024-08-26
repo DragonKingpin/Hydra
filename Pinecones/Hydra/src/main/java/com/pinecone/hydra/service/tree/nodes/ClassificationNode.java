@@ -2,7 +2,11 @@ package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.ClassificationRules;
+import com.pinecone.hydra.service.tree.GenericClassificationRules;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
+import com.pinecone.hydra.service.tree.NodeCommonData;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
+import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 public interface ClassificationNode extends ServiceTreeNode {
     long getEnumId();
@@ -17,10 +21,13 @@ public interface ClassificationNode extends ServiceTreeNode {
     GUID getRulesGUID();
     void setRulesGUID(GUID rulesGUID);
 
-    ClassificationRules getClassificationRules();
-    void setClassificationRules(ClassificationRules classificationRules);
+    GenericClassificationRules getClassificationRules();
+    void setClassificationRules(GenericClassificationRules classificationRules);
 
-    DistributedTreeNode getDistributedTreeNode();
-    void setDistributedTreeNode(DistributedTreeNode distributedTreeNode);
+    GUIDDistributedScopeNode getDistributedTreeNode();
+    void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode);
+
+    GenericNodeCommonData getNodeCommonData();
+    void setNodeCommonData(GenericNodeCommonData nodeCommonData);
 
 }

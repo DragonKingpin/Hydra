@@ -5,12 +5,14 @@ import javax.annotation.Resource;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
+import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.summer.prototype.Component;
+import org.springframework.stereotype.Component;
+
 
 @Component
 public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
@@ -32,46 +34,56 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
     @Resource
     private ClassifNodeManipulator         classifNodeManipulator;
 
-
-
     @Resource
+    private ClassifRulesManipulator        classifRulesManipulator;
+
+
+
+    @Override
     public ScopeTreeManipulator getScopeTreeManipulator() {
         return this.scopeTreeManipulator;
     }
 
-    @Resource
+    @Override
     public CommonDataManipulator getCommonDataManipulator() {
         return this.commonDataManipulator;
     }
 
-    @Resource
+    @Override
     public ApplicationNodeManipulator getApplicationNodeManipulator() {
         return this.applicationNodeManipulator;
     }
 
-    @Resource
+    @Override
     public ApplicationMetaManipulator getApplicationMetaManipulator() {
         return this.applicationMetaManipulator;
     }
 
-    @Resource
+    @Override
     public ServiceNodeManipulator getServiceNodeManipulator() {
         return this.serviceNodeManipulator;
     }
 
-    @Resource
+    @Override
     public ServiceMetaManipulator getServiceMetaManipulator() {
         return this.serviceMetaManipulator;
     }
 
-    @Resource
+    @Override
     public ClassifNodeManipulator getClassifNodeManipulator() {
         return this.classifNodeManipulator;
     }
 
-    @Resource
+    @Override
+    public ClassifRulesManipulator getClassifRulesManipulator() {
+        return this.classifRulesManipulator;
+    }
+
+    @Override
     public ScopeTreeManipulator getServiceTreeMapper() {
         return this.scopeTreeManipulator;
     }
+
+
 
 }

@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udsn.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 import java.util.List;
@@ -11,9 +12,9 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     GUIDDistributedScopeNode selectNode(GUID guid);
 
-    void deleteNode(GUID guid);
+    void removeNode(GUID guid);
 
-    void updateNode(GUIDDistributedScopeNode node);
+    void updateParentGUID(GUIDDistributedScopeNode node);
 
     String selectPath(GUID guid);
 
@@ -33,5 +34,8 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     List<GUIDDistributedScopeNode> getChildNode(GUID guid);
 
-    void deletePath(GUID guid);
+    void removePath(GUID guid);
+
+    void putNode(GUID guid,GUIDDistributedScopeNode distributedTreeNode);
+    long size();
 }

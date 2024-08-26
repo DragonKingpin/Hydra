@@ -1,13 +1,19 @@
 package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.GenericNodeCommonData;
+import com.pinecone.hydra.service.tree.NodeCommonData;
+import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.meta.ServiceNodeMeta;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
+import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 public class GenericServiceNode implements ServiceNode {
-    private DistributedTreeNode distributedTreeNode;
+    private GUIDDistributedScopeNode distributedTreeNode;
 
-    private ServiceNodeMeta serviceNodeMetadata;
+    private GenericServiceNodeMeta serviceNodeMetadata;
+
+    private GenericNodeCommonData nodeCommonData;
 
     // 服务节点id
     private long enumId;
@@ -22,65 +28,112 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(DistributedTreeNode distributedTreeNode, ServiceNodeMeta serviceNodeMetadata, long enumId, GUID guid, String name) {
+    public GenericServiceNode(GUIDDistributedScopeNode distributedTreeNode, GenericServiceNodeMeta serviceNodeMetadata, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
         this.distributedTreeNode = distributedTreeNode;
         this.serviceNodeMetadata = serviceNodeMetadata;
+        this.nodeCommonData = nodeCommonData;
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
     }
 
-
-    public DistributedTreeNode getDistributedTreeNode() {
+    /**
+     * 获取
+     * @return distributedTreeNode
+     */
+    public GUIDDistributedScopeNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
-
-    public void setDistributedTreeNode(DistributedTreeNode distributedTreeNode) {
+    /**
+     * 设置
+     * @param distributedTreeNode
+     */
+    public void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 
-
-    public ServiceNodeMeta getServiceNodeMetadata() {
+    /**
+     * 获取
+     * @return serviceNodeMetadata
+     */
+    public GenericServiceNodeMeta getServiceNodeMetadata() {
         return serviceNodeMetadata;
     }
 
-
-    public void setServiceNodeMetadata(ServiceNodeMeta serviceNodeMetadata) {
+    /**
+     * 设置
+     * @param serviceNodeMetadata
+     */
+    public void setServiceNodeMetadata(GenericServiceNodeMeta serviceNodeMetadata) {
         this.serviceNodeMetadata = serviceNodeMetadata;
     }
 
+    /**
+     * 获取
+     * @return nodeCommonData
+     */
+    public GenericNodeCommonData getNodeCommonData() {
+        return nodeCommonData;
+    }
 
+    /**
+     * 设置
+     * @param nodeCommonData
+     */
+    public void setNodeCommonData(GenericNodeCommonData nodeCommonData) {
+        this.nodeCommonData = nodeCommonData;
+    }
+
+    /**
+     * 获取
+     * @return enumId
+     */
     public long getEnumId() {
         return enumId;
     }
 
-
+    /**
+     * 设置
+     * @param enumId
+     */
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-
+    /**
+     * 获取
+     * @return guid
+     */
     public GUID getGuid() {
         return guid;
     }
 
-
+    /**
+     * 设置
+     * @param guid
+     */
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-
+    /**
+     * 获取
+     * @return name
+     */
     public String getName() {
         return name;
     }
 
-
+    /**
+     * 设置
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
     public String toString() {
-        return "GenericServiceNode{distributedTreeNode = " + distributedTreeNode + ", serviceNodeMetadata = " + serviceNodeMetadata + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
+        return "GenericServiceNode{distributedTreeNode = " + distributedTreeNode + ", serviceNodeMetadata = " + serviceNodeMetadata + ", nodeCommonData = " + nodeCommonData + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

@@ -17,7 +17,7 @@ public interface ServiceNodeMapper extends ServiceNodeManipulator {
     @Insert("INSERT INTO `hydra_service_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void insert(GenericServiceNode serviceNode);
     @Delete("DELETE FROM `hydra_service_node` WHERE `guid`=#{guid}")
-    void delete(@Param("guid")GUID guid);
+    void remove(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_node` WHERE `guid`=#{guid}")
     GenericServiceNode getServiceNode(@Param("guid") GUID guid);
     void updateServiceNode(GenericServiceNode serviceNode);

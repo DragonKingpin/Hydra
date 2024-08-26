@@ -6,6 +6,7 @@ import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
+import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
@@ -19,21 +20,24 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     private ClassifNodeManipulator  classifNodeManipulator;
     private CommonDataManipulator commonDataManipulator;
     private ScopeTreeManipulator scopeTreeManipulator;
+    private ClassifRulesManipulator classifRulesManipulator;
 
     public ClassificationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
         this(
                 manipulators.getClassifNodeManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getScopeTreeManipulator()
+                manipulators.getScopeTreeManipulator(),
+                manipulators.getClassifRulesManipulator()
         );
     }
 
     public ClassificationNodeOperator(
-            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator, ScopeTreeManipulator scopeTreeManipulator
+            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator, ScopeTreeManipulator scopeTreeManipulator,ClassifRulesManipulator classifRulesManipulator
     ){
         this.classifNodeManipulator  = classifNodeManipulator;
         this.commonDataManipulator = commonDataManipulator;
         this.scopeTreeManipulator      = scopeTreeManipulator;
+        this.classifRulesManipulator = classifRulesManipulator;
     }
 
 
@@ -67,7 +71,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(classifNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
-        node.setType( UOI.create( "java-class:///com.walnut.sparta.pojo.ClassifFunctionalNodeInformation" ) );
+        node.setType( UOI.create( "java-class:///"+nodeWideData.getClass().getName() ) );
         this.scopeTreeManipulator.saveNode(node);
         return classifNodeGUID;
     }
@@ -75,17 +79,26 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     @Override
     public void remove(GUID guid) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        this.classifNodeManipulator.delete(node.getGuid());
-        this.commonDataManipulator.delete(node.getNodeMetadataGUID());
+        this.classifNodeManipulator.remove(node.getGuid());
+        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
     @Override
     public ServiceTreeNode get(GUID guid ) {
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
-        ClassificationNodeWideData classifNodeInformation = new ClassificationNodeWideData();
-        classifNodeInformation.setClassificationNode(this.classifNodeManipulator.getClassifNode(node.getGuid()));
-        classifNodeInformation.setNodeMetadata(this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID()));
-        return classifNodeInformation;
+        GenericClassificationNode genericClassificationNode = new GenericClassificationNode();
+        GenericNodeCommonData nodeCommonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getBaseDataGUID());
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(node.getGuid());
+
+        genericClassificationNode.setNodeCommonData(nodeCommonData);
+        genericClassificationNode.setClassificationRules(classifRules);
+        genericClassificationNode.setDistributedTreeNode(guidDistributedScopeNode);
+        genericClassificationNode.setName(this.classifNodeManipulator.getClassifNode(guid).getName());
+        genericClassificationNode.setGuid(guid);
+        genericClassificationNode.setRulesGUID(classifRules.getGuid());
+
+        return genericClassificationNode;
     }
 
     @Override

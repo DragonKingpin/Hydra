@@ -10,7 +10,7 @@ public interface ClassifNodeManipulator extends Pinenut {
     //ClassifcationNode的CRUD
     void insert(GenericClassificationNode classificationNode);
 
-    void delete(GUID guid);
+    void remove(GUID guid);
 
     GenericClassificationNode getClassifNode(GUID guid);
 

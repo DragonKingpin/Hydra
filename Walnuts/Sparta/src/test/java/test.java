@@ -41,7 +41,7 @@ public class test {
 //        Debug.trace(className);
 
 
-        UOI uri = UOI.create( "java-class:///java.util.ArrayList" );
+        UOI uri = UOI.create( "com.pinecone.hydra.service.tree.nodes.GenericServiceNode" );
 
         Debug.trace( uri, uri.getObjectName(), uri.newInstance() );
 

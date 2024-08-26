@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericApplicationDescriptionManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericApplicationNodeManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericClassifNodeManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericClassifRulesManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericNodeMetadataManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericServiceDescriptionManipulator.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/GenericServiceNodeManipulator.java" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/AppNodeMetaMapper.java" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/ScopeTreeMapper.java" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/ServiceNodeMapper.java" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java/com/walnut/sparta/services/mapper/TreeMapper.java" dialect="MySQL" />
   </component>
 </project>

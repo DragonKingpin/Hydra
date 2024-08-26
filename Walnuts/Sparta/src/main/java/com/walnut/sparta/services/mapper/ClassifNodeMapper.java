@@ -17,10 +17,10 @@ public interface ClassifNodeMapper extends ClassifNodeManipulator {
     void insert(GenericClassificationNode classificationNode);
 
     @Delete("DELETE FROM `hydra_classif_node` WHERE `guid`=#{guid}")
-    void delete(@Param("guid")GUID GUID);
+    void remove(@Param("guid")GUID GUID);
 
     @Select("SELECT `id`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_classif_node` WHERE `guid`=#{guid}")
-    GenericClassificationNode getClassifNode(@Param("guid")GUID guid);
+    GenericClassificationNode getClassifNode(@Param("guid") GUID guid);
 
     void update(GenericClassificationNode classificationNode);
 

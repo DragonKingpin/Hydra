@@ -79,18 +79,18 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
 
     @Override
     public void remove(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         this.classifNodeManipulator.remove(node.getGuid());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
     @Override
     public ServiceTreeNode get(GUID guid ) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         GenericClassificationNode genericClassificationNode = new GenericClassificationNode();
         GenericNodeCommonData nodeCommonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
         GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getBaseDataGUID());
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(node.getGuid());
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(node.getGuid());
 
         genericClassificationNode.setNodeCommonData(nodeCommonData);
         genericClassificationNode.setClassificationRules(classifRules);

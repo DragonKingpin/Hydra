@@ -65,7 +65,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         }
     }
     private void updatePath(GUID UUID){
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(UUID);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(UUID);
         //如果是分类节点还要查询分类节点的分类表
         System.out.println("查询到节点:"+node);
         String nodeName = getNodeName(node);
@@ -81,7 +81,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
             pathString=pathString+nodeName;
         }
         while (node.getParentGUID() != null){
-            node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
+            node=this.scopeTreeManipulator.getNode(node.getParentGUID());
             System.out.println("查询到节点:"+node);
             nodeName = getNodeName(node);
             if(node.getType().equals(ClassifNode)){

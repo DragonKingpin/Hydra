@@ -10,7 +10,7 @@ import java.util.List;
 public interface ScopeTreeManipulator extends Pinenut {
     void saveNode(GUIDDistributedScopeNode node);
 
-    GUIDDistributedScopeNode selectNode(GUID guid);
+    GUIDDistributedScopeNode getNode(GUID guid);
 
     void removeNode(GUID guid);
 

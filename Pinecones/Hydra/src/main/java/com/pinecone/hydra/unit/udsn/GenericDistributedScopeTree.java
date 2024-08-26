@@ -50,12 +50,12 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         System.out.println("查找到路径：" + path);
         //若不存在path信息则更新缓存表
         if ( path == null ){
-            GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+            GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
             String nodeName = getNodeName(node);
             String pathString = "";
             pathString=pathString+nodeName;
             while (node.getParentGUID() != null){
-                node = this.scopeTreeManipulator.selectNode(node.getParentGUID());
+                node = this.scopeTreeManipulator.getNode(node.getParentGUID());
                 nodeName = getNodeName(node);
                 pathString = nodeName + "." + pathString;
             }
@@ -71,7 +71,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
     public GUIDDistributedScopeNode getNode(GUID guid){
-        return this.scopeTreeManipulator.selectNode(guid);
+        return this.scopeTreeManipulator.getNode(guid);
     }
 
     private String getNodeName(GUIDDistributedScopeNode node){
@@ -102,7 +102,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
 
     public boolean containsKey(GUID key) {
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(key);
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(key);
         return guidDistributedScopeNode==null;
     }
 

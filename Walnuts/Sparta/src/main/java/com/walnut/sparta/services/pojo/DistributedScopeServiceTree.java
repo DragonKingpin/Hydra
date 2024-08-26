@@ -53,49 +53,41 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators );
     }
 
-    public GUID saveApplicationNode(ApplicationNode applicationNodeInformation){
-            MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeApplication);
-            return nodeOperation.insert(applicationNodeInformation);
+
+
+    @Override
+    public GUID addNode( ServiceTreeNode node ) {
+        MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator( node.getMetaType() );
+        return nodeOperation.insert( node );
     }
 
-    public GUID saveServiceNode(ServiceNode serviceNodeInformation){
-        MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeService);
-        return nodeOperation.insert(serviceNodeInformation);
-    }
-
-    public GUID saveClassifNode(ClassificationNode classifNodeInformation){
-        MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator(ScopeServiceTree.DefaultMetaNodeClassification);
-        return nodeOperation.insert(classifNodeInformation);
-    }
-
-
-    //删除节点
+    @Override
     public void removeNode(GUID guid){
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
         UOI type = guidDistributedScopeNode.getType();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
         operator.remove(guid);
         this.genericDistributedScopeTree.remove(guid);
     }
 
-    //查找节点信息
-    public ServiceTreeNode selectNode(GUID guid){
+    @Override
+    public ServiceTreeNode getNode(GUID guid){
         String path = this.scopeTreeManipulator.selectPath(guid);
 
-        if (path==null){
-            GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        if ( path == null ){
+            GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
             String nodeName = getNodeName(node);
-            String pathString="";
-            pathString=pathString+nodeName;
-            while (node.getParentGUID() != null){
-                node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
+            String pathString = "";
+            pathString = pathString + nodeName;
+            while ( node.getParentGUID() != null ){
+                node = this.scopeTreeManipulator.getNode(node.getParentGUID());
                 nodeName = getNodeName(node);
                 pathString = nodeName + "." + pathString;
             }
-            this.scopeTreeManipulator.savePath(pathString,guid);
+            this.scopeTreeManipulator.savePath( pathString,guid );
         }
 
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         UOI type = node.getType();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
         return operator.get(guid);
@@ -110,23 +102,24 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     }
 
     private void updatePath(GUID guid){
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
         while (node.getParentGUID() != null){
-            node=this.scopeTreeManipulator.selectNode(node.getParentGUID());
+            node=this.scopeTreeManipulator.getNode(node.getParentGUID());
             nodeName = getNodeName(node);
             pathString=nodeName + "." + pathString;
         }
         this.scopeTreeManipulator.updatePath(guid,pathString);
     }
 
+    @Override
     public ServiceTreeNode parsePath(String path) {
         // 先查看缓存表中是否存在路径信息
         GUID guid = this.scopeTreeManipulator.parsePath(path);
         if (guid != null) {
-            return selectNode(guid);
+            return getNode(guid);
         }
 
         // 如果不存在，则根据路径信息获取节点信息并且更新缓存表
@@ -138,7 +131,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         for (GenericServiceNode genericServiceNode : genericServiceNodes) {
             String nodePath = this.genericDistributedScopeTree.getPath(genericServiceNode.getGuid());
             if (nodePath.equals(path)) {
-                return selectNode(genericServiceNode.getGuid());
+                return getNode(genericServiceNode.getGuid());
             }
         }
 
@@ -147,7 +140,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         for (GenericApplicationNode genericApplicationNode : genericApplicationNodes) {
             String nodePath = this.genericDistributedScopeTree.getPath(genericApplicationNode.getGuid());
             if (nodePath.equals(path)) {
-                return selectNode(genericApplicationNode.getGuid());
+                return getNode(genericApplicationNode.getGuid());
             }
         }
 
@@ -156,7 +149,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         for (GenericClassificationNode genericClassificationNode : genericClassificationNodes) {
             String nodePath = this.genericDistributedScopeTree.getPath(genericClassificationNode.getGuid());
             if (nodePath.equals(path)) {
-                return selectNode(genericClassificationNode.getGuid());
+                return getNode(genericClassificationNode.getGuid());
             }
         }
 

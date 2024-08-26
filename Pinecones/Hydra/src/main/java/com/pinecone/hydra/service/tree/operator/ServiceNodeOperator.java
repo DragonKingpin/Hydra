@@ -80,7 +80,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
 
     @Override
     public void remove(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         this.serviceNodeManipulator.remove(node.getGuid());
         this.serviceMetaManipulator.remove(node.getBaseDataGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
@@ -88,11 +88,11 @@ public class ServiceNodeOperator implements MetaNodeOperator {
 
     @Override
     public ServiceTreeNode get(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         GenericServiceNode genericServiceNode = new GenericServiceNode();
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());
         GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.selectNode(guid);
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
 
         genericServiceNode.setServiceNodeMetadata(serviceMeta);
         genericServiceNode.setNodeCommonData(commonData);

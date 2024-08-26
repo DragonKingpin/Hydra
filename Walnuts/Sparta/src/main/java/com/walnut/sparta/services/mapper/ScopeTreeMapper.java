@@ -18,7 +18,7 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     void saveNode(GUIDDistributedScopeNode node);
 
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGUID, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID,`type` FROM `hydra_service_node_tree` where guid=#{guid}")
-    GUIDDistributedScopeNode selectNode(@Param("guid") GUID guid);
+    GUIDDistributedScopeNode getNode(@Param("guid") GUID guid);
 
     @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid`=#{guid}")
     void removeNode(@Param("guid") GUID guid);

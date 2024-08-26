@@ -1,16 +1,27 @@
 package com.pinecone.hydra.service.tree;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.meta.NodeMetadata;
+import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 
 public interface ScopeServiceTree extends Pinenut {
-    String DefaultMetaNodeClassification = "com.pinecone.hydra.service.tree.nodes.GenericClassificationNode";
-    String DefaultMetaNodeApplication    = "com.pinecone.hydra.service.tree.nodes.GenericApplicationNode";
-    String DefaultMetaNodeService        = "com.pinecone.hydra.service.tree.nodes.GenericServiceNode";
+    String DefaultMetaNodeClassification = "ClassificationNode";
+    String DefaultMetaNodeApplication    = "ApplicationNode";
+    String DefaultMetaNodeService        = "ServiceNode";
 
-//    default boolean isDefauteMetaNode( NodeMetadata nodeMetadata ) {
-//        return  !nodeMetadata.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeClassification ) ||
-//                !nodeMetadata.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeApplication    ) ||
-//                !nodeMetadata.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeService        ) ;
-//    }
+    default boolean isDefauteMetaNode( ServiceTreeNode node ) {
+        return  !node.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeClassification ) ||
+                !node.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeApplication    ) ||
+                !node.getMetaType().equals( ScopeServiceTree.DefaultMetaNodeService        ) ;
+    }
+
+    GUID addNode( ServiceTreeNode node );
+
+    void removeNode( GUID guid );
+
+    ServiceTreeNode getNode( GUID guid );
+
+    ServiceTreeNode parsePath( String path ) ;
+
 }

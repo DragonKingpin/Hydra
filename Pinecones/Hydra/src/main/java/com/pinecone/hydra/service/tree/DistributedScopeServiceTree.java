@@ -1,23 +1,14 @@
-package com.walnut.sparta.services.pojo;
+package com.pinecone.hydra.service.tree;
 
-import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.ScopeServiceTree;
-import com.pinecone.hydra.service.tree.nodes.ApplicationNode;
-import com.pinecone.hydra.service.tree.nodes.ClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.operator.ApplicationNodeWideData;
-import com.pinecone.hydra.service.tree.operator.ClassificationNodeWideData;
-import com.pinecone.hydra.service.tree.operator.ServiceNodeWideData;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
@@ -26,14 +17,13 @@ import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class DistributedScopeServiceTree implements ScopeServiceTree {
     //GenericDistributedScopeTree
     private GenericDistributedScopeTree genericDistributedScopeTree;
 
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
 
     private ScopeTreeManipulator        scopeTreeManipulator;
@@ -43,14 +33,14 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
 
 
-    public DistributedScopeServiceTree( DefaultMetaNodeManipulators manipulators ){
-        this.defaultMetaNodeManipulators = manipulators;
+    public DistributedScopeServiceTree( DefaultMetaNodeManipulator manipulators ){
+        this.defaultMetaNodeManipulator = manipulators;
         this.scopeTreeManipulator        = manipulators.getScopeTreeManipulator();
         this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
         this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
-        this.genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
-        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators );
+        this.genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
+        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulator);
     }
 
 

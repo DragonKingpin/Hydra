@@ -1,16 +1,12 @@
 package com.pinecone.hydra.service.tree.operator;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.UOIUtils;
-import com.pinecone.hydra.service.tree.nodes.ApplicationNode;
-import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
@@ -25,7 +21,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     private CommonDataManipulator commonDataManipulator;
     private ScopeTreeManipulator scopeTreeManipulator;
 
-    public ServiceNodeOperator( DefaultMetaNodeManipulators manipulators ) {
+    public ServiceNodeOperator( DefaultMetaNodeManipulator manipulators ) {
         this(
                 manipulators.getServiceNodeManipulator(),
                 manipulators.getServiceMetaManipulator(),

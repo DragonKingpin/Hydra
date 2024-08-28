@@ -6,8 +6,9 @@ import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
+import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
+public class DefaultMetaNodeManipulatorImpl implements DefaultMetaNodeManipulator {
     @Resource
     private ScopeTreeManipulator           scopeTreeManipulator;
     @Resource
@@ -36,6 +37,10 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
 
     @Resource
     private ClassifRulesManipulator        classifRulesManipulator;
+
+
+    @Resource
+    private ServiceFamilyTreeManipulator   serviceFamilyTreeManipulator;
 
 
 
@@ -84,6 +89,10 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
         return this.scopeTreeManipulator;
     }
 
+    @Override
+    public ServiceFamilyTreeManipulator getServiceFamilyTreeManipulator() {
+        return this.serviceFamilyTreeManipulator;
+    }
 
 
 }

@@ -6,9 +6,10 @@ import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.pojo.DistributedScopeServiceTree;
+import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,13 +26,13 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceNode" )
 public class ServiceMetaController {
     @Resource
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
 
     private ScopeServiceTree scopeServiceTree;
 
     @PostConstruct
     public void init() {
-        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulators );
+        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulator);
     }
 
     /**
@@ -40,9 +41,9 @@ public class ServiceMetaController {
      * @return 返回节点信息
      */
     @GetMapping("/queryNodeInfoByGUID/{GUID}")
-    public ServiceTreeNode queryNodeInfoByGUID( @PathVariable("GUID") String guid ){
+    public BasicResultResponse<ServiceTreeNode> queryNodeInfoByGUID(@PathVariable("GUID") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        return this.scopeServiceTree.getNode( guid72 );
+        return BasicResultResponse.success(this.scopeServiceTree.getNode( guid72 ));
     }
 
     /**

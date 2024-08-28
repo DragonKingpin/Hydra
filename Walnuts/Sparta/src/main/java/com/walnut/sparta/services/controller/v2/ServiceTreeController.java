@@ -1,18 +1,9 @@
 package com.walnut.sparta.services.controller.v2;
 
-import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.walnut.sparta.services.pojo.DistributedScopeServiceTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +20,7 @@ public class ServiceTreeController {
     ServiceTreeService serviceTreeService;
 
     @Resource
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
     /**
      * 用于渲染路径信息
      * @param guid 节点UUID
@@ -37,7 +28,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public String getPath(@PathVariable("GUID") String guid){
-        GenericDistributedScopeTree genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
+        GenericDistributedScopeTree genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
         return genericDistributedScopeTree.getPath(new GUID72(guid));
     }
 

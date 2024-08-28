@@ -1,22 +1,18 @@
 package com.pinecone.hydra.unit.udsn;
 
 
-import com.pinecone.framework.system.ProxyProvokeHandleException;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -33,14 +29,14 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private MetaNodeOperatorProxy metaNodeOperatorProxy;
 
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
 
-    public GenericDistributedScopeTree(DefaultMetaNodeManipulators defaultMetaNodeManipulators){
-        this.scopeTreeManipulator       =   defaultMetaNodeManipulators.getScopeTreeManipulator();
-        this.applicationNodeManipulator =   defaultMetaNodeManipulators.getApplicationNodeManipulator();
-        this.serviceNodeManipulator     =   defaultMetaNodeManipulators.getServiceNodeManipulator();
-        this.classifNodeManipulator     =   defaultMetaNodeManipulators.getClassifNodeManipulator();
-        this.metaNodeOperatorProxy      =   new MetaNodeOperatorProxy(defaultMetaNodeManipulators);
+    public GenericDistributedScopeTree(DefaultMetaNodeManipulator defaultMetaNodeManipulator){
+        this.scopeTreeManipulator       =   defaultMetaNodeManipulator.getScopeTreeManipulator();
+        this.applicationNodeManipulator =   defaultMetaNodeManipulator.getApplicationNodeManipulator();
+        this.serviceNodeManipulator     =   defaultMetaNodeManipulator.getServiceNodeManipulator();
+        this.classifNodeManipulator     =   defaultMetaNodeManipulator.getClassifNodeManipulator();
+        this.metaNodeOperatorProxy      =   new MetaNodeOperatorProxy(defaultMetaNodeManipulator);
     }
 
 

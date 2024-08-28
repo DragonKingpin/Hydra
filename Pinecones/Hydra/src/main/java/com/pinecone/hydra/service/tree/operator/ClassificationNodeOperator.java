@@ -1,14 +1,13 @@
 package com.pinecone.hydra.service.tree.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
@@ -23,7 +22,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     private ScopeTreeManipulator scopeTreeManipulator;
     private ClassifRulesManipulator classifRulesManipulator;
 
-    public ClassificationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
+    public ClassificationNodeOperator( DefaultMetaNodeManipulator manipulators ) {
         this(
                 manipulators.getClassifNodeManipulator(),
                 manipulators.getCommonDataManipulator(),

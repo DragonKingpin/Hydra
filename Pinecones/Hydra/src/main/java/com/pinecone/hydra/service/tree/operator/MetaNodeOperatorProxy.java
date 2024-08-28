@@ -1,23 +1,22 @@
 package com.pinecone.hydra.service.tree.operator;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.service.tree.ScopeServiceTree;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MetaNodeOperatorProxy implements Pinenut {
-    protected DefaultMetaNodeManipulators    defaultMetaNodeManipulators;
+    protected DefaultMetaNodeManipulator defaultMetaNodeManipulator;
     protected Map<String, MetaNodeOperator>  registerer = new HashMap<>();
 
-    public MetaNodeOperatorProxy( DefaultMetaNodeManipulators manipulators ){
-        this.defaultMetaNodeManipulators = manipulators;
+    public MetaNodeOperatorProxy( DefaultMetaNodeManipulator manipulators ){
+        this.defaultMetaNodeManipulator = manipulators;
 
-        this.register( ScopeServiceTree.DefaultMetaNodeApplication, new ApplicationNodeOperator( this.defaultMetaNodeManipulators ) );
-        this.register( ScopeServiceTree.DefaultMetaNodeClassification, new ClassificationNodeOperator( this.defaultMetaNodeManipulators ) );
-        this.register( ScopeServiceTree.DefaultMetaNodeService, new ServiceNodeOperator( this.defaultMetaNodeManipulators ) );
+        this.register( ScopeServiceTree.DefaultMetaNodeApplication, new ApplicationNodeOperator( this.defaultMetaNodeManipulator) );
+        this.register( ScopeServiceTree.DefaultMetaNodeClassification, new ClassificationNodeOperator( this.defaultMetaNodeManipulator) );
+        this.register( ScopeServiceTree.DefaultMetaNodeService, new ServiceNodeOperator( this.defaultMetaNodeManipulator) );
     }
 
     public void register( String typeName, MetaNodeOperator functionalNodeOperation ) {

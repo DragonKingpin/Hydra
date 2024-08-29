@@ -44,7 +44,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
 
     @Override
     public GUID insert( ServiceTreeNode nodeWideData) {
-        ClassificationNodeWideData classifNodeInformation = (ClassificationNodeWideData) nodeWideData;
+        GenericClassificationNode classifNodeInformation = (GenericClassificationNode) nodeWideData;
 
         //将应用节点基础信息存入信息表
         UidGenerator uidGenerator = UUIDBuilder.getBuilder();
@@ -55,14 +55,13 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         //将信息写入数据库
         //将节点信息存入应用节点表
         GUID classifNodeGUID = uidGenerator.getGUID72();
-        GenericClassificationNode classificationNode = classifNodeInformation.getClassificationNode();
-        classificationNode.setGuid(classifNodeGUID);
-        classificationNode.setRulesGUID(descriptionGUID);
-        this.classifNodeManipulator.insert(classificationNode);
+        classifNodeInformation.setGuid(classifNodeGUID);
+        classifNodeInformation.setRulesGUID(descriptionGUID);
+        this.classifNodeManipulator.insert(classifNodeInformation);
 
         //将应用元信息存入元信息表
         GUID metadataGUID = uidGenerator.getGUID72();
-        GenericNodeCommonData metadata = classifNodeInformation.getNodeMetadata();
+        GenericNodeCommonData metadata = classifNodeInformation.getNodeCommonData();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 

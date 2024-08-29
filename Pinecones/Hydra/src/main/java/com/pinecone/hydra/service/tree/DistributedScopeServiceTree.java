@@ -6,6 +6,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
@@ -47,6 +48,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
     @Override
     public GUID addNode( ServiceTreeNode node ) {
+        Debug.trace(node.getMetaType());
         MetaNodeOperator nodeOperation = this.metaNodeOperatorProxy.getOperator( node.getMetaType() );
         return nodeOperation.insert( node );
     }
@@ -55,7 +57,8 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     public void removeNode(GUID guid){
         GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
         UOI type = guidDistributedScopeNode.getType();
-        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         operator.remove(guid);
         this.genericDistributedScopeTree.remove(guid);
     }
@@ -79,13 +82,15 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
         GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         UOI type = node.getType();
-        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         return operator.get(guid);
     }
 
     private String getNodeName(GUIDDistributedScopeNode node){
         UOI type = node.getType();
-        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
         Debug.trace("获取到了节点"+serviceTreeNode);
         return serviceTreeNode.getName();

@@ -45,24 +45,23 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
     @Override
     public GUID insert( ServiceTreeNode nodeWideData ) {
         Debug.trace("保存节点"+nodeWideData);
-        ApplicationNodeWideData applicationNodeInformation = (ApplicationNodeWideData) nodeWideData;
+        GenericApplicationNode applicationNodeInformation = (GenericApplicationNode) nodeWideData;
         //将信息写入数据库
         //将节点信息存入应用节点表
         UidGenerator uidGenerator= UUIDBuilder.getBuilder();
         GUID applicationNodeGUID = uidGenerator.getGUID72();
-        GenericApplicationNode applicationNode = applicationNodeInformation.getApplicationNode();
-        applicationNode.setGuid(applicationNodeGUID);
-        this.applicationNodeManipulator.insert(applicationNode);
+        applicationNodeInformation.setGuid(applicationNodeGUID);
+        this.applicationNodeManipulator.insert(applicationNodeInformation);
 
         //将应用节点基础信息存入信息表
         GUID descriptionGUID = uidGenerator.getGUID72();
-        GenericApplicationNodeMeta applicationDescription = applicationNodeInformation.getApplicationDescription();
+        GenericApplicationNodeMeta applicationDescription = applicationNodeInformation.getApplicationNodeMeta();
         applicationDescription.setGuid(descriptionGUID);
         this.applicationMetaManipulator.insert(applicationDescription);
 
         //将应用元信息存入元信息表
         GUID metadataGUID = uidGenerator.getGUID72();
-        GenericNodeCommonData metadata = applicationNodeInformation.getMetadata();
+        GenericNodeCommonData metadata = applicationNodeInformation.getNodeCommonData();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 

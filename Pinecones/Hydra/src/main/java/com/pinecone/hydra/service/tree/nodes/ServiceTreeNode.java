@@ -6,6 +6,6 @@ public interface ServiceTreeNode extends Pinenut {
     String getName();
 
     default String getMetaType() {
-        return this.className().replace( "Node", "" );
+        return this.className().replace("Generic","");
     }
 }

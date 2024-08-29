@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.tree.wideData;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
@@ -54,8 +55,9 @@ public class GenericApplicationWideTable implements NodeWideTable {
                 parentData = this.getWideData(parentGUID);
                 this.put(parentGUID, parentData);
             }
-
+            Debug.trace("开始继承");
             this.inherit(nodeWideData, parentData);
+            break;
         }
 
         return nodeWideData;

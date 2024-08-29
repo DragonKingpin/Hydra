@@ -1,8 +1,10 @@
 package com.pinecone.hydra.unit.udsn;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
@@ -72,8 +74,10 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private String getNodeName(GUIDDistributedScopeNode node){
         UOI type = node.getType();
-        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(type.getObjectName());
+        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
+        Debug.trace("获取到了节点"+serviceTreeNode);
         return serviceTreeNode.getName();
     }
 

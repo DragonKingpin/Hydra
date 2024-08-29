@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.wideData.GenericWideTableFactory;
 import com.pinecone.hydra.service.tree.wideData.NodeWideData;
 import com.pinecone.hydra.service.tree.wideData.NodeWideTable;
@@ -135,5 +136,18 @@ public class ServiceMetaController {
         NodeWideTable uniformObjectWideTable = wideTableFactory.getUniformObjectWideTable(type.getObjectName());
         uniformObjectWideTable.remove(guid72);
         return BasicResultResponse.success("删除成功");
+    }
+
+    /**
+     * 用于添加继承关系
+     * @param childNode 子节点GUID
+     * @param parentNode 父节点GUID
+     * @return 返回继承信息
+     */
+    @PostMapping("/inherit")
+    public BasicResultResponse<String> inherit(@RequestParam("childNode") GUID childNode,@RequestParam("parentNode") GUID parentNode){
+        ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.defaultMetaNodeManipulator.getServiceFamilyTreeManipulator();
+        serviceFamilyTreeManipulator.insert(childNode,parentNode);
+        return BasicResultResponse.success("继承成功");
     }
 }

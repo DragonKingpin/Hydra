@@ -13,6 +13,7 @@ import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,24 +34,28 @@ public class GenericServiceWideTable implements NodeWideTable {
     }
     @Override
     public NodeWideData get(GUID guid) {
-        NodeWideData nodeWideData = cacheMap.get(guid);
-        if (nodeWideData==null){
-            NodeWideData wideData = this.getWideData(guid);
-            this.put(guid,wideData);
-            return get(guid);
-        }else {
+        NodeWideData nodeWideData = this.cacheMap.get(guid);
+
+        // 如果缓存中没有，则从数据库或其他来源获取
+        if (nodeWideData == null) {
+            nodeWideData = this.getWideData(guid);
+            // 将获取到的数据放入缓存
+            this.put(guid, nodeWideData);
+        }
+
+        while (nodeWideData.getParentGUID() != null) {
             GUID parentGUID = nodeWideData.getParentGUID();
-            if (parentGUID==null){
-                return nodeWideData;
-            }else {
-                NodeWideData parentCache = this.get(parentGUID);
-                if (!Objects.isNull(parentCache)){
-                    this.inherit(nodeWideData,parentCache);
-                    return nodeWideData;
-                }
+            NodeWideData parentData = this.cacheMap.get(parentGUID);
+
+            // 如果父级数据不在缓存中，则获取它
+            if (parentData == null) {
+                parentData = this.getWideData(parentGUID);
+                this.put(parentGUID, parentData);
             }
 
+            this.inherit(nodeWideData, parentData);
         }
+
         return nodeWideData;
     }
 
@@ -61,11 +66,17 @@ public class GenericServiceWideTable implements NodeWideTable {
 
     @Override
     public void remove(GUID guid) {
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        this.serviceMetaManipulator.remove(node.getBaseDataGUID());
+        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
+        this.scopeTreeManipulator.removePath(guid);
+        this.scopeTreeManipulator.removeNode(guid);
+        this.serviceFamilyTreeManipulator.removeByParentGUID(guid);
+        this.serviceFamilyTreeManipulator.removeByChildGUID(guid);
         this.cacheMap.remove(guid);
-        for (NodeWideData nodeWideData : cacheMap.values()){
-            if (nodeWideData.getParentGUID().equals(guid)){
-                remove(nodeWideData.getGuid());
-            }
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
+        for (GUIDDistributedScopeNode scopeNode : childNodes){
+            this.remove(scopeNode.getGuid());
         }
     }
 

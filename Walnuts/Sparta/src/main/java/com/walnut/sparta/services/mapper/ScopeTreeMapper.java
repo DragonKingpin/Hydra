@@ -56,6 +56,10 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     @Update("UPDATE hydra_service_node_tree set `parent_guid`=#{node.parentGUID},`base_data_guid`=#{node.baseDataGUID},`node_metadata_guid`=#{node.nodeMetadataGUID} WHERE `guid`=#{guid}")
     void putNode(@Param("guid") GUID guid,@Param("node") GUIDDistributedScopeNode distributedTreeNode);
 
-    @Select(" SELECT COUNT(*) FROM hydra_service_node_tree ")
+    @Select(" SELECT COUNT(*) FROM `hydra_service_node_tree` ")
     long size();
+    @Select("SELECT parent_guid FROM hydra_service_node_tree WHERE guid=#{guid}" )
+    List<GUID> getParentNode(@Param("guid") GUID guid);
+    @Delete("DELETE FROM hydra_service_node_tree WHERE guid = #{childGUID} AND parent_guid = #{parentGUID}")
+    void removeInheritance(@Param("childGUID") GUID childNode,@Param("parentGUID") GUID parentGUID);
 }

@@ -1,9 +1,9 @@
-package com.pinecone.hydra.service.tree.wideData;
+package com.pinecone.hydra.service.tree.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-public interface NodeWideData extends Pinenut {
+public interface MetaNodeWideEntity extends Pinenut {
     GUID getParentGUID();
     GUID getGuid();
 }

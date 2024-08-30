@@ -4,6 +4,7 @@ import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
+import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +28,9 @@ public class ServiceTreeController {
      * @return 返回路径信息
      */
     @GetMapping("/getPath/{GUID}")
-    public String getPath(@PathVariable("GUID") String guid){
+    public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
         GenericDistributedScopeTree genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
-        return genericDistributedScopeTree.getPath(new GUID72(guid));
+        return BasicResultResponse.success(genericDistributedScopeTree.getPath(new GUID72(guid)));
     }
 
     /**
@@ -39,10 +40,10 @@ public class ServiceTreeController {
      * @return 返回添加情况
      */
     @PostMapping("/addNodeToParent")
-    public String addNodeToParent(@RequestParam("nodeGUID") String nodeGUID,@RequestParam("parentGUID") String parentGUID ){
+    public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
         this.serviceTreeService.addNodeToParent(nodeGUID72,parentGUID72);
-        return "添加成功";
+        return BasicResultResponse.success("添加成功");
     }
 }

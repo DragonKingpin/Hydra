@@ -9,10 +9,10 @@ import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
-import com.pinecone.hydra.service.tree.wideData.GenericWideTableFactory;
-import com.pinecone.hydra.service.tree.wideData.NodeWideData;
-import com.pinecone.hydra.service.tree.wideData.NodeWideTable;
-import com.pinecone.hydra.service.tree.wideData.WideTableFactory;
+import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
+import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
+import com.pinecone.hydra.service.tree.entity.MetaNodeInstance;
+import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
@@ -38,12 +38,12 @@ public class ServiceMetaController {
 
     private ScopeServiceTree scopeServiceTree;
 
-    WideTableFactory wideTableFactory ;
+    MetaNodeInstanceFactory metaNodeInstanceFactory;
 
     @PostConstruct
     public void init() {
         this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulator);
-        this.wideTableFactory =new GenericWideTableFactory(this.defaultMetaNodeManipulator);
+        this.metaNodeInstanceFactory =new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulator);
     }
 
     /**
@@ -63,8 +63,8 @@ public class ServiceMetaController {
      * @return 返回节点信息
      */
     @GetMapping("/queryNodeInfoByPath")
-    public ServiceTreeNode queryNodeInfoByPath( @RequestParam("path") String path ){
-        return this.scopeServiceTree.parsePath(path);
+    public BasicResultResponse<ServiceTreeNode> queryNodeInfoByPath( @RequestParam("path") String path ){
+        return BasicResultResponse.success(this.scopeServiceTree.parsePath(path));
     }
 
     /**
@@ -73,8 +73,8 @@ public class ServiceMetaController {
      * @return 创建的节点的GUID
      */
     @PostMapping("/saveServiceNode")
-    public GUID saveServiceNode( @RequestBody GenericServiceNode serviceNode ){
-        return this.scopeServiceTree.addNode( serviceNode );
+    public BasicResultResponse<String> saveServiceNode( @RequestBody GenericServiceNode serviceNode ){
+        return BasicResultResponse.success(this.scopeServiceTree.addNode( serviceNode ).toString());
     }
 
     /**
@@ -83,8 +83,8 @@ public class ServiceMetaController {
      * @return  创建的节点的GUID
      */
     @PostMapping("/saveApplicationNode")
-    public GUID saveApplicationNode( @RequestBody GenericApplicationNode applicationNode ){
-        return this.scopeServiceTree.addNode(applicationNode);
+    public BasicResultResponse<String> saveApplicationNode( @RequestBody GenericApplicationNode applicationNode ){
+        return BasicResultResponse.success(this.scopeServiceTree.addNode(applicationNode).toString());
     }
 
     /**
@@ -93,8 +93,8 @@ public class ServiceMetaController {
      * @return 创建的节点的GUID
      */
     @PostMapping("/saveClassifNode")
-    public GUID saveClassifNode( @RequestBody GenericClassificationNode classificationNode ){
-        return this.scopeServiceTree.addNode(classificationNode);
+    public BasicResultResponse<String> saveClassifNode( @RequestBody GenericClassificationNode classificationNode ){
+        return BasicResultResponse.success(this.scopeServiceTree.addNode(classificationNode).toString());
     }
 
     /**
@@ -113,12 +113,12 @@ public class ServiceMetaController {
      * @return 返回节点信息
      */
     @GetMapping("/queryNodeWideInfo/{GUID}")
-    public BasicResultResponse<NodeWideData> queryNodeWideInfo(@PathVariable("GUID") String guid ){
+    public BasicResultResponse<MetaNodeWideEntity> queryNodeWideInfo(@PathVariable("GUID") String guid ){
         GUID72 guid72 = new GUID72( guid );
         ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulator.getScopeTreeManipulator();
         GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
         UOI type = node.getType();
-        NodeWideTable uniformObjectWideTable = wideTableFactory.getUniformObjectWideTable(type.getObjectName());
+        MetaNodeInstance uniformObjectWideTable = metaNodeInstanceFactory.getUniformObjectWideTable(type.getObjectName());
         return BasicResultResponse.success(uniformObjectWideTable.get(guid72));
     }
 
@@ -133,7 +133,7 @@ public class ServiceMetaController {
         ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulator.getScopeTreeManipulator();
         GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
         UOI type = node.getType();
-        NodeWideTable uniformObjectWideTable = wideTableFactory.getUniformObjectWideTable(type.getObjectName());
+        MetaNodeInstance uniformObjectWideTable = metaNodeInstanceFactory.getUniformObjectWideTable(type.getObjectName());
         uniformObjectWideTable.remove(guid72);
         return BasicResultResponse.success("删除成功");
     }

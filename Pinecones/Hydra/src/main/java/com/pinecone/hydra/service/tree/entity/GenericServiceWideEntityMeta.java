@@ -1,8 +1,8 @@
-package com.pinecone.hydra.service.tree.wideData;
+package com.pinecone.hydra.service.tree.entity;
 
 import com.pinecone.framework.util.id.GUID;
 
-public class GenericServiceWideDate implements NodeWideData {
+public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
     private GUID guid;
     private GUID parentGUID;
     private String name;
@@ -19,10 +19,10 @@ public class GenericServiceWideDate implements NodeWideData {
     private String level;
     private String description;
 
-    public GenericServiceWideDate() {
+    public GenericServiceWideEntityMeta() {
     }
 
-    public GenericServiceWideDate(GUID guid, GUID parentGUID, String name, String path, String type, String alias, String resourceType, String serviceType, String createTime, String updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericServiceWideEntityMeta(GUID guid, GUID parentGUID, String name, String path, String type, String alias, String resourceType, String serviceType, String createTime, String updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
         this.guid = guid;
         this.parentGUID = parentGUID;
         this.name = name;

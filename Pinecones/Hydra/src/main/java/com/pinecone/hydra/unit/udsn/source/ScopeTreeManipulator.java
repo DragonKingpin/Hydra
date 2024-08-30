@@ -38,4 +38,6 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     void putNode(GUID guid,GUIDDistributedScopeNode distributedTreeNode);
     long size();
+    List<GUID> getParentNode(GUID guid);
+    void removeInheritance(GUID childNode,GUID parentGUID);
 }

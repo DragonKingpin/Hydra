@@ -35,7 +35,7 @@ public class GUID72 extends GUID64 {
 
     @Override
     public GUID72 parse( String hexID72 ) throws IllegalIdentificationException {
-        Debug.trace( "解析字符串"+hexID72 );
+        //Debug.trace( "解析字符串"+hexID72 );
         try{
             String[] parts = hexID72.split("-");
             this.parseByStringParts( parts );

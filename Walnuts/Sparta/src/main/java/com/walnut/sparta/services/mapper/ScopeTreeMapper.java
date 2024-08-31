@@ -57,29 +57,29 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid` = #{guid}")
     void removeTreeNode(@Param("guid") GUID guid);
 
-    @Update("UPDATE `hydra_node_path` SET `path`=#{Path} WHERE `guid` = #{guid}")
+    @Update("UPDATE `hydra_service_node_path` SET `path`=#{Path} WHERE `guid` = #{guid}")
     void updatePath(@Param("guid") GUID guid, @Param("Path") String path);
 
-    @Select("SELECT `path` FROM `hydra_node_path`  WHERE `guid` = #{guid}")
+    @Select("SELECT `path` FROM `hydra_service_node_path`  WHERE `guid` = #{guid}")
     String getPath(@Param("guid") GUID guid);
 
-    @Insert("INSERT INTO `hydra_node_path` (`guid`, `path`) VALUES (#{guid},#{path})")
+    @Insert("INSERT INTO `hydra_service_node_path` (`guid`, `path`) VALUES (#{guid},#{path})")
     void putPath(@Param("path") String path,@Param("guid") GUID guid );
 
 
-    @Select("SELECT `guid` FROM `hydra_node_path` WHERE `path`=#{path}")
+    @Select("SELECT `guid` FROM `hydra_service_node_path` WHERE `path`=#{path}")
     GUID parsePath(@Param("path") String path);
 
     @Insert("INSERT INTO hydra_service_node_tree SET guid=#{nodeGUID}, parent_guid=#{parentGUID}")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 
-    @Select("SELECT hcr.name FROM `hydra_classif_node_rules` hcnr,`hydra_classif_rules` hcr WHERE hcnr.classif_rule_guid=hcr.guid AND hcnr.classif_node_guid = #{classifNodeGUID}")
+    @Select("SELECT hcr.name FROM `hydra_service_classif_node_rules` hcnr,`hydra_service_classif_rules` hcr WHERE hcnr.classif_rule_guid=hcr.guid AND hcnr.classif_node_guid = #{classifNodeGUID}")
     String getClassifNodeClassif(GUID classifNodeGUID);
 
     @Select("SELECT hsnt.`guid` , `parent_guid` AS parentGUID, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, type FROM `hydra_service_node_tree` hsnt,hydra_service_meta_map hsmm WHERE `parent_guid`=#{guid} AND hsmm.guid=hsnt.guid")
     List<GUIDDistributedScopeNode > getChildNode(GUID guid);
 
-    @Delete("DELETE FROM `hydra_node_path` WHERE `guid`=#{guid}")
+    @Delete("DELETE FROM `hydra_service_node_path` WHERE `guid`=#{guid}")
     void removePath(GUID guid);
 
     @Update("UPDATE `hydra_service_node_tree` hsnt,`hydra_service_meta_map` hsmm set `parent_guid`=#{node.parentGUID},`base_data_guid`=#{node.baseDataGUID},`node_metadata_guid`=#{node.nodeMetadataGUID} WHERE `guid`=#{guid} AND hsmm.guid=hsnt.guid")

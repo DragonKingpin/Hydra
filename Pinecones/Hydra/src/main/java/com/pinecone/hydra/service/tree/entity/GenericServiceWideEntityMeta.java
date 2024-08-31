@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.tree.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 
 public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
     private GUID guid;
@@ -18,11 +19,13 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
     private String extraInformation;
     private String level;
     private String description;
+    private UOI nodeType;
+
 
     public GenericServiceWideEntityMeta() {
     }
 
-    public GenericServiceWideEntityMeta(GUID guid, GUID parentGUID, String name, String path, String type, String alias, String resourceType, String serviceType, String createTime, String updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericServiceWideEntityMeta(GUID guid, GUID parentGUID, String name, String path, String type, String alias, String resourceType, String serviceType, String createTime, String updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description, UOI nodeType) {
         this.guid = guid;
         this.parentGUID = parentGUID;
         this.name = name;
@@ -38,6 +41,11 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
         this.extraInformation = extraInformation;
         this.level = level;
         this.description = description;
+        this.nodeType = nodeType;
+    }
+    @Override
+    public GUID getParentGUIDs() {
+        return parentGUID;
     }
 
 
@@ -51,7 +59,7 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
     }
 
 
-    public GUID getParentGUIDs() {
+    public GUID getParentGUID() {
         return parentGUID;
     }
 
@@ -170,6 +178,7 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
         this.extraInformation = extraInformation;
     }
 
+
     public String getLevel() {
         return level;
     }
@@ -189,7 +198,17 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
         this.description = description;
     }
 
+
+    public UOI getNodeType() {
+        return nodeType;
+    }
+
+
+    public void setNodeType(UOI nodeType) {
+        this.nodeType = nodeType;
+    }
+
     public String toString() {
-        return "GenericServiceNodeCache{guid = " + guid + ", parentGUID = " + parentGUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return "GenericServiceWideEntityMeta{guid = " + guid + ", parentGUID = " + parentGUID + ", name = " + name + ", path = " + path + ", type = " + type + ", alias = " + alias + ", resourceType = " + resourceType + ", serviceType = " + serviceType + ", createTime = " + createTime + ", updateTime = " + updateTime + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + ", nodeType = " + nodeType + "}";
     }
 }

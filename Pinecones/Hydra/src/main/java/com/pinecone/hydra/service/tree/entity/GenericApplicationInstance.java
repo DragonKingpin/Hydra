@@ -34,6 +34,7 @@ public class GenericApplicationInstance extends ArchMetaNodeInstance {
 
         genericApplicationWideEntity.setParentGUID(parentGUID);
         genericApplicationWideEntity.setGuid(guid);
+        genericApplicationWideEntity.setNodeType(node.getType());
 
         ObjectiveBean obApp = new ObjectiveBean( genericApplicationWideEntity );
         DataSharer.share( obApp, new ObjectiveBean( nodeMetadata ) );

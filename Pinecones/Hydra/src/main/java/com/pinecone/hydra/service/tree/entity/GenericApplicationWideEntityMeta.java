@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.tree.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 
 import java.time.LocalDateTime;
 
@@ -19,12 +20,13 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
     private String extraInformation;
     private String level;
     private String description;
+    private UOI nodeType;
 
 
     public GenericApplicationWideEntityMeta() {
     }
 
-    public GenericApplicationWideEntityMeta(GUID guid, GUID parentGUID, String name, String path, String type, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericApplicationWideEntityMeta(GUID guid, GUID parentGUID, String name, String path, String type, String resourceType, String deploymentMethod, LocalDateTime createTime, LocalDateTime updateTime, String scenario, String primaryImplLang, String extraInformation, String level, String description, UOI nodeType) {
         this.guid = guid;
         this.parentGUID = parentGUID;
         this.name = name;
@@ -39,9 +41,15 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
         this.extraInformation = extraInformation;
         this.level = level;
         this.description = description;
+        this.nodeType = nodeType;
     }
 
     @Override
+    public GUID getParentGUIDs() {
+        return parentGUID;
+    }
+
+
     public GUID getGuid() {
         return guid;
     }
@@ -51,8 +59,8 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
         this.guid = guid;
     }
 
-    @Override
-    public GUID getParentGUIDs() {
+
+    public GUID getParentGUID() {
         return parentGUID;
     }
 
@@ -181,7 +189,17 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
         this.description = description;
     }
 
+
+    public UOI getNodeType() {
+        return nodeType;
+    }
+
+
+    public void setNodeType(UOI nodeType) {
+        this.nodeType = nodeType;
+    }
+
     public String toString() {
-        return "GenericApplicationNodeCache{guid = " + guid + ", parentGUID = " + parentGUID + ", name = " + name + ", path = " + path + ", type = " + type + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return "GenericApplicationWideEntityMeta{guid = " + guid + ", parentGUID = " + parentGUID + ", name = " + name + ", path = " + path + ", type = " + type + ", resourceType = " + resourceType + ", deploymentMethod = " + deploymentMethod + ", createTime = " + createTime + ", updateTime = " + updateTime + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + ", nodeType = " + nodeType + "}";
     }
 }

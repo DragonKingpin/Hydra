@@ -52,10 +52,13 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
             String nodeName = getNodeName(node);
             String pathString = "";
             pathString=pathString+nodeName;
-            while (node.getParentGUID() != null){
-                node = this.scopeTreeManipulator.getNode(node.getParentGUID());
-                nodeName = getNodeName(node);
-                pathString = nodeName + "." + pathString;
+            while (!node.getParentGUID().isEmpty()){
+                Debug.trace("获取到了节点"+node);
+                for (GUID parentGUID : node.getParentGUID()){
+                    node = this.scopeTreeManipulator.getNode(parentGUID);
+                    nodeName = getNodeName(node);
+                    pathString = nodeName + "." + pathString;
+                }
             }
             this.scopeTreeManipulator.savePath(pathString,guid);
             return pathString;
@@ -65,7 +68,8 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
     public void insertNodeToParent(GUID nodeGUID,GUID parentGUID){
-        this.scopeTreeManipulator.addNodeToParent(nodeGUID,parentGUID);
+        //todo 添加一个插入的条件判断
+        this.scopeTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
     }
 
     public GUIDDistributedScopeNode getNode(GUID guid){
@@ -73,11 +77,12 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
     private String getNodeName(GUIDDistributedScopeNode node){
+        Debug.trace("查找节点名"+node);
         UOI type = node.getType();
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
-        Debug.trace("获取到了节点"+serviceTreeNode);
+
         return serviceTreeNode.getName();
     }
 

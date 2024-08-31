@@ -73,9 +73,11 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
             String pathString = "";
             pathString = pathString + nodeName;
             while ( node.getParentGUID() != null ){
-                node = this.scopeTreeManipulator.getNode(node.getParentGUID());
-                nodeName = getNodeName(node);
-                pathString = nodeName + "." + pathString;
+                for (GUID parentGUID : node.getParentGUID()){
+                    node = this.scopeTreeManipulator.getNode(parentGUID);
+                    nodeName = getNodeName(node);
+                    pathString = nodeName + "." + pathString;
+                }
             }
             this.scopeTreeManipulator.savePath( pathString,guid );
         }
@@ -102,9 +104,11 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         String pathString="";
         pathString=pathString+nodeName;
         while (node.getParentGUID() != null){
-            node=this.scopeTreeManipulator.getNode(node.getParentGUID());
-            nodeName = getNodeName(node);
-            pathString=nodeName + "." + pathString;
+            for (GUID parentGUID : node.getParentGUID()){
+                node = this.scopeTreeManipulator.getNode(parentGUID);
+                nodeName = getNodeName(node);
+                pathString = nodeName + "." + pathString;
+            }
         }
         this.scopeTreeManipulator.updatePath(guid,pathString);
     }

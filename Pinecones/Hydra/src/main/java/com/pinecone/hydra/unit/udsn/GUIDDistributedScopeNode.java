@@ -3,6 +3,8 @@ package com.pinecone.hydra.unit.udsn;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 
+import java.util.List;
+
 /**
  *  Pinecone Ursus For Java GUIDDistributedScopeNode
  *  Author:
@@ -17,7 +19,7 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
     //节点uuid
     private GUID guid;
     //父节点uuid
-    private GUID parentGUID;
+    private List<GUID> parentGUID;
     //基础信息uuid
     private GUID baseDataGUID;
     //元信息uuid
@@ -25,23 +27,23 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
     //节点的类型方便获取数据
     private UOI type;
 
+
     public GUIDDistributedScopeNode() {
     }
 
-    public GUIDDistributedScopeNode( long enumId, GUID guid, GUID parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type ) {
-        this.enumId           = enumId;
-        this.guid             = guid;
-        this.parentGUID       = parentGUID;
-        this.baseDataGUID     = baseDataGUID;
+    public GUIDDistributedScopeNode(long enumId, GUID guid, List<GUID> parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type) {
+        this.enumId = enumId;
+        this.guid = guid;
+        this.parentGUID = parentGUID;
+        this.baseDataGUID = baseDataGUID;
         this.nodeMetadataGUID = nodeMetadataGUID;
-        this.type             = type;
+        this.type = type;
     }
 
     /**
      * 获取
      * @return enumId
      */
-    @Override
     public long getEnumId() {
         return enumId;
     }
@@ -50,7 +52,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 设置
      * @param enumId
      */
-    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
@@ -59,7 +60,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return guid
      */
-    @Override
     public GUID getGuid() {
         return guid;
     }
@@ -68,7 +68,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 设置
      * @param guid
      */
-    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
@@ -77,8 +76,7 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return parentGUID
      */
-    @Override
-    public GUID getParentGUID() {
+    public List<GUID> getParentGUID() {
         return parentGUID;
     }
 
@@ -86,8 +84,7 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 设置
      * @param parentGUID
      */
-    @Override
-    public void setParentGUID(GUID parentGUID) {
+    public void setParentGUID(List<GUID> parentGUID) {
         this.parentGUID = parentGUID;
     }
 
@@ -95,7 +92,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return baseDataGUID
      */
-    @Override
     public GUID getBaseDataGUID() {
         return baseDataGUID;
     }
@@ -104,7 +100,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 设置
      * @param baseDataGUID
      */
-    @Override
     public void setBaseDataGUID(GUID baseDataGUID) {
         this.baseDataGUID = baseDataGUID;
     }
@@ -113,7 +108,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return nodeMetadataGUID
      */
-    @Override
     public GUID getNodeMetadataGUID() {
         return nodeMetadataGUID;
     }
@@ -122,7 +116,6 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 设置
      * @param nodeMetadataGUID
      */
-    @Override
     public void setNodeMetadataGUID(GUID nodeMetadataGUID) {
         this.nodeMetadataGUID = nodeMetadataGUID;
     }
@@ -131,21 +124,18 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return type
      */
-    @Override
     public UOI getType() {
-        return this.type;
+        return type;
     }
 
     /**
      * 设置
      * @param type
      */
-    @Override
-    public void setType( UOI type ) {
+    public void setType(UOI type) {
         this.type = type;
     }
 
-    @Override
     public String toString() {
         return "GUIDDistributedScopeNode{enumId = " + enumId + ", guid = " + guid + ", parentGUID = " + parentGUID + ", baseDataGUID = " + baseDataGUID + ", nodeMetadataGUID = " + nodeMetadataGUID + ", type = " + type + "}";
     }

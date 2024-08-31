@@ -2,6 +2,13 @@ package com.walnut.sparta.services.service.serviceImpl;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
+import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
+import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.walnut.sparta.services.mapper.ApplicationNodeMapper;
@@ -10,6 +17,7 @@ import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -17,22 +25,22 @@ import java.util.List;
 
 public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
-    ScopeTreeManipulator scopeTreeManipulator;
+    ScopeTreeManipulator                scopeTreeManipulator;
     @Resource
-    ApplicationNodeMapper genericApplicationNodeManipulator;
-    @Resource
-    ClassifNodeMapper genericClassifNodeManipulator;
-    @Resource
-    ServiceNodeMapper genericServiceNodeManipulator;
-    private final static String ApplicationNode="applicationNode";
+    private DefaultMetaNodeManipulator  defaultMetaNodeManipulator;
 
-    private final static String ServiceNode="serviceNode";
+    private MetaNodeOperatorProxy       metaNodeOperatorProxy;
 
-    private final static String ClassifNode="classifNode";
+    @PostConstruct
+    public void init() {
+        this.metaNodeOperatorProxy = new MetaNodeOperatorProxy(this.defaultMetaNodeManipulator);
+    }
+
+
     @Override
     public void addNodeToParent(GUID nodeGUID, GUID parentGUID) {
         //将节点加入指定位置
-        this.scopeTreeManipulator.addNodeToParent(nodeGUID,parentGUID);
+        this.scopeTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
         //添加后要更新节点路径
         //递归查询所有要更新的节点
         upDateAllPath(nodeGUID);
@@ -64,49 +72,26 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
             }
         }
     }
-    private void updatePath(GUID UUID){
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(UUID);
-        //如果是分类节点还要查询分类节点的分类表
-        System.out.println("查询到节点:"+node);
+    private void updatePath(GUID guid){
+        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
         String nodeName = getNodeName(node);
         String pathString="";
-        if(node.getType().equals(ClassifNode)){
-            String classifNodeClassif = scopeTreeManipulator.getClassifNodeClassif(node.getGuid());
-            if (classifNodeClassif!=null){
-                pathString=pathString+"("+classifNodeClassif+")"+nodeName;
-            }else {
-                pathString=pathString+"("+"默认分类"+")"+nodeName;
-            }
-        }else {
-            pathString=pathString+nodeName;
-        }
+        pathString=pathString+nodeName;
         while (node.getParentGUID() != null){
-            node=this.scopeTreeManipulator.getNode(node.getParentGUID());
-            System.out.println("查询到节点:"+node);
-            nodeName = getNodeName(node);
-            if(node.getType().equals(ClassifNode)){
-                String classifNodeClassif = scopeTreeManipulator.getClassifNodeClassif(node.getGuid());
-                if (classifNodeClassif!=null){
-                    pathString="("+classifNodeClassif+")"+nodeName+"."+pathString;
-                }else {
-                    pathString="("+"默认分类"+")"+nodeName+"."+pathString;
-                }
-            }else {
-                pathString=nodeName + "." + pathString;
+            for (GUID parentGUID : node.getParentGUID()){
+                node = this.scopeTreeManipulator.getNode(parentGUID);
+                nodeName = getNodeName(node);
+                pathString = nodeName + "." + pathString;
             }
         }
-        this.scopeTreeManipulator.updatePath(UUID,pathString);
+        this.scopeTreeManipulator.updatePath(guid,pathString);
     }
     private String getNodeName(GUIDDistributedScopeNode node){
-        if (node.getType().equals(ApplicationNode)){
-            return this.genericApplicationNodeManipulator.getApplicationNode(node.getGuid()).getName();
-        }
-        else if(node.getType().equals(ServiceNode)){
-            return this.genericServiceNodeManipulator.getServiceNode(node.getGuid()).getName();
-        }
-        else if (node.getType().equals(ClassifNode)) {
-            return this.genericClassifNodeManipulator.getClassifNode(node.getGuid()).getName();
-        }
-        return null;
+        UOI type = node.getType();
+        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
+        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
+        ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
+        Debug.trace("获取到了节点"+serviceTreeNode);
+        return serviceTreeNode.getName();
     }
 }

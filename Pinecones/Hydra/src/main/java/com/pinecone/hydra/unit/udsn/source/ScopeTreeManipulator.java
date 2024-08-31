@@ -14,7 +14,6 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     void removeNode(GUID guid);
 
-    void updateParentGUID(GUIDDistributedScopeNode node);
 
     String selectPath(GUID guid);
 
@@ -26,7 +25,7 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     GUID parsePath(String path);
 
-    void addNodeToParent(GUID nodeGUID,GUID parentGUID);
+    void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
 
     //方法放在这是否有问题
 

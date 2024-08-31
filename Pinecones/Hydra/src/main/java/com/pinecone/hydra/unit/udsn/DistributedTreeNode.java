@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -21,8 +22,8 @@ public interface DistributedTreeNode extends Pinenut {
     GUID getGuid();
     void setGuid(GUID guid);
 
-    GUID getParentGUID();
-    void setParentGUID(GUID parentGUID);
+    List<GUID> getParentGUID();
+    void setParentGUID(List<GUID> parentGUID);
 
     GUID getBaseDataGUID();
     void setBaseDataGUID(GUID baseDataGUID);

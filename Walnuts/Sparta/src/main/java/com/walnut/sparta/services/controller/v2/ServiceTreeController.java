@@ -1,6 +1,9 @@
 package com.walnut.sparta.services.controller.v2;
 
+import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.walnut.sparta.services.service.ServiceTreeService;
@@ -12,16 +15,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 @RestController
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    ServiceTreeService serviceTreeService;
+    private DefaultMetaNodeManipulator      defaultMetaNodeManipulator;
 
-    @Resource
-    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
+    private GenericDistributedScopeTree     genericDistributedScopeTree;
+
+    @PostConstruct
+    public void init() {
+        this.genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
+    }
     /**
      * 用于渲染路径信息
      * @param guid 节点UUID
@@ -43,7 +51,7 @@ public class ServiceTreeController {
     public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
-        this.serviceTreeService.addNodeToParent(nodeGUID72,parentGUID72);
+        this.genericDistributedScopeTree.insertNodeToParent(nodeGUID72,parentGUID72);
         return BasicResultResponse.success("添加成功");
     }
 }

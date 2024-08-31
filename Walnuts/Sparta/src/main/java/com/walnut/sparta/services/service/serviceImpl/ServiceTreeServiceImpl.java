@@ -77,8 +77,8 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
-        while (node.getParentGUID() != null){
-            for (GUID parentGUID : node.getParentGUID()){
+        while (node.getParentGUIDs() != null){
+            for (GUID parentGUID : node.getParentGUIDs()){
                 node = this.scopeTreeManipulator.getNode(parentGUID);
                 nodeName = getNodeName(node);
                 pathString = nodeName + "." + pathString;

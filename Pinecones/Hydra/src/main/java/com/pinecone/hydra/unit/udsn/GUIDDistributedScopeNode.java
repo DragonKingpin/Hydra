@@ -76,7 +76,7 @@ public class GUIDDistributedScopeNode implements DistributedTreeNode {
      * 获取
      * @return parentGUID
      */
-    public List<GUID> getParentGUID() {
+    public List<GUID> getParentGUIDs() {
         return parentGUID;
     }
 

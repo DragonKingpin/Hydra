@@ -51,7 +51,7 @@ public class GenericServiceWideEntityMeta implements MetaNodeWideEntity {
     }
 
 
-    public GUID getParentGUID() {
+    public GUID getParentGUIDs() {
         return parentGUID;
     }
 

@@ -19,6 +19,13 @@ public class BasicResultResponse<T > implements Pinenut, Serializable {
         return result;
     }
 
+    public static <T> BasicResultResponse<T > successMsg( String msg  ) {
+        BasicResultResponse<T> result = new BasicResultResponse<>();
+        result.msg  = msg;
+        result.code = HttpStatus.OK.value();
+        return result;
+    }
+
     public static <T> BasicResultResponse<T > success( T object ) {
         BasicResultResponse<T> result = new BasicResultResponse<>();
         result.data = object;

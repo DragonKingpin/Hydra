@@ -24,12 +24,13 @@ public class ServiceTreeController {
     @Resource
     private DefaultMetaNodeManipulator      defaultMetaNodeManipulator;
 
-    private GenericDistributedScopeTree     genericDistributedScopeTree;
+    private DistributedScopeTree            distributedScopeTree;
 
     @PostConstruct
     public void init() {
-        this.genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
+        this.distributedScopeTree = new GenericDistributedScopeTree( this.defaultMetaNodeManipulator );
     }
+
     /**
      * 用于渲染路径信息
      * @param guid 节点UUID
@@ -37,8 +38,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        GenericDistributedScopeTree genericDistributedScopeTree = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
-        return BasicResultResponse.success(genericDistributedScopeTree.getPath(new GUID72(guid)));
+        return BasicResultResponse.success( this.distributedScopeTree.getPath( new GUID72(guid) ) );
     }
 
     /**
@@ -51,7 +51,7 @@ public class ServiceTreeController {
     public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
-        this.genericDistributedScopeTree.insertNodeToParent(nodeGUID72,parentGUID72);
-        return BasicResultResponse.success("添加成功");
+        this.distributedScopeTree.insertNodeToParent(nodeGUID72,parentGUID72);
+        return BasicResultResponse.success();
     }
 }

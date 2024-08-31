@@ -90,12 +90,16 @@ class Vagina {
         this.name = name;
     }
 
+    public void setLength( long length ) {
+        this.length = length;
+    }
+
     public String toJSONString() {
-        return AnnotatedJSONInjector.instance().inject( this ).toString();
+        return DirectJSONInjector.instance().inject( this ).toString();
     }
 
     public String toString(){
-        return AnnotatedJSONInjector.instance().inject( this ).toString();
+        return DirectJSONInjector.instance().inject( this ).toString();
     }
 }
 
@@ -149,6 +153,14 @@ public class TestJSON {
         //bean.set( "key", "fuck" );
 
         Debug.trace( bean.keys() );
+
+
+        Vagina na = new Vagina();
+        ObjectiveBean naBean = new ObjectiveBean( na );
+        for ( String key : bean.keys() ) {
+            naBean.set( key, bean.get( key ) );
+        }
+        Debug.trace( vagina, na );
     }
 
     public static void testStringfiy() {
@@ -168,8 +180,8 @@ public class TestJSON {
             //TestJSON.testDirectlyInjector();
             //TestJSON.testAnnotatedInjector();
             //TestJSON.testObjectom();
-            //TestJSON.testObjectiveBean();
-            TestJSON.testStringfiy();
+            TestJSON.testObjectiveBean();
+            //TestJSON.testStringfiy();
 
 
 

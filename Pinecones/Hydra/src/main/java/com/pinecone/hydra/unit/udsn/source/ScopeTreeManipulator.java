@@ -15,9 +15,9 @@ public interface ScopeTreeManipulator extends Pinenut {
     void removeNode(GUID guid);
 
 
-    String selectPath(GUID guid);
+    String getPath(GUID guid);
 
-    void savePath( String path, GUID guid);
+    void putPath( String path, GUID guid);
 
     void updatePath( GUID guid, String path);
 
@@ -36,7 +36,10 @@ public interface ScopeTreeManipulator extends Pinenut {
     void removePath(GUID guid);
 
     void putNode(GUID guid,GUIDDistributedScopeNode distributedTreeNode);
+
     long size();
-    List<GUID> getParentNode(GUID guid);
-    void removeInheritance(GUID childNode,GUID parentGUID);
+
+    List<GUID> getParentNodes(GUID guid);
+
+    void removeInheritance(GUID childNode, GUID parentGUID);
 }

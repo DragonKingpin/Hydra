@@ -33,7 +33,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
 
-    public GenericDistributedScopeTree(DefaultMetaNodeManipulator defaultMetaNodeManipulator){
+    public GenericDistributedScopeTree( DefaultMetaNodeManipulator defaultMetaNodeManipulator ){
         this.scopeTreeManipulator       =   defaultMetaNodeManipulator.getScopeTreeManipulator();
         this.applicationNodeManipulator =   defaultMetaNodeManipulator.getApplicationNodeManipulator();
         this.serviceNodeManipulator     =   defaultMetaNodeManipulator.getServiceNodeManipulator();
@@ -42,36 +42,39 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
 
-    //打印路径信息
-    public String getPath(GUID guid){
-        String path = this.scopeTreeManipulator.selectPath(guid);
-        System.out.println("查找到路径：" + path);
+    //获取路径信息
+    @Override
+    public String getPath( GUID guid ){
+        String cachePath = this.scopeTreeManipulator.getPath( guid );
+        Debug.trace( "查找到路径：" + cachePath );
         //若不存在path信息则更新缓存表
-        if ( path == null ){
-            GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
-            String nodeName = getNodeName(node);
-            String pathString = "";
-            pathString=pathString+nodeName;
-            while (!node.getParentGUID().isEmpty()){
-                Debug.trace("获取到了节点"+node);
-                for (GUID parentGUID : node.getParentGUID()){
+        if ( cachePath == null ){
+            GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode( guid );
+            String nodeName = this.getNodeName(node);
+
+            // Assemble new path, if cache path dose not exist.
+            String assemblePath = nodeName;
+            while ( !node.getParentGUIDs().isEmpty() ){
+                Debug.trace("获取到了节点" + node);
+                for ( GUID parentGUID : node.getParentGUIDs() ){
                     node = this.scopeTreeManipulator.getNode(parentGUID);
-                    nodeName = getNodeName(node);
-                    pathString = nodeName + "." + pathString;
+                    nodeName = this.getNodeName(node);
+                    assemblePath = nodeName + "." + assemblePath;
                 }
             }
-            this.scopeTreeManipulator.savePath(pathString,guid);
-            return pathString;
+            this.scopeTreeManipulator.putPath( assemblePath, guid );
+            return assemblePath;
         }
-        return path;
-
+        return cachePath;
     }
 
+    @Override
     public void insertNodeToParent(GUID nodeGUID,GUID parentGUID){
         //todo 添加一个插入的条件判断
         this.scopeTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
     }
 
+    @Override
     public GUIDDistributedScopeNode getNode(GUID guid){
         return this.scopeTreeManipulator.getNode(guid);
     }
@@ -87,25 +90,28 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
 
-
+    @Override
     public void  remove( GUID guid ){
         removeNode(guid);
     }
 
+    @Override
     public void put( GUID guid, GUIDDistributedScopeNode distributedTreeNode ){
         this.scopeTreeManipulator.putNode(guid,distributedTreeNode);
     }
 
+    @Override
     public boolean isEmpty(){
         long size = this.scopeTreeManipulator.size();
         return size == 0;
     }
 
+    @Override
     public long size(){
         return this.scopeTreeManipulator.size();
     }
 
-
+    @Override
     public boolean containsKey(GUID key) {
         GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(key);
         return guidDistributedScopeNode==null;
@@ -127,6 +133,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         }
         return false;
     }
+    
     private void removeNode(GUID guid){
         List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
         this.scopeTreeManipulator.removeNode(guid);

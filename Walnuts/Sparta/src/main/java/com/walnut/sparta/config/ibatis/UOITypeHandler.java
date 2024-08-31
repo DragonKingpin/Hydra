@@ -1,4 +1,4 @@
-package com.walnut.sparta.config.mybatisConfig;
+package com.walnut.sparta.config.ibatis;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -10,9 +10,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.ulf.util.id.GUID72;
 
 
 @MappedTypes(UOI.class)

@@ -41,7 +41,7 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
         this.description = description;
     }
 
-
+    @Override
     public GUID getGuid() {
         return guid;
     }
@@ -51,8 +51,8 @@ public class GenericApplicationWideEntityMeta implements MetaNodeWideEntity {
         this.guid = guid;
     }
 
-
-    public GUID getParentGUID() {
+    @Override
+    public GUID getParentGUIDs() {
         return parentGUID;
     }
 

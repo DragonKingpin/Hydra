@@ -1,4 +1,4 @@
-# Bean Nuts Acorn Hydra\<Beta V2.1\> (九头龙，分布式操作系统)
+# Bean Nuts Acorn Hydra\<Beta\> (九头龙，分布式操作系统)
 <p align="center">
   <strong>
   事务编排, 多域配置, 自定义线程进程模型, 服务与任务编排管理器, 分布式系统设计, 
@@ -29,7 +29,8 @@
 
 <p align='center'>
   <b>简体中文</b> | <b>English[TODO]</b> | <a href="https://www.nutsky.com">Nuts Projects</a> | 
-  <a href="https://www.dragonking.me" target="_blank">DragonKing</a> | <a href="https://www.rednest.cn" target="_blank">Red Nest</a>
+  <a href="https://www.dragonking.cn" target="_blank">Dragon King</a> | <a href="https://www.wkwja.cn" target="_blank">Ken 老板</a> 
+  | <a href="https://www.geniusay.com" target="_blank">Genius 老板</a> | <a href="https://www.welsir.com" target="_blank">Welsir 老板</a> 
 </p>
 
 <p align='center'>
@@ -99,16 +100,6 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 - 数据检索引擎演示实例参考SauronEyes (https://god.nutsky.com | http://www.godview.net)
 
 
-### 更新 TODO 日历
-8，9双月
-- [Major] 下一次文档全量更新：(08月30日前更新)
-- [Major] 下一次代码全量更新：(09月01日前更新)
-- [Minor] 附属项目开源，God View，Springboot 重构中。（08月30日前）
-- [Minor] 任务系统调整，增加全局列表注册器（给嵌套模型加顶级收集器）。（08月30日前）
-- [Major] 服务系统调整，全量更新系统级服务中心、服务注册等基础设施系统。（09月10日前）
-- [Minor] 消息控制组件，RPC应用层调整、规范化，增加类Thrift，统一序列化、接口化系统。（09月01日前）
-- [Major] Sparta子系统，Web 图形界面操作系统增量、灰度构建。（09月30日前）
-
 ## ⚔ 目录
 * [一、描述](#一描述)
     * [1.1、框架组成](#11框架组成)
@@ -146,10 +137,12 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 6. distinct (差异器)，实现传统Set法、分治法、Bloom等的集合差异分析器。
 7. affinity (亲缘性器)，实现和支持对亲缘抽象字典的继承、重写等。
 8. tabulate (遍历器)，实现以列表式对抽象字典的内部递归，并列表化和分析亲缘关系。
+9. ShardList (非复制式共享数组)，由 @Geniusay 贡献。
 ##### 1.1.1.2、工具库
 1. JSON库，BSON，JPlus(JSON++)库 (面向可二次开发、设计的自由JSON设计)，可以重写JSONEncoder、JSONDecoder、JSONCompiler、JSONDecompiler、注入器等。
 2. Name命名空间库
 3. lang (Java包和扩展库)，支持各类类扫描方法、包扫描方法、遍历和收集方法、加载、多域扫描等。
+4. GUID (由@kenssa4eedfd贡献)，统一分布式ID，魔改百度Uid，GUID64、GUID72，支持随机混淆。
 4. TODO
 TODO
 #### 1.1.2、Hydra 
@@ -158,6 +151,7 @@ TODO
 2. FederalSystem，联邦系统(面向投票式设计) [BETA, 20250101]
 3. BlockSystem，块式系统(面向边缘、链式系统设计)。让你的每台设备都成为你专属链上节点。 [BETA, 20250101]
 4. CascadeComponent, 级联组件设计，支持亲缘性回收控制，“The Omega Device”，级联回收主键引用。
+5. 分布式容器（分布式多域树等）
 
 ##### 1.1.2.2、事物和统一任务编排系统
 1. Orchestration (事务、任务编排子系统)，面向统一解释器模式方法论和过程化设计，事务和任务编排逻辑化，支持循环控制、条件控制、散转控制、原子化等，更支持事务完整性设计。
@@ -170,10 +164,18 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
 ##### 1.1.2.4、统一消息分发系统
 ##### 1.1.2.5、WolfMC RPC
 二进制RPC协议支持，更多RPC协议持续更新中。[TODO 分片、泳道]
-##### 1.1.2.6、统一服务注册、发现、管理系统［TODD］
-##### 1.1.2.7、统一资源管理、分配接口系统［TODO］
-##### 1.1.2.8、图形管理界面［TODO］
-##### 1.1.2.9、TODO
+##### 1.1.2.6、统一服务注册、发现、管理系统
+1. 服务树 (由@kenssa4eedfd贡献)\
+支持多级分类的服务树，可以设置多级命名空间，如 `Name1.Name2.应用1.服务1`。\
+支持元信息继承、多引用、节点回收、支持复杂服务管理分类。
+
+##### 1.1.2.7、统一服务注册、发现、管理系统
+1. 配置树、统一配置中心 (由@kenssa4eedfd贡献)\
+TODO，"盗版" Apollo，支持分布式配置管理。一个配置中心，就像Windows注册表一样。
+
+##### 1.1.2.8、统一资源管理、分配接口系统［TODO］
+##### 1.1.2.9、图形管理界面［TODO］
+##### 1.1.2.10、TODO
 
 #### 1.1.3、Slime 史莱姆大数据支持库
 ##### 1.1.3.1、统一块抽象、管理、分配系统（泛块式、抽象页面（连续、离散、自定义）、帧、分区、簇等）

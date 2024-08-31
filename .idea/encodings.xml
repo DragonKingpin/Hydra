@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" addBOMForNewFiles="with NO BOM">
+  <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Console" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Console/src/main/java" charset="UTF-8" />
@@ -12,19 +12,38 @@
     <file url="file://$PROJECT_DIR$/Messenger/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Hydra" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Hydra/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Jelly" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Jelly/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Pinecone" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Pinecone/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Slime" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Slime/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Springram" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Springram/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Summer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Summer/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Ulfhedinn" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/Ulfhedinn/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Radium" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/Radium/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Saurye" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/Saurye/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Shadow" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/Shadow/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TaskJuggler" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TaskJuggler/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Walnuts/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Walnuts/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
 </project>

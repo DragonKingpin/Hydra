@@ -1,18 +1,18 @@
 package com.pinecone.hydra.service.tree.entity;
 
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GenericMetaNodeInstanceFactory implements MetaNodeInstanceFactory {
-    private DefaultMetaNodeManipulator      defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
     private Map<String, MetaNodeInstance>   nodeInstanceRegister = new HashMap<>();
 
-    public GenericMetaNodeInstanceFactory(DefaultMetaNodeManipulator defaultMetaNodeManipulator){
-        this.defaultMetaNodeManipulator = defaultMetaNodeManipulator;
-        this.nodeInstanceRegister.put(DefaultApplicationNode,new GenericApplicationInstance(this.defaultMetaNodeManipulator));
-        this.nodeInstanceRegister.put(DefaultServiceNode,new GenericServiceInstance(this.defaultMetaNodeManipulator));
+    public GenericMetaNodeInstanceFactory(DefaultMetaNodeManipulators defaultMetaNodeManipulators){
+        this.defaultMetaNodeManipulators = defaultMetaNodeManipulators;
+        this.nodeInstanceRegister.put(DefaultApplicationNode,new GenericApplicationInstance(this.defaultMetaNodeManipulators));
+        this.nodeInstanceRegister.put(DefaultServiceNode,new GenericServiceInstance(this.defaultMetaNodeManipulators));
     }
 
     @Override

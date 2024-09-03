@@ -7,7 +7,7 @@ import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
@@ -22,7 +22,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     private ScopeTreeManipulator scopeTreeManipulator;
     private ClassifRulesManipulator classifRulesManipulator;
 
-    public ClassificationNodeOperator( DefaultMetaNodeManipulator manipulators ) {
+    public ClassificationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
         this(
                 manipulators.getClassifNodeManipulator(),
                 manipulators.getCommonDataManipulator(),

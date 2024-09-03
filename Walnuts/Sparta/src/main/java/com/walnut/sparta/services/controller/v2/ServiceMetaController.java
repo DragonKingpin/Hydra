@@ -8,7 +8,7 @@ import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
@@ -35,7 +35,7 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceMeta" )
 public class ServiceMetaController {
     @Resource
-    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
 
     private ScopeServiceTree scopeServiceTree;
 
@@ -43,8 +43,8 @@ public class ServiceMetaController {
 
     @PostConstruct
     public void init() {
-        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulator);
-        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulator);
+        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulators);
+        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators);
     }
 
     /**
@@ -121,7 +121,7 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeWideInfo/{guid}")
     public BasicResultResponse<MetaNodeWideEntity> queryNodeWideInfo(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulator.getScopeTreeManipulator();
+        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulators.getScopeTreeManipulator();
         GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
         Debug.trace( guid72 );
         UOI type = node.getType();
@@ -137,7 +137,7 @@ public class ServiceMetaController {
     @GetMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("guid") String guid){
         GUID72 guid72 = new GUID72( guid );
-        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulator.getScopeTreeManipulator();
+        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulators.getScopeTreeManipulator();
         GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
         if( node != null ) {
             UOI type = node.getType();
@@ -155,7 +155,7 @@ public class ServiceMetaController {
      */
     @PostMapping("/inherit")
     public BasicResultResponse<String> inherit(@RequestParam("childNode") GUID childNode,@RequestParam("parentNode") GUID parentNode){
-        ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.defaultMetaNodeManipulator.getServiceFamilyTreeManipulator();
+        ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
         serviceFamilyTreeManipulator.insert(childNode,parentNode);
         return BasicResultResponse.success();
     }

@@ -3,17 +3,12 @@ package com.walnut.sparta.services.service.serviceImpl;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
-import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.walnut.sparta.services.mapper.ApplicationNodeMapper;
-import com.walnut.sparta.services.mapper.ClassifNodeMapper;
-import com.walnut.sparta.services.mapper.ServiceNodeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -27,13 +22,13 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
     ScopeTreeManipulator                scopeTreeManipulator;
     @Resource
-    private DefaultMetaNodeManipulator  defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
 
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
 
     @PostConstruct
     public void init() {
-        this.metaNodeOperatorProxy = new MetaNodeOperatorProxy(this.defaultMetaNodeManipulator);
+        this.metaNodeOperatorProxy = new MetaNodeOperatorProxy(this.defaultMetaNodeManipulators);
     }
 
 

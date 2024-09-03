@@ -14,7 +14,7 @@ import java.util.List;
 public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
     @Insert("INSERT INTO  `hydra_service_application_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void insert(GenericApplicationNode applicationNode);
-    @Delete("DELETE FROM `hydra_service_application_node` WHERE `guid`=#{UUID}")
+    @Delete("DELETE FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
     GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);

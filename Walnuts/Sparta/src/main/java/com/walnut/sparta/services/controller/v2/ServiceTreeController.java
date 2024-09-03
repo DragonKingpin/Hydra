@@ -1,12 +1,9 @@
 package com.walnut.sparta.services.controller.v2;
 
-import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
-import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.walnut.sparta.services.service.ServiceTreeService;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,13 +19,13 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    private DefaultMetaNodeManipulator      defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
 
     private DistributedScopeTree            distributedScopeTree;
 
     @PostConstruct
     public void init() {
-        this.distributedScopeTree = new GenericDistributedScopeTree( this.defaultMetaNodeManipulator );
+        this.distributedScopeTree = new GenericDistributedScopeTree( this.defaultMetaNodeManipulators);
     }
 
     /**

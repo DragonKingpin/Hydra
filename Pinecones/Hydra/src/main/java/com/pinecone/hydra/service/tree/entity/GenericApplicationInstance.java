@@ -6,22 +6,26 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 
 public class GenericApplicationInstance extends ArchMetaNodeInstance {
     private ApplicationMetaManipulator          applicationMetaManipulator;
+    private ApplicationNodeManipulator          applicationNodeManipulator;
 
-    public GenericApplicationInstance( DefaultMetaNodeManipulator defaultMetaNodeManipulator ){
-        super( defaultMetaNodeManipulator );
-        this.applicationMetaManipulator     =  this.defaultMetaNodeManipulator.getApplicationMetaManipulator();
+    public GenericApplicationInstance( DefaultMetaNodeManipulators defaultMetaNodeManipulators){
+        super(defaultMetaNodeManipulators);
+        this.applicationMetaManipulator     =  this.defaultMetaNodeManipulators.getApplicationMetaManipulator();
+        this.applicationNodeManipulator     =  this.defaultMetaNodeManipulators.getApplicationNodeManipulator();
     }
 
     @Override
     protected void removeDependence( GUID guid ) {
         GUIDDistributedScopeNode target = this.removeDependence0( guid );
         this.applicationMetaManipulator.remove( target.getBaseDataGUID() );
+        this.applicationNodeManipulator.remove(target.getGuid());
     }
 
     @Override

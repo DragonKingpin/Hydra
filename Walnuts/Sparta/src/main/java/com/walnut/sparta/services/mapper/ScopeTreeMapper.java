@@ -16,6 +16,7 @@ import java.util.List;
 public interface ScopeTreeMapper extends ScopeTreeManipulator {
     default void saveNode(GUIDDistributedScopeNode node){
         this.putNodeMeta(node);
+        if (node.getParentGUIDs()==null) return;
         if ( !node.getParentGUIDs().isEmpty() ){
             for ( GUID guid:node.getParentGUIDs() ){
                 this.putTreeNode( node.getGuid(), guid );

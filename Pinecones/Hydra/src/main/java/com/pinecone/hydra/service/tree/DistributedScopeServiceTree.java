@@ -6,10 +6,9 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
@@ -25,7 +24,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     //GenericDistributedScopeTree
     private DistributedScopeTree        distributedScopeTree;
 
-    private DefaultMetaNodeManipulator  defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
 
     private ScopeTreeManipulator        scopeTreeManipulator;
@@ -35,14 +34,14 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
 
 
-    public DistributedScopeServiceTree( DefaultMetaNodeManipulator manipulators ){
-        this.defaultMetaNodeManipulator  = manipulators;
+    public DistributedScopeServiceTree( DefaultMetaNodeManipulators manipulators ){
+        this.defaultMetaNodeManipulators = manipulators;
         this.scopeTreeManipulator        = manipulators.getScopeTreeManipulator();
         this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
         this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
-        this.distributedScopeTree        = new GenericDistributedScopeTree(this.defaultMetaNodeManipulator);
-        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulator);
+        this.distributedScopeTree        = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
+        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators);
     }
 
 

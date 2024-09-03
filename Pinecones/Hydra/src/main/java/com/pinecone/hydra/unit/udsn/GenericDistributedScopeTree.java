@@ -4,11 +4,11 @@ package com.pinecone.hydra.unit.udsn;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.nodes.ServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulator;
+import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceNodeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
@@ -21,24 +21,27 @@ import java.util.List;
  * 提供服务树的相应方法
  */
 public class GenericDistributedScopeTree implements UniDistributedScopeTree {
-    private ScopeTreeManipulator scopeTreeManipulator;
+    private ScopeTreeManipulator            scopeTreeManipulator;
 
-    private ApplicationNodeManipulator applicationNodeManipulator;
+    private ApplicationNodeManipulator      applicationNodeManipulator;
 
-    private ServiceNodeManipulator serviceNodeManipulator;
+    private ServiceNodeManipulator          serviceNodeManipulator;
 
-    private ClassifNodeManipulator classifNodeManipulator;
+    private ClassifNodeManipulator          classifNodeManipulator;
 
-    private MetaNodeOperatorProxy metaNodeOperatorProxy;
+    private MetaNodeOperatorProxy           metaNodeOperatorProxy;
 
-    private DefaultMetaNodeManipulator defaultMetaNodeManipulator;
+    private DefaultMetaNodeManipulators     defaultMetaNodeManipulators;
 
-    public GenericDistributedScopeTree( DefaultMetaNodeManipulator defaultMetaNodeManipulator ){
-        this.scopeTreeManipulator       =   defaultMetaNodeManipulator.getScopeTreeManipulator();
-        this.applicationNodeManipulator =   defaultMetaNodeManipulator.getApplicationNodeManipulator();
-        this.serviceNodeManipulator     =   defaultMetaNodeManipulator.getServiceNodeManipulator();
-        this.classifNodeManipulator     =   defaultMetaNodeManipulator.getClassifNodeManipulator();
-        this.metaNodeOperatorProxy      =   new MetaNodeOperatorProxy(defaultMetaNodeManipulator);
+    private ServiceNodeOwnerManipulator     serviceNodeOwnerManipulator;
+
+    public GenericDistributedScopeTree( DefaultMetaNodeManipulators defaultMetaNodeManipulators){
+        this.scopeTreeManipulator        =   defaultMetaNodeManipulators.getScopeTreeManipulator();
+        this.applicationNodeManipulator  =   defaultMetaNodeManipulators.getApplicationNodeManipulator();
+        this.serviceNodeManipulator      =   defaultMetaNodeManipulators.getServiceNodeManipulator();
+        this.classifNodeManipulator      =   defaultMetaNodeManipulators.getClassifNodeManipulator();
+        this.metaNodeOperatorProxy       =   new MetaNodeOperatorProxy(defaultMetaNodeManipulators);
+        this.serviceNodeOwnerManipulator =   defaultMetaNodeManipulators.getServiceNodeOwnerManipulator();
     }
 
 
@@ -50,20 +53,38 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         //若不存在path信息则更新缓存表
         if ( cachePath == null ){
             GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode( guid );
-            String nodeName = this.getNodeName(node);
+            //查看是否具有拥有关系
+            GUID owner = this.serviceNodeOwnerManipulator.getOwner(node.getGuid());
+            if (owner==null){
+                String nodeName = this.getNodeName(node);
 
-            // Assemble new path, if cache path dose not exist.
-            String assemblePath = nodeName;
-            while ( !node.getParentGUIDs().isEmpty() ){
-                Debug.trace("获取到了节点" + node);
-                for ( GUID parentGUID : node.getParentGUIDs() ){
-                    node = this.scopeTreeManipulator.getNode(parentGUID);
+                // Assemble new path, if cache path dose not exist.
+                String assemblePath = nodeName;
+                while ( !node.getParentGUIDs().isEmpty() ){
+                    Debug.trace("获取到了节点" + node);
+                    List<GUID> parentGUIDs = node.getParentGUIDs();
+                        node = this.scopeTreeManipulator.getNode(parentGUIDs.get(0));
+                        nodeName = this.getNodeName(node);
+                        assemblePath = nodeName + "." + assemblePath;
+                }
+                this.scopeTreeManipulator.putPath( assemblePath, guid );
+                return assemblePath;
+            }
+            else {
+                String nodeName = this.getNodeName(node);
+
+                // Assemble new path, if cache path dose not exist.
+                String assemblePath = nodeName;
+                while ( !node.getParentGUIDs().isEmpty() ){
+                    Debug.trace("获取到了节点" + node);
+                    node = this.scopeTreeManipulator.getNode(owner);
                     nodeName = this.getNodeName(node);
                     assemblePath = nodeName + "." + assemblePath;
                 }
+                this.scopeTreeManipulator.putPath( assemblePath, guid );
+                return assemblePath;
             }
-            this.scopeTreeManipulator.putPath( assemblePath, guid );
-            return assemblePath;
+
         }
         return cachePath;
     }
@@ -92,7 +113,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     @Override
     public void  remove( GUID guid ){
-        removeNode(guid);
+        this.removeNode(guid);
     }
 
     @Override
@@ -138,7 +159,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
         this.scopeTreeManipulator.removeNode(guid);
         for(GUIDDistributedScopeNode guidDistributedScopeNode : childNodes){
-            removeNode(guidDistributedScopeNode.getGuid());
+            this.removeNode(guidDistributedScopeNode.getGuid());
         }
     }
 }

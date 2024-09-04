@@ -121,12 +121,7 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeWideInfo/{guid}")
     public BasicResultResponse<MetaNodeWideEntity> queryNodeWideInfo(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulators.getScopeTreeManipulator();
-        GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
-        Debug.trace( guid72 );
-        UOI type = node.getType();
-        MetaNodeInstance uniformObjectWideTable = this.metaNodeInstanceFactory.getUniformObjectWideTable(type.getObjectName());
-        return BasicResultResponse.success(uniformObjectWideTable.get(guid72));
+        return BasicResultResponse.success(this.scopeServiceTree.getWideMeta(guid72));
     }
 
     /**
@@ -137,13 +132,7 @@ public class ServiceMetaController {
     @GetMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("guid") String guid){
         GUID72 guid72 = new GUID72( guid );
-        ScopeTreeManipulator scopeTreeManipulator = this.defaultMetaNodeManipulators.getScopeTreeManipulator();
-        GUIDDistributedScopeNode node = scopeTreeManipulator.getNode(guid72);
-        if( node != null ) {
-            UOI type = node.getType();
-            MetaNodeInstance uniformObjectWideTable = this.metaNodeInstanceFactory.getUniformObjectWideTable( type.getObjectName() );
-            uniformObjectWideTable.remove( guid72 );
-        }
+        this.scopeServiceTree.remove(guid72);
         return BasicResultResponse.success();
     }
 

@@ -40,7 +40,7 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
     @Override
     protected MetaNodeWideEntity getWideData(GUID guid){
         GenericServiceWideEntityMeta genericServiceWideEntityMeta = new GenericServiceWideEntityMeta();
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedScopeNode node = this.distributedScopeTree.getNode(guid);
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
         GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());

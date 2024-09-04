@@ -104,7 +104,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         Debug.trace("查找节点名"+node);
         UOI type = node.getType();
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
-        MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
+        MetaNodeOperator operator = this.metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
 
         return serviceTreeNode.getName();
@@ -113,7 +113,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     @Override
     public void  remove( GUID guid ){
-        this.removeNode(guid);
+        this.scopeTreeManipulator.removeNode(guid);
     }
 
     @Override
@@ -138,6 +138,31 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         return guidDistributedScopeNode==null;
     }
 
+    @Override
+    public GUID parsePath(String path) {
+        return this.scopeTreeManipulator.parsePath(path);
+    }
+
+    @Override
+    public List<GUIDDistributedScopeNode> getChildNode(GUID guid) {
+        return this.scopeTreeManipulator.getChildNode(guid);
+    }
+
+    @Override
+    public List<GUID> getParentNodes(GUID guid) {
+        return this.scopeTreeManipulator.getParentNodes(guid);
+    }
+
+    @Override
+    public void removeInheritance(GUID childGuid, GUID parentGuid) {
+        this.scopeTreeManipulator.removeInheritance(childGuid,parentGuid);
+    }
+
+    @Override
+    public void removePath(GUID guid) {
+        this.scopeTreeManipulator.removePath(guid);
+    }
+
 
     @Override
     public boolean hasOwnProperty(Object key) {
@@ -154,12 +179,5 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
         }
         return false;
     }
-    
-    private void removeNode(GUID guid){
-        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
-        this.scopeTreeManipulator.removeNode(guid);
-        for(GUIDDistributedScopeNode guidDistributedScopeNode : childNodes){
-            this.removeNode(guidDistributedScopeNode.getGuid());
-        }
-    }
+
 }

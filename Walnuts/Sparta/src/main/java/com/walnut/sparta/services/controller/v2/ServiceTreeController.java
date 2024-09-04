@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulators     defaultMetaNodeManipulators;
 
     private DistributedScopeTree            distributedScopeTree;
 

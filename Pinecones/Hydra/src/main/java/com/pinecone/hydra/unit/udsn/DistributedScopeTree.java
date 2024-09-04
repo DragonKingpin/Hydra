@@ -3,6 +3,8 @@ package com.pinecone.hydra.unit.udsn;
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
 
+import java.util.List;
+
 public interface DistributedScopeTree extends PineUnit {
     String getPath( GUID guid );
 
@@ -19,4 +21,14 @@ public interface DistributedScopeTree extends PineUnit {
     long size();
 
     boolean containsKey( GUID key );
+
+    GUID parsePath(String path);
+
+    List<GUIDDistributedScopeNode> getChildNode(GUID guid);
+
+    List<GUID> getParentNodes(GUID guid);
+
+    void removeInheritance(GUID childGuid,GUID parentGuid);
+
+    void removePath(GUID guid);
 }

@@ -3,6 +3,10 @@ package com.pinecone.hydra.service.tree;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
+import com.pinecone.hydra.service.tree.entity.MetaNodeInstance;
+import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
+import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
@@ -24,10 +28,10 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     //GenericDistributedScopeTree
     private DistributedScopeTree        distributedScopeTree;
 
+    MetaNodeInstanceFactory             metaNodeInstanceFactory;
+
     private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
-
-    private ScopeTreeManipulator        scopeTreeManipulator;
     private ApplicationNodeManipulator  applicationNodeManipulator;
     private ServiceNodeManipulator      serviceNodeManipulator;
     private ClassifNodeManipulator      classifNodeManipulator;
@@ -36,12 +40,12 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
     public DistributedScopeServiceTree( DefaultMetaNodeManipulators manipulators ){
         this.defaultMetaNodeManipulators = manipulators;
-        this.scopeTreeManipulator        = manipulators.getScopeTreeManipulator();
         this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
         this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
         this.distributedScopeTree        = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
         this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators);
+        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators);
     }
 
 
@@ -55,7 +59,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
     @Override
     public void removeNode(GUID guid){
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedScopeNode guidDistributedScopeNode = this.distributedScopeTree.getNode(guid);
         UOI type = guidDistributedScopeNode.getType();
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
@@ -78,7 +82,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     public ServiceTreeNode getNode( GUID guid ){
         this.affirmPathExist( guid );
 
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedScopeNode node = this.distributedScopeTree.getNode(guid);
         UOI type = node.getType();
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = this.metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
@@ -98,7 +102,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     @Override
     public ServiceTreeNode parsePath(String path) {
         // 先查看缓存表中是否存在路径信息
-        GUID guid = this.scopeTreeManipulator.parsePath(path);
+        GUID guid = this.distributedScopeTree.parsePath(path);
         if (guid != null) {
             return getNode(guid);
         }
@@ -135,6 +139,20 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         }
 
         return null;
+    }
+
+    @Override
+    public void remove(GUID guid) {
+        GUIDDistributedScopeNode node = this.distributedScopeTree.getNode(guid);
+        MetaNodeInstance uniformObjectWideTable = this.metaNodeInstanceFactory.getUniformObjectWideTable(node.getType().getObjectName());
+        uniformObjectWideTable.remove(guid);
+    }
+
+    @Override
+    public MetaNodeWideEntity getWideMeta(GUID guid) {
+        GUIDDistributedScopeNode node = this.distributedScopeTree.getNode(guid);
+        MetaNodeInstance uniformObjectWideTable = this.metaNodeInstanceFactory.getUniformObjectWideTable(node.getType().getObjectName());
+        return uniformObjectWideTable.get(guid);
     }
 
     private String processPath(String path) {

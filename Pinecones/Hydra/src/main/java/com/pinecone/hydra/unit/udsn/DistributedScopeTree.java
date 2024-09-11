@@ -6,6 +6,10 @@ import com.pinecone.framework.util.id.GUID;
 import java.util.List;
 
 public interface DistributedScopeTree extends PineUnit {
+    DistributedTreeNode getParentNode(GUID guid);
+
+    void insert(DistributedTreeNode distributedConfTreeNode);
+
     String getPath( GUID guid );
 
     void insertNodeToParent( GUID nodeGUID, GUID parentGUID );
@@ -31,4 +35,8 @@ public interface DistributedScopeTree extends PineUnit {
     void removeInheritance(GUID childGuid,GUID parentGuid);
 
     void removePath(GUID guid);
+
+    GUID getOwner(GUID guid);
+
+    List<GUID> getSubordinates(GUID guid);
 }

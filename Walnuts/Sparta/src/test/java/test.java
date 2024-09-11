@@ -1,6 +1,7 @@
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.uoi.UOI;
 
+import com.pinecone.hydra.config.distribute.entity.GenericConfNode;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,9 +42,8 @@ public class test {
 //        Debug.trace(className);
 
 
-        UOI uri = UOI.create( "com.pinecone.hydra.service.tree.nodes.GenericServiceNode" );
-
-        Debug.trace( uri, uri.getObjectName(), uri.newInstance() );
+        GenericConfNode confNode = new GenericConfNode();
+        Debug.trace(confNode.getClass().getName());
 
     }
 }

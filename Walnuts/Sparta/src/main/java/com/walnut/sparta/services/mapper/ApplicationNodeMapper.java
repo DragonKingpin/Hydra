@@ -19,6 +19,4 @@ public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
     @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
     GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);
     void update(GenericApplicationNode applicationNode);
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_application_node` WHERE name=#{name}")
-    List<GenericApplicationNode> fetchApplicationNodeByName(@Param("name") String name);
 }

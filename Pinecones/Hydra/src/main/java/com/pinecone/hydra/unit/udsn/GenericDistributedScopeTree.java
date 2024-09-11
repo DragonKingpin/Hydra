@@ -45,6 +45,16 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     }
 
 
+    @Override
+    public DistributedTreeNode getParentNode(GUID guid) {
+        return null;
+    }
+
+    @Override
+    public void insert(DistributedTreeNode distributedConfTreeNode) {
+
+    }
+
     //获取路径信息
     @Override
     public String getPath( GUID guid ){
@@ -161,6 +171,16 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     @Override
     public void removePath(GUID guid) {
         this.scopeTreeManipulator.removePath(guid);
+    }
+
+    @Override
+    public GUID getOwner(GUID guid) {
+        return null;
+    }
+
+    @Override
+    public List<GUID> getSubordinates(GUID guid) {
+        return null;
     }
 
 

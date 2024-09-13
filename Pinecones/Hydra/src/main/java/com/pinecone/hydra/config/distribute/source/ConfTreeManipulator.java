@@ -14,8 +14,6 @@ public interface ConfTreeManipulator extends Pinenut {
 
     void remove(GUID guid);
 
-    List<GUID> getParent(GUID guid);
-
     void removeInheritance(GUID childGuid, GUID parentGuid);
 
     List<GUID> getParentNodes(GUID guid);

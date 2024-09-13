@@ -71,7 +71,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         node.setGuid(classifNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.scopeTreeManipulator.saveNode(node);
+        this.scopeTreeManipulator.insert(node);
         return classifNodeGUID;
     }
 

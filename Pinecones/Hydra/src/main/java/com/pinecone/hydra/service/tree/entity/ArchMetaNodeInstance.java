@@ -9,22 +9,20 @@ import java.util.Objects;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ScopeServiceTree;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
-import com.pinecone.hydra.service.tree.source.ServiceNodeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 
 public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
     protected Map<GUID, MetaNodeWideEntity>       cacheMap = new HashMap<>();
     protected ServiceFamilyTreeManipulator        serviceFamilyTreeManipulator;
     protected CommonDataManipulator               commonDataManipulator;
-    protected ServiceNodeOwnerManipulator         serviceNodeOwnerManipulator;
+    protected ScopeOwnerManipulator               scopeOwnerManipulator;
     protected DistributedScopeTree                distributedScopeTree;
 
 
@@ -32,7 +30,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
         this.defaultMetaNodeManipulators    =   defaultMetaNodeManipulators;
         this.serviceFamilyTreeManipulator   =   this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
         this.commonDataManipulator          =   this.defaultMetaNodeManipulators.getCommonDataManipulator();
-        this.serviceNodeOwnerManipulator    =   this.defaultMetaNodeManipulators.getServiceNodeOwnerManipulator();
+        this.scopeOwnerManipulator          =   this.defaultMetaNodeManipulators.getScopeOwnerManipulator();
         this.distributedScopeTree           =   new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
     }
 
@@ -72,7 +70,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     @Override
     public void remove( GUID guid ) {
         List<GUIDDistributedScopeNode > childNodes = this.distributedScopeTree.getChildNode(guid);
-        List<GUID> subordinates = this.serviceNodeOwnerManipulator.getSubordinates(guid);
+        List<GUID> subordinates = this.scopeOwnerManipulator.getSubordinates(guid);
         if ( childNodes.isEmpty() ){
             this.removeDependence( guid );
         }
@@ -104,7 +102,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
         this.serviceFamilyTreeManipulator.removeByChildGUID( guid );
         this.serviceFamilyTreeManipulator.removeByParentGUID( guid );
         this.cacheMap.remove( guid );
-        this.serviceNodeOwnerManipulator.removeBySubordinate(guid);
+        this.scopeOwnerManipulator.removeBySubordinate(guid);
         return target;
     }
 

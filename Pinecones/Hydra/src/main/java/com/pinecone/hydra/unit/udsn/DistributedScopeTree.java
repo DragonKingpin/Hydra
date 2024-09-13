@@ -6,7 +6,6 @@ import com.pinecone.framework.util.id.GUID;
 import java.util.List;
 
 public interface DistributedScopeTree extends PineUnit {
-    DistributedTreeNode getParentNode(GUID guid);
 
     void insert(DistributedTreeNode distributedConfTreeNode);
 

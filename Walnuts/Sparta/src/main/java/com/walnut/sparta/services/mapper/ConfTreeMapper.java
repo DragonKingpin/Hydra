@@ -30,12 +30,10 @@ public interface ConfTreeMapper extends ConfTreeManipulator {
 
     default GUIDDistributedScopeNode getNode(GUID guid){
         GUIDDistributedScopeNode node = this.getMeta(guid);
-        List<GUID> parent = this.getParent(guid);
+        List<GUID> parent = this.getParentNodes(guid);
         node.setParentGUID(parent);
         return node;
     }
-    @Select("SELECT `parent_guid` FROM hydra_conf_node_tree WHERE `guid`=#{guid}")
-    List<GUID> getParent(GUID guid);
     @Select("SELECT `id`, `guid`, `type`,base_data_guid AS baseDataGUID,node_meta_guid AS nodeMetadataGUID  FROM hydra_conf_meta_map WHERE guid=#{guid}")
     GUIDDistributedScopeNode getMeta(GUID guid);
 
@@ -59,4 +57,7 @@ public interface ConfTreeMapper extends ConfTreeManipulator {
 
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid FROM `hydra_conf_node_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDDistributedScopeNode> getChild(GUID guid);
+
+    @Select("SELECT `parent_guid` FROM `hydra_conf_node_tree` WHERE `guid`=#{guid}")
+    List<GUID> getParentNodes(GUID guid);
 }

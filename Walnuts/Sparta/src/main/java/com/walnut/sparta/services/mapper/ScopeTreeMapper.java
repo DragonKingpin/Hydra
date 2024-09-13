@@ -14,7 +14,7 @@ import java.util.List;
 
 @Mapper
 public interface ScopeTreeMapper extends ScopeTreeManipulator {
-    default void saveNode(GUIDDistributedScopeNode node){
+    default void insert(GUIDDistributedScopeNode node){
         this.putNodeMeta(node);
         if (node.getParentGUIDs()==null) return;
         if ( !node.getParentGUIDs().isEmpty() ){
@@ -47,7 +47,7 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     @Select("SELECT `guid`, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, `type` FROM `hydra_service_meta_map` WHERE `guid`=#{guid}")
     GUIDDistributedScopeNode getNodeMeta(@Param("guid") GUID guid);
 
-    default void removeNode(@Param("guid") GUID guid){
+    default void remove(@Param("guid") GUID guid){
         removeNodeMeta(guid);
         removeTreeNode(guid);
     }
@@ -74,11 +74,9 @@ public interface ScopeTreeMapper extends ScopeTreeManipulator {
     @Insert("INSERT INTO hydra_service_node_tree SET guid=#{nodeGUID}, parent_guid=#{parentGUID}")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 
-    @Select("SELECT hcr.name FROM `hydra_service_classif_node_rules` hcnr,`hydra_service_classif_rules` hcr WHERE hcnr.classif_rule_guid=hcr.guid AND hcnr.classif_node_guid = #{classifNodeGUID}")
-    String getClassifNodeClassif(GUID classifNodeGUID);
 
     @Select("SELECT hsnt.`guid` , `parent_guid` AS parentGUID, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, type FROM `hydra_service_node_tree` hsnt,hydra_service_meta_map hsmm WHERE `parent_guid`=#{guid} AND hsmm.guid=hsnt.guid")
-    List<GUIDDistributedScopeNode > getChildNode(GUID guid);
+    List<GUIDDistributedScopeNode > getChild(GUID guid);
 
     @Delete("DELETE FROM `hydra_service_node_path` WHERE `guid`=#{guid}")
     void removePath(GUID guid);

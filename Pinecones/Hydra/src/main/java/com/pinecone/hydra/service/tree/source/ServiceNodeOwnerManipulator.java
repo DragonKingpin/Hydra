@@ -9,7 +9,6 @@ import java.util.List;
 public interface ServiceNodeOwnerManipulator extends Pinenut {
     void insert(GUID subordinateGuid,GUID ownerGuid);
     void remove(GUID subordinateGuid,GUID ownerGuid);
-    void removeByOwner(GUID ownerGuid);
     void removeBySubordinate(GUID subordinateGuid);
     GUID getOwner(GUID guid);
     List<GUID> getSubordinates(GUID guid);

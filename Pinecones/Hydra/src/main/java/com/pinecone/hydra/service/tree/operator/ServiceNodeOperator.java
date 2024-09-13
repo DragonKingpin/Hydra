@@ -70,7 +70,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         node.setGuid(serviceNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.scopeTreeManipulator.saveNode(node);
+        this.scopeTreeManipulator.insert(node);
         return serviceNodeGUID;
     }
 

@@ -48,8 +48,8 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     }
 
     private void removeAllNode(GUID nodeGUID){
-        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(nodeGUID);
-        this.scopeTreeManipulator.removeNode(nodeGUID);
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChild(nodeGUID);
+        this.scopeTreeManipulator.remove(nodeGUID);
         this.scopeTreeManipulator.removePath(nodeGUID);
         if (childNodes==null) return;
         for (GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
@@ -59,7 +59,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
 
     private void upDateAllPath(GUID guid){
         updatePath(guid);
-        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChildNode(guid);
+        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChild(guid);
         Debug.trace("节点"+guid+"的子节点有"+childNodes.toString());
         for(GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
             if (guidDistributedScopeNode!=null){

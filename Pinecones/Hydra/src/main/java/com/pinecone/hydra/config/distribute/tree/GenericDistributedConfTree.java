@@ -12,8 +12,6 @@ import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import java.util.List;
 
 public class GenericDistributedConfTree implements DistributedScopeTree{
-    private ConfManipulatorSharer           confManipulatorSharer;
-
     private ConfTreeManipulator             confTreeManipulator;
 
     private ConfNodeOwnerManipulator        confNodeOwnerManipulator;
@@ -21,7 +19,6 @@ public class GenericDistributedConfTree implements DistributedScopeTree{
     private ConfNodePathManipulator         confNodePathManipulator;
 
     public GenericDistributedConfTree(ConfManipulatorSharer confManipulatorSharer){
-        this.confManipulatorSharer    =  confManipulatorSharer;
         this.confTreeManipulator      =  confManipulatorSharer.getConfTreeManipulator();
         this.confNodeOwnerManipulator =  confManipulatorSharer.getConfNodeOwnerManipulator();
         this.confNodePathManipulator  =  confManipulatorSharer.getConfNodePathManipulator();

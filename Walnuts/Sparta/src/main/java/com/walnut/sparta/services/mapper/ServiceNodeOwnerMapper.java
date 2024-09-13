@@ -2,6 +2,7 @@ package com.walnut.sparta.services.mapper;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.source.ServiceNodeOwnerManipulator;
+import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -10,15 +11,12 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
-public interface ServiceNodeOwnerMapper extends ServiceNodeOwnerManipulator {
+public interface ServiceNodeOwnerMapper extends ScopeOwnerManipulator {
     @Insert("INSERT INTO `hydra_service_node_owner` (`subordinate_guid`, `owner_guid`) VALUES (#{subordinateGuid},#{ownerGuid})")
     void insert(@Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid);
 
     @Delete("DELETE FROM `hydra_service_node_owner` WHERE `subordinate_guid`=#{subordinateGuid} AND `owner_guid`=#{ownerGuid}")
     void remove(@Param("subordinateGuid") GUID subordinateGuid,@Param("ownerGuid") GUID ownerGuid);
-
-    @Delete("DELETE FROM `hydra_service_node_owner` WHERE `owner_guid`=#{ownerGuid}")
-    void removeByOwner(GUID ownerGuid);
 
     @Delete("DELETE FROM `hydra_service_node_owner` WHERE `subordinate_guid`=#{subordinateGuid}")
     void removeBySubordinate(GUID subordinateGuid);

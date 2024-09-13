@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 
 public interface DefaultMetaNodeManipulators extends Pinenut {
@@ -23,5 +24,5 @@ public interface DefaultMetaNodeManipulators extends Pinenut {
     ScopeTreeManipulator getServiceTreeMapper();
 
     ServiceFamilyTreeManipulator getServiceFamilyTreeManipulator();
-    ServiceNodeOwnerManipulator getServiceNodeOwnerManipulator();
+    ScopeOwnerManipulator getScopeOwnerManipulator();
 }

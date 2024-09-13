@@ -2,18 +2,16 @@ package com.pinecone.hydra.unit.udsn.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 
 import java.util.List;
 
 public interface ScopeTreeManipulator extends Pinenut {
-    void saveNode(GUIDDistributedScopeNode node);
+    void insert(GUIDDistributedScopeNode node);
 
     GUIDDistributedScopeNode getNode(GUID guid);
 
-    void removeNode(GUID guid);
-
+    void remove(GUID guid);
 
     String getPath(GUID guid);
 
@@ -21,17 +19,11 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     void updatePath( GUID guid, String path);
 
-    List<GUIDDistributedScopeNode> selectChildNode(GUID guid);
-
     GUID parsePath(String path);
 
     void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
 
-    //方法放在这是否有问题
-
-    String getClassifNodeClassif(GUID classifNodeGUID);
-
-    List<GUIDDistributedScopeNode> getChildNode(GUID guid);
+    List<GUIDDistributedScopeNode> getChild(GUID guid);
 
     void removePath(GUID guid);
 
@@ -42,4 +34,5 @@ public interface ScopeTreeManipulator extends Pinenut {
     List<GUID> getParentNodes(GUID guid);
 
     void removeInheritance(GUID childNode, GUID parentGUID);
+
 }

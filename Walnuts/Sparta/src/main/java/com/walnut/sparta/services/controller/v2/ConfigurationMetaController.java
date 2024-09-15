@@ -8,8 +8,8 @@ import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 import com.pinecone.hydra.config.distribute.tree.DistributedConfMetaTree;
 import com.pinecone.hydra.config.distribute.tree.GenericDistributeConfMetaTree;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.nodes.ConfManipulatorSharerImpl;
-import com.walnut.sparta.services.nodes.ConfTreeManipulatorSharerImpl;
+import com.walnut.sparta.services.drivers.ConfigMasterManipulatorImpl;
+import com.walnut.sparta.services.drivers.ConfigMasterTreeManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,14 +27,16 @@ import java.time.LocalDateTime;
 @RequestMapping( "/api/v2/configurationMeta" )
 public class ConfigurationMetaController {
     @Resource
-    private ConfManipulatorSharerImpl               confManipulatorSharer;
+    private ConfigMasterManipulatorImpl             configMasterManipulator;
+
     @Resource
-    private ConfTreeManipulatorSharerImpl           confTreeManipulatorSharer;
+    private ConfigMasterTreeManipulatorImpl         configMasterTreeManipulator;
+
     private DistributedConfMetaTree                 distributedConfMetaTree;
 
     @PostConstruct
     public void init() {
-        this.distributedConfMetaTree = new GenericDistributeConfMetaTree(this.confManipulatorSharer,confTreeManipulatorSharer);
+        this.distributedConfMetaTree = new GenericDistributeConfMetaTree(this.configMasterManipulator,configMasterTreeManipulator);
     }
 
     /**
@@ -58,6 +60,7 @@ public class ConfigurationMetaController {
         this.distributedConfMetaTree.insert(confNode);
         return BasicResultResponse.success();
     }
+
     /**
      * 获取节点路径信息
      * @param guid 节点guid

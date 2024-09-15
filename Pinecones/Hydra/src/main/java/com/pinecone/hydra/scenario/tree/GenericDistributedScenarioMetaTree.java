@@ -18,7 +18,7 @@ import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -33,7 +33,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     private NamespaceNodeManipulator        namespaceNodeManipulator;
     private ScenarioCommonDataManipulator   scenarioCommonDataManipulator;
 
-    public GenericDistributedScenarioMetaTree(ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
+    public GenericDistributedScenarioMetaTree(ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer, TreeMasterManipulator treeManipulatorSharer){
         this.scenarioMetaManipulatorSharer = scenarioMetaManipulatorSharer;
         this.distributedScenarioTree        =   new GenericDistributedScopeTree(treeManipulatorSharer);
         this.namespaceNodeManipulator       =   this.scenarioMetaManipulatorSharer.getNamespaceNodeManipulator();

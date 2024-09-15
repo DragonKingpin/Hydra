@@ -9,16 +9,16 @@ import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 import com.pinecone.hydra.config.distribute.operator.GenericConfOperatorFactory;
 import com.pinecone.hydra.config.distribute.operator.ConfOperatorFactory;
 import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
-import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
-import com.pinecone.hydra.config.distribute.source.ConfNodeManipulator;
-import com.pinecone.hydra.config.distribute.source.NamespaceNodeManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigMasterManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNodeManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNSNodeManipulator;
 import com.pinecone.hydra.config.distribute.source.PropertiesManipulator;
 import com.pinecone.hydra.config.distribute.source.TextValueManipulator;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,21 +26,21 @@ import java.util.List;
 public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     //继承DistributedConfTree提供树结构信息
     private DistributedScopeTree            distributedConfTree;
-    private ConfManipulatorSharer           confManipulatorSharer;
+    private ConfigMasterManipulator         configMasterManipulator;
     private PropertiesManipulator           propertiesManipulator;
     private TextValueManipulator            textValueManipulator;
-    private ConfNodeManipulator             confNodeManipulator;
-    private NamespaceNodeManipulator        namespaceNodeManipulator;
-    private ConfOperatorFactory confOperatorFactory;
+    private ConfigNodeManipulator           confNodeManipulator;
+    private ConfigNSNodeManipulator         namespaceNodeManipulator;
+    private ConfOperatorFactory             confOperatorFactory;
 
-    public GenericDistributeConfMetaTree(ConfManipulatorSharer confManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
-        this.confManipulatorSharer     =    confManipulatorSharer;
-        this.distributedConfTree       =    new GenericDistributedScopeTree(treeManipulatorSharer);
-        this.propertiesManipulator     =    this.confManipulatorSharer.getPropertiesManipulator();
-        this.textValueManipulator      =    this.confManipulatorSharer.getTextValueManipulator();
-        this.confNodeManipulator       =    this.confManipulatorSharer.getConfigurationManipulator();
-        this.namespaceNodeManipulator  =    this.confManipulatorSharer.getNamespaceManipulator();
-        this.confOperatorFactory =    new GenericConfOperatorFactory(this.confManipulatorSharer,treeManipulatorSharer);
+    public GenericDistributeConfMetaTree( ConfigMasterManipulator configMasterManipulator, TreeMasterManipulator treeManipulatorSharer ){
+        this.configMasterManipulator     =    configMasterManipulator;
+        this.distributedConfTree         =    new GenericDistributedScopeTree(treeManipulatorSharer);
+        this.propertiesManipulator       =    this.configMasterManipulator.getPropertiesManipulator();
+        this.textValueManipulator        =    this.configMasterManipulator.getTextValueManipulator();
+        this.confNodeManipulator         =    this.configMasterManipulator.getConfigurationManipulator();
+        this.namespaceNodeManipulator    =    this.configMasterManipulator.getNamespaceManipulator();
+        this.confOperatorFactory         =    new GenericConfOperatorFactory(this.configMasterManipulator,treeManipulatorSharer);
     }
 
 
@@ -118,7 +118,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
                 }
             }
             //匹配namespaceNode
-             nodeByNames = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
+            nodeByNames = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
             for (GUID nodeGuid : nodeByNames){
                 String nodePath = this.getPath(nodeGuid);
                 if (nodePath.equals(path)){
@@ -131,6 +131,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
         }
         return null;
     }
+
     @Override
     public void remove(GUID guid){
         GUIDDistributedScopeNode node = this.distributedConfTree.getNode(guid);

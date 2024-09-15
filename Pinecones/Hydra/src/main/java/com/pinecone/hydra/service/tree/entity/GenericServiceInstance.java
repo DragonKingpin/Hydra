@@ -5,27 +5,18 @@ import com.pinecone.framework.unit.affinity.DataSharer;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 
 public class GenericServiceInstance extends ArchMetaNodeInstance {
 
     private ServiceNodeManipulator         serviceNodeManipulator;
     private ServiceMetaManipulator         serviceMetaManipulator;
 
-    public GenericServiceInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeManipulatorSharer treeManipulatorSharer){
+    public GenericServiceInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeMasterManipulator treeManipulatorSharer){
         super(defaultMetaNodeManipulators,treeManipulatorSharer);
        this.serviceMetaManipulator   =  defaultMetaNodeManipulators.getServiceMetaManipulator();
        this.serviceNodeManipulator   =  defaultMetaNodeManipulators.getServiceNodeManipulator();

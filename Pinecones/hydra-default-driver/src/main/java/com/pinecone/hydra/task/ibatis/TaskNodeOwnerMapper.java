@@ -1,0 +1,20 @@
+package com.pinecone.hydra.task.ibatis;
+
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
+
+import java.util.List;
+
+public interface TaskNodeOwnerMapper extends ScopeOwnerManipulator {
+    void insert(GUID subordinateGuid, GUID ownerGuid);
+
+    void remove(GUID subordinateGuid,GUID ownerGuid);
+
+    void removeBySubordinate(GUID subordinateGuid);
+
+    void removeByOwner(GUID OwnerGuid);
+
+    GUID getOwner(GUID subordinateGuid);
+
+    List<GUID> getSubordinates(GUID guid);
+}

@@ -1,23 +1,23 @@
 package com.pinecone.hydra.config.distribute.operator;
 
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
+import com.pinecone.hydra.config.distribute.source.ConfigMasterManipulator;
 import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GenericConfOperatorFactory implements ConfOperatorFactory {
 
-    protected ConfManipulatorSharer       confManipulatorSharer;
+    protected ConfigMasterManipulator configMasterManipulator;
 
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
-    public GenericConfOperatorFactory(ConfManipulatorSharer confManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
-        this.confManipulatorSharer  =   confManipulatorSharer;
-        registerer.put(defaultConfNode,new ConfNodeOperator(this.confManipulatorSharer,treeManipulatorSharer));
-        registerer.put(defaultNamespaceNode,new NamespaceNodeOperator(this.confManipulatorSharer,treeManipulatorSharer));
+    public GenericConfOperatorFactory(ConfigMasterManipulator configMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+        this.configMasterManipulator  =   configMasterManipulator;
+        registerer.put(defaultConfNode,new ConfNodeOperator(this.configMasterManipulator,treeManipulatorSharer));
+        registerer.put(defaultNamespaceNode,new NamespaceNodeOperator(this.configMasterManipulator,treeManipulatorSharer));
     }
 
     public void register( String typeName, TreeNodeOperator functionalNodeOperation ) {

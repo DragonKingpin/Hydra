@@ -7,9 +7,8 @@ import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.walnut.sparta.services.mapper.ScopeTreeMapper;
+import com.pinecone.hydra.service.ibatis.ScopeTreeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 

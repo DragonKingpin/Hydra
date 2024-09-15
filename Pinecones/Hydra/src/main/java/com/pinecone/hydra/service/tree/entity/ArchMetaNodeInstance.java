@@ -16,7 +16,7 @@ import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 
 public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
@@ -27,7 +27,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected DistributedScopeTree                distributedScopeTree;
 
 
-    public ArchMetaNodeInstance( DefaultMetaNodeManipulators defaultMetaNodeManipulators,TreeManipulatorSharer treeManipulatorSharer){
+    public ArchMetaNodeInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeMasterManipulator treeManipulatorSharer){
         this.defaultMetaNodeManipulators    =   defaultMetaNodeManipulators;
         this.serviceFamilyTreeManipulator   =   this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
         this.commonDataManipulator          =   this.defaultMetaNodeManipulators.getCommonDataManipulator();

@@ -2,6 +2,8 @@ package com.unit;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.unit.*;
 import com.pinecone.framework.unit.tabulate.*;
+import com.pinecone.framework.unit.trie.TrieReparseNode;
+import com.pinecone.framework.unit.trie.UniTrieMaptron;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 
@@ -175,8 +177,51 @@ public class TestUnits {
         System.out.println("merge2 after set sublist index 1 to hello: "+merge2List);
     }
 
+    public static void testTrieMap() {
+        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>();
 
+        // 插入一些键值对
+        trieMap.put("animals/dogs/breed1", "Breed One");
+        trieMap.put("animals/dogs/breed2", "Breed Two");
+        trieMap.put("animals/cats/breed1", "Breed Three");
+        trieMap.put("animals/cats/breed2", "Breed Four");
+        trieMap.put("animals/cats/breed3", "Breed Five");
+        TrieReparseNode<String, String> objectObjectTrieReparseNode = new TrieReparseNode<>("animals/cats/breed1",trieMap);
+        trieMap.putReference("animals/cats/breed4", objectObjectTrieReparseNode);
+        // 获取值
+        System.out.println("get(\"animals/dogs/breed1\"): " + trieMap.get("animals/dogs/breed1")); // 应该输出Breed One
+        System.out.println("get(\"animals/cats/breed3\"): " + trieMap.get("animals/cats/breed4")); // 应该输出Breed Five
 
+        // 检查是否存在键
+        System.out.println("containsKey(\"animals/dogs/breed1\"): " + trieMap.containsKey("animals/dogs/breed1")); // 应该输出true
+        System.out.println("containsKey(\"animals/dogs/breedX\"): " + trieMap.containsKey("animals/dogs/breedX")); // 应该输出false
+
+        // 检查是否包含值
+        System.out.println("containsValue(\"Breed One\"): " + trieMap.containsValue("Breed One")); // 应该输出true
+        System.out.println("containsValue(\"Unknown Breed\"): " + trieMap.containsValue("Unknown Breed")); // 应该输出false
+
+        // 移除键值对
+        System.out.println("remove(\"animals/cats/breed3\"): " + trieMap.remove("animals/cats/breed3")); // 应该输出Breed Five
+        System.out.println("size after removing breed3: " + trieMap.size()); // 应该输出4
+
+        // 获取所有键
+        Set<String> keys = trieMap.keySet();
+        System.out.println("keys: " + keys);
+
+        // 获取所有值
+        Collection<String> values = trieMap.values();
+        System.out.println("values: " + values);
+
+        // 获取所有键值对
+        Set<Map.Entry<String, String>> entries = trieMap.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
+
+        // 清空前缀树
+        trieMap.clear();
+        System.out.println("isEmpty after clearing: " + trieMap.isEmpty()); // 应该输出true
+    }
 
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
@@ -185,7 +230,8 @@ public class TestUnits {
             //TestUnits.testMultiScopeMap();
             //TestUnits.testPrecedeMultiMap();
             //TestUnits.testRecursiveEntryIterator();
-            TestUnits.testMergeSharedList();
+            //TestUnits.testMergeSharedList();
+            TestUnits.testTrieMap();
 
             return 0;
         }, (Object[]) args );

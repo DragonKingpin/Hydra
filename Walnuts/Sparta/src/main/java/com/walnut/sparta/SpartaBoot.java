@@ -1,15 +1,10 @@
 package com.walnut.sparta;
 
-
-
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 
-@SpringBootApplication
 // Dummy boot for spring to found the main classpath.
+@SpringBootApplication
 public class SpartaBoot {
     //    @PostConstruct
 //    public void init() {

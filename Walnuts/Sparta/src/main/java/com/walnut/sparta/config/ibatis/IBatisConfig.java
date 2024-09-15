@@ -10,7 +10,11 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan("com.walnut.sparta.services.mapper") // 指定Mapper的包路径
+@MapperScan( "com.walnut.sparta.services.mapper" )
+@MapperScan( {
+        "com.pinecone.hydra.config.ibatis", "com.pinecone.hydra.service.ibatis", "com.pinecone.hydra.task.ibatis",
+        "com.pinecone.hydra.scenario.ibatis", "com.pinecone.hydra.deploy.ibatis"
+} )
 public class IBatisConfig {
 
     @Bean

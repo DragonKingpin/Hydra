@@ -10,9 +10,9 @@ import com.pinecone.hydra.config.distribute.entity.GenericNodeCommonData;
 import com.pinecone.hydra.config.distribute.entity.GenericProperties;
 import com.pinecone.hydra.config.distribute.entity.TextValue;
 import com.pinecone.hydra.unit.udsn.entity.TreeNode;
-import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
-import com.pinecone.hydra.config.distribute.source.ConfNodeManipulator;
-import com.pinecone.hydra.config.distribute.source.ConfNodeMetaManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigMasterManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNodeManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNodeMetaManipulator;
 import com.pinecone.hydra.config.distribute.source.NodeCommonDataManipulator;
 import com.pinecone.hydra.config.distribute.source.PropertiesManipulator;
 import com.pinecone.hydra.config.distribute.source.TextValueManipulator;
@@ -22,7 +22,7 @@ import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -35,22 +35,22 @@ import java.util.Objects;
 
 public class ConfNodeOperator implements TreeNodeOperator {
     private DistributedScopeTree        distributedConfTree;
-    private ConfManipulatorSharer       confManipulatorSharer;
+    private ConfigMasterManipulator configMasterManipulator;
     protected Map<GUID, ConfNode> cacheMap = new HashMap<>();
 
-    private ConfNodeManipulator         confNodeManipulator;
+    private ConfigNodeManipulator confNodeManipulator;
     private PropertiesManipulator       propertiesManipulator;
     private TextValueManipulator        textValueManipulator;
-    private ConfNodeMetaManipulator     confNodeMetaManipulator;
+    private ConfigNodeMetaManipulator confNodeMetaManipulator;
     private NodeCommonDataManipulator   nodeCommonDataManipulator;
 
-    public ConfNodeOperator(ConfManipulatorSharer confManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
-        this.confManipulatorSharer      =     confManipulatorSharer;
-        this.confNodeManipulator        =     this.confManipulatorSharer.getConfigurationManipulator();
-        this.propertiesManipulator      =     this.confManipulatorSharer.getPropertiesManipulator();
-        this.textValueManipulator       =     this.confManipulatorSharer.getTextValueManipulator();
-        this.confNodeMetaManipulator    =     this.confManipulatorSharer.getConfNodeMetaManipulator();
-        this.nodeCommonDataManipulator  =     this.confManipulatorSharer.getNodeCommonDataManipulator();
+    public ConfNodeOperator(ConfigMasterManipulator configMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+        this.configMasterManipulator      =     configMasterManipulator;
+        this.confNodeManipulator        =     this.configMasterManipulator.getConfigurationManipulator();
+        this.propertiesManipulator      =     this.configMasterManipulator.getPropertiesManipulator();
+        this.textValueManipulator       =     this.configMasterManipulator.getTextValueManipulator();
+        this.confNodeMetaManipulator    =     this.configMasterManipulator.getConfNodeMetaManipulator();
+        this.nodeCommonDataManipulator  =     this.configMasterManipulator.getNodeCommonDataManipulator();
         this.distributedConfTree        =     new GenericDistributedScopeTree(treeManipulatorSharer);
     }
 

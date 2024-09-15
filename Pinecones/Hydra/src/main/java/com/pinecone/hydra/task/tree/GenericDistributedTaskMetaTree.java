@@ -16,7 +16,7 @@ import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -31,7 +31,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
     private TaskNodeMetaManipulator         taskNodeMetaManipulator;
 
     private TaskCommonDataManipulator       taskCommonDataManipulator;
-    public GenericDistributedTaskMetaTree(TaskManipulatorSharer taskManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
+    public GenericDistributedTaskMetaTree(TaskManipulatorSharer taskManipulatorSharer, TreeMasterManipulator treeManipulatorSharer){
         this.taskCommonDataManipulator = taskManipulatorSharer.getTaskCommonDataManipulator();
         this.taskNodeMetaManipulator   = taskManipulatorSharer.getTaskNodeMetaManipulator();
         this.taskNodeManipulator       = taskManipulatorSharer.getTaskNodeManipulator();

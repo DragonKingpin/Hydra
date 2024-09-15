@@ -22,6 +22,7 @@
         <module>jelly</module>
         <module>summer</module>
         <module>springram</module>
+        <module>hydra-default-driver</module>
     </modules>
 
     <dependencies>

@@ -6,9 +6,9 @@ import com.pinecone.hydra.config.distribute.entity.GenericNamespaceNodeMeta;
 import com.pinecone.hydra.config.distribute.entity.GenericNodeCommonData;
 import com.pinecone.hydra.config.distribute.entity.NamespaceNode;
 import com.pinecone.hydra.unit.udsn.entity.TreeNode;
-import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
-import com.pinecone.hydra.config.distribute.source.NamespaceNodeManipulator;
-import com.pinecone.hydra.config.distribute.source.NamespaceNodeMetaManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigMasterManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNSNodeManipulator;
+import com.pinecone.hydra.config.distribute.source.ConfigNSNodeMetaManipulator;
 import com.pinecone.hydra.config.distribute.source.NodeCommonDataManipulator;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
@@ -16,7 +16,7 @@ import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -24,21 +24,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class NamespaceNodeOperator implements TreeNodeOperator {
-    private ConfManipulatorSharer            confManipulatorSharer;
+    private ConfigMasterManipulator configMasterManipulator;
 
-    private NamespaceNodeManipulator        namespaceNodeManipulator;
+    private ConfigNSNodeManipulator namespaceNodeManipulator;
 
     private DistributedScopeTree            distributedConfTree;
 
     private NodeCommonDataManipulator       nodeCommonDataManipulator;
 
-    private NamespaceNodeMetaManipulator    namespaceNodeMetaManipulator;
-    public NamespaceNodeOperator(ConfManipulatorSharer confManipulatorSharer , TreeManipulatorSharer treeManipulatorSharer){
-        this.confManipulatorSharer          =   confManipulatorSharer;
-        this.namespaceNodeManipulator       =   this.confManipulatorSharer.getNamespaceManipulator();
+    private ConfigNSNodeMetaManipulator namespaceNodeMetaManipulator;
+    public NamespaceNodeOperator(ConfigMasterManipulator configMasterManipulator , TreeMasterManipulator treeManipulatorSharer){
+        this.configMasterManipulator          =   configMasterManipulator;
+        this.namespaceNodeManipulator       =   this.configMasterManipulator.getNamespaceManipulator();
         this.distributedConfTree            =   new GenericDistributedScopeTree(treeManipulatorSharer);
-        this.nodeCommonDataManipulator      =   this.confManipulatorSharer.getNodeCommonDataManipulator();
-        this.namespaceNodeMetaManipulator   =   this.confManipulatorSharer.getNamespaceNodeMetaManipulator();
+        this.nodeCommonDataManipulator      =   this.configMasterManipulator.getNodeCommonDataManipulator();
+        this.namespaceNodeMetaManipulator   =   this.configMasterManipulator.getNamespaceNodeMetaManipulator();
     }
     @Override
     public GUID insert(TreeNode treeNode) {

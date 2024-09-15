@@ -13,7 +13,7 @@ import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
 import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
-import com.walnut.sparta.services.nodes.ServiceTreeManipulatorSharerImpl;
+import com.walnut.sparta.services.drivers.ServiceTreeManipulatorSharerImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

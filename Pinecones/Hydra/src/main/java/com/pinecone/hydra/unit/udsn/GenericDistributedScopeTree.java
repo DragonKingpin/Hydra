@@ -1,17 +1,11 @@
 package com.pinecone.hydra.unit.udsn;
 
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
+import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 
 import java.util.List;
@@ -26,7 +20,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
 
     private ScopePathManipulator            scopePathManipulator;
 
-    public GenericDistributedScopeTree(TreeManipulatorSharer treeManipulatorSharer){
+    public GenericDistributedScopeTree(TreeMasterManipulator treeManipulatorSharer){
         this.scopeTreeManipulator   =  treeManipulatorSharer.getScopeTreeManipulator();
         this.scopeOwnerManipulator  =  treeManipulatorSharer.getScopeOwnerManipulator();
         this.scopePathManipulator   =  treeManipulatorSharer.getScopePathManipulator();

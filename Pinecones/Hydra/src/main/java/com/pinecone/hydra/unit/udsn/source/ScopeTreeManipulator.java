@@ -15,8 +15,6 @@ public interface ScopeTreeManipulator extends Pinenut {
 
     String getPath(GUID guid);
 
-    void putPath( String path, GUID guid);
-
     void updatePath( GUID guid, String path);
 
     GUID parsePath(String path);

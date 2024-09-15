@@ -4,15 +4,13 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.config.distribute.entity.GenericConfNode;
 import com.pinecone.hydra.config.distribute.entity.GenericNamespaceNode;
 import com.pinecone.hydra.config.distribute.entity.GenericProperties;
-import com.pinecone.hydra.config.distribute.entity.TreeNode;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 import com.pinecone.hydra.config.distribute.tree.DistributedConfMetaTree;
 import com.pinecone.hydra.config.distribute.tree.GenericDistributeConfMetaTree;
-import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
-import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.ulf.util.id.GUID72;
 import com.walnut.sparta.services.nodes.ConfManipulatorSharerImpl;
+import com.walnut.sparta.services.nodes.ConfTreeManipulatorSharerImpl;
 import com.walnut.sparta.system.BasicResultResponse;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,13 +27,14 @@ import java.time.LocalDateTime;
 @RequestMapping( "/api/v2/configurationMeta" )
 public class ConfigurationMetaController {
     @Resource
-    private ConfManipulatorSharerImpl       confManipulatorSharer;
-
-    private DistributedConfMetaTree         distributedConfMetaTree;
+    private ConfManipulatorSharerImpl               confManipulatorSharer;
+    @Resource
+    private ConfTreeManipulatorSharerImpl           confTreeManipulatorSharer;
+    private DistributedConfMetaTree                 distributedConfMetaTree;
 
     @PostConstruct
     public void init() {
-        this.distributedConfMetaTree = new GenericDistributeConfMetaTree(this.confManipulatorSharer);
+        this.distributedConfMetaTree = new GenericDistributeConfMetaTree(this.confManipulatorSharer,confTreeManipulatorSharer);
     }
 
     /**

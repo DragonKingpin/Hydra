@@ -11,6 +11,7 @@ import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 import com.pinecone.ulf.util.id.GUID72;
 
 import java.util.List;
@@ -21,22 +22,14 @@ import java.util.List;
 public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     private ScopeTreeManipulator            scopeTreeManipulator;
 
-    private MetaNodeOperatorProxy           metaNodeOperatorProxy;
-
     private ScopeOwnerManipulator           scopeOwnerManipulator;
 
     private ScopePathManipulator            scopePathManipulator;
 
-    public GenericDistributedScopeTree( DefaultMetaNodeManipulators defaultMetaNodeManipulators){
-        this.scopeTreeManipulator        =   defaultMetaNodeManipulators.getScopeTreeManipulator();
-        this.metaNodeOperatorProxy       =   new MetaNodeOperatorProxy(defaultMetaNodeManipulators);
-        this.scopeOwnerManipulator       =   defaultMetaNodeManipulators.getScopeOwnerManipulator();
-    }
-
-    public GenericDistributedScopeTree(ScopeTreeManipulator scopeTreeManipulator,ScopeOwnerManipulator scopeOwnerManipulator,ScopePathManipulator scopePathManipulator){
-        this.scopeTreeManipulator   =  scopeTreeManipulator;
-        this.scopeOwnerManipulator  =  scopeOwnerManipulator;
-        this.scopePathManipulator   =  scopePathManipulator;
+    public GenericDistributedScopeTree(TreeManipulatorSharer treeManipulatorSharer){
+        this.scopeTreeManipulator   =  treeManipulatorSharer.getScopeTreeManipulator();
+        this.scopeOwnerManipulator  =  treeManipulatorSharer.getScopeOwnerManipulator();
+        this.scopePathManipulator   =  treeManipulatorSharer.getScopePathManipulator();
     }
 
 
@@ -48,45 +41,7 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     //获取路径信息
     @Override
     public String getPath( GUID guid ){
-        String cachePath = this.scopeTreeManipulator.getPath( guid );
-        Debug.trace( "查找到路径：" + cachePath );
-        //若不存在path信息则更新缓存表
-        if ( cachePath == null ){
-            GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode( guid );
-            //查看是否具有拥有关系
-            GUID owner = this.scopeOwnerManipulator.getOwner(node.getGuid());
-            if (owner==null){
-                String nodeName = this.getNodeName(node);
-
-                // Assemble new path, if cache path dose not exist.
-                String assemblePath = nodeName;
-                while ( !node.getParentGUIDs().isEmpty() ){
-                    Debug.trace("获取到了节点" + node);
-                    List<GUID> parentGUIDs = node.getParentGUIDs();
-                        node = this.scopeTreeManipulator.getNode(parentGUIDs.get(0));
-                        nodeName = this.getNodeName(node);
-                        assemblePath = nodeName + "." + assemblePath;
-                }
-                this.scopeTreeManipulator.putPath( assemblePath, guid );
-                return assemblePath;
-            }
-            else {
-                String nodeName = this.getNodeName(node);
-
-                // Assemble new path, if cache path dose not exist.
-                String assemblePath = nodeName;
-                while ( !node.getParentGUIDs().isEmpty() ){
-                    Debug.trace("获取到了节点" + node);
-                    node = this.scopeTreeManipulator.getNode(owner);
-                    nodeName = this.getNodeName(node);
-                    assemblePath = nodeName + "." + assemblePath;
-                }
-                this.scopeTreeManipulator.putPath( assemblePath, guid );
-                return assemblePath;
-            }
-
-        }
-        return cachePath;
+        return this.scopePathManipulator.getPath(guid);
     }
 
     @Override
@@ -98,15 +53,6 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     @Override
     public GUIDDistributedScopeNode getNode(GUID guid){
         return this.scopeTreeManipulator.getNode(guid);
-    }
-
-    private String getNodeName(GUIDDistributedScopeNode node){
-        UOI type = node.getType();
-        ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
-        MetaNodeOperator operator = this.metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
-        ServiceTreeNode serviceTreeNode = operator.get(node.getGuid());
-
-        return serviceTreeNode.getName();
     }
 
 
@@ -170,6 +116,11 @@ public class GenericDistributedScopeTree implements UniDistributedScopeTree {
     @Override
     public List<GUID> getSubordinates(GUID guid) {
         return this.scopeOwnerManipulator.getSubordinates(guid);
+    }
+
+    @Override
+    public void insertPath(GUID guid, String path) {
+        this.scopePathManipulator.insert(guid,path);
     }
 
 

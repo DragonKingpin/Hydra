@@ -13,14 +13,18 @@ import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeOwnerManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
+import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.walnut.sparta.services.mapper.ScopeTreeMapper;
+import com.walnut.sparta.services.mapper.ServiceNodeOwnerMapper;
+import com.walnut.sparta.services.mapper.ServicePathMapper;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
     @Resource
-    private ScopeTreeManipulator           scopeTreeManipulator;
+    private ScopeTreeMapper                scopeTreeManipulator;
     @Resource
     private CommonDataManipulator          commonDataManipulator;
 
@@ -46,7 +50,10 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
 
 
     @Resource
-    private ScopeOwnerManipulator           scopeOwnerManipulator;
+    private ServiceNodeOwnerMapper          scopeOwnerManipulator;
+
+    @Resource
+    private ServicePathMapper               scopePathManipulator;
 
 
     @Override
@@ -104,6 +111,10 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
         return this.scopeOwnerManipulator;
     }
 
+    @Override
+    public ScopePathManipulator getScopePathManipulator() {
+        return this.scopePathManipulator;
+    }
 
 
 }

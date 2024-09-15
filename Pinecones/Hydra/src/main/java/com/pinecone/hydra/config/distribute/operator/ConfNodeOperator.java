@@ -3,29 +3,26 @@ package com.pinecone.hydra.config.distribute.operator;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.config.distribute.entity.ConfNode;
-import com.pinecone.hydra.config.distribute.entity.ConfNodeMeta;
 import com.pinecone.hydra.config.distribute.entity.GenericConfNode;
 import com.pinecone.hydra.config.distribute.entity.GenericConfNodeMeta;
 import com.pinecone.hydra.config.distribute.entity.GenericNodeCommonData;
 import com.pinecone.hydra.config.distribute.entity.GenericProperties;
-import com.pinecone.hydra.config.distribute.entity.NodeCommonData;
-import com.pinecone.hydra.config.distribute.entity.Properties;
 import com.pinecone.hydra.config.distribute.entity.TextValue;
-import com.pinecone.hydra.config.distribute.entity.TreeNode;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
 import com.pinecone.hydra.config.distribute.source.ConfNodeManipulator;
 import com.pinecone.hydra.config.distribute.source.ConfNodeMetaManipulator;
 import com.pinecone.hydra.config.distribute.source.NodeCommonDataManipulator;
 import com.pinecone.hydra.config.distribute.source.PropertiesManipulator;
 import com.pinecone.hydra.config.distribute.source.TextValueManipulator;
-import com.pinecone.hydra.config.distribute.tree.GenericDistributedConfTree;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.ulf.util.id.GUID72;
+import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
+import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -36,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ConfNodeOperator implements TreeNodeOperator{
+public class ConfNodeOperator implements TreeNodeOperator {
     private DistributedScopeTree        distributedConfTree;
     private ConfManipulatorSharer       confManipulatorSharer;
     protected Map<GUID, ConfNode> cacheMap = new HashMap<>();
@@ -47,14 +44,14 @@ public class ConfNodeOperator implements TreeNodeOperator{
     private ConfNodeMetaManipulator     confNodeMetaManipulator;
     private NodeCommonDataManipulator   nodeCommonDataManipulator;
 
-    public ConfNodeOperator(ConfManipulatorSharer confManipulatorSharer){
+    public ConfNodeOperator(ConfManipulatorSharer confManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
         this.confManipulatorSharer      =     confManipulatorSharer;
         this.confNodeManipulator        =     this.confManipulatorSharer.getConfigurationManipulator();
         this.propertiesManipulator      =     this.confManipulatorSharer.getPropertiesManipulator();
         this.textValueManipulator       =     this.confManipulatorSharer.getTextValueManipulator();
         this.confNodeMetaManipulator    =     this.confManipulatorSharer.getConfNodeMetaManipulator();
         this.nodeCommonDataManipulator  =     this.confManipulatorSharer.getNodeCommonDataManipulator();
-        this.distributedConfTree        =     new GenericDistributedConfTree(this.confManipulatorSharer);
+        this.distributedConfTree        =     new GenericDistributedScopeTree(treeManipulatorSharer);
     }
 
     @Override

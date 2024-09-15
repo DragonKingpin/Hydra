@@ -12,6 +12,7 @@ import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -24,8 +25,8 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
     private ServiceNodeManipulator         serviceNodeManipulator;
     private ServiceMetaManipulator         serviceMetaManipulator;
 
-    public GenericServiceInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators){
-        super(defaultMetaNodeManipulators);
+    public GenericServiceInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeManipulatorSharer treeManipulatorSharer){
+        super(defaultMetaNodeManipulators,treeManipulatorSharer);
        this.serviceMetaManipulator   =  defaultMetaNodeManipulators.getServiceMetaManipulator();
        this.serviceNodeManipulator   =  defaultMetaNodeManipulators.getServiceNodeManipulator();
     }

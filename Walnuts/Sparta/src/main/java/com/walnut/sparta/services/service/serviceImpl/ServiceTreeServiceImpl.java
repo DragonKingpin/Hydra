@@ -9,6 +9,7 @@ import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.walnut.sparta.services.mapper.ScopeTreeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,11 @@ import java.util.List;
 
 public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
-    ScopeTreeManipulator                scopeTreeManipulator;
+    private ScopeTreeMapper                     scopeTreeManipulator;
     @Resource
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
 
-    private MetaNodeOperatorProxy       metaNodeOperatorProxy;
+    private MetaNodeOperatorProxy               metaNodeOperatorProxy;
 
     @PostConstruct
     public void init() {

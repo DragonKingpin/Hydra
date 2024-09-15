@@ -1,8 +1,7 @@
 package com.pinecone.hydra.config.distribute.entity;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.name.Name;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -21,6 +21,7 @@ import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 
 import java.util.List;
 
@@ -38,14 +39,14 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
 
 
-    public DistributedScopeServiceTree( DefaultMetaNodeManipulators manipulators ){
+    public DistributedScopeServiceTree(DefaultMetaNodeManipulators manipulators, TreeManipulatorSharer treeManipulatorSharer){
         this.defaultMetaNodeManipulators = manipulators;
         this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
         this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
-        this.distributedScopeTree        = new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
+        this.distributedScopeTree        = new GenericDistributedScopeTree(treeManipulatorSharer);
         this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators);
-        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators);
+        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators,treeManipulatorSharer);
     }
 
 
@@ -153,6 +154,49 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         GUIDDistributedScopeNode node = this.distributedScopeTree.getNode(guid);
         MetaNodeInstance uniformObjectWideTable = this.metaNodeInstanceFactory.getUniformObjectWideTable(node.getType().getObjectName());
         return uniformObjectWideTable.get(guid);
+    }
+
+    @Override
+    public String getPath(GUID guid) {
+        String cachePath = this.distributedScopeTree.getPath( guid );
+        Debug.trace( "查找到路径：" + cachePath );
+        //若不存在path信息则更新缓存表
+        if ( cachePath == null ){
+            GUIDDistributedScopeNode node = this.distributedScopeTree.getNode( guid );
+            //查看是否具有拥有关系
+            GUID owner = this.distributedScopeTree.getOwner(node.getGuid());
+            if (owner==null){
+                String nodeName = this.getNodeName(node);
+
+                // Assemble new path, if cache path dose not exist.
+                String assemblePath = nodeName;
+                while ( !node.getParentGUIDs().isEmpty() ){
+                    Debug.trace("获取到了节点" + node);
+                    List<GUID> parentGUIDs = node.getParentGUIDs();
+                    node = this.distributedScopeTree.getNode(parentGUIDs.get(0));
+                    nodeName = this.getNodeName(node);
+                    assemblePath = nodeName + "." + assemblePath;
+                }
+                this.distributedScopeTree.insertPath( guid, assemblePath );
+                return assemblePath;
+            }
+            else {
+                String nodeName = this.getNodeName(node);
+
+                // Assemble new path, if cache path dose not exist.
+                String assemblePath = nodeName;
+                while ( !node.getParentGUIDs().isEmpty() ){
+                    node = this.distributedScopeTree.getNode(owner);
+                    Debug.trace("获取到了节点" + node);
+                    nodeName = this.getNodeName(node);
+                    assemblePath = nodeName + "." + assemblePath;
+                }
+                this.distributedScopeTree.insertPath( guid, assemblePath );
+                return assemblePath;
+            }
+
+        }
+        return cachePath;
     }
 
     private String processPath(String path) {

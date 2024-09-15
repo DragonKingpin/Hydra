@@ -2,8 +2,7 @@ package com.pinecone.hydra.scenario.tree;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.config.distribute.entity.Properties;
-import com.pinecone.hydra.config.distribute.entity.TreeNode;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 
 public interface DistributedScenarioMetaTree extends Pinenut {
     String getPath(GUID guid);

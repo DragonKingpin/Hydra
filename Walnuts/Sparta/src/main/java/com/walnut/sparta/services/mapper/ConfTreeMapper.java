@@ -5,6 +5,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.config.distribute.source.ConfTreeManipulator;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -12,8 +13,8 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
-public interface ConfTreeMapper extends ConfTreeManipulator {
-    default void insert (DistributedTreeNode distributedConfTreeNode){
+public interface ConfTreeMapper extends ScopeTreeManipulator {
+    default void insert (GUIDDistributedScopeNode distributedConfTreeNode){
         List<GUID> parentGuids = distributedConfTreeNode.getParentGUIDs();
         this.insertTreeNode(distributedConfTreeNode.getGuid(),distributedConfTreeNode.getType(),distributedConfTreeNode.getBaseDataGUID(),distributedConfTreeNode.getNodeMetadataGUID());
         if (parentGuids!=null){

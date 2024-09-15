@@ -1,10 +1,8 @@
 package com.pinecone.hydra.unit.udsn.operator;
 
-import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
+import com.pinecone.framework.system.prototype.Pinenut;
 
-public interface OperatorFactory {
-
-    void register( String typeName, Operator functionalNodeOperation );
-
-    Operator getOperator(String typeName);
+public interface OperatorFactory extends Pinenut {
+    void register( String typeName, TreeNodeOperator functionalNodeOperation );
+    TreeNodeOperator getOperator(String typeName);
 }

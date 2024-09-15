@@ -3,7 +3,7 @@ package com.pinecone.hydra.config.distribute.tree;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.config.distribute.entity.Properties;
-import com.pinecone.hydra.config.distribute.entity.TreeNode;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
 
 public interface DistributedConfMetaTree extends Pinenut {
 

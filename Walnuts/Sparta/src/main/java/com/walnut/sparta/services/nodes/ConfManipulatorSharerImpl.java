@@ -31,15 +31,6 @@ public class ConfManipulatorSharerImpl implements ConfManipulatorSharer {
     TextValueManipulator            textValueManipulator;
 
     @Resource
-    ConfTreeManipulator             confTreeManipulator;
-
-    @Resource
-    ConfNodeOwnerManipulator        confNodeOwnerManipulator;
-
-    @Resource
-    ConfNodePathManipulator         confNodePathManipulator;
-
-    @Resource
     ConfNodeMetaManipulator         confNodeMetaManipulator;
 
     @Resource
@@ -65,21 +56,6 @@ public class ConfManipulatorSharerImpl implements ConfManipulatorSharer {
     @Override
     public TextValueManipulator getTextValueManipulator() {
         return this.textValueManipulator;
-    }
-
-    @Override
-    public ConfTreeManipulator getConfTreeManipulator() {
-        return this.confTreeManipulator;
-    }
-
-    @Override
-    public ConfNodeOwnerManipulator getConfNodeOwnerManipulator() {
-        return this.confNodeOwnerManipulator;
-    }
-
-    @Override
-    public ConfNodePathManipulator getConfNodePathManipulator() {
-        return this.confNodePathManipulator;
     }
 
     @Override

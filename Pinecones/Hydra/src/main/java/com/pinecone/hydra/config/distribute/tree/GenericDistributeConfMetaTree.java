@@ -2,25 +2,23 @@ package com.pinecone.hydra.config.distribute.tree;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.name.Name;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.config.distribute.entity.GenericTextValue;
 import com.pinecone.hydra.config.distribute.entity.Properties;
-import com.pinecone.hydra.config.distribute.entity.TreeNode;
-import com.pinecone.hydra.config.distribute.operator.GenericOperatorFactory;
-import com.pinecone.hydra.config.distribute.operator.OperatorFactory;
-import com.pinecone.hydra.config.distribute.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.udsn.entity.TreeNode;
+import com.pinecone.hydra.config.distribute.operator.GenericConfOperatorFactory;
+import com.pinecone.hydra.config.distribute.operator.ConfOperatorFactory;
+import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
 import com.pinecone.hydra.config.distribute.source.ConfManipulatorSharer;
 import com.pinecone.hydra.config.distribute.source.ConfNodeManipulator;
-import com.pinecone.hydra.config.distribute.source.ConfNodePathManipulator;
 import com.pinecone.hydra.config.distribute.source.NamespaceNodeManipulator;
 import com.pinecone.hydra.config.distribute.source.PropertiesManipulator;
 import com.pinecone.hydra.config.distribute.source.TextValueManipulator;
-import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
 import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,30 +26,27 @@ import java.util.List;
 public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     //继承DistributedConfTree提供树结构信息
     private DistributedScopeTree            distributedConfTree;
-
     private ConfManipulatorSharer           confManipulatorSharer;
     private PropertiesManipulator           propertiesManipulator;
     private TextValueManipulator            textValueManipulator;
-    private ConfNodePathManipulator         confNodePathManipulator;
     private ConfNodeManipulator             confNodeManipulator;
     private NamespaceNodeManipulator        namespaceNodeManipulator;
-    private OperatorFactory                 operatorFactory;
+    private ConfOperatorFactory confOperatorFactory;
 
-    public GenericDistributeConfMetaTree(ConfManipulatorSharer confManipulatorSharer){
+    public GenericDistributeConfMetaTree(ConfManipulatorSharer confManipulatorSharer, TreeManipulatorSharer treeManipulatorSharer){
         this.confManipulatorSharer     =    confManipulatorSharer;
-        this.distributedConfTree       =    new GenericDistributedConfTree(this.confManipulatorSharer);
+        this.distributedConfTree       =    new GenericDistributedScopeTree(treeManipulatorSharer);
         this.propertiesManipulator     =    this.confManipulatorSharer.getPropertiesManipulator();
         this.textValueManipulator      =    this.confManipulatorSharer.getTextValueManipulator();
-        this.confNodePathManipulator   =    this.confManipulatorSharer.getConfNodePathManipulator();
         this.confNodeManipulator       =    this.confManipulatorSharer.getConfigurationManipulator();
         this.namespaceNodeManipulator  =    this.confManipulatorSharer.getNamespaceManipulator();
-        this.operatorFactory           =    new GenericOperatorFactory(this.confManipulatorSharer);
+        this.confOperatorFactory =    new GenericConfOperatorFactory(this.confManipulatorSharer,treeManipulatorSharer);
     }
 
 
     @Override
     public String getPath(GUID guid) {
-        String path = this.confNodePathManipulator.getPath(guid);
+        String path = this.distributedConfTree.getPath(guid);
         if (path!=null) return path;
         DistributedTreeNode node = this.distributedConfTree.getNode(guid);
         Debug.trace(node.toString());
@@ -64,7 +59,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
                 String nodeName = this.getNodeName(node);
                 assemblePath = nodeName + "." + assemblePath;
             }
-            this.confNodePathManipulator.insert(guid,assemblePath);
+            this.distributedConfTree.insertPath(guid,assemblePath);
             return assemblePath;
         }
         else{
@@ -74,7 +69,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
                 String nodeName = this.getNodeName(node);
                 assemblePath = nodeName + "." + assemblePath;
             }
-            this.confNodePathManipulator.insert(guid,assemblePath);
+            this.distributedConfTree.insertPath(guid,assemblePath);
             return assemblePath;
         }
     }
@@ -82,7 +77,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     @Override
     public GUID insert(TreeNode treeNode) {
         Debug.trace(treeNode.getMetaType());
-        TreeNodeOperator operator = this.operatorFactory.getOperator(treeNode.getMetaType());
+        TreeNodeOperator operator = this.confOperatorFactory.getOperator(treeNode.getMetaType());
         return operator.insert(treeNode);
     }
 
@@ -90,7 +85,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     public TreeNode get(GUID guid) {
         DistributedTreeNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
         return operator.get(guid);
     }
 
@@ -102,11 +97,11 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
 
     @Override
     public TreeNode parsePath(String path){
-        GUID guid = this.confNodePathManipulator.getNode(path);
+        GUID guid = this.distributedConfTree.parsePath(path);
         if (guid!=null){
             DistributedTreeNode node = this.distributedConfTree.getNode(guid);
             TreeNode newInstance = (TreeNode)node.getType().newInstance();
-            TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+            TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
             return operator.get(guid);
         }
         else {
@@ -118,7 +113,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
                 if (nodePath.equals(path)){
                     DistributedTreeNode node = this.distributedConfTree.getNode(nodeGuid);
                     TreeNode newInstance = (TreeNode)node.getType().newInstance();
-                    TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+                    TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
                     return operator.get(nodeGuid);
                 }
             }
@@ -129,7 +124,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
                 if (nodePath.equals(path)){
                     DistributedTreeNode node = this.distributedConfTree.getNode(nodeGuid);
                     TreeNode newInstance = (TreeNode)node.getType().newInstance();
-                    TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+                    TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
                     return operator.get(nodeGuid);
                 }
             }
@@ -140,7 +135,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     public void remove(GUID guid){
         GUIDDistributedScopeNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
         operator.remove(guid);
     }
 
@@ -159,7 +154,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
     public TreeNode getWithoutInheritance(GUID guid) {
         DistributedTreeNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
         return operator.getWithoutInheritance(guid);
     }
 
@@ -167,7 +162,7 @@ public class GenericDistributeConfMetaTree implements DistributedConfMetaTree{
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         Debug.trace(newInstance);
-        TreeNodeOperator operator = this.operatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
         TreeNode treeNode = operator.get(node.getGuid());
         return treeNode.getName();
     }

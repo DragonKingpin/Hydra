@@ -9,14 +9,15 @@ import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udsn.source.TreeManipulatorSharer;
 
 
 public class GenericApplicationInstance extends ArchMetaNodeInstance {
     private ApplicationMetaManipulator          applicationMetaManipulator;
     private ApplicationNodeManipulator          applicationNodeManipulator;
 
-    public GenericApplicationInstance( DefaultMetaNodeManipulators defaultMetaNodeManipulators){
-        super(defaultMetaNodeManipulators);
+    public GenericApplicationInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeManipulatorSharer treeManipulatorSharer){
+        super(defaultMetaNodeManipulators,treeManipulatorSharer);
         this.applicationMetaManipulator     =  this.defaultMetaNodeManipulators.getApplicationMetaManipulator();
         this.applicationNodeManipulator     =  this.defaultMetaNodeManipulators.getApplicationNodeManipulator();
     }

@@ -38,4 +38,6 @@ public interface DistributedScopeTree extends PineUnit {
     GUID getOwner(GUID guid);
 
     List<GUID> getSubordinates(GUID guid);
+
+    void insertPath(GUID guid,String path);
 }

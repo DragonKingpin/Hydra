@@ -11,12 +11,6 @@ public interface ConfManipulatorSharer extends Pinenut {
 
     TextValueManipulator            getTextValueManipulator();
 
-    ConfTreeManipulator             getConfTreeManipulator();
-
-    ConfNodeOwnerManipulator        getConfNodeOwnerManipulator();
-
-    ConfNodePathManipulator         getConfNodePathManipulator();
-
     ConfNodeMetaManipulator         getConfNodeMetaManipulator();
 
     NamespaceNodeMetaManipulator    getNamespaceNodeMetaManipulator();

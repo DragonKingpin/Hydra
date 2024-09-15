@@ -2,6 +2,7 @@ package com.walnut.sparta.services.mapper;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.config.distribute.source.ConfNodeOwnerManipulator;
+import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -9,7 +10,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
-public interface ConfNodeOwnerMapper extends ConfNodeOwnerManipulator {
+public interface ConfNodeOwnerMapper extends ScopeOwnerManipulator {
     @Insert("INSERT INTO `hydra_conf_node_owner` (`subordinate_guid`, `owner_guid`) VALUES (#{subordinateGuid},#{ownerGuid})")
     void insert(@Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid);
 

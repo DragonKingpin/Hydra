@@ -10,12 +10,13 @@ public class TrieReparseNode<K, V> implements Pinenut {
     public TrieReparseNode( String path, AbstractTrieMap<K, V> trieMap ) {
         this.trieMap = trieMap;
         TrieNode node = this.trieMap.getNode(path);
-        if ( node != null && node.isEnd ) {
-            this.target = node;
-        }
-        else {
-            throw new RuntimeException("Target node does not exist or is not a leaf node.");
-        }
+//        if ( node != null && node.isEnd ) {
+//            this.target = node;
+//        }
+//        else {
+//            throw new RuntimeException("Target node does not exist or is not a leaf node.");
+//        }
+        this.target = node;
         this.path = path;
     }
 
@@ -28,7 +29,7 @@ public class TrieReparseNode<K, V> implements Pinenut {
     }
 
     public TrieNode getTarget() {
-        return target;
+        return this.target;
     }
 
     public void setTarget( TrieNode target ) {

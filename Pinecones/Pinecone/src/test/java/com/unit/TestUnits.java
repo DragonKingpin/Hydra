@@ -2,11 +2,14 @@ package com.unit;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.unit.*;
 import com.pinecone.framework.unit.tabulate.*;
+import com.pinecone.framework.unit.trie.AbstractTrieMap;
+import com.pinecone.framework.unit.trie.TrieNode;
 import com.pinecone.framework.unit.trie.TrieReparseNode;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 
+import java.io.File;
 import java.util.*;
 import java.util.TreeMap;
 
@@ -179,15 +182,21 @@ public class TestUnits {
     }
 
     public static void testTrieMap() {
-        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>( LinkedHashMap::new );
+        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>();
 
         trieMap.put("a1/b1/c1", "T1");
         trieMap.put("a2/b2/c2", "T2");
         trieMap.put("a3/b3/c3", "T3");
         trieMap.put("a3/b4/c4", "T4");
         trieMap.put("a4/b5/c5", "T5");
-        TrieReparseNode<String, String> objectObjectTrieReparseNode = new TrieReparseNode<>("a4/b5/c5",trieMap);
-        trieMap.putReference( "a1/b1/rc5", objectObjectTrieReparseNode );
+        trieMap.put("a1/b1/c2", "T6");
+        trieMap.put("a1/b1/c3", "T7");
+
+        trieMap.reference( "a1/b1/rc5", "a3/b3/c3" );
+
+        TrieNode node = trieMap.getNode("a1/b1");
+        node.put("c4","T8",trieMap);
+        Debug.trace(trieMap.get("a1/b1/rc5"));
 
         Debug.trace( trieMap, trieMap.size() );
 
@@ -195,8 +204,13 @@ public class TestUnits {
 
         Debug.trace( trieMap.values() );
 
-        trieMap.put("a1/b1", "TCC");
-        Debug.trace( trieMap.get("a1/b1") );
+
+
+        Debug.trace( trieMap.listItem( "a1/b1", UniTrieMaptron.ItemListMode.All  ) );
+//        trieMap.put("a1/b1", "TCC");
+//        Debug.trace( trieMap.get("a1/b1") );
+
+
     }
 
     public static void main( String[] args ) throws Exception {

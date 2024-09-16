@@ -48,7 +48,7 @@ class LadyGaga extends Radium {
         DistributedRegistry distributedRegistry = new GenericDistributeRegistry( koiMappingDriver );
 
         Debug.trace( distributedRegistry.getPath( new GUID72( "1f391ed2-0002d8-0000-e4" ) ) );
-        Debug.trace( distributedRegistry.get( new GUID72( "1f419c8c-000018-0000-a8" ) ).getMetaType() );
+        Debug.trace( distributedRegistry.get( new GUID72( "1f419c8c-000018-0000-a8" ) ).toString() );
     }
 }
 

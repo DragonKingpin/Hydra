@@ -3,6 +3,8 @@ package com.sauron.radium;
 import com.pinecone.hydra.Hydra;
 import com.pinecone.hydra.Hydradom;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
+import com.pinecone.hydra.system.component.GenericResourceDispenserCenter;
+import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.system.component.GenericTracerScope;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.system.component.Slf4jTracerScope;
@@ -63,7 +65,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
     protected MiddlewareManager                    mMiddlewareManager        ;
-    protected ResourceDispenserCenter              mDispenserCenter          ;
+    protected ResourceDispenserCenter mDispenserCenter          ;
 
     protected void prepare_system_log4j_logger() {
         this.mLogger = LoggerFactory.getLogger( this.className() + "<PrimarySystem>" );
@@ -89,7 +91,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
         this.mServersScope           = new ServersScope( this );
         this.mStorageSystem          = new StorageSystem( this );
         this.mSystemPrimaryDaemon    = new SystemDaemon( this );
-        this.mDispenserCenter        = new ResourceDispenserCenter( this );
+        this.mDispenserCenter        = new GenericResourceDispenserCenter( this );
 
 
         this.getComponentManager().addComponent( this.mMiddlewareManager    );

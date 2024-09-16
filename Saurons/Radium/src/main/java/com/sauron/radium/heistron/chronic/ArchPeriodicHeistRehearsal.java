@@ -11,6 +11,7 @@ import com.pinecone.framework.util.lang.PackageNameFetcher;
 import com.pinecone.framework.util.name.FixScopeName;
 import com.pinecone.framework.util.name.Name;
 import com.pinecone.hydra.auto.Instructation;
+import com.pinecone.hydra.auto.KernelInstructation;
 import com.pinecone.hydra.auto.PeriodicAutomaton;
 import com.pinecone.hydra.auto.PeriodicAutomatron;
 import com.sauron.radium.heistron.HTTPHeist;
@@ -194,6 +195,7 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
         if( this.mbUsingSedation ){
             this.getAutomatron().command( new SedationInstructation( this ) );
         }
+        //this.getAutomatron().command( KernelInstructation.TERMINATE );
 
         this.getAutomatron().start();
     }

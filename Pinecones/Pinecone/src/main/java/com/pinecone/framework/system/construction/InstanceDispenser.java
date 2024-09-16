@@ -2,6 +2,7 @@ package com.pinecone.framework.system.construction;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.lang.DynamicFactory;
 
 public interface InstanceDispenser extends Pinenut {
     StructureDefinition update ( Class<?> type, StructureDefinition definition ) ;
@@ -39,4 +40,6 @@ public interface InstanceDispenser extends Pinenut {
     StructureDefinition getStructureDefinition( Class<?> type );
 
     InstancePool<? > getInstancePool( Class<?> type );
+
+    DynamicFactory getCentralFactory();
 }

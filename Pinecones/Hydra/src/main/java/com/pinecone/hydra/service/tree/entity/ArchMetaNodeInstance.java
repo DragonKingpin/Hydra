@@ -9,31 +9,30 @@ import java.util.Objects;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ScopeServiceTree;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
-import com.pinecone.hydra.service.tree.source.ServiceNodeOwnerManipulator;
-import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
     protected Map<GUID, MetaNodeWideEntity>       cacheMap = new HashMap<>();
     protected ServiceFamilyTreeManipulator        serviceFamilyTreeManipulator;
     protected CommonDataManipulator               commonDataManipulator;
-    protected ServiceNodeOwnerManipulator         serviceNodeOwnerManipulator;
-    protected DistributedScopeTree                distributedScopeTree;
+    protected TireOwnerManipulator tireOwnerManipulator;
+    protected DistributedTrieTree distributedTrieTree;
 
 
-    public ArchMetaNodeInstance( DefaultMetaNodeManipulators defaultMetaNodeManipulators){
+    public ArchMetaNodeInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeMasterManipulator treeManipulatorSharer){
         this.defaultMetaNodeManipulators    =   defaultMetaNodeManipulators;
         this.serviceFamilyTreeManipulator   =   this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
         this.commonDataManipulator          =   this.defaultMetaNodeManipulators.getCommonDataManipulator();
-        this.serviceNodeOwnerManipulator    =   this.defaultMetaNodeManipulators.getServiceNodeOwnerManipulator();
-        this.distributedScopeTree           =   new GenericDistributedScopeTree(this.defaultMetaNodeManipulators);
+        this.tireOwnerManipulator =   this.defaultMetaNodeManipulators.getTireOwnerManipulator();
+        this.distributedTrieTree =   new GenericDistributedTrieTree(treeManipulatorSharer);
     }
 
     @Override
@@ -71,8 +70,8 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
 
     @Override
     public void remove( GUID guid ) {
-        List<GUIDDistributedScopeNode > childNodes = this.distributedScopeTree.getChildNode(guid);
-        List<GUID> subordinates = this.serviceNodeOwnerManipulator.getSubordinates(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
+        List<GUID> subordinates = this.tireOwnerManipulator.getSubordinates(guid);
         if ( childNodes.isEmpty() ){
             this.removeDependence( guid );
         }
@@ -82,29 +81,29 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
                     this.remove(subordinateGUID);
                 }
             }
-            childNodes = this.distributedScopeTree.getChildNode(guid);
+            childNodes = this.distributedTrieTree.getChildNode(guid);
             this.removeDependence( guid );
-            for( GUIDDistributedScopeNode node : childNodes ){
-                List<GUID > parentNode = this.distributedScopeTree.getParentNodes( node.getGuid() );
+            for( GUIDDistributedTrieNode node : childNodes ){
+                List<GUID > parentNode = this.distributedTrieTree.getParentNodes( node.getGuid() );
                 if ( parentNode.size() <= 1 ){
                     this.remove( node.getGuid() );
                 }
                 else {
-                    this.distributedScopeTree.removeInheritance( node.getGuid(), guid );
+                    this.distributedTrieTree.removeInheritance( node.getGuid(), guid );
                 }
             }
         }
     }
 
-    protected GUIDDistributedScopeNode removeDependence0( GUID guid ) {
-        GUIDDistributedScopeNode target = this.distributedScopeTree.getNode( guid );
-        this.distributedScopeTree.remove( guid );
-        this.distributedScopeTree.removePath( guid );
+    protected GUIDDistributedTrieNode removeDependence0(GUID guid ) {
+        GUIDDistributedTrieNode target = this.distributedTrieTree.getNode( guid );
+        this.distributedTrieTree.remove( guid );
+        this.distributedTrieTree.removePath( guid );
         this.commonDataManipulator.remove( target.getNodeMetadataGUID() );
         this.serviceFamilyTreeManipulator.removeByChildGUID( guid );
         this.serviceFamilyTreeManipulator.removeByParentGUID( guid );
         this.cacheMap.remove( guid );
-        this.serviceNodeOwnerManipulator.removeBySubordinate(guid);
+        this.tireOwnerManipulator.removeBySubordinate(guid);
         return target;
     }
 

@@ -28,4 +28,6 @@ public interface ScopeServiceTree extends Pinenut {
     void remove(GUID guid);
 
     MetaNodeWideEntity getWideMeta(GUID guid);
+
+    String getPath(GUID guid);
 }

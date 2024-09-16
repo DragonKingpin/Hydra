@@ -1,9 +1,9 @@
 package com.walnut.sparta.services.controller.v2;
 
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
+import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
+import com.walnut.sparta.services.drivers.ServiceTreeManipulatorSharerImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,13 +19,13 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    private DefaultMetaNodeManipulators     defaultMetaNodeManipulators;
+    private ServiceTreeManipulatorSharerImpl    treeManipulatorSharer;
 
-    private DistributedScopeTree            distributedScopeTree;
+    private DistributedTrieTree distributedTrieTree;
 
     @PostConstruct
     public void init() {
-        this.distributedScopeTree = new GenericDistributedScopeTree( this.defaultMetaNodeManipulators);
+        this.distributedTrieTree = new GenericDistributedTrieTree( this.treeManipulatorSharer);
     }
 
     /**
@@ -35,7 +35,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        return BasicResultResponse.success( this.distributedScopeTree.getPath( new GUID72(guid) ) );
+        return BasicResultResponse.success( this.distributedTrieTree.getPath( new GUID72(guid) ) );
     }
 
     /**
@@ -48,7 +48,7 @@ public class ServiceTreeController {
     public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
-        this.distributedScopeTree.insertNodeToParent(nodeGUID72,parentGUID72);
+        this.distributedTrieTree.insertNodeToParent(nodeGUID72,parentGUID72);
         return BasicResultResponse.success();
     }
 }

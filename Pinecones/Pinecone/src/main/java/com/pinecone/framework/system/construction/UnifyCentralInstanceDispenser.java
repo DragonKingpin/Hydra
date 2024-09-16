@@ -281,4 +281,9 @@ public class UnifyCentralInstanceDispenser implements InstanceDispenser {
     public InstancePool<? > getInstancePool( Class<?> type ) {
         return this.mObjectInstancer.get( type );
     }
+
+    @Override
+    public DynamicFactory getCentralFactory() {
+        return this.mCentralFactory;
+    }
 }

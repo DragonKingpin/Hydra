@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pinecones</artifactId>
+        <groupId>com.pinecones</groupId>
+        <version>2.5.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.pinecone.hydra.driver.default</groupId>
+    <artifactId>hydra-default-driver</artifactId>
+    <version>2.1.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.pinecone.hydra</groupId>
+            <artifactId>hydra</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.pinecone</groupId>
+            <artifactId>pinecone</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- MyBatis dependencies -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+
+        <!-- MySQL Connector -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.26</version>
+        </dependency>
+
+        <!-- Logging dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.slime.jelly</groupId>
+            <artifactId>jelly</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

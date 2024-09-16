@@ -1,0 +1,26 @@
+package com.pinecone.hydra.service.ibatis;
+
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
+import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+
+@Mapper
+public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
+    @Insert("INSERT INTO  `hydra_service_application_node` (`guid`, `name`) VALUES (#{guid},#{name})")
+    void insert(GenericApplicationNode applicationNode);
+
+    @Delete("DELETE FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
+    void remove(@Param("guid")GUID guid);
+
+    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
+    GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);
+
+    void update(GenericApplicationNode applicationNode);
+}

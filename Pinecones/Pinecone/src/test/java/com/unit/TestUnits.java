@@ -2,10 +2,13 @@ package com.unit;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.unit.*;
 import com.pinecone.framework.unit.tabulate.*;
+import com.pinecone.framework.unit.trie.TrieReparseNode;
+import com.pinecone.framework.unit.trie.UniTrieMaptron;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 
 import java.util.*;
+import java.util.TreeMap;
 
 @SuppressWarnings( "unchecked" )
 public class TestUnits {
@@ -175,8 +178,26 @@ public class TestUnits {
         System.out.println("merge2 after set sublist index 1 to hello: "+merge2List);
     }
 
+    public static void testTrieMap() {
+        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>( LinkedHashMap::new );
 
+        trieMap.put("a1/b1/c1", "T1");
+        trieMap.put("a2/b2/c2", "T2");
+        trieMap.put("a3/b3/c3", "T3");
+        trieMap.put("a3/b4/c4", "T4");
+        trieMap.put("a4/b5/c5", "T5");
+        TrieReparseNode<String, String> objectObjectTrieReparseNode = new TrieReparseNode<>("a4/b5/c5",trieMap);
+        trieMap.putReference( "a1/b1/rc5", objectObjectTrieReparseNode );
 
+        Debug.trace( trieMap, trieMap.size() );
+
+        Debug.trace( trieMap.keySet() );
+
+        Debug.trace( trieMap.values() );
+
+        trieMap.put("a1/b1", "TCC");
+        Debug.trace( trieMap.get("a1/b1") );
+    }
 
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
@@ -185,7 +206,8 @@ public class TestUnits {
             //TestUnits.testMultiScopeMap();
             //TestUnits.testPrecedeMultiMap();
             //TestUnits.testRecursiveEntryIterator();
-            TestUnits.testMergeSharedList();
+            //TestUnits.testMergeSharedList();
+            TestUnits.testTrieMap();
 
             return 0;
         }, (Object[]) args );

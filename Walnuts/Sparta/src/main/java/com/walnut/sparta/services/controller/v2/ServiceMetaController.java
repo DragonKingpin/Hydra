@@ -1,8 +1,6 @@
 package com.walnut.sparta.services.controller.v2;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.ScopeServiceTree;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
@@ -12,12 +10,10 @@ import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
-import com.pinecone.hydra.service.tree.entity.MetaNodeInstance;
 import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.walnut.sparta.services.drivers.ServiceTreeManipulatorSharerImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,14 +33,17 @@ public class ServiceMetaController {
     @Resource
     private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
 
+    @Resource
+    private ServiceTreeManipulatorSharerImpl treeManipulatorSharer;
+
     private ScopeServiceTree scopeServiceTree;
 
     MetaNodeInstanceFactory metaNodeInstanceFactory;
 
     @PostConstruct
     public void init() {
-        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulators);
-        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators);
+        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulators,this.treeManipulatorSharer);
+        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators,treeManipulatorSharer);
     }
 
     /**
@@ -147,5 +146,15 @@ public class ServiceMetaController {
         ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
         serviceFamilyTreeManipulator.insert(childNode,parentNode);
         return BasicResultResponse.success();
+    }
+
+    /**
+     * 用于渲染路径信息
+     * @param guid 节点UUID
+     * @return 返回路径信息
+     */
+    @GetMapping("/getPath/{GUID}")
+    public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
+        return BasicResultResponse.success( this.scopeServiceTree.getPath( new GUID72(guid) ) );
     }
 }

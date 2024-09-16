@@ -14,12 +14,13 @@
 
     "ServgramScopes": [
       "com.sauron.shadow.heists",
-      "com.sauron.shadow.chronicle"
+      "com.sauron.shadow.chronicle",
+      "com.sauron.crusade.heists"
     ],
 
     "Transactions": [
-
-      { "Name": "Chronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "Chronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      { "Name": "Prometheus", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ }
@@ -243,7 +244,9 @@
         { "ObjectName": "JinRiTouTiaoTops", "Api": "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc" },
         { "ObjectName": "BaiduIndex",  "Api": "https://index.baidu.com/Interface/homePage/wiseConfig" }
       ]
-    }
+    },
+
+    "Prometheus"        : "${SystemConfRoot}/heists/Prometheus.json5"
   },
 
   "Components"       : {

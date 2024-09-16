@@ -13,7 +13,7 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 @Mapper
-public interface TrieTreeMapper extends TrieTreeManipulator {
+public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     default void insert(GUIDDistributedTrieNode node){
         this.putNodeMeta(node);
         if (node.getParentGUIDs()==null) return;
@@ -69,7 +69,7 @@ public interface TrieTreeMapper extends TrieTreeManipulator {
 
 
     @Select("SELECT `guid` FROM `hydra_service_node_path` WHERE `path`=#{path}")
-    GUID parsePath(@Param("path") String path);
+    GUID queryGUIDByPath(@Param("path") String path);
 
     @Insert("INSERT INTO hydra_service_node_tree SET guid=#{nodeGUID}, parent_guid=#{parentGUID}")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);

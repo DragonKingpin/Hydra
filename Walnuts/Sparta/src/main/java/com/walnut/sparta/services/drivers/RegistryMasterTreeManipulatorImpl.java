@@ -15,17 +15,17 @@ import javax.annotation.Resource;
 public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator {
 
     @Resource
-    RegistryNodePathMapper confNodePathMapper;
+    RegistryNodePathMapper configNodePathMapper;
 
     @Resource
-    RegistryNodeOwnerMapper confNodeOwnerManipulator;
+    RegistryNodeOwnerMapper configNodeOwnerManipulator;
 
     @Resource
     RegistryTreeMapper trieTreeManipulator;
 
     @Override
     public TireOwnerManipulator getTireOwnerManipulator() {
-        return this.confNodeOwnerManipulator;
+        return this.configNodeOwnerManipulator;
     }
 
     @Override
@@ -35,6 +35,6 @@ public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator 
 
     @Override
     public TriePathManipulator getTriePathManipulator() {
-        return this.confNodePathMapper;
+        return this.configNodePathMapper;
     }
 }

@@ -1,24 +1,27 @@
 package com.pinecone.hydra.registry.entity;
 
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
-public class GenericNodeCommonData implements NodeCommonData{
+public class GenericConfigNodeMeta implements ConfigNodeMeta {
     private int enumId;
 
     private GUID guid;
 
-    public GenericNodeCommonData() {
+
+    public GenericConfigNodeMeta() {
     }
 
-    public GenericNodeCommonData(int enumId, GUID guid) {
+    public GenericConfigNodeMeta(int enumId, GUID guid) {
         this.enumId = enumId;
         this.guid = guid;
     }
 
     @Override
     public int getEnumId() {
-        return this.enumId;
+        return enumId;
     }
 
     @Override
@@ -28,11 +31,11 @@ public class GenericNodeCommonData implements NodeCommonData{
 
     @Override
     public GUID getGuid() {
-        return this.guid;
+        return guid;
     }
 
     @Override
-    public void setGuid(GUID guid) {
+    public void setGuid( GUID guid ) {
         this.guid = guid;
     }
 

@@ -37,7 +37,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         this.scenarioMetaManipulatorSharer = scenarioMetaManipulatorSharer;
         this.distributedScenarioTree        =   new GenericDistributedTrieTree(treeManipulatorSharer);
         this.namespaceNodeManipulator       =   this.scenarioMetaManipulatorSharer.getNamespaceNodeManipulator();
-        this.namespaceNodeMetaManipulator   =   this.scenarioMetaManipulatorSharer.getNamespaceNodeMetaManipulator();
+        this.namespaceNodeMetaManipulator   =   this.scenarioMetaManipulatorSharer.getNSNodeMetaManipulator();
         this.scenarioCommonDataManipulator  =   this.scenarioMetaManipulatorSharer.getScenarioCommonDataManipulator();
     }
 
@@ -101,7 +101,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public TreeNode parsePath(String path) {
-        GUID guid = this.distributedScenarioTree.parsePath(path);
+        GUID guid = this.distributedScenarioTree.queryGUIDByPath( path );
         if (guid != null){
             return this.get(guid);
         }

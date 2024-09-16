@@ -12,7 +12,6 @@ import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 public class GenericServiceInstance extends ArchMetaNodeInstance {
-
     private ServiceNodeManipulator         serviceNodeManipulator;
     private ServiceMetaManipulator         serviceMetaManipulator;
 

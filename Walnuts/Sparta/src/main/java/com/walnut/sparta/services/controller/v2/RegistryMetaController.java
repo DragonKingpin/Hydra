@@ -1,15 +1,15 @@
 package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.GenericConfNode;
+import com.pinecone.hydra.registry.entity.GenericConfigNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericProperties;
+import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
-import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.drivers.RegistryMasterManipulatorImpl;
-import com.walnut.sparta.services.drivers.RegistryMasterTreeManipulatorImpl;
+import com.pinecone.ulf.util.id.GUIDs;
+//import com.walnut.sparta.services.drivers.RegistryMasterManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @RequestMapping( "/api/v2/registryMeta" )
 public class RegistryMetaController {
     @Resource
-    private RegistryMasterManipulatorImpl           registryMasterManipulator;
+    private RegistryMasterManipulator               registryMasterManipulator;
 
     private DistributedRegistry                     distributedRegistry;
 
@@ -48,13 +48,13 @@ public class RegistryMetaController {
     }
 
     /**
-     * 添加一个confNode节点
-     * @param confNode 节点信息
+     * 添加一个configNode节点
+     * @param configNode 节点信息
      * @return 返回操作情况
      */
-    @PostMapping("/insertConfNode")
-    public BasicResultResponse<String> insertConfNode(@RequestBody GenericConfNode confNode){
-        this.distributedRegistry.insert(confNode);
+    @PostMapping("/insertConfigNode")
+    public BasicResultResponse<String> insertConfigNode( @RequestBody GenericConfigNode configNode ){
+        this.distributedRegistry.insert(configNode);
         return BasicResultResponse.success();
     }
 
@@ -64,9 +64,8 @@ public class RegistryMetaController {
      * @return 返回节点路径
      */
     @GetMapping("/getPath")
-    public BasicResultResponse<String> getPath(@RequestParam("guid") String guid){
-        GUID72 guid72 = new GUID72(guid);
-        String path = this.distributedRegistry.getPath(guid72);
+    public BasicResultResponse<String> getPath( @RequestParam("guid") String guid ){
+        String path = this.distributedRegistry.getPath( GUIDs.GUID72( guid ) );
         return BasicResultResponse.success(path);
     }
 
@@ -76,9 +75,8 @@ public class RegistryMetaController {
      * @return 返回节点信息
      */
     @GetMapping("/getNode")
-    public BasicResultResponse<TreeNode> getNode(@RequestParam("guid") String guid){
-        GUID72 guid72 = new GUID72(guid);
-        TreeNode node = this.distributedRegistry.get(guid72);
+    public BasicResultResponse<TreeNode> getNode( @RequestParam("guid") String guid ){
+        TreeNode node = this.distributedRegistry.get( GUIDs.GUID72( guid ) );
         return BasicResultResponse.success(node);
     }
 
@@ -99,8 +97,8 @@ public class RegistryMetaController {
         genericProperties.setKey(key);
         genericProperties.setValue(value);
         genericProperties.setType(type);
-        GUID72 guid72 = new GUID72(guid);
-        this.distributedRegistry.insertProperties(genericProperties,guid72);
+
+        this.distributedRegistry.insertProperties( genericProperties, GUIDs.GUID72( guid ) );
         return BasicResultResponse.success();
     }
 
@@ -111,7 +109,7 @@ public class RegistryMetaController {
      */
     @DeleteMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("Guid") GUID guid){
-        this.distributedRegistry.remove(guid);
+        this.distributedRegistry.remove( guid );
         return BasicResultResponse.success();
     }
 
@@ -120,10 +118,10 @@ public class RegistryMetaController {
      * @param path 路径信息
      * @return 返回解析后的节点信息
      */
-    @GetMapping("/parsePath")
-    public BasicResultResponse<TreeNode> parsePath(@RequestParam("path") String path){
-        TreeNode treeNode = this.distributedRegistry.parsePath(path);
-        return BasicResultResponse.success(treeNode);
+    @GetMapping("/getNodeByPath")
+    public BasicResultResponse<TreeNode> getNodeByPath( @RequestParam("path") String path ){
+        TreeNode treeNode = this.distributedRegistry.getNodeByPath(path);
+        return BasicResultResponse.success( treeNode );
     }
 
     /**
@@ -137,8 +135,7 @@ public class RegistryMetaController {
     public BasicResultResponse<String> insertTextValue(@RequestParam("guid")String guid,
                                                        @RequestParam("text") String text,
                                                        @RequestParam("type") String type){
-        GUID72 guid72 = new GUID72(guid);
-        this.distributedRegistry.insertTextValue(guid72,text,type);
+        this.distributedRegistry.insertTextValue( GUIDs.GUID72( guid ) ,text,type);
         return BasicResultResponse.success();
     }
 
@@ -147,9 +144,10 @@ public class RegistryMetaController {
      * @param guid 节点guid
      * @return 返回节点信息
      */
-    @GetMapping("/getWithoutInheritance")
-    public BasicResultResponse<TreeNode> getWithoutInheritance(@RequestParam("guid") String guid){
-        GUID72 guid72 = new GUID72(guid);
-        return BasicResultResponse.success(this.distributedRegistry.getWithoutInheritance(guid72));
+    @GetMapping("/getThis")
+    public BasicResultResponse<TreeNode > getThis(@RequestParam("guid") String guid){
+        return BasicResultResponse.success(
+                this.distributedRegistry.getThis( GUIDs.GUID72( guid ) )
+        );
     }
 }

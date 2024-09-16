@@ -11,10 +11,12 @@ import org.apache.ibatis.annotations.Select;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Mapper
 public interface ScenarioTreeMapper extends TrieTreeManipulator {
     @Insert("INSERT INTO hydra_scenario_node_map (guid, type, base_data_guid, node_meta_guid) VALUES (#{guid},#{type},#{baseDataGUID},#{nodeMetadataGUID})")
     void insert (GUIDDistributedTrieNode distributedConfTreeNode);
+
     default GUIDDistributedTrieNode getNode(GUID guid){
         GUIDDistributedTrieNode metaNode = this.getMetaNode(guid);
         List<GUID> parentNodes = this.getParentNodes(guid);
@@ -25,6 +27,7 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
         }
         return metaNode;
     }
+
     @Select("SELECT id, guid, type, base_data_guid AS baseDataGUID, node_meta_guid AS nodeMetadataGUID FROM hydra_scenario_node_map WHERE guid=#{guid}")
     GUIDDistributedTrieNode getMetaNode(GUID guid);
 
@@ -32,25 +35,33 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
         removeMeta(guid);
         removeParentNode(guid);
     }
+
     @Delete("DELETE FROM hydra_scenario_node_map WHERE guid=#{guid}")
     void removeMeta(GUID guid);
+
     @Delete("DELETE FROM hydra_scenario_node_tree WHERE guid=#{guid}")
     void removeParentNode(GUID guid);
+
     @Delete("DELETE FROM `hydra_scenario_node_tree` WHERE `guid`=#{childGuid} AND `parent_guid`=#{parentGuid}")
     void removeInheritance(@Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid);
+
     @Select("SELECT `parent_guid` FROM `hydra_scenario_node_tree` WHERE `guid`=#{guid}")
     List<GUID> getParentNodes(GUID guid);
+
     @Select("SELECT `path` FROM `hydra_scenario_node_path` WHERE `guid`=#{guid}")
     String getPath(GUID guid);
 
     void updatePath( GUID guid, String path);
+
     @Select("SELECT `guid` FROM `hydra_scenario_node_path` WHERE `path`=#{path}")
-    GUID parsePath(String path);
+    GUID getGUIDByPath( String path );
 
     void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
     @Select("SELECT guid FROM hydra_scenario_node_tree WHERE parent_guid=#{guid}")
+
     List<GUIDDistributedTrieNode> getChild(GUID guid);
     @Delete("DELETE FROM `hydra_scenario_node_path` WHERE `guid`=#{guid}")
+
     void removePath(GUID guid);
 
     void putNode(GUID guid, GUIDDistributedTrieNode distributedTreeNode);

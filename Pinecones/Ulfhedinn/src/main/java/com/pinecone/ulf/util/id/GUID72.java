@@ -28,12 +28,6 @@ public class GUID72 extends GUID64 {
     }
 
     @Override
-    public String toString() {
-        String nanoSeedHex = String.format( "%02x", this.nanoSeed      );
-        return super.toString() + "-" + nanoSeedHex;
-    }
-
-    @Override
     public GUID72 parse( String hexID72 ) throws IllegalIdentificationException {
         //Debug.trace( "解析字符串"+hexID72 );
         try{
@@ -46,5 +40,16 @@ public class GUID72 extends GUID64 {
         }
 
         return this;
+    }
+
+    @Override
+    public String toString() {
+        String nanoSeedHex = String.format( "%02x", this.nanoSeed      );
+        return super.toString() + "-" + nanoSeedHex;
+    }
+
+    @Override
+    public String toJSONString() {
+        return "\"" + this.toString() + "\"";
     }
 }

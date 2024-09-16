@@ -98,7 +98,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
 
     @Override
     public TreeNode parsePath(String path) {
-        GUID guid = this.distributedTrieTree.parsePath(path);
+        GUID guid = this.distributedTrieTree.queryGUIDByPath( path );
         if (guid != null){
             return this.get(guid);
         }

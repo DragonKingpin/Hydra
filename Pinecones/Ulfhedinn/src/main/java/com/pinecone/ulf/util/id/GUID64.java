@@ -71,4 +71,9 @@ public class GUID64 implements GUID {
         String sequenceHex     = String.format( "%04x", this.getSequence()     );
         return deltaSecondsHex + "-" + workerIdHex + "-" + sequenceHex;
     }
+
+    @Override
+    public String toJSONString() {
+        return "\"" + this.toString() + "\"";
+    }
 }

@@ -1,6 +1,10 @@
 package com.pinecone.hydra.registry.entity;
 
+import com.pinecone.framework.system.prototype.ObjectiveBean;
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONEncoder;
+import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +20,7 @@ public class GenericProperties implements Properties{
     public GenericProperties() {
     }
 
-    public GenericProperties(int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value) {
+    public GenericProperties( int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value ) {
         this.enumId = enumId;
         this.guid = guid;
         this.key = key;
@@ -30,6 +34,7 @@ public class GenericProperties implements Properties{
      * 获取
      * @return enumId
      */
+    @Override
     public int getEnumId() {
         return enumId;
     }
@@ -38,6 +43,7 @@ public class GenericProperties implements Properties{
      * 设置
      * @param enumId
      */
+    @Override
     public void setEnumId(int enumId) {
         this.enumId = enumId;
     }
@@ -46,14 +52,16 @@ public class GenericProperties implements Properties{
      * 获取
      * @return guid
      */
+    @Override
     public GUID getGuid() {
-        return guid;
+        return this.guid;
     }
 
     /**
      * 设置
      * @param guid
      */
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
@@ -62,14 +70,16 @@ public class GenericProperties implements Properties{
      * 获取
      * @return key
      */
+    @Override
     public String getKey() {
-        return key;
+        return this.key;
     }
 
     /**
      * 设置
      * @param key
      */
+    @Override
     public void setKey(String key) {
         this.key = key;
     }
@@ -78,14 +88,16 @@ public class GenericProperties implements Properties{
      * 获取
      * @return type
      */
+    @Override
     public String getType() {
-        return type;
+        return this.type;
     }
 
     /**
      * 设置
      * @param type
      */
+    @Override
     public void setType(String type) {
         this.type = type;
     }
@@ -94,14 +106,16 @@ public class GenericProperties implements Properties{
      * 获取
      * @return createTime
      */
+    @Override
     public LocalDateTime getCreateTime() {
-        return createTime;
+        return this.createTime;
     }
 
     /**
      * 设置
      * @param createTime
      */
+    @Override
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
@@ -110,14 +124,16 @@ public class GenericProperties implements Properties{
      * 获取
      * @return updateTime
      */
+    @Override
     public LocalDateTime getUpdateTime() {
-        return updateTime;
+        return this.updateTime;
     }
 
     /**
      * 设置
      * @param updateTime
      */
+    @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
@@ -126,19 +142,28 @@ public class GenericProperties implements Properties{
      * 获取
      * @return value
      */
+    @Override
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     /**
      * 设置
      * @param value
      */
+    @Override
     public void setValue(String value) {
         this.value = value;
     }
 
+
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
     public String toString() {
-        return "GenericProperties{enumId = " + enumId + ", guid = " + guid + ", key = " + key + ", type = " + type + ", createTime = " + createTime + ", updateTime = " + updateTime + ", value = " + value + "}";
+        return this.toJSONString();
     }
 }

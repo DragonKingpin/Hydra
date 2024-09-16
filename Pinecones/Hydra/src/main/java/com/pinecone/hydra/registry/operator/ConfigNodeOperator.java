@@ -3,9 +3,9 @@ package com.pinecone.hydra.registry.operator;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.ConfNode;
-import com.pinecone.hydra.registry.entity.GenericConfNode;
-import com.pinecone.hydra.registry.entity.GenericConfNodeMeta;
+import com.pinecone.hydra.registry.entity.ConfigNode;
+import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
 import com.pinecone.hydra.registry.entity.GenericProperties;
 import com.pinecone.hydra.registry.entity.TextValue;
@@ -33,119 +33,119 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ConfNodeOperator implements TreeNodeOperator {
+public class ConfigNodeOperator implements TreeNodeOperator {
     private DistributedTrieTree distributedConfTree;
     private RegistryMasterManipulator registryMasterManipulator;
-    protected Map<GUID, ConfNode> cacheMap = new HashMap<>();
+    protected Map<GUID, ConfigNode> cacheMap = new HashMap<>();
 
-    private RegistryNodeManipulator confNodeManipulator;
+    private RegistryNodeManipulator configNodeManipulator;
     private RegistryPropertiesManipulator registryPropertiesManipulator;
     private RegistryTextValueManipulator registryTextValueManipulator;
-    private RegistryNodeMetaManipulator confNodeMetaManipulator;
+    private RegistryNodeMetaManipulator configNodeMetaManipulator;
     private RegistryCommonDataManipulator registryCommonDataManipulator;
 
-    public ConfNodeOperator(RegistryMasterManipulator registryMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+    public ConfigNodeOperator(RegistryMasterManipulator registryMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
         this.registryMasterManipulator = registryMasterManipulator;
-        this.confNodeManipulator        =     this.registryMasterManipulator.getRegistryNodeManipulator();
+        this.configNodeManipulator        =     this.registryMasterManipulator.getRegistryNodeManipulator();
         this.registryPropertiesManipulator =     this.registryMasterManipulator.getRegistryPropertiesManipulator();
         this.registryTextValueManipulator =     this.registryMasterManipulator.getRegistryTextValueManipulator();
-        this.confNodeMetaManipulator    =     this.registryMasterManipulator.getConfNodeMetaManipulator();
+        this.configNodeMetaManipulator    =     this.registryMasterManipulator.getRegistryNodeMetaManipulator();
         this.registryCommonDataManipulator =     this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.distributedConfTree        =     new GenericDistributedTrieTree(treeManipulatorSharer);
     }
 
     @Override
     public GUID insert(TreeNode treeNode) {
-        GenericConfNode confNode = (GenericConfNode) treeNode;
+        GenericConfigNode configNode = (GenericConfigNode) treeNode;
         UidGenerator uidGenerator= UUIDBuilder.getBuilder();
         GUID guid72 = uidGenerator.getGUID72();
 
-        confNode.setGuid(guid72);
-        confNode.setCreateTime(LocalDateTime.now());
-        confNode.setUpdateTime(LocalDateTime.now());
+        configNode.setGuid(guid72);
+        configNode.setCreateTime(LocalDateTime.now());
+        configNode.setUpdateTime(LocalDateTime.now());
 
         DistributedTreeNode distributeConfTreeNode = new GUIDDistributedTrieNode();
         distributeConfTreeNode.setGuid(guid72);
-        distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(confNode.getClass().getName()));
+        distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(configNode.getClass().getName()));
 
 
-        GUID confNodeMetaGuid = uidGenerator.getGUID72();
-        GenericConfNodeMeta confNodeMeta = confNode.getConfNodeMeta();
-        confNodeMeta.setGuid(confNodeMetaGuid);
+        GUID configNodeMetaGuid = uidGenerator.getGUID72();
+        GenericConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
+        configNodeMeta.setGuid(configNodeMetaGuid);
 
         GUID commonDataGuid = uidGenerator.getGUID72();
-        GenericNodeCommonData nodeCommonData = confNode.getNodeCommonData();
+        GenericNodeCommonData nodeCommonData = configNode.getNodeCommonData();
         nodeCommonData.setGuid(commonDataGuid);
 
         distributeConfTreeNode.setBaseDataGUID(commonDataGuid);
-        distributeConfTreeNode.setNodeMetadataGUID(confNodeMetaGuid);
+        distributeConfTreeNode.setNodeMetadataGUID(configNodeMetaGuid);
 
         this.registryCommonDataManipulator.insert(nodeCommonData);
-        this.confNodeMetaManipulator.insert(confNodeMeta);
+        this.configNodeMetaManipulator.insert(configNodeMeta);
         this.distributedConfTree.insert(distributeConfTreeNode);
-        this.confNodeManipulator.insert(confNode);
+        this.configNodeManipulator.insert(configNode);
         return guid72;
     }
 
     @Override
     public void remove(GUID guid) {
-        //ConfNode为叶子节点只需要删除节点信息与引用继承关系
+        //ConfigNode为叶子节点只需要删除节点信息与引用继承关系
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         this.distributedConfTree.remove(guid);
-        this.confNodeManipulator.remove(guid);
+        this.configNodeManipulator.remove(guid);
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
-        this.confNodeMetaManipulator.remove(node.getNodeMetadataGUID());
+        this.configNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.distributedConfTree.removePath(guid);
     }
 
     @Override
     public TreeNode get(GUID guid) {
         //检测缓存中是否存在信息
-        ConfNode confNode = this.cacheMap.get(guid);
-        if (confNode == null) {
-            confNode = this.getConfNodeWideData(guid);
-            GUID parentGuid = confNode.getParentGuid();
+        ConfigNode configNode = this.cacheMap.get(guid);
+        if (configNode == null) {
+            configNode = this.getConfigNodeWideData(guid);
+            GUID parentGuid = configNode.getParentGuid();
             if (parentGuid != null){
-                this.inherit(confNode,(ConfNode) get(parentGuid));
+                this.inherit(configNode,(ConfigNode) get(parentGuid));
             }
-            this.cacheMap.put(guid,confNode);
+            this.cacheMap.put(guid, configNode);
         }
-        return confNode;
+        return configNode;
     }
 
     @Override
     public TreeNode getWithoutInheritance(GUID guid) {
-        return this.getConfNodeWideData(guid);
+        return this.getConfigNodeWideData(guid);
     }
 
 
-    protected ConfNode getConfNodeWideData(GUID guid){
+    protected ConfigNode getConfigNodeWideData(GUID guid){
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
-        Debug.trace(node.toString());
-        ConfNode configurationNode = this.confNodeManipulator.getConfigurationNode(guid);
+        //Debug.trace(node.toString());
+        ConfigNode configurationNode = this.configNodeManipulator.getConfigurationNode(guid);
         List<GenericProperties> properties = this.registryPropertiesManipulator.getProperties(guid);
         TextValue textValue = this.registryTextValueManipulator.getTextValue(guid);
-        GenericConfNodeMeta confNodeMeta = (GenericConfNodeMeta) this.confNodeMetaManipulator.getConfNodeMeta(node.getNodeMetadataGUID());
+        GenericConfigNodeMeta configNodeMeta = (GenericConfigNodeMeta) this.configNodeMetaManipulator.getConfigNodeMeta(node.getNodeMetadataGUID());
         GenericNodeCommonData nodeCommonData = (GenericNodeCommonData) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
 
         configurationNode.setNodeCommonData(nodeCommonData);
-        configurationNode.setConfNodeMeta(confNodeMeta);
+        configurationNode.setConfigNodeMeta(configNodeMeta);
         configurationNode.setProperties(properties);
         configurationNode.setTextValue(textValue);
         return configurationNode;
     }
 
-    protected void inherit(ConfNode chileConfNode, ConfNode patentConfNode ){
-        Class<? extends ConfNode> clazz = chileConfNode.getClass();
+    protected void inherit(ConfigNode chileConfigNode, ConfigNode patentConfigNode){
+        Class<? extends ConfigNode> clazz = chileConfigNode.getClass();
         Field[] fields = clazz.getDeclaredFields();
 
         for (Field field : fields){
             field.setAccessible(true);
             try {
-                Object value1 = field.get(chileConfNode);
-                Object value2 = field.get(patentConfNode);
+                Object value1 = field.get(chileConfigNode);
+                Object value2 = field.get(patentConfigNode);
                 if (Objects.isNull(value1) || (value1 instanceof List && ((List<?>) value1).isEmpty())){
-                    field.set(chileConfNode,value2);
+                    field.set(chileConfigNode,value2);
                 }
             }
             catch (IllegalAccessException e) {

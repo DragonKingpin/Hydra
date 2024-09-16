@@ -10,8 +10,8 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import com.pinecone.hydra.registry.operator.GenericConfOperatorFactory;
-import com.pinecone.hydra.registry.operator.ConfOperatorFactory;
+import com.pinecone.hydra.registry.operator.GenericConfigOperatorFactory;
+import com.pinecone.hydra.registry.operator.ConfigOperatorFactory;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
@@ -36,7 +36,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     private RegistryTextValueManipulator    registryTextValueManipulator;
     private RegistryNodeManipulator         nodeManipulator;
     private RegistryNSNodeManipulator       namespaceNodeManipulator;
-    private ConfOperatorFactory             confOperatorFactory;
+    private ConfigOperatorFactory           configOperatorFactory;
 
     public GenericDistributeRegistry( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         this.hydrarum                    =  hydrarum;
@@ -49,8 +49,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.registryPropertiesManipulator =  this.registryMasterManipulator.getRegistryPropertiesManipulator();
         this.registryTextValueManipulator  =  this.registryMasterManipulator.getRegistryTextValueManipulator();
         this.nodeManipulator               =  this.registryMasterManipulator.getRegistryNodeManipulator();
-        this.namespaceNodeManipulator      =  this.registryMasterManipulator.getNamespaceManipulator();
-        this.confOperatorFactory           =  new GenericConfOperatorFactory( this.registryMasterManipulator, treeMasterManipulator );
+        this.namespaceNodeManipulator      =  this.registryMasterManipulator.getNSNodeManipulator();
+        this.configOperatorFactory =  new GenericConfigOperatorFactory( this.registryMasterManipulator, treeMasterManipulator );
     }
 
     public GenericDistributeRegistry( Hydrarum hydrarum ) {
@@ -101,7 +101,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     @Override
     public GUID insert( TreeNode treeNode ) {
         Debug.trace(treeNode.getMetaType());
-        TreeNodeOperator operator = this.confOperatorFactory.getOperator(treeNode.getMetaType());
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator(treeNode.getMetaType());
         return operator.insert(treeNode);
     }
 
@@ -109,47 +109,40 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     public TreeNode get( GUID guid ) {
         DistributedTreeNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
-        return operator.get(guid);
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator( newInstance.getMetaType() );
+        return operator.get( guid );
     }
 
     @Override
-    public void insertProperties( Properties properties, GUID confNodeGuid ) {
-        properties.setGuid(confNodeGuid);
-        this.registryPropertiesManipulator.insert(properties);
+    public TreeNode getThis( GUID guid ) {
+        DistributedTreeNode node = this.distributedConfTree.getNode(guid);
+        TreeNode newInstance = (TreeNode)node.getType().newInstance();
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
+        return operator.getWithoutInheritance(guid);
     }
 
     @Override
-    public TreeNode parsePath( String path ){
-        GUID guid = this.distributedConfTree.parsePath(path);
-        if (guid!=null){
-            DistributedTreeNode node = this.distributedConfTree.getNode(guid);
-            TreeNode newInstance = (TreeNode)node.getType().newInstance();
-            TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
-            return operator.get(guid);
+    public TreeNode getNodeByPath( String path ){
+        GUID guid = this.distributedConfTree.queryGUIDByPath( path );
+        if ( guid != null ){
+            return this.get( guid );
         }
         else {
-            String[] parts = this.processPath(path).split("\\.");
-            //匹配confNode
-            List<GUID> nodeByNames = this.nodeManipulator.getNodeByName(parts[parts.length - 1]);
-            for (GUID nodeGuid : nodeByNames){
-                String nodePath = this.getPath(nodeGuid);
-                if (nodePath.equals(path)){
-                    DistributedTreeNode node = this.distributedConfTree.getNode(nodeGuid);
-                    TreeNode newInstance = (TreeNode)node.getType().newInstance();
-                    TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
-                    return operator.get(nodeGuid);
+            String[] parts = this.processPath( path ).split("\\.");
+            //匹配configNode
+            List<GUID > nodeByNames = this.nodeManipulator.getNodeByName(parts[parts.length - 1]);
+            for ( GUID nodeGuid : nodeByNames ){
+                String nodePath = this.getPath( nodeGuid );
+                if ( nodePath.equals( path ) ){
+                    return this.get( nodeGuid );
                 }
             }
             //匹配namespaceNode
             nodeByNames = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
-            for (GUID nodeGuid : nodeByNames){
+            for ( GUID nodeGuid : nodeByNames ){
                 String nodePath = this.getPath(nodeGuid);
-                if (nodePath.equals(path)){
-                    DistributedTreeNode node = this.distributedConfTree.getNode(nodeGuid);
-                    TreeNode newInstance = (TreeNode)node.getType().newInstance();
-                    TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
-                    return operator.get(nodeGuid);
+                if ( nodePath.equals( path ) ){
+                    return this.get( nodeGuid );
                 }
             }
         }
@@ -157,15 +150,21 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public void insertProperties( Properties properties, GUID configNodeGuid ) {
+        properties.setGuid(configNodeGuid);
+        this.registryPropertiesManipulator.insert(properties);
+    }
+
+    @Override
     public void remove( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
         operator.remove(guid);
     }
 
     @Override
-    public void  insertTextValue( GUID guid,String text,String type ){
+    public void insertTextValue( GUID guid, String text, String type ){
         GenericTextValue genericTextValue = new GenericTextValue();
         genericTextValue.setCreateTime(LocalDateTime.now());
         genericTextValue.setUpdateTime(LocalDateTime.now());
@@ -175,19 +174,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.registryTextValueManipulator.insert(genericTextValue);
     }
 
-    @Override
-    public TreeNode getWithoutInheritance( GUID guid ) {
-        DistributedTreeNode node = this.distributedConfTree.getNode(guid);
-        TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
-        return operator.getWithoutInheritance(guid);
-    }
-
     private String getNodeName( DistributedTreeNode node ){
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         Debug.trace(newInstance);
-        TreeNodeOperator operator = this.confOperatorFactory.getOperator(newInstance.getMetaType());
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
         TreeNode treeNode = operator.get(node.getGuid());
         return treeNode.getName();
     }

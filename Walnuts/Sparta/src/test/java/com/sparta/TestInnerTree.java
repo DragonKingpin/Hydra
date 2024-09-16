@@ -1,4 +1,4 @@
-package com;
+package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
@@ -9,6 +9,7 @@ import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.id.GUID72;
+import com.pinecone.ulf.util.id.GUIDs;
 import com.sauron.radium.Radium;
 
 
@@ -47,8 +48,10 @@ class LadyGaga extends Radium {
 
         DistributedRegistry distributedRegistry = new GenericDistributeRegistry( koiMappingDriver );
 
-        Debug.trace( distributedRegistry.getPath( new GUID72( "1f391ed2-0002d8-0000-e4" ) ) );
-        Debug.trace( distributedRegistry.get( new GUID72( "1f419c8c-000018-0000-a8" ) ).toString() );
+        Debug.trace( distributedRegistry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
+        Debug.fmp( 2, distributedRegistry.get( GUIDs.GUID72( "1f419c8c-000018-0000-a8" ) ) );
+        Debug.hhf();
+        Debug.fmp( 2, distributedRegistry.getNodeByPath( "ns1.ns2.ns3" ) );
     }
 }
 

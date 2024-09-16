@@ -6,20 +6,20 @@ import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface DistributedRegistry extends Registry {
 
-    String getPath(GUID guid);
+    String getPath( GUID guid );
 
-    GUID insert(TreeNode treeNode);
+    GUID insert( TreeNode treeNode );
 
-    TreeNode get(GUID guid);
+    TreeNode get( GUID guid );
 
-    void insertProperties(Properties properties,GUID confNodeGuid);
+    TreeNode getThis( GUID guid );
 
-    TreeNode parsePath(String path);
+    TreeNode getNodeByPath( String path );
 
-    void remove(GUID guid);
+    void insertProperties( Properties properties,GUID configNodeGuid );
 
-    void insertTextValue(GUID guid,String text,String type);
+    void insertTextValue( GUID guid,String text,String type );
 
-    TreeNode getWithoutInheritance(GUID guid);
+    void remove( GUID guid );
 
 }

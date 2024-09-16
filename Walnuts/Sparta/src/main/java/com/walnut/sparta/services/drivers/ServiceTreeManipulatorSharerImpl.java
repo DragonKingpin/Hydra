@@ -4,7 +4,7 @@ import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
+import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathMapper;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ public class ServiceTreeManipulatorSharerImpl implements TreeMasterManipulator {
     ServicePathMapper           scopePathManipulator;
 
     @Resource
-    TrieTreeMapper trieTreeManipulator;
+    ServiceTrieTreeMapper trieTreeManipulator;
 
     @Resource
     ServiceNodeOwnerMapper      scopeOwnerManipulator;

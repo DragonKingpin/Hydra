@@ -14,11 +14,11 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryNSNodeMetaMapper extends RegistryNSNodeMetaManipulator {
-    @Insert("INSERT INTO `hydra_conf_ns_node_meta` (`guid`) VALUES (#{guid})")
+    @Insert("INSERT INTO `hydra_registry_ns_node_meta` (`guid`) VALUES (#{guid})")
     void insert(NamespaceNodeMeta namespaceNodeMeta);
-    @Delete("DELETE FROM `hydra_conf_ns_node_meta` WHERE `guid`=#{guid}")
+    @Delete("DELETE FROM `hydra_registry_ns_node_meta` WHERE `guid`=#{guid}")
     void remove(GUID guid);
-    @Select("SELECT `id`, `guid` FROM `hydra_conf_ns_node_meta` WHERE guid=#{guid}")
+    @Select("SELECT `id`, `guid` FROM `hydra_registry_ns_node_meta` WHERE guid=#{guid}")
     GenericNamespaceNodeMeta getNamespaceNodeMeta(GUID guid);
 
     void update(NamespaceNodeMeta namespaceNodeMeta);

@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface RegistryTreeManipulator extends Pinenut {
     void insert (DistributedTreeNode distributedConfTreeNode);
+
     GUIDDistributedTrieNode getNode(GUID guid);
 
     void remove(GUID guid);

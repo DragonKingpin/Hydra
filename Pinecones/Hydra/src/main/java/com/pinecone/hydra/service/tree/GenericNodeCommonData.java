@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.tree;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 public class GenericNodeCommonData implements NodeCommonData {
     // id
@@ -28,7 +29,7 @@ public class GenericNodeCommonData implements NodeCommonData {
     public GenericNodeCommonData() {
     }
 
-    public GenericNodeCommonData( long enumId, GUID guid, String scenario, String primaryImplLang, String extraInformation, String level, String description) {
+    public GenericNodeCommonData( long enumId, GUID guid, String scenario, String primaryImplLang, String extraInformation, String level, String description ) {
         this.enumId = enumId;
         this.guid = guid;
         this.scenario = scenario;
@@ -42,14 +43,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return enumId
      */
+    @Override
     public long getEnumId() {
-        return enumId;
+        return this.enumId;
     }
 
     /**
      * 设置
      * @param enumId
      */
+    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
@@ -58,14 +61,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return guid
      */
+    @Override
     public GUID getGuid() {
-        return guid;
+        return this.guid;
     }
 
     /**
      * 设置
      * @param guid
      */
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
@@ -74,14 +79,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return scenario
      */
+    @Override
     public String getScenario() {
-        return scenario;
+        return this.scenario;
     }
 
     /**
      * 设置
      * @param scenario
      */
+    @Override
     public void setScenario(String scenario) {
         this.scenario = scenario;
     }
@@ -90,14 +97,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return primaryImplLang
      */
+    @Override
     public String getPrimaryImplLang() {
-        return primaryImplLang;
+        return this.primaryImplLang;
     }
 
     /**
      * 设置
      * @param primaryImplLang
      */
+    @Override
     public void setPrimaryImplLang(String primaryImplLang) {
         this.primaryImplLang = primaryImplLang;
     }
@@ -106,14 +115,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return extraInformation
      */
+    @Override
     public String getExtraInformation() {
-        return extraInformation;
+        return this.extraInformation;
     }
 
     /**
      * 设置
      * @param extraInformation
      */
+    @Override
     public void setExtraInformation(String extraInformation) {
         this.extraInformation = extraInformation;
     }
@@ -122,14 +133,16 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return level
      */
+    @Override
     public String getLevel() {
-        return level;
+        return this.level;
     }
 
     /**
      * 设置
      * @param level
      */
+    @Override
     public void setLevel(String level) {
         this.level = level;
     }
@@ -138,19 +151,27 @@ public class GenericNodeCommonData implements NodeCommonData {
      * 获取
      * @return description
      */
+    @Override
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     /**
      * 设置
      * @param description
      */
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public String toString() {
-        return "GenericNodeMetadata{enumId = " + enumId + ", guid = " + guid + ", scenario = " + scenario + ", primaryImplLang = " + primaryImplLang + ", extraInformation = " + extraInformation + ", level = " + level + ", description = " + description + "}";
+        return this.toJSONString();
+    }
+
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
     }
 }

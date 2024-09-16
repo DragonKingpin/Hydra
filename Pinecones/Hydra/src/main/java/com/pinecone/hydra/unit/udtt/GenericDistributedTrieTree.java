@@ -14,11 +14,11 @@ import java.util.List;
  * 提供服务树的相应方法
  */
 public class GenericDistributedTrieTree implements UniDistributedTrieTree {
-    private TrieTreeManipulator trieTreeManipulator;
+    private TrieTreeManipulator  trieTreeManipulator;
 
     private TireOwnerManipulator tireOwnerManipulator;
 
-    private TriePathManipulator triePathManipulator;
+    private TriePathManipulator  triePathManipulator;
 
     public GenericDistributedTrieTree(TreeMasterManipulator treeManipulatorSharer){
         this.trieTreeManipulator =  treeManipulatorSharer.getTrieTreeManipulator();
@@ -78,8 +78,8 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public GUID parsePath(String path) {
-        return this.trieTreeManipulator.parsePath(path);
+    public GUID queryGUIDByPath( String path ) {
+        return this.trieTreeManipulator.getGUIDByPath( path );
     }
 
     @Override

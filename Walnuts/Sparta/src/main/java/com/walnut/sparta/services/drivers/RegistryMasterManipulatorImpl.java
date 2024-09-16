@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 @Component
 public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator {
     @Resource
-    RegistryNodeManipulator confNodeManipulator;
+    RegistryNodeManipulator configNodeManipulator;
 
     @Resource
     RegistryNSNodeManipulator namespaceNodeManipulator;
@@ -29,7 +29,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryTextValueManipulator registryTextValueManipulator;
 
     @Resource
-    RegistryNodeMetaManipulator confNodeMetaManipulator;
+    RegistryNodeMetaManipulator configNodeMetaManipulator;
 
     @Resource
     RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
@@ -48,11 +48,11 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
 
     @Override
     public RegistryNodeManipulator getRegistryNodeManipulator() {
-        return this.confNodeManipulator;
+        return this.configNodeManipulator;
     }
 
     @Override
-    public RegistryNSNodeManipulator getNamespaceManipulator() {
+    public RegistryNSNodeManipulator getNSNodeManipulator() {
         return this.namespaceNodeManipulator;
     }
 
@@ -67,12 +67,12 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryNodeMetaManipulator getConfNodeMetaManipulator() {
-        return this.confNodeMetaManipulator;
+    public RegistryNodeMetaManipulator getRegistryNodeMetaManipulator() {
+        return this.configNodeMetaManipulator;
     }
 
     @Override
-    public RegistryNSNodeMetaManipulator getNamespaceNodeMetaManipulator() {
+    public RegistryNSNodeMetaManipulator getNSNodeMetaManipulator() {
         return this.namespaceNodeMetaManipulator;
     }
 

@@ -25,6 +25,14 @@ public class Debug {
         return Debug.console;
     }
 
+    public static Tracer fmp( int nIndentFactor, Object Anything, Object...objects ){
+        Debug.console.getOut().print( JSON.stringify( JSON.parse( JSON.stringify( Anything ) ), nIndentFactor ) );
+        for ( Object row : objects ) {
+            Debug.console.getOut().print( JSON.stringify( JSON.parse( JSON.stringify( row ) ), nIndentFactor ) );
+        }
+        return Debug.console;
+    }
+
     public static Tracer trace( Object Anything, Object...objects ){
         return Debug.console.log( Anything, objects );
     }

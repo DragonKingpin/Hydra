@@ -25,7 +25,7 @@ public interface DistributedTrieTree extends PineUnit {
 
     boolean containsKey( GUID key );
 
-    GUID parsePath(String path);
+    GUID queryGUIDByPath( String path );
 
     List<GUIDDistributedTrieNode> getChildNode(GUID guid);
 

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,7 @@ public class GenericTextValue implements TextValue {
     public GenericTextValue() {
     }
 
-    public GenericTextValue(int enumId, GUID guid, String value, String type, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericTextValue( int enumId, GUID guid, String value, String type, LocalDateTime createTime, LocalDateTime updateTime ) {
         this.enumId = enumId;
         this.guid = guid;
         this.value = value;
@@ -28,6 +29,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return enumId
      */
+    @Override
     public int getEnumId() {
         return enumId;
     }
@@ -36,6 +38,7 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param enumId
      */
+    @Override
     public void setEnumId(int enumId) {
         this.enumId = enumId;
     }
@@ -44,6 +47,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return guid
      */
+    @Override
     public GUID getGuid() {
         return guid;
     }
@@ -52,6 +56,7 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param guid
      */
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
@@ -60,6 +65,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return value
      */
+    @Override
     public String getValue() {
         return value;
     }
@@ -68,6 +74,7 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param value
      */
+    @Override
     public void setValue(String value) {
         this.value = value;
     }
@@ -76,6 +83,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return type
      */
+    @Override
     public String getType() {
         return type;
     }
@@ -84,6 +92,7 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param type
      */
+    @Override
     public void setType(String type) {
         this.type = type;
     }
@@ -92,6 +101,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return createTime
      */
+    @Override
     public LocalDateTime getCreateTime() {
         return createTime;
     }
@@ -100,6 +110,7 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param createTime
      */
+    @Override
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
@@ -108,6 +119,7 @@ public class GenericTextValue implements TextValue {
      * 获取
      * @return updateTime
      */
+    @Override
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }
@@ -116,11 +128,18 @@ public class GenericTextValue implements TextValue {
      * 设置
      * @param updateTime
      */
+    @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
     public String toString() {
-        return "GenericTextValue{enumId = " + enumId + ", guid = " + guid + ", value = " + value + ", type = " + type + ", createTime = " + createTime + ", updateTime = " + updateTime + "}";
+        return this.toJSONString();
     }
 }

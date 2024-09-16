@@ -1,14 +1,14 @@
 package com.pinecone.hydra.registry.source;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.ConfNodeMeta;
+import com.pinecone.hydra.registry.entity.ConfigNodeMeta;
 
 public interface RegistryNodeMetaManipulator {
-    void insert(ConfNodeMeta confNodeMeta);
+    void insert(ConfigNodeMeta configNodeMeta);
 
     void remove(GUID guid);
 
-    ConfNodeMeta getConfNodeMeta(GUID guid);
+    ConfigNodeMeta getConfigNodeMeta(GUID guid);
 
-    void update(ConfNodeMeta confNodeMeta);
+    void update(ConfigNodeMeta configNodeMeta);
 }

@@ -14,7 +14,7 @@ import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
-import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
+import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathMapper;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
     @Resource
-    private TrieTreeMapper trieTreeManipulator;
+    private ServiceTrieTreeMapper trieTreeManipulator;
     @Resource
     private CommonDataManipulator          commonDataManipulator;
 

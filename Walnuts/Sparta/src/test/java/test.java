@@ -1,6 +1,6 @@
 import com.pinecone.framework.util.Debug;
 
-import com.pinecone.hydra.registry.entity.GenericConfNode;
+import com.pinecone.hydra.registry.entity.GenericConfigNode;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,8 +41,8 @@ public class test {
 //        Debug.trace(className);
 
 
-        GenericConfNode confNode = new GenericConfNode();
-        Debug.trace(confNode.getClass().getName());
+        GenericConfigNode configNode = new GenericConfigNode();
+        Debug.trace(configNode.getClass().getName());
 
     }
 }

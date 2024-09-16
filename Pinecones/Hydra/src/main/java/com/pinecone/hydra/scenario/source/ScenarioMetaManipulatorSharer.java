@@ -5,7 +5,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 public interface ScenarioMetaManipulatorSharer extends Pinenut {
     NamespaceNodeManipulator        getNamespaceNodeManipulator();
 
-    NamespaceNodeMetaManipulator    getNamespaceNodeMetaManipulator();
+    NamespaceNodeMetaManipulator    getNSNodeMetaManipulator();
 
     ScenarioCommonDataManipulator   getScenarioCommonDataManipulator();
 

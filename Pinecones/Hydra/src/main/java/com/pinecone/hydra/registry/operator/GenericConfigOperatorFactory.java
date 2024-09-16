@@ -8,24 +8,33 @@ import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GenericConfOperatorFactory implements ConfOperatorFactory {
+public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
 
     protected RegistryMasterManipulator registryMasterManipulator;
 
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
-    public GenericConfOperatorFactory(RegistryMasterManipulator registryMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+    public GenericConfigOperatorFactory( RegistryMasterManipulator registryMasterManipulator, TreeMasterManipulator masterManipulator ){
         this.registryMasterManipulator = registryMasterManipulator;
-        registerer.put(defaultConfNode,new ConfNodeOperator(this.registryMasterManipulator,treeManipulatorSharer));
-        registerer.put(defaultNamespaceNode,new NamespaceNodeOperator(this.registryMasterManipulator,treeManipulatorSharer));
+        this.registerer.put(
+                ConfigOperatorFactory.DefaultConfigNodeKey,
+                new ConfigNodeOperator( this.registryMasterManipulator, masterManipulator )
+        );
+
+        this.registerer.put(
+                ConfigOperatorFactory.DefaultNamespaceNodeKey,
+                new NamespaceNodeOperator( this.registryMasterManipulator, masterManipulator )
+        );
     }
 
+    @Override
     public void register( String typeName, TreeNodeOperator functionalNodeOperation ) {
         this.registerer.put( typeName, functionalNodeOperation );
     }
 
-    public TreeNodeOperator getOperator(String typeName) {
-        Debug.trace(this.registerer.toString());
+    @Override
+    public TreeNodeOperator getOperator( String typeName ) {
+        //Debug.trace( this.registerer.toString() );
         return this.registerer.get( typeName );
     }
 }

@@ -6,7 +6,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import java.util.List;
 
 /**
- *  Pinecone Ursus For Java GUIDDistributedScopeNode
+ *  Pinecone Ursus For Java GUIDDistributedTrieNode
  *  Author:
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
@@ -31,7 +31,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
     public GUIDDistributedTrieNode() {
     }
 
-    public GUIDDistributedTrieNode(long enumId, GUID guid, List<GUID> parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type) {
+    public GUIDDistributedTrieNode( long enumId, GUID guid, List<GUID> parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type ) {
         this.enumId = enumId;
         this.guid = guid;
         this.parentGUID = parentGUID;
@@ -45,7 +45,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return enumId
      */
     public long getEnumId() {
-        return enumId;
+        return this.enumId;
     }
 
     /**
@@ -61,7 +61,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return guid
      */
     public GUID getGuid() {
-        return guid;
+        return this.guid;
     }
 
     /**
@@ -77,7 +77,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return parentGUID
      */
     public List<GUID> getParentGUIDs() {
-        return parentGUID;
+        return this.parentGUID;
     }
 
     /**
@@ -93,7 +93,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return baseDataGUID
      */
     public GUID getBaseDataGUID() {
-        return baseDataGUID;
+        return this.baseDataGUID;
     }
 
     /**
@@ -109,7 +109,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return nodeMetadataGUID
      */
     public GUID getNodeMetadataGUID() {
-        return nodeMetadataGUID;
+        return this.nodeMetadataGUID;
     }
 
     /**
@@ -125,7 +125,7 @@ public class GUIDDistributedTrieNode implements DistributedTreeNode {
      * @return type
      */
     public UOI getType() {
-        return type;
+        return this.type;
     }
 
     /**

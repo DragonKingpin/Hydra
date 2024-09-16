@@ -1,4 +1,4 @@
-package com;
+package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;

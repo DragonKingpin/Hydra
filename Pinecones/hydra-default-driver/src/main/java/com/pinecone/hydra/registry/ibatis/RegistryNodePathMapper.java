@@ -11,15 +11,15 @@ import org.apache.ibatis.annotations.Select;
 
 @IbatisDataAccessObject
 public interface RegistryNodePathMapper extends TriePathManipulator {
-    @Insert("INSERT INTO `hydra_conf_node_path` (`path`, `guid`) VALUES (#{path},#{guid})")
+    @Insert("INSERT INTO `hydra_registry_node_path` (`path`, `guid`) VALUES (#{path},#{guid})")
     void insert(@Param("guid") GUID guid, @Param("path") String path);
 
-    @Delete("DELETE FROM `hydra_conf_node_path` WHERE `guid`=#{guid}")
+    @Delete("DELETE FROM `hydra_registry_node_path` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `path` FROM `hydra_conf_node_path` WHERE `guid`=#{guid}")
+    @Select("SELECT `path` FROM `hydra_registry_node_path` WHERE `guid`=#{guid}")
     String getPath(GUID guid);
 
-    @Select("SELECT `guid` FROM `hydra_conf_node_path` WHERE `guid`=#{guid}")
+    @Select("SELECT `guid` FROM `hydra_registry_node_path` WHERE `guid`=#{guid}")
     GUID getNode(String path);
 }

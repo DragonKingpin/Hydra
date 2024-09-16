@@ -1,6 +1,7 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 public class GenericNamespaceNodeMeta implements NamespaceNodeMeta{
     private int enumId;
@@ -10,32 +11,38 @@ public class GenericNamespaceNodeMeta implements NamespaceNodeMeta{
     public GenericNamespaceNodeMeta() {
     }
 
-    public GenericNamespaceNodeMeta(int enumId, GUID guid) {
+    public GenericNamespaceNodeMeta( int enumId, GUID guid ) {
         this.enumId = enumId;
         this.guid = guid;
     }
 
-
+    @Override
     public int getEnumId() {
-        return enumId;
+        return this.enumId;
     }
 
-
+    @Override
     public void setEnumId(int enumId) {
         this.enumId = enumId;
     }
 
-
+    @Override
     public GUID getGuid() {
-        return guid;
+        return this.guid;
     }
 
-
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
     public String toString() {
-        return "GenericNamespaceNodeMeta{enumId = " + enumId + ", guid = " + guid + "}";
+        return this.toJSONString();
     }
 }

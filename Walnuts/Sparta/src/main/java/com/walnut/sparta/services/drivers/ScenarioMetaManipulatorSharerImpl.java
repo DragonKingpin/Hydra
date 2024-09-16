@@ -22,7 +22,7 @@ public class ScenarioMetaManipulatorSharerImpl implements ScenarioMetaManipulato
     }
 
     @Override
-    public NamespaceNodeMetaManipulator getNamespaceNodeMetaManipulator() {
+    public NamespaceNodeMetaManipulator getNSNodeMetaManipulator() {
         return this.namespaceNodeMetaManipulator;
     }
 

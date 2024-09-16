@@ -102,7 +102,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
     @Override
     public ServiceTreeNode parsePath(String path) {
         // 先查看缓存表中是否存在路径信息
-        GUID guid = this.distributedTrieTree.parsePath(path);
+        GUID guid = this.distributedTrieTree.queryGUIDByPath( path );
         if (guid != null) {
             return getNode(guid);
         }

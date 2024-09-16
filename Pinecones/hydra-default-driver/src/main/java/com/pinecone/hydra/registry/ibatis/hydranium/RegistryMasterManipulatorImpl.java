@@ -3,6 +3,8 @@ package com.pinecone.hydra.registry.ibatis.hydranium;
 import java.util.Map;
 import javax.annotation.Resource;
 
+import org.springframework.stereotype.Component;
+
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.registry.ibatis.RegistryCommonDataMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMapper;
@@ -22,10 +24,11 @@ import com.pinecone.hydra.registry.source.RegistryTextValueManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 
+@Component
 public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator {
     @Resource
     @Structure( type = RegistryNodeMapper.class )
-    RegistryNodeManipulator confNodeManipulator;
+    RegistryNodeManipulator configNodeManipulator;
 
     @Resource
     @Structure( type = RegistryNSNodeMapper.class )
@@ -41,7 +44,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
 
     @Resource
     @Structure( type = RegistryNodeMetaMapper.class )
-    RegistryNodeMetaManipulator confNodeMetaManipulator;
+    RegistryNodeMetaManipulator configNodeMetaManipulator;
 
     @Resource
     @Structure( type = RegistryNSNodeMetaMapper.class )
@@ -71,11 +74,11 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
 
     @Override
     public RegistryNodeManipulator getRegistryNodeManipulator() {
-        return this.confNodeManipulator;
+        return this.configNodeManipulator;
     }
 
     @Override
-    public RegistryNSNodeManipulator getNamespaceManipulator() {
+    public RegistryNSNodeManipulator getNSNodeManipulator() {
         return this.namespaceNodeManipulator;
     }
 
@@ -90,12 +93,12 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryNodeMetaManipulator getConfNodeMetaManipulator() {
-        return this.confNodeMetaManipulator;
+    public RegistryNodeMetaManipulator getRegistryNodeMetaManipulator() {
+        return this.configNodeMetaManipulator;
     }
 
     @Override
-    public RegistryNSNodeMetaManipulator getNamespaceNodeMetaManipulator() {
+    public RegistryNSNodeMetaManipulator getNSNodeMetaManipulator() {
         return this.namespaceNodeMetaManipulator;
     }
 

@@ -8,7 +8,7 @@ import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
-import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
+import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
-    private TrieTreeMapper trieTreeManipulator;
+    private ServiceTrieTreeMapper trieTreeManipulator;
     @Resource
     private DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
 

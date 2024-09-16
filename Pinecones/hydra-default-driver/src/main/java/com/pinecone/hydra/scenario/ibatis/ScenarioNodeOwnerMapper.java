@@ -1,13 +1,13 @@
 package com.pinecone.hydra.scenario.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
-import org.apache.ibatis.annotations.Delete;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 @Mapper
-public interface ScenarioNodeOwnerMapper extends ScopeOwnerManipulator {
+public interface ScenarioNodeOwnerMapper extends TireOwnerManipulator {
 
     void insert(GUID subordinateGuid, GUID ownerGuid);
 

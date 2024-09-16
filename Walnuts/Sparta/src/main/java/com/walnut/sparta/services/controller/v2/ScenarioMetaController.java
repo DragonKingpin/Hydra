@@ -1,6 +1,6 @@
 package com.walnut.sparta.services.controller.v2;
 
-import com.pinecone.hydra.unit.udsn.entity.TreeNode;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.scenario.entity.GenericNamespaceNode;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
 import com.pinecone.hydra.scenario.tree.GenericDistributedScenarioMetaTree;

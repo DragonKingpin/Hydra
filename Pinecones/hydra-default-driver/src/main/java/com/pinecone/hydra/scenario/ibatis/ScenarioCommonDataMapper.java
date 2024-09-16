@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.scenario.entity.GenericScenarioCommonData;
 import com.pinecone.hydra.scenario.entity.ScenarioCommonData;
 import com.pinecone.hydra.scenario.source.ScenarioCommonDataManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;

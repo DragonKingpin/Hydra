@@ -51,11 +51,22 @@
             "tablePrefix": "nona_",
             "Enable"     : true
           },
+          "MySQLKingHydranium": {
+            "dbType"     : "mysql",
+            "host"       : "b-serverkingpin",
+            "username"   : "root",
+            "password"   : "",
+            "database"   : "hydranium",
+            "port"       : 33062,
+            "charset"    : "utf8",
+            "tablePrefix": "nona_",
+            "Enable"     : true
+          },
           "MySQLKingData0": {
             "dbType"     : "mysql",
             "host"       : "b-serverkingpin",
             "username"   : "root",
-            "password"   : "root",
+            "password"   : "",
             "database"   : "nonaron",
             "port"       : 33062,
             "charset"    : "utf8",

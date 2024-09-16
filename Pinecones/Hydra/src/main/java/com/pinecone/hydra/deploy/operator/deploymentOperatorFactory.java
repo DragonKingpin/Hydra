@@ -1,7 +1,7 @@
 package com.pinecone.hydra.deploy.operator;
 
-import com.pinecone.hydra.unit.udsn.operator.OperatorFactory;
-import com.pinecone.hydra.unit.udsn.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.udtt.operator.OperatorFactory;
+import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
 
 public class deploymentOperatorFactory implements OperatorFactory {
     @Override

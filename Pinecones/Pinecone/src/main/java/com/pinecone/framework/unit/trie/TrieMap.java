@@ -4,19 +4,26 @@ import com.pinecone.framework.system.prototype.PineUnit;
 
 import java.util.Map;
 
-public interface TrieMap<K,V> extends Map<K,V>, PineUnit {
+public interface TrieMap<K, V > extends Map<K, V >, PineUnit {
 
-    V put(K key, V value);
+    @Override
+    V put( K key, V value );
 
-    V get(Object key);
+    @Override
+    V get( Object key );
 
-    boolean containsKey(Object key);
+    @Override
+    boolean containsKey( Object key );
 
-    V remove(Object key);
+    @Override
+    V remove( Object key );
 
+    @Override
     int size();
 
+    @Override
     boolean isEmpty();
 
-    TrieNode getNode(String path);
+    TrieNode getNode( String key );
+
 }

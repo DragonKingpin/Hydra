@@ -2,8 +2,6 @@ package com.pinecone.hydra.scenario.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.config.distribute.entity.GenericProperties;
-import com.pinecone.hydra.config.distribute.entity.Properties;
 import com.pinecone.hydra.scenario.entity.NamespaceNode;
 
 import java.util.List;

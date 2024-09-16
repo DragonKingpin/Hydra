@@ -2,7 +2,7 @@ package com.pinecone.hydra.scenario.tree;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.udsn.entity.TreeNode;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.scenario.entity.GenericNamespaceNode;
 import com.pinecone.hydra.scenario.entity.GenericNamespaceNodeMeta;
 import com.pinecone.hydra.scenario.entity.GenericScenarioCommonData;
@@ -14,11 +14,11 @@ import com.pinecone.hydra.scenario.source.NamespaceNodeManipulator;
 import com.pinecone.hydra.scenario.source.NamespaceNodeMetaManipulator;
 import com.pinecone.hydra.scenario.source.ScenarioCommonDataManipulator;
 import com.pinecone.hydra.service.tree.UOIUtils;
-import com.pinecone.hydra.unit.udsn.DistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.unit.udsn.GenericDistributedScopeTree;
-import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GenericDistributedScenarioMetaTree implements DistributedScenarioMetaTree{
-    private DistributedScopeTree            distributedScenarioTree;
+    private DistributedTrieTree distributedScenarioTree;
     private ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer;
 
     private NamespaceNodeMetaManipulator    namespaceNodeMetaManipulator;
@@ -35,7 +35,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     public GenericDistributedScenarioMetaTree(ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer, TreeMasterManipulator treeManipulatorSharer){
         this.scenarioMetaManipulatorSharer = scenarioMetaManipulatorSharer;
-        this.distributedScenarioTree        =   new GenericDistributedScopeTree(treeManipulatorSharer);
+        this.distributedScenarioTree        =   new GenericDistributedTrieTree(treeManipulatorSharer);
         this.namespaceNodeManipulator       =   this.scenarioMetaManipulatorSharer.getNamespaceNodeManipulator();
         this.namespaceNodeMetaManipulator   =   this.scenarioMetaManipulatorSharer.getNamespaceNodeMetaManipulator();
         this.scenarioCommonDataManipulator  =   this.scenarioMetaManipulatorSharer.getScenarioCommonDataManipulator();
@@ -73,15 +73,15 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         scenarioCommonData.setCreateTime(LocalDateTime.now());
         scenarioCommonData.setUpdateTime(LocalDateTime.now());
 
-        GUIDDistributedScopeNode guidDistributedScopeNode = new GUIDDistributedScopeNode();
+        GUIDDistributedTrieNode guidDistributedTrieNode = new GUIDDistributedTrieNode();
         GUID nodeGuid = uidGenerator.getGUID72();
         namespaceNode.setGuid(nodeGuid);
-        guidDistributedScopeNode.setGuid(nodeGuid);
-        guidDistributedScopeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
-        guidDistributedScopeNode.setBaseDataGUID(scenarioCommonDataGuid);
-        guidDistributedScopeNode.setType(UOIUtils.createLocalJavaClass(namespaceNode.getClass().getName()));
+        guidDistributedTrieNode.setGuid(nodeGuid);
+        guidDistributedTrieNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
+        guidDistributedTrieNode.setBaseDataGUID(scenarioCommonDataGuid);
+        guidDistributedTrieNode.setType(UOIUtils.createLocalJavaClass(namespaceNode.getClass().getName()));
 
-        this.distributedScenarioTree.insert(guidDistributedScopeNode);
+        this.distributedScenarioTree.insert(guidDistributedTrieNode);
         this.namespaceNodeMetaManipulator.insert(namespaceNodeMeta);
         this.scenarioCommonDataManipulator.insert(scenarioCommonData);
         this.namespaceNodeManipulator.insert(namespaceNode);
@@ -90,7 +90,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public TreeNode get(GUID guid) {
-        GUIDDistributedScopeNode node = this.distributedScenarioTree.getNode(guid);
+        GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceNode(guid);
         GenericScenarioCommonData scenarioCommonData = (GenericScenarioCommonData) this.scenarioCommonDataManipulator.getScenarioCommonData(node.getBaseDataGUID());
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
@@ -119,12 +119,12 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public void remove(GUID guid) {
-        List<GUIDDistributedScopeNode> childNodes = this.distributedScenarioTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedScenarioTree.getChildNode(guid);
         if (childNodes == null || childNodes.isEmpty()){
             this.removeNode(guid);
         }
         else {
-            for(GUIDDistributedScopeNode childNode : childNodes){
+            for(GUIDDistributedTrieNode childNode : childNodes){
                 List<GUID> parentNodes = this.distributedScenarioTree.getParentNodes(childNode.getGuid());
                 if (parentNodes.size() > 1){
                     this.distributedScenarioTree.removeInheritance(childNode.getGuid(),guid);
@@ -151,7 +151,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     }
 
     private void removeNode(GUID guid){
-        GUIDDistributedScopeNode node = this.distributedScenarioTree.getNode(guid);
+        GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
         this.distributedScenarioTree.remove(guid);
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());

@@ -7,8 +7,8 @@ import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
@@ -19,25 +19,25 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     private ServiceNodeManipulator  serviceNodeManipulator;
     private ServiceMetaManipulator  serviceMetaManipulator;
     private CommonDataManipulator commonDataManipulator;
-    private ScopeTreeManipulator scopeTreeManipulator;
+    private TrieTreeManipulator trieTreeManipulator;
 
     public ServiceNodeOperator( DefaultMetaNodeManipulators manipulators ) {
         this(
                 manipulators.getServiceNodeManipulator(),
                 manipulators.getServiceMetaManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getScopeTreeManipulator()
+                manipulators.getTrieTreeManipulator()
         );
     }
 
     public ServiceNodeOperator(
             ServiceNodeManipulator serviceNodeManipulator, ServiceMetaManipulator serviceMetaManipulator,
-            CommonDataManipulator commonDataManipulator, ScopeTreeManipulator scopeTreeManipulator
+            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator
     ){
         this.serviceNodeManipulator  = serviceNodeManipulator;
         this.serviceMetaManipulator  = serviceMetaManipulator;
         this.commonDataManipulator   = commonDataManipulator;
-        this.scopeTreeManipulator    = scopeTreeManipulator;
+        this.trieTreeManipulator = trieTreeManipulator;
     }
 
 
@@ -65,18 +65,18 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         this.commonDataManipulator.insert(metadata);
 
         //将节点信息存入主表
-        GUIDDistributedScopeNode node = new GUIDDistributedScopeNode();
+        GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(serviceNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.scopeTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert(node);
         return serviceNodeGUID;
     }
 
     @Override
     public void remove(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         this.serviceNodeManipulator.remove(node.getGuid());
         this.serviceMetaManipulator.remove(node.getBaseDataGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
@@ -84,15 +84,15 @@ public class ServiceNodeOperator implements MetaNodeOperator {
 
     @Override
     public ServiceTreeNode get(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericServiceNode genericServiceNode = new GenericServiceNode();
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());
         GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
 
         genericServiceNode.setServiceNodeMetadata(serviceMeta);
         genericServiceNode.setNodeCommonData(commonData);
-        genericServiceNode.setDistributedTreeNode(guidDistributedScopeNode);
+        genericServiceNode.setDistributedTreeNode(guidDistributedTrieNode);
         genericServiceNode.setGuid(guid);
         genericServiceNode.setName(serviceMeta.getName());
 

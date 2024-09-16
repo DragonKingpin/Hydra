@@ -2,15 +2,12 @@ package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.NodeCommonData;
-import com.pinecone.hydra.service.tree.meta.ApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public class GenericApplicationNode implements ApplicationNode {
 
-    private GUIDDistributedScopeNode distributedTreeNode;
+    private GUIDDistributedTrieNode distributedTreeNode;
 
     private GenericApplicationNodeMeta applicationNodeMeta;
 
@@ -28,7 +25,7 @@ public class GenericApplicationNode implements ApplicationNode {
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(GUIDDistributedScopeNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
+    public GenericApplicationNode(GUIDDistributedTrieNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
         this.distributedTreeNode = distributedTreeNode;
         this.applicationNodeMeta = applicationNodeMeta;
         this.nodeCommonData = nodeCommonData;
@@ -38,12 +35,12 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
 
-    public GUIDDistributedScopeNode getDistributedTreeNode() {
+    public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
 
-    public void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode) {
+    public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 

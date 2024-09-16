@@ -1,6 +1,7 @@
 package com.pinecone.slime.jelly.source.ibatis;
 
 import com.pinecone.framework.util.json.JSONObject;
+import com.pinecone.slime.source.DAOScanner;
 import com.pinecone.slime.source.rdb.RDBClient;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.ExecutorType;
@@ -23,6 +24,8 @@ public interface IbatisClient extends RDBClient {
     String            getJDBCDriverName();
 
     JSONObject        getClientConf();
+
+    DAOScanner        getDAOScanner();
 
     <T> void addMapper( Class<T> type ) ;
 

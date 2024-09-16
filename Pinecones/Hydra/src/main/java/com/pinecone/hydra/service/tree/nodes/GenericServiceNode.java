@@ -2,14 +2,11 @@ package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.NodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.tree.meta.ServiceNodeMeta;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public class GenericServiceNode implements ServiceNode {
-    private GUIDDistributedScopeNode distributedTreeNode;
+    private GUIDDistributedTrieNode distributedTreeNode;
 
     private GenericServiceNodeMeta serviceNodeMetadata;
 
@@ -28,7 +25,7 @@ public class GenericServiceNode implements ServiceNode {
     public GenericServiceNode() {
     }
 
-    public GenericServiceNode(GUIDDistributedScopeNode distributedTreeNode, GenericServiceNodeMeta serviceNodeMetadata, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
+    public GenericServiceNode(GUIDDistributedTrieNode distributedTreeNode, GenericServiceNodeMeta serviceNodeMetadata, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
         this.distributedTreeNode = distributedTreeNode;
         this.serviceNodeMetadata = serviceNodeMetadata;
         this.nodeCommonData = nodeCommonData;
@@ -41,7 +38,7 @@ public class GenericServiceNode implements ServiceNode {
      * 获取
      * @return distributedTreeNode
      */
-    public GUIDDistributedScopeNode getDistributedTreeNode() {
+    public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
@@ -49,7 +46,7 @@ public class GenericServiceNode implements ServiceNode {
      * 设置
      * @param distributedTreeNode
      */
-    public void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode) {
+    public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 

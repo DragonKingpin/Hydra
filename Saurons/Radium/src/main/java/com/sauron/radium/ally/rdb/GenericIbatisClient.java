@@ -207,6 +207,11 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     }
 
     @Override
+    public DAOScanner getDAOScanner() {
+        return this.mDAOScanner;
+    }
+
+    @Override
     public <T> void addMapper( Class<T> type ) {
         this.mConfiguration.addMapper( type );
     }

@@ -2,16 +2,13 @@ package com.pinecone.hydra.service.tree.nodes;
 
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ClassificationRules;
 import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.NodeCommonData;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public class GenericClassificationNode implements ClassificationNode {
 
-    private GUIDDistributedScopeNode distributedTreeNode;
+    private GUIDDistributedTrieNode distributedTreeNode;
 
     private GenericClassificationRules classificationRules;
 
@@ -33,7 +30,7 @@ public class GenericClassificationNode implements ClassificationNode {
     public GenericClassificationNode() {
     }
 
-    public GenericClassificationNode(GUIDDistributedScopeNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name, GUID rulesGUID) {
+    public GenericClassificationNode(GUIDDistributedTrieNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name, GUID rulesGUID) {
         this.distributedTreeNode = distributedTreeNode;
         this.classificationRules = classificationRules;
         this.nodeCommonData = nodeCommonData;
@@ -47,7 +44,7 @@ public class GenericClassificationNode implements ClassificationNode {
      * 获取
      * @return distributedTreeNode
      */
-    public GUIDDistributedScopeNode getDistributedTreeNode() {
+    public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
@@ -55,7 +52,7 @@ public class GenericClassificationNode implements ClassificationNode {
      * 设置
      * @param distributedTreeNode
      */
-    public void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode) {
+    public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 

@@ -5,7 +5,7 @@
   "ChronicPeriods"           : [
     "00:00", "03:00", "06:00", "09:00", "12:00", "15:00", "18:00", "21:00"
 
-    //"?:?"
+    //,"?:?"
   ],
 
   "PrimaryRDB"               : "MySQLKingData0",
@@ -45,6 +45,9 @@
 
           "Zhihu"                : {
             "HotlineApi": "https://www.zhihu.com/api/v4/creators/rank/hot?domain=0",  //https://www.zhihu.com/api/v4/creators/rank/hot?domain=0&limit=20&offset=20&period=hour
+            "Topstory"  : "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=100",
+            "TopSearch" : "https://www.zhihu.com/api/v4/search/top_search",
+
             "Global"    : {
               "IndexFrom" : 0,
               "IndexTo"   : 100,

@@ -7,8 +7,8 @@ import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
-import com.pinecone.hydra.service.ibatis.ScopeTreeMapper;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
-    private ScopeTreeMapper                     scopeTreeManipulator;
+    private TrieTreeMapper trieTreeManipulator;
     @Resource
     private DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
 
@@ -35,7 +35,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Override
     public void addNodeToParent(GUID nodeGUID, GUID parentGUID) {
         //将节点加入指定位置
-        this.scopeTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
+        this.trieTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
         //添加后要更新节点路径
         //递归查询所有要更新的节点
         upDateAllPath(nodeGUID);
@@ -48,40 +48,40 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     }
 
     private void removeAllNode(GUID nodeGUID){
-        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChild(nodeGUID);
-        this.scopeTreeManipulator.remove(nodeGUID);
-        this.scopeTreeManipulator.removePath(nodeGUID);
+        List<GUIDDistributedTrieNode> childNodes = this.trieTreeManipulator.getChild(nodeGUID);
+        this.trieTreeManipulator.remove(nodeGUID);
+        this.trieTreeManipulator.removePath(nodeGUID);
         if (childNodes==null) return;
-        for (GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
-            removeNode(guidDistributedScopeNode.getGuid());
+        for (GUIDDistributedTrieNode guidDistributedTrieNode :childNodes){
+            removeNode(guidDistributedTrieNode.getGuid());
         }
     }
 
     private void upDateAllPath(GUID guid){
         updatePath(guid);
-        List<GUIDDistributedScopeNode> childNodes = this.scopeTreeManipulator.getChild(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.trieTreeManipulator.getChild(guid);
         Debug.trace("节点"+guid+"的子节点有"+childNodes.toString());
-        for(GUIDDistributedScopeNode guidDistributedScopeNode:childNodes){
-            if (guidDistributedScopeNode!=null){
-                upDateAllPath(guidDistributedScopeNode.getGuid());
+        for(GUIDDistributedTrieNode guidDistributedTrieNode :childNodes){
+            if (guidDistributedTrieNode !=null){
+                upDateAllPath(guidDistributedTrieNode.getGuid());
             }
         }
     }
     private void updatePath(GUID guid){
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         String nodeName = getNodeName(node);
         String pathString="";
         pathString=pathString+nodeName;
         while (node.getParentGUIDs() != null){
             for (GUID parentGUID : node.getParentGUIDs()){
-                node = this.scopeTreeManipulator.getNode(parentGUID);
+                node = this.trieTreeManipulator.getNode(parentGUID);
                 nodeName = getNodeName(node);
                 pathString = nodeName + "." + pathString;
             }
         }
-        this.scopeTreeManipulator.updatePath(guid,pathString);
+        this.trieTreeManipulator.updatePath(guid,pathString);
     }
-    private String getNodeName(GUIDDistributedScopeNode node){
+    private String getNodeName(GUIDDistributedTrieNode node){
         UOI type = node.getType();
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());

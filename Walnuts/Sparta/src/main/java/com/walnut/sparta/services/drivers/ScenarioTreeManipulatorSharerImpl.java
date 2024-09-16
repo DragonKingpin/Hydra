@@ -1,9 +1,9 @@
 package com.walnut.sparta.services.drivers;
 
-import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.hydra.scenario.ibatis.ScenarioNodeOwnerMapper;
 import com.pinecone.hydra.scenario.ibatis.ScenarioNodePathMapper;
 import com.pinecone.hydra.scenario.ibatis.ScenarioTreeMapper;
@@ -20,17 +20,17 @@ public class ScenarioTreeManipulatorSharerImpl implements TreeMasterManipulator 
     @Resource
     ScenarioNodePathMapper          scenarioNodePathMapper;
     @Override
-    public ScopeOwnerManipulator getScopeOwnerManipulator() {
+    public TireOwnerManipulator getTireOwnerManipulator() {
         return this.scenarioNodeOwnerMapper;
     }
 
     @Override
-    public ScopeTreeManipulator getScopeTreeManipulator() {
+    public TrieTreeManipulator getTrieTreeManipulator() {
         return this.scenarioTreeMapper;
     }
 
     @Override
-    public ScopePathManipulator getScopePathManipulator() {
+    public TriePathManipulator getTriePathManipulator() {
         return this.scenarioNodePathMapper;
     }
 }

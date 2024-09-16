@@ -2,11 +2,8 @@ package com.pinecone.hydra.service.tree.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.NodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.tree.meta.ServiceNodeMeta;
-import com.pinecone.hydra.unit.udsn.DistributedTreeNode;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public interface ServiceNode extends ServiceTreeNode {
     long getEnumId();
@@ -18,8 +15,8 @@ public interface ServiceNode extends ServiceTreeNode {
     String getName();
     void setName(String name);
 
-    GUIDDistributedScopeNode getDistributedTreeNode();
-    void setDistributedTreeNode(GUIDDistributedScopeNode distributedTreeNode);
+    GUIDDistributedTrieNode getDistributedTreeNode();
+    void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode);
 
     GenericServiceNodeMeta getServiceNodeMetadata();
     void setServiceNodeMetadata(GenericServiceNodeMeta serviceNodeMetadata);

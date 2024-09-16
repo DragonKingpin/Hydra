@@ -11,10 +11,10 @@ import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.service.ibatis.ScopeTreeMapper;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathMapper;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
     @Resource
-    private ScopeTreeMapper                scopeTreeManipulator;
+    private TrieTreeMapper trieTreeManipulator;
     @Resource
     private CommonDataManipulator          commonDataManipulator;
 
@@ -56,8 +56,8 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
 
 
     @Override
-    public ScopeTreeManipulator getScopeTreeManipulator() {
-        return this.scopeTreeManipulator;
+    public TrieTreeManipulator getTrieTreeManipulator() {
+        return this.trieTreeManipulator;
     }
 
     @Override
@@ -96,8 +96,8 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
     }
 
     @Override
-    public ScopeTreeManipulator getServiceTreeMapper() {
-        return this.scopeTreeManipulator;
+    public TrieTreeManipulator getServiceTreeMapper() {
+        return this.trieTreeManipulator;
     }
 
     @Override
@@ -106,12 +106,12 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
     }
 
     @Override
-    public ScopeOwnerManipulator getScopeOwnerManipulator() {
+    public TireOwnerManipulator getTireOwnerManipulator() {
         return this.scopeOwnerManipulator;
     }
 
     @Override
-    public ScopePathManipulator getScopePathManipulator() {
+    public TriePathManipulator getTriePathManipulator() {
         return this.scopePathManipulator;
     }
 

@@ -75,6 +75,12 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sauron.radium</groupId>
+            <artifactId>radium</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
         <!--        导入redis依赖-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.data</groupId>-->

@@ -8,10 +8,10 @@ import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
+import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.unit.udsn.GUIDDistributedScopeNode;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
@@ -20,7 +20,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
     private ApplicationNodeManipulator        applicationNodeManipulator;
     private ApplicationMetaManipulator        applicationMetaManipulator;
     private CommonDataManipulator             commonDataManipulator;
-    private ScopeTreeManipulator              scopeTreeManipulator;
+    private TrieTreeManipulator trieTreeManipulator;
 
     public ApplicationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
         this(
@@ -33,12 +33,12 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
 
     public ApplicationNodeOperator(
             ApplicationNodeManipulator applicationNodeManipulator, ApplicationMetaManipulator applicationMetaManipulator,
-            CommonDataManipulator commonDataManipulator, ScopeTreeManipulator scopeTreeManipulator
+            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator
     ){
         this.applicationNodeManipulator = applicationNodeManipulator;
         this.applicationMetaManipulator = applicationMetaManipulator;
         this.commonDataManipulator      = commonDataManipulator;
-        this.scopeTreeManipulator       = scopeTreeManipulator;
+        this.trieTreeManipulator = trieTreeManipulator;
     }
 
 
@@ -66,18 +66,18 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         this.commonDataManipulator.insert(metadata);
 
         //将节点信息存入主表
-        GUIDDistributedScopeNode node = new GUIDDistributedScopeNode();
+        GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.scopeTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert(node);
         return applicationNodeGUID;
     }
 
     @Override
     public void remove(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         this.applicationMetaManipulator.remove(node.getBaseDataGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
         this.applicationNodeManipulator.remove(node.getGuid());
@@ -85,16 +85,16 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
 
     @Override
     public ServiceTreeNode get(GUID guid) {
-        GUIDDistributedScopeNode node = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericApplicationNode genericApplicationNode = new GenericApplicationNode();
 
         GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getBaseDataGUID());
-        GUIDDistributedScopeNode guidDistributedScopeNode = this.scopeTreeManipulator.getNode(guid);
+        GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
         GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
 
         genericApplicationNode.setApplicationNodeMeta(applicationDescription);
         genericApplicationNode.setNodeCommonData(nodeMetadata);
-        genericApplicationNode.setDistributedTreeNode(guidDistributedScopeNode);
+        genericApplicationNode.setDistributedTreeNode(guidDistributedTrieNode);
 
         genericApplicationNode.setName(applicationDescription.getName());
         genericApplicationNode.setGuid(genericApplicationNode.getGuid());

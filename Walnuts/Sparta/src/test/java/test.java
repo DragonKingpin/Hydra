@@ -1,7 +1,6 @@
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.uoi.UOI;
 
-import com.pinecone.hydra.config.distribute.entity.GenericConfNode;
+import com.pinecone.hydra.registry.entity.GenericConfNode;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;

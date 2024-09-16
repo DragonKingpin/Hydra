@@ -8,6 +8,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 
 import java.util.*;
+import java.util.TreeMap;
 
 @SuppressWarnings( "unchecked" )
 public class TestUnits {
@@ -178,49 +179,24 @@ public class TestUnits {
     }
 
     public static void testTrieMap() {
-        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>();
+        UniTrieMaptron<String, String> trieMap = new UniTrieMaptron<>( LinkedHashMap::new );
 
-        // 插入一些键值对
-        trieMap.put("animals/dogs/breed1", "Breed One");
-        trieMap.put("animals/dogs/breed2", "Breed Two");
-        trieMap.put("animals/cats/breed1", "Breed Three");
-        trieMap.put("animals/cats/breed2", "Breed Four");
-        trieMap.put("animals/cats/breed3", "Breed Five");
-        TrieReparseNode<String, String> objectObjectTrieReparseNode = new TrieReparseNode<>("animals/cats/breed1",trieMap);
-        trieMap.putReference("animals/cats/breed4", objectObjectTrieReparseNode);
-        // 获取值
-        System.out.println("get(\"animals/dogs/breed1\"): " + trieMap.get("animals/dogs/breed1")); // 应该输出Breed One
-        System.out.println("get(\"animals/cats/breed3\"): " + trieMap.get("animals/cats/breed4")); // 应该输出Breed Five
+        trieMap.put("a1/b1/c1", "T1");
+        trieMap.put("a2/b2/c2", "T2");
+        trieMap.put("a3/b3/c3", "T3");
+        trieMap.put("a3/b4/c4", "T4");
+        trieMap.put("a4/b5/c5", "T5");
+        TrieReparseNode<String, String> objectObjectTrieReparseNode = new TrieReparseNode<>("a4/b5/c5",trieMap);
+        trieMap.putReference( "a1/b1/rc5", objectObjectTrieReparseNode );
 
-        // 检查是否存在键
-        System.out.println("containsKey(\"animals/dogs/breed1\"): " + trieMap.containsKey("animals/dogs/breed1")); // 应该输出true
-        System.out.println("containsKey(\"animals/dogs/breedX\"): " + trieMap.containsKey("animals/dogs/breedX")); // 应该输出false
+        Debug.trace( trieMap, trieMap.size() );
 
-        // 检查是否包含值
-        System.out.println("containsValue(\"Breed One\"): " + trieMap.containsValue("Breed One")); // 应该输出true
-        System.out.println("containsValue(\"Unknown Breed\"): " + trieMap.containsValue("Unknown Breed")); // 应该输出false
+        Debug.trace( trieMap.keySet() );
 
-        // 移除键值对
-        System.out.println("remove(\"animals/cats/breed3\"): " + trieMap.remove("animals/cats/breed3")); // 应该输出Breed Five
-        System.out.println("size after removing breed3: " + trieMap.size()); // 应该输出4
+        Debug.trace( trieMap.values() );
 
-        // 获取所有键
-        Set<String> keys = trieMap.keySet();
-        System.out.println("keys: " + keys);
-
-        // 获取所有值
-        Collection<String> values = trieMap.values();
-        System.out.println("values: " + values);
-
-        // 获取所有键值对
-        Set<Map.Entry<String, String>> entries = trieMap.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-        }
-
-        // 清空前缀树
-        trieMap.clear();
-        System.out.println("isEmpty after clearing: " + trieMap.isEmpty()); // 应该输出true
+        trieMap.put("a1/b1", "TCC");
+        Debug.trace( trieMap.get("a1/b1") );
     }
 
     public static void main( String[] args ) throws Exception {

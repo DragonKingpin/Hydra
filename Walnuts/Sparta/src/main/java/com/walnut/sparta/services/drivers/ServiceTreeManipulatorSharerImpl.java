@@ -1,10 +1,10 @@
 package com.walnut.sparta.services.drivers;
 
-import com.pinecone.hydra.unit.udsn.source.ScopeOwnerManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopePathManipulator;
-import com.pinecone.hydra.unit.udsn.source.ScopeTreeManipulator;
-import com.pinecone.hydra.unit.udsn.source.TreeMasterManipulator;
-import com.pinecone.hydra.service.ibatis.ScopeTreeMapper;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
+import com.pinecone.hydra.service.ibatis.TrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathMapper;
 import org.springframework.stereotype.Component;
@@ -19,23 +19,23 @@ public class ServiceTreeManipulatorSharerImpl implements TreeMasterManipulator {
     ServicePathMapper           scopePathManipulator;
 
     @Resource
-    ScopeTreeMapper             scopeTreeManipulator;
+    TrieTreeMapper trieTreeManipulator;
 
     @Resource
     ServiceNodeOwnerMapper      scopeOwnerManipulator;
 
     @Override
-    public ScopeOwnerManipulator getScopeOwnerManipulator() {
+    public TireOwnerManipulator getTireOwnerManipulator() {
         return this.scopeOwnerManipulator;
     }
 
     @Override
-    public ScopeTreeManipulator getScopeTreeManipulator() {
-        return this.scopeTreeManipulator;
+    public TrieTreeManipulator getTrieTreeManipulator() {
+        return this.trieTreeManipulator;
     }
 
     @Override
-    public ScopePathManipulator getScopePathManipulator() {
+    public TriePathManipulator getTriePathManipulator() {
         return this.scopePathManipulator;
     }
 }

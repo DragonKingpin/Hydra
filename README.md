@@ -132,13 +132,14 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 1. LinkedTreeMap
 2. ScopeMap (多域查找树、Map), 实现和支持类似动态语言（如JS、PHP、Python等）的底层继承数据结构，支持两类子模型（单继承、多继承），
 可以实现多域查找的功能。
-3. Dictium、Dictionary（字典接口模型），实现和支持类似动态语言（如PHP、Python等）的Array、字典查找，Map和可索引对象进一步抽象化。
-4. Multi*Map (多种MultiValueMap范式)，实现支持多种多值Map的实现，如MultiCollectionMap、MultiSetMap等。
-5. Top (TopN问题通用解决)，实现和支持堆法、有序树法、多值有序树法三种实现。
-6. distinct (差异器)，实现传统Set法、分治法、Bloom等的集合差异分析器。
-7. affinity (亲缘性器)，实现和支持对亲缘抽象字典的继承、重写等。
-8. tabulate (遍历器)，实现以列表式对抽象字典的内部递归，并列表化和分析亲缘关系。
-9. ShardList (非复制式共享数组)，由 @Geniusay 贡献。
+3.  Dictium、Dictionary（字典接口模型），实现和支持类似动态语言（如PHP、Python等）的Array、字典查找，Map和可索引对象进一步抽象化。
+4.  Multi*Map (多种MultiValueMap范式)，实现支持多种多值Map的实现，如MultiCollectionMap、MultiSetMap等。
+5.  Top (TopN问题通用解决)，实现和支持堆法、有序树法、多值有序树法三种实现。
+6.  distinct (差异器)，实现传统Set法、分治法、Bloom等的集合差异分析器。
+7.  affinity (亲缘性器)，实现和支持对亲缘抽象字典的继承、重写等。
+8.  tabulate (遍历器)，实现以列表式对抽象字典的内部递归，并列表化和分析亲缘关系。
+9.  ShardList (非复制式共享数组)，由 @Geniusay 贡献。
+10. TrieMap (前缀树Map)，支持非递归迭代器，类文件系统完整功能前缀树，Symbolic Reparse 引用挂载点。
 ##### 1.1.1.2、工具库
 1. JSON库，BSON，JPlus(JSON++)库 (面向可二次开发、设计的自由JSON设计)，可以重写JSONEncoder、JSONDecoder、JSONCompiler、JSONDecompiler、注入器等。
 2. Name命名空间库
@@ -153,7 +154,9 @@ TODO
 3. BlockSystem，块式系统(面向边缘、链式系统设计)。让你的每台设备都成为你专属链上节点。 [BETA, 20250101]
 4. CascadeComponent, 级联组件设计，支持亲缘性回收控制，“The Omega Device”，级联回收主键引用。
 5. 分布式容器（分布式多域树等）
-
+6. 分布式微内核\
+   借鉴WinNT、Unix，支持KernelObject、挂载点、统一内核对象管理。\
+   Unix风格内核句柄路径化，如分布式挂载 /proc/、/dev/ 等。 
 ##### 1.1.2.2、事物和统一任务编排系统
 1. Orchestration (事务、任务编排子系统)，面向统一解释器模式方法论和过程化设计，事务和任务编排逻辑化，支持循环控制、条件控制、散转控制、原子化等，更支持事务完整性设计。
 2. Auto (简易命令模式，可编程自动机系统)，实现支持Automaton简易生产-消费命令队列，实现支持PeriodicAutomaton可编程Timer，实现支持Marshalling流水线指令编排器。(更多Timer和算法持续更新中)
@@ -166,13 +169,21 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
 ##### 1.1.2.5、WolfMC RPC
 二进制RPC协议支持，更多RPC协议持续更新中。[TODO 分片、泳道]
 ##### 1.1.2.6、统一服务注册、发现、管理系统
-1. 服务树 (由@kenssa4eedfd贡献)\
+1. 服务树\
 支持多级分类的服务树，可以设置多级命名空间，如 `Name1.Name2.应用1.服务1`。\
 支持元信息继承、多引用、节点回收、支持复杂服务管理分类。
 
-##### 1.1.2.7、统一服务注册、发现、管理系统
-1. 配置树、统一配置中心 (由@kenssa4eedfd贡献)\
-TODO，"盗版" Apollo，支持分布式配置管理。一个配置中心，就像Windows注册表一样。
+##### 1.1.2.7、分布式微内核
+1. 配置树、分布式注册表\
+   "盗版" Apollo，支持分布式配置管理。一个配置中心，就像 Windows注册表一样。
+2. 任务树\
+   任务、进程分类、分组和编排系统。\
+   对一级挂载点 `/proc/${proc_guid}/task` 的二级挂载和分类。
+3. 部署树、部署管理器\
+   多种部署模式（如容器、虚拟机、PaaS等），分类、分组和编排系统，类似 Windows 设备管理器。\
+   抽象部署设备类似传统操作系统的物理设备，通过编写驱动，实现对部署子系统的管理。
+4. 场景树\
+   功能分类、分组和编排系统。
 
 ##### 1.1.2.8、统一资源管理、分配接口系统［TODO］
 ##### 1.1.2.9、图形管理界面［TODO］

@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,6 +13,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
+@IbatisDataAccessObject
 public interface ServiceNodeMapper extends ServiceNodeManipulator {
 
     @Insert("INSERT INTO `hydra_service_service_node` (`guid`, `name`) VALUES (#{guid},#{name})")

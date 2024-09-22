@@ -2,17 +2,17 @@ package com.pinecone.hydra.registry.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.GenericProperties;
-import com.pinecone.hydra.registry.entity.Properties;
+import com.pinecone.hydra.registry.entity.GenericProperty;
+import com.pinecone.hydra.registry.entity.Property;
 
 import java.util.List;
 
 public interface RegistryPropertiesManipulator extends Pinenut {
-    void insert(Properties properties);
+    void insert(Property property);
 
-    void remove(GUID guid);
+    void remove(GUID guid, String key);
 
-    List<GenericProperties> getProperties(GUID guid);
+    List<GenericProperty> getProperties(GUID guid);
 
-    void update(Properties properties);
+    void update(Property property);
 }

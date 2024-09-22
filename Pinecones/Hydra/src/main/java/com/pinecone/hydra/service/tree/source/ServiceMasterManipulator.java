@@ -1,11 +1,12 @@
 package com.pinecone.hydra.service.tree.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 
-public interface DefaultMetaNodeManipulators extends Pinenut {
+public interface ServiceMasterManipulator extends KOIMasterManipulator {
     TrieTreeManipulator getTrieTreeManipulator() ;
 
     CommonDataManipulator getCommonDataManipulator();
@@ -22,10 +23,7 @@ public interface DefaultMetaNodeManipulators extends Pinenut {
 
     ClassifRulesManipulator getClassifRulesManipulator();
 
-    TrieTreeManipulator getServiceTreeMapper();
-
     ServiceFamilyTreeManipulator getServiceFamilyTreeManipulator();
     TireOwnerManipulator getTireOwnerManipulator();
 
-    TriePathManipulator getTriePathManipulator();
 }

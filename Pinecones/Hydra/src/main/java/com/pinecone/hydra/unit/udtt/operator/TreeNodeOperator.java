@@ -12,4 +12,6 @@ public interface TreeNodeOperator extends Pinenut {
     TreeNode get(GUID guid);
 
     TreeNode getWithoutInheritance(GUID guid);
+
+    void update(TreeNode treeNode);
 }

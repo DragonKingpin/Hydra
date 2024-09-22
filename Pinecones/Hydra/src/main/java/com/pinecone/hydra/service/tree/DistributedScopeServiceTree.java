@@ -12,7 +12,11 @@ import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
+import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
@@ -25,12 +29,13 @@ import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import java.util.List;
 
 public class DistributedScopeServiceTree implements ScopeServiceTree {
+    protected Hydrarum                  hydrarum;
     //GenericDistributedScopeTree
-    private DistributedTrieTree distributedTrieTree;
+    private DistributedTrieTree         distributedTrieTree;
 
     MetaNodeInstanceFactory             metaNodeInstanceFactory;
 
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private ServiceMasterManipulator    serviceMasterManipulator;
     private MetaNodeOperatorProxy       metaNodeOperatorProxy;
     private ApplicationNodeManipulator  applicationNodeManipulator;
     private ServiceNodeManipulator      serviceNodeManipulator;
@@ -38,16 +43,30 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
 
 
-    public DistributedScopeServiceTree(DefaultMetaNodeManipulators manipulators, TreeMasterManipulator treeManipulatorSharer){
-        this.defaultMetaNodeManipulators = manipulators;
-        this.applicationNodeManipulator  = manipulators.getApplicationNodeManipulator();
-        this.serviceNodeManipulator      = manipulators.getServiceNodeManipulator();
-        this.classifNodeManipulator      = manipulators.getClassifNodeManipulator();
-        this.distributedTrieTree = new GenericDistributedTrieTree(treeManipulatorSharer);
-        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.defaultMetaNodeManipulators);
-        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators,treeManipulatorSharer);
+    public DistributedScopeServiceTree(Hydrarum hydrarum, KOIMasterManipulator masterManipulator){
+        Debug.trace(masterManipulator);
+        this.hydrarum = hydrarum;
+        this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
+        KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
+        TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
+        this.distributedTrieTree = new GenericDistributedTrieTree(treeMasterManipulator);
+        this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
+        this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
+        this.classifNodeManipulator      = this.serviceMasterManipulator.getClassifNodeManipulator();
+        this.metaNodeOperatorProxy       = new MetaNodeOperatorProxy( this.serviceMasterManipulator);
+        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeMasterManipulator);
     }
 
+    public DistributedScopeServiceTree( Hydrarum hydrarum ) {
+        this.hydrarum = hydrarum;
+    }
+
+    public DistributedScopeServiceTree( KOIMappingDriver driver ) {
+        this(
+                driver.getSystem(),
+                driver.getMasterManipulator()
+        );
+    }
 
 
     @Override

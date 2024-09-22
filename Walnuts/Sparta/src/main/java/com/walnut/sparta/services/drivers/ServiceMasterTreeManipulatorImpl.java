@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 
 
 @Component
-public class ServiceTreeManipulatorSharerImpl implements TreeMasterManipulator {
+public class ServiceMasterTreeManipulatorImpl implements TreeMasterManipulator {
 
     @Resource
     ServicePathMapper           scopePathManipulator;

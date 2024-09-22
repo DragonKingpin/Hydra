@@ -5,7 +5,7 @@ import com.pinecone.hydra.scenario.entity.GenericNamespaceNode;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
 import com.pinecone.hydra.scenario.tree.GenericDistributedScenarioMetaTree;
 import com.pinecone.ulf.util.id.GUID72;
-import com.walnut.sparta.services.drivers.ScenarioMetaManipulatorSharerImpl;
+import com.walnut.sparta.services.drivers.ScenarioMasterManipulatorImpl;
 import com.walnut.sparta.services.drivers.ScenarioTreeManipulatorSharerImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,13 +25,13 @@ public class ScenarioMetaController {
     @Resource
     ScenarioTreeManipulatorSharerImpl       scenarioTreeManipulatorSharer;
     @Resource
-    ScenarioMetaManipulatorSharerImpl       scenarioMetaManipulatorSharer;
+    ScenarioMasterManipulatorImpl scenarioMetaManipulatorSharer;
 
     private DistributedScenarioMetaTree     distributedScenarioMetaTree;
 
     @PostConstruct
     public void init() {
-        this.distributedScenarioMetaTree = new GenericDistributedScenarioMetaTree(this.scenarioMetaManipulatorSharer,this.scenarioTreeManipulatorSharer);
+        this.distributedScenarioMetaTree = new GenericDistributedScenarioMetaTree(null,this.scenarioMetaManipulatorSharer);
     }
 
     /**

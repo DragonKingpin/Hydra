@@ -2,6 +2,10 @@ package com.pinecone.hydra.scenario.tree;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
+import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.scenario.entity.GenericNamespaceNode;
 import com.pinecone.hydra.scenario.entity.GenericNamespaceNodeMeta;
@@ -9,7 +13,7 @@ import com.pinecone.hydra.scenario.entity.GenericScenarioCommonData;
 import com.pinecone.hydra.scenario.entity.NamespaceNode;
 import com.pinecone.hydra.scenario.entity.NamespaceNodeMeta;
 import com.pinecone.hydra.scenario.entity.ScenarioCommonData;
-import com.pinecone.hydra.scenario.source.ScenarioMetaManipulatorSharer;
+import com.pinecone.hydra.scenario.source.ScenarioMasterManipulator;
 import com.pinecone.hydra.scenario.source.NamespaceNodeManipulator;
 import com.pinecone.hydra.scenario.source.NamespaceNodeMetaManipulator;
 import com.pinecone.hydra.scenario.source.ScenarioCommonDataManipulator;
@@ -26,19 +30,34 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GenericDistributedScenarioMetaTree implements DistributedScenarioMetaTree{
-    private DistributedTrieTree distributedScenarioTree;
-    private ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer;
+    protected Hydrarum                       hydrarum;
+    private DistributedTrieTree             distributedScenarioTree;
+    private ScenarioMasterManipulator       scenarioMasterManipulator;
 
     private NamespaceNodeMetaManipulator    namespaceNodeMetaManipulator;
     private NamespaceNodeManipulator        namespaceNodeManipulator;
     private ScenarioCommonDataManipulator   scenarioCommonDataManipulator;
 
-    public GenericDistributedScenarioMetaTree(ScenarioMetaManipulatorSharer scenarioMetaManipulatorSharer, TreeMasterManipulator treeManipulatorSharer){
-        this.scenarioMetaManipulatorSharer = scenarioMetaManipulatorSharer;
-        this.distributedScenarioTree        =   new GenericDistributedTrieTree(treeManipulatorSharer);
-        this.namespaceNodeManipulator       =   this.scenarioMetaManipulatorSharer.getNamespaceNodeManipulator();
-        this.namespaceNodeMetaManipulator   =   this.scenarioMetaManipulatorSharer.getNSNodeMetaManipulator();
-        this.scenarioCommonDataManipulator  =   this.scenarioMetaManipulatorSharer.getScenarioCommonDataManipulator();
+    public GenericDistributedScenarioMetaTree(Hydrarum hydrarum, KOIMasterManipulator masterManipulator){
+        this.hydrarum                       =   hydrarum;
+        this.scenarioMasterManipulator      =   (ScenarioMasterManipulator) masterManipulator;
+        KOISkeletonMasterManipulator skeletonMasterManipulator = this.scenarioMasterManipulator.getSkeletonMasterManipulator();
+        TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
+        this.distributedScenarioTree        =   new GenericDistributedTrieTree(treeMasterManipulator);
+        this.namespaceNodeManipulator       =   this.scenarioMasterManipulator.getNamespaceNodeManipulator();
+        this.namespaceNodeMetaManipulator   =   this.scenarioMasterManipulator.getNSNodeMetaManipulator();
+        this.scenarioCommonDataManipulator  =   this.scenarioMasterManipulator.getScenarioCommonDataManipulator();
+    }
+
+    public GenericDistributedScenarioMetaTree( Hydrarum hydrarum ) {
+        this.hydrarum = hydrarum;
+    }
+
+    public GenericDistributedScenarioMetaTree( KOIMappingDriver driver ) {
+        this(
+                driver.getSystem(),
+                driver.getMasterManipulator()
+        );
     }
 
     @Override

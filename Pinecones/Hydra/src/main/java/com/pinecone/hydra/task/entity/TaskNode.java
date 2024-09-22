@@ -9,6 +9,12 @@ public interface TaskNode extends TreeNode {
     void setEnumId(int id);
 
     GUID getGuid();
+
+    @Override
+    default TaskNode evinceTreeNode() {
+        return this;
+    }
+
     void setGuid(GUID guid);
 
     String getName();

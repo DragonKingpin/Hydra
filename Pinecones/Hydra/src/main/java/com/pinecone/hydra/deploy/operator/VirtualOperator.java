@@ -24,4 +24,9 @@ public class VirtualOperator implements TreeNodeOperator {
     public TreeNode getWithoutInheritance(GUID guid) {
         return null;
     }
+
+    @Override
+    public void update(TreeNode treeNode) {
+
+    }
 }

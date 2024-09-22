@@ -7,7 +7,7 @@ import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
@@ -20,14 +20,14 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
     private ApplicationNodeManipulator        applicationNodeManipulator;
     private ApplicationMetaManipulator        applicationMetaManipulator;
     private CommonDataManipulator             commonDataManipulator;
-    private TrieTreeManipulator trieTreeManipulator;
+    private TrieTreeManipulator               trieTreeManipulator;
 
-    public ApplicationNodeOperator( DefaultMetaNodeManipulators manipulators ) {
+    public ApplicationNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getApplicationNodeManipulator(),
                 manipulators.getApplicationMetaManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getServiceTreeMapper()
+                manipulators.getTrieTreeManipulator()
         );
     }
 

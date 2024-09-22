@@ -4,11 +4,13 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.entity.GenericTaskNodeMeta;
 import com.pinecone.hydra.task.entity.TaskNodeMeta;
 import com.pinecone.hydra.task.source.TaskNodeMetaManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 @Mapper
+@IbatisDataAccessObject
 public interface TaskNodeMetaMapper extends TaskNodeMetaManipulator {
     @Insert("INSERT INTO `hydra_task_task_node_meta` (`guid`) VALUES (#{guid})")
     void insert(TaskNodeMeta taskNodeMeta);

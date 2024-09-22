@@ -3,8 +3,11 @@ package com.pinecone.hydra.registry;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
-import com.pinecone.hydra.registry.entity.Properties;
+import com.pinecone.hydra.registry.entity.Property;
+import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -25,6 +28,7 @@ import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GenericDistributeRegistry implements DistributedRegistry {
@@ -150,9 +154,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void insertProperties( Properties properties, GUID configNodeGuid ) {
-        properties.setGuid(configNodeGuid);
-        this.registryPropertiesManipulator.insert(properties);
+    public void insertProperties(Property property, GUID configNodeGuid ) {
+        property.setGuid(configNodeGuid);
+        property.setCreateTime(LocalDateTime.now());
+        property.setUpdateTime(LocalDateTime.now());
+        this.registryPropertiesManipulator.insert(property);
     }
 
     @Override
@@ -161,6 +167,96 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
         operator.remove(guid);
+    }
+
+    @Override
+    public void updateProperty(Property property, GUID configNodeGuid) {
+        property.setGuid(configNodeGuid);
+        property.setUpdateTime(LocalDateTime.now());
+        this.registryPropertiesManipulator.update(property);
+    }
+
+    @Override
+    public void updateTextValue(GUID guid, String text, String type) {
+        GenericTextValue genericTextValue = new GenericTextValue();
+        genericTextValue.setUpdateTime(LocalDateTime.now());
+        genericTextValue.setValue(text);
+        genericTextValue.setType(type);
+        this.registryTextValueManipulator.update(genericTextValue);
+    }
+
+    @Override
+    public List<Property> getProperties(GUID guid) {
+        ArrayList<Property> properties = new ArrayList<>();
+        List<GenericProperty> genericProperties = this.registryPropertiesManipulator.getProperties(guid);
+        for (GenericProperty p : genericProperties){
+            properties.add((Property) p);
+        }
+        return properties;
+    }
+
+    @Override
+    public TextValue getTextValue(GUID guid) {
+        return this.registryTextValueManipulator.getTextValue(guid);
+    }
+
+    @Override
+    public void removeProperty(GUID guid, String key) {
+        this.registryPropertiesManipulator.remove(guid,key);
+    }
+
+    @Override
+    public void removeTextValue(GUID guid) {
+        this.registryTextValueManipulator.remove(guid);
+    }
+
+    @Override
+    public List<TreeNode> getChildConf(GUID guid) {
+        List<GUIDDistributedTrieNode> childNodes = this.distributedConfTree.getChildNode(guid);
+        ArrayList<TreeNode> configNodes = new ArrayList<>();
+        for(GUIDDistributedTrieNode node : childNodes){
+            TreeNode treeNode =  this.get(node.getGuid());
+            configNodes.add(treeNode);
+        }
+        return configNodes;
+    }
+
+    @Override
+    public List<TreeNode> selectByName(String name) {
+        List<GUID> nodes = this.namespaceNodeManipulator.getNodeByName(name);
+        ArrayList<TreeNode> configNodes = new ArrayList<>();
+        for(GUID guid : nodes){
+            TreeNode treeNode =  this.get(guid);
+            configNodes.add(treeNode);
+        }
+        return configNodes;
+    }
+
+    @Override
+    public void rename(String name, GUID guid) {
+        GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
+        TreeNode newInstance = (TreeNode)node.getType().newInstance();
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
+        GenericConfigNode configNode = new GenericConfigNode();
+        configNode.setGuid(guid);
+        configNode.setName(name);
+        operator.update(configNode);
+    }
+
+    @Override
+    public List<TreeNode> getAllTreeNode() {
+        List<GUID> nameSpaceNodes = this.namespaceNodeManipulator.getAll();
+        List<GUID> confNodes = this.nodeManipulator.getALL();
+        ArrayList<TreeNode> treeNodes = new ArrayList<>();
+        for (GUID guid : nameSpaceNodes){
+            TreeNode treeNode = this.get(guid);
+            treeNodes.add(treeNode);
+        }
+        for (GUID guid : confNodes){
+            TreeNode treeNode = this.get(guid);
+            treeNodes.add(treeNode);
+        }
+        return treeNodes;
     }
 
     @Override

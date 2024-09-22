@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public interface Properties extends Pinenut {
+public interface Property extends Pinenut {
     int getEnumId();
 
     void setEnumId( int enumId );

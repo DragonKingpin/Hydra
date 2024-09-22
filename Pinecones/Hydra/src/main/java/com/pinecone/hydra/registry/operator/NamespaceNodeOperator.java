@@ -112,6 +112,11 @@ public class NamespaceNodeOperator implements TreeNodeOperator {
         return this.getNamespaceNodeWideData(guid);
     }
 
+    @Override
+    public void update(TreeNode treeNode) {
+
+    }
+
     private NamespaceNode getNamespaceNodeWideData( GUID guid ){
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);

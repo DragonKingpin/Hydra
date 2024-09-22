@@ -3,7 +3,7 @@ package com.walnut.sparta.services.controller.v2;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.task.entity.GenericTaskNode;
-import com.pinecone.hydra.task.source.TaskManipulatorSharer;
+import com.pinecone.hydra.task.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.tree.DistributedTaskMetaTree;
 import com.pinecone.hydra.task.tree.GenericDistributedTaskMetaTree;
 import com.pinecone.ulf.util.id.GUID72;
@@ -24,7 +24,7 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/TaskMeta" )
 public class TaskMetaController {
     @Resource
-    private TaskManipulatorSharer           taskManipulatorSharer;
+    private TaskMasterManipulator taskMasterManipulator;
 
     @Resource
     private TaskTreeManipulatorSharerImpl   treeManipulatorSharer;
@@ -33,7 +33,7 @@ public class TaskMetaController {
 
     @PostConstruct
     public void init() {
-        this.distributedTaskMetaTree = new GenericDistributedTaskMetaTree(this.taskManipulatorSharer,this.treeManipulatorSharer);
+        this.distributedTaskMetaTree = new GenericDistributedTaskMetaTree(null,this.taskMasterManipulator);
     }
 
     /**

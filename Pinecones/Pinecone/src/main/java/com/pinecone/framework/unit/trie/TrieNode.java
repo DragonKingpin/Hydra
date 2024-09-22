@@ -17,10 +17,11 @@ public class TrieNode implements Pinenut {
         Reparse
     }
 
-    TrieNode( Map<String, TrieNode > map ,NodeType nodeType,String path) {
+    TrieNode( Map<String, TrieNode > map ,NodeType nodeType,String path,TrieNode parent) {
         this.children = map;
         this.nodeType = nodeType;
         this.path = path;
+        this.parent = parent;
     }
 
     public String put( String key, Object value,TrieMap trieMap ){

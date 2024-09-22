@@ -1,11 +1,12 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.udtt.entity.EvinceTreeNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.time.LocalDateTime;
 
-public interface NamespaceNode extends TreeNode {
+public interface NamespaceNode extends EvinceTreeNode {
     int getEnumId();
     void setEnumId(int enumId);
     GUID getGuid();
@@ -13,6 +14,12 @@ public interface NamespaceNode extends TreeNode {
     String getName();
     void setName(String name);
     LocalDateTime getCreateTime();
+
+    @Override
+    default NamespaceNode evinceNamespaceTreeNode() {
+        return this;
+    }
+
     void setCreateTime(LocalDateTime createTime);
     LocalDateTime getUpdateTime();
     void setUpdateTime(LocalDateTime updateTime);

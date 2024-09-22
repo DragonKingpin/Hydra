@@ -1,14 +1,11 @@
 package com.pinecone.hydra.registry.entity;
 
-import com.pinecone.framework.system.prototype.ObjectiveBean;
-import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 import java.time.LocalDateTime;
 
-public class GenericProperties implements Properties{
+public class GenericProperty implements Property {
     private int enumId;
     private GUID guid;
     private String key;
@@ -17,10 +14,10 @@ public class GenericProperties implements Properties{
     private LocalDateTime updateTime;
     private String value;
 
-    public GenericProperties() {
+    public GenericProperty() {
     }
 
-    public GenericProperties( int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value ) {
+    public GenericProperty(int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value ) {
         this.enumId = enumId;
         this.guid = guid;
         this.key = key;

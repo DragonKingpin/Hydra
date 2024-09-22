@@ -6,14 +6,14 @@ import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
 import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
-import com.walnut.sparta.services.drivers.ServiceTreeManipulatorSharerImpl;
+import com.walnut.sparta.services.drivers.ServiceMasterTreeManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +31,10 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceMeta" )
 public class ServiceMetaController {
     @Resource
-    private DefaultMetaNodeManipulators defaultMetaNodeManipulators;
+    private ServiceMasterManipulator serviceMasterManipulator;
 
     @Resource
-    private ServiceTreeManipulatorSharerImpl treeManipulatorSharer;
+    private ServiceMasterTreeManipulatorImpl treeManipulatorSharer;
 
     private ScopeServiceTree scopeServiceTree;
 
@@ -42,8 +42,8 @@ public class ServiceMetaController {
 
     @PostConstruct
     public void init() {
-        this.scopeServiceTree = new DistributedScopeServiceTree( this.defaultMetaNodeManipulators,this.treeManipulatorSharer);
-        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.defaultMetaNodeManipulators,treeManipulatorSharer);
+        this.scopeServiceTree = new DistributedScopeServiceTree( null,serviceMasterManipulator);
+        this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeManipulatorSharer);
     }
 
     /**
@@ -143,7 +143,7 @@ public class ServiceMetaController {
      */
     @PostMapping("/inherit")
     public BasicResultResponse<String> inherit(@RequestParam("childNode") GUID childNode,@RequestParam("parentNode") GUID parentNode){
-        ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
+        ServiceFamilyTreeManipulator serviceFamilyTreeManipulator = this.serviceMasterManipulator.getServiceFamilyTreeManipulator();
         serviceFamilyTreeManipulator.insert(childNode,parentNode);
         return BasicResultResponse.success();
     }

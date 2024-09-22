@@ -2,9 +2,12 @@ package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-
+@Mapper
+@IbatisDataAccessObject
 public interface TaskNodeOwnerMapper extends TireOwnerManipulator {
     void insert(GUID subordinateGuid, GUID ownerGuid);
 

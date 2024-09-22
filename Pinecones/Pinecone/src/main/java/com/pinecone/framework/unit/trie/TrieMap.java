@@ -27,4 +27,5 @@ public interface TrieMap<K, V > extends Map<K, V >, PineUnit {
     TrieNode getNode( String key );
 
     String getSeparator();
+
 }

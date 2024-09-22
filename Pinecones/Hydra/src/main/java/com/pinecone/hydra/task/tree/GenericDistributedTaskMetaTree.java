@@ -2,6 +2,10 @@ package com.pinecone.hydra.task.tree;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
+import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.task.entity.GenericTaskCommonData;
@@ -9,7 +13,7 @@ import com.pinecone.hydra.task.entity.GenericTaskNode;
 import com.pinecone.hydra.task.entity.GenericTaskNodeMeta;
 import com.pinecone.hydra.task.entity.TaskNode;
 import com.pinecone.hydra.task.source.TaskCommonDataManipulator;
-import com.pinecone.hydra.task.source.TaskManipulatorSharer;
+import com.pinecone.hydra.task.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.source.TaskNodeManipulator;
 import com.pinecone.hydra.task.source.TaskNodeMetaManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
@@ -24,18 +28,36 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
-    private DistributedTrieTree distributedTrieTree;
+    protected Hydrarum                      hydrarum;
+    private DistributedTrieTree             distributedTrieTree;
 
     private TaskNodeManipulator             taskNodeManipulator;
 
     private TaskNodeMetaManipulator         taskNodeMetaManipulator;
 
     private TaskCommonDataManipulator       taskCommonDataManipulator;
-    public GenericDistributedTaskMetaTree(TaskManipulatorSharer taskManipulatorSharer, TreeMasterManipulator treeManipulatorSharer){
-        this.taskCommonDataManipulator = taskManipulatorSharer.getTaskCommonDataManipulator();
-        this.taskNodeMetaManipulator   = taskManipulatorSharer.getTaskNodeMetaManipulator();
-        this.taskNodeManipulator       = taskManipulatorSharer.getTaskNodeManipulator();
-        this.distributedTrieTree = new GenericDistributedTrieTree(treeManipulatorSharer);
+    public GenericDistributedTaskMetaTree( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
+        this.hydrarum = hydrarum;
+        TaskMasterManipulator taskMasterManipulator = (TaskMasterManipulator) masterManipulator;
+
+        KOISkeletonMasterManipulator skeletonMasterManipulator = taskMasterManipulator.getSkeletonMasterManipulator();
+        TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
+
+        this.taskCommonDataManipulator = taskMasterManipulator.getTaskCommonDataManipulator();
+        this.taskNodeMetaManipulator   = taskMasterManipulator.getTaskNodeMetaManipulator();
+        this.taskNodeManipulator       = taskMasterManipulator.getTaskNodeManipulator();
+        this.distributedTrieTree = new GenericDistributedTrieTree(treeMasterManipulator);
+    }
+
+    public GenericDistributedTaskMetaTree( Hydrarum hydrarum ) {
+        this.hydrarum = hydrarum;
+    }
+
+    public GenericDistributedTaskMetaTree( KOIMappingDriver driver ) {
+        this(
+                driver.getSystem(),
+                driver.getMasterManipulator()
+        );
     }
 
     @Override

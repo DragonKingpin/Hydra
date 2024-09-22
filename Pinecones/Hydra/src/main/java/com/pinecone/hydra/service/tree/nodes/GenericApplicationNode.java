@@ -74,6 +74,11 @@ public class GenericApplicationNode implements ApplicationNode {
         this.enumId = enumId;
     }
 
+    @Override
+    public ApplicationNode evinceTreeNode() {
+        return ApplicationNode.super.evinceTreeNode();
+    }
+
 
     public GUID getGuid() {
         return guid;

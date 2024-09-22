@@ -1,9 +1,9 @@
 package com.pinecone.hydra.task.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import org.springframework.scheduling.config.Task;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 
-public interface TaskManipulatorSharer extends Pinenut {
+public interface TaskMasterManipulator extends KOIMasterManipulator {
     TaskNodeMetaManipulator         getTaskNodeMetaManipulator();
 
     TaskNodeManipulator             getTaskNodeManipulator();

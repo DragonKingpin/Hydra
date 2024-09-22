@@ -10,7 +10,7 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
@@ -19,20 +19,20 @@ import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
-    protected DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
+    protected ServiceMasterManipulator            serviceMasterManipulator;
     protected Map<GUID, MetaNodeWideEntity>       cacheMap = new HashMap<>();
     protected ServiceFamilyTreeManipulator        serviceFamilyTreeManipulator;
     protected CommonDataManipulator               commonDataManipulator;
-    protected TireOwnerManipulator tireOwnerManipulator;
-    protected DistributedTrieTree distributedTrieTree;
+    protected TireOwnerManipulator                tireOwnerManipulator;
+    protected DistributedTrieTree                 distributedTrieTree;
 
 
-    public ArchMetaNodeInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeMasterManipulator treeManipulatorSharer){
-        this.defaultMetaNodeManipulators    =   defaultMetaNodeManipulators;
-        this.serviceFamilyTreeManipulator   =   this.defaultMetaNodeManipulators.getServiceFamilyTreeManipulator();
-        this.commonDataManipulator          =   this.defaultMetaNodeManipulators.getCommonDataManipulator();
-        this.tireOwnerManipulator =   this.defaultMetaNodeManipulators.getTireOwnerManipulator();
-        this.distributedTrieTree =   new GenericDistributedTrieTree(treeManipulatorSharer);
+    public ArchMetaNodeInstance(ServiceMasterManipulator serviceMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+        this.serviceMasterManipulator           =       serviceMasterManipulator;
+        this.serviceFamilyTreeManipulator       =       this.serviceMasterManipulator.getServiceFamilyTreeManipulator();
+        this.commonDataManipulator              =       this.serviceMasterManipulator.getCommonDataManipulator();
+        this.tireOwnerManipulator               =       this.serviceMasterManipulator.getTireOwnerManipulator();
+        this.distributedTrieTree                =       new GenericDistributedTrieTree(treeManipulatorSharer);
     }
 
     @Override

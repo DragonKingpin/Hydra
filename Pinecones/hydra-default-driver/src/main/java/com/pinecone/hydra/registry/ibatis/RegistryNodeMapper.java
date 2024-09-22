@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -27,9 +28,22 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
     @Select("SELECT `id`, `guid` , `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` AS updateTime, name FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
     GenericConfigNode getConfigurationNode( GUID guid );
 
-    @Update("UPDATE hydra_registry_config_node SET parent_guid=#{parentGuid},create_time=#{createTime},update_time=#{updateTime} WHERE guid=#{guid}")
-    void update( ConfigNode configNode);
+
+    default void update( ConfigNode configNode){
+        if (configNode.getUpdateTime() != null){
+            this.updateUpdateTime(configNode.getUpdateTime(),configNode.getGuid());
+        }
+        if (configNode.getName() != null){
+            updateName(configNode.getName(),configNode.getGuid());
+        }
+    }
 
     @Select("SELECT `guid` FROM `hydra_registry_config_node` WHERE `name`=#{name}")
     List<GUID> getNodeByName(String name);
+    @Update("UPDATE `hydra_registry_config_node` SET `update_time` = #{updateTime} WHERE `guid` = #{guid}")
+    void updateUpdateTime(@Param("updateTime") LocalDateTime updateTime,@Param("guid") GUID guid);
+    @Update("UPDATE `hydra_registry_config_node` SET `name` = #{name} WHERE `guid`=#{guid}")
+    void updateName(@Param("name") String name,@Param("guid") GUID guid);
+    @Select("SELECT `guid` FROM `hydra_registry_config_node`")
+    List<GUID> getALL();
 }

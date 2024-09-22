@@ -10,6 +10,11 @@ public interface NamespaceNode extends TreeNode {
     GUID getGuid();
     void setGuid(GUID guid);
 
+    @Override
+    default NamespaceNode evinceTreeNode() {
+        return this;
+    }
+
     String getName();
     void setName(String name);
 

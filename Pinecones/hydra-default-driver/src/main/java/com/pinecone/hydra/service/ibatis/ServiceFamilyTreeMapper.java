@@ -2,6 +2,7 @@ package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 @Mapper
+@IbatisDataAccessObject
 public interface ServiceFamilyTreeMapper extends ServiceFamilyTreeManipulator {
     @Insert("INSERT INTO hydra_service_family_tree (`child_guid`, `parent_guid`) VALUES (#{childGUID},#{parentGUID})")
     void insert(@Param("childGUID") GUID childGUID, @Param("parentGUID") GUID parentGUID);

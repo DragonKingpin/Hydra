@@ -4,11 +4,13 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.entity.GenericTaskCommonData;
 import com.pinecone.hydra.task.entity.TaskCommonData;
 import com.pinecone.hydra.task.source.TaskCommonDataManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 @Mapper
+@IbatisDataAccessObject
 public interface TaskCommonDataMapper extends TaskCommonDataManipulator {
     @Insert("INSERT INTO `hydra_task_common_data` (`guid`, `create_time`, `update_time`) VALUES (#{guid},#{createTime},#{updateTime})")
     void insert(TaskCommonData taskCommonData);

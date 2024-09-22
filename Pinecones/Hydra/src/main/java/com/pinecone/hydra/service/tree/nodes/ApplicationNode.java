@@ -9,6 +9,11 @@ public interface ApplicationNode extends ServiceTreeNode {
     long getEnumId();
     void setEnumId(long id);
 
+    @Override
+    default ApplicationNode evinceTreeNode() {
+        return this;
+    }
+
     GUID getGuid();
     void setGuid(GUID guid);
 

@@ -8,4 +8,7 @@ public interface ServiceTreeNode extends Pinenut {
     default String getMetaType() {
         return this.className().replace("Generic","");
     }
+    default ServiceTreeNode evinceTreeNode(){
+        return null;
+    }
 }

@@ -1,13 +1,12 @@
 package com.pinecone.hydra.registry.operator;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
-import com.pinecone.hydra.registry.entity.GenericProperties;
+import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
@@ -118,12 +117,27 @@ public class ConfigNodeOperator implements TreeNodeOperator {
         return this.getConfigNodeWideData(guid);
     }
 
+    @Override
+    public void update(TreeNode treeNode) {
+        ConfigNode configNode = (ConfigNode) treeNode;
+        GenericConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
+        GenericNodeCommonData nodeCommonData = configNode.getNodeCommonData();
+        configNode.setUpdateTime(LocalDateTime.now());
+        if (configNodeMeta != null){
+            this.configNodeMetaManipulator.update(configNodeMeta);
+        }
+        if (nodeCommonData != null){
+            this.registryCommonDataManipulator.update(nodeCommonData);
+        }
+        this.configNodeManipulator.update(configNode);
+    }
+
 
     protected ConfigNode getConfigNodeWideData(GUID guid){
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         //Debug.trace(node.toString());
         ConfigNode configurationNode = this.configNodeManipulator.getConfigurationNode(guid);
-        List<GenericProperties> properties = this.registryPropertiesManipulator.getProperties(guid);
+        List<GenericProperty> properties = this.registryPropertiesManipulator.getProperties(guid);
         TextValue textValue = this.registryTextValueManipulator.getTextValue(guid);
         GenericConfigNodeMeta configNodeMeta = (GenericConfigNodeMeta) this.configNodeMetaManipulator.getConfigNodeMeta(node.getNodeMetadataGUID());
         GenericNodeCommonData nodeCommonData = (GenericNodeCommonData) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());

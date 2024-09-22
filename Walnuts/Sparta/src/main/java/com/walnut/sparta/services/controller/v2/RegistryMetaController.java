@@ -3,7 +3,7 @@ package com.walnut.sparta.services.controller.v2;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.GenericConfigNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
-import com.pinecone.hydra.registry.entity.GenericProperties;
+import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.DistributedRegistry;
@@ -91,7 +91,7 @@ public class RegistryMetaController {
     @PostMapping("/insertProperties")
     public BasicResultResponse<String> insertProperties(@RequestParam("key")String key, @RequestParam("Guid") String guid,
                                                         @RequestParam("value") String value, @RequestParam("type") String type){
-        GenericProperties genericProperties = new GenericProperties();
+        GenericProperty genericProperties = new GenericProperty();
         genericProperties.setCreateTime(LocalDateTime.now());
         genericProperties.setUpdateTime(LocalDateTime.now());
         genericProperties.setKey(key);

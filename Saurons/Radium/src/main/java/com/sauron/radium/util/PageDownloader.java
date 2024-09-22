@@ -14,4 +14,6 @@ public interface PageDownloader extends Downloader, Saunut {
 
     @Override
     void setThread( int threads );
+
+    void reset();
 }

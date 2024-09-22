@@ -20,17 +20,20 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class HTTPHeist extends Heist {
-    protected final String          defUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.48";
+    protected final String           defUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.48";
 
-    protected String                heistURL;     // 爬虫的主链接
+    protected String                 heistURL;     // 爬虫的主链接
 
-    protected Site                  site;
-    protected HttpBrowserConf       browserConf;
-    protected Spider                majorSpider;
-    protected CrewPageProcessor     pageProcessor;
-    protected HttpBrowserDownloader httpBrowser;
+    protected Site                   site;
+    protected HttpBrowserConf        browserConf;
+    protected Spider                 majorSpider;
+    protected CrewPageProcessor      pageProcessor;
+    protected HttpBrowserDownloader  httpBrowser;
+    protected ReentrantReadWriteLock requestLock = new ReentrantReadWriteLock();
 
     public HTTPHeist( Heistgram heistron ){
         super( heistron );
@@ -133,15 +136,41 @@ public abstract class HTTPHeist extends Heist {
         return this.queryHTTPPage( request, true );
     }
 
-    public Page queryHTTPPage( Request request, boolean bPooled ) {
+    protected Page queryHTTPPageOnly( Request request, boolean bPooled ) {
+        this.requestLock.readLock().lock();
         try{
             return this.httpBrowser.download( request, this.majorSpider, bPooled );
+        }
+        finally {
+            this.requestLock.readLock().unlock();
+        }
+    }
+
+    public Page queryHTTPPage( Request request, boolean bPooled ) {
+        try{
+            return this.queryHTTPPageOnly( request, bPooled );
         }
         catch ( ProxyProvokeHandleException e ) {
             if( e.getCause() instanceof IOException) {
                 this.tracer().warn( "[queryHTTPPage:Warning] [What: IOException, " + e.getMessage() + "]" );
                 // Fixed: CloseableHttpClient SSL exception using none pooled.
-                return this.httpBrowser.download( request, this.majorSpider, false );
+                try{
+                    return this.queryHTTPPageOnly( request, bPooled );
+                }
+                catch ( ProxyProvokeHandleException e1 ) {
+                    if ( e.getCause() instanceof IOException ) {
+                        this.tracer().warn("[queryHTTPPage:Warning:ResetPool] [What: IOException, " + e.getMessage() + "]");
+                        this.requestLock.writeLock().lock();
+                        try{
+                            this.httpBrowser.reset();
+                        }
+                        finally {
+                            this.requestLock.writeLock().unlock();
+                        }
+                        return this.queryHTTPPageOnly( request, bPooled );
+                    }
+                    throw e1;
+                }
             }
             throw e;
         }

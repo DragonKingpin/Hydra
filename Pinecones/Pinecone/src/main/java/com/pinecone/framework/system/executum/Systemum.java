@@ -3,9 +3,7 @@ package com.pinecone.framework.system.executum;
 import java.util.Map;
 import java.util.Set;
 
-public interface Systemum extends Processum {
-    String       getName();
-
+public interface Systemum extends Processum, Systema {
     int          getId();
 
     Thread       getAffiliateThread();

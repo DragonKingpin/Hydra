@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class HttpBrowserDownloader extends AbstractDownloader {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,6 +37,7 @@ public class HttpBrowserDownloader extends AbstractDownloader {
     protected HttpUriRequestConverter httpUriRequestConverter = new HttpUriRequestConverter();
     protected ProxyProvider proxyProvider;
     protected boolean responseHeader = true;
+    protected ReentrantLock masterLock = new ReentrantLock();
 
     protected Task parentTask = null;
 
@@ -189,5 +191,17 @@ public class HttpBrowserDownloader extends AbstractDownloader {
 
     public Logger getLogger() {
         return this.logger;
+    }
+
+    @Override
+    public void reset() {
+        this.masterLock.lock();
+        try{
+            this.httpClientGenerator.clearPool();
+            this.httpClients.clear();
+        }
+        finally {
+            this.masterLock.unlock();
+        }
     }
 }

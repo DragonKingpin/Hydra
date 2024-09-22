@@ -15,7 +15,7 @@ public abstract class Hydra extends Framework implements Hydrarum {
 
     protected boolean                  mDebugMode        ;
     protected Path                     mWorkingPath      ;
-    protected String                   mServiceID;
+    protected String                   mServiceID        ;
 
 
     public Hydra(){
@@ -45,6 +45,11 @@ public abstract class Hydra extends Framework implements Hydrarum {
 
     public Hydra( String[] args, String szName, CascadeSystem parent ){
         this( args, szName, parent, null );
+    }
+
+
+    protected void prepare_system_skeleton() {
+
     }
 
 

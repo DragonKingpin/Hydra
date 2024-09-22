@@ -65,7 +65,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
     protected MiddlewareManager                    mMiddlewareManager        ;
-    protected ResourceDispenserCenter mDispenserCenter          ;
+    protected ResourceDispenserCenter              mDispenserCenter          ;
 
     protected void prepare_system_log4j_logger() {
         this.mLogger = LoggerFactory.getLogger( this.className() + "<PrimarySystem>" );
@@ -85,6 +85,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
 
     protected void prepare_system_skeleton() {
         this.infoLifecycle( "Skeleton Initialization", LogStatuses.StatusStart );
+        super.prepare_system_skeleton();
         this.mTracerScope            = new GenericTracerScope( this );
         this.mPrimaryConfigScope     = new ConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
         this.mMiddlewareManager      = new MiddlewareManager( this );
@@ -150,7 +151,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected void traceWelcomeInfo() {
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31m\uD83D\uDE08 Sauron Eyes Radium Framework \uD83D\uDE08 \u001B[0m\n" );
-        this.pout().print( "\u001B[34mBean Sauron Nonabyte, Rroject.`the Grand Design` \u001B[0m\n" );
+        this.pout().print( "\u001B[34mBean Sauron Nonabyte, Project.`the Grand Design` \u001B[0m\n" );
         this.pout().print( "\u001B[32mBean Nuts Digital Datacenter of Cthulhu Databases \u001B[0m\n" );
         this.pout().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         this.pout().print( "---------------------------------------------------------------\n" );

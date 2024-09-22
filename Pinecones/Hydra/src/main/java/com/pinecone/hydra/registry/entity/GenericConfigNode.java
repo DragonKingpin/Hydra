@@ -243,6 +243,15 @@ public class GenericConfigNode implements ConfigNode {
     }
 
     @Override
+    public Object getValue( String key ) {
+        Property property = this.getProperty( key );
+        if( property != null ) {
+            return property.getValue();
+        }
+        return null;
+    }
+
+    @Override
     public boolean containsKey(String key) {
         for( Property p : this.properties ){
             if (p.getKey().equals(key)){
@@ -287,6 +296,11 @@ public class GenericConfigNode implements ConfigNode {
             propertyHashSet.add(p);
         }
         return propertyHashSet;
+    }
+
+    @Override
+    public DistributedRegistry getRegistry() {
+        return this.registry;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry.entity;
 
+import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface RegistryTreeNode extends TreeNode {
@@ -19,4 +20,6 @@ public interface RegistryTreeNode extends TreeNode {
     default TextConfigNode evinceTextConfigNode() {
         return null;
     }
+
+    //DistributedRegistry getRegistry();
 }

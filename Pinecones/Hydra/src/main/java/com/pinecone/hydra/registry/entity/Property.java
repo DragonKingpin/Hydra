@@ -22,9 +22,15 @@ public interface Property extends Pinenut {
 
     void setType( String type );
 
-    String getValue();
+    Object getRawValue();
 
-    void setValue( String value );
+    Object getValue();
+
+    void setRawValue( Object value );
+
+    void setValue( Object value );
+
+    boolean isStringBasedType() ;
 
     LocalDateTime getCreateTime();
 

@@ -6,13 +6,13 @@ import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import java.time.LocalDateTime;
 
 public class GenericProperty implements Property {
-    private int enumId;
-    private GUID guid;
-    private String key;
-    private String type;
+    private int           enumId;
+    private GUID          guid;
+    private String        key;
+    private String        type;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private String value;
+    private Object        value;  //TODO
 
     public GenericProperty() {
     }
@@ -131,8 +131,13 @@ public class GenericProperty implements Property {
      * @param updateTime
      */
     @Override
-    public void setUpdateTime(LocalDateTime updateTime) {
+    public void setUpdateTime( LocalDateTime updateTime ) {
         this.updateTime = updateTime;
+    }
+
+    @Override
+    public Object getRawValue() {
+        return this.value;
     }
 
     /**
@@ -140,8 +145,8 @@ public class GenericProperty implements Property {
      * @return value
      */
     @Override
-    public String getValue() {
-        return this.value;
+    public Object getValue() {
+        return PropertyTypes.queryValue( this.value.toString(), this.type );
     }
 
     /**
@@ -149,10 +154,19 @@ public class GenericProperty implements Property {
      * @param value
      */
     @Override
-    public void setValue(String value) {
+    public void setValue( Object value ) {
         this.value = value;
     }
 
+    @Override
+    public boolean isStringBasedType() {
+        return PropertyTypes.isStringBasedType( this.type );
+    }
+
+    @Override
+    public void setRawValue( Object value ) {
+        this.value = value;
+    }
 
     @Override
     public String toJSONString() {

@@ -1,6 +1,8 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.template.UTRAlmondProvider;
+import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
@@ -43,7 +45,7 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setName(String name);
 
-    List<GenericProperty> getProperties();
+    List<GenericProperty > getProperties();
 
     void setProperties(List<GenericProperty> properties);
 
@@ -65,6 +67,8 @@ public interface ConfigNode extends RegistryTreeNode {
     void removeProperty  ( String key );
     void updateProperty  ( Property property );
     Property getProperty ( String key );
+    Object getValue      ( String key );
+
     boolean containsKey  ( String key );
 
 
@@ -84,5 +88,7 @@ public interface ConfigNode extends RegistryTreeNode {
     default TextConfigNode evinceTextConfigNode() {
         return null;
     }
+
+    DistributedRegistry getRegistry();
 
 }

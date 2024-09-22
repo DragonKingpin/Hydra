@@ -5,7 +5,7 @@ import com.pinecone.framework.unit.affinity.DataSharer;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
@@ -15,10 +15,10 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
     private ServiceNodeManipulator         serviceNodeManipulator;
     private ServiceMetaManipulator         serviceMetaManipulator;
 
-    public GenericServiceInstance(DefaultMetaNodeManipulators defaultMetaNodeManipulators, TreeMasterManipulator treeManipulatorSharer){
-        super(defaultMetaNodeManipulators,treeManipulatorSharer);
-       this.serviceMetaManipulator   =  defaultMetaNodeManipulators.getServiceMetaManipulator();
-       this.serviceNodeManipulator   =  defaultMetaNodeManipulators.getServiceNodeManipulator();
+    public GenericServiceInstance(ServiceMasterManipulator serviceMasterManipulator, TreeMasterManipulator treeManipulatorSharer){
+        super(serviceMasterManipulator,treeManipulatorSharer);
+       this.serviceMetaManipulator   =  serviceMasterManipulator.getServiceMetaManipulator();
+       this.serviceNodeManipulator   =  serviceMasterManipulator.getServiceNodeManipulator();
     }
 
     @Override

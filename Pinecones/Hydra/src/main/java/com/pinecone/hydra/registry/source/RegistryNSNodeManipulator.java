@@ -16,4 +16,6 @@ public interface RegistryNSNodeManipulator extends Pinenut {
     void update(NamespaceNode namespaceNode);
 
     List<GUID> getNodeByName(String name);
+
+    List<GUID> getAll();
 }

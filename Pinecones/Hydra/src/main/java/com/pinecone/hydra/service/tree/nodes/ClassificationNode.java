@@ -7,6 +7,12 @@ import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public interface ClassificationNode extends ServiceTreeNode {
     long getEnumId();
+
+    @Override
+    default ClassificationNode evinceTreeNode() {
+        return this;
+    }
+
     void setEnumId(long id);
 
     GUID getGuid();

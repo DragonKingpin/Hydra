@@ -1,14 +1,15 @@
 package com.walnut.sparta.services.drivers;
 
+import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.source.TaskCommonDataManipulator;
-import com.pinecone.hydra.task.source.TaskManipulatorSharer;
+import com.pinecone.hydra.task.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.source.TaskNodeManipulator;
 import com.pinecone.hydra.task.source.TaskNodeMetaManipulator;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 @Component
-public class TaskManipulatorSharerImpl implements TaskManipulatorSharer {
+public class TaskManipulatorSharerImpl implements TaskMasterManipulator {
     @Resource
     private TaskCommonDataManipulator   taskCommonDataManipulator;
 
@@ -31,5 +32,10 @@ public class TaskManipulatorSharerImpl implements TaskManipulatorSharer {
     @Override
     public TaskCommonDataManipulator getTaskCommonDataManipulator() {
         return this.taskCommonDataManipulator;
+    }
+
+    @Override
+    public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
+        return null;
     }
 }

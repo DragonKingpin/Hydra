@@ -2,6 +2,7 @@ package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -11,6 +12,7 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 @Mapper
+@IbatisDataAccessObject
 public interface ServiceNodeOwnerMapper extends TireOwnerManipulator {
     @Insert("INSERT INTO `hydra_service_node_owner` (`subordinate_guid`, `owner_guid`) VALUES (#{subordinateGuid},#{ownerGuid})")
     void insert(@Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid);

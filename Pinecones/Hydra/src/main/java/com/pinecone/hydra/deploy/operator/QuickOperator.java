@@ -1,6 +1,7 @@
 package com.pinecone.hydra.deploy.operator;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
 
@@ -16,12 +17,17 @@ public class QuickOperator implements TreeNodeOperator {
     }
 
     @Override
-    public TreeNode get(GUID guid) {
+    public RegistryTreeNode get(GUID guid) {
         return null;
     }
 
     @Override
-    public TreeNode getWithoutInheritance(GUID guid) {
+    public RegistryTreeNode getWithoutInheritance(GUID guid) {
         return null;
+    }
+
+    @Override
+    public void update( TreeNode treeNode) {
+
     }
 }

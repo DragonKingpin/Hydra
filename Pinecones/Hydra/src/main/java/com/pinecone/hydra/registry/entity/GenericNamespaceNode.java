@@ -2,31 +2,49 @@ package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
+import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class GenericNamespaceNode implements NamespaceNode {
-    private int enumId;
-    private GUID guid;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    private String name;
-    private GenericNamespaceNodeMeta namespaceNodeMeta;
-    private GenericNodeCommonData nodeCommonData;
+    private int                      enumId;
+    private GUID                     guid;
+    private LocalDateTime            createTime;
+    private LocalDateTime            updateTime;
+    private String                   name;
+    private NamespaceNodeMeta        namespaceNodeMeta;
+    private NodeCommonData           nodeCommonData;
+    private DistributedRegistry      registry;
 
-    public GenericNamespaceNode() {
+    protected GenericNamespaceNode() {
+
     }
 
-    public GenericNamespaceNode( int enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime, String name, GenericNamespaceNodeMeta namespaceNodeMeta, GenericNodeCommonData nodeCommonData ) {
-        this.enumId = enumId;
-        this.guid = guid;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.name = name;
+    public GenericNamespaceNode( DistributedRegistry registry ) {
+        this.registry = registry;
+    }
+
+    public GenericNamespaceNode(
+            DistributedRegistry registry,
+            int enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime, String name,
+            GenericNamespaceNodeMeta namespaceNodeMeta, GenericNodeCommonData nodeCommonData
+    ) {
+        this.enumId            = enumId;
+        this.guid              = guid;
+        this.createTime        = createTime;
+        this.updateTime        = updateTime;
+        this.name              = name;
         this.namespaceNodeMeta = namespaceNodeMeta;
-        this.nodeCommonData = nodeCommonData;
+        this.nodeCommonData    = nodeCommonData;
+
+        this.registry          = registry;
     }
 
+
+    public void apply( DistributedRegistry registry ) {
+        this.registry = registry;
+    }
 
 
     /**
@@ -124,8 +142,8 @@ public class GenericNamespaceNode implements NamespaceNode {
      * @return namespaceNodeMeta
      */
     @Override
-    public GenericNamespaceNodeMeta getNamespaceNodeMeta() {
-        return namespaceNodeMeta;
+    public NamespaceNodeMeta getNamespaceNodeMeta() {
+        return this.namespaceNodeMeta;
     }
 
     /**
@@ -133,7 +151,7 @@ public class GenericNamespaceNode implements NamespaceNode {
      * @param namespaceNodeMeta
      */
     @Override
-    public void setNamespaceNodeMeta(GenericNamespaceNodeMeta namespaceNodeMeta) {
+    public void setNamespaceNodeMeta( NamespaceNodeMeta namespaceNodeMeta ) {
         this.namespaceNodeMeta = namespaceNodeMeta;
     }
 
@@ -142,8 +160,8 @@ public class GenericNamespaceNode implements NamespaceNode {
      * @return nodeCommonData
      */
     @Override
-    public GenericNodeCommonData getNodeCommonData() {
-        return nodeCommonData;
+    public NodeCommonData getNodeCommonData() {
+        return this.nodeCommonData;
     }
 
     /**
@@ -151,7 +169,7 @@ public class GenericNamespaceNode implements NamespaceNode {
      * @param nodeCommonData
      */
     @Override
-    public void setNodeCommonData(GenericNodeCommonData nodeCommonData) {
+    public void setNodeCommonData( NodeCommonData nodeCommonData ) {
         this.nodeCommonData = nodeCommonData;
     }
 

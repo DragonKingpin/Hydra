@@ -2,17 +2,26 @@ package com.walnut.sparta.services.drivers;
 
 import javax.annotation.Resource;
 
+import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.hydra.service.ibatis.AppNodeMetaMapper;
+import com.pinecone.hydra.service.ibatis.ApplicationNodeMapper;
+import com.pinecone.hydra.service.ibatis.ClassifNodeMapper;
+import com.pinecone.hydra.service.ibatis.ClassifRulesMapper;
+import com.pinecone.hydra.service.ibatis.ServiceCommonDataMapper;
+import com.pinecone.hydra.service.ibatis.ServiceFamilyTreeMapper;
+import com.pinecone.hydra.service.ibatis.ServiceMetaMapper;
+import com.pinecone.hydra.service.ibatis.ServiceNodeMapper;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceNodeManipulator;
+import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
@@ -21,38 +30,52 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulators {
+public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     @Resource
-    private ServiceTrieTreeMapper trieTreeManipulator;
+    @Structure(type = ServiceTrieTreeMapper.class)
+    private ServiceTrieTreeMapper          trieTreeManipulator;
     @Resource
+    @Structure(type = ServiceCommonDataMapper.class)
     private CommonDataManipulator          commonDataManipulator;
 
     @Resource
+    @Structure(type = ApplicationNodeMapper.class)
     private ApplicationNodeManipulator     applicationNodeManipulator;
     @Resource
+    @Structure(type = AppNodeMetaMapper.class)
     private ApplicationMetaManipulator     applicationMetaManipulator;
 
     @Resource
+    @Structure(type = ServiceNodeMapper.class)
     private ServiceNodeManipulator         serviceNodeManipulator;
     @Resource
+    @Structure(type = ServiceMetaMapper.class)
     private ServiceMetaManipulator         serviceMetaManipulator;
 
     @Resource
+    @Structure(type = ClassifNodeMapper.class)
     private ClassifNodeManipulator         classifNodeManipulator;
 
     @Resource
+    @Structure(type = ClassifRulesMapper.class)
     private ClassifRulesManipulator        classifRulesManipulator;
 
 
     @Resource
+    @Structure(type = ServiceFamilyTreeMapper.class)
     private ServiceFamilyTreeManipulator   serviceFamilyTreeManipulator;
 
 
     @Resource
+    @Structure(type = ServiceNodeOwnerMapper.class)
     private ServiceNodeOwnerMapper          scopeOwnerManipulator;
 
     @Resource
+    @Structure(type = ServicePathMapper.class)
     private ServicePathMapper               scopePathManipulator;
+
+    @Resource( type = ServiceMasterTreeManipulatorImpl.class )
+    KOISkeletonMasterManipulator    skeletonMasterManipulator;
 
 
     @Override
@@ -96,11 +119,6 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
     }
 
     @Override
-    public TrieTreeManipulator getServiceTreeMapper() {
-        return this.trieTreeManipulator;
-    }
-
-    @Override
     public ServiceFamilyTreeManipulator getServiceFamilyTreeManipulator() {
         return this.serviceFamilyTreeManipulator;
     }
@@ -110,10 +128,9 @@ public class DefaultMetaNodeManipulatorsImpl implements DefaultMetaNodeManipulat
         return this.scopeOwnerManipulator;
     }
 
+
     @Override
-    public TriePathManipulator getTriePathManipulator() {
-        return this.scopePathManipulator;
+    public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
+        return this.skeletonMasterManipulator;
     }
-
-
 }

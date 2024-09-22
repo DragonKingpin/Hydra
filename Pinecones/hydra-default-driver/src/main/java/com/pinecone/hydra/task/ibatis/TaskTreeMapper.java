@@ -3,13 +3,16 @@ package com.pinecone.hydra.task.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
-
+@Mapper
+@IbatisDataAccessObject
 public interface TaskTreeMapper extends TrieTreeManipulator {
     @Insert("INSERT INTO `hydra_task_node_map` (`guid`, `type`, `base_data_guid`, `node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGUID},#{nodeMetadataGUID})")
     void insert(GUIDDistributedTrieNode node);

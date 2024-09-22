@@ -20,10 +20,10 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     private TriePathManipulator  triePathManipulator;
 
-    public GenericDistributedTrieTree(TreeMasterManipulator treeManipulatorSharer){
-        this.trieTreeManipulator =  treeManipulatorSharer.getTrieTreeManipulator();
-        this.tireOwnerManipulator =  treeManipulatorSharer.getTireOwnerManipulator();
-        this.triePathManipulator =  treeManipulatorSharer.getTriePathManipulator();
+    public GenericDistributedTrieTree( TreeMasterManipulator masterManipulator ){
+        this.trieTreeManipulator  =  masterManipulator.getTrieTreeManipulator();
+        this.tireOwnerManipulator =  masterManipulator.getTireOwnerManipulator();
+        this.triePathManipulator  =  masterManipulator.getTriePathManipulator();
     }
 
 

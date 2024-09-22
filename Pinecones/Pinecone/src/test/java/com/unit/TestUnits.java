@@ -3,6 +3,7 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.unit.*;
 import com.pinecone.framework.unit.tabulate.*;
 import com.pinecone.framework.unit.trie.AbstractTrieMap;
+import com.pinecone.framework.unit.trie.TrieMap;
 import com.pinecone.framework.unit.trie.TrieNode;
 import com.pinecone.framework.unit.trie.TrieReparseNode;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
@@ -203,7 +204,13 @@ public class TestUnits {
         Debug.trace( trieMap.keySet() );
 
         Debug.trace( trieMap.values() );
+        TrieMap clone = trieMap.clone();
 
+        Debug.trace(clone,clone.size());
+
+        Debug.trace(clone.keySet());
+
+        Debug.trace(clone.values());
 
 
         Debug.trace( trieMap.listItem( "a1/b1", UniTrieMaptron.ItemListMode.All  ) );

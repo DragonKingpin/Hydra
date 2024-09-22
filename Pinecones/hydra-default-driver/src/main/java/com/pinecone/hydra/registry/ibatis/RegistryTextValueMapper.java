@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 @IbatisDataAccessObject
@@ -22,5 +23,6 @@ public interface RegistryTextValueMapper extends RegistryTextValueManipulator {
     @Select("SELECT `id`, `guid`, `value`, `create_time` AS createTime, `update_time` AS updateTime, `type` FROM `hydra_registry_conf_node_text_value` WHERE guid=#{guid}")
     TextValue getTextValue(GUID guid);
 
+    @Update("UPDATE `hydra_registry_conf_node_text_value` SET `value`=#{value}, `update_time`=#{updateTime}, `type`=#{type} WHERE guid=#{guid}")
     void update(TextValue textValue);
 }

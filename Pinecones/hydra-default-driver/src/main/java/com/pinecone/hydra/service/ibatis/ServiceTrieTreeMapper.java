@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 @Mapper
+@IbatisDataAccessObject
 public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     default void insert(GUIDDistributedTrieNode node){
         this.putNodeMeta(node);

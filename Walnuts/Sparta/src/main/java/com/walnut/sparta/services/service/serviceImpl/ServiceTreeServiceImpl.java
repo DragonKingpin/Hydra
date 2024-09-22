@@ -6,7 +6,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperator;
 import com.pinecone.hydra.service.tree.operator.MetaNodeOperatorProxy;
-import com.pinecone.hydra.service.tree.source.DefaultMetaNodeManipulators;
+import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.walnut.sparta.services.service.ServiceTreeService;
@@ -22,13 +22,13 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Resource
     private ServiceTrieTreeMapper trieTreeManipulator;
     @Resource
-    private DefaultMetaNodeManipulators         defaultMetaNodeManipulators;
+    private ServiceMasterManipulator serviceMasterManipulator;
 
     private MetaNodeOperatorProxy               metaNodeOperatorProxy;
 
     @PostConstruct
     public void init() {
-        this.metaNodeOperatorProxy = new MetaNodeOperatorProxy(this.defaultMetaNodeManipulators);
+        this.metaNodeOperatorProxy = new MetaNodeOperatorProxy(this.serviceMasterManipulator);
     }
 
 

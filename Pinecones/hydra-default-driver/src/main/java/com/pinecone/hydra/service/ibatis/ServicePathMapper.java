@@ -2,12 +2,14 @@ package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 @Mapper
+@IbatisDataAccessObject
 public interface ServicePathMapper extends TriePathManipulator {
     @Insert("INSERT INTO `hydra_service_node_path` (`guid`, `path`) VALUES (#{guid},#{path})")
     void insert(@Param("guid") GUID guid, @Param("path") String path);

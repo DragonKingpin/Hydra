@@ -3,6 +3,7 @@ package com.pinecone.hydra.scenario.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
+@IbatisDataAccessObject
 public interface ScenarioTreeMapper extends TrieTreeManipulator {
     @Insert("INSERT INTO hydra_scenario_node_map (guid, type, base_data_guid, node_meta_guid) VALUES (#{guid},#{type},#{baseDataGUID},#{nodeMetadataGUID})")
     void insert (GUIDDistributedTrieNode distributedConfTreeNode);

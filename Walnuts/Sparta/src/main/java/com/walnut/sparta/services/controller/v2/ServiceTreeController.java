@@ -3,7 +3,7 @@ package com.walnut.sparta.services.controller.v2;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
-import com.walnut.sparta.services.drivers.ServiceTreeManipulatorSharerImpl;
+import com.walnut.sparta.services.drivers.ServiceMasterTreeManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/serviceTree" )
 public class ServiceTreeController {
     @Resource
-    private ServiceTreeManipulatorSharerImpl    treeManipulatorSharer;
+    private ServiceMasterTreeManipulatorImpl treeManipulatorSharer;
 
     private DistributedTrieTree distributedTrieTree;
 

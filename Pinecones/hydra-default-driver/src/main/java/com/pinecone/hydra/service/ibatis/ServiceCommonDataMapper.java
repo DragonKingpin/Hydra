@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -10,7 +11,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 @Mapper
-public interface NodeMetaMapper extends CommonDataManipulator {
+@IbatisDataAccessObject
+public interface ServiceCommonDataMapper extends CommonDataManipulator {
     @Insert("INSERT INTO `hydra_service_node_common_data` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{guid},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
     void insert(GenericNodeCommonData nodeMetadata);
     @Delete("DELETE FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")

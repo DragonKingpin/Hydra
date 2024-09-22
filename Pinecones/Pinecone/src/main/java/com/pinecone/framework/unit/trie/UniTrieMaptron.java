@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.*;
 import java.util.function.Supplier;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSON;
 
 /**
@@ -24,7 +25,7 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
     protected transient int size;
     protected transient TrieSegmentor segmentor;
 
-    protected transient Set<Entry<K,V> > entrySet;
+    protected transient Set<Entry<K,V>> entrySet;
     protected transient Set<K> keySet;
     protected transient Collection<V> values;
 
@@ -34,7 +35,7 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
             throw new IllegalArgumentException( "Map supplier cannot be null." );
         }
         this.mapSupplier  = mapSupplier;
-        this.root         = new TrieNode( this.mapSupplier.get() , TrieNode.NodeType.Dir,"");
+        this.root         = new TrieNode( this.mapSupplier.get() , TrieNode.NodeType.Dir,"",null);
         this.size         = 0;
         this.segmentor    = segmentor;
     }
@@ -81,6 +82,7 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
         }
         String[] segments = this.segmentor.segments( key );
         TrieNode node = this.root;
+        TrieNode parent = this.root;
         StringBuilder currentPath = new StringBuilder();
         for (int i = 0; i < segments.length; i++) {
             String segment = segments[i];
@@ -92,15 +94,12 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
             }
 
             if ( i < segments.length - 1 ) {
-                node.children.putIfAbsent(segment, new TrieNode( this.mapSupplier.get(), TrieNode.NodeType.Dir,currentPath.toString() ) );
+                node.children.putIfAbsent(segment, new TrieNode( this.mapSupplier.get(), TrieNode.NodeType.Dir,currentPath.toString(),parent ) );
                 node = node.children.get(segment);
             }
             else {
                 if ( node.children.containsKey(segment) ) {
                     node = node.children.get(segment);
-                    if ( node.nodeType == TrieNode.NodeType.Reparse ) {
-                        break;
-                    }
                 }
                 else {
                     TrieNode.NodeType nodeType;
@@ -109,10 +108,11 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
                     } else {
                         nodeType = TrieNode.NodeType.Value;
                     }
-                    node.children.put(segment, new TrieNode(this.mapSupplier.get(), nodeType, currentPath.toString()));
+                    node.children.put(segment, new TrieNode(this.mapSupplier.get(), nodeType, currentPath.toString(),parent));
                     node = node.children.get(segment);
                 }
             }
+            parent = node;
         }
 
         if ( !node.isEnd ) {
@@ -477,7 +477,7 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
         }
 
         List<V > list = new ArrayList<>( node.children.size() );
-        for ( Map.Entry<String, TrieNode > kv : node.children.entrySet() ) {
+        for ( Entry<String, TrieNode > kv : node.children.entrySet() ) {
             if( kv.getValue().value != null ) {
                 list.add( this.convertValue( kv.getValue().value ) );
             }
@@ -492,11 +492,12 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
         }
 
         List<String > list = new ArrayList<>( node.children.size() );
-        for ( Map.Entry<String, TrieNode > kv : node.children.entrySet() ) {
+        for ( Entry<String, TrieNode > kv : node.children.entrySet() ) {
             TrieNode nd = kv.getValue();
-//            if( kv.getValue().nodeType == TrieNode.NodeType.Reparse ) {
-//                nd = this.evalReparsedTarget( kv.getValue() );
-//            }
+            if( kv.getValue().nodeType == TrieNode.NodeType.Reparse ) {
+                nd = this.evalReparsedTarget( (TrieReparseNode) kv.getValue().value );
+                Debug.trace(node.path);
+            }
 
             if( mode == ItemListMode.All || mode == ItemListMode.Dir ) {
                 if( nd.nodeType == TrieNode.NodeType.Dir ) {
@@ -511,6 +512,31 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
             }
         }
         return list;
+    }
+
+    private TrieNode evalReparsedTarget(TrieReparseNode trieReparseNode){
+        TrieNode node = this.getNode(trieReparseNode.getPath());
+        while (node.nodeType == TrieNode.NodeType.Reparse){
+            TrieReparseNode temporaryTrieReparseNode = ( TrieReparseNode ) node.value;
+            node = this.getNode( trieReparseNode.getPath() );
+        }
+        return node;
+    }
+
+    public TrieMap clone(){
+        UniTrieMaptron<String, String> cloneTree = new UniTrieMaptron<>();
+       for (String key : this.keySet){
+           TrieNode node = this.getNode(key);
+           if (node.nodeType != TrieNode.NodeType.Reparse){
+               cloneTree.put(key,node.value.toString());
+           }
+           else {
+               TrieReparseNode trieReparseNode = ( TrieReparseNode ) node.value;
+               TrieReparseNode temporaryTrieReparseNode = new TrieReparseNode(trieReparseNode.path,cloneTree);
+               cloneTree.putReference(key,temporaryTrieReparseNode);
+           }
+       }
+       return cloneTree;
     }
 
     @Override

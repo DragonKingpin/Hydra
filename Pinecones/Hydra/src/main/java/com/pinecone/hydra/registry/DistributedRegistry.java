@@ -1,8 +1,13 @@
 package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.Properties;
+import com.pinecone.hydra.registry.entity.ConfigNode;
+import com.pinecone.hydra.registry.entity.Property;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
+
+import java.util.List;
 
 public interface DistributedRegistry extends Registry {
 
@@ -10,16 +15,47 @@ public interface DistributedRegistry extends Registry {
 
     GUID insert( TreeNode treeNode );
 
-    TreeNode get( GUID guid );
+    RegistryTreeNode get(GUID guid );
 
-    TreeNode getThis( GUID guid );
+    RegistryTreeNode getThis( GUID guid );
 
-    TreeNode getNodeByPath( String path );
+    RegistryTreeNode getNodeByPath( String path );
 
-    void insertProperties( Properties properties,GUID configNodeGuid );
+    void insertProperties(Property property, GUID configNodeGuid );
 
     void insertTextValue( GUID guid,String text,String type );
 
     void remove( GUID guid );
 
+    void updateProperty( Property property, GUID configNodeGuid );
+
+    void updateTextValue( GUID guid,String text,String type );
+
+    List<Property > getProperties( GUID guid );
+
+    TextValue getTextValue( GUID guid );
+
+    void removeProperty( GUID guid,String key );
+
+
+
+
+    ConfigNode getConfigNodeByGuid( GUID guid );
+
+
+    // getConfig( String path );
+
+    // getPropertyConfig( String path );
+
+    // TextConfigNode getTextConfig( String path );
+
+    // getTextConfig( String path );
+
+    // getNamespace( String path );
+
+    void removeTextValue(GUID guid);
+    List<TreeNode> getChildConf(GUID guid);
+    List<TreeNode> selectByName(String name);
+    void rename(String name,GUID guid);
+    List<TreeNode> getAllTreeNode();
 }

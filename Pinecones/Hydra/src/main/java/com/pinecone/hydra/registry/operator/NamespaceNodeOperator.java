@@ -5,6 +5,9 @@ import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.NamespaceNodeMeta;
+import com.pinecone.hydra.registry.entity.NodeCommonData;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
@@ -23,7 +26,7 @@ import com.pinecone.ulf.util.id.UidGenerator;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class NamespaceNodeOperator implements TreeNodeOperator {
+public class NamespaceNodeOperator implements RegistryNodeOperator {
     private RegistryMasterManipulator     registryMasterManipulator;
 
     private RegistryNSNodeManipulator     namespaceNodeManipulator;
@@ -34,12 +37,16 @@ public class NamespaceNodeOperator implements TreeNodeOperator {
 
     private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
-    public NamespaceNodeOperator( RegistryMasterManipulator registryMasterManipulator, TreeMasterManipulator treeManipulatorSharer ) {
-        this.registryMasterManipulator      = registryMasterManipulator;
-        this.namespaceNodeManipulator       =   this.registryMasterManipulator.getNSNodeManipulator();
-        this.distributedTrieTree            =   new GenericDistributedTrieTree(treeManipulatorSharer);
-        this.registryCommonDataManipulator  =   this.registryMasterManipulator.getRegistryCommonDataManipulator();
-        this.namespaceNodeMetaManipulator   =   this.registryMasterManipulator.getNSNodeMetaManipulator();
+    public NamespaceNodeOperator ( GenericConfigOperatorFactory factory ) {
+        this( factory.getMasterManipulator() );
+    }
+
+    public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator ){
+        this.registryMasterManipulator      = masterManipulator;
+        this.namespaceNodeManipulator       = this.registryMasterManipulator.getNSNodeManipulator();
+        this.registryCommonDataManipulator  = this.registryMasterManipulator.getRegistryCommonDataManipulator();
+        this.namespaceNodeMetaManipulator   = this.registryMasterManipulator.getNSNodeMetaManipulator();
+        this.distributedTrieTree            = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
     }
 
     @Override
@@ -56,21 +63,21 @@ public class NamespaceNodeOperator implements TreeNodeOperator {
         distributeConfTreeNode.setGuid(guid72);
         distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(namespaceNode.getClass().getName()));
 
-        GenericNamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
+        NamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
         GUID namespaceNodeMetaGuid = uidGenerator.getGUID72();
         namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
 
-        GenericNodeCommonData nodeCommonData = namespaceNode.getNodeCommonData();
+        NodeCommonData nodeCommonData = namespaceNode.getNodeCommonData();
         GUID nodeCommonDataGuid = uidGenerator.getGUID72();
-        nodeCommonData.setGuid(nodeCommonDataGuid);
+        nodeCommonData.setGuid( nodeCommonDataGuid );
 
         distributeConfTreeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
         distributeConfTreeNode.setBaseDataGUID(nodeCommonDataGuid);
 
-        this.namespaceNodeMetaManipulator.insert(namespaceNodeMeta);
-        this.registryCommonDataManipulator.insert(nodeCommonData);
-        this.distributedTrieTree.insert(distributeConfTreeNode);
-        this.namespaceNodeManipulator.insert(namespaceNode);
+        this.namespaceNodeMetaManipulator.insert( namespaceNodeMeta );
+        this.registryCommonDataManipulator.insert( nodeCommonData );
+        this.distributedTrieTree.insert( distributeConfTreeNode );
+        this.namespaceNodeManipulator.insert( namespaceNode );
         return guid72;
     }
 
@@ -89,9 +96,9 @@ public class NamespaceNodeOperator implements TreeNodeOperator {
                 }
             }
              childNodes = this.distributedTrieTree.getChildNode(guid);
-            for(GUIDDistributedTrieNode childNode : childNodes){
-                List<GUID> parentNodes = this.distributedTrieTree.getParentNodes(childNode.getGuid());
-                if (parentNodes.size() > 1){
+            for( GUIDDistributedTrieNode childNode : childNodes ){
+                List<GUID > parentNodes = this.distributedTrieTree.getParentNodes(childNode.getGuid());
+                if ( parentNodes.size() > 1 ){
                     this.distributedTrieTree.removeInheritance(childNode.getGuid(),guid);
                 }
                 else {
@@ -103,13 +110,18 @@ public class NamespaceNodeOperator implements TreeNodeOperator {
     }
 
     @Override
-    public TreeNode get( GUID guid ) {
+    public RegistryTreeNode get( GUID guid ) {
         return this.getNamespaceNodeWideData(guid);
     }
 
     @Override
-    public TreeNode getWithoutInheritance( GUID guid ) {
+    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
         return this.getNamespaceNodeWideData(guid);
+    }
+
+    @Override
+    public void update( TreeNode treeNode ) {
+
     }
 
     private NamespaceNode getNamespaceNodeWideData( GUID guid ){

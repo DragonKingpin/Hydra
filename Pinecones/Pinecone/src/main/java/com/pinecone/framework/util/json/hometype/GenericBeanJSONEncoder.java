@@ -51,7 +51,7 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
                                 val = method.invoke( bean );
                             }
                             catch ( IllegalAccessException | InvocationTargetException e ) {
-                                break;
+                                continue;
                             }
 
                             sb.append( this.valueJsonify( val ) );
@@ -124,7 +124,7 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
                                 val = method.invoke( bean );
                             }
                             catch ( IllegalAccessException | InvocationTargetException e ) {
-                                break;
+                                continue;
                             }
 
                             this.valueJsonify( val, writer, nIndentFactor, nNewIndent );

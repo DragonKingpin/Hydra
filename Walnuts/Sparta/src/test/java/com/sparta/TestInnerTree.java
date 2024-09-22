@@ -3,8 +3,10 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
+import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
@@ -46,8 +48,8 @@ class LadyGaga extends Radium {
 
 
 
-        //this.testRegistry();
-        this.testTask();
+        this.testRegistry();
+        //this.testTask();
     }
 
     private void testRegistry() {
@@ -61,8 +63,14 @@ class LadyGaga extends Radium {
         Debug.fmp( 2, distributedRegistry.get( GUIDs.GUID72( "1f419c8c-000018-0000-a8" ) ) );
         Debug.hhf();
         Debug.fmp( 2, distributedRegistry.getNodeByPath( "ns1.ns2.ns3" ) );
-        Debug.trace(distributedRegistry.getProperties(GUIDs.GUID72("1f419c8c-000018-0000-a8")));
+        Debug.trace(distributedRegistry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
         Debug.trace(distributedRegistry.selectByName("ns3"));
+
+        ConfigNode cn = distributedRegistry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
+
+        Debug.trace( cn.keySet() );
+        Debug.trace( cn.size() );
+        Debug.trace( cn.isEmpty() );
     }
 
     private void testTask(){

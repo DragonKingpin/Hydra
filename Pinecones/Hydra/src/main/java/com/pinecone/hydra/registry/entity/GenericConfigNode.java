@@ -1,6 +1,8 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONArray;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
@@ -11,37 +13,50 @@ import java.util.List;
 import java.util.Set;
 
 public class GenericConfigNode implements ConfigNode {
-    private int enumId;
-    private GUID guid;
-    private GUID nsGuid;
-    private GUID parentGuid;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    private String name;
-    List<GenericProperty> properties;
-    TextValue textValue;
-    private GenericConfigNodeMeta configNodeMeta;
-    private GenericNodeCommonData nodeCommonData;
+    private int                     enumId;
+    private GUID                    guid;
+    private GUID                    nsGuid;
+    private GUID                    parentGuid;
+    private LocalDateTime           createTime;
+    private LocalDateTime           updateTime;
+    private String                  name;
 
-    public GenericConfigNode() {
+    protected List<GenericProperty> properties;
+    protected TextValue             textValue;
+    protected GenericConfigNodeMeta configNodeMeta;
+    protected GenericNodeCommonData nodeCommonData;
+    protected DistributedRegistry   registry;
+
+    protected GenericConfigNode() {
+
+    }
+
+    public GenericConfigNode( DistributedRegistry registry ) {
+        this.registry = registry;
     }
 
     public GenericConfigNode(
+            DistributedRegistry registry,
             int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime,
             LocalDateTime updateTime, String name, List<GenericProperty> properties, TextValue textValue,
             GenericConfigNodeMeta configNodeMeta, GenericNodeCommonData nodeCommonData
     ) {
-        this.enumId = enumId;
-        this.guid = guid;
-        this.nsGuid = nsGuid;
-        this.parentGuid = parentGuid;
-        this.createTime = createTime;
-        this.updateTime = updateTime;
-        this.name = name;
-        this.properties = properties;
-        this.textValue = textValue;
-        this.configNodeMeta = configNodeMeta;
-        this.nodeCommonData = nodeCommonData;
+        this.registry         = registry;
+        this.enumId           = enumId;
+        this.guid             = guid;
+        this.nsGuid           = nsGuid;
+        this.parentGuid       = parentGuid;
+        this.createTime       = createTime;
+        this.updateTime       = updateTime;
+        this.name             = name;
+        this.properties       = properties;
+        this.textValue        = textValue;
+        this.configNodeMeta   = configNodeMeta;
+        this.nodeCommonData   = nodeCommonData;
+    }
+
+    public void apply( DistributedRegistry registry ) {
+        this.registry = registry;
     }
 
     @Override
@@ -175,27 +190,45 @@ public class GenericConfigNode implements ConfigNode {
         this.nodeCommonData = nodeCommonData;
     }
 
+
     @Override
-    public void putProperty(Property property, DistributedRegistry registry) {
-        this.properties.add((GenericProperty) property);
-        registry.insertProperties(property,this.guid);
+    public void put( String key, Object val ) {
+        Property p = new GenericProperty();
+        p.setKey( key );
+        p.setGuid( this.guid );
+
+        if( val != null ) {
+            p.setValue( val.toString() );
+        }
+        String type = PropertyTypes.queryType( val );
+        p.setType( type );
+        p.setCreateTime( LocalDateTime.now() );
+        p.setUpdateTime( LocalDateTime.now() );
+
+        this.putProperty( p );
     }
 
     @Override
-    public void removeProperty(String key, DistributedRegistry registry) {
+    public void putProperty( Property property ) {
+        this.properties.add( (GenericProperty) property );
+        this.registry.insertProperties( property, this.guid );
+    }
+
+    @Override
+    public void removeProperty( String key ) {
         this.properties.remove(key);
-        registry.removeProperty(this.guid,key);
+        this.registry.removeProperty( this.guid, key );
     }
 
     @Override
-    public void updateProperty(Property property, DistributedRegistry registry) {
+    public void updateProperty( Property property ) {
         for(Property p : this.properties){
             if (p.getKey().equals(property.getKey())){
                 p.setValue(property.getValue());
                 p.setType(property.getType());
             }
         }
-        registry.updateProperty(property,this.guid);
+        this.registry.updateProperty( property, this.guid );
 
     }
 
@@ -211,7 +244,7 @@ public class GenericConfigNode implements ConfigNode {
 
     @Override
     public boolean containsKey(String key) {
-        for(Property p : this.properties){
+        for( Property p : this.properties ){
             if (p.getKey().equals(key)){
                 return true;
             }
@@ -230,8 +263,8 @@ public class GenericConfigNode implements ConfigNode {
     }
 
     @Override
-    public List<Object> values() {
-        ArrayList<Object> values = new ArrayList<>();
+    public List<Object > values() {
+        ArrayList<Object > values = new ArrayList<>();
         for(Property p : this.properties){
             values.add(p.getValue());
         }
@@ -239,10 +272,10 @@ public class GenericConfigNode implements ConfigNode {
     }
 
     @Override
-    public Set<String> keySet() {
-        HashSet<String> keys = new HashSet<>();
-        for (Property p : this.properties){
-            keys.add(p.getKey());
+    public Set<String > keySet() {
+        HashSet<String > keys = new HashSet<>();
+        for ( Property p : this.properties ){
+            keys.add( p.getKey() );
         }
         return keys;
     }
@@ -250,7 +283,7 @@ public class GenericConfigNode implements ConfigNode {
     @Override
     public Set<Property> entrySet() {
         HashSet<Property> propertyHashSet = new HashSet<>();
-        for(Property p : this.properties){
+        for( Property p : this.properties ){
             propertyHashSet.add(p);
         }
         return propertyHashSet;

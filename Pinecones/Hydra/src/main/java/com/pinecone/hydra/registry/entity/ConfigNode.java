@@ -2,17 +2,17 @@ package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
-import com.pinecone.hydra.unit.udtt.entity.EvinceTreeNode;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-public interface ConfigNode extends EvinceTreeNode {
+public interface ConfigNode extends RegistryTreeNode {
     @Override
-    default ConfigNode evinceRegistryTreeNode() {
+    default ConfigNode evinceConfigNode() {
         return this;
     }
+
     int getEnumId();
 
     void setEnumId(int enumId);
@@ -57,20 +57,32 @@ public interface ConfigNode extends EvinceTreeNode {
 
     GenericNodeCommonData getNodeCommonData();
 
-    void setNodeCommonData(GenericNodeCommonData nodeCommonData);
+    void setNodeCommonData( GenericNodeCommonData nodeCommonData );
 
 
-    void putProperty(Property property, DistributedRegistry registry);
-    void removeProperty(String key, DistributedRegistry registry);
-    void updateProperty(Property property, DistributedRegistry registry);
-    Property getProperty(String key);
-    boolean containsKey(String key);
+    void put             ( String key, Object val );
+    void putProperty     ( Property property );
+    void removeProperty  ( String key );
+    void updateProperty  ( Property property );
+    Property getProperty ( String key );
+    boolean containsKey  ( String key );
 
 
     int size();
     boolean isEmpty();
-    List<Object> values();
-    Set<String> keySet();
-    Set<Property> entrySet();
+    List<Object > values();
+    Set<String > keySet();
+    Set<Property > entrySet();
+
+
+    @Override
+    default PropertyConfigNode evincePropertyConfig() {
+        return null;
+    }
+
+    @Override
+    default TextConfigNode evinceTextConfigNode() {
+        return null;
+    }
 
 }

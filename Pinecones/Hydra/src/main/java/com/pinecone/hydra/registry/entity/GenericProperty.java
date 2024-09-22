@@ -17,7 +17,7 @@ public class GenericProperty implements Property {
     public GenericProperty() {
     }
 
-    public GenericProperty(int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value ) {
+    public GenericProperty( int enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value ) {
         this.enumId = enumId;
         this.guid = guid;
         this.key = key;

@@ -5,13 +5,13 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface TreeNodeOperator extends Pinenut {
-    GUID insert(TreeNode treeNode);
+    GUID insert( TreeNode treeNode );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
 
-    TreeNode get(GUID guid);
+    TreeNode get( GUID guid );
 
-    TreeNode getWithoutInheritance(GUID guid);
+    TreeNode getWithoutInheritance( GUID guid );
 
-    void update(TreeNode treeNode);
+    void update( TreeNode treeNode );
 }

@@ -1,6 +1,8 @@
 package com.pinecone.hydra.registry.operator;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.registry.DistributedRegistry;
+import com.pinecone.hydra.registry.GenericDistributeRegistry;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
@@ -24,6 +26,8 @@ import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class NamespaceNodeOperator implements RegistryNodeOperator {
@@ -36,17 +40,19 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     private RegistryCommonDataManipulator registryCommonDataManipulator;
 
     private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
+    protected DistributedRegistry         registry;
 
     public NamespaceNodeOperator ( GenericConfigOperatorFactory factory ) {
-        this( factory.getMasterManipulator() );
+        this( factory.getMasterManipulator(),(DistributedRegistry) factory.getRegistry() );
     }
 
-    public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator ){
+    public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator , DistributedRegistry registry){
         this.registryMasterManipulator      = masterManipulator;
         this.namespaceNodeManipulator       = this.registryMasterManipulator.getNSNodeManipulator();
         this.registryCommonDataManipulator  = this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.namespaceNodeMetaManipulator   = this.registryMasterManipulator.getNSNodeMetaManipulator();
         this.distributedTrieTree            = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
+        this.registry                       = registry;
     }
 
     @Override
@@ -126,9 +132,18 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
     private NamespaceNode getNamespaceNodeWideData( GUID guid ){
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
+        if (namespaceNode instanceof GenericNamespaceNode){
+             ((GenericNamespaceNode) namespaceNode).apply(this.registry);
+        }
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GenericNodeCommonData nodeCommonData = (GenericNodeCommonData) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
+        List<GUIDDistributedTrieNode> childNode = this.distributedTrieTree.getChildNode(guid);
+        ArrayList<GUID> guids = new ArrayList<>();
+        for (GUIDDistributedTrieNode n : childNode){
+            guids.add(n.getGuid());
+        }
+        namespaceNode.setContentGuids(guids);
         namespaceNode.setNodeCommonData(nodeCommonData);
         namespaceNode.setNamespaceNodeMeta(namespaceNodeMeta);
         return namespaceNode;

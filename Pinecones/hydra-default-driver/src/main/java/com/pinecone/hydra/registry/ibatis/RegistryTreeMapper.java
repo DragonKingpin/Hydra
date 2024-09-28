@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -73,4 +74,8 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     @Select("SELECT `parent_guid` FROM `hydra_registry_node_tree` WHERE `guid`=#{guid}")
     List<GUID > getParentNodes(GUID guid);
+    @Update("UPDATE `hydra_registry_meta_map` SET `type` = #{type} WHERE guid=#{guid}")
+    void updateType(UOI type , GUID guid);
+    @Insert("INSERT INTO `hydra_registry_node_tree` (guid, parent_guid) VALUES (#{nodeGUID},#{parentGUID})")
+    void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 }

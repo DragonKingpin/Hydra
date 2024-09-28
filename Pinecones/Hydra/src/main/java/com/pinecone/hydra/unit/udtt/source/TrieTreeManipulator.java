@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udtt.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 import java.util.List;
@@ -32,5 +33,5 @@ public interface TrieTreeManipulator extends Pinenut {
     List<GUID> getParentNodes(GUID guid);
 
     void removeInheritance(GUID childNode, GUID parentGUID);
-
+    void updateType(UOI type,GUID guid);
 }

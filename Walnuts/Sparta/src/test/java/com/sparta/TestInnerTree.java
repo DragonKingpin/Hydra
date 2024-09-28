@@ -7,6 +7,9 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
 import com.pinecone.hydra.registry.entity.ConfigNode;
+import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.PropertyConfigNode;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
@@ -60,17 +63,36 @@ class LadyGaga extends Radium {
         DistributedRegistry distributedRegistry = new GenericDistributeRegistry( koiMappingDriver );
 
         Debug.trace( distributedRegistry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
-        Debug.fmp( 2, distributedRegistry.get( GUIDs.GUID72( "1f419c8c-000018-0000-a8" ) ) );
+        RegistryTreeNode registryTreeNode = distributedRegistry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+        Debug.trace(registryTreeNode.evincePropertyConfig());
+        Debug.trace( registryTreeNode.evincePropertyConfig().values()  );
         Debug.hhf();
-        Debug.fmp( 2, distributedRegistry.getNodeByPath( "ns1.ns2.ns3" ) );
+        Debug.trace( 2, distributedRegistry.getNodeByPath( "ns1.ns2.ns3" ) );
+        Debug.hhf();
         Debug.trace(distributedRegistry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
+        Debug.hhf();
         Debug.trace(distributedRegistry.selectByName("ns3"));
+        Debug.hhf();
+        RegistryTreeNode namespace = distributedRegistry.get(GUIDs.GUID72("1f39293c-0002e2-0000-c4"));
+        NamespaceNode namespaceNode = namespace.evinceNamespaceNode();
+        Debug.trace(namespaceNode.listItem());
+        Debug.hhf();
+        Debug.trace(namespaceNode.entrySet());
+        RegistryTreeNode propertyNode = distributedRegistry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+        PropertyConfigNode propertyConfigNode = propertyNode.evincePropertyConfig();
+        Debug.hhf();
+        Debug.trace(propertyConfigNode.values());
+        Debug.hhf();
+        Debug.trace(propertyConfigNode.isEmpty());
+        Debug.hhf();
+        Debug.trace(propertyConfigNode.entrySet());
 
-        ConfigNode cn = distributedRegistry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
 
-        Debug.trace( cn.keySet() );
-        Debug.trace( cn.size() );
-        Debug.trace( cn.isEmpty() );
+        //ConfigNode cn = distributedRegistry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
+
+        //Debug.trace( cn.keySet() );
+        //Debug.trace( cn.size() );
+        //Debug.trace( cn.isEmpty() );
     }
 
     private void testTask(){

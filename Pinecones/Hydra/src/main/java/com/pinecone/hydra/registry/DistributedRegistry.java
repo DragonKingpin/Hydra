@@ -1,6 +1,7 @@
 package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
@@ -38,8 +39,6 @@ public interface DistributedRegistry extends Registry {
     void removeProperty( GUID guid,String key );
 
 
-
-
     ConfigNode getConfigNodeByGuid( GUID guid );
 
 
@@ -58,4 +57,6 @@ public interface DistributedRegistry extends Registry {
     List<TreeNode> selectByName(String name);
     void rename(String name,GUID guid);
     List<TreeNode> getAllTreeNode();
+    UniformTemplateRenderer getRenderer();
+    void insertRegistryTreeNode(GUID parentGuid,GUID childGuid);
 }

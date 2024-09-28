@@ -12,18 +12,16 @@ import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.NodeCommonData;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
-import com.pinecone.hydra.unit.udtt.entity.TreeNode;
+import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
-import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
-import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
-import com.pinecone.hydra.registry.source.RegistryTextValueManipulator;
 import com.pinecone.hydra.service.tree.UOIUtils;
-import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
@@ -35,35 +33,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ConfigNodeOperator implements RegistryNodeOperator {
-    protected DistributedTrieTree       distributedTrieTree;
+public class ArchRegistryNodeOperator implements RegistryNodeOperator{
+    protected DistributedTrieTree distributedTrieTree;
     protected RegistryMasterManipulator registryMasterManipulator;
-    protected Map<GUID, ConfigNode>     cacheMap = new HashMap<>();
+    protected Map<GUID, ConfigNode> cacheMap = new HashMap<>();
 
-    protected RegistryNodeManipulator       configNodeManipulator;
-    protected RegistryPropertiesManipulator registryPropertiesManipulator;
-    protected RegistryTextValueManipulator  registryTextValueManipulator;
-    protected RegistryNodeMetaManipulator   configNodeMetaManipulator;
+    protected RegistryNodeManipulator configNodeManipulator;
+    protected RegistryNodeMetaManipulator configNodeMetaManipulator;
     protected RegistryCommonDataManipulator registryCommonDataManipulator;
 
-    protected DistributedRegistry           registry;
+    protected DistributedRegistry registry;
 
-    public ConfigNodeOperator ( ConfigOperatorFactory factory ) {
+    public ArchRegistryNodeOperator ( ConfigOperatorFactory factory ) {
         this( factory.getMasterManipulator(), (DistributedRegistry) factory.getRegistry() );
     }
 
-    public ConfigNodeOperator( RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
+    public ArchRegistryNodeOperator( RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
         this.registryMasterManipulator     = masterManipulator;
         this.configNodeManipulator         = this.registryMasterManipulator.getRegistryNodeManipulator();
-        this.registryPropertiesManipulator = this.registryMasterManipulator.getRegistryPropertiesManipulator();
-        this.registryTextValueManipulator  = this.registryMasterManipulator.getRegistryTextValueManipulator();
         this.configNodeMetaManipulator     = this.registryMasterManipulator.getRegistryNodeMetaManipulator();
         this.registryCommonDataManipulator = this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.distributedTrieTree           = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
 
         this.registry                      = registry;
     }
-
     @Override
     public GUID insert(TreeNode treeNode) {
         GenericConfigNode configNode = (GenericConfigNode) treeNode;
@@ -109,7 +102,7 @@ public class ConfigNodeOperator implements RegistryNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode get( GUID guid ) {
+    public RegistryTreeNode get(GUID guid) {
         //检测缓存中是否存在信息
         ConfigNode configNode = this.cacheMap.get(guid);
         if (configNode == null) {
@@ -124,12 +117,12 @@ public class ConfigNodeOperator implements RegistryNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
+    public RegistryTreeNode getWithoutInheritance(GUID guid) {
         return this.getConfigNodeWideData( guid );
     }
 
     @Override
-    public void update( TreeNode treeNode ) {
+    public void update(TreeNode treeNode) {
         ConfigNode configNode = (ConfigNode) treeNode;
         ConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
         NodeCommonData nodeCommonData = configNode.getNodeCommonData();
@@ -143,10 +136,8 @@ public class ConfigNodeOperator implements RegistryNodeOperator {
         this.configNodeManipulator.update(configNode);
     }
 
-
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        //Debug.trace(node.toString());
         ConfigNode cn = this.configNodeManipulator.getConfigurationNode( guid );
         if( cn instanceof GenericConfigNode ) {
             ((GenericConfigNode) cn).apply( this.registry );

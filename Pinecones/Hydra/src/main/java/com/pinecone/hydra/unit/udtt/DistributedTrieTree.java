@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 
 import java.util.List;
 
@@ -40,4 +41,6 @@ public interface DistributedTrieTree extends PineUnit {
     List<GUID> getSubordinates(GUID guid);
 
     void insertPath(GUID guid,String path);
+
+    void updateType(UOI type,GUID guid);
 }

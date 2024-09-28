@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udtt;
 
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
@@ -115,6 +116,11 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     @Override
     public void insertPath(GUID guid, String path) {
         this.triePathManipulator.insert(guid,path);
+    }
+
+    @Override
+    public void updateType(UOI type,GUID guid) {
+
     }
 
 

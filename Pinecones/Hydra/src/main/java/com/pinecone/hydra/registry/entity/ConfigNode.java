@@ -1,10 +1,7 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.template.UTRAlmondProvider;
-import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.hydra.registry.DistributedRegistry;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +25,6 @@ public interface ConfigNode extends RegistryTreeNode {
     void setNsGuid(GUID guid);
 
 
-
     GUID getParentGuid();
 
     void setParentGuid(GUID guid);
@@ -45,29 +41,28 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setName(String name);
 
-    List<GenericProperty > getProperties();
+//    List<GenericProperty > getProperties();
+//
+//    void setProperties(List<GenericProperty> properties);
 
-    void setProperties(List<GenericProperty> properties);
-
-    TextValue getTextValue();
-
-    void setTextValue(TextValue textValue);
-
-    GenericConfigNodeMeta getConfigNodeMeta();
+//    TextValue getTextValue();
+//
+//    void setTextValue(TextValue textValue);
+    ConfigNodeMeta getConfigNodeMeta();
 
     void setConfigNodeMeta(GenericConfigNodeMeta configNodeMeta);
 
-    GenericNodeCommonData getNodeCommonData();
+    NodeCommonData getNodeCommonData();
 
     void setNodeCommonData( GenericNodeCommonData nodeCommonData );
 
 
-    void put             ( String key, Object val );
-    void putProperty     ( Property property );
-    void removeProperty  ( String key );
-    void updateProperty  ( Property property );
-    Property getProperty ( String key );
-    Object getValue      ( String key );
+//    void put             ( String key, Object val );
+//    void putProperty     ( Property property );
+//    void removeProperty  ( String key );
+//    void updateProperty  ( Property property );
+//    Property getProperty ( String key );
+//    Object getValue      ( String key );
 
     boolean containsKey  ( String key );
 
@@ -78,17 +73,7 @@ public interface ConfigNode extends RegistryTreeNode {
     Set<String > keySet();
     Set<Property > entrySet();
 
-
-    @Override
-    default PropertyConfigNode evincePropertyConfig() {
-        return null;
-    }
-
-    @Override
-    default TextConfigNode evinceTextConfigNode() {
-        return null;
-    }
-
     DistributedRegistry getRegistry();
+
 
 }

@@ -143,28 +143,28 @@ public class GenericConfigNode implements ConfigNode {
     }
 
 
-    @Override
-    public List<GenericProperty> getProperties() {
-        return this.properties;
-    }
-
-
-    @Override
-    public void setProperties( List<GenericProperty> properties ) {
-        this.properties = properties;
-    }
-
-
-    @Override
-    public TextValue getTextValue() {
-        return this.textValue;
-    }
-
-
-    @Override
-    public void setTextValue( TextValue textValue ) {
-        this.textValue = textValue;
-    }
+//    @Override
+//    public List<GenericProperty> getProperties() {
+//        return this.properties;
+//    }
+//
+//
+//    @Override
+//    public void setProperties( List<GenericProperty> properties ) {
+//        this.properties = properties;
+//    }
+//
+//
+//    @Override
+//    public TextValue getTextValue() {
+//        return this.textValue;
+//    }
+//
+//
+//    @Override
+//    public void setTextValue( TextValue textValue ) {
+//        this.textValue = textValue;
+//    }
 
 
     @Override
@@ -191,65 +191,65 @@ public class GenericConfigNode implements ConfigNode {
     }
 
 
-    @Override
-    public void put( String key, Object val ) {
-        Property p = new GenericProperty();
-        p.setKey( key );
-        p.setGuid( this.guid );
-
-        if( val != null ) {
-            p.setValue( val.toString() );
-        }
-        String type = PropertyTypes.queryType( val );
-        p.setType( type );
-        p.setCreateTime( LocalDateTime.now() );
-        p.setUpdateTime( LocalDateTime.now() );
-
-        this.putProperty( p );
-    }
-
-    @Override
-    public void putProperty( Property property ) {
-        this.properties.add( (GenericProperty) property );
-        this.registry.insertProperties( property, this.guid );
-    }
-
-    @Override
-    public void removeProperty( String key ) {
-        this.properties.remove(key);
-        this.registry.removeProperty( this.guid, key );
-    }
-
-    @Override
-    public void updateProperty( Property property ) {
-        for(Property p : this.properties){
-            if (p.getKey().equals(property.getKey())){
-                p.setValue(property.getValue());
-                p.setType(property.getType());
-            }
-        }
-        this.registry.updateProperty( property, this.guid );
-
-    }
-
-    @Override
-    public Property getProperty(String key) {
-        for(Property p : this.properties){
-            if (p.getKey().equals(key)){
-                return p;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Object getValue( String key ) {
-        Property property = this.getProperty( key );
-        if( property != null ) {
-            return property.getValue();
-        }
-        return null;
-    }
+//    @Override
+//    public void put( String key, Object val ) {
+//        Property p = new GenericProperty();
+//        p.setKey( key );
+//        p.setGuid( this.guid );
+//
+//        if( val != null ) {
+//            p.setValue( val.toString() );
+//        }
+//        String type = PropertyTypes.queryType( val );
+//        p.setType( type );
+//        p.setCreateTime( LocalDateTime.now() );
+//        p.setUpdateTime( LocalDateTime.now() );
+//
+//        this.putProperty( p );
+//    }
+//
+//    @Override
+//    public void putProperty( Property property ) {
+//        this.properties.add( (GenericProperty) property );
+//        this.registry.insertProperties( property, this.guid );
+//    }
+//
+//    @Override
+//    public void removeProperty( String key ) {
+//        this.properties.remove(key);
+//        this.registry.removeProperty( this.guid, key );
+//    }
+//
+//    @Override
+//    public void updateProperty( Property property ) {
+//        for(Property p : this.properties){
+//            if (p.getKey().equals(property.getKey())){
+//                p.setValue(property.getValue());
+//                p.setType(property.getType());
+//            }
+//        }
+//        this.registry.updateProperty( property, this.guid );
+//
+//    }
+//
+//    @Override
+//    public Property getProperty(String key) {
+//        for(Property p : this.properties){
+//            if (p.getKey().equals(key)){
+//                return p;
+//            }
+//        }
+//        return null;
+//    }
+//
+//    @Override
+//    public Object getValue( String key ) {
+//        Property property = this.getProperty( key );
+//        if( property != null ) {
+//            return property.getValue();
+//        }
+//        return null;
+//    }
 
     @Override
     public boolean containsKey(String key) {

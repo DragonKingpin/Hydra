@@ -2,15 +2,22 @@ package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.template.UTRAlmondProvider;
+import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNode;
 import com.pinecone.hydra.registry.entity.GenericProperty;
+import com.pinecone.hydra.registry.entity.GenericPropertyConfigNode;
+import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
 import com.pinecone.hydra.registry.entity.Property;
+import com.pinecone.hydra.registry.entity.PropertyConfigNode;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.operator.RegistryNodeOperator;
+import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -37,13 +44,14 @@ import java.util.List;
 public class GenericDistributeRegistry implements DistributedRegistry {
     protected Hydrarum                      hydrarum;
 
-    private DistributedTrieTree             distributedConfTree;
-    private RegistryMasterManipulator       registryMasterManipulator;
-    private RegistryPropertiesManipulator   registryPropertiesManipulator;
-    private RegistryTextValueManipulator    registryTextValueManipulator;
-    private RegistryNodeManipulator         nodeManipulator;
-    private RegistryNSNodeManipulator       namespaceNodeManipulator;
-    private ConfigOperatorFactory           configOperatorFactory;
+    protected DistributedTrieTree             distributedConfTree;
+    protected RegistryMasterManipulator       registryMasterManipulator;
+    protected RegistryPropertiesManipulator   registryPropertiesManipulator;
+    protected RegistryTextValueManipulator    registryTextValueManipulator;
+    protected RegistryNodeManipulator         nodeManipulator;
+    protected RegistryNSNodeManipulator       namespaceNodeManipulator;
+    protected ConfigOperatorFactory           configOperatorFactory;
+
 
     public GenericDistributeRegistry( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         this.hydrarum                    =  hydrarum;
@@ -115,7 +123,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     protected RegistryNodeOperator getOperatorByGuid( GUID guid ) {
         DistributedTreeNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{ DistributedRegistry.class }, this );
-        Debug.trace( newInstance, newInstance.getMetaType() );
+        //Debug.trace( newInstance, newInstance.getMetaType() );
         return this.configOperatorFactory.getOperator( newInstance.getMetaType() );
     }
 
@@ -159,6 +167,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public void insertProperties(Property property, GUID configNodeGuid ) {
+        //todo 更改节点类型
+        this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericPropertyConfigNode.class.getName()),configNodeGuid);
         property.setGuid(configNodeGuid);
         property.setCreateTime(LocalDateTime.now());
         property.setUpdateTime(LocalDateTime.now());
@@ -264,7 +274,19 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public UniformTemplateRenderer getRenderer() {
+        return null;
+    }
+
+    @Override
+    public void insertRegistryTreeNode(GUID parentGuid, GUID childGuid) {
+        this.distributedConfTree.insertNodeToParent(childGuid,parentGuid);
+    }
+
+    @Override
     public void insertTextValue( GUID guid, String text, String type ){
+        //todo 更改节点类型
+        this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericTextConfigNode.class.getName()),guid);
         GenericTextValue genericTextValue = new GenericTextValue();
         genericTextValue.setCreateTime(LocalDateTime.now());
         genericTextValue.setUpdateTime(LocalDateTime.now());

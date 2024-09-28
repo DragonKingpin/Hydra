@@ -29,6 +29,14 @@ public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
                 ConfigOperatorFactory.DefaultNamespaceNodeKey,
                 new NamespaceNodeOperator( this )
         );
+
+        this.registerer.put(ConfigOperatorFactory.DefaultPropertyConfigNodeKey,
+                new PropertyConfNodeOperator(this)
+        );
+
+        this.registerer.put(ConfigOperatorFactory.DefaultTextConfigNode,
+                new TextValueNodeOperator(this)
+        );
     }
 
     @Override

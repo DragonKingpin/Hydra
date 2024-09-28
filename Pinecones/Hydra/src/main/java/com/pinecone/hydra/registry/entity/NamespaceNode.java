@@ -1,9 +1,13 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.registry.DistributedRegistry;
+import lombok.val;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface NamespaceNode extends RegistryTreeNode {
     int getEnumId();
@@ -39,10 +43,24 @@ public interface NamespaceNode extends RegistryTreeNode {
 
     void setNodeCommonData( NodeCommonData nodeCommonData );
 
+    Map<String,RegistryTreeNode> getContents();
+    List<GUID> getContentGuids();
+    void setContentGuids(List<GUID> contentGuids);
 
-    //List<RegistryTreeNode > listItem();
+    List<RegistryTreeNode > listItem();
+    void put (String key,RegistryTreeNode val);
+    void remove (String key);
+    DistributedRegistry getRegistry();
+    boolean containsKey  ( String key );
 
-    //put ( String key, RegistryTreeNode val )
+    ConfigNode getConfigNode(String key);
+    NamespaceNode getNamespaceNode(String key);
+    int size();
+    boolean isEmpty();
+    Set<String > keySet();
+    Set<Map.Entry<String,RegistryTreeNode>> entrySet();
+
+
 //    void put             ( String key, Object val );
 //    void remove  ( String key );
 //    void update  ( XXXXX xxxx );

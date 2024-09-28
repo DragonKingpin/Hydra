@@ -3,19 +3,28 @@ package com.pinecone.hydra.registry.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
+import lombok.val;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GenericNamespaceNode implements NamespaceNode {
-    private int                      enumId;
-    private GUID                     guid;
-    private LocalDateTime            createTime;
-    private LocalDateTime            updateTime;
-    private String                   name;
-    private NamespaceNodeMeta        namespaceNodeMeta;
-    private NodeCommonData           nodeCommonData;
-    private DistributedRegistry      registry;
+    protected int                             enumId;
+    protected GUID                            guid;
+    protected LocalDateTime                   createTime;
+    protected LocalDateTime                   updateTime;
+    protected String                          name;
+    protected NamespaceNodeMeta               namespaceNodeMeta;
+    protected NodeCommonData                  nodeCommonData;
+    protected DistributedRegistry             registry;
+    protected Map<String,RegistryTreeNode>    contents;
+    protected List<GUID>                      contentGuids;
+
 
     protected GenericNamespaceNode() {
 
@@ -171,6 +180,90 @@ public class GenericNamespaceNode implements NamespaceNode {
     @Override
     public void setNodeCommonData( NodeCommonData nodeCommonData ) {
         this.nodeCommonData = nodeCommonData;
+    }
+
+    @Override
+    public Map<String,RegistryTreeNode> getContents() {
+        return this.contents;
+    }
+
+    @Override
+    public List<GUID> getContentGuids() {
+        return this.contentGuids;
+    }
+
+    @Override
+    public void setContentGuids(List<GUID> contentGuids) {
+        this.contentGuids = contentGuids;
+        HashMap<String, RegistryTreeNode> nodeHashMap = new HashMap<>();
+        for(GUID guid : contentGuids){
+            RegistryTreeNode registryTreeNode = this.registry.get(guid);
+            nodeHashMap.put(registryTreeNode.getName(),registryTreeNode);
+        }
+        this.contents = nodeHashMap;
+    }
+
+    @Override
+    public List<RegistryTreeNode> listItem() {
+        ArrayList<RegistryTreeNode> registryTreeNodes = new ArrayList<>();
+        registryTreeNodes.addAll(this.contents.values());
+        return registryTreeNodes;
+    }
+
+    @Override
+    public void put(String key,RegistryTreeNode val) {
+        if (contents.get(key) != null){
+            throw new RuntimeException("key is exist!!!");
+        }
+        this.contents.put(key,val);
+        this.registry.insertRegistryTreeNode(this.guid,val.getGuid());
+    }
+
+    @Override
+    public void remove(String key) {
+        RegistryTreeNode registryTreeNode = this.contents.get(key);
+        this.registry.remove(registryTreeNode.getGuid());
+        this.contents.remove(key);
+    }
+
+    @Override
+    public DistributedRegistry getRegistry() {
+        return this.registry;
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        return this.contents.containsKey(key);
+    }
+
+    @Override
+    public ConfigNode getConfigNode(String key) {
+       return (ConfigNode) this.contents.get(key);
+    }
+
+    @Override
+    public NamespaceNode getNamespaceNode(String key) {
+        return (NamespaceNode) this.contents.get(key);
+    }
+
+    @Override
+    public int size() {
+        return this.contents.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.contents.isEmpty();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return this.contents.keySet();
+    }
+
+    @Override
+    public  Set<Map.Entry<String,RegistryTreeNode>> entrySet() {
+        return this.contents.entrySet();
     }
 
     @Override

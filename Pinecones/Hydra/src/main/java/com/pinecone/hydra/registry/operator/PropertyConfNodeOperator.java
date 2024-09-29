@@ -7,6 +7,7 @@ import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
 import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
 import com.pinecone.hydra.registry.entity.PropertiesNode;
+import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class PropertyConfNodeOperator extends ArchRegistryNodeOperator{
     protected PropertiesNode getConfigNodeWideData(GUID guid) {
         ConfigNode configNodeWideData = super.getConfigNodeWideData(guid);
         GenericPropertiesNode PropertyConfigNode = new GenericPropertiesNode();
-        List<GenericProperty> properties = this.registryPropertiesManipulator.getProperties(guid);
+        List<Property > properties = this.registryPropertiesManipulator.getProperties(guid);
         PropertyConfigNode.setProperties(properties);
         PropertyConfigNode.setGuid(configNodeWideData.getGuid());
         PropertyConfigNode.setNodeCommonData((GenericNodeCommonData) configNodeWideData.getNodeCommonData());

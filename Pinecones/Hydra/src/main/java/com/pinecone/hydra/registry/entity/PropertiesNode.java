@@ -1,13 +1,23 @@
 package com.pinecone.hydra.registry.entity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 
 public interface PropertiesNode extends ConfigNode {
 
-    List<GenericProperty > getProperties();
+    List<Property > getProperties();
 
-    void setProperties(List<GenericProperty> properties);
+    Map<String, Object > toJSON();
+
+    default JSONObject toJSONObject() {
+        return new JSONMaptron( this.toJSON(), true );
+    }
+
+    void setProperties   ( List<Property> properties );
 
     void put             ( String key, Object val );
 

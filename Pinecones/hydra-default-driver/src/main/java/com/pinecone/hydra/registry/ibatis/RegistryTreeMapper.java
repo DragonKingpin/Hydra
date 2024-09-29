@@ -28,7 +28,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     }
 
-    @Insert("INSERT INTO hydra_registry_meta_map (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
+    @Insert("INSERT INTO hydra_registry_nodes (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
     void insertTreeNode(@Param("guid") GUID guid,@Param("type") UOI type,@Param("baseDataGuid") GUID baseDataGuid,@Param("nodeMetaGuid") GUID nodeMetaGuid);
 
     @Insert("INSERT INTO hydra_registry_node_tree (guid, parent_guid) VALUES (#{guid},#{parentGuid})")
@@ -44,7 +44,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Select("SELECT `guid` FROM `hydra_registry_node_path` WHERE `path`=#{path}")
     GUID getGUIDByPath( String path );
 
-    @Select("SELECT `id`, `guid`, `type`,base_data_guid AS baseDataGUID,node_meta_guid AS nodeMetadataGUID  FROM hydra_registry_meta_map WHERE guid=#{guid}")
+    @Select("SELECT `id`, `guid`, `type`,base_data_guid AS baseDataGUID,node_meta_guid AS nodeMetadataGUID  FROM hydra_registry_nodes WHERE guid=#{guid}")
     GUIDDistributedTrieNode getMeta(GUID guid);
 
     default void remove(GUID guid){
@@ -54,7 +54,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
         this.removeSubordinate(guid);
     }
 
-    @Delete("DELETE FROM `hydra_registry_meta_map` WHERE `guid`=#{guid}")
+    @Delete("DELETE FROM `hydra_registry_nodes` WHERE `guid`=#{guid}")
     void removeMeta(GUID guid);
 
     @Delete("DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{guid}")
@@ -74,7 +74,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     @Select("SELECT `parent_guid` FROM `hydra_registry_node_tree` WHERE `guid`=#{guid}")
     List<GUID > getParentNodes(GUID guid);
-    @Update("UPDATE `hydra_registry_meta_map` SET `type` = #{type} WHERE guid=#{guid}")
+    @Update("UPDATE `hydra_registry_nodes` SET `type` = #{type} WHERE guid=#{guid}")
     void updateType(UOI type , GUID guid);
     @Insert("INSERT INTO `hydra_registry_node_tree` (guid, parent_guid) VALUES (#{nodeGUID},#{parentGUID})")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);

@@ -136,8 +136,8 @@ public class ArchRegistryNodeOperator implements RegistryNodeOperator{
     }
 
     @Override
-    public void updateName(GUID guid, String name) {
-        this.configNodeManipulator.updateName(guid,name);
+    public void updateName( GUID guid, String name ) {
+        this.configNodeManipulator.updateName( guid, name );
     }
 
     protected ConfigNode getConfigNodeWideData( GUID guid ){

@@ -60,34 +60,37 @@ class LadyGaga extends Radium {
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
 
-        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
-        RegistryTreeNode registryTreeNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
-        Debug.trace(registryTreeNode.evincePropertyConfig());
-        Debug.trace( registryTreeNode.evincePropertyConfig().values()  );
-        Debug.hhf();
-        Debug.trace( 2, registry.getNodeByPath( "ns1.ns2.ns3" ) );
-        Debug.hhf();
-        Debug.trace(registry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
-        Debug.hhf();
-        Debug.trace(registry.selectByName("ns3"));
-        Debug.hhf();
-        RegistryTreeNode namespace = registry.get(GUIDs.GUID72("1f39293c-0002e2-0000-c4"));
-        NamespaceNode namespaceNode = namespace.evinceNamespaceNode();
-        Debug.trace(namespaceNode.listItem());
-        Debug.hhf();
-        Debug.trace(namespaceNode.entrySet());
-        RegistryTreeNode propertyNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
-        PropertiesNode propertiesNode = propertyNode.evincePropertyConfig();
-        Debug.hhf();
-        Debug.trace(propertiesNode.values());
-        Debug.hhf();
-        Debug.trace(propertiesNode.isEmpty());
-        Debug.hhf();
-        Debug.trace(propertiesNode.entrySet());
+//        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
+//        RegistryTreeNode registryTreeNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+//        Debug.trace(registryTreeNode.evincePropertyConfig());
+//        Debug.trace( registryTreeNode.evincePropertyConfig().values()  );
+//        Debug.hhf();
+//        Debug.trace( 2, registry.getNodeByPath( "ns1.ns2.ns3" ) );
+//        Debug.hhf();
+//        Debug.trace(registry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
+//        Debug.hhf();
+//        Debug.trace(registry.selectByName("ns3"));
+//        Debug.hhf();
+//        RegistryTreeNode namespace = registry.get(GUIDs.GUID72("1f39293c-0002e2-0000-c4"));
+//        NamespaceNode namespaceNode = namespace.evinceNamespaceNode();
+//        Debug.trace(namespaceNode.listItem());
+//        Debug.hhf();
+//        Debug.trace(namespaceNode.entrySet());
+//        RegistryTreeNode propertyNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+//        PropertiesNode propertiesNode = propertyNode.evincePropertyConfig();
+//        Debug.hhf();
+//        Debug.trace(propertiesNode.values());
+//        Debug.hhf();
+//        Debug.trace(propertiesNode.isEmpty());
+//        Debug.hhf();
+//        Debug.trace(propertiesNode.entrySet());
 
 
 
-        Debug.fmt( 4, registry.getChildConf( registry.getNodeByPath( "ns1.ns2.ns3" ).getGuid() ) );
+
+
+
+        Debug.fmp( 4, registry.get( registry.getGUIDByPath( "conf3" )  ).evincePropertyConfig().toJSONObject() );
 
 
         //ConfigNode cn = registry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );

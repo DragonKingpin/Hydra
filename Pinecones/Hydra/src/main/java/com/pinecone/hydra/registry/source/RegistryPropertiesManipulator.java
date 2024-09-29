@@ -10,9 +10,9 @@ import java.util.List;
 public interface RegistryPropertiesManipulator extends Pinenut {
     void insert(Property property);
 
-    void remove(GUID guid, String key);
+    void remove( GUID guid, String key );
 
-    List<GenericProperty> getProperties(GUID guid);
+    List<Property > getProperties( GUID guid );
 
     void update(Property property);
 }

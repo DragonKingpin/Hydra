@@ -24,7 +24,13 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
     void remove(GUID guid, String key);
 
     @Select("SELECT `id`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
-    List<GenericProperty> getProperties(GUID guid);
+    List<GenericProperty > getProperties0( GUID guid );
+
+    @SuppressWarnings( "unchecked" )
+    default List<Property > getProperties( GUID guid ) {
+        return (List) this.getProperties0( guid );
+    }
+
     @Update("UPDATE `hydra_registry_conf_node_properties` SET `key`=#{key}, `type`=#{type}, update_time=#{updateTime}, value=#{value} WHERE guid=#{guid}")
     void update(Property property);
 }

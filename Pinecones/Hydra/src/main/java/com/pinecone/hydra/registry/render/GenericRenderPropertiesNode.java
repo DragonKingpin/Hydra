@@ -30,7 +30,7 @@ public class GenericRenderPropertiesNode extends GenericPropertiesNode implement
     }
 
     @Override
-    public List<GenericProperty> getProperties() {
+    public List<Property > getProperties() {
         return super.getProperties();
     }
 

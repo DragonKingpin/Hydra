@@ -37,17 +37,21 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
 
 //    @Select("SELECT `id`, `guid` , `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` AS updateTime, name FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
 //    ArchConfigNode getConfigurationNode( GUID guid );
-    @Select("SELECT `type` FROM `hydra_registry_meta_map` WHERE `guid`=#{guid}")
+    @Select("SELECT `type` FROM `hydra_registry_nodes` WHERE `guid`=#{guid}")
     UOI getUOIByGUID( GUID guid );
+
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
     GenericPropertiesNode getPropertiesNode(GUID guid);
+
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
     GenericTextConfigNode getTextConfigNode(GUID guid);
+
     default ConfigNode getConfigurationNode ( GUID guid ) {
         String objectName = this.getUOIByGUID(guid).getObjectName();
-        if (objectName.equals(GenericTextConfigNode.class.getName())){
+        if ( objectName.equals(GenericTextConfigNode.class.getName()) ){
             return this.getTextConfigNode(guid);
-        }else if (objectName.equals(GenericPropertiesNode.class.getName())){
+        }
+        else if ( objectName.equals(GenericPropertiesNode.class.getName()) ){
             return this.getPropertiesNode(guid);
         }
         return null;
@@ -65,10 +69,13 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
 
     @Select("SELECT `guid` FROM `hydra_registry_config_node` WHERE `name`=#{name}")
     List<GUID> getNodeByName(String name);
+
     @Update("UPDATE `hydra_registry_config_node` SET `update_time` = #{updateTime} WHERE `guid` = #{guid}")
     void updateUpdateTime(@Param("updateTime") LocalDateTime updateTime,@Param("guid") GUID guid);
+
     @Select("SELECT `guid` FROM `hydra_registry_config_node`")
     List<GUID> getALL();
+
     @Update("UPDATE `hydra_registry_config_node` SET `name` = #{name} WHERE `guid` = #{guid}")
     void updateName(@Param("guid") GUID guid ,@Param("name") String name);
 }

@@ -1,18 +1,21 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("ALL")
 public class GenericPropertiesNode extends ArchConfigNode implements PropertiesNode {
-    protected List<GenericProperty >     properties;
+    protected List<Property >     properties;
 
     public GenericPropertiesNode() {
     }
@@ -23,7 +26,7 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
 
     public GenericPropertiesNode(
             int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime, LocalDateTime updateTime,
-            String name, List<GenericProperty> properties, GenericConfigNodeMeta configNodeMeta,
+            String name, List<Property> properties, GenericConfigNodeMeta configNodeMeta,
             GenericNodeCommonData nodeCommonData, DistributedRegistry registry
     ) {
         super( registry, enumId, guid, nsGuid, parentGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
@@ -151,12 +154,21 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
     }
 
     @Override
-    public List<GenericProperty > getProperties() {
-        return properties;
+    public List<Property> getProperties() {
+        return this.properties;
     }
 
     @Override
-    public void setProperties( List<GenericProperty> properties ) {
+    public Map<String, Object > toJSON() {
+        Map<String, Object > jo = new LinkedHashMap<>();
+        for( Property property : this.properties ) {
+            jo.put( property.getKey(), property.getValue() );
+        }
+        return jo;
+    }
+
+    @Override
+    public void setProperties( List<Property> properties ) {
         this.properties = properties;
     }
 

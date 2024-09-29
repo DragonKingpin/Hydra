@@ -142,7 +142,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         else {
             String[] parts = this.processPath( path ).split("\\.");
             //匹配configNode
-            List<GUID > nodeByNames = this.nodeManipulator.getNodeByName(parts[parts.length - 1]);
+            List<GUID > nodeByNames = this.nodeManipulator.getNodeByName( parts[parts.length - 1] );
             for ( GUID nodeGuid : nodeByNames ){
                 String nodePath = this.getPath( nodeGuid );
                 if ( nodePath.equals( path ) ){
@@ -150,7 +150,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
                 }
             }
             //匹配namespaceNode
-            nodeByNames = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
+            nodeByNames = this.namespaceNodeManipulator.getNodeByName( parts[parts.length - 1] );
             for ( GUID nodeGuid : nodeByNames ){
                 String nodePath = this.getPath(nodeGuid);
                 if ( nodePath.equals( path ) ){
@@ -159,6 +159,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
             }
         }
         return null;
+    }
+
+    @Override
+    public GUID getGUIDByPath( String path ) {
+        return this.getNodeByPath( path ).getGuid();
     }
 
     @Override
@@ -196,13 +201,18 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public List<Property> getProperties( GUID guid ) {
+    public List<Property > getProperties( GUID guid ) {
         ArrayList<Property > properties = new ArrayList<>();
-        List<GenericProperty > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
-        for ( GenericProperty p : genericProperties ){
-            properties.add((Property) p);
+        List<Property > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
+        for ( Property p : genericProperties ){
+            properties.add( (Property) p );
         }
         return properties;
+    }
+
+    @Override
+    public List<Property > getProperties( String path ) {
+        return this.getProperties( this.getGUIDByPath( path ) );
     }
 
     @Override

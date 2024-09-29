@@ -22,6 +22,8 @@ public interface DistributedRegistry extends Registry {
 
     RegistryTreeNode getNodeByPath( String path );
 
+    GUID getGUIDByPath( String path );
+
     void putProperties( Property property, GUID configNodeGuid );
 
     void putTextValue( GUID guid,String text,String type );
@@ -33,6 +35,8 @@ public interface DistributedRegistry extends Registry {
     void updateTextValue( GUID guid,String text,String type );
 
     List<Property > getProperties( GUID guid );
+
+    List<Property > getProperties( String path );
 
     TextValue getTextValue( GUID guid );
 

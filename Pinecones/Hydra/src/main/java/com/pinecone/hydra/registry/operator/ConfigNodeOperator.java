@@ -5,13 +5,11 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.ConfigNodeMeta;
-import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
-import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.NodeCommonData;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
-import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
@@ -66,7 +64,7 @@ public class ConfigNodeOperator implements RegistryNodeOperator {
 
     @Override
     public GUID insert(TreeNode treeNode) {
-        GenericConfigNode configNode = (GenericConfigNode) treeNode;
+        ArchConfigNode configNode = (ArchConfigNode) treeNode;
         UidGenerator uidGenerator= UUIDBuilder.getBuilder();
         GUID guid72 = uidGenerator.getGUID72();
 
@@ -148,8 +146,8 @@ public class ConfigNodeOperator implements RegistryNodeOperator {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         //Debug.trace(node.toString());
         ConfigNode cn = this.configNodeManipulator.getConfigurationNode( guid );
-        if( cn instanceof GenericConfigNode ) {
-            ((GenericConfigNode) cn).apply( this.registry );
+        if( cn instanceof ArchConfigNode) {
+            ((ArchConfigNode) cn).apply( this.registry );
         }
 
         GenericConfigNodeMeta configNodeMeta = (GenericConfigNodeMeta) this.configNodeMetaManipulator.getConfigNodeMeta(node.getNodeMetadataGUID());

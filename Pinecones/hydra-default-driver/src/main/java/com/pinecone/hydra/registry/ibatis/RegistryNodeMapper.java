@@ -1,8 +1,14 @@
 package com.pinecone.hydra.registry.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.ArchConfigNode;
+import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
+import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
+import com.pinecone.hydra.registry.entity.PropertiesNode;
+import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 
@@ -26,7 +32,18 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
     void remove(@Param("guid") GUID guid);
 
     @Select("SELECT `id`, `guid` , `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` AS updateTime, name FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
-    GenericConfigNode getConfigurationNode( GUID guid );
+    ArchConfigNode getConfigurationNode( GUID guid );
+
+
+    UOI getUOIByGUID( GUID guid );
+
+    GenericPropertiesNode getPropertiesNode( GUID guid );
+
+    GenericTextConfigNode getTextConfigNode( GUID guid );
+
+//    default ConfigNode getConfigNode ( GUID guid ) {
+//        //return this.getPropertiesNode( guid );
+//    }
 
 
     default void update( ConfigNode configNode){

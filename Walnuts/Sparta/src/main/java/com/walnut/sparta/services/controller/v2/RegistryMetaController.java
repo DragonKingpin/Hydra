@@ -1,7 +1,7 @@
 package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
@@ -41,9 +41,9 @@ public class RegistryMetaController {
      * @param namespaceNode 节点信息
      * @return 返回操作情况
      */
-    @PostMapping("/insertNamespaceNode")
-    public BasicResultResponse<String> insertNamespaceNode(@RequestBody GenericNamespaceNode namespaceNode){
-        this.distributedRegistry.insert(namespaceNode);
+    @PostMapping("/putNamespaceNode")
+    public BasicResultResponse<String> putNamespaceNode(@RequestBody GenericNamespaceNode namespaceNode){
+        this.distributedRegistry.put(namespaceNode);
         return BasicResultResponse.success();
     }
 
@@ -52,9 +52,9 @@ public class RegistryMetaController {
      * @param configNode 节点信息
      * @return 返回操作情况
      */
-    @PostMapping("/insertConfigNode")
-    public BasicResultResponse<String> insertConfigNode( @RequestBody GenericConfigNode configNode ){
-        this.distributedRegistry.insert(configNode);
+    @PostMapping("/putConfigNode")
+    public BasicResultResponse<String> putConfigNode( @RequestBody ArchConfigNode configNode ){
+        this.distributedRegistry.put(configNode);
         return BasicResultResponse.success();
     }
 
@@ -98,7 +98,7 @@ public class RegistryMetaController {
         genericProperties.setValue(value);
         genericProperties.setType(type);
 
-        this.distributedRegistry.insertProperties( genericProperties, GUIDs.GUID72( guid ) );
+        this.distributedRegistry.putProperties( genericProperties, GUIDs.GUID72( guid ) );
         return BasicResultResponse.success();
     }
 
@@ -131,11 +131,11 @@ public class RegistryMetaController {
      * @param type text类型
      * @return 返回状态码
      */
-    @PostMapping("/insertTextValue")
+    @PostMapping("/putTextValue")
     public BasicResultResponse<String> insertTextValue(@RequestParam("guid")String guid,
                                                        @RequestParam("text") String text,
                                                        @RequestParam("type") String type){
-        this.distributedRegistry.insertTextValue( GUIDs.GUID72( guid ) ,text,type);
+        this.distributedRegistry.putTextValue( GUIDs.GUID72( guid ) ,text,type);
         return BasicResultResponse.success();
     }
 

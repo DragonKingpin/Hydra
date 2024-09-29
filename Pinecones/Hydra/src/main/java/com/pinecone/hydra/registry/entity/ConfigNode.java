@@ -48,30 +48,15 @@ public interface ConfigNode extends RegistryTreeNode {
 //    TextValue getTextValue();
 //
 //    void setTextValue(TextValue textValue);
+
     ConfigNodeMeta getConfigNodeMeta();
 
-    void setConfigNodeMeta(GenericConfigNodeMeta configNodeMeta);
+    void setConfigNodeMeta( GenericConfigNodeMeta configNodeMeta );
 
     NodeCommonData getNodeCommonData();
 
     void setNodeCommonData( GenericNodeCommonData nodeCommonData );
 
-
-//    void put             ( String key, Object val );
-//    void putProperty     ( Property property );
-//    void removeProperty  ( String key );
-//    void updateProperty  ( Property property );
-//    Property getProperty ( String key );
-//    Object getValue      ( String key );
-
-    boolean containsKey  ( String key );
-
-
-    int size();
-    boolean isEmpty();
-    List<Object > values();
-    Set<String > keySet();
-    Set<Property > entrySet();
 
     DistributedRegistry getRegistry();
 

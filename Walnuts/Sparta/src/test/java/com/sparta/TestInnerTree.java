@@ -3,12 +3,10 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
-import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
-import com.pinecone.hydra.registry.entity.PropertyConfigNode;
+import com.pinecone.hydra.registry.entity.PropertiesNode;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
@@ -21,7 +19,6 @@ import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.tree.DistributedTaskMetaTree;
 import com.pinecone.hydra.task.tree.GenericDistributedTaskMetaTree;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.ulf.util.id.GUIDs;
 import com.sauron.radium.Radium;
 
@@ -60,35 +57,40 @@ class LadyGaga extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        DistributedRegistry distributedRegistry = new GenericDistributeRegistry( koiMappingDriver );
+        DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
-        Debug.trace( distributedRegistry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
-        RegistryTreeNode registryTreeNode = distributedRegistry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+
+        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
+        RegistryTreeNode registryTreeNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
         Debug.trace(registryTreeNode.evincePropertyConfig());
         Debug.trace( registryTreeNode.evincePropertyConfig().values()  );
         Debug.hhf();
-        Debug.trace( 2, distributedRegistry.getNodeByPath( "ns1.ns2.ns3" ) );
+        Debug.trace( 2, registry.getNodeByPath( "ns1.ns2.ns3" ) );
         Debug.hhf();
-        Debug.trace(distributedRegistry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
+        Debug.trace(registry.getProperties( GUIDs.GUID72("1f419c8c-000018-0000-a8")) );
         Debug.hhf();
-        Debug.trace(distributedRegistry.selectByName("ns3"));
+        Debug.trace(registry.selectByName("ns3"));
         Debug.hhf();
-        RegistryTreeNode namespace = distributedRegistry.get(GUIDs.GUID72("1f39293c-0002e2-0000-c4"));
+        RegistryTreeNode namespace = registry.get(GUIDs.GUID72("1f39293c-0002e2-0000-c4"));
         NamespaceNode namespaceNode = namespace.evinceNamespaceNode();
         Debug.trace(namespaceNode.listItem());
         Debug.hhf();
         Debug.trace(namespaceNode.entrySet());
-        RegistryTreeNode propertyNode = distributedRegistry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
-        PropertyConfigNode propertyConfigNode = propertyNode.evincePropertyConfig();
+        RegistryTreeNode propertyNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
+        PropertiesNode propertiesNode = propertyNode.evincePropertyConfig();
         Debug.hhf();
-        Debug.trace(propertyConfigNode.values());
+        Debug.trace(propertiesNode.values());
         Debug.hhf();
-        Debug.trace(propertyConfigNode.isEmpty());
+        Debug.trace(propertiesNode.isEmpty());
         Debug.hhf();
-        Debug.trace(propertyConfigNode.entrySet());
+        Debug.trace(propertiesNode.entrySet());
 
 
-        //ConfigNode cn = distributedRegistry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
+
+        Debug.fmt( 4, registry.getChildConf( registry.getNodeByPath( "ns1.ns2.ns3" ).getGuid() ) );
+
+
+        //ConfigNode cn = registry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
 
         //Debug.trace( cn.keySet() );
         //Debug.trace( cn.size() );

@@ -11,6 +11,7 @@ public class GenericRenderNamespaceNode extends GenericNamespaceNode implements 
     public void apply(RenderDistributeRegistry registry) {
         this.registry = registry;
     }
+
     @Override
     public RenderDistributeRegistry getRegistry() {
         return this.registry;

@@ -1,6 +1,5 @@
 package com.pinecone.hydra.registry.entity;
 
-import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface RegistryTreeNode extends TreeNode {
@@ -13,7 +12,7 @@ public interface RegistryTreeNode extends TreeNode {
         return null;
     }
 
-    default PropertyConfigNode evincePropertyConfig() {
+    default PropertiesNode evincePropertyConfig() {
         return null;
     }
 

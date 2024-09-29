@@ -2,19 +2,15 @@ package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.template.UTRAlmondProvider;
-import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.GenericConfigNode;
+import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.GenericProperty;
-import com.pinecone.hydra.registry.entity.GenericPropertyConfigNode;
+import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
 import com.pinecone.hydra.registry.entity.Property;
-import com.pinecone.hydra.registry.entity.PropertyConfigNode;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
-import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.operator.RegistryNodeOperator;
 import com.pinecone.hydra.service.tree.UOIUtils;
@@ -42,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GenericDistributeRegistry implements DistributedRegistry {
-    protected Hydrarum                      hydrarum;
+    protected Hydrarum                        hydrarum;
 
     protected DistributedTrieTree             distributedConfTree;
     protected RegistryMasterManipulator       registryMasterManipulator;
@@ -114,7 +110,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public GUID insert( TreeNode treeNode ) {
+    public GUID put( TreeNode treeNode ) {
         Debug.trace(treeNode.getMetaType());
         TreeNodeOperator operator = this.configOperatorFactory.getOperator(treeNode.getMetaType());
         return operator.insert(treeNode);
@@ -166,9 +162,9 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void insertProperties(Property property, GUID configNodeGuid ) {
+    public void putProperties( Property property, GUID configNodeGuid ) {
         //todo 更改节点类型
-        this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericPropertyConfigNode.class.getName()),configNodeGuid);
+        this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericPropertiesNode.class.getName()),configNodeGuid);
         property.setGuid(configNodeGuid);
         property.setCreateTime(LocalDateTime.now());
         property.setUpdateTime(LocalDateTime.now());
@@ -184,14 +180,14 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void updateProperty(Property property, GUID configNodeGuid) {
+    public void updateProperty( Property property, GUID configNodeGuid ) {
         property.setGuid(configNodeGuid);
         property.setUpdateTime(LocalDateTime.now());
         this.registryPropertiesManipulator.update(property);
     }
 
     @Override
-    public void updateTextValue(GUID guid, String text, String type) {
+    public void updateTextValue( GUID guid, String text, String type ) {
         GenericTextValue genericTextValue = new GenericTextValue();
         genericTextValue.setUpdateTime(LocalDateTime.now());
         genericTextValue.setValue(text);
@@ -200,32 +196,32 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public List<Property> getProperties(GUID guid) {
-        ArrayList<Property> properties = new ArrayList<>();
-        List<GenericProperty> genericProperties = this.registryPropertiesManipulator.getProperties(guid);
-        for (GenericProperty p : genericProperties){
+    public List<Property> getProperties( GUID guid ) {
+        ArrayList<Property > properties = new ArrayList<>();
+        List<GenericProperty > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
+        for ( GenericProperty p : genericProperties ){
             properties.add((Property) p);
         }
         return properties;
     }
 
     @Override
-    public TextValue getTextValue(GUID guid) {
+    public TextValue getTextValue( GUID guid ) {
         return this.registryTextValueManipulator.getTextValue(guid);
     }
 
     @Override
-    public void removeProperty(GUID guid, String key) {
+    public void removeProperty( GUID guid, String key ) {
         this.registryPropertiesManipulator.remove(guid,key);
     }
 
     @Override
-    public void removeTextValue(GUID guid) {
+    public void removeTextValue( GUID guid ) {
         this.registryTextValueManipulator.remove(guid);
     }
 
     @Override
-    public List<TreeNode> getChildConf(GUID guid) {
+    public List<TreeNode > getChildConf( GUID guid ) {
         List<GUIDDistributedTrieNode> childNodes = this.distributedConfTree.getChildNode(guid);
         ArrayList<TreeNode> configNodes = new ArrayList<>();
         for(GUIDDistributedTrieNode node : childNodes){
@@ -236,7 +232,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public List<TreeNode> selectByName(String name) {
+    public List<TreeNode > selectByName( String name ) {
         List<GUID> nodes = this.namespaceNodeManipulator.getNodeByName(name);
         ArrayList<TreeNode> configNodes = new ArrayList<>();
         for(GUID guid : nodes){
@@ -250,15 +246,15 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     public void rename( String name, GUID guid ) {
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
-        TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
-        GenericConfigNode configNode = new GenericConfigNode( this );
-        configNode.setGuid(guid);
-        configNode.setName(name);
-        operator.update(configNode);
+        TreeNodeOperator operator = this.configOperatorFactory.getOperator( newInstance.getMetaType() );
+//        ArchConfigNode configNode = new ArchConfigNode( this );
+//        configNode.setGuid( guid );
+//        configNode.setName( name );
+//        operator.update( configNode );
     }
 
     @Override
-    public List<TreeNode> getAllTreeNode() {
+    public List<TreeNode > getAllTreeNode() {
         List<GUID> nameSpaceNodes = this.namespaceNodeManipulator.getAll();
         List<GUID> confNodes = this.nodeManipulator.getALL();
         ArrayList<TreeNode> treeNodes = new ArrayList<>();
@@ -274,17 +270,12 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public UniformTemplateRenderer getRenderer() {
-        return null;
-    }
-
-    @Override
-    public void insertRegistryTreeNode(GUID parentGuid, GUID childGuid) {
+    public void insertRegistryTreeNode( GUID parentGuid, GUID childGuid ) {
         this.distributedConfTree.insertNodeToParent(childGuid,parentGuid);
     }
 
     @Override
-    public void insertTextValue( GUID guid, String text, String type ){
+    public void putTextValue( GUID guid, String text, String type ){
         //todo 更改节点类型
         this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericTextConfigNode.class.getName()),guid);
         GenericTextValue genericTextValue = new GenericTextValue();
@@ -307,7 +298,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         return null;
     }
 
-    private String getNodeName(DistributedTreeNode node ){
+    private String getNodeName( DistributedTreeNode node ){
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         Debug.trace(newInstance);
@@ -316,7 +307,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         return treeNode.getName();
     }
 
-    private String processPath(String path) {
+    private String processPath( String path ) {
         return path.replaceAll("\\(.*?\\)", "");
     }
 }

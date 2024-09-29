@@ -35,7 +35,7 @@ public class TestVFS {
         localFilePath = "\\\\b-serverkingpin\\ARBOmnium/EnderChest/1.txt";
 
         String username = "undefined";
-        String password = "$Evil17700827";
+        String password = "";
         String webdavHost = "b-serverkingpin:8077";
         String encodedPassword = URLEncoder.encode(password, "UTF-8");
         localFilePath = "http://" + username + ":" + encodedPassword + "@" + webdavHost + "/EnderChest/test/1.text";

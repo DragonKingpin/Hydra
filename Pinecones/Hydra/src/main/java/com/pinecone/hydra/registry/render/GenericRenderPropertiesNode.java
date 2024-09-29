@@ -1,16 +1,14 @@
 package com.pinecone.hydra.registry.render;
 
-import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.RenderDistributeRegistry;
-import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericProperty;
-import com.pinecone.hydra.registry.entity.GenericPropertyConfigNode;
+import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
 import com.pinecone.hydra.registry.entity.Property;
 
 import java.util.List;
 import java.util.Set;
 
-public class GenericRenderPropertyConfigNode extends GenericPropertyConfigNode implements RenderPropertyConfigNode {
+public class GenericRenderPropertiesNode extends GenericPropertiesNode implements RenderPropertiesNode {
     protected RenderDistributeRegistry       registry;
     public void apply(RenderDistributeRegistry registry) {
        this.registry = registry;

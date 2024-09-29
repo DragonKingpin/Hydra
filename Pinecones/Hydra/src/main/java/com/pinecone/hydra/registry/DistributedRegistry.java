@@ -14,7 +14,7 @@ public interface DistributedRegistry extends Registry {
 
     String getPath( GUID guid );
 
-    GUID insert( TreeNode treeNode );
+    GUID put( TreeNode treeNode );
 
     RegistryTreeNode get(GUID guid );
 
@@ -22,9 +22,9 @@ public interface DistributedRegistry extends Registry {
 
     RegistryTreeNode getNodeByPath( String path );
 
-    void insertProperties(Property property, GUID configNodeGuid );
+    void putProperties( Property property, GUID configNodeGuid );
 
-    void insertTextValue( GUID guid,String text,String type );
+    void putTextValue( GUID guid,String text,String type );
 
     void remove( GUID guid );
 
@@ -52,11 +52,15 @@ public interface DistributedRegistry extends Registry {
 
     // getNamespace( String path );
 
-    void removeTextValue(GUID guid);
-    List<TreeNode> getChildConf(GUID guid);
-    List<TreeNode> selectByName(String name);
-    void rename(String name,GUID guid);
-    List<TreeNode> getAllTreeNode();
-    UniformTemplateRenderer getRenderer();
-    void insertRegistryTreeNode(GUID parentGuid,GUID childGuid);
+    void removeTextValue( GUID guid );
+
+    List<TreeNode > getChildConf( GUID guid );
+
+    List<TreeNode > selectByName( String name );
+
+    void rename( String name,GUID guid );
+
+    List<TreeNode > getAllTreeNode();
+
+    void insertRegistryTreeNode( GUID parentGuid, GUID childGuid );
 }

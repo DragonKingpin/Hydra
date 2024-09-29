@@ -1,14 +1,12 @@
 package com.pinecone.hydra.registry.operator;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
 import com.pinecone.hydra.registry.entity.GenericProperty;
-import com.pinecone.hydra.registry.entity.GenericPropertyConfigNode;
-import com.pinecone.hydra.registry.entity.PropertyConfigNode;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
+import com.pinecone.hydra.registry.entity.PropertiesNode;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 
 import java.util.List;
@@ -21,9 +19,9 @@ public class PropertyConfNodeOperator extends ArchRegistryNodeOperator{
     }
 
     @Override
-    public PropertyConfigNode get(GUID guid) {
+    public PropertiesNode get(GUID guid) {
         //检测缓存中是否存在信息
-        PropertyConfigNode configNode = (PropertyConfigNode)this.cacheMap.get(guid);
+        PropertiesNode configNode = (PropertiesNode)this.cacheMap.get(guid);
         if (configNode == null) {
             configNode = this.getConfigNodeWideData(guid);
             GUID parentGuid = configNode.getParentGuid();
@@ -36,9 +34,9 @@ public class PropertyConfNodeOperator extends ArchRegistryNodeOperator{
     }
 
     @Override
-    protected PropertyConfigNode getConfigNodeWideData(GUID guid) {
+    protected PropertiesNode getConfigNodeWideData(GUID guid) {
         ConfigNode configNodeWideData = super.getConfigNodeWideData(guid);
-        GenericPropertyConfigNode PropertyConfigNode = new GenericPropertyConfigNode();
+        GenericPropertiesNode PropertyConfigNode = new GenericPropertiesNode();
         List<GenericProperty> properties = this.registryPropertiesManipulator.getProperties(guid);
         PropertyConfigNode.setProperties(properties);
         PropertyConfigNode.setGuid(configNodeWideData.getGuid());

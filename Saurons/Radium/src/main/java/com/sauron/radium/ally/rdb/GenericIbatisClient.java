@@ -46,7 +46,10 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     protected JSONObject           mjoIbatisConf         ;
 
     @JSONGet( "JDBC.Driver" )
-    protected String               mszJDBCDriverName       ;
+    protected String               mszJDBCDriverName     ;
+
+    @JSONGet( "JDBC.ExURL" )
+    protected String               mszJDBCExURL          ;
 
     protected JSONObject           mjoClientConf         ;
 
@@ -168,6 +171,17 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
         this.prepareDAOMapperList();
 
         this.mLogger.info( "[Lifecycle] [RDBClient::PrepareIbatisSubsystem::" + this.mszInstanceName + "] <Done>" );
+    }
+
+    @Override
+    public String toJDBCURL() {
+        if( this.mszJDBCExURL == null ) {
+            this.mszJDBCExURL = "";
+        }
+        if( !this.mszJDBCExURL.startsWith( "&" ) ) {
+            this.mszJDBCExURL = "&" + this.mszJDBCExURL;
+        }
+        return super.toJDBCURL() + this.mszJDBCExURL;
     }
 
     @Override

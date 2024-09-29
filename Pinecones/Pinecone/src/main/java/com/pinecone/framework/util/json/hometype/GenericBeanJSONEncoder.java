@@ -44,11 +44,10 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
                         if ( Character.isUpperCase( key.charAt(0) ) && method.getParameterTypes().length == 0 ) {
                             key = JavaBeans.methodKeyNameLowerCaseNormalize( key );
 
-                            sb.append( '\"' ).append( key ).append( "\":" );
-
                             Object val;
                             try {
                                 val = method.invoke( bean );
+                                sb.append( '\"' ).append( key ).append( "\":" );
                             }
                             catch ( IllegalAccessException | InvocationTargetException e ) {
                                 continue;
@@ -117,11 +116,11 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
                             }
                             GenericJSONEncoder.indentBlank( writer, nNewIndent );
 
-                            writer.write( "\"" + key + "\":" );
 
                             Object val;
                             try {
                                 val = method.invoke( bean );
+                                writer.write( "\"" + key + "\":" );
                             }
                             catch ( IllegalAccessException | InvocationTargetException e ) {
                                 continue;

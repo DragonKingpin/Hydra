@@ -19,7 +19,8 @@
           "Engine": "com.sauron.radium.ally.rdb.GenericIbatisClient",
           "Enable": true,
           "JDBC": {
-            "Driver": "com.mysql.cj.jdbc.Driver",
+            "Driver"   : "com.mysql.cj.jdbc.Driver",
+            "ExURL"    : "autoReconnect=true"
           },
           "Ibatis": {
             "Environment"       : "development",
@@ -166,6 +167,12 @@
 
     "SystemDaemon"  : {
       "SurveillanceTime": 1000
+    },
+
+    "SystemCabinet" : {
+      "MicroSystems": {
+        //"Crusade": "./system/setup/cabinet/Crusade.json5"
+      }
     }
   },
 

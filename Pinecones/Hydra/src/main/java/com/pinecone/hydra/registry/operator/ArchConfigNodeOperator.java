@@ -7,8 +7,8 @@ import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.ConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
-import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
-import com.pinecone.hydra.registry.entity.NodeCommonData;
+import com.pinecone.hydra.registry.entity.GenericNodeAttribute;
+import com.pinecone.hydra.registry.entity.NodeAttribute;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
@@ -31,22 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class ArchRegistryNodeOperator implements RegistryNodeOperator{
-    protected DistributedTrieTree distributedTrieTree;
-    protected RegistryMasterManipulator registryMasterManipulator;
-    protected Map<GUID, ConfigNode> cacheMap = new HashMap<>();
+public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
+    protected DistributedTrieTree           distributedTrieTree;
+    protected RegistryMasterManipulator     registryMasterManipulator;
+    protected Map<GUID, ConfigNode>         cacheMap = new HashMap<>();
 
-    protected RegistryNodeManipulator configNodeManipulator;
-    protected RegistryNodeMetaManipulator configNodeMetaManipulator;
+    protected RegistryNodeManipulator       configNodeManipulator;
+    protected RegistryNodeMetaManipulator   configNodeMetaManipulator;
     protected RegistryCommonDataManipulator registryCommonDataManipulator;
 
-    protected DistributedRegistry registry;
+    protected DistributedRegistry           registry;
 
-    public ArchRegistryNodeOperator ( ConfigOperatorFactory factory ) {
+    public ArchConfigNodeOperator(ConfigOperatorFactory factory ) {
         this( factory.getMasterManipulator(), (DistributedRegistry) factory.getRegistry() );
     }
 
-    public ArchRegistryNodeOperator( RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
+    public ArchConfigNodeOperator(RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
         this.registryMasterManipulator     = masterManipulator;
         this.configNodeManipulator         = this.registryMasterManipulator.getRegistryNodeManipulator();
         this.configNodeMetaManipulator     = this.registryMasterManipulator.getRegistryNodeMetaManipulator();
@@ -76,7 +76,7 @@ public class ArchRegistryNodeOperator implements RegistryNodeOperator{
         configNodeMeta.setGuid(configNodeMetaGuid);
 
         GUID commonDataGuid = uidGenerator.getGUID72();
-        GenericNodeCommonData nodeCommonData = configNode.getNodeCommonData();
+        GenericNodeAttribute nodeCommonData = configNode.getNodeCommonData();
         nodeCommonData.setGuid(commonDataGuid);
 
         distributeConfTreeNode.setBaseDataGUID(commonDataGuid);
@@ -124,13 +124,13 @@ public class ArchRegistryNodeOperator implements RegistryNodeOperator{
     public void update(TreeNode treeNode) {
         ConfigNode configNode = (ConfigNode) treeNode;
         ConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
-        NodeCommonData nodeCommonData = configNode.getNodeCommonData();
+        NodeAttribute nodeAttribute = configNode.getNodeCommonData();
         configNode.setUpdateTime(LocalDateTime.now());
         if (configNodeMeta != null){
             this.configNodeMetaManipulator.update(configNodeMeta);
         }
-        if (nodeCommonData != null){
-            this.registryCommonDataManipulator.update(nodeCommonData);
+        if (nodeAttribute != null){
+            this.registryCommonDataManipulator.update(nodeAttribute);
         }
         this.configNodeManipulator.update(configNode);
     }
@@ -143,12 +143,12 @@ public class ArchRegistryNodeOperator implements RegistryNodeOperator{
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         ConfigNode cn = this.configNodeManipulator.getConfigurationNode( guid );
-        if( cn instanceof ArchConfigNode) {
+        if( cn instanceof ArchConfigNode ) {
             ((ArchConfigNode) cn).apply( this.registry );
         }
 
         GenericConfigNodeMeta configNodeMeta = (GenericConfigNodeMeta) this.configNodeMetaManipulator.getConfigNodeMeta(node.getNodeMetadataGUID());
-        GenericNodeCommonData nodeCommonData = (GenericNodeCommonData) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
+        GenericNodeAttribute nodeCommonData = (GenericNodeAttribute) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
 
         cn.setNodeCommonData(nodeCommonData);
         cn.setConfigNodeMeta(configNodeMeta);

@@ -126,7 +126,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         }
         else{
             String[] parts = this.processPath(path).split("\\.");
-            List<GUID> nodeByName = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
+            List<GUID> nodeByName = this.namespaceNodeManipulator.getGuidsByName(parts[parts.length - 1]);
             for(GUID nodeGuid :nodeByName){
                 if (this.getPath(nodeGuid).equals(path)){
                     return this.get(nodeGuid);

@@ -15,5 +15,5 @@ public interface NamespaceNodeManipulator extends Pinenut {
 
     void update(NamespaceNode namespaceNode);
 
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 }

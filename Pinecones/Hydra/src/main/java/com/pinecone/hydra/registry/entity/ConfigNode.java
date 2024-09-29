@@ -3,8 +3,6 @@ package com.pinecone.hydra.registry.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 public interface ConfigNode extends RegistryTreeNode {
     @Override
@@ -53,9 +51,9 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setConfigNodeMeta( GenericConfigNodeMeta configNodeMeta );
 
-    NodeCommonData getNodeCommonData();
+    NodeAttribute getNodeCommonData();
 
-    void setNodeCommonData( GenericNodeCommonData nodeCommonData );
+    void setNodeCommonData( GenericNodeAttribute nodeCommonData );
 
 
     DistributedRegistry getRegistry();

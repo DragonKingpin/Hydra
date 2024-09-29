@@ -3,11 +3,14 @@ package com.pinecone.hydra.registry;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.hydra.registry.entity.ConfigNode;
+import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface DistributedRegistry extends Registry {
@@ -16,15 +19,23 @@ public interface DistributedRegistry extends Registry {
 
     GUID put( TreeNode treeNode );
 
-    RegistryTreeNode get(GUID guid );
+    RegistryTreeNode get( GUID guid );
 
     RegistryTreeNode getThis( GUID guid );
 
     RegistryTreeNode getNodeByPath( String path );
 
+    Properties getProperties( GUID guid );
+
+    Properties getProperties( String path );
+
+    NamespaceNode getNamespaceNode( GUID guid );
+
+    NamespaceNode getNamespaceNode( String path );
+
     GUID getGUIDByPath( String path );
 
-    void putProperties( Property property, GUID configNodeGuid );
+    void putProperty( Property property, GUID configNodeGuid );
 
     void putTextValue( GUID guid,String text,String type );
 
@@ -34,9 +45,9 @@ public interface DistributedRegistry extends Registry {
 
     void updateTextValue( GUID guid,String text,String type );
 
-    List<Property > getProperties( GUID guid );
+    Collection<Property > fetchProperties( GUID guid );
 
-    List<Property > getProperties( String path );
+    Collection<Property > fetchProperties( String path );
 
     TextValue getTextValue( GUID guid );
 
@@ -62,7 +73,7 @@ public interface DistributedRegistry extends Registry {
 
     List<TreeNode > selectByName( String name );
 
-    void rename( String name,GUID guid );
+    void rename( GUID guid, String name );
 
     List<TreeNode > getAllTreeNode();
 

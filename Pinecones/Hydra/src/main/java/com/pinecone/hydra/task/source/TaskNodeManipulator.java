@@ -16,5 +16,5 @@ public interface TaskNodeManipulator extends Pinenut {
 
     void update(TaskNode taskNode);
 
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 }

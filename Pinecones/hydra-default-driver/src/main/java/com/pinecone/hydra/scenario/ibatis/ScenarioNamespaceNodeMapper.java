@@ -26,5 +26,5 @@ public interface ScenarioNamespaceNodeMapper extends NamespaceNodeManipulator {
     void update(NamespaceNode namespaceNode);
 
     @Select("SELECT guid FROM hydra_scenario_namespace_node where name=#{name}")
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 }

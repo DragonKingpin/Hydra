@@ -1,12 +1,12 @@
 package com.pinecone.hydra.registry.source;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;
 
-public interface RegistryNSNodeManipulator extends Pinenut {
+public interface RegistryNSNodeManipulator extends GUIDNameManipulator {
     void insert(NamespaceNode namespaceNode);
 
     void remove(GUID guid);
@@ -15,7 +15,7 @@ public interface RegistryNSNodeManipulator extends Pinenut {
 
     void update(NamespaceNode namespaceNode);
 
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 
     List<GUID> getAll();
 }

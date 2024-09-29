@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry.entity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -7,19 +8,23 @@ import java.util.Set;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 
-public interface PropertiesNode extends ConfigNode {
+public interface Properties extends ConfigNode {
 
-    List<Property > getProperties();
+    Collection<Property > getProperties();
 
-    Map<String, Object > toJSON();
+    Map<String, Object > toMap();
 
     default JSONObject toJSONObject() {
-        return new JSONMaptron( this.toJSON(), true );
+        return new JSONMaptron( this.toMap(), true );
     }
 
     void setProperties   ( List<Property> properties );
 
+    void setProperties   ( Map<String, Property > properties );
+
     void put             ( String key, Object val );
+
+    void put             ( Set<Map.Entry<String, Object > > entries );
 
     void putProperty     ( Property property );
 
@@ -37,14 +42,14 @@ public interface PropertiesNode extends ConfigNode {
 
     boolean isEmpty();
 
-    List<Object > values();
+    Collection<Object > values();
 
     Set<String > keySet();
 
     Set<Property > entrySet();
 
     @Override
-    default PropertiesNode evincePropertyConfig() {
+    default Properties evinceProperties() {
         return this;
     }
 }

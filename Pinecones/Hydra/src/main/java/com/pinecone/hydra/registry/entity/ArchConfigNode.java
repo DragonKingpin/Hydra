@@ -1,16 +1,10 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.json.JSONArray;
-import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public abstract class ArchConfigNode implements ConfigNode {
     protected int                     enumId;
@@ -22,14 +16,14 @@ public abstract class ArchConfigNode implements ConfigNode {
     protected String                  name;
 
     protected GenericConfigNodeMeta   configNodeMeta;
-    protected GenericNodeCommonData   nodeCommonData;
+    protected GenericNodeAttribute    nodeCommonData;
     protected DistributedRegistry     registry;
 
     protected ArchConfigNode() {
 
     }
 
-    public ArchConfigNode(DistributedRegistry registry ) {
+    public ArchConfigNode( DistributedRegistry registry ) {
         this.registry = registry;
     }
 
@@ -37,7 +31,7 @@ public abstract class ArchConfigNode implements ConfigNode {
             DistributedRegistry registry,
             int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime,
             LocalDateTime updateTime, String name,
-            GenericConfigNodeMeta configNodeMeta, GenericNodeCommonData nodeCommonData
+            GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData
     ) {
         this.registry         = registry;
         this.enumId           = enumId;
@@ -151,13 +145,13 @@ public abstract class ArchConfigNode implements ConfigNode {
 
 
     @Override
-    public GenericNodeCommonData getNodeCommonData() {
+    public GenericNodeAttribute getNodeCommonData() {
         return this.nodeCommonData;
     }
 
 
     @Override
-    public void setNodeCommonData( GenericNodeCommonData nodeCommonData ) {
+    public void setNodeCommonData( GenericNodeAttribute nodeCommonData ) {
         this.nodeCommonData = nodeCommonData;
     }
 

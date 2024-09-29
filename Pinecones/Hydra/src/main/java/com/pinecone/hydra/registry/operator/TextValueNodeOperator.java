@@ -3,13 +3,13 @@ package com.pinecone.hydra.registry.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericConfigNodeMeta;
-import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
+import com.pinecone.hydra.registry.entity.GenericNodeAttribute;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.source.RegistryTextValueManipulator;
 
-public class TextValueNodeOperator extends ArchRegistryNodeOperator{
+public class TextValueNodeOperator extends ArchConfigNodeOperator {
     protected RegistryTextValueManipulator registryTextValueManipulator;
     public TextValueNodeOperator(ConfigOperatorFactory factory) {
         super(factory);
@@ -39,7 +39,7 @@ public class TextValueNodeOperator extends ArchRegistryNodeOperator{
         TextValue textValue = this.registryTextValueManipulator.getTextValue(guid);
         textConfNode.setTextValue(textValue);
         textConfNode.setConfigNodeMeta((GenericConfigNodeMeta) configNodeWideData.getConfigNodeMeta());
-        textConfNode.setNodeCommonData((GenericNodeCommonData) configNodeWideData.getNodeCommonData());
+        textConfNode.setNodeCommonData((GenericNodeAttribute) configNodeWideData.getNodeCommonData());
         textConfNode.setGuid(configNodeWideData.getGuid());
         textConfNode.setName(configNodeWideData.getName());
         textConfNode.setCreateTime(configNodeWideData.getCreateTime());

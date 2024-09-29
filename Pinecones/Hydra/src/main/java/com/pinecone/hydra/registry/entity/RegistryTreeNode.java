@@ -12,7 +12,7 @@ public interface RegistryTreeNode extends TreeNode {
         return null;
     }
 
-    default PropertiesNode evincePropertyConfig() {
+    default Properties evinceProperties() {
         return null;
     }
 

@@ -2,9 +2,9 @@ package com.pinecone.hydra.registry.render;
 
 import com.pinecone.framework.util.template.UniformTemplateRenderer;
 import com.pinecone.hydra.registry.entity.Property;
-import com.pinecone.hydra.registry.entity.PropertiesNode;
+import com.pinecone.hydra.registry.entity.Properties;
 
-public interface RenderPropertiesNode extends PropertiesNode, RenderRegistryTreeNode {
+public interface RenderProperties extends Properties, RenderRegistryTreeNode {
     default Object renderValue      ( String key, UniformTemplateRenderer renderer, Object tpl ) {
         Property v = this.get( key );
         if( v.isStringBasedType() ) {

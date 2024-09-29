@@ -1,14 +1,13 @@
 package com.pinecone.hydra.registry.render;
 
 import com.pinecone.hydra.registry.RenderDistributeRegistry;
-import com.pinecone.hydra.registry.entity.GenericProperty;
-import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
+import com.pinecone.hydra.registry.entity.GenericProperties;
 import com.pinecone.hydra.registry.entity.Property;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
-public class GenericRenderPropertiesNode extends GenericPropertiesNode implements RenderPropertiesNode {
+public class GenericRenderProperties extends GenericProperties implements RenderProperties {
     protected RenderDistributeRegistry       registry;
     public void apply(RenderDistributeRegistry registry) {
        this.registry = registry;
@@ -16,12 +15,7 @@ public class GenericRenderPropertiesNode extends GenericPropertiesNode implement
 
     @Override
     public RenderProperty get(String key) {
-        for(Property p : this.properties){
-            if (p.getKey().equals(key)){
-                return (GenericRenderProperty) p;
-            }
-        }
-        return null;
+        return (RenderProperty)super.get( key );
     }
 
     @Override
@@ -30,7 +24,7 @@ public class GenericRenderPropertiesNode extends GenericPropertiesNode implement
     }
 
     @Override
-    public List<Property > getProperties() {
+    public Collection<Property > getProperties() {
         return super.getProperties();
     }
 

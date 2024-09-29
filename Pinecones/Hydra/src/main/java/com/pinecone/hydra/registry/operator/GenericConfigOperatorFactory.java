@@ -20,10 +20,6 @@ public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
     public GenericConfigOperatorFactory( DistributedRegistry registry, RegistryMasterManipulator registryMasterManipulator ){
         this.registry = registry;
         this.registryMasterManipulator = registryMasterManipulator;
-        this.registerer.put(
-                ConfigOperatorFactory.DefaultConfigNodeKey,
-                new ConfigNodeOperator( this )
-        );
 
         this.registerer.put(
                 ConfigOperatorFactory.DefaultNamespaceNodeKey,

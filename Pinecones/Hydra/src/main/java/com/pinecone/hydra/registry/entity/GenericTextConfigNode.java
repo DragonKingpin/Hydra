@@ -5,8 +5,6 @@ import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 public class GenericTextConfigNode extends ArchConfigNode implements TextConfigNode{
     protected TextValue             textValue;
@@ -20,7 +18,7 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
 
     public GenericTextConfigNode(
             int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime, LocalDateTime updateTime,
-            String name, TextValue textValue, GenericConfigNodeMeta configNodeMeta, GenericNodeCommonData nodeCommonData, DistributedRegistry registry
+            String name, TextValue textValue, GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData, DistributedRegistry registry
     ) {
         super( registry, enumId, guid, nsGuid, parentGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
         this.textValue = textValue;
@@ -62,12 +60,12 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     @Override
-    public GenericNodeCommonData getNodeCommonData() {
+    public GenericNodeAttribute getNodeCommonData() {
         return this.nodeCommonData;
     }
 
     @Override
-    public void setNodeCommonData(GenericNodeCommonData nodeCommonData) {
+    public void setNodeCommonData(GenericNodeAttribute nodeCommonData) {
         this.nodeCommonData = nodeCommonData;
     }
 

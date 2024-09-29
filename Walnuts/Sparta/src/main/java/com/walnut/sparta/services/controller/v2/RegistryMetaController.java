@@ -98,7 +98,7 @@ public class RegistryMetaController {
         genericProperties.setValue(value);
         genericProperties.setType(type);
 
-        this.distributedRegistry.putProperties( genericProperties, GUIDs.GUID72( guid ) );
+        this.distributedRegistry.putProperty( genericProperties, GUIDs.GUID72( guid ) );
         return BasicResultResponse.success();
     }
 

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.registry;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
 
-public interface RegistryConfig extends Pinenut {
+public interface RegistryConfig extends KernelObjectConfig {
+
 }

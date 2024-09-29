@@ -126,7 +126,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
         }
         else{
             String[] parts = this.processPath(path).split("\\.");
-            List<GUID> nodeByName = this.taskNodeManipulator.getNodeByName(parts[parts.length - 1]);
+            List<GUID> nodeByName = this.taskNodeManipulator.getGuidsByName(parts[parts.length - 1]);
             for(GUID nodeGuid :nodeByName){
                 if (this.getPath(nodeGuid).equals(path)){
                     return this.get(nodeGuid);

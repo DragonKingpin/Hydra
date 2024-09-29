@@ -1,12 +1,11 @@
 package com.pinecone.hydra.registry.entity;
 
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,23 +13,14 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("ALL")
-public class GenericPropertiesNode extends ArchConfigNode implements PropertiesNode {
-    protected List<Property >     properties;
+public class GenericProperties extends ArchConfigNode implements Properties {
+    protected Map<String, Property >     properties;
 
-    public GenericPropertiesNode() {
+    public GenericProperties() {
     }
 
-    public GenericPropertiesNode( DistributedRegistry registry ) {
+    public GenericProperties(DistributedRegistry registry ) {
         super( registry );
-    }
-
-    public GenericPropertiesNode(
-            int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime, LocalDateTime updateTime,
-            String name, List<Property> properties, GenericConfigNodeMeta configNodeMeta,
-            GenericNodeCommonData nodeCommonData, DistributedRegistry registry
-    ) {
-        super( registry, enumId, guid, nsGuid, parentGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
-        this.properties = properties;
     }
 
 
@@ -52,22 +42,28 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
     }
 
     @Override
+    public void put( Set<Map.Entry<String, Object > > entries ) {
+        for( Map.Entry<String, Object > kv : entries ) {
+            this.put( kv.getKey(), kv.getValue() );
+        }
+    }
+
+    @Override
     public void putProperty( Property property ) {
-        boolean isContain= this.containsKey(property.getKey());
-        if (isContain) {
-            for(Property p : this.properties){
-                if (p.getKey().equals(property.getKey())){
-                    p.setValue(property.getValue());
-                    p.setType(property.getType());
-                }
+        boolean isContain = this.containsKey( property.getKey() );
+        if ( isContain ) {
+            Property p = this.get( property.getKey() );
+            if( p != null ) {
+                p.setValue(property.getValue());
+                p.setType(property.getType());
             }
+
             this.registry.updateProperty( property, this.guid );
         }
         else {
-            this.properties.add( (GenericProperty) property );
-            this.registry.putProperties( property, this.guid );
+            this.properties.put( property.getKey(), property );
+            this.registry.putProperty( property, this.guid );
         }
-
     }
 
     @Override
@@ -78,23 +74,17 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
 
     @Override
     public void update( Property property ) {
-        for(Property p : this.properties){
-            if (p.getKey().equals(property.getKey())){
-                p.setValue(property.getValue());
-                p.setType(property.getType());
-            }
+        Property p = this.get( property.getKey() );
+        if( p != null ) {
+            p.setValue(property.getValue());
+            p.setType(property.getType());
         }
         this.registry.updateProperty( property, this.guid );
     }
 
     @Override
     public Property get( String key ) {
-        for(Property p : this.properties){
-            if (p.getKey().equals(key)){
-                return p;
-            }
-        }
-        return null;
+        return this.properties.get( key );
     }
 
     @Override
@@ -108,12 +98,7 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
 
     @Override
     public boolean containsKey( String key ) {
-        for( Property p : this.properties ){
-            if (p.getKey().equals(key)){
-                return true;
-            }
-        }
-        return false;
+        return this.properties.containsKey( key );
     }
 
     @Override
@@ -127,9 +112,9 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
     }
 
     @Override
-    public List<Object > values() {
+    public Collection<Object > values() {
         ArrayList<Object > values = new ArrayList<>();
-        for( Property p : this.properties ){
+        for( Property p : this.properties.values() ){
             values.add(p.getValue());
         }
         return values;
@@ -138,7 +123,7 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
     @Override
     public Set<String > keySet() {
         HashSet<String > keys = new HashSet<>();
-        for ( Property p : this.properties ){
+        for ( Property p : this.properties.values() ){
             keys.add( p.getKey() );
         }
         return keys;
@@ -147,21 +132,21 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
     @Override
     public Set<Property > entrySet() {
         HashSet<Property> propertyHashSet = new HashSet<>();
-        for( Property p : this.properties ){
+        for( Property p : this.properties.values() ){
             propertyHashSet.add(p);
         }
         return propertyHashSet;
     }
 
     @Override
-    public List<Property> getProperties() {
-        return this.properties;
+    public Collection<Property > getProperties() {
+        return this.properties.values();
     }
 
     @Override
-    public Map<String, Object > toJSON() {
+    public Map<String, Object > toMap() {
         Map<String, Object > jo = new LinkedHashMap<>();
-        for( Property property : this.properties ) {
+        for( Property property : this.properties.values() ) {
             jo.put( property.getKey(), property.getValue() );
         }
         return jo;
@@ -169,6 +154,14 @@ public class GenericPropertiesNode extends ArchConfigNode implements PropertiesN
 
     @Override
     public void setProperties( List<Property> properties ) {
+        this.properties = new LinkedHashMap<>();
+        for( Property p : properties ) {
+            this.properties.put( p.getKey(), p );
+        }
+    }
+
+    @Override
+    public void setProperties( Map<String, Property> properties ) {
         this.properties = properties;
     }
 

@@ -4,17 +4,18 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.ArchConfigNode;
-import com.pinecone.hydra.registry.entity.GenericProperty;
-import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
+import com.pinecone.hydra.registry.entity.GenericProperties;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
+import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.operator.RegistryNodeOperator;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
@@ -35,10 +36,12 @@ import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class GenericDistributeRegistry implements DistributedRegistry {
     protected Hydrarum                        hydrarum;
+    protected RegistryConfig                  registryConfig;
 
     protected DistributedTrieTree             distributedConfTree;
     protected RegistryMasterManipulator       registryMasterManipulator;
@@ -51,7 +54,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     public GenericDistributeRegistry( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         this.hydrarum                    =  hydrarum;
-        this.registryMasterManipulator =  (RegistryMasterManipulator) masterManipulator;
+        this.registryConfig              =  Registry.KernelRegistryConfig;
+        this.registryMasterManipulator   =  (RegistryMasterManipulator) masterManipulator;
 
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.registryMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -75,6 +79,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         );
     }
 
+
+    @Override
+    public RegistryConfig getRegistryConfig() {
+        return this.registryConfig;
+    }
 
     @Override
     public String getPath( GUID guid ) {
@@ -135,45 +144,97 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public RegistryTreeNode getNodeByPath( String path ){
-        GUID guid = this.distributedConfTree.queryGUIDByPath( path );
-        if ( guid != null ){
+        //GUID guid = this.distributedConfTree.queryGUIDByPath( path );
+        GUID guid = this.getGUIDByPath( path );
+        if( guid != null ) {
             return this.get( guid );
-        }
-        else {
-            String[] parts = this.processPath( path ).split("\\.");
-            //匹配configNode
-            List<GUID > nodeByNames = this.nodeManipulator.getNodeByName( parts[parts.length - 1] );
-            for ( GUID nodeGuid : nodeByNames ){
-                String nodePath = this.getPath( nodeGuid );
-                if ( nodePath.equals( path ) ){
-                    return this.get( nodeGuid );
-                }
-            }
-            //匹配namespaceNode
-            nodeByNames = this.namespaceNodeManipulator.getNodeByName( parts[parts.length - 1] );
-            for ( GUID nodeGuid : nodeByNames ){
-                String nodePath = this.getPath(nodeGuid);
-                if ( nodePath.equals( path ) ){
-                    return this.get( nodeGuid );
-                }
-            }
         }
         return null;
     }
 
     @Override
-    public GUID getGUIDByPath( String path ) {
-        return this.getNodeByPath( path ).getGuid();
+    public Properties getProperties( GUID guid ) {
+        return this.get( guid ).evinceProperties();
     }
 
     @Override
-    public void putProperties( Property property, GUID configNodeGuid ) {
+    public Properties getProperties( String path ) {
+        return this.getProperties( this.getGUIDByPath( path ) );
+    }
+
+    @Override
+    public NamespaceNode getNamespaceNode( GUID guid ) {
+        return this.get( guid ).evinceNamespaceNode();
+    }
+
+    @Override
+    public NamespaceNode getNamespaceNode( String path ){
+        return this.getNamespaceNode( this.getGUIDByPath( path ) );
+    }
+
+    @Override
+    public Collection<Property > fetchProperties( GUID guid ) {
+        ArrayList<Property > properties = new ArrayList<>();
+        List<Property > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
+        for ( Property p : genericProperties ){
+            properties.add( (Property) p );
+        }
+        return properties;
+    }
+
+    @Override
+    public Collection<Property > fetchProperties( String path ) {
+        return this.fetchProperties( this.getGUIDByPath( path ) );
+    }
+
+    @Override
+    public TextValue getTextValue( GUID guid ) {
+        return this.registryTextValueManipulator.getTextValue(guid);
+    }
+
+
+
+
+
+    protected GUID searchGUID( String path, GUIDNameManipulator[] manipulators, String[] parts )  {
+        for( GUIDNameManipulator manipulator : manipulators ) {
+            List<GUID > nodeByNames = manipulator.getGuidsByName( parts[parts.length - 1] );
+            for ( GUID nodeGuid : nodeByNames ){
+                String nodePath = this.getPath( nodeGuid );
+                if ( nodePath.equals( path ) ){
+                    return nodeGuid;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Final Solution 20240929: 无法获取类型
+     */
+    @Override
+    public GUID getGUIDByPath( String path ) {
+        GUID guid = this.distributedConfTree.queryGUIDByPath( path );
+        if ( guid != null ){
+            return guid;
+        }
+
+        String[] parts = this.processPath( path ).split("\\.");
+
+        return this.searchGUID(
+                path, new GUIDNameManipulator[] { this.nodeManipulator, this.namespaceNodeManipulator }, parts
+        );
+    }
+
+    @Override
+    public void putProperty( Property property, GUID configNodeGuid ) {
         //todo 更改节点类型
-        this.distributedConfTree.updateType(UOIUtils.createLocalJavaClass(GenericPropertiesNode.class.getName()),configNodeGuid);
-        property.setGuid(configNodeGuid);
-        property.setCreateTime(LocalDateTime.now());
-        property.setUpdateTime(LocalDateTime.now());
-        this.registryPropertiesManipulator.insert(property);
+        this.distributedConfTree.updateType( UOIUtils.createLocalJavaClass(GenericProperties.class.getName()), configNodeGuid );
+        property.setGuid( configNodeGuid );
+        property.setCreateTime( LocalDateTime.now() );
+        property.setUpdateTime( LocalDateTime.now() );
+        this.registryPropertiesManipulator.insert( property );
     }
 
     @Override
@@ -188,7 +249,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     public void updateProperty( Property property, GUID configNodeGuid ) {
         property.setGuid(configNodeGuid);
         property.setUpdateTime(LocalDateTime.now());
-        this.registryPropertiesManipulator.update(property);
+        this.registryPropertiesManipulator.update( property );
     }
 
     @Override
@@ -200,25 +261,9 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.registryTextValueManipulator.update(genericTextValue);
     }
 
-    @Override
-    public List<Property > getProperties( GUID guid ) {
-        ArrayList<Property > properties = new ArrayList<>();
-        List<Property > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
-        for ( Property p : genericProperties ){
-            properties.add( (Property) p );
-        }
-        return properties;
-    }
 
-    @Override
-    public List<Property > getProperties( String path ) {
-        return this.getProperties( this.getGUIDByPath( path ) );
-    }
 
-    @Override
-    public TextValue getTextValue( GUID guid ) {
-        return this.registryTextValueManipulator.getTextValue(guid);
-    }
+
 
     @Override
     public void removeProperty( GUID guid, String key ) {
@@ -243,7 +288,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public List<TreeNode > selectByName( String name ) {
-        List<GUID> nodes = this.namespaceNodeManipulator.getNodeByName(name);
+        List<GUID> nodes = this.namespaceNodeManipulator.getGuidsByName(name);
         ArrayList<TreeNode> configNodes = new ArrayList<>();
         for(GUID guid : nodes){
             TreeNode treeNode =  this.get(guid);
@@ -253,15 +298,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void rename( String name, GUID guid ) {
+    public void rename( GUID guid, String name ) {
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.configOperatorFactory.getOperator( newInstance.getMetaType() );
-        operator.updateName(guid,name);
-//        ArchConfigNode configNode = new ArchConfigNode( this );
-//        configNode.setGuid( guid );
-//        configNode.setName( name );
-//        operator.update( configNode );
+        operator.updateName(guid, name);
     }
 
     @Override

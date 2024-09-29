@@ -2,16 +2,9 @@ package com.pinecone.hydra.registry.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.ArchConfigNode;
-import com.pinecone.hydra.registry.entity.GenericPropertiesNode;
-import com.pinecone.hydra.registry.entity.GenericProperty;
+import com.pinecone.hydra.registry.entity.GenericProperties;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
-import com.pinecone.hydra.registry.entity.PropertiesNode;
-import com.pinecone.hydra.registry.entity.Property;
-import com.pinecone.hydra.registry.entity.TextConfigNode;
-import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 
@@ -22,7 +15,6 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.awt.image.RasterFormatException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,7 +33,7 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
     UOI getUOIByGUID( GUID guid );
 
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
-    GenericPropertiesNode getPropertiesNode(GUID guid);
+    GenericProperties getPropertiesNode(GUID guid);
 
     @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
     GenericTextConfigNode getTextConfigNode(GUID guid);
@@ -51,7 +43,7 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
         if ( objectName.equals(GenericTextConfigNode.class.getName()) ){
             return this.getTextConfigNode(guid);
         }
-        else if ( objectName.equals(GenericPropertiesNode.class.getName()) ){
+        else if ( objectName.equals(GenericProperties.class.getName()) ){
             return this.getPropertiesNode(guid);
         }
         return null;
@@ -68,7 +60,7 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
     }
 
     @Select("SELECT `guid` FROM `hydra_registry_config_node` WHERE `name`=#{name}")
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 
     @Update("UPDATE `hydra_registry_config_node` SET `update_time` = #{updateTime} WHERE `guid` = #{guid}")
     void updateUpdateTime(@Param("updateTime") LocalDateTime updateTime,@Param("guid") GUID guid);

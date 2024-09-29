@@ -5,9 +5,6 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
-import com.pinecone.hydra.registry.entity.PropertiesNode;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
@@ -62,8 +59,8 @@ class LadyGaga extends Radium {
 
 //        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
 //        RegistryTreeNode registryTreeNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
-//        Debug.trace(registryTreeNode.evincePropertyConfig());
-//        Debug.trace( registryTreeNode.evincePropertyConfig().values()  );
+//        Debug.trace(registryTreeNode.evinceProperties());
+//        Debug.trace( registryTreeNode.evinceProperties().values()  );
 //        Debug.hhf();
 //        Debug.trace( 2, registry.getNodeByPath( "ns1.ns2.ns3" ) );
 //        Debug.hhf();
@@ -77,7 +74,7 @@ class LadyGaga extends Radium {
 //        Debug.hhf();
 //        Debug.trace(namespaceNode.entrySet());
 //        RegistryTreeNode propertyNode = registry.get(GUIDs.GUID72("1f419c8c-000018-0000-a8"));
-//        PropertiesNode propertiesNode = propertyNode.evincePropertyConfig();
+//        PropertiesNode propertiesNode = propertyNode.evinceProperties();
 //        Debug.hhf();
 //        Debug.trace(propertiesNode.values());
 //        Debug.hhf();
@@ -86,11 +83,11 @@ class LadyGaga extends Radium {
 //        Debug.trace(propertiesNode.entrySet());
 
 
+        Debug.fmp( 4, registry.getNamespaceNode( "ns1.ns2.ns3" ).listItem() );
+        Debug.fmp( 4, registry.getProperties( "conf3" ).toJSONObject() );
 
+        //registry.get( registry.getGUIDByPath( "conf3" )  ).evinceProperties().put( (new JSONMaptron( "{ species: 'human' }" )).entrySet() );
 
-
-
-        Debug.fmp( 4, registry.get( registry.getGUIDByPath( "conf3" )  ).evincePropertyConfig().toJSONObject() );
 
 
         //ConfigNode cn = registry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );

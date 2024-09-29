@@ -30,7 +30,7 @@ public interface RegistryNSNodeMapper extends RegistryNSNodeManipulator {
     void update(NamespaceNode namespace);
 
     @Select("SELECT `guid` FROM `hydra_registry_namespace` WHERE `name`=#{name}")
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
     @Select("SELECT `guid` FROM `hydra_registry_namespace`")
     List<GUID> getAll();
 }

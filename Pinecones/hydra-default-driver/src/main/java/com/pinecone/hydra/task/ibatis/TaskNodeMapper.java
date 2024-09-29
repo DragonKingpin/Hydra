@@ -23,5 +23,5 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
 
     void update(TaskNode taskNode);
     @Select("SELECT `guid` FROM `hydra_task_task_node` WHERE `name`=#{name}")
-    List<GUID> getNodeByName(String name);
+    List<GUID> getGuidsByName(String name);
 }

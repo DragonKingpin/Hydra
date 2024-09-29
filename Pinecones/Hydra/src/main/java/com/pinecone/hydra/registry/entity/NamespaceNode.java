@@ -2,7 +2,6 @@ package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
-import lombok.val;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,38 +38,39 @@ public interface NamespaceNode extends RegistryTreeNode {
 
     void setNamespaceNodeMeta( NamespaceNodeMeta namespaceNodeMeta );
 
-    NodeCommonData getNodeCommonData();
+    NodeAttribute getNodeAttribute();
 
-    void setNodeCommonData( NodeCommonData nodeCommonData );
+    void setNodeAttribute( NodeAttribute nodeAttribute );
 
-    Map<String,RegistryTreeNode> getContents();
-    List<GUID> getContentGuids();
-    void setContentGuids(List<GUID> contentGuids);
+    Map<String, RegistryTreeNode > getChildren();
+
+    List<GUID > getChildrenGuids();
+
+    void setContentGuids( List<GUID> contentGuids );
 
     List<RegistryTreeNode > listItem();
-    void put (String key,RegistryTreeNode val);
-    void remove (String key);
+
+
+    void put ( String key, RegistryTreeNode val );
+
+    void remove ( String key );
+
     DistributedRegistry getRegistry();
+
     boolean containsKey  ( String key );
 
+
+
     ConfigNode getConfigNode(String key);
+
     NamespaceNode getNamespaceNode(String key);
+
     int size();
+
     boolean isEmpty();
+
     Set<String > keySet();
+
     Set<Map.Entry<String,RegistryTreeNode>> entrySet();
 
-
-//    void put             ( String key, Object val );
-//    void remove  ( String key );
-//    void update  ( XXXXX xxxx );
-//    XXXXX get ( String key );
-//    boolean containsKey  ( String key );
-//
-//
-//    int size();
-//    boolean isEmpty();
-//    List<Object > values();
-//    Set<String > keySet();
-//    Set<Property > entrySet();
 }

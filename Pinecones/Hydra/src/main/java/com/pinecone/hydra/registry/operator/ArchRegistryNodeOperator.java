@@ -135,6 +135,11 @@ public class ArchRegistryNodeOperator implements RegistryNodeOperator{
         this.configNodeManipulator.update(configNode);
     }
 
+    @Override
+    public void updateName(GUID guid, String name) {
+        this.configNodeManipulator.updateName(guid,name);
+    }
+
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         ConfigNode cn = this.configNodeManipulator.getConfigurationNode( guid );

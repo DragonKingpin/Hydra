@@ -30,4 +30,9 @@ public class QuickOperator implements TreeNodeOperator {
     public void update( TreeNode treeNode) {
 
     }
+
+    @Override
+    public void updateName(GUID guid, String name) {
+
+    }
 }

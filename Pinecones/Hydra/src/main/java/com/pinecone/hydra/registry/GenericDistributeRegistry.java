@@ -247,6 +247,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.configOperatorFactory.getOperator( newInstance.getMetaType() );
+        operator.updateName(guid,name);
 //        ArchConfigNode configNode = new ArchConfigNode( this );
 //        configNode.setGuid( guid );
 //        configNode.setName( name );

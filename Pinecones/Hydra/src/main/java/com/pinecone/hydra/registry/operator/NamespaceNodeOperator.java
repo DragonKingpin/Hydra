@@ -130,6 +130,11 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
     }
 
+    @Override
+    public void updateName(GUID guid, String name) {
+
+    }
+
     private NamespaceNode getNamespaceNodeWideData( GUID guid ){
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
         if (namespaceNode instanceof GenericNamespaceNode){

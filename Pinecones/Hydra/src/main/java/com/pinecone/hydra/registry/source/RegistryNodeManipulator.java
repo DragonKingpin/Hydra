@@ -17,4 +17,5 @@ public interface RegistryNodeManipulator extends Pinenut {
 
     List<GUID > getNodeByName( String name );
     List<GUID> getALL();
+    void updateName(GUID guid ,String name);
 }

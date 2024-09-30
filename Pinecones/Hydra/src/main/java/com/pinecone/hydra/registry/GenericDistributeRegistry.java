@@ -2,8 +2,12 @@ package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.ConfigNode;
+import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericProperties;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
@@ -11,6 +15,7 @@ import com.pinecone.hydra.registry.entity.NamespaceNode;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.operator.RegistryNodeOperator;
 import com.pinecone.hydra.service.tree.UOIUtils;
@@ -33,6 +38,9 @@ import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
+import com.pinecone.ulf.util.id.GUID72;
+import com.pinecone.ulf.util.id.UUIDBuilder;
+import com.pinecone.ulf.util.id.UidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -263,8 +271,6 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
 
 
-
-
     @Override
     public void removeProperty( GUID guid, String key ) {
         this.registryPropertiesManipulator.remove(guid,key);
@@ -324,6 +330,133 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     @Override
     public void insertRegistryTreeNode( GUID parentGuid, GUID childGuid ) {
         this.distributedConfTree.insertNodeToParent(childGuid,parentGuid);
+    }
+
+    @Override
+    public void createNamespace(String path) {
+        String[] parts = this.processPath( path ).split("\\.");
+        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        String currentPath = "";
+        GUID parentGuid = new GUID72();
+        for(int i=0;i < parts.length;i++){
+            currentPath = currentPath + (i > 0 ? "." : "") + parts[i];
+            RegistryTreeNode node = this.getNodeByPath(currentPath);
+            if (node == null){
+                NamespaceNode namespaceNode = new GenericNamespaceNode(this);
+                namespaceNode.setName(parts[i]);
+                GUID guid = this.put(namespaceNode);
+                if (i !=0){
+                    this.insertRegistryTreeNode(parentGuid,guid);
+                    parentGuid = guid;
+                }else {
+                    parentGuid = guid;
+                }
+            }
+            else {
+                parentGuid = node.getGuid();
+            }
+
+        }
+    }
+    // todo 没有初始类型,是否拆成两个方法
+    @Override
+    public void createPropertyConfig(String path) {
+        String[] parts = this.processPath( path ).split("\\.");
+        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        String currentPath = "";
+        GUID parentGuid = new GUID72();
+        for(int i=0;i < parts.length;i++){
+            currentPath = currentPath + (i > 0 ? "." : "") + parts[i];
+            RegistryTreeNode node = this.getNodeByPath(currentPath);
+            if (node == null){
+                if (i == parts.length-1){
+                    Properties properties = new GenericProperties();
+                    properties.setName(parts[i]);
+                    GUID guid = this.put(properties);
+                    this.insertRegistryTreeNode(parentGuid,guid);
+                }
+                else {
+                    NamespaceNode namespaceNode = new GenericNamespaceNode(this);
+                    namespaceNode.setName(parts[i]);
+                    GUID guid = this.put(namespaceNode);
+                    if (i !=0){
+                        this.insertRegistryTreeNode(parentGuid,guid);
+                        parentGuid = guid;
+                    }else {
+                        parentGuid = guid;
+                    }
+                }
+
+            }
+            else {
+                parentGuid = node.getGuid();
+            }
+
+        }
+    }
+
+    @Override
+    public void createTextValueConfig(String path) {
+        String[] parts = this.processPath( path ).split("\\.");
+        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        String currentPath = "";
+        GUID parentGuid = new GUID72();
+        for(int i=0;i < parts.length;i++){
+            currentPath = currentPath + (i > 0 ? "." : "") + parts[i];
+            RegistryTreeNode node = this.getNodeByPath(currentPath);
+            if (node == null){
+                if (i == parts.length-1){
+                    TextConfigNode textConfigNode = new GenericTextConfigNode();
+                    textConfigNode.setName(parts[i]);
+                    GUID guid = this.put(textConfigNode);
+                    this.insertRegistryTreeNode(parentGuid,guid);
+                }
+                else {
+                    NamespaceNode namespaceNode = new GenericNamespaceNode(this);
+                    namespaceNode.setName(parts[i]);
+                    GUID guid = this.put(namespaceNode);
+                    if (i !=0){
+                        this.insertRegistryTreeNode(parentGuid,guid);
+                        parentGuid = guid;
+                    }else {
+                        parentGuid = guid;
+                    }
+                }
+
+            }
+            else {
+                parentGuid = node.getGuid();
+            }
+
+        }
+    }
+
+    @Override
+    public void insertProperties(GUID guid, JSONObject properties) {
+        JSONMaptron jsonProperties = (JSONMaptron) properties;
+
+    }
+
+    @Override
+    public void insertPropertiesByPath(String path, JSONObject properties) {
+
+    }
+
+    @Override
+    public void insertTextValue(GUID guid, String type, String value) {
+        TextValue textValue = new GenericTextValue();
+        textValue.setGuid(guid);
+        textValue.setValue(value);
+        textValue.setType(type);
+        textValue.setCreateTime(LocalDateTime.now());
+        textValue.setUpdateTime(LocalDateTime.now());
+        this.registryTextValueManipulator.insert(textValue);
+    }
+
+    @Override
+    public void insertTextValueByPath(String path, String type, String value) {
+        GUID guid = this.getGUIDByPath(path);
+        this.insertTextValue(guid,type,value);
     }
 
     @Override

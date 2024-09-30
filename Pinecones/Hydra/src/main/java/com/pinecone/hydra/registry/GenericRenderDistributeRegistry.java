@@ -1,8 +1,10 @@
 package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.template.UTRAlmondProvider;
 import com.pinecone.framework.util.template.UniformTemplateRenderer;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
@@ -42,6 +44,36 @@ public class GenericRenderDistributeRegistry extends GenericDistributeRegistry i
     @Override
     public RenderConfigNode getConfigNodeByGuid(GUID guid) {
         return (RenderConfigNode) super.getConfigNodeByGuid(guid);
+    }
+
+    @Override
+    public void createPropertyConfig(String path) {
+
+    }
+
+    @Override
+    public void createTextValueConfig(String path) {
+
+    }
+
+    @Override
+    public void insertProperties(GUID guid, JSONObject properties) {
+
+    }
+
+    @Override
+    public void insertPropertiesByPath(String path, JSONObject properties) {
+
+    }
+
+    @Override
+    public void insertTextValue(GUID guid, String type, String value) {
+
+    }
+
+    @Override
+    public void insertTextValueByPath(String path, String type, String value) {
+
     }
 
     @Override

@@ -14,7 +14,7 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryTextValueMapper extends RegistryTextValueManipulator {
-    @Insert("INSERT INTO `hydra_registry_conf_node_text_value` (`guid`, `value`, `create_time`, `update_time`, `type`) VALUES (#{guid},#{value},#{create_time},#{update_time},#{type})")
+    @Insert("INSERT INTO `hydra_registry_conf_node_text_value` (`guid`, `value`, `create_time`, `update_time`, `type`) VALUES (#{guid},#{value},#{createTime},#{updateTime},#{type})")
     void insert(TextValue textValue);
 
     @Delete("DELETE FROM `hydra_registry_conf_node_text_value` WHERE `guid`=#{guid}")

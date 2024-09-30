@@ -55,6 +55,10 @@ class LadyGaga extends Radium {
         );
 
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
+//        registry.createPropertyConfig("我的世界.暮色森林.九头蛇");
+//        registry.createPropertyConfig("泰拉瑞亚.灾厄.至尊灾厄");
+//        registry.createTextValueConfig("泰拉瑞亚.灾厄.星流巨械");
+        registry.insertTextValueByPath("泰拉瑞亚.灾厄.星流巨械","text","难打");
 
 
 //        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );

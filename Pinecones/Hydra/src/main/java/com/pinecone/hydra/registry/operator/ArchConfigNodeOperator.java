@@ -73,17 +73,28 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
 
         GUID configNodeMetaGuid = uidGenerator.getGUID72();
         GenericConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
-        configNodeMeta.setGuid(configNodeMetaGuid);
+        if (configNodeMeta != null){
+            configNodeMeta.setGuid(configNodeMetaGuid);
+            this.configNodeMetaManipulator.insert(configNodeMeta);
+        }
+        else {
+            configNodeMetaGuid = null;
+        }
+
 
         GUID commonDataGuid = uidGenerator.getGUID72();
         GenericNodeAttribute nodeCommonData = configNode.getNodeCommonData();
-        nodeCommonData.setGuid(commonDataGuid);
+        if (nodeCommonData != null){
+            nodeCommonData.setGuid(commonDataGuid);
+            this.registryCommonDataManipulator.insert(nodeCommonData);
+        }
+        else {
+            commonDataGuid = null;
+        }
+
 
         distributeConfTreeNode.setBaseDataGUID(commonDataGuid);
         distributeConfTreeNode.setNodeMetadataGUID(configNodeMetaGuid);
-
-        this.registryCommonDataManipulator.insert(nodeCommonData);
-        this.configNodeMetaManipulator.insert(configNodeMeta);
         this.distributedTrieTree.insert(distributeConfTreeNode);
         this.configNodeManipulator.insert(configNode);
         return guid72;

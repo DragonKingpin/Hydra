@@ -24,7 +24,7 @@ public class GenericNamespaceNode implements NamespaceNode {
     protected List<GUID >                     childrenGuids;
 
 
-    protected GenericNamespaceNode() {
+    public GenericNamespaceNode() {
 
     }
 

@@ -68,17 +68,27 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
         NamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
         GUID namespaceNodeMetaGuid = uidGenerator.getGUID72();
-        namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
+        if (namespaceNodeMeta != null){
+            namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
+            this.namespaceNodeMetaManipulator.insert( namespaceNodeMeta );
+        }
+        else {
+            namespaceNodeMetaGuid = null;
+        }
+
 
         NodeAttribute nodeAttribute = namespaceNode.getNodeAttribute();
         GUID nodeCommonDataGuid = uidGenerator.getGUID72();
-        nodeAttribute.setGuid( nodeCommonDataGuid );
+        if (nodeAttribute != null){
+            nodeAttribute.setGuid( nodeCommonDataGuid );
+            this.registryCommonDataManipulator.insert(nodeAttribute);
+        }
+        else {
+            nodeCommonDataGuid = null;
+        }
 
         distributeConfTreeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
         distributeConfTreeNode.setBaseDataGUID(nodeCommonDataGuid);
-
-        this.namespaceNodeMetaManipulator.insert( namespaceNodeMeta );
-        this.registryCommonDataManipulator.insert(nodeAttribute);
         this.distributedTrieTree.insert( distributeConfTreeNode );
         this.namespaceNodeManipulator.insert( namespaceNode );
         return guid72;

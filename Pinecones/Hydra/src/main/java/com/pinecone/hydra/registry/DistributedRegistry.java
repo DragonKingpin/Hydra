@@ -1,7 +1,8 @@
 package com.pinecone.hydra.registry;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.template.UniformTemplateRenderer;
+import com.pinecone.framework.util.json.JSONObject;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
 import com.pinecone.hydra.registry.entity.Properties;
@@ -78,4 +79,13 @@ public interface DistributedRegistry extends Registry {
     List<TreeNode > getAllTreeNode();
 
     void insertRegistryTreeNode( GUID parentGuid, GUID childGuid );
+
+    void createNamespace(String path);
+    void createPropertyConfig(String path);
+    void createTextValueConfig(String path);
+    void insertProperties(GUID guid, JSONObject properties);
+    void insertPropertiesByPath(String path,JSONObject properties);
+    void insertTextValue(GUID guid, String type, String value);
+    void insertTextValueByPath(String path, String type, String value);
+
 }

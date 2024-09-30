@@ -44,4 +44,6 @@ public class PropertyConfNodeOperator extends ArchConfigNodeOperator {
         super.remove(guid);
         this.registryPropertiesManipulator.removeAll(guid);
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry.operator;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
@@ -37,10 +38,13 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     private RegistryCommonDataManipulator registryCommonDataManipulator;
 
     private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
+    private GenericConfigOperatorFactory  factory;
+
     protected DistributedRegistry         registry;
 
     public NamespaceNodeOperator ( GenericConfigOperatorFactory factory ) {
         this( factory.getMasterManipulator(),(DistributedRegistry) factory.getRegistry() );
+        this.factory = factory;
     }
 
     public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator , DistributedRegistry registry){
@@ -98,17 +102,15 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     public void remove(GUID guid) {
         //namespace节点需要递归删除其拥有节点若其引用节点没有其他引用则进行清理
         List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
-        if (childNodes.isEmpty()){
-            this.removeNode(guid);
-        }
-        else {
+        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
+        if (!childNodes.isEmpty()){
             List<GUID> subordinates = this.distributedTrieTree.getSubordinates(guid);
             if (!subordinates.isEmpty()){
                 for (GUID subordinateGuid : subordinates){
                     this.remove(subordinateGuid);
                 }
             }
-             childNodes = this.distributedTrieTree.getChildNode(guid);
+            childNodes = this.distributedTrieTree.getChildNode(guid);
             for( GUIDDistributedTrieNode childNode : childNodes ){
                 List<GUID > parentNodes = this.distributedTrieTree.getParentNodes(childNode.getGuid());
                 if ( parentNodes.size() > 1 ){
@@ -118,8 +120,17 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
                     this.remove(childNode.getGuid());
                 }
             }
+        }
+        if (node.getType().getObjectName().equals(GenericNamespaceNode.class.getName())){
             this.removeNode(guid);
         }
+        else {
+            TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{ DistributedRegistry.class }, this.registry );
+            Debug.trace(newInstance.getMetaType());
+            RegistryNodeOperator operator = this.factory.getOperator(newInstance.getMetaType());
+            operator.remove(guid);
+        }
+
     }
 
     @Override
@@ -169,4 +180,5 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
     }
+
 }

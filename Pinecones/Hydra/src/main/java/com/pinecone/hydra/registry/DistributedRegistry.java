@@ -42,8 +42,7 @@ public interface DistributedRegistry extends Registry {
     void putTextValue( GUID guid,String text,String type );
 
     void remove( GUID guid );
-
-    void remove( String path );
+    void remove(String path);
 
     void updateProperty( Property property, GUID configNodeGuid );
 

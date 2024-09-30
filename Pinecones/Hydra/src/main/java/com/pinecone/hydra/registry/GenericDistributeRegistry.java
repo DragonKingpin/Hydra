@@ -233,6 +233,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
      */
     @Override
     public GUID getGUIDByPath( String path ) {
+        Debug.trace(path);
         GUID guid = this.distributedConfTree.queryGUIDByPath( path );
         if ( guid != null ){
             return guid;
@@ -262,9 +263,10 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         operator.remove(guid);
     }
 
+
     @Override
-    public void remove( String path ) {
-        this.remove( this.getGUIDByPath( path ) );
+    public void remove(String path) {
+        this.remove( this.getGUIDByPath(path) );
     }
 
     @Override
@@ -350,7 +352,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     // TODO, Unchecked type affirmed.
     protected RegistryTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.processPath( path ).split( this.registryConfig.getFullNameSepRegex() );
-        String currentPath = path;
+        String currentPath = "";
         GUID parentGuid = GUIDs.Dummy72();
 
         RegistryTreeNode node = this.getNodeByPath( currentPath );

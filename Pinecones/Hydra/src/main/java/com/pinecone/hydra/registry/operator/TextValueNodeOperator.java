@@ -43,4 +43,6 @@ public class TextValueNodeOperator extends ArchConfigNodeOperator {
         super.remove(guid);
         this.registryTextValueManipulator.remove(guid);
     }
+
+
 }

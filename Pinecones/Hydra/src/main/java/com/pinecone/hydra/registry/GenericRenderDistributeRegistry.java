@@ -36,6 +36,8 @@ public class GenericRenderDistributeRegistry extends GenericDistributeRegistry i
         return null;
     }
 
+
+
     @Override
     public RenderRegistryTreeNode getThis(GUID guid) {
         return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getWithoutInheritance( guid );

@@ -65,7 +65,9 @@ class LadyGaga extends Radium {
 
 
 
-        registry.remove( "game.minecraft" );
+        //registry.remove( "game.minecraft" );
+        //registry.remove("game.terraria");
+        //registry.remove("game.witcher");
         //Debug.fmp( 2, registry.getProperties( "game.witcher.mob3" ).getValue( "name" ) );
 
 

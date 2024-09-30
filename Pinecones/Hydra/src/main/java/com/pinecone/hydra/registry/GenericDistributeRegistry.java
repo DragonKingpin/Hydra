@@ -9,6 +9,7 @@ import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericProperties;
+import com.pinecone.hydra.registry.entity.GenericProperty;
 import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
 import com.pinecone.hydra.registry.entity.GenericTextValue;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
@@ -46,6 +47,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GenericDistributeRegistry implements DistributedRegistry {
     protected Hydrarum                        hydrarum;
@@ -237,7 +240,6 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public void putProperty( Property property, GUID configNodeGuid ) {
-        //todo 更改节点类型
         this.distributedConfTree.updateType( UOIUtils.createLocalJavaClass(GenericProperties.class.getName()), configNodeGuid );
         property.setGuid( configNodeGuid );
         property.setCreateTime( LocalDateTime.now() );
@@ -434,12 +436,24 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     @Override
     public void insertProperties(GUID guid, JSONObject properties) {
         JSONMaptron jsonProperties = (JSONMaptron) properties;
-
+        Set<Map.Entry<String, Object>> entries = jsonProperties.entrySet();
+        for (Map.Entry<String,Object> entry : entries){
+            Debug.trace(entry.getValue());
+            Property property = new GenericProperty();
+            property.setCreateTime(LocalDateTime.now());
+            property.setGuid(guid);
+            property.setUpdateTime(LocalDateTime.now());
+            property.setValue(entry.getValue().toString());
+            property.setKey(entry.getKey());
+            property.setType("default");
+           this.putProperty(property,guid);
+        }
     }
 
     @Override
     public void insertPropertiesByPath(String path, JSONObject properties) {
-
+        GUID guid = this.getGUIDByPath(path);
+        this.insertProperties(guid,properties);
     }
 
     @Override

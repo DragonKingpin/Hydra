@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator {
-    @Insert("INSERT INTO hydra_registry_conf_node_properties (`guid`, `key`, type, create_time, update_time, value) VALUES (#{guid},#{key},#{type},#{createTime},#{updateTime},#{value})")
+    @Insert("INSERT INTO hydra_registry_conf_node_properties (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) VALUES (#{guid},#{key},#{type},#{createTime},#{updateTime},#{value})")
     void insert( Property property );
 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid`=#{guid} AND `key`=#{key}")

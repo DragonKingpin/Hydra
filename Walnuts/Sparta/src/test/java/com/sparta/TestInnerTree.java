@@ -3,6 +3,7 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
@@ -58,7 +59,11 @@ class LadyGaga extends Radium {
 //        registry.createPropertyConfig("我的世界.暮色森林.九头蛇");
 //        registry.createPropertyConfig("泰拉瑞亚.灾厄.至尊灾厄");
 //        registry.createTextValueConfig("泰拉瑞亚.灾厄.星流巨械");
-        registry.insertTextValueByPath("泰拉瑞亚.灾厄.星流巨械","text","难打");
+//        registry.insertTextValueByPath("泰拉瑞亚.灾厄.星流巨械","text","难打");
+        JSONMaptron jsonMaptron = new JSONMaptron();
+        jsonMaptron.put("name","我的世界");
+        jsonMaptron.put("year","2009");
+        registry.insertPropertiesByPath("泰拉瑞亚.灾厄.至尊灾厄",jsonMaptron);
 
 
 //        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );

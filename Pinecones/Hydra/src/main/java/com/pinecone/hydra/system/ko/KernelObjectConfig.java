@@ -6,4 +6,8 @@ public interface KernelObjectConfig extends Pinenut {
     String getPathNameSeparator();
 
     String getFullNameSeparator();
+
+    String getPathNameSepRegex();
+
+    String getFullNameSepRegex();
 }

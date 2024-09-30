@@ -47,36 +47,6 @@ public class GenericRenderDistributeRegistry extends GenericDistributeRegistry i
     }
 
     @Override
-    public void createPropertyConfig(String path) {
-
-    }
-
-    @Override
-    public void createTextValueConfig(String path) {
-
-    }
-
-    @Override
-    public void insertProperties(GUID guid, JSONObject properties) {
-
-    }
-
-    @Override
-    public void insertPropertiesByPath(String path, JSONObject properties) {
-
-    }
-
-    @Override
-    public void insertTextValue(GUID guid, String type, String value) {
-
-    }
-
-    @Override
-    public void insertTextValueByPath(String path, String type, String value) {
-
-    }
-
-    @Override
     public RenderTextValue getTextValue(GUID guid) {
         return (RenderTextValue) this.registryTextValueManipulator.getTextValue(guid);
     }

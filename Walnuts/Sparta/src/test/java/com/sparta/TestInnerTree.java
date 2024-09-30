@@ -56,14 +56,27 @@ class LadyGaga extends Radium {
         );
 
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
-//        registry.createPropertyConfig("我的世界.暮色森林.九头蛇");
-//        registry.createPropertyConfig("泰拉瑞亚.灾厄.至尊灾厄");
-//        registry.createTextValueConfig("泰拉瑞亚.灾厄.星流巨械");
-//        registry.insertTextValueByPath("泰拉瑞亚.灾厄.星流巨械","text","难打");
-        JSONMaptron jsonMaptron = new JSONMaptron();
-        jsonMaptron.put("name","我的世界");
-        jsonMaptron.put("year","2009");
-        registry.insertPropertiesByPath("泰拉瑞亚.灾厄.至尊灾厄",jsonMaptron);
+
+//        registry.putProperties( "game.minecraft.wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
+//        registry.putProperties( "game.minecraft.sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
+//        registry.putProperties( "game.terraria.mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+//        registry.putProperties( "game.witcher.mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
+//        registry.putProperties( "game.witcher.mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
+
+
+
+        registry.remove( "game.minecraft" );
+        //Debug.fmp( 2, registry.getProperties( "game.witcher.mob3" ).getValue( "name" ) );
+
+
+        //registry.remove( "game" );
+
+
+       // registry.affirmPropertyConfig( "泰拉瑞亚.灾厄.至尊灾厄" );
+
+        // registry.remove( "泰拉瑞亚.灾厄.至尊灾厄" );
+
+        //Debug.fmp( 4, registry.getProperties( "泰拉瑞亚.灾厄.至尊灾厄" ).toJSONObject() );
 
 
 //        Debug.trace( registry.getPath( GUIDs.GUID72("1f391ed2-0002d8-0000-e4") ) );
@@ -92,8 +105,8 @@ class LadyGaga extends Radium {
 //        Debug.trace(propertiesNode.entrySet());
 
 
-        Debug.fmp( 4, registry.getNamespaceNode( "ns1.ns2.ns3" ).listItem() );
-        Debug.fmp( 4, registry.getProperties( "conf3" ).toJSONObject() );
+//        Debug.fmp( 4, registry.getNamespaceNode( "ns1.ns2.ns3" ).listItem() );
+//        Debug.fmp( 4, registry.getProperties( "conf3" ).toJSONObject() );
 
         //registry.get( registry.getGUIDByPath( "conf3" )  ).evinceProperties().put( (new JSONMaptron( "{ species: 'human' }" )).entrySet() );
 

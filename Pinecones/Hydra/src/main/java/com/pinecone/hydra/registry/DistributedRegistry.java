@@ -8,6 +8,7 @@ import com.pinecone.hydra.registry.entity.NamespaceNode;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
@@ -42,6 +43,8 @@ public interface DistributedRegistry extends Registry {
 
     void remove( GUID guid );
 
+    void remove( String path );
+
     void updateProperty( Property property, GUID configNodeGuid );
 
     void updateTextValue( GUID guid,String text,String type );
@@ -52,7 +55,7 @@ public interface DistributedRegistry extends Registry {
 
     TextValue getTextValue( GUID guid );
 
-    void removeProperty( GUID guid,String key );
+    void removeProperty( GUID guid, String key );
 
 
     ConfigNode getConfigNodeByGuid( GUID guid );
@@ -80,12 +83,16 @@ public interface DistributedRegistry extends Registry {
 
     void insertRegistryTreeNode( GUID parentGuid, GUID childGuid );
 
-    void createNamespace(String path);
-    void createPropertyConfig(String path);
-    void createTextValueConfig(String path);
-    void insertProperties(GUID guid, JSONObject properties);
-    void insertPropertiesByPath(String path,JSONObject properties);
-    void insertTextValue(GUID guid, String type, String value);
-    void insertTextValueByPath(String path, String type, String value);
+
+
+    NamespaceNode  affirmNamespace        ( String path );
+
+    Properties     affirmProperties       ( String path );
+
+    TextConfigNode affirmTextConfig       ( String path );
+
+    Properties putProperties              ( String path, JSONObject properties );
+
+    TextConfigNode putTextValue           ( String path, String format, String value );
 
 }

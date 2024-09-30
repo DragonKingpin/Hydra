@@ -74,8 +74,13 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     @Select("SELECT `parent_guid` FROM `hydra_registry_node_tree` WHERE `guid`=#{guid}")
     List<GUID > getParentNodes(GUID guid);
+
     @Update("UPDATE `hydra_registry_nodes` SET `type` = #{type} WHERE guid=#{guid}")
     void updateType(UOI type , GUID guid);
+
     @Insert("INSERT INTO `hydra_registry_node_tree` (guid, parent_guid) VALUES (#{nodeGUID},#{parentGUID})")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
+
+    @Delete("DELETE FROM `hydra_registry_node_path` WHERE `guid` = #{guid}")
+    void removePath(GUID guid);
 }

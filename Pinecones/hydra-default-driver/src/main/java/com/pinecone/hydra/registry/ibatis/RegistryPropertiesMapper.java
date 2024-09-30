@@ -33,4 +33,7 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
 
     @Update( "UPDATE `hydra_registry_conf_node_properties` SET `key`=#{key}, `type`=#{type}, update_time=#{updateTime}, value=#{value} WHERE `guid`=#{guid} AND `key`=#{key}" )
     void update( Property property );
+
+    @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid` = #{guid}")
+    void removeAll( GUID guid );
 }

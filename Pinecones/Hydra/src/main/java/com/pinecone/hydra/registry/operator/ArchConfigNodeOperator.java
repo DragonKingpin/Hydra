@@ -112,14 +112,14 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     }
 
     @Override
-    public RegistryTreeNode get(GUID guid) {
+    public RegistryTreeNode get( GUID guid ) {
         //检测缓存中是否存在信息
         ConfigNode configNode = this.cacheMap.get(guid);
-        if (configNode == null) {
+        if ( configNode == null ) {
             configNode = this.getConfigNodeWideData(guid);
             GUID parentGuid = configNode.getParentGuid();
-            if (parentGuid != null){
-                this.inherit(configNode,(ConfigNode) get(parentGuid));
+            if ( parentGuid != null ){
+                this.inherit( configNode,(ConfigNode) this.get( parentGuid ) );
             }
             this.cacheMap.put(guid, configNode);
         }
@@ -132,7 +132,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     }
 
     @Override
-    public void update(TreeNode treeNode) {
+    public void update( TreeNode treeNode ) {
         ConfigNode configNode = (ConfigNode) treeNode;
         ConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
         NodeAttribute nodeAttribute = configNode.getNodeCommonData();
@@ -161,8 +161,8 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         GenericConfigNodeMeta configNodeMeta = (GenericConfigNodeMeta) this.configNodeMetaManipulator.getConfigNodeMeta(node.getNodeMetadataGUID());
         GenericNodeAttribute nodeCommonData = (GenericNodeAttribute) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
 
-        cn.setNodeCommonData(nodeCommonData);
-        cn.setConfigNodeMeta(configNodeMeta);
+        cn.setNodeCommonData( nodeCommonData );
+        cn.setConfigNodeMeta( configNodeMeta );
         return cn;
     }
 

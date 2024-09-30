@@ -8,4 +8,8 @@ public final class GUIDs {
     public static GUID72 GUID72( String s ) {
         return new GUID72( s );
     }
+
+    public static GUID72 Dummy72() {
+        return new GUID72();
+    }
 }

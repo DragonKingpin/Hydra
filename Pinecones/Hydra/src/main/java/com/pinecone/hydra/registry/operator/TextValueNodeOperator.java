@@ -18,17 +18,7 @@ public class TextValueNodeOperator extends ArchConfigNodeOperator {
 
     @Override
     public TextConfigNode get(GUID guid) {
-        //检测缓存中是否存在信息
-        TextConfigNode configNode = (TextConfigNode)this.cacheMap.get(guid);
-        if (configNode == null) {
-            configNode = this.getConfigNodeWideData(guid);
-            GUID parentGuid = configNode.getParentGuid();
-            if (parentGuid != null){
-                this.inherit(configNode,get(parentGuid));
-            }
-            this.cacheMap.put(guid, configNode);
-        }
-        return configNode;
+        return (TextConfigNode) super.get( guid );
     }
 
 
@@ -46,5 +36,11 @@ public class TextValueNodeOperator extends ArchConfigNodeOperator {
         textConfNode.setRegistry(configNodeWideData.getRegistry());
         textConfNode.setUpdateTime(configNodeWideData.getUpdateTime());
         return textConfNode;
+    }
+
+    @Override
+    public void remove( GUID guid ) {
+        super.remove(guid);
+        this.registryTextValueManipulator.remove(guid);
     }
 }

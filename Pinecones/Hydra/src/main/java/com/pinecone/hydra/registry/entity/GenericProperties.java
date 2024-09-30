@@ -14,12 +14,12 @@ import java.util.Set;
 
 @SuppressWarnings("ALL")
 public class GenericProperties extends ArchConfigNode implements Properties {
-    protected Map<String, Property >     properties;
+    protected Map<String, Property >     properties = new LinkedHashMap<>();
 
     public GenericProperties() {
     }
 
-    public GenericProperties(DistributedRegistry registry ) {
+    public GenericProperties( DistributedRegistry registry ) {
         super( registry );
     }
 
@@ -42,8 +42,8 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     }
 
     @Override
-    public void put( Set<Map.Entry<String, Object > > entries ) {
-        for( Map.Entry<String, Object > kv : entries ) {
+    public void puts( Map<String, Object > map ) {
+        for( Map.Entry<String, Object > kv : map.entrySet() ) {
             this.put( kv.getKey(), kv.getValue() );
         }
     }

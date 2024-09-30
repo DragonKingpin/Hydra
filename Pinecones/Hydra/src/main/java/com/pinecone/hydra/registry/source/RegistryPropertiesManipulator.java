@@ -15,4 +15,6 @@ public interface RegistryPropertiesManipulator extends Pinenut {
     List<Property > getProperties( GUID guid );
 
     void update(Property property);
+
+    void removeAll( GUID guid );
 }

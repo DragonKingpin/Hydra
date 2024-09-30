@@ -5,6 +5,10 @@ public abstract class ArchKernelObjectConfig implements KernelObjectConfig {
 
     protected String mszFullNameSeparator = KernelObjectConstants.FullNameSeparator;
 
+    protected String mszPathNameSepRegex  = KernelObjectConstants.PathNameSepRegex;
+
+    protected String mszFullNameSepRegex  = KernelObjectConstants.FullNameSepRegex;
+
     @Override
     public String getPathNameSeparator() {
         return this.mszPathNameSeparator;
@@ -13,5 +17,15 @@ public abstract class ArchKernelObjectConfig implements KernelObjectConfig {
     @Override
     public String getFullNameSeparator() {
         return this.mszFullNameSeparator;
+    }
+
+    @Override
+    public String getPathNameSepRegex() {
+        return this.mszPathNameSepRegex;
+    }
+
+    @Override
+    public String getFullNameSepRegex() {
+        return this.mszFullNameSepRegex;
     }
 }

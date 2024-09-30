@@ -24,7 +24,7 @@ public interface Properties extends ConfigNode {
 
     void put             ( String key, Object val );
 
-    void put             ( Set<Map.Entry<String, Object > > entries );
+    void puts            ( Map<String, Object > map );
 
     void putProperty     ( Property property );
 

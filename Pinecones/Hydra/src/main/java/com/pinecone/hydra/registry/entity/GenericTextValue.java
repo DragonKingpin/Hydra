@@ -16,6 +16,14 @@ public class GenericTextValue implements TextValue {
     public GenericTextValue() {
     }
 
+    public GenericTextValue( GUID guid, String value, String type ) {
+        this.setGuid( guid );
+        this.setValue( value );
+        this.setType( type );
+        this.setCreateTime( LocalDateTime.now() );
+        this.setUpdateTime( LocalDateTime.now() );
+    }
+
     public GenericTextValue( int enumId, GUID guid, String value, String type, LocalDateTime createTime, LocalDateTime updateTime ) {
         this.enumId = enumId;
         this.guid = guid;

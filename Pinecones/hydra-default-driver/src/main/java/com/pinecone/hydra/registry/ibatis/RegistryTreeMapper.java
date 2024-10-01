@@ -42,7 +42,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     }
 
     @Select("SELECT `guid` FROM `hydra_registry_node_path` WHERE `path`=#{path}")
-    GUID getGUIDByPath( String path );
+    GUID queryGUIDByPath( String path );
 
     @Select("SELECT `id`, `guid`, `type`,base_data_guid AS baseDataGUID,node_meta_guid AS nodeMetadataGUID  FROM hydra_registry_nodes WHERE guid=#{guid}")
     GUIDDistributedTrieNode getMeta(GUID guid);

@@ -80,7 +80,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     @Override
     public GUID queryGUIDByPath( String path ) {
-        return this.trieTreeManipulator.getGUIDByPath( path );
+        return this.trieTreeManipulator.queryGUIDByPath( path );
     }
 
     @Override
@@ -117,12 +117,6 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     public void insertPath(GUID guid, String path) {
         this.triePathManipulator.insert(guid,path);
     }
-
-    @Override
-    public void updateType(UOI type,GUID guid) {
-
-    }
-
 
     @Override
     public boolean hasOwnProperty(Object key) {

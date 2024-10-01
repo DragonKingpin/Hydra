@@ -7,7 +7,7 @@ import com.pinecone.hydra.registry.DistributedRegistry;
 import java.time.LocalDateTime;
 
 public class GenericTextConfigNode extends ArchConfigNode implements TextConfigNode{
-    protected TextValue             textValue;
+    protected TextValue             mTextValue;
 
     public GenericTextConfigNode() {
     }
@@ -21,37 +21,60 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
             String name, TextValue textValue, GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData, DistributedRegistry registry
     ) {
         super( registry, enumId, guid, nsGuid, parentGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
-        this.textValue = textValue;
+        this.mTextValue = textValue;
     }
 
     @Override
     public void setTextValue(TextValue textValue) {
-        this.textValue = textValue;
+        this.mTextValue = textValue;
     }
 
     @Override
     public void put( TextValue textValue ) {
-        this.registry.putTextValue(textValue.getGuid(),textValue.getValue(),textValue.getType());
+        if( this.mTextValue == null ) {
+            this.registry.putTextValue( textValue.getGuid(), textValue.getValue(), textValue.getType() );
+        }
+        else {
+            this.update( textValue );
+            this.mTextValue = textValue;
+        }
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         this.registry.removeTextValue(guid);
     }
 
     @Override
-    public void update(TextValue textValue) {
+    public void update( TextValue textValue ) {
+        this.registry.updateTextValue( textValue, this.guid );
+    }
 
+
+    @Override
+    public void update( String text, String format ) {
+        TextValue textValue = GenericTextValue.newUpdateTextValue( this.guid, text, format );
+        this.update( textValue );
+    }
+
+    @Override
+    public void put( String text, String format ) {
+        if( this.mTextValue == null ) {
+            this.registry.putTextValue( this.guid, text, format );
+        }
+        else {
+            this.update( text, format );
+        }
     }
 
     @Override
     public TextValue get() {
-        return this.textValue;
+        return this.mTextValue;
     }
 
     @Override
     public GenericConfigNodeMeta getConfigNodeMeta() {
-        return configNodeMeta;
+        return this.configNodeMeta;
     }
 
     @Override

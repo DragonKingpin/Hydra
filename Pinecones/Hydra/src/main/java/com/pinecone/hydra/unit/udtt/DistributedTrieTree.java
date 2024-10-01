@@ -41,6 +41,4 @@ public interface DistributedTrieTree extends PineUnit {
     List<GUID> getSubordinates(GUID guid);
 
     void insertPath(GUID guid,String path);
-
-    void updateType(UOI type,GUID guid);
 }

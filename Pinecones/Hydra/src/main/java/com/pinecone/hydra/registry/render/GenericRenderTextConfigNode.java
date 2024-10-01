@@ -11,7 +11,7 @@ public class GenericRenderTextConfigNode extends GenericTextConfigNode implement
     }
     @Override
     public RenderTextValue get() {
-        return (RenderTextValue) this.textValue;
+        return (RenderTextValue) this.mTextValue;
     }
 
     @Override

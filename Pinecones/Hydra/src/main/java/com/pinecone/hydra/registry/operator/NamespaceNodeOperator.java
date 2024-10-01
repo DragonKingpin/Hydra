@@ -2,6 +2,7 @@ package com.pinecone.hydra.registry.operator;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
 import com.pinecone.hydra.registry.entity.GenericNamespaceNodeMeta;
@@ -99,14 +100,14 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         //namespace节点需要递归删除其拥有节点若其引用节点没有其他引用则进行清理
         List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        if (!childNodes.isEmpty()){
-            List<GUID> subordinates = this.distributedTrieTree.getSubordinates(guid);
-            if (!subordinates.isEmpty()){
-                for (GUID subordinateGuid : subordinates){
+        if ( !childNodes.isEmpty() ){
+            List<GUID > subordinates = this.distributedTrieTree.getSubordinates(guid);
+            if ( !subordinates.isEmpty() ){
+                for ( GUID subordinateGuid : subordinates ){
                     this.remove(subordinateGuid);
                 }
             }
@@ -121,16 +122,21 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
                 }
             }
         }
-        if (node.getType().getObjectName().equals(GenericNamespaceNode.class.getName())){
+
+        if ( node.getType().getObjectName().equals(GenericNamespaceNode.class.getName()) ){
             this.removeNode(guid);
         }
         else {
-            TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{ DistributedRegistry.class }, this.registry );
-            Debug.trace(newInstance.getMetaType());
-            RegistryNodeOperator operator = this.factory.getOperator(newInstance.getMetaType());
-            operator.remove(guid);
-        }
+            UOI uoi = node.getType();
+            String metaType = this.factory.getMetaType( uoi.getObjectName() );
+            if( metaType == null ) {
+                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ DistributedRegistry.class }, this.registry );
+                metaType = newInstance.getMetaType();
+            }
 
+            RegistryNodeOperator operator = this.factory.getOperator( metaType );
+            operator.remove( guid );
+        }
     }
 
     @Override

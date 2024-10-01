@@ -36,7 +36,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     protected RegistryMasterManipulator     registryMasterManipulator;
     protected Map<GUID, ConfigNode>         cacheMap = new HashMap<>();
 
-    protected RegistryNodeManipulator       configNodeManipulator;
+    protected RegistryNodeManipulator       registryNodeManipulator;
     protected RegistryNodeMetaManipulator   configNodeMetaManipulator;
     protected RegistryCommonDataManipulator registryCommonDataManipulator;
 
@@ -48,7 +48,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
 
     public ArchConfigNodeOperator(RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
         this.registryMasterManipulator     = masterManipulator;
-        this.configNodeManipulator         = this.registryMasterManipulator.getRegistryNodeManipulator();
+        this.registryNodeManipulator       = this.registryMasterManipulator.getRegistryNodeManipulator();
         this.configNodeMetaManipulator     = this.registryMasterManipulator.getRegistryNodeMetaManipulator();
         this.registryCommonDataManipulator = this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.distributedTrieTree           = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
@@ -73,7 +73,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
 
         GUID configNodeMetaGuid = uidGenerator.getGUID72();
         GenericConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
-        if (configNodeMeta != null){
+        if ( configNodeMeta != null ){
             configNodeMeta.setGuid(configNodeMetaGuid);
             this.configNodeMetaManipulator.insert(configNodeMeta);
         }
@@ -96,7 +96,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         distributeConfTreeNode.setBaseDataGUID(commonDataGuid);
         distributeConfTreeNode.setNodeMetadataGUID(configNodeMetaGuid);
         this.distributedTrieTree.insert(distributeConfTreeNode);
-        this.configNodeManipulator.insert(configNode);
+        this.registryNodeManipulator.insert(configNode);
         return guid72;
     }
 
@@ -105,7 +105,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         //ConfigNode为叶子节点只需要删除节点信息与引用继承关系
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         this.distributedTrieTree.remove(guid);
-        this.configNodeManipulator.remove(guid);
+        this.registryNodeManipulator.remove(guid);
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
         this.configNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.distributedTrieTree.removePath(guid);
@@ -143,17 +143,17 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         if (nodeAttribute != null){
             this.registryCommonDataManipulator.update(nodeAttribute);
         }
-        this.configNodeManipulator.update(configNode);
+        this.registryNodeManipulator.update(configNode);
     }
 
     @Override
     public void updateName( GUID guid, String name ) {
-        this.configNodeManipulator.updateName( guid, name );
+        this.registryNodeManipulator.updateName( guid, name );
     }
 
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ConfigNode cn = this.configNodeManipulator.getConfigurationNode( guid );
+        ConfigNode cn = this.registryNodeManipulator.getConfigurationNode( guid );
         if( cn instanceof ArchConfigNode ) {
             ((ArchConfigNode) cn).apply( this.registry );
         }

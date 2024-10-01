@@ -39,7 +39,7 @@ public class GenericTextValue implements TextValue {
      */
     @Override
     public int getEnumId() {
-        return enumId;
+        return this.enumId;
     }
 
     /**
@@ -57,7 +57,7 @@ public class GenericTextValue implements TextValue {
      */
     @Override
     public GUID getGuid() {
-        return guid;
+        return this.guid;
     }
 
     /**
@@ -75,7 +75,7 @@ public class GenericTextValue implements TextValue {
      */
     @Override
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     /**
@@ -93,7 +93,7 @@ public class GenericTextValue implements TextValue {
      */
     @Override
     public String getType() {
-        return type;
+        return this.type;
     }
 
     /**
@@ -111,7 +111,7 @@ public class GenericTextValue implements TextValue {
      */
     @Override
     public LocalDateTime getCreateTime() {
-        return createTime;
+        return this.createTime;
     }
 
     /**
@@ -149,5 +149,17 @@ public class GenericTextValue implements TextValue {
     @Override
     public String toString() {
         return this.toJSONString();
+    }
+
+
+
+    public static TextValue newUpdateTextValue( GUID guid, String text, String format ) {
+        TextValue textValue = new GenericTextValue();
+        textValue.setGuid( guid );
+        textValue.setUpdateTime(LocalDateTime.now());
+        textValue.setValue(text);
+        textValue.setType(format);
+
+        return textValue;
     }
 }

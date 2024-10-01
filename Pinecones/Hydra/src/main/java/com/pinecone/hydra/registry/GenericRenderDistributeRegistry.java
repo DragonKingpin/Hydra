@@ -27,29 +27,29 @@ public class GenericRenderDistributeRegistry extends GenericDistributeRegistry i
     }
 
     @Override
-    public RenderRegistryTreeNode get(GUID guid) {
+    public RenderRegistryTreeNode get( GUID guid ) {
         return null;
     }
 
     @Override
-    public RenderRegistryTreeNode getNodeByPath(String path) {
+    public RenderRegistryTreeNode getNodeByPath( String path ) {
         return null;
     }
 
 
 
     @Override
-    public RenderRegistryTreeNode getThis(GUID guid) {
+    public RenderRegistryTreeNode getThis( GUID guid ) {
         return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getWithoutInheritance( guid );
     }
 
     @Override
-    public RenderConfigNode getConfigNodeByGuid(GUID guid) {
-        return (RenderConfigNode) super.getConfigNodeByGuid(guid);
+    public RenderConfigNode getConfigNode( GUID guid ) {
+        return (RenderConfigNode) super.getConfigNode(guid);
     }
 
     @Override
-    public RenderTextValue getTextValue(GUID guid) {
+    public RenderTextValue getTextValue( GUID guid ) {
         return (RenderTextValue) this.registryTextValueManipulator.getTextValue(guid);
     }
 

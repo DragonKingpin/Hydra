@@ -56,7 +56,7 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
     void updatePath( GUID guid, String path);
 
     @Select("SELECT `guid` FROM `hydra_scenario_node_path` WHERE `path`=#{path}")
-    GUID getGUIDByPath( String path );
+    GUID queryGUIDByPath( String path );
 
     void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
     @Select("SELECT guid FROM hydra_scenario_node_tree WHERE parent_guid=#{guid}")

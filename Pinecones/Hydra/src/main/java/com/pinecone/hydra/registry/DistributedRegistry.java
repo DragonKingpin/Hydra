@@ -14,10 +14,13 @@ import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface DistributedRegistry extends Registry {
 
     String getPath( GUID guid );
+
+    String getFullName( GUID guid );
 
     GUID put( TreeNode treeNode );
 
@@ -35,18 +38,23 @@ public interface DistributedRegistry extends Registry {
 
     NamespaceNode getNamespaceNode( String path );
 
-    GUID getGUIDByPath( String path );
+    GUID queryGUIDByPath( String path );
+
+    GUID queryGUIDByFN  ( String fullName );
 
     void putProperty( Property property, GUID configNodeGuid );
 
-    void putTextValue( GUID guid,String text,String type );
+    void putTextValue( GUID guid, String text, String format );
 
     void remove( GUID guid );
-    void remove(String path);
+
+    void remove( String path );
 
     void updateProperty( Property property, GUID configNodeGuid );
 
-    void updateTextValue( GUID guid,String text,String type );
+    void updateTextValue( TextValue textValue, GUID configNodeGuid );
+
+    void updateTextValue( GUID guid, String text, String format );
 
     Collection<Property > fetchProperties( GUID guid );
 
@@ -54,25 +62,17 @@ public interface DistributedRegistry extends Registry {
 
     TextValue getTextValue( GUID guid );
 
+    TextValue getTextValue( String path );
+
     void removeProperty( GUID guid, String key );
 
 
-    ConfigNode getConfigNodeByGuid( GUID guid );
+    ConfigNode getConfigNode( GUID guid );
 
-
-    // getConfig( String path );
-
-    // getPropertyConfig( String path );
-
-    // TextConfigNode getTextConfig( String path );
-
-    // getTextConfig( String path );
-
-    // getNamespace( String path );
 
     void removeTextValue( GUID guid );
 
-    List<TreeNode > getChildConf( GUID guid );
+    List<TreeNode > getChildren( GUID guid );
 
     List<TreeNode > selectByName( String name );
 
@@ -90,8 +90,11 @@ public interface DistributedRegistry extends Registry {
 
     TextConfigNode affirmTextConfig       ( String path );
 
-    Properties putProperties              ( String path, JSONObject properties );
+    Properties putProperties              ( String path, Map<String, Object > properties );
 
     TextConfigNode putTextValue           ( String path, String format, String value );
 
+
+
+    Object querySelector                  ( String szSelector );
 }

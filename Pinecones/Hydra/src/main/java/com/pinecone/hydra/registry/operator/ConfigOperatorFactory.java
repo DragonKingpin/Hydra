@@ -17,7 +17,13 @@ public interface ConfigOperatorFactory extends Pinenut {
 
     void register( String typeName, TreeNodeOperator functionalNodeOperation );
 
-    RegistryNodeOperator getOperator(String typeName);
+    void registerMetaType( Class<?> clazz, String metaType );
+
+    void registerMetaType( String classFullName, String metaType );
+
+    String getMetaType( String classFullName );
+
+    RegistryNodeOperator getOperator( String typeName );
 
     Registry getRegistry();
 

@@ -57,18 +57,27 @@ class LadyGaga extends Radium {
 
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
-//        registry.putProperties( "game.minecraft.wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
-//        registry.putProperties( "game.minecraft.sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
-//        registry.putProperties( "game.terraria.mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
-//        registry.putProperties( "game.witcher.mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
-//        registry.putProperties( "game.witcher.mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
+        registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
+        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
+        registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+        registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
+        registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
+        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
+        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
+        registry.putTextValue( "game/witcher/jesus", "json", "{k:p}" );
+
+
+//
+//        registry.putProperties( "movie.terraria.mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
 
 
 
+        //registry.remove( "game" );
+        //registry.remove( "game.witcher" );
         //registry.remove( "game.minecraft" );
         //registry.remove("game.terraria");
         //registry.remove("game.witcher");
-        //Debug.fmp( 2, registry.getProperties( "game.witcher.mob3" ).getValue( "name" ) );
+        Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
 
 
         //registry.remove( "game" );
@@ -110,11 +119,11 @@ class LadyGaga extends Radium {
 //        Debug.fmp( 4, registry.getNamespaceNode( "ns1.ns2.ns3" ).listItem() );
 //        Debug.fmp( 4, registry.getProperties( "conf3" ).toJSONObject() );
 
-        //registry.get( registry.getGUIDByPath( "conf3" )  ).evinceProperties().put( (new JSONMaptron( "{ species: 'human' }" )).entrySet() );
+        //registry.get( registry.queryGUIDByPath( "conf3" )  ).evinceProperties().put( (new JSONMaptron( "{ species: 'human' }" )).entrySet() );
 
 
 
-        //ConfigNode cn = registry.getConfigNodeByGuid( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
+        //ConfigNode cn = registry.getConfigNode( GUIDs.GUID72("1f419c8c-000018-0000-a8") );
 
         //Debug.trace( cn.keySet() );
         //Debug.trace( cn.size() );

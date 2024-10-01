@@ -18,7 +18,7 @@ public interface TrieTreeManipulator extends Pinenut {
 
     void updatePath( GUID guid, String path);
 
-    GUID getGUIDByPath( String path );
+    GUID queryGUIDByPath( String path );
 
     void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
 
@@ -33,5 +33,6 @@ public interface TrieTreeManipulator extends Pinenut {
     List<GUID> getParentNodes(GUID guid);
 
     void removeInheritance(GUID childNode, GUID parentGUID);
+
     void updateType(UOI type,GUID guid);
 }

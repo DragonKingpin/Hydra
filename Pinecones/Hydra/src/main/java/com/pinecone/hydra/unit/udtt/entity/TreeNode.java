@@ -11,6 +11,7 @@ public interface TreeNode extends Pinenut {
     default String getMetaType() {
         return this.className().replace("Generic","");
     }
+
     default TreeNode evinceTreeNode(){
         return null;
     }

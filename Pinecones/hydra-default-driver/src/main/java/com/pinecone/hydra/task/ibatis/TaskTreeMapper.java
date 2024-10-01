@@ -45,7 +45,7 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
     void updatePath( GUID guid, String path);
 
     @Select("SELECT `guid` FROM `hydra_task_node_path` WHERE `path`=#{path}")
-    GUID getGUIDByPath(String path);
+    GUID queryGUIDByPath(String path);
 
     @Insert("INSERT INTO `hydra_task_node_tree` (`guid`, `parent_guid`) VALUES (#{nodeGuid},#{parentGuid})")
     void insertNodeToParent(@Param("nodeGuid") GUID nodeGUID, @Param("parentGuid") GUID parentGUID);

@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.udtt.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface TireOwnerManipulator extends Pinenut {
     GUID getOwner(GUID subordinateGuid);
 
     List<GUID> getSubordinates(GUID guid);
+    GUIDDistributedTrieNode checkOwned(GUID guid);
+    void setOwned(GUID sourceGuid,GUID targetGuid);
 }

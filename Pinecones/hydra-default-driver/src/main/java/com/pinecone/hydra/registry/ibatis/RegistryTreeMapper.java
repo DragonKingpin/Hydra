@@ -18,19 +18,14 @@ import java.util.List;
 public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     default void insert (GUIDDistributedTrieNode distributedConfTreeNode){
-        List<GUID> parentGuids = distributedConfTreeNode.getParentGUIDs();
         this.insertTreeNode(distributedConfTreeNode.getGuid(),distributedConfTreeNode.getType(),distributedConfTreeNode.getBaseDataGUID(),distributedConfTreeNode.getNodeMetadataGUID());
-        if (parentGuids!=null){
-            for(GUID parentGuid : distributedConfTreeNode.getParentGUIDs()){
-                this.insertParentNode(distributedConfTreeNode.getGuid(),parentGuid);
-            }
-        }
-
+        this.insertAffinity(distributedConfTreeNode.getGuid());
     }
 
     @Insert("INSERT INTO hydra_registry_nodes (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
     void insertTreeNode(@Param("guid") GUID guid,@Param("type") UOI type,@Param("baseDataGuid") GUID baseDataGuid,@Param("nodeMetaGuid") GUID nodeMetaGuid);
-
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `linked_type`) VALUES (#{guid},'Owned')")
+    void insertAffinity(GUID guid);
     @Insert("INSERT INTO hydra_registry_node_tree (guid, parent_guid) VALUES (#{guid},#{parentGuid})")
     void insertParentNode(@Param("guid")GUID guid,@Param("parentGuid")GUID parentGuid);
 
@@ -78,9 +73,13 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Update("UPDATE `hydra_registry_nodes` SET `type` = #{type} WHERE guid=#{guid}")
     void updateType(UOI type , GUID guid);
 
-    @Insert("INSERT INTO `hydra_registry_node_tree` (guid, parent_guid) VALUES (#{nodeGUID},#{parentGUID})")
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{nodeGUID},#{parentGUID},'Reparse')")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 
     @Delete("DELETE FROM `hydra_registry_node_path` WHERE `guid` = #{guid}")
     void removePath(GUID guid);
+    @Select("SELECT id, guid, parent_guid, linked_type FROM hydra_registry_node_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
+    GUIDDistributedTrieNode isExist(@Param("guid") GUID guid,@Param("parentGuid") GUID parentGuid);
+    @Select("SELECT guid FROM hydra_registry_node_tree WHERE parent_guid IS NULL ")
+    List<GUID> listRoot();
 }

@@ -39,9 +39,11 @@ import com.pinecone.ulf.util.id.GUIDs;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GenericDistributeRegistry implements DistributedRegistry {
     protected Hydrarum                        hydrarum;
@@ -102,9 +104,14 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         GUID owner = this.distributedConfTree.getOwner(guid);
         if ( owner == null ){
             String assemblePath = this.getNodeName(node);
-            while ( !node.getParentGUIDs().isEmpty() ){
+            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull(node.getParentGUIDs()) ){
                 List<GUID> parentGuids = node.getParentGUIDs();
-                node = this.distributedConfTree.getNode(parentGuids.get(0));
+                for(int i=0;i<parentGuids.size();i++){
+                    if ( parentGuids.get(i) != null ){
+                        node = this.distributedConfTree.getNode(parentGuids.get(i));
+                        break;
+                    }
+                }
                 String nodeName = this.getNodeName(node);
                 assemblePath = nodeName + szSeparator + assemblePath;
             }
@@ -313,6 +320,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public void setAffinity(GUID sourceGuid, GUID targetGuid) {
+        this.distributedConfTree.setOwner(sourceGuid,targetGuid);
+    }
+
+    @Override
     public List<TreeNode > getChildren( GUID guid ) {
         List<GUIDDistributedTrieNode> childNodes = this.distributedConfTree.getChildNode(guid);
         ArrayList<TreeNode> configNodes = new ArrayList<>();
@@ -332,6 +344,24 @@ public class GenericDistributeRegistry implements DistributedRegistry {
             configNodes.add(treeNode);
         }
         return configNodes;
+    }
+
+    @Override
+    public void move(String sourcePath, String destinationPath) {
+        GUID sourceGuid = this.queryGUIDByPath(sourcePath);
+        GUID destinationGuid = this.queryGUIDByPath(destinationPath);
+        this.setAffinity(sourceGuid,destinationGuid);
+    }
+
+    @Override
+    public List<RegistryTreeNode> listRoot() {
+        List<GUID> guids = this.distributedConfTree.listRoot();
+        ArrayList<RegistryTreeNode> registryTreeNodes = new ArrayList<>();
+        for(GUID guid : guids){
+            RegistryTreeNode treeNode = this.get(guid);
+            registryTreeNodes.add(treeNode);
+        }
+        return registryTreeNodes;
     }
 
     @Override
@@ -476,5 +506,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     @Override
     public Object querySelector( String szSelector ) {
         return null;
+    }
+    private boolean allNonNull(List<?> list) {
+        return list.stream().noneMatch(Objects::isNull);
     }
 }

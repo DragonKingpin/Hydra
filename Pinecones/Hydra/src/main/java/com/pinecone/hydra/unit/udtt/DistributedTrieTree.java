@@ -37,8 +37,10 @@ public interface DistributedTrieTree extends PineUnit {
     void removePath(GUID guid);
 
     GUID getOwner(GUID guid);
+    void setOwner(GUID sourceGuid,GUID targetGuid);
 
     List<GUID> getSubordinates(GUID guid);
 
     void insertPath(GUID guid,String path);
+    List<GUID> listRoot();
 }

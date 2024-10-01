@@ -20,6 +20,7 @@ import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.tree.DistributedTaskMetaTree;
 import com.pinecone.hydra.task.tree.GenericDistributedTaskMetaTree;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.id.GUID72;
 import com.pinecone.ulf.util.id.GUIDs;
 import com.sauron.radium.Radium;
 
@@ -68,16 +69,17 @@ class LadyGaga extends Radium {
 //        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
 //        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
 //        registry.putTextValue( "game/witcher/jesus", "json", "{k:p}" );
-
+//          Debug.trace(registry.listRoot());
+        //registry.setAffinity(new GUID72("1f7c33d6-000309-0000-f8"),new GUID72("1f7c33d6-0003c1-0000-b0"));
 
 //
-//        registry.putProperties( "movie.terraria.mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+//        registry.putProperties( "movie/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+//        Debug.trace(registry.listRoot());
 
+       // RegistryXPathSelector selector = new RegistryXPathSelector( new StringReader( "game/minecraft/wizard1" ), null );
+        //selector.eval();
 
-        RegistryXPathSelector selector = new RegistryXPathSelector( new StringReader( "game/minecraft/wizard1" ), null );
-        selector.eval();
-
-        //registry.remove( "game" );
+        registry.remove( "game" );
         //registry.remove( "game.witcher" );
         //registry.remove( "game.minecraft" );
         //registry.remove("game.terraria");

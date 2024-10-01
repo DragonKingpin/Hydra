@@ -12,6 +12,7 @@ import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
+import org.apache.commons.collections.set.ListOrderedSet;
 
 public interface Registry extends KernelObjectInstrument {
     RegistryConfig KernelRegistryConfig = new KernelRegistryConfig();
@@ -34,6 +35,8 @@ public interface Registry extends KernelObjectInstrument {
 
 
     List<TreeNode > selectByName( String name );
+    void move(String sourcePath,String destinationPath);
+    List<RegistryTreeNode> listRoot();
 
 
 

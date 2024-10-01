@@ -57,7 +57,7 @@ public interface DistributedRegistry extends Registry {
     void removeProperty( GUID guid, String key );
 
     void removeTextValue( GUID guid );
-
+    void setAffinity(GUID sourceGuid,GUID targetGuid);
 
 
 

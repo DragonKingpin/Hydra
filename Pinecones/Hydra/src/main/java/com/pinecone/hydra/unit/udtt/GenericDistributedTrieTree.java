@@ -1,6 +1,7 @@
 package com.pinecone.hydra.unit.udtt;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
@@ -41,8 +42,15 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     @Override
     public void insertNodeToParent(GUID nodeGUID,GUID parentGUID){
-        //todo 添加一个插入的条件判断
-        this.trieTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
+        GUID owner = this.tireOwnerManipulator.getOwner(nodeGUID);
+        if (owner == null){
+            this.tireOwnerManipulator.remove(nodeGUID,owner);
+            this.trieTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
+        }
+        else {
+            this.trieTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
+        }
+
     }
 
     @Override
@@ -99,6 +107,24 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
+    public void setOwner(GUID sourceGuid, GUID targetGuid) {
+        GUID owner = this.tireOwnerManipulator.getOwner(sourceGuid);
+        if (owner==null){
+            GUIDDistributedTrieNode exist = this.trieTreeManipulator.isExist(sourceGuid, targetGuid);
+            if (exist==null){
+                this.tireOwnerManipulator.insert(sourceGuid,targetGuid);
+            }
+            else {
+                this.tireOwnerManipulator.setOwned(sourceGuid,targetGuid);
+            }
+        }
+        else {
+            this.tireOwnerManipulator.remove(sourceGuid,owner);
+            this.tireOwnerManipulator.insert(sourceGuid,targetGuid);
+        }
+    }
+
+    @Override
     public void removePath(GUID guid) {
         this.trieTreeManipulator.removePath(guid);
     }
@@ -108,6 +134,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
         return this.tireOwnerManipulator.getOwner(guid);
     }
 
+
     @Override
     public List<GUID> getSubordinates(GUID guid) {
         return this.tireOwnerManipulator.getSubordinates(guid);
@@ -116,6 +143,11 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     @Override
     public void insertPath(GUID guid, String path) {
         this.triePathManipulator.insert(guid,path);
+    }
+
+    @Override
+    public List<GUID> listRoot() {
+        return this.trieTreeManipulator.listRoot();
     }
 
     @Override

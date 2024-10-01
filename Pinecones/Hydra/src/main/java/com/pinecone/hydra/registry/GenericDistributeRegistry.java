@@ -186,7 +186,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public Collection<Property > fetchProperties( GUID guid ) {
+    public List<Property > fetchProperties( GUID guid ) {
         ArrayList<Property > properties = new ArrayList<>();
         List<Property > genericProperties = this.registryPropertiesManipulator.getProperties(guid);
         for ( Property p : genericProperties ){
@@ -196,7 +196,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public Collection<Property > fetchProperties( String path ) {
+    public List<Property > fetchProperties( String path ) {
         return this.fetchProperties( this.queryGUIDByPath( path ) );
     }
 
@@ -360,7 +360,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public void insertRegistryTreeNode( GUID parentGuid, GUID childGuid ) {
-        this.distributedConfTree.insertNodeToParent(childGuid,parentGuid);
+        this.distributedConfTree.insertNodeToParent( childGuid, parentGuid );
     }
 
 

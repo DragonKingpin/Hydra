@@ -132,7 +132,7 @@ public class TemplateParser {
             for( int pos = 0; pos < n; ++pos ) {
                 chars[pos] = this.next();
                 if ( this.end() ) {
-                    throw this.parseException( "Error parser json string with substring bounds error." );
+                    throw this.parseException( "Error parser template string with substring bounds error." );
                 }
             }
 

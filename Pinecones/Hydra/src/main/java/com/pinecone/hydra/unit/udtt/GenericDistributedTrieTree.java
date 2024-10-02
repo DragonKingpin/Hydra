@@ -8,6 +8,8 @@ import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GUID72;
+import com.pinecone.ulf.util.id.UUIDBuilder;
+import com.pinecone.ulf.util.id.UidGenerator;
 
 import java.util.List;
 
@@ -154,7 +156,41 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
         this.tireOwnerManipulator.updateParentGuid( sourceGuid, destinationGuid );
     }
 
+    @Override
+    public void newTag(GUID originalGuid, GUID dirGuid, String tagName) {
+        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        GUID tagGuid = uidGenerator.getGUID72();
+        this.trieTreeManipulator.newTag(originalGuid,dirGuid,tagName,tagGuid);
+    }
 
+    @Override
+    public void newTag(String originalPath, String dirPath, String tageName) {
+        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        GUID tagGuid = uidGenerator.getGUID72();
+        GUID originalGuid = this.queryGUIDByPath(originalPath);
+        GUID dirGuid = this.queryGUIDByPath(dirPath);
+        this.trieTreeManipulator.newTag(originalGuid,dirGuid,tageName,tagGuid);
+    }
+
+    @Override
+    public void updateTage(GUID tagGuid, String tagName) {
+        this.trieTreeManipulator.updateTage(tagGuid,tagName);
+    }
+
+    @Override
+    public long isTagGuid(GUID guid) {
+        return this.trieTreeManipulator.isTagGuid(guid);
+    }
+
+    @Override
+    public GUID getOriginalGuid(String tagName, GUID dirGuid) {
+        return this.trieTreeManipulator.getOriginalGuid(tagName,dirGuid);
+    }
+
+    @Override
+    public GUID getOriginalGuid(GUID tagGuid) {
+        return this.trieTreeManipulator.getOriginalGuidByTagGuid(tagGuid);
+    }
 
     @Override
     public boolean hasOwnProperty(Object key) {

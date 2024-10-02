@@ -77,6 +77,10 @@ public interface DistributedRegistry extends Registry {
     void setDataAffinityGuid ( GUID childGuid, GUID parentGuid  );
 
 
+    void newTag(GUID originalGuid,GUID dirGuid,String tagName);
+    void newTag(String originalPath ,String dirPath,String tagName);
+    void updateTag(GUID tagGuid,String tagName);
+
 
 
     Object querySelector                  ( String szSelector );

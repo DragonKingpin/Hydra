@@ -63,4 +63,10 @@ public interface TrieTreeManipulator extends Pinenut {
 
     // TODO
     void updateNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
+
+    void newTag(GUID originalGuid, GUID dirGuid, String tagName, GUID tagGuid);
+    void updateTage(GUID tagGuid, String tagName);
+    GUID getOriginalGuid(String tagName,GUID dirGuid);
+    long isTagGuid(GUID guid);
+    GUID getOriginalGuidByTagGuid(GUID tagGuid);
 }

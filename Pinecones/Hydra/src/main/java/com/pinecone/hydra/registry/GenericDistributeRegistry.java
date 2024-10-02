@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
@@ -36,6 +37,8 @@ import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GUIDs;
+import com.pinecone.ulf.util.id.UUIDBuilder;
+import com.pinecone.ulf.util.id.UidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -264,9 +267,18 @@ public class GenericDistributeRegistry implements DistributedRegistry {
                     return nodeGuid;
                 }
             }
-        }
 
-        return null;
+        }
+        String dirPath = String.join(this.registryConfig.getPathNameSepRegex(), resolvedParts.subList(0, resolvedParts.size() - 1));
+        if (dirPath.isBlank()) return null;
+        GUID dirGuid = this.queryGUIDByPath(dirPath);
+        GUID originalGuid = this.distributedConfTree.getOriginalGuid(resolvedParts.get(resolvedParts.size() - 1), dirGuid);
+        if (originalGuid == null) return null;
+        while (this.distributedConfTree.isTagGuid(originalGuid) > 0){
+            originalGuid=this.distributedConfTree.getOriginalGuid(originalGuid);
+        }
+        return originalGuid;
+
     }
 
     /** Final Solution 20240929: 无法获取类型 */
@@ -305,6 +317,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         property.setCreateTime( LocalDateTime.now() );
         property.setUpdateTime( LocalDateTime.now() );
         this.registryPropertiesManipulator.insert( property );
+    }
+
+    @Override
+    public void newTag(String originalPath, String dirPath, String tagName) {
+        this.distributedConfTree.newTag(originalPath,dirPath,tagName);
     }
 
     @Override
@@ -373,7 +390,15 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.nodeManipulator.setDataAffinityGuid( childGuid, parentGuid );
     }
 
+    @Override
+    public void newTag(GUID originalGuid, GUID dirGuid, String tagName) {
+        this.distributedConfTree.newTag(originalGuid,dirGuid,tagName);
+    }
 
+    @Override
+    public void updateTag(GUID tagGuid, String tagName) {
+        this.distributedConfTree.updateTage(tagGuid,tagName);
+    }
 
     @Override
     public List<TreeNode > getChildren( GUID guid ) {

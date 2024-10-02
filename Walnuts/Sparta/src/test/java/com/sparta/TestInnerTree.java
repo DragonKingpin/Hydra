@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.io.FileUtils;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
@@ -63,7 +64,6 @@ class LadyGaga extends Radium {
         );
 
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
-
 //        registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
 //        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
 //        registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
@@ -71,7 +71,7 @@ class LadyGaga extends Radium {
 //        registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
 //        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
 //        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
-
+//
 //        registry.putProperties( "game3a/witcher/people/s4/urge", new JSONMaptron( "{ name:darkurge, age:996, species:dragon, job:warrior }" ) );
 //
 //        registry.putTextValue( "game/witcher/jesus", "json", "{k:p}" );
@@ -79,8 +79,11 @@ class LadyGaga extends Radium {
 //        registry.setAffinity(new GUID72("1f7c33d6-000309-0000-f8"),new GUID72("1f7c33d6-0003c1-0000-b0"));
 
 //        registry.setInheritance();
+          //Debug.trace(registry.queryGUIDByPath("game/terraria/mob1"));
 
-
+          //registry.newTag("game/terraria/mob1","game/minecraft","mob1");
+        GUID guid = registry.queryGUIDByPath("game/minecraft/mob1");
+        Debug.trace(guid);
 //        registry.newHardLink( "game3a/mix/wizard1", "game/witcher" );
 
 

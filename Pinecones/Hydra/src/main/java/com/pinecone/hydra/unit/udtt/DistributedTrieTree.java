@@ -47,4 +47,10 @@ public interface DistributedTrieTree extends PineUnit {
     void newHardLink( GUID sourceGuid, GUID targetGuid );
 
     void moveTo( GUID sourceGuid, GUID destinationGuid );
+    void newTag(GUID originalGuid, GUID dirGuid, String tagName);
+    void newTag(String originalPath,String dirPath,String tageName);
+    void updateTage(GUID tagGuid,String tagName);
+    GUID getOriginalGuid(String tagName,GUID dirGuid);
+    GUID getOriginalGuid(GUID tagGuid);
+    long isTagGuid(GUID guid);
 }

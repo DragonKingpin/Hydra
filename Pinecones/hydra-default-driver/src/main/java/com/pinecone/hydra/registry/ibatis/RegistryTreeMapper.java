@@ -89,4 +89,14 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Select( "SELECT guid FROM hydra_registry_node_tree WHERE parent_guid IS NULL " )
     List<GUID > listRoot();
 
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `linked_type`,`tag_name`,`tag_guid`,`parent_guid`) VALUES (#{originalGuid},'Owned',#{tagName},#{tagGuid},#{dirGuid})")
+    void newTag(@Param("originalGuid") GUID originalGuid, @Param("dirGuid") GUID dirGuid, @Param("tagName") String tagName,@Param("tagGuid") GUID tagGuid);
+    @Update("UPDATE hydra_registry_node_tree SET tag_name = #{tagName} WHERE tag_guid =#{tagGuid}")
+    void updateTage(@Param("tagGuid") GUID tagGuid, @Param("tagName") String tagName);
+    @Select("SELECT guid FROM hydra_registry_node_tree WHERE tag_name = #{tagName} AND parent_guid = #{dirGuid}")
+    GUID getOriginalGuid(@Param("tagName") String tagName, @Param("dirGuid") GUID dirGuid);
+    @Select("SELECT COUNT(*) FROM `hydra_registry_node_tree` WHERE `tag_guid` = #{guid}")
+    long isTagGuid(GUID guid);
+    @Select("SELECT `guid` FROM `hydra_registry_node_tree` WHERE `tag_guid` = #{tagGuid}")
+    GUID getOriginalGuidByTagGuid(GUID tagGuid);
 }

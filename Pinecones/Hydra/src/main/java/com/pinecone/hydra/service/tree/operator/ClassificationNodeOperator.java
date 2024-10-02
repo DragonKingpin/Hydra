@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
@@ -17,27 +18,32 @@ import com.pinecone.ulf.util.id.UidGenerator;
 
 
 public class ClassificationNodeOperator implements MetaNodeOperator {
-    private ClassifNodeManipulator  classifNodeManipulator;
-    private CommonDataManipulator commonDataManipulator;
-    private TrieTreeManipulator trieTreeManipulator;
-    private ClassifRulesManipulator classifRulesManipulator;
+    protected ClassifNodeManipulator   classifNodeManipulator;
+    protected CommonDataManipulator    commonDataManipulator;
+    protected TrieTreeManipulator      trieTreeManipulator;
+    protected TireOwnerManipulator     tireOwnerManipulator;
+    protected ClassifRulesManipulator  classifRulesManipulator;
 
     public ClassificationNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getClassifNodeManipulator(),
                 manipulators.getCommonDataManipulator(),
                 manipulators.getTrieTreeManipulator(),
-                manipulators.getClassifRulesManipulator()
+                manipulators.getClassifRulesManipulator(),
+                manipulators.getTireOwnerManipulator()
         );
     }
 
     public ClassificationNodeOperator(
-            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator, ClassifRulesManipulator classifRulesManipulator
+            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator,
+            TrieTreeManipulator trieTreeManipulator, ClassifRulesManipulator classifRulesManipulator,
+            TireOwnerManipulator tireOwnerManipulator
     ){
         this.classifNodeManipulator  = classifNodeManipulator;
-        this.commonDataManipulator = commonDataManipulator;
-        this.trieTreeManipulator = trieTreeManipulator;
+        this.commonDataManipulator   = commonDataManipulator;
         this.classifRulesManipulator = classifRulesManipulator;
+        this.trieTreeManipulator     = trieTreeManipulator;
+        this.tireOwnerManipulator    = tireOwnerManipulator;
     }
 
 
@@ -71,7 +77,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         node.setGuid(classifNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node);
         return classifNodeGUID;
     }
 

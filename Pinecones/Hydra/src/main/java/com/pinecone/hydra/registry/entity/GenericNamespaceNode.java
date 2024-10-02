@@ -195,8 +195,8 @@ public class GenericNamespaceNode implements NamespaceNode {
         this.childrenGuids = contentGuids;
         HashMap<String, RegistryTreeNode> nodeHashMap = new HashMap<>();
         for( GUID guid : contentGuids ){
-            RegistryTreeNode registryTreeNode = this.registry.get(guid);
-            nodeHashMap.put(registryTreeNode.getName(),registryTreeNode);
+            RegistryTreeNode registryTreeNode = this.registry.get( guid );
+            nodeHashMap.put( registryTreeNode.getName(), registryTreeNode );
         }
         this.children = nodeHashMap;
     }
@@ -204,7 +204,7 @@ public class GenericNamespaceNode implements NamespaceNode {
     @Override
     public List<RegistryTreeNode > listItem() {
         ArrayList<RegistryTreeNode > registryTreeNodes = new ArrayList<>();
-        registryTreeNodes.addAll(this.children.values());
+        registryTreeNodes.addAll( this.children.values() );
         return registryTreeNodes;
     }
 

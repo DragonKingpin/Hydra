@@ -104,9 +104,9 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         GUID owner = this.distributedConfTree.getOwner(guid);
         if ( owner == null ){
             String assemblePath = this.getNodeName(node);
-            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull(node.getParentGUIDs()) ){
+            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull( node.getParentGUIDs() ) ){
                 List<GUID> parentGuids = node.getParentGUIDs();
-                for(int i=0;i<parentGuids.size();i++){
+                for( int i = 0; i < parentGuids.size(); ++i ){
                     if ( parentGuids.get(i) != null ){
                         node = this.distributedConfTree.getNode(parentGuids.get(i));
                         break;
@@ -120,11 +120,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         }
         else{
             String assemblePath = this.getNodeName( node );
-            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull(node.getParentGUIDs()) ){
+            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull( node.getParentGUIDs() ) ){
                 node = this.distributedConfTree.getNode( owner );
                 String nodeName = this.getNodeName( node );
                 assemblePath = nodeName + szSeparator + assemblePath;
-                owner = this.distributedConfTree.getOwner(node.getGuid());
+                owner = this.distributedConfTree.getOwner( node.getGuid() );
             }
             this.distributedConfTree.insertPath(guid,assemblePath);
             return assemblePath;
@@ -148,7 +148,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     protected RegistryNodeOperator getOperatorByGuid( GUID guid ) {
-        DistributedTreeNode node = this.distributedConfTree.getNode(guid);
+        DistributedTreeNode node = this.distributedConfTree.getNode( guid );
         TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{ DistributedRegistry.class }, this );
         return this.configOperatorFactory.getOperator( newInstance.getMetaType() );
     }
@@ -279,13 +279,16 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         GUIDDistributedTrieNode node = this.distributedConfTree.getNode(guid);
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.configOperatorFactory.getOperator(newInstance.getMetaType());
-        operator.remove(guid);
+        operator.purge(guid);
     }
 
 
     @Override
     public void remove( String path ) {
-        this.remove( this.queryGUIDByPath(path) );
+        GUID guid = this.queryGUIDByPath( path );
+        if( guid != null ) {
+            this.remove( guid );
+        }
     }
 
     @Override
@@ -321,13 +324,18 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void setAffinity(GUID sourceGuid, GUID targetGuid) {
-        this.distributedConfTree.setReparse(sourceGuid,targetGuid);
+    public void setAffinity( GUID sourceGuid, GUID targetGuid ) {
+        this.distributedConfTree.setOwner(sourceGuid,targetGuid);
+    }
+
+    @Override
+    public void setInheritance(GUID childGuid, GUID parentGuid) {
+        this.nodeManipulator.setParentGuid(childGuid,parentGuid);
     }
 
     @Override
     public List<TreeNode > getChildren( GUID guid ) {
-        List<GUIDDistributedTrieNode> childNodes = this.distributedConfTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedConfTree.getChildren(guid);
         ArrayList<TreeNode> configNodes = new ArrayList<>();
         for(GUIDDistributedTrieNode node : childNodes){
             TreeNode treeNode =  this.get(node.getGuid());
@@ -348,10 +356,12 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void move(String sourcePath, String destinationPath) {
-        GUID sourceGuid = this.queryGUIDByPath(sourcePath);
-        GUID destinationGuid = this.queryGUIDByPath(destinationPath);
-        this.distributedConfTree.move(sourceGuid,destinationGuid);
+    public void moveTo( String sourcePath, String destinationPath ) {
+        GUID sourceGuid      = this.queryGUIDByPath( sourcePath );
+        GUID destinationGuid = this.queryGUIDByPath( destinationPath );
+        if( sourceGuid != null ) {
+            this.distributedConfTree.moveTo( sourceGuid, destinationGuid );
+        }
     }
 
     @Override
@@ -391,13 +401,9 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public void insertRegistryTreeNode( GUID parentGuid, GUID childGuid ) {
-        this.distributedConfTree.insertNodeToParent( childGuid, parentGuid );
+        this.distributedConfTree.insertOwnedNode( childGuid, parentGuid );
     }
 
-    @Override
-    public void setInheritance(GUID childGuid, GUID parentGuid) {
-        this.nodeManipulator.setParentGuid(childGuid,parentGuid);
-    }
 
     // TODO, Unchecked type affirmed.
     protected RegistryTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
@@ -512,7 +518,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     public Object querySelector( String szSelector ) {
         return null;
     }
-    private boolean allNonNull(List<?> list) {
-        return list.stream().noneMatch(Objects::isNull);
+
+    private boolean allNonNull( List<?> list ) {
+        return list.stream().noneMatch( Objects::isNull );
     }
 }

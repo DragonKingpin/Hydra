@@ -2,6 +2,7 @@ package com.pinecone.hydra.registry.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.LinkedType;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 
@@ -15,29 +16,44 @@ import java.util.List;
 
 @IbatisDataAccessObject
 public interface RegistryNodeOwnerMapper extends TireOwnerManipulator {
-    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{subordinateGuid},#{ownerGuid},'Owned')")
-    void insert(@Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid);
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )")
+    void insertRootNode( @Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
-    @Delete("DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid}  AND `linked_type`='Owned'")
-    void remove(@Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid);
+    @Insert( "INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{targetGuid}, #{targetGuid}, #{linkedType})" )
+    void insert( @Param("targetGuid") GUID targetGuid, @Param("parent_guid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
 
-    @Delete("DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid} AND `linked_type`='Owned'")
-    void removeBySubordinate(GUID subordinateGuid);
+
+
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `parent_guid` = #{parentGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
+    void update( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
+
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
+    void updateParentGuid( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
+
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
+    void updateLinkedType( @Param("targetGuid") GUID targetGuid, @Param("linkedType") LinkedType linkedType );
+
+
+
+    @Delete( "DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid}  AND `linked_type` = 'Owned'" )
+    void remove( @Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid );
+
+    @Delete( "DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid} AND `linked_type` = 'Owned'" )
+    void removeBySubordinate( GUID subordinateGuid );
 
 //    @Delete("DELETE FROM `hydra_registry_node_owner` WHERE `owner_guid`=#{ownerGuid}")
 //    void removeByOwner(GUID ownerGuid);
 
-    @Select("SELECT `parent_guid` FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid} AND linked_type='Owned'")
-    GUID getOwner(GUID subordinateGuid);
+    @Select( "SELECT `parent_guid` FROM `hydra_registry_node_tree` WHERE `guid`=#{subordinateGuid} AND linked_type = 'Owned'" )
+    GUID getOwner( GUID subordinateGuid );
 
-    @Select("SELECT guid FROM hydra_registry_node_tree where parent_guid=#{guid} AND linked_type='Owned'")
-    List<GUID> getSubordinates(GUID guid);
-    @Select("SELECT parent_guid FROM hydra_registry_node_tree WHERE guid=#{guid} AND linked_type='Owned'")
-    GUIDDistributedTrieNode checkOwned(GUID guid);
-    @Update("UPDATE `hydra_registry_node_tree` SET `linked_type` ='Owned' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
-    void setOwned(@Param("sourceGuid") GUID sourceGuid,@Param("targetGuid") GUID targetGuid);
-    @Update("UPDATE `hydra_registry_node_tree` SET `linked_type` ='Reparse' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
-    void setReparse(@Param("sourceGuid") GUID sourceGuid,@Param("targetGuid") GUID targetGuid);
+    @Select( "SELECT guid FROM hydra_registry_node_tree where parent_guid=#{guid} AND linked_type = 'Owned'" )
+    List<GUID > getSubordinates( GUID guid );
+
+
+    @Update("UPDATE `hydra_registry_node_tree` SET `linked_type` = '#{linkedType}' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
+    void setLinkedType( @Param("sourceGuid") GUID sourceGuid, @Param("targetGuid") GUID targetGuid, @Param("linkedType") LinkedType linkedType );
+
     @Select("SELECT `linked_type` FROM `hydra_registry_node_tree` WHERE `guid` = #{childGuid} AND `parent_guid` =#{parentGuid}")
-    String getLinkedType(@Param("childGuid") GUID childGuid,@Param("parentGuid") GUID parentGuid);
+    LinkedType getLinkedType( @Param("childGuid") GUID childGuid,@Param("parentGuid") GUID parentGuid );
 }

@@ -7,7 +7,7 @@ import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 public interface TreeNodeOperator extends Pinenut {
     GUID insert( TreeNode treeNode );
 
-    void remove( GUID guid );
+    void purge( GUID guid );
 
     TreeNode get( GUID guid );
 

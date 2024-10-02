@@ -70,7 +70,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
 
     @Override
     public void remove( GUID guid ) {
-        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildren(guid);
         List<GUID> subordinates = this.tireOwnerManipulator.getSubordinates(guid);
         if ( childNodes.isEmpty() ){
             this.removeDependence( guid );
@@ -81,10 +81,10 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
                     this.remove(subordinateGUID);
                 }
             }
-            childNodes = this.distributedTrieTree.getChildNode(guid);
+            childNodes = this.distributedTrieTree.getChildren(guid);
             this.removeDependence( guid );
             for( GUIDDistributedTrieNode node : childNodes ){
-                List<GUID > parentNode = this.distributedTrieTree.getParentNodes( node.getGuid() );
+                List<GUID > parentNode = this.distributedTrieTree.getParentGuids( node.getGuid() );
                 if ( parentNode.size() <= 1 ){
                     this.remove( node.getGuid() );
                 }
@@ -97,7 +97,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
 
     protected GUIDDistributedTrieNode removeDependence0(GUID guid ) {
         GUIDDistributedTrieNode target = this.distributedTrieTree.getNode( guid );
-        this.distributedTrieTree.remove( guid );
+        this.distributedTrieTree.purge( guid );
         this.distributedTrieTree.removePath( guid );
         this.commonDataManipulator.remove( target.getNodeMetadataGUID() );
         this.serviceFamilyTreeManipulator.removeByChildGUID( guid );

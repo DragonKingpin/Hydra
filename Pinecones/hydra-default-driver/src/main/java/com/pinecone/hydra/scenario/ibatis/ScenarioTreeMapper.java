@@ -21,7 +21,7 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
 
     default GUIDDistributedTrieNode getNode(GUID guid){
         GUIDDistributedTrieNode metaNode = this.getMetaNode(guid);
-        List<GUID> parentNodes = this.getParentNodes(guid);
+        List<GUID> parentNodes = this.getParentGuids(guid);
         if (parentNodes != null){
             metaNode.setParentGUID(parentNodes);
         }else {
@@ -48,7 +48,7 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
     void removeInheritance(@Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid);
 
     @Select("SELECT `parent_guid` FROM `hydra_scenario_node_tree` WHERE `guid`=#{guid}")
-    List<GUID> getParentNodes(GUID guid);
+    List<GUID> getParentGuids(GUID guid);
 
     @Select("SELECT `path` FROM `hydra_scenario_node_path` WHERE `guid`=#{guid}")
     String getPath(GUID guid);
@@ -58,16 +58,11 @@ public interface ScenarioTreeMapper extends TrieTreeManipulator {
     @Select("SELECT `guid` FROM `hydra_scenario_node_path` WHERE `path`=#{path}")
     GUID queryGUIDByPath( String path );
 
-    void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
+    void insertOwnedNode(GUID nodeGUID,GUID parentGUID);
     @Select("SELECT guid FROM hydra_scenario_node_tree WHERE parent_guid=#{guid}")
 
     List<GUIDDistributedTrieNode> getChild(GUID guid);
     @Delete("DELETE FROM `hydra_scenario_node_path` WHERE `guid`=#{guid}")
-
     void removePath(GUID guid);
-
-    void putNode(GUID guid, GUIDDistributedTrieNode distributedTreeNode);
-
-    long size();
 
 }

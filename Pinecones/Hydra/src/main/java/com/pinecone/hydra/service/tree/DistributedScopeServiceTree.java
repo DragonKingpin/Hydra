@@ -83,7 +83,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         operator.remove(guid);
-        this.distributedTrieTree.remove(guid);
+        this.distributedTrieTree.purge( guid );
     }
 
     /**

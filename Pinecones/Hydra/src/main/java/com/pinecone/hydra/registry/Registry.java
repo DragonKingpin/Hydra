@@ -35,7 +35,9 @@ public interface Registry extends KernelObjectInstrument {
 
 
     List<TreeNode > selectByName( String name );
-    void move(String sourcePath,String destinationPath);
+
+    void moveTo( String sourcePath, String destinationPath );
+
     List<RegistryTreeNode> listRoot();
 
 

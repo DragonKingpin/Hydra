@@ -1,10 +1,13 @@
 package com.sparta;
 
+import java.io.File;
 import java.io.StringReader;
+import java.nio.file.Files;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.io.FileUtils;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.registry.DistributedRegistry;
 import com.pinecone.hydra.registry.GenericDistributeRegistry;
@@ -62,35 +65,50 @@ class LadyGaga extends Radium {
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
 //        registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
-//        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
+        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
 //        registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
 //        registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
 //        registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
 //        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
 //        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
+
+//        registry.putProperties( "game3a/witcher/people/s4/urge", new JSONMaptron( "{ name:darkurge, age:996, species:dragon, job:warrior }" ) );
+//
 //        registry.putTextValue( "game/witcher/jesus", "json", "{k:p}" );
 //          Debug.trace(registry.listRoot());
-        //registry.setAffinity(new GUID72("1f7c33d6-000309-0000-f8"),new GUID72("1f7c33d6-0003c1-0000-b0"));
+//        registry.setAffinity(new GUID72("1f7c33d6-000309-0000-f8"),new GUID72("1f7c33d6-0003c1-0000-b0"));
+
+//        registry.setInheritance();
+
+
+        //registry.moveTo( "game/terraria/mob1", "game/minecraft/" );
+
+//        //Debug.fmp( 2, registry.getProperties( "game/terraria/mob1" ).toJSONObject() );
+//        Debug.fmp( 2, registry.getProperties( "game/minecraft/mob1" ).toJSONObject() );
+
+
+
+
 
 //
 //        registry.putProperties( "movie/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
 //        Debug.trace(registry.listRoot());
 
-       // RegistryXPathSelector selector = new RegistryXPathSelector( new StringReader( "game/minecraft/wizard1" ), null );
+        // RegistryXPathSelector selector = new RegistryXPathSelector( new StringReader( "game/minecraft/wizard1" ), null );
         //selector.eval();
 
         //registry.remove( "game" );
-        //registry.remove( "game.witcher" );
-        //registry.remove( "game.minecraft" );
-        //registry.remove("game.terraria");
-        //registry.remove("game.witcher");
+//        registry.remove( "game/witcher" );
+//        registry.remove( "game/minecraft" );
+//        registry.remove("game/terraria");
+//        registry.remove("game/witcher");
         //Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
-
+        //Debug.fmp( 2, registry.get( registry.queryGUIDByFN( "game3a" ) ) );
 
         //registry.remove( "game" );
 
 
-       // registry.affirmPropertyConfig( "泰拉瑞亚.灾厄.至尊灾厄" );
+        // registry.affirmPropertyConfig( "泰拉瑞亚.灾厄.至尊灾厄" );
 
         // registry.remove( "泰拉瑞亚.灾厄.至尊灾厄" );
 

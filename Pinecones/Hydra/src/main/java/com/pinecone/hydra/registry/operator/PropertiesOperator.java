@@ -8,10 +8,10 @@ import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 
 import java.util.List;
 
-public class PropertyConfNodeOperator extends ArchConfigNodeOperator {
+public class PropertiesOperator extends ArchConfigNodeOperator {
     protected RegistryPropertiesManipulator registryPropertiesManipulator;
 
-    public PropertyConfNodeOperator(ConfigOperatorFactory factory) {
+    public PropertiesOperator( ConfigOperatorFactory factory ) {
         super(factory);
         this.registryPropertiesManipulator=factory.getMasterManipulator().getRegistryPropertiesManipulator();
     }
@@ -40,8 +40,8 @@ public class PropertyConfNodeOperator extends ArchConfigNodeOperator {
     }
 
     @Override
-    public void remove( GUID guid ) {
-        super.remove(guid);
+    public void purge( GUID guid ) {
+        super.purge(guid);
         this.registryPropertiesManipulator.removeAll(guid);
     }
 

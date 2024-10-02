@@ -101,10 +101,10 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void purge( GUID guid ) {
         //ConfigNode为叶子节点只需要删除节点信息与引用继承关系
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        this.distributedTrieTree.remove(guid);
+        this.distributedTrieTree.purge( guid );
         this.registryNodeManipulator.remove(guid);
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
         this.configNodeMetaManipulator.remove(node.getNodeMetadataGUID());

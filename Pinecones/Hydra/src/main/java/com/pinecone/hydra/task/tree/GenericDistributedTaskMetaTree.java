@@ -138,13 +138,13 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
 
     @Override
     public void remove(GUID guid) {
-        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildren(guid);
         if (childNodes == null || childNodes.isEmpty()){
             this.removeNode(guid);
         }
         else {
             for(GUIDDistributedTrieNode childNode : childNodes){
-                List<GUID> parentNodes = this.distributedTrieTree.getParentNodes(childNode.getGuid());
+                List<GUID> parentNodes = this.distributedTrieTree.getParentGuids(childNode.getGuid());
                 if (parentNodes.size() > 1){
                     this.distributedTrieTree.removeInheritance(childNode.getGuid(),guid);
                 }else {
@@ -171,7 +171,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
 
     private void removeNode(GUID guid){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        this.distributedTrieTree.remove(guid);
+        this.distributedTrieTree.purge(guid);
         this.distributedTrieTree.removePath(guid);
         this.taskNodeManipulator.remove(guid);
         this.taskNodeMetaManipulator.remove(node.getNodeMetadataGUID());

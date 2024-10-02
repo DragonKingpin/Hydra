@@ -8,41 +8,43 @@ import java.util.List;
 
 public interface DistributedTrieTree extends PineUnit {
 
-    void insert(DistributedTreeNode distributedConfTreeNode);
+    void insert( DistributedTreeNode distributedConfTreeNode );
 
     String getPath( GUID guid );
 
-    void insertNodeToParent( GUID nodeGUID, GUID parentGUID );
+    void insertOwnedNode( GUID nodeGUID, GUID parentGUID );
 
     GUIDDistributedTrieNode getNode(GUID guid );
 
-    void remove( GUID guid );
+    void purge( GUID guid );
 
     void put( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
-
-    boolean isEmpty();
-
-    long size();
 
     boolean containsKey( GUID key );
 
     GUID queryGUIDByPath( String path );
 
-    List<GUIDDistributedTrieNode> getChildNode(GUID guid);
+    List<GUIDDistributedTrieNode> getChildren( GUID guid );
 
-    List<GUID> getParentNodes(GUID guid);
+    List<GUID> getParentGuids( GUID guid );
 
-    void removeInheritance(GUID childGuid,GUID parentGuid);
+    void removeInheritance( GUID childGuid,GUID parentGuid );
 
     void removePath(GUID guid);
 
     GUID getOwner(GUID guid);
+
     void setOwner(GUID sourceGuid,GUID targetGuid);
 
     List<GUID> getSubordinates(GUID guid);
 
     void insertPath(GUID guid,String path);
-    List<GUID> listRoot();
-    void setReparse(GUID sourceGuid,GUID targetGuid);
-    void move(GUID sourceGuid,GUID destinationGuid);
+
+
+
+    List<GUID > listRoot();
+
+    void setReparse( GUID sourceGuid, GUID targetGuid );
+
+    void moveTo( GUID sourceGuid, GUID destinationGuid );
 }

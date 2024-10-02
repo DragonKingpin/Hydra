@@ -12,7 +12,7 @@ public class NamespaceOperator implements TreeNodeOperator {
     }
 
     @Override
-    public void remove( GUID guid ) {
+    public void purge( GUID guid ) {
 
     }
 

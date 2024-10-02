@@ -35,7 +35,7 @@ public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     default GUIDDistributedTrieNode getNode(@Param("guid") GUID guid) {
         GUIDDistributedTrieNode nodeMeta = this.getNodeMeta( guid );
         if( nodeMeta != null ) {
-            List<GUID > parentNode = this.getParentNodes( guid );
+            List<GUID > parentNode = this.getParentGuids( guid );
             if ( parentNode != null ){
                 nodeMeta.setParentGUID( parentNode );
             }
@@ -44,21 +44,31 @@ public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     }
 
     @Select("SELECT parent_guid FROM hydra_service_node_tree WHERE guid = #{guid}" )
-    List<GUID> getParentNodes(@Param("guid") GUID guid);
+    List<GUID> getParentGuids(@Param("guid") GUID guid);
 
     @Select("SELECT `guid`, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, `type` FROM `hydra_service_meta_map` WHERE `guid`=#{guid}")
     GUIDDistributedTrieNode getNodeMeta(@Param("guid") GUID guid);
 
-    default void remove(@Param("guid") GUID guid){
-        removeNodeMeta(guid);
-        removeTreeNode(guid);
+
+
+
+    @Override
+    default void purge( @Param("guid") GUID guid ){
+        this.removeNodeMeta( guid );
+        this.removeTreeNode( guid );
     }
 
     @Delete("DELETE FROM `hydra_service_meta_map` WHERE `guid` = #{guid}")
-    void removeNodeMeta(@Param("guid") GUID guid);
+    void removeNodeMeta( @Param("guid") GUID guid );
 
     @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid` = #{guid}")
-    void removeTreeNode(@Param("guid") GUID guid);
+    void removeTreeNode( @Param("guid") GUID guid );
+
+
+
+
+
+
 
     @Update("UPDATE `hydra_service_node_path` SET `path`=#{Path} WHERE `guid` = #{guid}")
     void updatePath(@Param("guid") GUID guid, @Param("Path") String path);
@@ -74,7 +84,7 @@ public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     GUID queryGUIDByPath(@Param("path") String path);
 
     @Insert("INSERT INTO hydra_service_node_tree SET guid=#{nodeGUID}, parent_guid=#{parentGUID}")
-    void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
+    void insertOwnedNode(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 
 
     @Select("SELECT hsnt.`guid` , `parent_guid` AS parentGUID, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, type FROM `hydra_service_node_tree` hsnt,hydra_service_meta_map hsmm WHERE `parent_guid`=#{guid} AND hsmm.guid=hsnt.guid")

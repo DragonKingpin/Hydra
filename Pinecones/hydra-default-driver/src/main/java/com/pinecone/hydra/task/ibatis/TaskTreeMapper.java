@@ -19,7 +19,7 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
 
     default GUIDDistributedTrieNode getNode(GUID guid){
         GUIDDistributedTrieNode nodeMeta = this.getNodeMeta(guid);
-        List<GUID> parentNodes = this.getParentNodes(guid);
+        List<GUID> parentNodes = this.getParentGuids(guid);
         nodeMeta.setParentGUID(parentNodes);
         return nodeMeta;
     }
@@ -48,7 +48,7 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
     GUID queryGUIDByPath(String path);
 
     @Insert("INSERT INTO `hydra_task_node_tree` (`guid`, `parent_guid`) VALUES (#{nodeGuid},#{parentGuid})")
-    void insertNodeToParent(@Param("nodeGuid") GUID nodeGUID, @Param("parentGuid") GUID parentGUID);
+    void insertOwnedNode(@Param("nodeGuid") GUID nodeGUID, @Param("parentGuid") GUID parentGUID);
 
     @Select("SELECT `guid` FROM `hydra_task_node_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDDistributedTrieNode> getChild(GUID guid);
@@ -61,7 +61,7 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
     long size();
 
     @Select("SELECT `parent_guid` FROM `hydra_task_node_tree` WHERE `guid`=#{guid}")
-    List<GUID> getParentNodes(GUID guid);
+    List<GUID> getParentGuids(GUID guid);
 
     @Delete("DELETE FROM `hydra_task_node_tree` where `guid`=#{childNode} AND `parent_guid`=#{parentGuid}")
     void removeInheritance(@Param("childNode") GUID childNode, @Param("parentGuid") GUID parentGUID);

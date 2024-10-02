@@ -39,8 +39,8 @@ public class TextValueNodeOperator extends ArchConfigNodeOperator {
     }
 
     @Override
-    public void remove( GUID guid ) {
-        super.remove(guid);
+    public void purge( GUID guid ) {
+        super.purge(guid);
         this.registryTextValueManipulator.remove(guid);
     }
 

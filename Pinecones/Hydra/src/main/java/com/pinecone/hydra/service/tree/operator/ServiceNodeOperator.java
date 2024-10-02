@@ -7,6 +7,7 @@ import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
 import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
@@ -16,28 +17,32 @@ import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
 public class ServiceNodeOperator implements MetaNodeOperator {
-    private ServiceNodeManipulator  serviceNodeManipulator;
-    private ServiceMetaManipulator  serviceMetaManipulator;
-    private CommonDataManipulator commonDataManipulator;
-    private TrieTreeManipulator trieTreeManipulator;
+    protected ServiceNodeManipulator  serviceNodeManipulator;
+    protected ServiceMetaManipulator  serviceMetaManipulator;
+    protected CommonDataManipulator   commonDataManipulator;
+    protected TrieTreeManipulator     trieTreeManipulator;
+    protected TireOwnerManipulator    tireOwnerManipulator;
 
     public ServiceNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getServiceNodeManipulator(),
                 manipulators.getServiceMetaManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getTrieTreeManipulator()
+                manipulators.getTrieTreeManipulator(),
+                manipulators.getTireOwnerManipulator()
         );
     }
 
     public ServiceNodeOperator(
             ServiceNodeManipulator serviceNodeManipulator, ServiceMetaManipulator serviceMetaManipulator,
-            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator
+            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator,
+            TireOwnerManipulator ownerManipulator
     ){
         this.serviceNodeManipulator  = serviceNodeManipulator;
         this.serviceMetaManipulator  = serviceMetaManipulator;
         this.commonDataManipulator   = commonDataManipulator;
-        this.trieTreeManipulator = trieTreeManipulator;
+        this.trieTreeManipulator     = trieTreeManipulator;
+        this.tireOwnerManipulator    = ownerManipulator;
     }
 
 
@@ -70,7 +75,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         node.setGuid(serviceNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node);
         return serviceNodeGUID;
     }
 

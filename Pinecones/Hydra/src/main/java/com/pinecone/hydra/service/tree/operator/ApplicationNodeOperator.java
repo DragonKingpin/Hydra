@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
@@ -17,28 +18,31 @@ import com.pinecone.ulf.util.id.UUIDBuilder;
 import com.pinecone.ulf.util.id.UidGenerator;
 
 public class ApplicationNodeOperator implements MetaNodeOperator {
-    private ApplicationNodeManipulator        applicationNodeManipulator;
-    private ApplicationMetaManipulator        applicationMetaManipulator;
-    private CommonDataManipulator             commonDataManipulator;
-    private TrieTreeManipulator               trieTreeManipulator;
+    protected ApplicationNodeManipulator        applicationNodeManipulator;
+    protected ApplicationMetaManipulator        applicationMetaManipulator;
+    protected CommonDataManipulator             commonDataManipulator;
+    protected TrieTreeManipulator               trieTreeManipulator;
+    protected TireOwnerManipulator              tireOwnerManipulator;
 
     public ApplicationNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getApplicationNodeManipulator(),
                 manipulators.getApplicationMetaManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getTrieTreeManipulator()
+                manipulators.getTrieTreeManipulator(),
+                manipulators.getTireOwnerManipulator()
         );
     }
 
     public ApplicationNodeOperator(
             ApplicationNodeManipulator applicationNodeManipulator, ApplicationMetaManipulator applicationMetaManipulator,
-            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator
+            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator, TireOwnerManipulator ownerManipulator
     ){
         this.applicationNodeManipulator = applicationNodeManipulator;
         this.applicationMetaManipulator = applicationMetaManipulator;
         this.commonDataManipulator      = commonDataManipulator;
-        this.trieTreeManipulator = trieTreeManipulator;
+        this.trieTreeManipulator        = trieTreeManipulator;
+        this.tireOwnerManipulator       = ownerManipulator;
     }
 
 
@@ -71,7 +75,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         node.setGuid(applicationNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node );
         return applicationNodeGUID;
     }
 

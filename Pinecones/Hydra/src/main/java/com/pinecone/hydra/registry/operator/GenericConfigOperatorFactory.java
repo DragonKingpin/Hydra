@@ -41,7 +41,7 @@ public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
         );
 
         this.registerer.put(ConfigOperatorFactory.DefaultPropertyConfigNodeKey,
-                new PropertyConfNodeOperator(this)
+                new PropertiesOperator(this)
         );
 
         this.registerer.put(ConfigOperatorFactory.DefaultTextConfigNode,

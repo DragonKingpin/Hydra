@@ -3,11 +3,11 @@ package com.pinecone.hydra.task.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
-import com.pinecone.hydra.task.ibatis.TaskNodePathMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodePathCacheMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +16,8 @@ import java.util.Map;
 @Component
 public class TaskMasterTreeManipulatorImpl implements TreeMasterManipulator {
     @Resource
-    @Structure( type = TaskNodePathMapper.class )
-    TriePathManipulator  triePathManipulator;
+    @Structure( type = TaskNodePathCacheMapper.class )
+    TriePathCacheManipulator triePathCacheManipulator;
 
     @Resource
     @Structure( type = TaskNodeOwnerMapper.class )
@@ -45,7 +45,7 @@ public class TaskMasterTreeManipulatorImpl implements TreeMasterManipulator {
     }
 
     @Override
-    public TriePathManipulator getTriePathManipulator() {
-        return this.triePathManipulator;
+    public TriePathCacheManipulator getTriePathCacheManipulator() {
+        return this.triePathCacheManipulator;
     }
 }

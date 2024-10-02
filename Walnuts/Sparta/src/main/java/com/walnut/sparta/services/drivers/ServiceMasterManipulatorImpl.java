@@ -25,7 +25,7 @@ import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
-import com.pinecone.hydra.service.ibatis.ServicePathMapper;
+import com.pinecone.hydra.service.ibatis.ServicePathCacheMapper;
 import org.springframework.stereotype.Component;
 
 
@@ -71,8 +71,8 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     private ServiceNodeOwnerMapper          scopeOwnerManipulator;
 
     @Resource
-    @Structure(type = ServicePathMapper.class)
-    private ServicePathMapper               scopePathManipulator;
+    @Structure(type = ServicePathCacheMapper.class)
+    private ServicePathCacheMapper scopePathManipulator;
 
     @Resource( type = ServiceMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator    skeletonMasterManipulator;

@@ -4,38 +4,63 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.LinkedType;
 
 import java.util.List;
 
 public interface TrieTreeManipulator extends Pinenut {
-    void insert(GUIDDistributedTrieNode node);
+    void insert( TireOwnerManipulator ownerManipulator, GUIDDistributedTrieNode node );
 
-    GUIDDistributedTrieNode getNode(GUID guid);
+    /** With detail meta data node information. */
+    GUIDDistributedTrieNode getNode( GUID guid );
 
-    void remove(GUID guid);
+    /** Only with tree node index information. */
+    GUIDDistributedTrieNode getTreeNodeOnly( GUID guid, GUID parentGuid );
 
-    String getPath(GUID guid);
+    long countNode( GUID guid, GUID parentGuid );
 
-    void updatePath( GUID guid, String path);
 
-    GUID queryGUIDByPath( String path );
 
-    void insertNodeToParent(GUID nodeGUID,GUID parentGUID);
 
-    List<GUIDDistributedTrieNode> getChild(GUID guid);
+    /** Purge */
+    void purge         ( GUID guid );
 
-    void removePath(GUID guid);
+    void removeTreeNode( GUID guid );
 
-    void putNode(GUID guid, GUIDDistributedTrieNode distributedTreeNode);
+    void removeTreeNodeByParentGuid( GUID parentGuid );
 
-    long size();
+    void removeTreeNodeYoke( GUID guid, GUID parentGuid );
 
-    List<GUID> getParentNodes(GUID guid);
+    void removeTreeNodeWithLinkedType( GUID guid, LinkedType linkedType );
 
-    void removeInheritance(GUID childNode, GUID parentGUID);
+    void removeNodeMeta( GUID guid );
 
-    void updateType(UOI type,GUID guid);
-    GUIDDistributedTrieNode isExist( GUID guid, GUID parentGuid);
-    List<GUID> listRoot();
-    void reparse(GUID sourceGuid, GUID targetGuid);
+    default void removeOwnedTreeNode ( GUID guid ) {
+        this.removeTreeNodeWithLinkedType( guid, LinkedType.Owned );
+    }
+
+    default void removeHardLinkedTreeNode ( GUID guid ) {
+        this.removeTreeNodeWithLinkedType( guid, LinkedType.Hard );
+    }
+
+
+
+
+    List<GUIDDistributedTrieNode > getChildren( GUID guid );
+
+    List<GUID > getParentGuids( GUID guid );
+
+    void removeInheritance( GUID childNode, GUID parentGUID );
+
+    void updateType       ( UOI type, GUID guid );
+
+    List<GUID > listRoot();
+
+
+
+    // TODO
+    void insertNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
+
+    // TODO
+    void updateNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
 }

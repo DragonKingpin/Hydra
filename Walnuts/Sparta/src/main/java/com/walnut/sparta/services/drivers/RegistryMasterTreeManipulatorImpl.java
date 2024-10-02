@@ -1,11 +1,11 @@
 package com.walnut.sparta.services.drivers;
 
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.hydra.registry.ibatis.RegistryNodeOwnerMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryNodePathMapper;
+import com.pinecone.hydra.registry.ibatis.RegistryNodePathCacheMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryTreeMapper;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator {
 
     @Resource
-    RegistryNodePathMapper configNodePathMapper;
+    RegistryNodePathCacheMapper configNodePathMapper;
 
     @Resource
     RegistryNodeOwnerMapper configNodeOwnerManipulator;
@@ -34,7 +34,7 @@ public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator 
     }
 
     @Override
-    public TriePathManipulator getTriePathManipulator() {
+    public TriePathCacheManipulator getTriePathCacheManipulator() {
         return this.configNodePathMapper;
     }
 }

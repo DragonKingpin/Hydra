@@ -138,13 +138,13 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public void remove(GUID guid) {
-        List<GUIDDistributedTrieNode> childNodes = this.distributedScenarioTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedScenarioTree.getChildren(guid);
         if (childNodes == null || childNodes.isEmpty()){
             this.removeNode(guid);
         }
         else {
             for(GUIDDistributedTrieNode childNode : childNodes){
-                List<GUID> parentNodes = this.distributedScenarioTree.getParentNodes(childNode.getGuid());
+                List<GUID> parentNodes = this.distributedScenarioTree.getParentGuids(childNode.getGuid());
                 if (parentNodes.size() > 1){
                     this.distributedScenarioTree.removeInheritance(childNode.getGuid(),guid);
                 }else {
@@ -171,7 +171,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     private void removeNode(GUID guid){
         GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
-        this.distributedScenarioTree.remove(guid);
+        this.distributedScenarioTree.purge( guid );
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.scenarioCommonDataManipulator.remove(node.getBaseDataGUID());

@@ -11,7 +11,7 @@ public class ContainerOperator implements TreeNodeOperator {
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void purge(GUID guid) {
 
     }
 

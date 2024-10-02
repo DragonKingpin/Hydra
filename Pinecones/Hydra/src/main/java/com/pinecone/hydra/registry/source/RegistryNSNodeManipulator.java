@@ -17,5 +17,5 @@ public interface RegistryNSNodeManipulator extends GUIDNameManipulator {
 
     List<GUID> getGuidsByName(String name);
 
-    List<GUID> getAll();
+    List<GUID> dumpGuid();
 }

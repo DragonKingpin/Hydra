@@ -48,7 +48,7 @@ public class ServiceTreeController {
     public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
-        this.distributedTrieTree.insertOwnedNode(nodeGUID72,parentGUID72);
+        this.distributedTrieTree.affirmOwnedNode(nodeGUID72,parentGUID72);
         return BasicResultResponse.success();
     }
 }

@@ -17,10 +17,10 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     public GenericTextConfigNode(
-            int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime, LocalDateTime updateTime,
+            int enumId, GUID guid, GUID nsGuid, GUID dataAffinityGuid, LocalDateTime createTime, LocalDateTime updateTime,
             String name, TextValue textValue, GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData, DistributedRegistry registry
     ) {
-        super( registry, enumId, guid, nsGuid, parentGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
+        super( registry, enumId, guid, dataAffinityGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
         this.mTextValue = textValue;
     }
 

@@ -21,26 +21,25 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryNodeMapper extends RegistryNodeManipulator {
-    @Insert("INSERT INTO `hydra_registry_config_node` (`guid`, `parent_guid`, `create_time`, `update_time`,`name`) VALUES (#{guid},#{parentGuid},#{createTime},#{updateTime},#{name})")
-    void insert(ConfigNode configNode);
+    @Insert("INSERT INTO `hydra_registry_config_node` (`guid`, `data_affinity_guid`, `create_time`, `update_time`,`name`) VALUES (#{guid},#{dataAffinityGuid},#{createTime},#{updateTime},#{name})")
+    void insert( ConfigNode configNode );
 
     @Delete("DELETE FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
-    void remove(@Param("guid") GUID guid);
+    void remove( @Param("guid") GUID guid );
 
-//    @Select("SELECT `id`, `guid` , `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` AS updateTime, name FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
-//    ArchConfigNode getConfigurationNode( GUID guid );
     @Select("SELECT `type` FROM `hydra_registry_nodes` WHERE `guid`=#{guid}")
     UOI getUOIByGUID( GUID guid );
 
-    @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
-    GenericProperties getPropertiesNode(GUID guid);
+    @Select("SELECT `id`, `guid`, `data_affinity_guid` AS dataAffinityGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
+    GenericProperties getPropertiesNode( GUID guid );
 
-    @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
-    GenericTextConfigNode getTextConfigNode(GUID guid);
+    @Select("SELECT `id`, `guid`, `data_affinity_guid` AS dataAffinityGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
+    GenericTextConfigNode getTextConfigNode( GUID guid );
 
-    default ConfigNode getConfigurationNode ( GUID guid ) {
+    @Override
+    default ConfigNode getConfigNode ( GUID guid ) {
         String objectName = this.getUOIByGUID(guid).getObjectName();
-        if ( objectName.equals(GenericTextConfigNode.class.getName()) ){
+        if ( objectName.equals( GenericTextConfigNode.class.getName()) ){
             return this.getTextConfigNode(guid);
         }
         else if ( objectName.equals(GenericProperties.class.getName()) ){
@@ -49,8 +48,8 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
         return null;
     }
 
-
-    default void update( ConfigNode configNode){
+    @Override
+    default void update( ConfigNode configNode ) {
         if (configNode.getUpdateTime() != null){
             this.updateUpdateTime(configNode.getUpdateTime(),configNode.getGuid());
         }
@@ -59,19 +58,21 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
         }
     }
 
-    @Select("SELECT `guid` FROM `hydra_registry_config_node` WHERE `name`=#{name}")
+    @Select( "SELECT `guid` FROM `hydra_registry_config_node` WHERE `name`=#{name}" )
     List<GUID> getGuidsByName(String name);
 
-    @Update("UPDATE `hydra_registry_config_node` SET `update_time` = #{updateTime} WHERE `guid` = #{guid}")
+    @Update( "UPDATE `hydra_registry_config_node` SET `update_time` = #{updateTime} WHERE `guid` = #{guid}" )
     void updateUpdateTime(@Param("updateTime") LocalDateTime updateTime,@Param("guid") GUID guid);
 
-    @Select("SELECT `guid` FROM `hydra_registry_config_node`")
-    List<GUID> getALL();
+    @Select( "SELECT `guid` FROM `hydra_registry_config_node`" )
+    List<GUID > dumpGuid();
 
-    @Update("UPDATE `hydra_registry_config_node` SET `name` = #{name} WHERE `guid` = #{guid}")
+    @Update( "UPDATE `hydra_registry_config_node` SET `name` = #{name} WHERE `guid` = #{guid}" )
     void updateName(@Param("guid") GUID guid ,@Param("name") String name);
-    @Select("SELECT `parent_guid` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
-    GUID getParentGuid(GUID guid);
-    @Update("UPDATE `hydra_registry_config_node` SET `parent_guid` = #{parentGuid} WHERE `guid` = #{childGuid}")
-    void setParentGuid(GUID childGuid,GUID parentGuid);
+
+    @Select( "SELECT `data_affinity_guid` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}" )
+    GUID getDataAffinityGuid ( GUID guid );
+
+    @Update( "UPDATE `hydra_registry_config_node` SET `data_affinity_guid` = #{affinityGuid} WHERE `guid` = #{guid}" )
+    void setDataAffinityGuid( @Param("guid") GUID guid, @Param("affinityGuid") GUID affinityGuid );
 }

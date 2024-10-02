@@ -18,14 +18,9 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setGuid(GUID guid);
 
-    GUID getNsGuid();
+    GUID getDataAffinityGuid();
 
-    void setNsGuid(GUID guid);
-
-
-    GUID getParentGuid();
-
-    void setParentGuid(GUID guid);
+    void setDataAffinityGuid( GUID guid );
 
     LocalDateTime getCreateTime();
 
@@ -39,13 +34,7 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setName(String name);
 
-//    List<GenericProperty > getProperties();
-//
-//    void setProperties(List<GenericProperty> properties);
 
-//    TextValue getTextValue();
-//
-//    void setTextValue(TextValue textValue);
 
     ConfigNodeMeta getConfigNodeMeta();
 
@@ -54,6 +43,7 @@ public interface ConfigNode extends RegistryTreeNode {
     NodeAttribute getNodeCommonData();
 
     void setNodeCommonData( GenericNodeAttribute nodeCommonData );
+
 
 
     DistributedRegistry getRegistry();

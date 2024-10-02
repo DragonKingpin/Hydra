@@ -64,13 +64,13 @@ class LadyGaga extends Radium {
 
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
-        registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
-        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
-        registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
-        registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
-        registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
-        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
-        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
+//        registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
+//        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
+//        registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+//        registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
+//        registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
+//        registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
+//        registry.putProperties( "game/witcher/people/xx2", new JSONMaptron( "{ name:xxx2, age:992, species:elf, job:warrior }" ) );
 
 //        registry.putProperties( "game3a/witcher/people/s4/urge", new JSONMaptron( "{ name:darkurge, age:996, species:dragon, job:warrior }" ) );
 //
@@ -81,9 +81,12 @@ class LadyGaga extends Radium {
 //        registry.setInheritance();
 
 
-        //registry.moveTo( "game/terraria/mob1", "game/minecraft/" );
+//        registry.newHardLink( "game3a/mix/wizard1", "game/witcher" );
 
-//        //Debug.fmp( 2, registry.getProperties( "game/terraria/mob1" ).toJSONObject() );
+
+//        registry.moveTo( "game/terraria/mob1", "game/minecraft/" );
+
+//        Debug.fmp( 2, registry.getProperties( "game/terraria/mob1" ).toJSONObject() );
 //        Debug.fmp( 2, registry.getProperties( "game/minecraft/mob1" ).toJSONObject() );
 
 

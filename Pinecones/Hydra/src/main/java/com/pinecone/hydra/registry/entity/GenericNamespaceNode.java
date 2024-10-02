@@ -214,7 +214,7 @@ public class GenericNamespaceNode implements NamespaceNode {
             throw new RuntimeException("key is exist!!!");
         }
         this.children.put(key,val);
-        this.registry.insertRegistryTreeNode(this.guid,val.getGuid());
+        this.registry.affirmOwnedNode( this.guid, val.getGuid() );
     }
 
     @Override

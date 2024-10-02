@@ -24,13 +24,13 @@ public interface RegistryNodeOwnerMapper extends TireOwnerManipulator {
 
 
 
-    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `parent_guid` = #{parentGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
     void update( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
 
-    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
     void updateParentGuid( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
 
-    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{ownerGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
+    @Update( "UPDATE `hydra_registry_node_tree` SET `guid` = #{targetGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
     void updateLinkedType( @Param("targetGuid") GUID targetGuid, @Param("linkedType") LinkedType linkedType );
 
 

@@ -117,9 +117,9 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         ConfigNode configNode = this.cacheMap.get(guid);
         if ( configNode == null ) {
             configNode = this.getConfigNodeWideData(guid);
-            GUID parentGuid = configNode.getParentGuid();
-            if ( parentGuid != null ){
-                this.inherit( configNode,(ConfigNode) this.get( parentGuid ) );
+            GUID affinityGuid = configNode.getDataAffinityGuid();
+            if ( affinityGuid != null ){
+                this.inherit( configNode,(ConfigNode) this.get( affinityGuid ) );
             }
             this.cacheMap.put(guid, configNode);
         }
@@ -153,7 +153,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
 
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ConfigNode cn = this.registryNodeManipulator.getConfigurationNode( guid );
+        ConfigNode cn = this.registryNodeManipulator.getConfigNode( guid );
         if( cn instanceof ArchConfigNode ) {
             ((ArchConfigNode) cn).apply( this.registry );
         }

@@ -39,8 +39,6 @@ import com.pinecone.ulf.util.id.GUIDs;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -126,7 +124,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
                 assemblePath = nodeName + szSeparator + assemblePath;
                 owner = this.distributedConfTree.getOwner( node.getGuid() );
             }
-            this.distributedConfTree.insertPath(guid,assemblePath);
+            this.distributedConfTree.insertPath( guid, assemblePath );
             return assemblePath;
         }
     }
@@ -218,14 +216,51 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         return this.getTextValue( this.queryGUIDByPath( path ) );
     }
 
+    protected List<String > resolvePath( String[] parts ) {
+        ArrayList<String> resolvedParts = new ArrayList<>();
+        for (String part : parts) {
+            if ( part.equals(".") || part.isEmpty() ) {
+                continue;
+            }
 
+            if ( part.equals("..") ) {
+                if ( !resolvedParts.isEmpty() ) {
+                    resolvedParts.remove( resolvedParts.size() - 1 );
+                }
+            }
+            else {
+                resolvedParts.add( part );
+            }
+        }
+        return resolvedParts;
+    }
 
-    protected GUID searchGUID( String path, GUIDNameManipulator[] manipulators, String[] parts )  {
-        for( GUIDNameManipulator manipulator : manipulators ) {
-            List<GUID > nodeByNames = manipulator.getGuidsByName( parts[parts.length - 1] );
-            for ( GUID nodeGuid : nodeByNames ){
+    protected String assemblePath( List<String > parts ) {
+        if ( parts == null || parts.size() == 0 ) {
+            return "";
+        }
+
+        StringBuilder path = new StringBuilder();
+
+        for ( int i = 0; i < parts.size(); ++i ) {
+            if ( i > 0 ) {
+                path.append( this.registryConfig.getPathNameSeparator() );
+            }
+            path.append( parts.get( i ) );
+        }
+        return path.toString();
+    }
+
+    protected GUID searchGUID( GUIDNameManipulator[] manipulators, String[] parts ) {
+        List<String > resolvedParts = this.resolvePath( parts );
+        String szResolvedPath       = this.assemblePath( resolvedParts );
+
+        for ( GUIDNameManipulator manipulator : manipulators ) {
+            List<GUID> nodeByNames = manipulator.getGuidsByName( resolvedParts.get(resolvedParts.size() - 1) );
+            for ( GUID nodeGuid : nodeByNames ) {
                 String nodePath = this.getPath( nodeGuid );
-                if ( nodePath.equals( path ) ){
+
+                if ( nodePath.equals( szResolvedPath ) ) {
                     return nodeGuid;
                 }
             }
@@ -233,8 +268,6 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
         return null;
     }
-
-
 
     /** Final Solution 20240929: 无法获取类型 */
     public GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep ) {
@@ -250,7 +283,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         String[] parts = this.processPath( path ).split( this.registryConfig.getPathNameSepRegex() );
 
         return this.searchGUID(
-                path, new GUIDNameManipulator[] { this.nodeManipulator, this.namespaceNodeManipulator }, parts
+                new GUIDNameManipulator[] { this.nodeManipulator, this.namespaceNodeManipulator }, parts
         );
     }
 
@@ -323,15 +356,24 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.registryTextValueManipulator.remove(guid);
     }
 
+
+
     @Override
-    public void setAffinity( GUID sourceGuid, GUID targetGuid ) {
-        this.distributedConfTree.setOwner(sourceGuid,targetGuid);
+    public void affirmOwnedNode( GUID parentGuid, GUID childGuid ) {
+        this.distributedConfTree.affirmOwnedNode( childGuid, parentGuid );
     }
 
     @Override
-    public void setInheritance(GUID childGuid, GUID parentGuid) {
-        this.nodeManipulator.setParentGuid(childGuid,parentGuid);
+    public void newHardLink( GUID sourceGuid, GUID targetGuid ) {
+        this.distributedConfTree.newHardLink( sourceGuid, targetGuid );
     }
+
+    @Override
+    public void setDataAffinityGuid( GUID childGuid, GUID parentGuid ) {
+        this.nodeManipulator.setDataAffinityGuid( childGuid, parentGuid );
+    }
+
+
 
     @Override
     public List<TreeNode > getChildren( GUID guid ) {
@@ -356,12 +398,19 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
-    public void moveTo( String sourcePath, String destinationPath ) {
+    public void moveTo( String sourcePath, String destinationPath ) throws IllegalArgumentException {
         GUID sourceGuid      = this.queryGUIDByPath( sourcePath );
         GUID destinationGuid = this.queryGUIDByPath( destinationPath );
-        if( sourceGuid != null ) {
-            this.distributedConfTree.moveTo( sourceGuid, destinationGuid );
+        if( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Undefined source '" + sourcePath + "'" );
         }
+        else if( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Undefined destination '" + destinationPath + "'" );
+        }
+        else if( sourceGuid == destinationGuid ) {
+            throw new IllegalArgumentException( "Cyclic path detected '" + sourcePath + "'" );
+        }
+        this.distributedConfTree.moveTo( sourceGuid, destinationGuid );
     }
 
     @Override
@@ -385,8 +434,8 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public List<TreeNode > getAllTreeNode() {
-        List<GUID> nameSpaceNodes = this.namespaceNodeManipulator.getAll();
-        List<GUID> confNodes      = this.nodeManipulator.getALL();
+        List<GUID> nameSpaceNodes = this.namespaceNodeManipulator.dumpGuid();
+        List<GUID> confNodes      = this.nodeManipulator.dumpGuid();
         ArrayList<TreeNode> treeNodes = new ArrayList<>();
         for (GUID guid : nameSpaceNodes){
             TreeNode treeNode = this.get(guid);
@@ -399,10 +448,6 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         return treeNodes;
     }
 
-    @Override
-    public void insertRegistryTreeNode( GUID parentGuid, GUID childGuid ) {
-        this.distributedConfTree.insertOwnedNode( childGuid, parentGuid );
-    }
 
 
     // TODO, Unchecked type affirmed.
@@ -425,7 +470,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
                     ConfigNode configNode = (ConfigNode) this.dynamicFactory.optNewInstance( cnSup, new Object[]{ this } );
                     configNode.setName( parts[i] );
                     GUID guid = this.put( configNode );
-                    this.insertRegistryTreeNode( parentGuid, guid );
+                    this.affirmOwnedNode( parentGuid, guid );
                     return configNode;
                 }
                 else {
@@ -433,7 +478,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
                     namespaceNode.setName(parts[i]);
                     GUID guid = this.put( namespaceNode );
                     if ( i != 0 ){
-                        this.insertRegistryTreeNode( parentGuid, guid );
+                        this.affirmOwnedNode( parentGuid, guid );
                         parentGuid = guid;
                     }
                     else {

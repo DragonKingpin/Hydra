@@ -40,16 +40,15 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void insertOwnedNode(GUID nodeGUID,GUID parentGUID){
-        GUID owner = this.tireOwnerManipulator.getOwner(nodeGUID);
+    public void affirmOwnedNode( GUID nodeGUID, GUID parentGUID ){
+        GUID owner = this.tireOwnerManipulator.getOwner( nodeGUID );
         if ( owner == null ){
-            this.tireOwnerManipulator.remove(nodeGUID, owner);
-            this.tireOwnerManipulator.insertOwnedNode(nodeGUID,parentGUID);
+            this.tireOwnerManipulator.remove( nodeGUID, owner );
+            this.tireOwnerManipulator.insertOwnedNode( nodeGUID, parentGUID );
         }
         else {
-            this.tireOwnerManipulator.insertOwnedNode(nodeGUID,parentGUID);
+            this.tireOwnerManipulator.insertOwnedNode( nodeGUID, parentGUID );
         }
-
     }
 
     @Override
@@ -99,11 +98,11 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
         GUID owner = this.tireOwnerManipulator.getOwner(sourceGuid);
         if ( owner == null ){
             long exist = this.trieTreeManipulator.countNode( sourceGuid, targetGuid );
-            if ( exist > 0 ){
+            if ( exist <= 0 ){
                 this.tireOwnerManipulator.insertOwnedNode( sourceGuid, targetGuid );
             }
             else {
-                this.tireOwnerManipulator.setOwned(sourceGuid,targetGuid);
+                this.tireOwnerManipulator.setOwned(sourceGuid, targetGuid);
             }
         }
         else {
@@ -113,32 +112,16 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void removePath(GUID guid) {
+    public void removePath( GUID guid ) {
         this.triePathCacheManipulator.remove( guid );
     }
 
     @Override
-    public GUID getOwner(GUID guid) {
+    public GUID getOwner( GUID guid ) {
         return this.tireOwnerManipulator.getOwner(guid);
     }
 
-    @Override
-    public void moveTo( GUID sourceGuid, GUID destinationGuid ) {
-        GUID owner = this.tireOwnerManipulator.getOwner( sourceGuid );
-        this.tireOwnerManipulator.remove( sourceGuid, owner );
-        this.tireOwnerManipulator.insertOwnedNode( sourceGuid, destinationGuid );
-    }
 
-    @Override
-    public void setReparse( GUID sourceGuid, GUID targetGuid ) {
-        long count = this.trieTreeManipulator.countNode( sourceGuid, targetGuid );
-        if ( count > 0 ){
-            this.tireOwnerManipulator.insertHardLinkedNode( sourceGuid,targetGuid );
-        }
-        else {
-            Debug.trace("the relationship is exist!!!");
-        }
-    }
 
     @Override
     public List<GUID> getSubordinates(GUID guid) {
@@ -150,10 +133,28 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
         this.triePathCacheManipulator.insert(guid,path);
     }
 
+
+
     @Override
     public List<GUID> listRoot() {
         return this.trieTreeManipulator.listRoot();
     }
+
+    @Override
+    public void newHardLink( GUID sourceGuid, GUID targetGuid ) {
+        long count = this.trieTreeManipulator.countNode( sourceGuid, targetGuid );
+        if ( count <= 0 ){
+            this.tireOwnerManipulator.insertHardLinkedNode( sourceGuid,targetGuid );
+        }
+    }
+
+    @Override
+    public void moveTo( GUID sourceGuid, GUID destinationGuid ) {
+        this.removePath( sourceGuid );
+        this.tireOwnerManipulator.updateParentGuid( sourceGuid, destinationGuid );
+    }
+
+
 
     @Override
     public boolean hasOwnProperty(Object key) {

@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 public abstract class ArchConfigNode implements ConfigNode {
     protected int                     enumId;
     protected GUID                    guid;
-    protected GUID                    nsGuid;
-    protected GUID                    parentGuid;
+    protected GUID                    dataAffinityGuid;
     protected LocalDateTime           createTime;
     protected LocalDateTime           updateTime;
     protected String                  name;
@@ -29,15 +28,14 @@ public abstract class ArchConfigNode implements ConfigNode {
 
     public ArchConfigNode(
             DistributedRegistry registry,
-            int enumId, GUID guid, GUID nsGuid, GUID parentGuid, LocalDateTime createTime,
+            int enumId, GUID guid, GUID dataAffinityGuid, LocalDateTime createTime,
             LocalDateTime updateTime, String name,
             GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData
     ) {
         this.registry         = registry;
         this.enumId           = enumId;
         this.guid             = guid;
-        this.nsGuid           = nsGuid;
-        this.parentGuid       = parentGuid;
+        this.dataAffinityGuid = dataAffinityGuid;
         this.createTime       = createTime;
         this.updateTime       = updateTime;
         this.name             = name;
@@ -54,78 +52,55 @@ public abstract class ArchConfigNode implements ConfigNode {
         return this.enumId;
     }
 
-
     @Override
     public void setEnumId( int enumId ) {
         this.enumId = enumId;
     }
-
 
     @Override
     public GUID getGuid() {
         return this.guid;
     }
 
-
     @Override
     public void setGuid( GUID guid ) {
         this.guid = guid;
     }
 
-
     @Override
-    public GUID getNsGuid() {
-        return this.nsGuid;
+    public GUID getDataAffinityGuid() {
+        return this.dataAffinityGuid;
     }
 
-
     @Override
-    public void setNsGuid( GUID nsGuid ) {
-        this.nsGuid = nsGuid;
+    public void setDataAffinityGuid( GUID parentGuid ) {
+        this.dataAffinityGuid = parentGuid;
     }
-
-
-    @Override
-    public GUID getParentGuid() {
-        return this.parentGuid;
-    }
-
-
-    @Override
-    public void setParentGuid( GUID parentGuid ) {
-        this.parentGuid = parentGuid;
-    }
-
 
     @Override
     public LocalDateTime getCreateTime() {
         return this.createTime;
     }
 
-
     @Override
     public void setCreateTime( LocalDateTime createTime ) {
         this.createTime = createTime;
     }
-
 
     @Override
     public LocalDateTime getUpdateTime() {
         return this.updateTime;
     }
 
-
     @Override
     public void setUpdateTime( LocalDateTime updateTime ) {
         this.updateTime = updateTime;
     }
 
-
     @Override
     public String getName() {
         return this.name;
     }
-
 
     @Override
     public void setName( String name ) {
@@ -137,12 +112,10 @@ public abstract class ArchConfigNode implements ConfigNode {
         return this.configNodeMeta;
     }
 
-
     @Override
     public void setConfigNodeMeta( GenericConfigNodeMeta configNodeMeta ) {
         this.configNodeMeta = configNodeMeta;
     }
-
 
     @Override
     public GenericNodeAttribute getNodeCommonData() {

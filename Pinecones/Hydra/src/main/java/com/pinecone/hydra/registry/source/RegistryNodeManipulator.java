@@ -11,16 +11,17 @@ public interface RegistryNodeManipulator extends GUIDNameManipulator {
 
     void remove( GUID guid );
 
-    ConfigNode getConfigurationNode( GUID guid );
+    ConfigNode getConfigNode( GUID guid );
 
     void update( ConfigNode configNode );
 
     List<GUID > getGuidsByName( String name );
 
-    List<GUID> getALL();
+    List<GUID > dumpGuid();
 
     void updateName(GUID guid ,String name);
 
-    GUID getParentGuid(GUID guid);
-    void setParentGuid(GUID childGuid,GUID parentGuid);
+    GUID getDataAffinityGuid( GUID guid );
+
+    void setDataAffinityGuid( GUID guid, GUID affinityGuid );
 }

@@ -12,7 +12,7 @@ public interface DistributedTrieTree extends PineUnit {
 
     String getPath( GUID guid );
 
-    void insertOwnedNode( GUID nodeGUID, GUID parentGUID );
+    void affirmOwnedNode( GUID nodeGUID, GUID parentGUID );
 
     GUIDDistributedTrieNode getNode(GUID guid );
 
@@ -34,9 +34,9 @@ public interface DistributedTrieTree extends PineUnit {
 
     GUID getOwner(GUID guid);
 
-    void setOwner(GUID sourceGuid,GUID targetGuid);
+    void setOwner( GUID sourceGuid, GUID targetGuid );
 
-    List<GUID> getSubordinates(GUID guid);
+    List<GUID> getSubordinates( GUID guid );
 
     void insertPath(GUID guid,String path);
 
@@ -44,7 +44,7 @@ public interface DistributedTrieTree extends PineUnit {
 
     List<GUID > listRoot();
 
-    void setReparse( GUID sourceGuid, GUID targetGuid );
+    void newHardLink( GUID sourceGuid, GUID targetGuid );
 
     void moveTo( GUID sourceGuid, GUID destinationGuid );
 }

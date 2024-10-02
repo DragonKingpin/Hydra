@@ -57,7 +57,6 @@ public interface DistributedRegistry extends Registry {
     void removeProperty( GUID guid, String key );
 
     void removeTextValue( GUID guid );
-    void setAffinity(GUID sourceGuid,GUID targetGuid);
 
 
 
@@ -67,8 +66,15 @@ public interface DistributedRegistry extends Registry {
 
     List<TreeNode > getAllTreeNode();
 
-    void insertRegistryTreeNode( GUID parentGuid, GUID childGuid );
-    void setInheritance(GUID childGuid,GUID parentGuid);
+
+
+    /** 断言，确保节点唯一拥有关系*/
+    void affirmOwnedNode( GUID parentGuid, GUID childGuid  );
+
+    void newHardLink    ( GUID sourceGuid, GUID targetGuid );
+
+    /** 断言，确保节点唯一拥有关系*/
+    void setDataAffinityGuid ( GUID childGuid, GUID parentGuid  );
 
 
 

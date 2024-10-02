@@ -24,7 +24,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Override
     default void insert ( TireOwnerManipulator ownerManipulator, GUIDDistributedTrieNode node ){
         this.insertTreeNode( node.getGuid(), node.getType(), node.getBaseDataGUID(), node.getNodeMetadataGUID() );
-        //ownerManipulator.insertRootNode( node.getGuid() );
+        ownerManipulator.insertRootNode( node.getGuid() );
     }
 
     @Insert("INSERT INTO hydra_registry_nodes (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")

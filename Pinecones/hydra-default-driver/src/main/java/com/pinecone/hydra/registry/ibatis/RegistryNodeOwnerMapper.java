@@ -19,8 +19,8 @@ public interface RegistryNodeOwnerMapper extends TireOwnerManipulator {
     @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )")
     void insertRootNode( @Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
-    @Insert( "INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{targetGuid}, #{targetGuid}, #{linkedType})" )
-    void insert( @Param("targetGuid") GUID targetGuid, @Param("parent_guid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
+    @Insert( "INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{targetGuid}, #{parentGuid}, #{linkedType})" )
+    void insert( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
 
 
 

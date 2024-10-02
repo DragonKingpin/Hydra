@@ -183,7 +183,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
             GUIDDistributedTrieNode node = this.distributedTrieTree.getNode( guid );
             //查看是否具有拥有关系
             GUID owner = this.distributedTrieTree.getOwner(node.getGuid());
-            if (owner==null){
+            if ( owner == null ){
                 String nodeName = this.getNodeName(node);
 
                 // Assemble new path, if cache path dose not exist.

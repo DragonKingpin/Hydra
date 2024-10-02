@@ -20,4 +20,7 @@ public interface RegistryNodeManipulator extends GUIDNameManipulator {
     List<GUID> getALL();
 
     void updateName(GUID guid ,String name);
+
+    GUID getParentGuid(GUID guid);
+    void setParentGuid(GUID childGuid,GUID parentGuid);
 }

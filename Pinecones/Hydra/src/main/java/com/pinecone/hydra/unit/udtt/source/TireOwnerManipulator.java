@@ -20,4 +20,6 @@ public interface TireOwnerManipulator extends Pinenut {
     List<GUID> getSubordinates(GUID guid);
     GUIDDistributedTrieNode checkOwned(GUID guid);
     void setOwned(GUID sourceGuid,GUID targetGuid);
+    void setReparse(GUID sourceGuid,GUID targetGuid);
+    String getLinkedType(GUID childGuid,GUID parentGuid);
 }

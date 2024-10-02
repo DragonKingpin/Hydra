@@ -79,12 +79,12 @@ class LadyGaga extends Radium {
        // RegistryXPathSelector selector = new RegistryXPathSelector( new StringReader( "game/minecraft/wizard1" ), null );
         //selector.eval();
 
-        registry.remove( "game" );
+        //registry.remove( "game" );
         //registry.remove( "game.witcher" );
         //registry.remove( "game.minecraft" );
         //registry.remove("game.terraria");
         //registry.remove("game.witcher");
-//        Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
+        //Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
 
 
         //registry.remove( "game" );

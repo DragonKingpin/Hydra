@@ -36,4 +36,8 @@ public interface RegistryNodeOwnerMapper extends TireOwnerManipulator {
     GUIDDistributedTrieNode checkOwned(GUID guid);
     @Update("UPDATE `hydra_registry_node_tree` SET `linked_type` ='Owned' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
     void setOwned(@Param("sourceGuid") GUID sourceGuid,@Param("targetGuid") GUID targetGuid);
+    @Update("UPDATE `hydra_registry_node_tree` SET `linked_type` ='Reparse' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
+    void setReparse(@Param("sourceGuid") GUID sourceGuid,@Param("targetGuid") GUID targetGuid);
+    @Select("SELECT `linked_type` FROM `hydra_registry_node_tree` WHERE `guid` = #{childGuid} AND `parent_guid` =#{parentGuid}")
+    String getLinkedType(@Param("childGuid") GUID childGuid,@Param("parentGuid") GUID parentGuid);
 }

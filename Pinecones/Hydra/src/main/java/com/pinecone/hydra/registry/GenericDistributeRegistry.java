@@ -120,10 +120,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         }
         else{
             String assemblePath = this.getNodeName( node );
-            while ( !node.getParentGUIDs().isEmpty() ){
+            while ( !node.getParentGUIDs().isEmpty() && this.allNonNull(node.getParentGUIDs()) ){
                 node = this.distributedConfTree.getNode( owner );
                 String nodeName = this.getNodeName( node );
                 assemblePath = nodeName + szSeparator + assemblePath;
+                owner = this.distributedConfTree.getOwner(node.getGuid());
             }
             this.distributedConfTree.insertPath(guid,assemblePath);
             return assemblePath;
@@ -321,7 +322,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
 
     @Override
     public void setAffinity(GUID sourceGuid, GUID targetGuid) {
-        this.distributedConfTree.setOwner(sourceGuid,targetGuid);
+        this.distributedConfTree.setReparse(sourceGuid,targetGuid);
     }
 
     @Override
@@ -350,7 +351,7 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     public void move(String sourcePath, String destinationPath) {
         GUID sourceGuid = this.queryGUIDByPath(sourcePath);
         GUID destinationGuid = this.queryGUIDByPath(destinationPath);
-        this.setAffinity(sourceGuid,destinationGuid);
+        this.distributedConfTree.move(sourceGuid,destinationGuid);
     }
 
     @Override
@@ -393,6 +394,10 @@ public class GenericDistributeRegistry implements DistributedRegistry {
         this.distributedConfTree.insertNodeToParent( childGuid, parentGuid );
     }
 
+    @Override
+    public void setInheritance(GUID childGuid, GUID parentGuid) {
+        this.nodeManipulator.setParentGuid(childGuid,parentGuid);
+    }
 
     // TODO, Unchecked type affirmed.
     protected RegistryTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {

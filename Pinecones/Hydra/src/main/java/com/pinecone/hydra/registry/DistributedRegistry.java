@@ -68,7 +68,7 @@ public interface DistributedRegistry extends Registry {
     List<TreeNode > getAllTreeNode();
 
     void insertRegistryTreeNode( GUID parentGuid, GUID childGuid );
-
+    void setInheritance(GUID childGuid,GUID parentGuid);
 
 
 

@@ -70,4 +70,8 @@ public interface RegistryNodeMapper extends RegistryNodeManipulator {
 
     @Update("UPDATE `hydra_registry_config_node` SET `name` = #{name} WHERE `guid` = #{guid}")
     void updateName(@Param("guid") GUID guid ,@Param("name") String name);
+    @Select("SELECT `parent_guid` FROM `hydra_registry_config_node` WHERE `guid` = #{guid}")
+    GUID getParentGuid(GUID guid);
+    @Update("UPDATE `hydra_registry_config_node` SET `parent_guid` = #{parentGuid} WHERE `guid` = #{childGuid}")
+    void setParentGuid(GUID childGuid,GUID parentGuid);
 }

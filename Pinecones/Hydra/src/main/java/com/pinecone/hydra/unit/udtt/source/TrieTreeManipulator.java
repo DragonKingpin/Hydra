@@ -37,4 +37,5 @@ public interface TrieTreeManipulator extends Pinenut {
     void updateType(UOI type,GUID guid);
     GUIDDistributedTrieNode isExist( GUID guid, GUID parentGuid);
     List<GUID> listRoot();
+    void reparse(GUID sourceGuid, GUID targetGuid);
 }

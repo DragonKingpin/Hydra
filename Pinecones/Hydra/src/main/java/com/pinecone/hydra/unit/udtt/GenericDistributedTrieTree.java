@@ -3,7 +3,6 @@ package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
@@ -134,6 +133,23 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
         return this.tireOwnerManipulator.getOwner(guid);
     }
 
+    @Override
+    public void move(GUID sourceGuid, GUID destinationGuid) {
+        GUID owner = this.tireOwnerManipulator.getOwner(sourceGuid);
+        this.tireOwnerManipulator.remove(sourceGuid,owner);
+        this.tireOwnerManipulator.insert(sourceGuid,destinationGuid);
+    }
+
+    @Override
+    public void setReparse(GUID sourceGuid, GUID targetGuid) {
+        GUIDDistributedTrieNode exist = this.trieTreeManipulator.isExist(sourceGuid, targetGuid);
+        if (exist == null){
+            this.trieTreeManipulator.reparse(sourceGuid,targetGuid);
+        }
+        else {
+            Debug.trace("the relationship is exist!!!");
+        }
+    }
 
     @Override
     public List<GUID> getSubordinates(GUID guid) {

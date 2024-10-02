@@ -73,7 +73,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Update("UPDATE `hydra_registry_nodes` SET `type` = #{type} WHERE guid=#{guid}")
     void updateType(UOI type , GUID guid);
 
-    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{nodeGUID},#{parentGUID},'Reparse')")
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{nodeGUID},#{parentGUID},'Owned')")
     void insertNodeToParent(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
 
     @Delete("DELETE FROM `hydra_registry_node_path` WHERE `guid` = #{guid}")
@@ -82,4 +82,6 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     GUIDDistributedTrieNode isExist(@Param("guid") GUID guid,@Param("parentGuid") GUID parentGuid);
     @Select("SELECT guid FROM hydra_registry_node_tree WHERE parent_guid IS NULL ")
     List<GUID> listRoot();
+    @Insert("INSERT INTO `hydra_registry_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{sourceGuid},#{targetGuid},'Reparse')")
+    void reparse(@Param("sourceGuid") GUID sourceGuid, @Param("targetGuid") GUID targetGuid);
 }

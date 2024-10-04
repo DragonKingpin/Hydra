@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class GenericNamespaceNode implements NamespaceNode {
-    protected int                             enumId;
+    protected long                            enumId;
     protected GUID                            guid;
     protected LocalDateTime                   createTime;
     protected LocalDateTime                   updateTime;
@@ -36,7 +36,7 @@ public class GenericNamespaceNode implements NamespaceNode {
 
     public GenericNamespaceNode(
             DistributedRegistry registry,
-            int enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime, String name,
+            long enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime, String name,
             GenericNamespaceNodeMeta namespaceNodeMeta, GenericNodeAttribute nodeCommonData
     ) {
         this.enumId            = enumId;
@@ -57,12 +57,12 @@ public class GenericNamespaceNode implements NamespaceNode {
 
 
     @Override
-    public int getEnumId() {
+    public long getEnumId() {
         return this.enumId;
     }
 
     @Override
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

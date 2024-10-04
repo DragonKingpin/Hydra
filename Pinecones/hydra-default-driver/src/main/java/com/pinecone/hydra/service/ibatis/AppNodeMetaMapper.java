@@ -19,7 +19,7 @@ public interface AppNodeMetaMapper extends ApplicationMetaManipulator {
     @Delete("DELETE FROM `hydra_service_app_node_meta` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
 
-    @Select("SELECT `id`, `guid`, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `deployment_method` AS deploymentMethod, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_service_app_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `deployment_method` AS deploymentMethod, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_service_app_node_meta` WHERE `guid`=#{guid}")
     GenericApplicationNodeMeta getApplicationMeta(@Param("guid")GUID guid );
 
     void update( GenericApplicationNodeMeta applicationDescription );

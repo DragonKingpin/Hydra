@@ -33,9 +33,10 @@ class StanMarsh extends Radium {
         DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
 
         //this.testBasicInsert( registry );
+        //this.testDeletion( registry );
         //this.testDataExtends( registry );
         //this.testHardLink( registry );
-        //this.testCopy( registry );
+        this.testCopy( registry );
         //this.testMisc( registry );
         //this.testSelector( registry );
     }
@@ -77,7 +78,11 @@ class StanMarsh extends Radium {
 
     private void testCopy( DistributedRegistry registry ) {
         //this.testBasicInsert( registry );
-        registry.queryTreeNode("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
+       // registry.queryTreeNode("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
+
+        //registry.getProperties( "game/terraria/mob1" ).copyTo( "game/moregame/mmob4" );
+
+        //.trace( registry.getProperties( "game/moregame/mmob4" ) );
     }
 
     private void testDataExtends( DistributedRegistry registry ) {
@@ -174,14 +179,14 @@ class StanMarsh extends Radium {
         //Debug.fmp( 2, registry.queryTreeNode( "game/witcher/jesus/" ) );
 
         //registry.remove( "game/minecraft/mount" );
-        //Debug.fmp( 2, registry.queryTreeNode( "game" ) );
+        Debug.fmp( 2, registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getEnumId() );
 
         //var children = registry.queryTreeNode( "game" ).evinceNamespaceNode().getChildren();
         //var mc = children.get("minecraft").evinceNamespaceNode().getChildren();
 
-        var children = registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getChildren();
-        var mc = children.get("witcher").evinceNamespaceNode().getChildren();
-        Debug.trace( 2, mc );
+//        var children = registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getChildren();
+//        var mc = children.get("witcher").evinceNamespaceNode().getChildren();
+//        Debug.trace( 2, mc );
 
         //Debug.trace( registry.get )
         //Debug.fmp( 2, registry.queryTreeNode( "game/minecraft/" ).evinceNamespaceNode().listItem() );

@@ -20,7 +20,7 @@ public interface RegistryNSNodeMetaMapper extends RegistryNSNodeMetaManipulator 
     @Delete("DELETE FROM `hydra_registry_ns_node_meta` WHERE `guid`=#{guid}")
     void remove( GUID guid );
 
-    @Select("SELECT `id`, `guid` FROM `hydra_registry_ns_node_meta` WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid` FROM `hydra_registry_ns_node_meta` WHERE guid=#{guid}")
     GenericNamespaceNodeMeta getNamespaceNodeMeta(GUID guid);
 
     void update( NamespaceNodeMeta namespaceNodeMeta );

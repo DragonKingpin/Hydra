@@ -5,8 +5,8 @@ import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface TaskNode extends TreeNode {
 
-    int getEnumId();
-    void setEnumId(int id);
+    long getEnumId();
+    void setEnumId(long id);
 
     GUID getGuid();
 

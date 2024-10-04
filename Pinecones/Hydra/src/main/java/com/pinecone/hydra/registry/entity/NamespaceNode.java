@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface NamespaceNode extends RegistryTreeNode {
-    int getEnumId();
+    long getEnumId();
 
-    void setEnumId(int enumId);
+    void setEnumId(long enumId);
 
     GUID getGuid();
 

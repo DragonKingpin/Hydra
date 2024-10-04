@@ -3,24 +3,24 @@ package com.pinecone.hydra.scenario.entity;
 import com.pinecone.framework.util.id.GUID;
 
 public class GenericNamespaceNodeMeta implements NamespaceNodeMeta{
-    private int enumId;
+    private long enumId;
     private GUID guid;
 
     public GenericNamespaceNodeMeta() {
     }
 
-    public GenericNamespaceNodeMeta(int enumId, GUID guid) {
+    public GenericNamespaceNodeMeta(long enumId, GUID guid) {
         this.enumId = enumId;
         this.guid = guid;
     }
 
 
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
 
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

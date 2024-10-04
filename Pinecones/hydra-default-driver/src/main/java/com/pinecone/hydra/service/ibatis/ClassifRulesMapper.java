@@ -16,7 +16,7 @@ public interface ClassifRulesMapper extends ClassifRulesManipulator {
     void insert(GenericClassificationRules classificationRules);
     @Delete("DELETE FROM `hydra_service_classif_rules` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
-    @Select("SELECT `id`, `guid`, `scope`, `name`, `description` FROM `hydra_service_classif_rules` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `scope`, `name`, `description` FROM `hydra_service_classif_rules` WHERE `guid`=#{guid}")
     GenericClassificationRules getClassifRules(@Param("guid")GUID guid);
     void update(GenericClassificationRules classificationRules);
 }

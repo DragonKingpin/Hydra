@@ -17,7 +17,7 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     public GenericTextConfigNode(
-            int enumId, GUID guid, GUID nsGuid, GUID dataAffinityGuid, LocalDateTime createTime, LocalDateTime updateTime,
+            long enumId, GUID guid, GUID nsGuid, GUID dataAffinityGuid, LocalDateTime createTime, LocalDateTime updateTime,
             String name, TextValue textValue, GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData, DistributedRegistry registry
     ) {
         super( registry, enumId, guid, dataAffinityGuid, createTime, updateTime, name, configNodeMeta, nodeCommonData );
@@ -106,15 +106,20 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     @Override
+    public void copyTo( String path ) {
+        this.copyTo( this.registry.affirmTextConfig( path ).getGuid() );
+    }
+
+    @Override
     public void copyTo( GUID destinationGuid ) {
-        this.registry.copyMetaTo(this.guid,destinationGuid);
-        this.registry.copyTextValueTo(this.guid,destinationGuid);
+        this.copyMetaTo( destinationGuid );
+        this.registry.copyTextValueTo( this.guid, destinationGuid );
     }
 
     @Override
     public void copyValueTo(GUID destinationGuid) {
         if ( destinationGuid != null ){
-            this.registry.copyTextValueTo(this.guid,destinationGuid);
+            this.registry.copyTextValueTo( this.guid, destinationGuid );
         }
     }
 

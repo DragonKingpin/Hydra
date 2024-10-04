@@ -77,5 +77,6 @@ public interface Properties extends ConfigNode, PineUnit {
     }
 
     void copyValueTo(GUID destinationGuid );
+
     void copyTo    (GUID destinationGuid);
 }

@@ -18,7 +18,7 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     void insert(TaskNode taskNode);
     @Delete("DELETE FROM `hydra_task_task_node` WHERE `guid`=#{guid}")
     void remove(GUID guid);
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_task_task_node` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_task_task_node` WHERE `guid`=#{guid}")
     GenericTaskNode getTaskNode(GUID guid);
 
     void update(TaskNode taskNode);

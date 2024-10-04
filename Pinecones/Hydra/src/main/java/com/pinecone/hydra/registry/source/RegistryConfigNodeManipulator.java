@@ -26,6 +26,4 @@ public interface RegistryConfigNodeManipulator extends GUIDNameManipulator {
     GUID getDataAffinityGuid( GUID guid );
 
     void setDataAffinityGuid( GUID guid, GUID affinityGuid );
-
-    void copyMetaTo(GUID sourceGuid, GUID destinationGuid);
 }

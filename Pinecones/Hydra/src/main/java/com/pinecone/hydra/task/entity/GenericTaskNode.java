@@ -3,7 +3,7 @@ package com.pinecone.hydra.task.entity;
 import com.pinecone.framework.util.id.GUID;
 
 public class GenericTaskNode implements TaskNode{
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private String name;
     private GenericTaskCommonData genericTaskCommonData;
@@ -12,7 +12,7 @@ public class GenericTaskNode implements TaskNode{
     public GenericTaskNode() {
     }
 
-    public GenericTaskNode(int enumId, GUID guid, String name, GenericTaskCommonData genericTaskCommonData, GenericTaskNodeMeta genericTaskNodeMeta) {
+    public GenericTaskNode(long enumId, GUID guid, String name, GenericTaskCommonData genericTaskCommonData, GenericTaskNodeMeta genericTaskNodeMeta) {
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
@@ -24,7 +24,7 @@ public class GenericTaskNode implements TaskNode{
      * 获取
      * @return enumId
      */
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
@@ -32,7 +32,7 @@ public class GenericTaskNode implements TaskNode{
      * 设置
      * @param enumId
      */
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

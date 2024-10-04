@@ -10,9 +10,9 @@ public interface ConfigNode extends RegistryTreeNode {
         return this;
     }
 
-    int getEnumId();
+    long getEnumId();
 
-    void setEnumId(int enumId);
+    void setEnumId(long enumId);
 
     GUID getGuid();
 
@@ -32,9 +32,13 @@ public interface ConfigNode extends RegistryTreeNode {
 
     String getName();
 
-    void setName(String name);
+    void setName( String name );
+
+    void copyTo( String path );
 
     void copyTo( GUID guid );
+
+    void copyMetaTo( GUID guid );
 
 
 

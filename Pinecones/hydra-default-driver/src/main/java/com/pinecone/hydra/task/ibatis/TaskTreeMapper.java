@@ -24,7 +24,7 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
         return nodeMeta;
     }
 
-    @Select("SELECT `id`, `guid`, `type`, `base_data_guid` AS baseDataGuid, `node_meta_guid` AS nodeMetadataGuid FROM `hydra_task_node_map` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `type`, `base_data_guid` AS baseDataGuid, `node_meta_guid` AS nodeMetadataGuid FROM `hydra_task_node_map` WHERE `guid`=#{guid}")
     GUIDDistributedTrieNode getNodeMeta(GUID guid);
 
     default void remove(GUID guid){

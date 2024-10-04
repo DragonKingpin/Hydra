@@ -31,7 +31,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Insert("INSERT INTO hydra_registry_nodes (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
     void insertTreeNode( @Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
 
-    @Select("SELECT `id`, `guid`, `type`, base_data_guid AS baseDataGUID, node_meta_guid AS nodeMetadataGUID FROM hydra_registry_nodes WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `type`, base_data_guid AS baseDataGUID, node_meta_guid AS nodeMetadataGUID FROM hydra_registry_nodes WHERE guid=#{guid}")
     GUIDDistributedTrieNode getNodeExtendsFromMeta( GUID guid );
 
     @Override
@@ -78,7 +78,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     @Delete("DELETE FROM `hydra_registry_node_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
     void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `id`, `guid`, `parent_guid` AS parentGuid FROM `hydra_registry_node_tree` WHERE `parent_guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_registry_node_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDDistributedTrieNode > getChildren( GUID guid );
 
     @Select("SELECT `guid` FROM `hydra_registry_node_tree` WHERE `parent_guid` = #{parentGuid}")

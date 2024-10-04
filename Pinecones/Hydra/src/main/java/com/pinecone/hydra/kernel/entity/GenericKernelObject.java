@@ -3,7 +3,7 @@ package com.pinecone.hydra.kernel.entity;
 import com.pinecone.framework.util.id.GUID;
 
 public class GenericKernelObject implements KernelObject{
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private GUID targetGuid;
     private String targetType;
@@ -12,7 +12,7 @@ public class GenericKernelObject implements KernelObject{
     public GenericKernelObject() {
     }
 
-    public GenericKernelObject(int enumId, GUID guid, GUID targetGuid, String targetType, String targetSimpleType) {
+    public GenericKernelObject(long enumId, GUID guid, GUID targetGuid, String targetType, String targetSimpleType) {
         this.enumId = enumId;
         this.guid = guid;
         this.targetGuid = targetGuid;
@@ -21,12 +21,12 @@ public class GenericKernelObject implements KernelObject{
     }
 
 
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
 
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

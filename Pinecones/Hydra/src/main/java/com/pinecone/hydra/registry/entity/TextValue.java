@@ -6,9 +6,9 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface TextValue extends Pinenut {
-    int getEnumId();
+    long getEnumId();
 
-    void setEnumId(int enumId);
+    void setEnumId(long enumId);
 
     GUID getGuid();
 

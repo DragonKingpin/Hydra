@@ -3,26 +3,26 @@ package com.pinecone.hydra.kernel.entity;
 import com.pinecone.framework.util.id.GUID;
 
 public class GenericKernelObjectMeta implements KernelObjectMeta{
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private String name;
 
     public GenericKernelObjectMeta() {
     }
 
-    public GenericKernelObjectMeta(int enumId, GUID guid, String name) {
+    public GenericKernelObjectMeta(long enumId, GUID guid, String name) {
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
     }
 
 
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
 
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

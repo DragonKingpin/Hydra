@@ -20,7 +20,7 @@ public interface ScenarioNamespaceNodeMapper extends NamespaceNodeManipulator {
     @Delete("DELETE FROM `hydra_scenario_namespace_node` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_scenario_namespace_node` WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_scenario_namespace_node` WHERE guid=#{guid}")
     GenericNamespaceNode getNamespaceNode(GUID guid);
 
     void update(NamespaceNode namespaceNode);

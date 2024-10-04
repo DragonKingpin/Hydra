@@ -18,7 +18,7 @@ public interface ScenarioNamespaceNodeMetaMapper extends NamespaceNodeMetaManipu
     @Delete("DELETE FROM `hydra_scenario_namespace_node_meta` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `id`, `guid` FROM `hydra_scenario_namespace_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid` FROM `hydra_scenario_namespace_node_meta` WHERE `guid`=#{guid}")
     GenericNamespaceNodeMeta getNamespaceNodeMeta(GUID guid);
 
     void update(NamespaceNodeMeta namespaceNodeMeta);

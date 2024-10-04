@@ -20,7 +20,7 @@ public interface RegistryCommonDataMapper extends RegistryCommonDataManipulator 
     @Delete("DELETE FROM `hydra_registry_node_attribute` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `id`, `guid` FROM `hydra_registry_node_attribute` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid` FROM `hydra_registry_node_attribute` WHERE `guid`=#{guid}")
     GenericNodeAttribute getNodeCommonData(GUID guid);
 
     void update(NodeAttribute nodeAttribute);

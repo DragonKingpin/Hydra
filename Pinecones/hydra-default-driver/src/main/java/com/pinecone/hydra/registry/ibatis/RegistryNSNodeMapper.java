@@ -27,11 +27,11 @@ public interface RegistryNSNodeMapper extends RegistryNSNodeManipulator {
     void remove( GUID guid );
 
     @Override
-    @Select( "SELECT COUNT(`id`) FROM `hydra_registry_namespace` WHERE guid = #{guid}" )
+    @Select( "SELECT COUNT(`id` AS `enumId`) FROM `hydra_registry_namespace` WHERE guid = #{guid}" )
     boolean isNamespaceNode( GUID guid );
 
     @Override
-    @Select("SELECT `id`, `guid`, `create_time` AS createTime, `name`, `update_time` AS updateTime FROM `hydra_registry_namespace` WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `create_time` AS createTime, `name`, `update_time` AS updateTime FROM `hydra_registry_namespace` WHERE guid=#{guid}")
     GenericNamespaceNode getNamespaceMeta(GUID guid);
 
     @Override

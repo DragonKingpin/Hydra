@@ -16,7 +16,7 @@ public interface TaskCommonDataMapper extends TaskCommonDataManipulator {
     void insert(TaskCommonData taskCommonData);
     @Delete("DELETE FROM `hydra_task_common_data` WHERE `guid`=#{guid}")
     void remove(GUID guid);
-    @Select("SELECT `id`, `guid`, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_task_common_data` WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_task_common_data` WHERE guid=#{guid}")
     GenericTaskCommonData getTaskCommonData(GUID guid);
 
     void update(TaskCommonData taskCommonData);

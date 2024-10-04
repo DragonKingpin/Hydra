@@ -4,25 +4,25 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 public class GenericNodeAttribute implements NodeAttribute {
-    private int enumId;
+    private long enumId;
 
     private GUID guid;
 
     public GenericNodeAttribute() {
     }
 
-    public GenericNodeAttribute( int enumId, GUID guid ) {
+    public GenericNodeAttribute( long enumId, GUID guid ) {
         this.enumId = enumId;
         this.guid = guid;
     }
 
     @Override
-    public int getEnumId() {
+    public long getEnumId() {
         return this.enumId;
     }
 
     @Override
-    public void setEnumId( int enumId ) {
+    public void setEnumId( long enumId ) {
         this.enumId = enumId;
     }
 

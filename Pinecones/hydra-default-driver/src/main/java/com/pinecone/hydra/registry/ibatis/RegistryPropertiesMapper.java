@@ -24,7 +24,7 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid`=#{guid} AND `key`=#{key}")
     void remove( GUID guid, String key );
 
-    @Select("SELECT `id`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
     List<GenericProperty > getProperties0( GUID guid );
 
     @SuppressWarnings( "unchecked" )
@@ -37,7 +37,8 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid` = #{guid}")
     void removeAll( GUID guid );
-    @Insert("INSERT INTO `hydra_registry_conf_node_properties` (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) SELECT\n" +
+
+    @Insert( "INSERT INTO `hydra_registry_conf_node_properties` (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) SELECT\n" +
             "\t#{destinationGuid},\n" +
             "\t`key`,\n" +
             "\t`type`,\n" +
@@ -50,6 +51,6 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
             "\t`guid` = #{sourceGuid} \n" +
             "\tAND NOT EXISTS ( \n" +
             "\tSELECT `guid` FROM `hydra_registry_conf_node_properties` AS dest WHERE dest.`guid` = #{destinationGuid} AND dest.`key` = src.`key` \n" +
-            "\t)")
-    void copyPropertiesTo( @Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid);
+            "\t)" )
+    void copyPropertiesTo( @Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid );
 }

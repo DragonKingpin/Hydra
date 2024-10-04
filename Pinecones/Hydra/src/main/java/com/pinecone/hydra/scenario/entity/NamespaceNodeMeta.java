@@ -4,8 +4,8 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
 public interface NamespaceNodeMeta extends Pinenut {
-    int getEnumId();
-    void setEnumId(int enumId);
+    long getEnumId();
+    void setEnumId(long enumId);
 
     GUID getGuid();
     void setGuid(GUID guid);

@@ -6,7 +6,7 @@ import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import java.time.LocalDateTime;
 
 public class GenericTextValue implements TextValue {
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private String value;
     private String type;
@@ -24,7 +24,7 @@ public class GenericTextValue implements TextValue {
         this.setUpdateTime( LocalDateTime.now() );
     }
 
-    public GenericTextValue( int enumId, GUID guid, String value, String type, LocalDateTime createTime, LocalDateTime updateTime ) {
+    public GenericTextValue( long enumId, GUID guid, String value, String type, LocalDateTime createTime, LocalDateTime updateTime ) {
         this.enumId = enumId;
         this.guid = guid;
         this.value = value;
@@ -38,7 +38,7 @@ public class GenericTextValue implements TextValue {
      * @return enumId
      */
     @Override
-    public int getEnumId() {
+    public long getEnumId() {
         return this.enumId;
     }
 
@@ -47,7 +47,7 @@ public class GenericTextValue implements TextValue {
      * @param enumId
      */
     @Override
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

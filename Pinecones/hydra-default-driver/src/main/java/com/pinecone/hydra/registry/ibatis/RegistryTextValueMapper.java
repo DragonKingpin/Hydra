@@ -22,12 +22,13 @@ public interface RegistryTextValueMapper extends RegistryTextValueManipulator {
     @Delete("DELETE FROM `hydra_registry_conf_node_text_value` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `id`, `guid`, `value`, `create_time` AS createTime, `update_time` AS updateTime, `type` FROM `hydra_registry_conf_node_text_value` WHERE guid=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `value`, `create_time` AS createTime, `update_time` AS updateTime, `type` FROM `hydra_registry_conf_node_text_value` WHERE guid=#{guid}")
     GenericTextValue getTextValue(GUID guid);
 
     @Update("UPDATE `hydra_registry_conf_node_text_value` SET `value`=#{value}, `update_time`=#{updateTime}, `type`=#{type} WHERE guid=#{guid}")
     void update(TextValue textValue);
 
-    @Insert("INSERT INTO `hydra_registry_conf_node_text_value` (`guid`, `type`, `create_time`, `update_time`, `value`) SELECT #{destinationGuid}, `type`, `create_time`, `update_time`, `value` FROM `hydra_registry_conf_node_text_value` WHERE `guid` = #{sourceGuid}")
-    void copyTextValueTo(@Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid);
+    @Insert("INSERT INTO `hydra_registry_conf_node_text_value` (`guid`, `type`, `create_time`, `update_time`, `value`) SELECT #{destinationGuid}, `type`, `create_time`, `update_time`, `value` " +
+            "FROM `hydra_registry_conf_node_text_value` WHERE `guid` = #{sourceGuid} AND `guid` != #{destinationGuid}")
+    void copyTextValueTo( @Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid );
 }

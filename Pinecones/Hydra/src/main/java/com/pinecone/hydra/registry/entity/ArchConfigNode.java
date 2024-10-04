@@ -7,7 +7,7 @@ import com.pinecone.hydra.registry.DistributedRegistry;
 import java.time.LocalDateTime;
 
 public abstract class ArchConfigNode implements ConfigNode {
-    protected int                     enumId;
+    protected long                    enumId;
     protected GUID                    guid;
     protected GUID                    dataAffinityGuid;
     protected LocalDateTime           createTime;
@@ -28,7 +28,7 @@ public abstract class ArchConfigNode implements ConfigNode {
 
     public ArchConfigNode(
             DistributedRegistry registry,
-            int enumId, GUID guid, GUID dataAffinityGuid, LocalDateTime createTime,
+            long enumId, GUID guid, GUID dataAffinityGuid, LocalDateTime createTime,
             LocalDateTime updateTime, String name,
             GenericConfigNodeMeta configNodeMeta, GenericNodeAttribute nodeCommonData
     ) {
@@ -48,12 +48,12 @@ public abstract class ArchConfigNode implements ConfigNode {
     }
 
     @Override
-    public int getEnumId() {
+    public long getEnumId() {
         return this.enumId;
     }
 
     @Override
-    public void setEnumId( int enumId ) {
+    public void setEnumId( long enumId ) {
         this.enumId = enumId;
     }
 
@@ -105,6 +105,11 @@ public abstract class ArchConfigNode implements ConfigNode {
     @Override
     public void setName( String name ) {
         this.name = name;
+    }
+
+    @Override
+    public void copyMetaTo( GUID guid ) {
+        this.registry.setDataAffinityGuid( guid, this.getDataAffinityGuid() );
     }
 
 

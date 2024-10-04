@@ -46,7 +46,7 @@ public interface NamespaceNode extends RegistryTreeNode {
 
     List<GUID > getChildrenGuids();
 
-    void setContentGuids( List<GUID> contentGuids );
+    void setChildrenGuids( List<GUID> contentGuids, int depth );
 
     List<RegistryTreeNode > listItem();
 

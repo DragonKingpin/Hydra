@@ -1,5 +1,7 @@
 package com.sparta;
 
+import java.util.List;
+
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
@@ -171,7 +173,15 @@ class StanMarsh extends Radium {
         //Debug.fmp( 2, registry.queryTreeNode( "game/witcher/jesus/" ) );
 
         //registry.remove( "game/minecraft/mount" );
-        Debug.fmp( 2, registry.queryTreeNode( "game" ) );
+        //Debug.fmp( 2, registry.queryTreeNode( "game" ) );
+
+        //var children = registry.queryTreeNode( "game" ).evinceNamespaceNode().getChildren();
+        //var mc = children.get("minecraft").evinceNamespaceNode().getChildren();
+
+        var children = registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getChildren();
+        var mc = children.get("witcher").evinceNamespaceNode().getChildren();
+        Debug.trace( 2, mc );
+
         //Debug.trace( registry.get )
         //Debug.fmp( 2, registry.queryTreeNode( "game/minecraft/" ).evinceNamespaceNode().listItem() );
 

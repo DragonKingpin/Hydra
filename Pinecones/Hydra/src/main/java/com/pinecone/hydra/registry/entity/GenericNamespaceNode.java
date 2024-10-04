@@ -1,6 +1,8 @@
 package com.pinecone.hydra.registry.entity;
 
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
@@ -43,7 +45,7 @@ public class GenericNamespaceNode implements NamespaceNode {
         this.updateTime        = updateTime;
         this.name              = name;
         this.namespaceNodeMeta = namespaceNodeMeta;
-        this.nodeAttribute = nodeCommonData;
+        this.nodeAttribute     = nodeCommonData;
 
         this.registry          = registry;
     }
@@ -124,8 +126,17 @@ public class GenericNamespaceNode implements NamespaceNode {
         this.nodeAttribute = nodeAttribute;
     }
 
+    /** Thread unsafe */
     @Override
     public Map<String, RegistryTreeNode > getChildren() {
+        if( this.children == null ) {
+            HashMap<String, RegistryTreeNode> nodeHashMap = new HashMap<>();
+            for( GUID guid : this.childrenGuids ){
+                RegistryTreeNode registryTreeNode = this.registry.get( guid );
+                nodeHashMap.put( registryTreeNode.getName(), registryTreeNode );
+            }
+            this.children = nodeHashMap;
+        }
         return this.children;
     }
 
@@ -135,37 +146,31 @@ public class GenericNamespaceNode implements NamespaceNode {
     }
 
     @Override
-    public void setContentGuids( List<GUID> contentGuids ) {
+    public void setChildrenGuids( List<GUID > contentGuids, int depth ) {
         this.childrenGuids = contentGuids;
-        HashMap<String, RegistryTreeNode> nodeHashMap = new HashMap<>();
-        for( GUID guid : contentGuids ){
-            RegistryTreeNode registryTreeNode = this.registry.get( guid );
-            nodeHashMap.put( registryTreeNode.getName(), registryTreeNode );
-        }
-        this.children = nodeHashMap;
     }
 
     @Override
     public List<RegistryTreeNode > listItem() {
         ArrayList<RegistryTreeNode > registryTreeNodes = new ArrayList<>();
-        registryTreeNodes.addAll( this.children.values() );
+        registryTreeNodes.addAll( this.getChildren().values() );
         return registryTreeNodes;
     }
 
     @Override
-    public void put( String key,RegistryTreeNode val ) {
-        if ( this.children.get(key) != null ){
-            throw new RuntimeException("key is exist!!!");
+    public void put( String key, RegistryTreeNode val ) {
+        if ( this.getChildren().get(key) != null ){
+            throw new IllegalArgumentException( "key is exist." );
         }
-        this.children.put(key,val);
+        this.getChildren().put(key, val);
         this.registry.affirmOwnedNode( this.guid, val.getGuid() );
     }
 
     @Override
     public void remove( String key ) {
-        RegistryTreeNode registryTreeNode = this.children.get(key);
+        RegistryTreeNode registryTreeNode = this.getChildren().get(key);
         this.registry.remove(registryTreeNode.getGuid());
-        this.children.remove(key);
+        this.getChildren().remove(key);
     }
 
     @Override
@@ -175,42 +180,48 @@ public class GenericNamespaceNode implements NamespaceNode {
 
     @Override
     public boolean containsKey( String key ) {
-        return this.children.containsKey(key);
+        return this.getChildren().containsKey(key);
     }
 
     @Override
     public ConfigNode getConfigNode( String key ) {
-       return (ConfigNode) this.children.get(key);
+        return (ConfigNode) this.getChildren().get(key);
     }
 
     @Override
     public NamespaceNode getNamespaceNode( String key ) {
-        return (NamespaceNode) this.children.get(key);
+        return (NamespaceNode) this.getChildren().get(key);
     }
 
     @Override
     public int size() {
-        return this.children.size();
+        return this.childrenGuids.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return this.children.isEmpty();
+        return this.childrenGuids.isEmpty();
     }
 
     @Override
     public Set<String> keySet() {
-        return this.children.keySet();
+        return this.getChildren().keySet();
     }
 
     @Override
     public Set<Map.Entry<String, RegistryTreeNode > > entrySet() {
-        return this.children.entrySet();
+        return this.getChildren().entrySet();
     }
 
     @Override
     public String toJSONString() {
-        return BeanJSONEncoder.BasicEncoder.encode( this );
+        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
+                new KeyValue<>( "name"        , this.getName()            ),
+                new KeyValue<>( "guid"        , this.getGuid()            ),
+                new KeyValue<>( "createTime"  , this.getCreateTime()      ),
+                new KeyValue<>( "updateTime"  , this.getUpdateTime()      ),
+                new KeyValue<>( "childrenSize", this.childrenGuids.size() ),
+        } );
     }
 
     @Override

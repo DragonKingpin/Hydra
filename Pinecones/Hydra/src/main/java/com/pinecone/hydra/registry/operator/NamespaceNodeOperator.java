@@ -138,12 +138,17 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
     @Override
     public RegistryTreeNode get( GUID guid ) {
-        return this.getNamespaceNodeWideData(guid);
+        return this.getNamespaceNodeWideData( guid, 0 );
+    }
+
+    @Override
+    public RegistryTreeNode get( GUID guid, int depth ) {
+        return this.getNamespaceNodeWideData( guid, depth );
     }
 
     @Override
     public RegistryTreeNode getSelf( GUID guid ) {
-        return this.getNamespaceNodeWideData(guid);
+        return this.getNamespaceNodeWideData( guid, 0 );
     }
 
     @Override
@@ -156,7 +161,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
         this.namespaceNodeManipulator.updateName( guid, name );
     }
 
-    private NamespaceNode getNamespaceNodeWideData( GUID guid ){
+    private NamespaceNode getNamespaceNodeWideData( GUID guid, int depth ){
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
         if ( namespaceNode instanceof GenericNamespaceNode ){
              ((GenericNamespaceNode) namespaceNode).apply(this.registry);
@@ -164,13 +169,18 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GenericNodeAttribute nodeCommonData = (GenericNodeAttribute) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
-        List<GUIDDistributedTrieNode> childNode = this.distributedTrieTree.getChildren(guid);
-        ArrayList<GUID> guids = new ArrayList<>();
-        for ( GUIDDistributedTrieNode n : childNode ){
-            guids.add( n.getGuid() );
+
+        if( depth <= 0 ) {
+            List<GUIDDistributedTrieNode> childNode = this.distributedTrieTree.getChildren(guid);
+            ArrayList<GUID> guids = new ArrayList<>();
+            for ( GUIDDistributedTrieNode n : childNode ){
+                guids.add( n.getGuid() );
+            }
+            ++depth;
+            namespaceNode.setChildrenGuids( guids, depth );
         }
-        namespaceNode.setContentGuids(guids);
-        namespaceNode.setNodeAttribute(nodeCommonData);
+
+        namespaceNode.setNodeAttribute( nodeCommonData );
         namespaceNode.setNamespaceNodeMeta(namespaceNodeMeta);
         return namespaceNode;
     }

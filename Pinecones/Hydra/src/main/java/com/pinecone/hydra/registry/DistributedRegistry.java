@@ -23,6 +23,8 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
 
     RegistryTreeNode get( GUID guid );
 
+    RegistryTreeNode get( GUID guid, int depth );
+
     RegistryTreeNode getSelf( GUID guid );
 
     Properties getProperties( GUID guid );

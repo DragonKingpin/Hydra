@@ -22,6 +22,12 @@ public class PropertiesOperator extends ArchConfigNodeOperator {
     }
 
     @Override
+    public Properties get( GUID guid, int depth ) {
+        return this.get( guid );
+    }
+
+
+    @Override
     protected void inherit( ConfigNode self, ConfigNode prototype ) {
         // Extends meta data.
         super.inherit( self, prototype );

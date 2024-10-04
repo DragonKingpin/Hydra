@@ -185,6 +185,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public RegistryTreeNode get( GUID guid, int depth ) {
+        return this.getOperatorByGuid( guid ).get( guid, depth );
+    }
+
+    @Override
     public RegistryTreeNode getSelf( GUID guid ) {
         return this.getOperatorByGuid( guid ).getSelf( guid );
     }

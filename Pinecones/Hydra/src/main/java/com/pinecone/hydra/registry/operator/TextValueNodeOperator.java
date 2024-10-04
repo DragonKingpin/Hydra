@@ -21,6 +21,10 @@ public class TextValueNodeOperator extends ArchConfigNodeOperator {
         return (TextConfigNode) super.get( guid );
     }
 
+    @Override
+    public TextConfigNode get( GUID guid, int depth ) {
+        return this.get( guid );
+    }
 
     @Override
     protected TextConfigNode getConfigNodeWideData(GUID guid) {

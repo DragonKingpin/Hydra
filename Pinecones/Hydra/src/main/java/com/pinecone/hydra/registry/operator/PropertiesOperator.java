@@ -22,9 +22,20 @@ public class PropertiesOperator extends ArchConfigNodeOperator {
     }
 
     @Override
+    protected void inherit( ConfigNode self, ConfigNode prototype ) {
+        // Extends meta data.
+        super.inherit( self, prototype );
+        Properties sp = (Properties) self;
+        Properties pp = (Properties) prototype;
+
+        sp.setParent( pp );
+        sp.setParentProperties( pp.getPropertiesMap() );
+    }
+
+    @Override
     protected Properties getConfigNodeWideData( GUID guid ) {
         ConfigNode configNodeWideData = super.getConfigNodeWideData( guid );
-        if( configNodeWideData instanceof Properties) {
+        if( configNodeWideData instanceof Properties ) {
             List<Property > properties = this.registryPropertiesManipulator.getProperties( guid );
             Properties propertiesNode = (Properties) configNodeWideData;
             propertiesNode.setProperties( properties );
@@ -33,7 +44,7 @@ public class PropertiesOperator extends ArchConfigNodeOperator {
 
         throw new IllegalStateException(
                 String.format(
-                        "'%s' should be `PropertiesNode` be `%s` found.",
+                        "'%s' should be `PropertiesNode` but `%s` found.",
                         guid.toString(), configNodeWideData.getClass().getSimpleName()
                 )
         );

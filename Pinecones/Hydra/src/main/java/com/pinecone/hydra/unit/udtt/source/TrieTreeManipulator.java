@@ -5,6 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.LinkedType;
+import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 
 import java.util.List;
 
@@ -19,10 +20,15 @@ public interface TrieTreeManipulator extends Pinenut {
 
     long countNode( GUID guid, GUID parentGuid );
 
+    // TODO
+    void insertNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
+
+    // TODO
+    void updateNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
 
 
 
-    /** Purge */
+    /** Purge / Deletion */
     void purge         ( GUID guid );
 
     void removeTreeNode( GUID guid );
@@ -45,8 +51,10 @@ public interface TrieTreeManipulator extends Pinenut {
 
 
 
-
+    /** Lineage / Affinity */
     List<GUIDDistributedTrieNode > getChildren( GUID guid );
+
+    List<GUID > getChildrenGuids( GUID parentGuid );
 
     List<GUID > getParentGuids( GUID guid );
 
@@ -56,17 +64,51 @@ public interface TrieTreeManipulator extends Pinenut {
 
     List<GUID > listRoot();
 
+    boolean isRoot( GUID guid );
 
 
-    // TODO
-    void insertNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
 
-    // TODO
-    void updateNode( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
+    /** Link / Reference */
+    /**
+     * Querying link-count, that the node be linked by its owner. [Strong/Weak]
+     * 获取节点引用计数。 [根据强弱引用条件]
+     * @return the link-count, which its has been linked.
+     */
+    long queryLinkedCount( GUID guid, LinkedType linkedType );
 
-    void newTag(GUID originalGuid, GUID dirGuid, String tagName, GUID tagGuid);
-    void updateTage(GUID tagGuid, String tagName);
-    GUID getOriginalGuid(String tagName,GUID dirGuid);
-    long isTagGuid(GUID guid);
-    GUID getOriginalGuidByTagGuid(GUID tagGuid);
+    long queryAllLinkedCount( GUID guid );
+
+    default long queryStrongLinkedCount( GUID guid ) {
+        return this.queryLinkedCount( guid, LinkedType.Owned );
+    }
+
+    default long queryWeakLinkedCount( GUID guid ) {
+        return this.queryLinkedCount( guid, LinkedType.Hard );
+    }
+
+    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, GUID tagGuid, LinkedType linkedType );
+
+    default void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, GUID tagGuid ) {
+        this.newLinkTag( originalGuid, dirGuid, tagName, tagGuid, LinkedType.Hard );
+    }
+
+    void updateLinkTagName( GUID tagGuid, String tagName );
+
+    GUID getOriginalGuid( String tagName,GUID parentDirGuid );
+
+    GUID getOriginalGuidByNodeGuid( String tagName, GUID nodeGUID );
+
+    ReparseLinkNode getReparseLinkNode( String tagName, GUID parentDirGuid );
+
+    ReparseLinkNode getReparseLinkNodeByNodeGuid( String tagName, GUID nodeGUID );
+
+    List<GUID > fetchOriginalGuid( String tagName );
+
+    List<GUID > fetchOriginalGuidRoot( String tagName );
+
+    boolean isTagGuid( GUID guid );
+
+    GUID getOriginalGuidByTagGuid( GUID tagGuid );
+
+    void removeReparseLink( GUID guid );
 }

@@ -9,14 +9,14 @@ import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.registry.ibatis.RegistryCommonDataMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMetaMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryNodeMapper;
+import com.pinecone.hydra.registry.ibatis.RegistryConfigNodeMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNodeMetaMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryPropertiesMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryTextValueMapper;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
+import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
@@ -27,8 +27,8 @@ import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 @Component
 public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator {
     @Resource
-    @Structure( type = RegistryNodeMapper.class )
-    RegistryNodeManipulator configNodeManipulator;
+    @Structure( type = RegistryConfigNodeMapper.class )
+    RegistryConfigNodeManipulator configNodeManipulator;
 
     @Resource
     @Structure( type = RegistryNSNodeMapper.class )
@@ -73,7 +73,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryNodeManipulator getRegistryNodeManipulator() {
+    public RegistryConfigNodeManipulator getRegistryConfigNodeManipulator() {
         return this.configNodeManipulator;
     }
 

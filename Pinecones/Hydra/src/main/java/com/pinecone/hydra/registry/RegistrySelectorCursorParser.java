@@ -4,9 +4,9 @@ import com.pinecone.framework.system.ParseException;
 import com.pinecone.framework.util.CursorParser;
 
 public class RegistrySelectorCursorParser implements CursorParser {
-    protected RegistryXPathSelector mParser;
+    protected RegistryJPathSelector mParser;
 
-    protected RegistrySelectorCursorParser( RegistryXPathSelector parser ) {
+    protected RegistrySelectorCursorParser( RegistryJPathSelector parser ) {
         this.mParser = parser;
     }
 

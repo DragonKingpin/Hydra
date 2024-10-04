@@ -35,7 +35,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        return BasicResultResponse.success( this.distributedTrieTree.getPath( new GUID72(guid) ) );
+        return BasicResultResponse.success( this.distributedTrieTree.getCachePath( new GUID72(guid) ) );
     }
 
     /**

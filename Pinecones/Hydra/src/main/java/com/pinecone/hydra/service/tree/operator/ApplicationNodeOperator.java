@@ -14,8 +14,8 @@ import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GuidAllocator;
+import com.pinecone.ulf.util.id.GUIDs;
 
 public class ApplicationNodeOperator implements MetaNodeOperator {
     protected ApplicationNodeManipulator        applicationNodeManipulator;
@@ -52,19 +52,19 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         GenericApplicationNode applicationNodeInformation = (GenericApplicationNode) nodeWideData;
         //将信息写入数据库
         //将节点信息存入应用节点表
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID applicationNodeGUID = uidGenerator.getGUID72();
+        GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
+        GUID applicationNodeGUID = guidAllocator.nextGUID72();
         applicationNodeInformation.setGuid(applicationNodeGUID);
         this.applicationNodeManipulator.insert(applicationNodeInformation);
 
         //将应用节点基础信息存入信息表
-        GUID descriptionGUID = uidGenerator.getGUID72();
+        GUID descriptionGUID = guidAllocator.nextGUID72();
         GenericApplicationNodeMeta applicationDescription = applicationNodeInformation.getApplicationNodeMeta();
         applicationDescription.setGuid(descriptionGUID);
         this.applicationMetaManipulator.insert(applicationDescription);
 
         //将应用元信息存入元信息表
-        GUID metadataGUID = uidGenerator.getGUID72();
+        GUID metadataGUID = guidAllocator.nextGUID72();
         GenericNodeCommonData metadata = applicationNodeInformation.getNodeCommonData();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);

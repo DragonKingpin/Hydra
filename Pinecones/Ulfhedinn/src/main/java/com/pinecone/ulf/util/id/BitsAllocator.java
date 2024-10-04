@@ -56,7 +56,7 @@ public class BitsAllocator {
      * Constructor with timestampBits, workerIdBits, sequenceBits<br>
      * The highest bit used for sign, so <code>63</code> bits for timestampBits, workerIdBits, sequenceBits
      */
-    public BitsAllocator(int timestampBits, int workerIdBits, int sequenceBits) {
+    public BitsAllocator( int timestampBits, int workerIdBits, int sequenceBits ) {
         // make sure allocated 64 bits
         int allocateTotalBits = signBits + timestampBits + workerIdBits + sequenceBits;
         Assert.isTrue(allocateTotalBits == TOTAL_BITS, "allocate not enough 64 bits");
@@ -85,7 +85,7 @@ public class BitsAllocator {
      * @param sequence
      * @return
      */
-    public long allocate(long deltaSeconds, long workerId, long sequence) {
+    public long allocate( long deltaSeconds, long workerId, long sequence ) {
         return (deltaSeconds << timestampShift) | (workerId << workerIdShift) | sequence;
     }
     

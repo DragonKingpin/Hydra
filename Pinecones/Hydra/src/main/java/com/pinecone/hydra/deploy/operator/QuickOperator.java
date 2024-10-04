@@ -22,7 +22,7 @@ public class QuickOperator implements TreeNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance(GUID guid) {
+    public RegistryTreeNode getSelf(GUID guid) {
         return null;
     }
 

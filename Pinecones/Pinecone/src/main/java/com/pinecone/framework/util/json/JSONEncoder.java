@@ -16,27 +16,35 @@ public interface JSONEncoder extends Pinenut {
     JSONMarshal     BASIC_JSON_MARSHAL                     = new JSONMarshal();
 
 
-    Writer write          ( Pinenut that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    Writer write              ( Pinenut that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    Writer write          ( JSONObject that, Writer writer ) throws IOException ;
+    Writer write              ( JSONObject that, Writer writer ) throws IOException ;
 
-    Writer write          ( JSONObject that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    Writer write              ( JSONObject that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    Writer write          ( JSONArray that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    Writer write              ( JSONArray that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    void writeKeyValue    ( Writer writer, Object key, Object val, int nIndentFactor, int nIndentBlankNum ) throws JSONException, IOException ;
+    void writeKeyValue        ( Writer writer, Object key, Object val, int nIndentFactor, int nIndentBlankNum ) throws JSONException, IOException ;
 
-    Writer write          ( Map that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    default Writer write      ( Map that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+        return this.writeMapFmtEntries( that.entrySet(), writer, nIndentFactor, nIndentBlankNum );
+    }
 
-    Writer writeArray     ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    default <T extends Map.Entry > Writer writeMapFmtEntriesT ( Collection<T> that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException  {
+        return this.writeMapFmtEntries( that, writer, nIndentFactor, nIndentBlankNum );
+    }
 
-    Writer write          ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    Writer writeMapFmtEntries ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    Writer write          ( Object that, Writer writer ) throws IOException ;
+    Writer writeArray         ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    Writer write          ( Object that, Writer writer, int nIndentFactor ) throws IOException ;
+    Writer write              ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
-    Writer write          ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
+    Writer write              ( Object that, Writer writer ) throws IOException ;
+
+    Writer write              ( Object that, Writer writer, int nIndentFactor ) throws IOException ;
+
+    Writer write              ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;
 
 
 

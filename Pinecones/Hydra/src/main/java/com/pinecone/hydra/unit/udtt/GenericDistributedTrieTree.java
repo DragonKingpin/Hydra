@@ -1,31 +1,27 @@
 package com.pinecone.hydra.unit.udtt;
 
-
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.util.List;
 
-/**
- * 提供服务树的相应方法
- */
 public class GenericDistributedTrieTree implements UniDistributedTrieTree {
-    private TrieTreeManipulator  trieTreeManipulator;
+    private TrieTreeManipulator      trieTreeManipulator;
 
-    private TireOwnerManipulator tireOwnerManipulator;
+    private TireOwnerManipulator     tireOwnerManipulator;
 
     private TriePathCacheManipulator triePathCacheManipulator;
 
     public GenericDistributedTrieTree( TreeMasterManipulator masterManipulator ){
-        this.trieTreeManipulator  =  masterManipulator.getTrieTreeManipulator();
-        this.tireOwnerManipulator =  masterManipulator.getTireOwnerManipulator();
+        this.trieTreeManipulator      =  masterManipulator.getTrieTreeManipulator();
+        this.tireOwnerManipulator     =  masterManipulator.getTireOwnerManipulator();
         this.triePathCacheManipulator =  masterManipulator.getTriePathCacheManipulator();
     }
 
@@ -33,12 +29,6 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     @Override
     public void insert( DistributedTreeNode node ) {
         this.trieTreeManipulator.insert( this.tireOwnerManipulator, (GUIDDistributedTrieNode) node );
-    }
-
-    //获取路径信息
-    @Override
-    public String getPath( GUID guid ){
-        return this.triePathCacheManipulator.getPath(guid);
     }
 
     @Override
@@ -65,14 +55,19 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
+    public void removeTreeNodeOnly( GUID guid ) {
+        this.trieTreeManipulator.removeTreeNode( guid );
+    }
+
+    @Override
     public void put( GUID guid, GUIDDistributedTrieNode distributedTreeNode ){
         this.trieTreeManipulator.insertNode( guid, distributedTreeNode );
     }
 
     @Override
-    public boolean containsKey(GUID key) {
+    public boolean containsKey( GUID key ) {
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(key);
-        return guidDistributedTrieNode ==null;
+        return guidDistributedTrieNode == null;
     }
 
     @Override
@@ -83,6 +78,11 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     @Override
     public List<GUIDDistributedTrieNode > getChildren( GUID guid ) {
         return this.trieTreeManipulator.getChildren(guid);
+    }
+
+    @Override
+    public List<GUID > getChildrenGuids( GUID parentGuid ) {
+        return this.trieTreeManipulator.getChildrenGuids( parentGuid );
     }
 
     @Override
@@ -114,7 +114,12 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void removePath( GUID guid ) {
+    public String getCachePath( GUID guid ){
+        return this.triePathCacheManipulator.getPath(guid);
+    }
+
+    @Override
+    public void removeCachePath( GUID guid ) {
         this.triePathCacheManipulator.remove( guid );
     }
 
@@ -131,15 +136,38 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void insertPath(GUID guid, String path) {
+    public void insertCachePath( GUID guid, String path ) {
         this.triePathCacheManipulator.insert(guid,path);
     }
-
-
 
     @Override
     public List<GUID> listRoot() {
         return this.trieTreeManipulator.listRoot();
+    }
+
+    @Override
+    public boolean isRoot( GUID guid ) {
+        return this.trieTreeManipulator.isRoot( guid );
+    }
+
+    @Override
+    public long queryLinkedCount( GUID guid, LinkedType linkedType ) {
+        return this.trieTreeManipulator.queryLinkedCount( guid, linkedType );
+    }
+
+    @Override
+    public long queryAllLinkedCount( GUID guid ) {
+        return this.trieTreeManipulator.queryAllLinkedCount( guid );
+    }
+
+    @Override
+    public long queryStrongLinkedCount( GUID guid ) {
+        return this.trieTreeManipulator.queryStrongLinkedCount( guid );
+    }
+
+    @Override
+    public long queryWeakLinkedCount( GUID guid ) {
+        return this.trieTreeManipulator.queryWeakLinkedCount( guid );
     }
 
     @Override
@@ -152,44 +180,65 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     @Override
     public void moveTo( GUID sourceGuid, GUID destinationGuid ) {
-        this.removePath( sourceGuid );
+        this.removeCachePath( sourceGuid );
         this.tireOwnerManipulator.updateParentGuid( sourceGuid, destinationGuid );
     }
 
     @Override
-    public void newTag(GUID originalGuid, GUID dirGuid, String tagName) {
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID tagGuid = uidGenerator.getGUID72();
-        this.trieTreeManipulator.newTag(originalGuid,dirGuid,tagName,tagGuid);
+    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, DistributedKOInstrument instrument ) {
+        GuidAllocator guidAllocator = instrument.getGuidAllocator();
+        GUID tagGuid = guidAllocator.nextGUID72();
+        this.trieTreeManipulator.newLinkTag( originalGuid, dirGuid, tagName, tagGuid );
     }
 
     @Override
-    public void newTag(String originalPath, String dirPath, String tageName) {
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID tagGuid = uidGenerator.getGUID72();
-        GUID originalGuid = this.queryGUIDByPath(originalPath);
-        GUID dirGuid = this.queryGUIDByPath(dirPath);
-        this.trieTreeManipulator.newTag(originalGuid,dirGuid,tageName,tagGuid);
+    public void updateLinkTagName( GUID tagGuid, String tagName ) {
+        this.trieTreeManipulator.updateLinkTagName( tagGuid,tagName );
     }
 
     @Override
-    public void updateTage(GUID tagGuid, String tagName) {
-        this.trieTreeManipulator.updateTage(tagGuid,tagName);
+    public boolean isTagGuid(GUID guid) {
+        return this.trieTreeManipulator.isTagGuid( guid );
     }
 
     @Override
-    public long isTagGuid(GUID guid) {
-        return this.trieTreeManipulator.isTagGuid(guid);
+    public GUID getOriginalGuid( String tagName, GUID parentDirGUID ) {
+        return this.trieTreeManipulator.getOriginalGuid( tagName, parentDirGUID );
     }
 
     @Override
-    public GUID getOriginalGuid(String tagName, GUID dirGuid) {
-        return this.trieTreeManipulator.getOriginalGuid(tagName,dirGuid);
+    public GUID getOriginalGuidByNodeGuid( String tagName, GUID nodeGUID ) {
+        return this.trieTreeManipulator.getOriginalGuidByNodeGuid( tagName, nodeGUID );
     }
 
     @Override
-    public GUID getOriginalGuid(GUID tagGuid) {
-        return this.trieTreeManipulator.getOriginalGuidByTagGuid(tagGuid);
+    public List<GUID > fetchOriginalGuid( String tagName ) {
+        return this.trieTreeManipulator.fetchOriginalGuid( tagName );
+    }
+
+    @Override
+    public List<GUID > fetchOriginalGuidRoot( String tagName ) {
+        return this.trieTreeManipulator.fetchOriginalGuidRoot( tagName );
+    }
+
+    @Override
+    public ReparseLinkNode getReparseLinkNodeByNodeGuid( String tagName, GUID nodeGUID ) {
+        return this.trieTreeManipulator.getReparseLinkNodeByNodeGuid( tagName, nodeGUID );
+    }
+
+    @Override
+    public ReparseLinkNode getReparseLinkNode( String tagName, GUID parentDirGuid ) {
+        return this.trieTreeManipulator.getReparseLinkNode( tagName, parentDirGuid );
+    }
+
+    @Override
+    public GUID getOriginalGuid( GUID tagGuid ) {
+        return this.trieTreeManipulator.getOriginalGuidByTagGuid( tagGuid );
+    }
+
+    @Override
+    public void removeReparseLink( GUID guid ) {
+        this.trieTreeManipulator.removeReparseLink( guid );
     }
 
     @Override

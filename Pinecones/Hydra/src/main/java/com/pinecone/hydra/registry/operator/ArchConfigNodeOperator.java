@@ -12,7 +12,7 @@ import com.pinecone.hydra.registry.entity.NodeAttribute;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
+import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.service.tree.UOIUtils;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
@@ -21,8 +21,7 @@ import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -36,7 +35,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     protected RegistryMasterManipulator     registryMasterManipulator;
     protected Map<GUID, ConfigNode>         cacheMap = new HashMap<>();
 
-    protected RegistryNodeManipulator       registryNodeManipulator;
+    protected RegistryConfigNodeManipulator registryConfigNodeManipulator;
     protected RegistryNodeMetaManipulator   configNodeMetaManipulator;
     protected RegistryCommonDataManipulator registryCommonDataManipulator;
 
@@ -48,7 +47,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
 
     public ArchConfigNodeOperator(RegistryMasterManipulator masterManipulator, DistributedRegistry registry ){
         this.registryMasterManipulator     = masterManipulator;
-        this.registryNodeManipulator       = this.registryMasterManipulator.getRegistryNodeManipulator();
+        this.registryConfigNodeManipulator = this.registryMasterManipulator.getRegistryConfigNodeManipulator();
         this.configNodeMetaManipulator     = this.registryMasterManipulator.getRegistryNodeMetaManipulator();
         this.registryCommonDataManipulator = this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.distributedTrieTree           = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
@@ -59,8 +58,8 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
     @Override
     public GUID insert( TreeNode treeNode ) {
         ArchConfigNode configNode = (ArchConfigNode) treeNode;
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID guid72 = uidGenerator.getGUID72();
+        GuidAllocator guidAllocator = this.registry.getGuidAllocator();
+        GUID guid72 = guidAllocator.nextGUID72();
 
         configNode.setGuid(guid72);
         configNode.setCreateTime(LocalDateTime.now());
@@ -71,7 +70,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(configNode.getClass().getName()));
 
 
-        GUID configNodeMetaGuid = uidGenerator.getGUID72();
+        GUID configNodeMetaGuid = guidAllocator.nextGUID72();
         GenericConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
         if ( configNodeMeta != null ){
             configNodeMeta.setGuid(configNodeMetaGuid);
@@ -82,7 +81,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         }
 
 
-        GUID commonDataGuid = uidGenerator.getGUID72();
+        GUID commonDataGuid = guidAllocator.nextGUID72();
         GenericNodeAttribute nodeCommonData = configNode.getNodeCommonData();
         if (nodeCommonData != null){
             nodeCommonData.setGuid(commonDataGuid);
@@ -96,7 +95,7 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         distributeConfTreeNode.setBaseDataGUID(commonDataGuid);
         distributeConfTreeNode.setNodeMetadataGUID(configNodeMetaGuid);
         this.distributedTrieTree.insert(distributeConfTreeNode);
-        this.registryNodeManipulator.insert(configNode);
+        this.registryConfigNodeManipulator.insert(configNode);
         return guid72;
     }
 
@@ -105,29 +104,36 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         //ConfigNode为叶子节点只需要删除节点信息与引用继承关系
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         this.distributedTrieTree.purge( guid );
-        this.registryNodeManipulator.remove(guid);
+        this.registryConfigNodeManipulator.remove(guid);
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
         this.configNodeMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.distributedTrieTree.removePath(guid);
+        this.distributedTrieTree.removeCachePath(guid);
     }
 
     @Override
     public RegistryTreeNode get( GUID guid ) {
-        //检测缓存中是否存在信息
-        ConfigNode configNode = this.cacheMap.get(guid);
-        if ( configNode == null ) {
-            configNode = this.getConfigNodeWideData(guid);
-            GUID affinityGuid = configNode.getDataAffinityGuid();
-            if ( affinityGuid != null ){
-                this.inherit( configNode,(ConfigNode) this.get( affinityGuid ) );
+        ConfigNode rootConfig = this.cacheMap.get( guid );
+        if ( rootConfig == null ) {
+            rootConfig = this.getConfigNodeWideData( guid );
+            ConfigNode thisConfig = rootConfig;
+            while ( true ) {
+                GUID affinityGuid = thisConfig.getDataAffinityGuid();
+                if ( affinityGuid != null ){
+                    ConfigNode parent = this.getConfigNodeWideData( affinityGuid );
+                    this.inherit( thisConfig, parent );
+                    thisConfig = parent;
+                }
+                else {
+                    break;
+                }
             }
-            this.cacheMap.put(guid, configNode);
+            this.cacheMap.put( guid, rootConfig );
         }
-        return configNode;
+        return rootConfig;
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance(GUID guid) {
+    public RegistryTreeNode getSelf( GUID guid ) {
         return this.getConfigNodeWideData( guid );
     }
 
@@ -143,17 +149,17 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         if (nodeAttribute != null){
             this.registryCommonDataManipulator.update(nodeAttribute);
         }
-        this.registryNodeManipulator.update(configNode);
+        this.registryConfigNodeManipulator.update(configNode);
     }
 
     @Override
     public void updateName( GUID guid, String name ) {
-        this.registryNodeManipulator.updateName( guid, name );
+        this.registryConfigNodeManipulator.updateName( guid, name );
     }
 
     protected ConfigNode getConfigNodeWideData( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ConfigNode cn = this.registryNodeManipulator.getConfigNode( guid );
+        ConfigNode cn = this.registryConfigNodeManipulator.getConfigNode( guid );
         if( cn instanceof ArchConfigNode ) {
             ((ArchConfigNode) cn).apply( this.registry );
         }
@@ -166,20 +172,20 @@ public abstract class ArchConfigNodeOperator implements RegistryNodeOperator{
         return cn;
     }
 
-    protected void inherit(ConfigNode chileConfigNode, ConfigNode patentConfigNode){
-        Class<? extends ConfigNode> clazz = chileConfigNode.getClass();
+    protected void inherit( ConfigNode self, ConfigNode prototype ){
+        Class<? extends ConfigNode> clazz = self.getClass();
         Field[] fields = clazz.getDeclaredFields();
 
-        for (Field field : fields){
+        for ( Field field : fields ){
             field.setAccessible(true);
             try {
-                Object value1 = field.get(chileConfigNode);
-                Object value2 = field.get(patentConfigNode);
-                if (Objects.isNull(value1) || (value1 instanceof List && ((List<?>) value1).isEmpty())){
-                    field.set(chileConfigNode,value2);
+                Object value1 = field.get( self );
+                Object value2 = field.get( prototype );
+                if ( Objects.isNull(value1) || (value1 instanceof List && ((List<?>) value1).isEmpty()) ){
+                    field.set(self,value2);
                 }
             }
-            catch (IllegalAccessException e) {
+            catch ( IllegalAccessException e ) {
                 throw new ProxyProvokeHandleException(e);
             }
         }

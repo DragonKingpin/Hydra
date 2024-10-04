@@ -7,15 +7,21 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import java.util.List;
 
 public interface RegistryNSNodeManipulator extends GUIDNameManipulator {
-    void insert(NamespaceNode namespaceNode);
+    void insert( NamespaceNode namespaceNode );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
 
-    NamespaceNode getNamespaceMeta(GUID guid);
+    boolean isNamespaceNode( GUID guid );
 
-    void update(NamespaceNode namespaceNode);
+    NamespaceNode getNamespaceMeta( GUID guid );
 
-    List<GUID> getGuidsByName(String name);
+    void update( NamespaceNode namespaceNode );
 
-    List<GUID> dumpGuid();
+    List<GUID > getGuidsByName( String name );
+
+    List<GUID > getGuidsByNameID( String name, GUID guid );
+
+    List<GUID > dumpGuid();
+
+    void updateName( GUID guid, String name );
 }

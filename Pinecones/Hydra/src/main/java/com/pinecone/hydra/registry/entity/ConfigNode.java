@@ -16,7 +16,7 @@ public interface ConfigNode extends RegistryTreeNode {
 
     GUID getGuid();
 
-    void setGuid(GUID guid);
+    void setGuid( GUID guid );
 
     GUID getDataAffinityGuid();
 
@@ -24,15 +24,17 @@ public interface ConfigNode extends RegistryTreeNode {
 
     LocalDateTime getCreateTime();
 
-    void setCreateTime(LocalDateTime createTime);
+    void setCreateTime( LocalDateTime createTime );
 
     LocalDateTime getUpdateTime();
 
-    void setUpdateTime(LocalDateTime updateTime);
+    void setUpdateTime( LocalDateTime updateTime );
 
     String getName();
 
     void setName(String name);
+
+    void copyTo( GUID guid );
 
 
 

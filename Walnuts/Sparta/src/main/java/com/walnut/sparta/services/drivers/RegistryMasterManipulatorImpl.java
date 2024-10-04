@@ -1,7 +1,7 @@
 package com.walnut.sparta.services.drivers;
 
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeManipulator;
+import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 @Component
 public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator {
     @Resource
-    RegistryNodeManipulator configNodeManipulator;
+    RegistryConfigNodeManipulator configNodeManipulator;
 
     @Resource
     RegistryNSNodeManipulator namespaceNodeManipulator;
@@ -47,7 +47,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryNodeManipulator getRegistryNodeManipulator() {
+    public RegistryConfigNodeManipulator getRegistryConfigNodeManipulator() {
         return this.configNodeManipulator;
     }
 

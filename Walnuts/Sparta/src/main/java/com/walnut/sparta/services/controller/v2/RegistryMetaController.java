@@ -118,9 +118,9 @@ public class RegistryMetaController {
      * @param path 路径信息
      * @return 返回解析后的节点信息
      */
-    @GetMapping("/getNodeByPath")
+    @GetMapping("/queryTreeNode")
     public BasicResultResponse<TreeNode> getNodeByPath( @RequestParam("path") String path ){
-        TreeNode treeNode = this.distributedRegistry.getNodeByPath(path);
+        TreeNode treeNode = this.distributedRegistry.queryTreeNode(path);
         return BasicResultResponse.success( treeNode );
     }
 
@@ -144,10 +144,10 @@ public class RegistryMetaController {
      * @param guid 节点guid
      * @return 返回节点信息
      */
-    @GetMapping("/getThis")
-    public BasicResultResponse<TreeNode > getThis(@RequestParam("guid") String guid){
+    @GetMapping("/getSelf")
+    public BasicResultResponse<TreeNode > getSelf(@RequestParam("guid") String guid){
         return BasicResultResponse.success(
-                this.distributedRegistry.getThis( GUIDs.GUID72( guid ) )
+                this.distributedRegistry.getSelf( GUIDs.GUID72( guid ) )
         );
     }
 }

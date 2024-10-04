@@ -11,8 +11,9 @@ import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextConfigNode;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
+import com.pinecone.hydra.unit.udtt.entity.EntityNode;
+import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import org.apache.commons.collections.set.ListOrderedSet;
 
 public interface Registry extends KernelObjectInstrument {
     RegistryConfig KernelRegistryConfig = new KernelRegistryConfig();
@@ -20,7 +21,7 @@ public interface Registry extends KernelObjectInstrument {
     RegistryConfig getRegistryConfig();
 
 
-    RegistryTreeNode getNodeByPath( String path );
+    RegistryTreeNode queryTreeNode( String path );
 
     Properties getProperties( String path );
 
@@ -34,9 +35,17 @@ public interface Registry extends KernelObjectInstrument {
 
 
 
+    /** Normal Tree Node or ReparseLinkNode**/
+    EntityNode queryNode( String path );
+
+    ReparseLinkNode queryReparseLink( String path );
+
     List<TreeNode > selectByName( String name );
 
     void moveTo( String sourcePath, String destinationPath );
+
+    /** Ensure destination path existed.*/
+    void move( String sourcePath, String destinationPath );
 
     List<RegistryTreeNode> listRoot();
 

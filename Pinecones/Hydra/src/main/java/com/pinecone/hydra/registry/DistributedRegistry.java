@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.NamespaceNode;
@@ -7,11 +8,12 @@ import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
+import com.pinecone.hydra.system.ko.DistributedKOInstrument;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.List;
 
-public interface DistributedRegistry extends Registry {
+public interface DistributedRegistry extends Registry, DistributedKOInstrument {
 
     String getPath( GUID guid );
 
@@ -21,7 +23,7 @@ public interface DistributedRegistry extends Registry {
 
     RegistryTreeNode get( GUID guid );
 
-    RegistryTreeNode getThis( GUID guid );
+    RegistryTreeNode getSelf( GUID guid );
 
     Properties getProperties( GUID guid );
 
@@ -44,7 +46,11 @@ public interface DistributedRegistry extends Registry {
 
     void putTextValue( GUID guid, String text, String format );
 
-    void updateProperty( Property property, GUID configNodeGuid );
+    void updateProperty( @Nullable GUID configNodeGuid, Property property );
+
+    default void updateProperty( Property property ) {
+        this.updateProperty( null, property );
+    }
 
     void updateTextValue( TextValue textValue, GUID configNodeGuid );
 
@@ -53,6 +59,8 @@ public interface DistributedRegistry extends Registry {
 
 
     void remove( GUID guid );
+
+    void removeReparseLink( GUID guid );
 
     void removeProperty( GUID guid, String key );
 
@@ -64,6 +72,19 @@ public interface DistributedRegistry extends Registry {
 
     void rename( GUID guid, String name );
 
+    default void rename( String path, String name ) {
+        this.rename( this.assertPath( path ), name );
+    }
+
+    default GUID assertPath( String path ) throws IllegalArgumentException {
+        GUID guid      = this.queryGUIDByPath( path );
+        if( guid == null ) {
+            throw new IllegalArgumentException( "Undefined path '" + path + "'" );
+        }
+
+        return guid;
+    }
+
     List<TreeNode > getAllTreeNode();
 
 
@@ -73,14 +94,24 @@ public interface DistributedRegistry extends Registry {
 
     void newHardLink    ( GUID sourceGuid, GUID targetGuid );
 
-    /** 断言，确保节点唯一拥有关系*/
-    void setDataAffinityGuid ( GUID childGuid, GUID parentGuid  );
+    /** set affinityParentGuid for child.*/
+    void setDataAffinityGuid ( GUID childGuid, GUID affinityParentGuid  );
 
+    default void setDataAffinity ( String childPath, String parentPath ) {
+        GUID childGuid      = this.assertPath( childPath );
+        GUID parentGuid     = this.assertPath( parentPath );
+        if( childGuid == parentGuid ) {
+            throw new IllegalArgumentException( "Cyclic path detected '" + childPath + "'" );
+        }
 
-    void newTag(GUID originalGuid,GUID dirGuid,String tagName);
-    void newTag(String originalPath ,String dirPath,String tagName);
-    void updateTag(GUID tagGuid,String tagName);
+        this.setDataAffinityGuid( childGuid, parentGuid );
+    }
 
+    void newLinkTag( GUID originalGuid,GUID dirGuid,String tagName );
+
+    void newLinkTag( String originalPath ,String dirPath,String tagName );
+
+    void updateLinkTag( GUID tagGuid,String tagName);
 
 
     Object querySelector                  ( String szSelector );

@@ -5,10 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.pinecone.framework.system.prototype.PineUnit;
+import com.pinecone.framework.unit.UniScopeMap;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 
-public interface Properties extends ConfigNode {
+public interface Properties extends ConfigNode, PineUnit {
+
+    Properties getParent();
+
+    void setParent( Properties parent );
 
     Collection<Property > getProperties();
 
@@ -18,25 +24,41 @@ public interface Properties extends ConfigNode {
         return new JSONMaptron( this.toMap(), true );
     }
 
-    void setProperties   ( List<Property> properties );
+    UniScopeMap<String, Property > getPropertiesMap();
 
-    void setProperties   ( Map<String, Property > properties );
+    void setProperties       ( List<Property> properties );
 
-    void put             ( String key, Object val );
+    void setProperties       ( UniScopeMap<String, Property > properties );
 
-    void puts            ( Map<String, Object > map );
+    void setThisProperties   ( Map<String, Property > properties );
 
-    void putProperty     ( Property property );
+    void setParentProperties ( UniScopeMap<String, Property > parent );
 
-    void remove          ( String key );
+    Properties getOwner      ( String szKey );
 
-    void update          ( Property property );
+    void put                 ( String key, Object val );
 
-    Property get         ( String key );
+    void puts                ( Map<String, Object > map );
 
-    Object getValue      ( String key );
+    void putProperty         ( Property property );
 
-    boolean containsKey  ( String key );
+    void remove              ( String key );
+
+    void update              ( Property property );
+
+    void updateFromDummy     ( Property dummy );
+
+    void set                 ( String key, Object val );
+
+    Property get             ( String key );
+
+    Object getValue          ( String key );
+
+    boolean containsKey      ( String key );
+
+    boolean containsKey      ( Object key );
+
+    boolean hasOwnProperty   ( Object key );
 
     int size();
 

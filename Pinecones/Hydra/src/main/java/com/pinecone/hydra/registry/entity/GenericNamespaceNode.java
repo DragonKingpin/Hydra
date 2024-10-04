@@ -54,127 +54,71 @@ public class GenericNamespaceNode implements NamespaceNode {
     }
 
 
-    /**
-     * 获取
-     * @return enumId
-     */
     @Override
     public int getEnumId() {
         return this.enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
     @Override
     public void setEnumId(int enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
     @Override
     public GUID getGuid() {
         return this.guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
     @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return createTime
-     */
     @Override
     public LocalDateTime getCreateTime() {
         return this.createTime;
     }
 
-    /**
-     * 设置
-     * @param createTime
-     */
     @Override
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
     }
 
-    /**
-     * 获取
-     * @return updateTime
-     */
     @Override
     public LocalDateTime getUpdateTime() {
         return this.updateTime;
     }
 
-    /**
-     * 设置
-     * @param updateTime
-     */
     @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
 
-    /**
-     * 获取
-     * @return name
-     */
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * 设置
-     * @param name
-     */
     @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return namespaceNodeMeta
-     */
     @Override
     public NamespaceNodeMeta getNamespaceNodeMeta() {
         return this.namespaceNodeMeta;
     }
 
-    /**
-     * 设置
-     * @param namespaceNodeMeta
-     */
     @Override
     public void setNamespaceNodeMeta( NamespaceNodeMeta namespaceNodeMeta ) {
         this.namespaceNodeMeta = namespaceNodeMeta;
     }
 
-    /**
-     * 获取
-     * @return nodeCommonData
-     */
     @Override
     public NodeAttribute getNodeAttribute() {
         return this.nodeAttribute;
     }
 
-    /**
-     * 设置
-     * @param nodeAttribute
-     */
     @Override
     public void setNodeAttribute(NodeAttribute nodeAttribute) {
         this.nodeAttribute = nodeAttribute;

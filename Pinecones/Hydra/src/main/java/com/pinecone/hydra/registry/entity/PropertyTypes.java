@@ -12,13 +12,17 @@ public final class PropertyTypes {
     public final static String ELEMENT_FLOAT32_TYPE_NAME     = "float32";
     public final static String ELEMENT_FLOAT64_TYPE_NAME     = "float64";
     public final static String ELEMENT_BOOLEAN_TYPE_NAME     = "bool";
+    public final static String ELEMENT_NULL_TYPE_NAME        = "Null";
 
     public final static String ELEMENT_JSONOBJECT_TYPE_NAME  = "JSONObject";
     public final static String ELEMENT_JSONARRAY_TYPE_NAME   = "JSONArray";
 
     public static String queryType( Object val ) {
         String type = PropertyTypes.ELEMENT_STRING_TYPE_NAME;
-        if( val instanceof JSONObject ) {
+        if( val == null ) {
+            type = PropertyTypes.ELEMENT_NULL_TYPE_NAME;
+        }
+        else if( val instanceof JSONObject ) {
             type = PropertyTypes.ELEMENT_JSONOBJECT_TYPE_NAME;
         }
         else if( val instanceof JSONArray ) {
@@ -45,6 +49,9 @@ public final class PropertyTypes {
 
     public static Object queryValue( String val, String type ) {
         switch ( type ) {
+            case PropertyTypes.ELEMENT_NULL_TYPE_NAME: {
+                return null;
+            }
             case PropertyTypes.ELEMENT_STRING_TYPE_NAME :{
                 return val;
             }

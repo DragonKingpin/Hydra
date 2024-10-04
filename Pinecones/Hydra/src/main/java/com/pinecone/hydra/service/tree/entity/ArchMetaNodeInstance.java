@@ -98,7 +98,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected GUIDDistributedTrieNode removeDependence0(GUID guid ) {
         GUIDDistributedTrieNode target = this.distributedTrieTree.getNode( guid );
         this.distributedTrieTree.purge( guid );
-        this.distributedTrieTree.removePath( guid );
+        this.distributedTrieTree.removeCachePath( guid );
         this.commonDataManipulator.remove( target.getNodeMetadataGUID() );
         this.serviceFamilyTreeManipulator.removeByChildGUID( guid );
         this.serviceFamilyTreeManipulator.removeByParentGUID( guid );

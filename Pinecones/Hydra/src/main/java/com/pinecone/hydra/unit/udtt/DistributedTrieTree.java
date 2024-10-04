@@ -2,7 +2,8 @@ package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 
 import java.util.List;
 
@@ -10,13 +11,13 @@ public interface DistributedTrieTree extends PineUnit {
 
     void insert( DistributedTreeNode distributedConfTreeNode );
 
-    String getPath( GUID guid );
-
     void affirmOwnedNode( GUID nodeGUID, GUID parentGUID );
 
     GUIDDistributedTrieNode getNode(GUID guid );
 
     void purge( GUID guid );
+
+    void removeTreeNodeOnly( GUID guid );
 
     void put( GUID guid, GUIDDistributedTrieNode distributedTreeNode );
 
@@ -26,11 +27,16 @@ public interface DistributedTrieTree extends PineUnit {
 
     List<GUIDDistributedTrieNode> getChildren( GUID guid );
 
+    List<GUID> getChildrenGuids( GUID parentGuid );
+
     List<GUID> getParentGuids( GUID guid );
 
     void removeInheritance( GUID childGuid,GUID parentGuid );
 
-    void removePath(GUID guid);
+
+    String getCachePath( GUID guid );
+
+    void removeCachePath(GUID guid);
 
     GUID getOwner(GUID guid);
 
@@ -38,19 +44,53 @@ public interface DistributedTrieTree extends PineUnit {
 
     List<GUID> getSubordinates( GUID guid );
 
-    void insertPath(GUID guid,String path);
-
-
+    void insertCachePath(GUID guid,String path);
 
     List<GUID > listRoot();
+
+    boolean isRoot( GUID guid );
+
+
+
+
+    /** Link / Reference */
+    long queryLinkedCount( GUID guid, LinkedType linkedType );
+
+    long queryAllLinkedCount( GUID guid );
+
+    default long queryStrongLinkedCount( GUID guid ) {
+        return this.queryLinkedCount( guid, LinkedType.Owned );
+    }
+
+    default long queryWeakLinkedCount( GUID guid ) {
+        return this.queryLinkedCount( guid, LinkedType.Hard );
+    }
 
     void newHardLink( GUID sourceGuid, GUID targetGuid );
 
     void moveTo( GUID sourceGuid, GUID destinationGuid );
-    void newTag(GUID originalGuid, GUID dirGuid, String tagName);
-    void newTag(String originalPath,String dirPath,String tageName);
-    void updateTage(GUID tagGuid,String tagName);
-    GUID getOriginalGuid(String tagName,GUID dirGuid);
-    GUID getOriginalGuid(GUID tagGuid);
-    long isTagGuid(GUID guid);
+
+    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, DistributedKOInstrument instrument );
+
+    void updateLinkTagName( GUID tagGuid, String tagName );
+
+
+    /** Link Tag */
+    GUID getOriginalGuid( String tagName, GUID parentDirGUID );
+
+    GUID getOriginalGuidByNodeGuid( String tagName, GUID nodeGUID );
+
+    List<GUID > fetchOriginalGuid( String tagName );
+
+    List<GUID > fetchOriginalGuidRoot( String tagName );
+
+    ReparseLinkNode getReparseLinkNode( String tagName, GUID parentDirGuid );
+
+    ReparseLinkNode getReparseLinkNodeByNodeGuid( String tagName, GUID nodeGUID );
+
+    GUID getOriginalGuid( GUID tagGuid );
+
+    void removeReparseLink( GUID guid );
+
+    boolean isTagGuid( GUID guid );
 }

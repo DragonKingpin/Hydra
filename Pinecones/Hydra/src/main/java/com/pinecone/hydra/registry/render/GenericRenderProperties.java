@@ -2,6 +2,7 @@ package com.pinecone.hydra.registry.render;
 
 import com.pinecone.hydra.registry.RenderDistributeRegistry;
 import com.pinecone.hydra.registry.entity.GenericProperties;
+import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 
 import java.util.Collection;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 public class GenericRenderProperties extends GenericProperties implements RenderProperties {
     protected RenderDistributeRegistry       registry;
+
     public void apply(RenderDistributeRegistry registry) {
        this.registry = registry;
     }

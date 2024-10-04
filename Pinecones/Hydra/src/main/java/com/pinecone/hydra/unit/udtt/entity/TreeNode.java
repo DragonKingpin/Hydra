@@ -1,9 +1,8 @@
 package com.pinecone.hydra.unit.udtt.entity;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-public interface TreeNode extends Pinenut {
+public interface TreeNode extends EntityNode {
     String getName();
 
     GUID getGuid();

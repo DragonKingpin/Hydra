@@ -5,31 +5,39 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
-import com.pinecone.framework.system.prototype.Objectom;
 import com.pinecone.framework.util.CursorParser;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.GeneralStrings;
-import com.pinecone.hydra.unit.udtt.entity.TreeNode;
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.name.path.PathResolver;
+import com.pinecone.hydra.registry.entity.Properties;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
-public class RegistryXPathSelector implements RegistrySelector {
-    protected Reader            mReader;
-    protected char              mcPrevious;
-    protected long              mnCharacter;
-    protected boolean           mbUsePrevious;
-    protected int               mnParseAt ;
-    protected int               mnLineAt;
 
-    protected TokenType         mTokenType;
-    protected StringBuilder     mCurrentToken;
-    protected Registry          mRegistry;
+public class RegistryJPathSelector extends ReparseLinkSelector implements RegistrySelector {
+    protected Reader                    mReader;
+    protected char                      mcPrevious;
+    protected long                      mnCharacter;
+    protected boolean                   mbUsePrevious;
+    protected int                       mnParseAt ;
+    protected int                       mnLineAt;
 
-    protected CursorParser      mThisCursor;
+    protected TokenType                 mTokenType;
+    protected StringBuilder             mCurrentToken;
+    protected DistributedRegistry       mRegistry;
+
+    protected CursorParser              mThisCursor;
+    protected List<RegistryTreeNode>    mQueriedList          ;
 
     enum TokenType {
         T_UNDEFINED, T_DELIMITER, T_IDENTIFIER, T_INTEGER, T_FLOAT, T_KEYWORD, T_TEMP, T_STRING, T_BLOCK, T_ENDLINE
     }
 
-    public RegistryXPathSelector( Reader reader, Object valMap ) {
+    public RegistryJPathSelector(Reader reader, PathResolver pathResolver, DistributedRegistry registry, GUIDNameManipulator dirMan, GUIDNameManipulator[] fileMans ) {
+        super( pathResolver, registry.getMasterTrieTree(), dirMan, fileMans );
+
+        this.mRegistry      = registry;
+
         this.mReader        = (Reader)(reader.markSupported() ? reader : new BufferedReader(reader));
         this.mCurrentToken  = new StringBuilder();
 
@@ -201,23 +209,81 @@ public class RegistryXPathSelector implements RegistrySelector {
         }
     }
 
+    protected void eval_root_point() {
+        String szTemp = this.mCurrentToken.toString();
+
+        List<GUID > guids;
+        guids = this.searchDirAndLinksFirstCase( szTemp );
+
+
+    }
+
     public Object eval() {
+        int depth = 0;
+        GUID parentGuid = null;
+
         do {
             this.getNextToken();
-
-            String szTemp = this.mCurrentToken.toString();
-            List<TreeNode > treeNodes = this.mRegistry.selectByName( szTemp );
-            for ( int i = 0; i < treeNodes.size(); ++i ) {
-                TreeNode node = treeNodes.get( i );
-
-
+            if( this.mTokenType == TokenType.T_ENDLINE ) {
+                break;
             }
 
-            Debug.trace( this.mCurrentToken.toString() );
+            if( this.mTokenType == TokenType.T_DELIMITER ) {
+                continue;
+            }
 
+            String currentPart = this.mCurrentToken.toString();
+            List<GUID > guids;
+
+            if ( depth == 0 ) {
+                guids = this.fetchAllGuidsRootCase( currentPart );
+            }
+            else {
+                // Case3: For middle and last parts, retrieve children GUIDs using distributedTrieTree
+                guids = this.distributedTrieTree.getChildrenGuids( parentGuid );
+            }
+
+            if ( guids == null || guids.isEmpty() ) {
+                continue;
+            }
+
+            this.getNextToken();
+            for ( GUID guid : guids ) {
+                List result = this.eval_entities( guid, currentPart );
+                if ( result != null && !result.isEmpty() ) {
+                    if ( this.mTokenType == TokenType.T_ENDLINE ) {
+                        return result;
+                    }
+
+                    parentGuid = guid;
+                }
+            }
+            this.back();
+
+            ++depth;
         }
         while ( this.mTokenType != TokenType.T_ENDLINE );
 
         return null;
+    }
+
+    protected List eval_entities( GUID guid, String partName ) {
+        // 在中间部分只匹配文件夹，最后一部分匹配文件和文件夹
+        // In the last part, check both files and directories
+
+        if ( this.mTokenType == TokenType.T_ENDLINE ) {
+            RegistryTreeNode node = this.mRegistry.get( guid );
+            if( !this.checkPartInAllManipulators( guid, partName ) ) {
+                if( node instanceof Properties ) {
+                    return List.of ( ((Properties) node).get( partName ) );
+                }
+            }
+            return List.of ( node );
+        }
+        else {
+            // Middle part: Directory only.
+            //List<GUID > guids = this.dirManipulator.getGuidsByNameID( partName, guid );
+            return this.searchDirAndLinks( guid, partName );
+        }
     }
 }

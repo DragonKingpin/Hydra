@@ -76,4 +76,14 @@ public class GUID64 implements GUID {
     public String toJSONString() {
         return "\"" + this.toString() + "\"";
     }
+
+    @Override
+    public boolean equals( Object obj ) {
+        if( !super.equals(obj) )  {
+            if( obj instanceof GUID64 ) {
+                return this.guid == ((GUID64) obj).guid;
+            }
+        }
+        return false;
+    }
 }

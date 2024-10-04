@@ -1,8 +1,13 @@
 package com.pinecone.hydra.registry.entity;
 
-import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
+import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.unit.UniScopeMap;
+import com.pinecone.framework.unit.UniScopeMaptron;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.DistributedRegistry;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("ALL")
 public class GenericProperties extends ArchConfigNode implements Properties {
-    protected Map<String, Property >     properties = new LinkedHashMap<>();
+    protected Properties parent;
+
+    protected UniScopeMap<String, Property > properties = new UniScopeMaptron<>();
 
     public GenericProperties() {
     }
@@ -23,20 +29,33 @@ public class GenericProperties extends ArchConfigNode implements Properties {
         super( registry );
     }
 
+    @Override
+    public Properties getParent() {
+        return this.parent;
+    }
+
+    @Override
+    public void setParent( Properties parent ) {
+        this.parent = parent;
+    }
+
+    public Properties getOwner( String szKey ) {
+        Properties owned = this;
+        while ( owned != null ) {
+            if( owned.hasOwnProperty( szKey ) ) {
+                break;
+            }
+
+            owned = owned.getParent();
+        }
+        return owned;
+    }
 
     @Override
     public void put( String key, Object val ) {
         Property p = new GenericProperty();
         p.setKey( key );
-        p.setGuid( this.guid );
-
-        if( val != null ) {
-            p.setValue( val.toString() );
-        }
-        String type = PropertyTypes.queryType( val );
-        p.setType( type );
-        p.setCreateTime( LocalDateTime.now() );
-        p.setUpdateTime( LocalDateTime.now() );
+        p.setValue( val );
 
         this.putProperty( p );
     }
@@ -50,36 +69,63 @@ public class GenericProperties extends ArchConfigNode implements Properties {
 
     @Override
     public void putProperty( Property property ) {
-        boolean isContain = this.containsKey( property.getKey() );
-        if ( isContain ) {
-            Property p = this.get( property.getKey() );
-            if( p != null ) {
-                p.setValue(property.getValue());
-                p.setType(property.getType());
-            }
+        String szKey     = property.getKey();
+        Properties owned = this.getOwner( szKey );
 
-            this.registry.updateProperty( property, this.guid );
-        }
-        else {
+        property.setCreateTime( LocalDateTime.now() );
+        property.setUpdateTime( LocalDateTime.now() );
+        if( owned == null ) {
+            // Insert to current scope.
+            property.setGuid( this.guid );
             this.properties.put( property.getKey(), property );
             this.registry.putProperty( property, this.guid );
+        }
+        else {
+            owned.updateFromDummy( property );
         }
     }
 
     @Override
     public void remove( String key ) {
-        this.properties.remove(key);
-        this.registry.removeProperty( this.guid, key );
+        Properties owner = this.getOwner( key );
+        if( owner != null ) {
+            this.properties.remove( key );
+            this.registry.removeProperty( owner.getGuid(), key );
+        }
     }
 
     @Override
     public void update( Property property ) {
-        Property p = this.get( property.getKey() );
-        if( p != null ) {
-            p.setValue(property.getValue());
-            p.setType(property.getType());
+        if( property.getGuid().equals( this.guid ) ) {
+            Property p = this.get( property.getKey() );
+            // If p == property, which is owned element, no needs to copy.
+            if( p != null && p != property ) {
+                p.from( property );
+                property = p;
+            }
         }
-        this.registry.updateProperty( property, this.guid );
+
+        this.registry.updateProperty( property );
+    }
+
+    @Override
+    public void updateFromDummy( Property dummy ) {
+        Property p = this.get( dummy.getKey() );
+        // If p == property, which is owned element, no needs to copy.
+        if( p != null ) {
+            p.from( dummy );
+        }
+        this.registry.updateProperty( p );
+    }
+
+    @Override
+    public void set( String key, Object val ) {
+        Property p = this.get( key );
+        if( p != null ) {
+            p.setValue( val );
+        }
+
+        this.registry.updateProperty( p );
     }
 
     @Override
@@ -99,6 +145,16 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     @Override
     public boolean containsKey( String key ) {
         return this.properties.containsKey( key );
+    }
+
+    @Override
+    public boolean containsKey( Object key ) {
+        return this.properties.containsKey( key );
+    }
+
+    @Override
+    public boolean hasOwnProperty( Object key ) {
+        return this.properties.hasOwnProperty( key );
     }
 
     @Override
@@ -146,23 +202,41 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     @Override
     public Map<String, Object > toMap() {
         Map<String, Object > jo = new LinkedHashMap<>();
-        for( Property property : this.properties.values() ) {
+        LinkedHashMap<String, Property > overridden = new LinkedHashMap<>();
+        this.properties.overrideTo( overridden );
+
+        for( Property property : overridden.values() ) {
             jo.put( property.getKey(), property.getValue() );
         }
         return jo;
     }
 
     @Override
-    public void setProperties( List<Property> properties ) {
-        this.properties = new LinkedHashMap<>();
+    public UniScopeMap<String, Property > getPropertiesMap() {
+        return this.properties;
+    }
+
+    @Override
+    public void setProperties( List<Property > properties ) {
+        this.properties = new UniScopeMaptron<>();
         for( Property p : properties ) {
             this.properties.put( p.getKey(), p );
         }
     }
 
     @Override
-    public void setProperties( Map<String, Property> properties ) {
+    public void setProperties( UniScopeMap<String, Property > properties ) {
         this.properties = properties;
+    }
+
+    @Override
+    public void setThisProperties( Map<String, Property> properties ) {
+        this.properties.setThisScope( properties );
+    }
+
+    @Override
+    public void setParentProperties( UniScopeMap<String, Property> parent ) {
+        this.properties.setParent( parent );
     }
 
     @Override
@@ -171,8 +245,22 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     }
 
     @Override
+    public void copyTo( GUID guid ) {
+
+    }
+
+    @Override
     public String toJSONString() {
-        return BeanJSONEncoder.BasicEncoder.encode( this );
+        try{
+            PropertyJSONEncoder encoder = new PropertyJSONEncoder();
+            try( StringWriter writer = new StringWriter() ){
+                encoder.write( this, writer );
+                return writer.toString();
+            }
+        }
+        catch ( IOException e ) {
+            throw new ProxyProvokeHandleException( e );
+        }
     }
 
     @Override

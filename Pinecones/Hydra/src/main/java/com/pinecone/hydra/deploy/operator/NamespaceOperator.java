@@ -22,7 +22,7 @@ public class NamespaceOperator implements TreeNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
+    public RegistryTreeNode getSelf( GUID guid ) {
         return null;
     }
 

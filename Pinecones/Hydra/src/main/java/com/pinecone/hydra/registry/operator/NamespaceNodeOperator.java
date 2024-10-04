@@ -1,6 +1,5 @@
 package com.pinecone.hydra.registry.operator;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.DistributedRegistry;
@@ -22,8 +21,6 @@ import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +36,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     private RegistryCommonDataManipulator registryCommonDataManipulator;
 
     private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
+
     private GenericConfigOperatorFactory  factory;
 
     protected DistributedRegistry         registry;
@@ -60,8 +58,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     @Override
     public GUID insert( TreeNode treeNode ) {
         GenericNamespaceNode namespaceNode = (GenericNamespaceNode) treeNode;
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID guid72 = uidGenerator.getGUID72();
+        GUID guid72 = this.registry.getGuidAllocator().nextGUID72();
 
         namespaceNode.setGuid(guid72);
         namespaceNode.setCreateTime(LocalDateTime.now());
@@ -72,7 +69,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
         distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(namespaceNode.getClass().getName()));
 
         NamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
-        GUID namespaceNodeMetaGuid = uidGenerator.getGUID72();
+        GUID namespaceNodeMetaGuid = this.registry.getGuidAllocator().nextGUID72();
         if (namespaceNodeMeta != null){
             namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
             this.namespaceNodeMetaManipulator.insert( namespaceNodeMeta );
@@ -83,7 +80,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
 
         NodeAttribute nodeAttribute = namespaceNode.getNodeAttribute();
-        GUID nodeCommonDataGuid = uidGenerator.getGUID72();
+        GUID nodeCommonDataGuid = this.registry.getGuidAllocator().nextGUID72();
         if (nodeAttribute != null){
             nodeAttribute.setGuid( nodeCommonDataGuid );
             this.registryCommonDataManipulator.insert(nodeAttribute);
@@ -101,7 +98,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
     @Override
     public void purge( GUID guid ) {
-        //namespace节点需要递归删除其拥有节点若其引用节点没有其他引用则进行清理
+        //namespace节点需要递归删除其拥有节点若其引用节点，没有其他引用则进行清理
         List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildren(guid);
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         if ( !childNodes.isEmpty() ){
@@ -111,7 +108,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
                     this.purge( subordinateGuid );
                 }
             }
-            childNodes = this.distributedTrieTree.getChildren(guid);
+            childNodes = this.distributedTrieTree.getChildren( guid );
             for( GUIDDistributedTrieNode childNode : childNodes ){
                 List<GUID > parentNodes = this.distributedTrieTree.getParentGuids(childNode.getGuid());
                 if ( parentNodes.size() > 1 ){
@@ -145,7 +142,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
+    public RegistryTreeNode getSelf( GUID guid ) {
         return this.getNamespaceNodeWideData(guid);
     }
 
@@ -155,13 +152,13 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     }
 
     @Override
-    public void updateName(GUID guid, String name) {
-
+    public void updateName( GUID guid, String name ) {
+        this.namespaceNodeManipulator.updateName( guid, name );
     }
 
     private NamespaceNode getNamespaceNodeWideData( GUID guid ){
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
-        if (namespaceNode instanceof GenericNamespaceNode){
+        if ( namespaceNode instanceof GenericNamespaceNode ){
              ((GenericNamespaceNode) namespaceNode).apply(this.registry);
         }
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
@@ -169,8 +166,8 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
         List<GUIDDistributedTrieNode> childNode = this.distributedTrieTree.getChildren(guid);
         ArrayList<GUID> guids = new ArrayList<>();
-        for (GUIDDistributedTrieNode n : childNode){
-            guids.add(n.getGuid());
+        for ( GUIDDistributedTrieNode n : childNode ){
+            guids.add( n.getGuid() );
         }
         namespaceNode.setContentGuids(guids);
         namespaceNode.setNodeAttribute(nodeCommonData);
@@ -181,7 +178,7 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
     private void removeNode( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         this.distributedTrieTree.purge( guid );
-        this.distributedTrieTree.removePath(guid);
+        this.distributedTrieTree.removeCachePath(guid);
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.registryCommonDataManipulator.remove(node.getBaseDataGUID());

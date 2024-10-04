@@ -17,13 +17,13 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator {
-    @Insert("INSERT INTO hydra_registry_conf_node_properties (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) VALUES (#{guid},#{key},#{type},#{createTime},#{updateTime},#{value})")
+    @Insert("INSERT INTO hydra_registry_conf_node_properties (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) VALUES (#{guid},#{key},#{type},#{createTime},#{updateTime},#{rawValue})")
     void insert( Property property );
 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid`=#{guid} AND `key`=#{key}")
     void remove( GUID guid, String key );
 
-    @Select("SELECT `id`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
+    @Select("SELECT `id`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
     List<GenericProperty > getProperties0( GUID guid );
 
     @SuppressWarnings( "unchecked" )
@@ -31,7 +31,7 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
         return (List) this.getProperties0( guid );
     }
 
-    @Update( "UPDATE `hydra_registry_conf_node_properties` SET `key`=#{key}, `type`=#{type}, update_time=#{updateTime}, value=#{value} WHERE `guid`=#{guid} AND `key`=#{key}" )
+    @Update( "UPDATE `hydra_registry_conf_node_properties` SET `key`=#{key}, `type`=#{type}, update_time=#{updateTime}, value=#{rawValue} WHERE `guid`=#{guid} AND `key`=#{key}" )
     void update( Property property );
 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid` = #{guid}")

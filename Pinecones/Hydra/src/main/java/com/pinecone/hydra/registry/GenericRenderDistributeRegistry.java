@@ -21,26 +21,15 @@ public class GenericRenderDistributeRegistry extends GenericDistributeRegistry i
     protected UniformTemplateRenderer       mUniformTemplateRenderer;
     private UniformTemplateRenderer         renderer;
 
-    public GenericRenderDistributeRegistry(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
+    public GenericRenderDistributeRegistry( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         super( hydrarum, masterManipulator );
         this.renderer = new UTRAlmondProvider();
     }
 
-    @Override
-    public RenderRegistryTreeNode get( GUID guid ) {
-        return null;
-    }
 
     @Override
-    public RenderRegistryTreeNode getNodeByPath( String path ) {
-        return null;
-    }
-
-
-
-    @Override
-    public RenderRegistryTreeNode getThis( GUID guid ) {
-        return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getWithoutInheritance( guid );
+    public RenderRegistryTreeNode getSelf( GUID guid ) {
+        return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getSelf( guid );
     }
 
     @Override

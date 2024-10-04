@@ -104,6 +104,11 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     @Override
+    public void copyTo( GUID guid ) {
+
+    }
+
+    @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );
     }

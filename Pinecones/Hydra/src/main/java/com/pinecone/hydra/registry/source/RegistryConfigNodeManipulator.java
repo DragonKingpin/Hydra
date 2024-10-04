@@ -6,7 +6,7 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;
 
-public interface RegistryNodeManipulator extends GUIDNameManipulator {
+public interface RegistryConfigNodeManipulator extends GUIDNameManipulator {
     void insert( ConfigNode configNode );
 
     void remove( GUID guid );
@@ -16,6 +16,8 @@ public interface RegistryNodeManipulator extends GUIDNameManipulator {
     void update( ConfigNode configNode );
 
     List<GUID > getGuidsByName( String name );
+
+    List<GUID > getGuidsByNameID( String name, GUID guid );
 
     List<GUID > dumpGuid();
 

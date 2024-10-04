@@ -7,4 +7,6 @@ import com.pinecone.framework.util.id.GUID;
 
 public interface GUIDNameManipulator extends Pinenut {
     List<GUID > getGuidsByName( String name );
+
+    List<GUID > getGuidsByNameID( String name, GUID guid );
 }

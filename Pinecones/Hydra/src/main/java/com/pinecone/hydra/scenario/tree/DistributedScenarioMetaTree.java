@@ -15,5 +15,5 @@ public interface DistributedScenarioMetaTree extends Pinenut {
 
     void remove(GUID guid);
 
-    TreeNode getWithoutInheritance(GUID guid);
+    TreeNode getSelf(GUID guid);
 }

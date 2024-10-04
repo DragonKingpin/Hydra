@@ -195,6 +195,14 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     }
 
     @Override
+    public void copyValueTo( GUID destinationGuid ) {
+        if ( destinationGuid != null ){
+            this.registry.copyPropertiesTo(this.guid,destinationGuid);
+        }
+    }
+
+
+    @Override
     public Collection<Property > getProperties() {
         return this.properties.values();
     }
@@ -245,8 +253,9 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     }
 
     @Override
-    public void copyTo( GUID guid ) {
-
+    public void copyTo( GUID destinationGuid ) {
+        this.registry.copyPropertiesTo(this.guid,destinationGuid);
+        this.copyValueTo(destinationGuid);
     }
 
     @Override

@@ -646,6 +646,21 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public void copyMetaTo(GUID sourceGuid, GUID destinationGuid) {
+        this.configNodeManipulator.copyMetaTo(sourceGuid,destinationGuid);
+    }
+
+    @Override
+    public void copyPropertiesTo(GUID sourceGuid, GUID destinationGuid) {
+        this.registryPropertiesManipulator.copyPropertiesTo(sourceGuid,destinationGuid);
+    }
+
+    @Override
+    public void copyTextValueTo(GUID sourceGuid, GUID destinationGuid) {
+        this.registryTextValueManipulator.copyTextValueTo(sourceGuid,destinationGuid);
+    }
+
+    @Override
     public void putTextValue( GUID guid, String text, String format ){
         GenericTextValue genericTextValue = new GenericTextValue( guid, text, format );
         this.registryTextValueManipulator.insert( genericTextValue );

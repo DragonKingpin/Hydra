@@ -72,6 +72,8 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
         return this.mTextValue;
     }
 
+
+
     @Override
     public GenericConfigNodeMeta getConfigNodeMeta() {
         return this.configNodeMeta;
@@ -104,8 +106,16 @@ public class GenericTextConfigNode extends ArchConfigNode implements TextConfigN
     }
 
     @Override
-    public void copyTo( GUID guid ) {
+    public void copyTo( GUID destinationGuid ) {
+        this.registry.copyMetaTo(this.guid,destinationGuid);
+        this.registry.copyTextValueTo(this.guid,destinationGuid);
+    }
 
+    @Override
+    public void copyValueTo(GUID destinationGuid) {
+        if ( destinationGuid != null ){
+            this.registry.copyTextValueTo(this.guid,destinationGuid);
+        }
     }
 
     @Override

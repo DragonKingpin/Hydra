@@ -140,6 +140,7 @@ public class GenericProperty implements Property {
         this.from( that );
     }
 
+
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );

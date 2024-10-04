@@ -117,4 +117,8 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
 
 
     Object querySelector                  ( String szSelector );
+
+    void copyPropertiesTo(GUID sourceGuid, GUID destinationGuid);
+    void copyMetaTo(GUID sourceGuid, GUID destinationGuid);
+    void copyTextValueTo(GUID sourceGuid, GUID destinationGuid);
 }

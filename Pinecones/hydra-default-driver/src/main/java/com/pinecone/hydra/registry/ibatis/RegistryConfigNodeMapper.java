@@ -80,4 +80,7 @@ public interface RegistryConfigNodeMapper extends RegistryConfigNodeManipulator 
 
     @Update( "UPDATE `hydra_registry_config_node` SET `data_affinity_guid` = #{affinityGuid} WHERE `guid` = #{guid}" )
     void setDataAffinityGuid( @Param("guid") GUID guid, @Param("affinityGuid") GUID affinityGuid );
+
+    @Update("UPDATE `hydra_registry_config_node` SET `data_affinity_guid` = (SELECT `data_affinity_guid` FROM `hydra_registry_config_node` WHERE `guid` = #{sourceGuid}) WHERE `guid` = #{destinationGuid}")
+    void copyMetaTo(@Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid);
 }

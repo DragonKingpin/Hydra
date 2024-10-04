@@ -29,4 +29,7 @@ public interface TextValue extends Pinenut {
     String getType();
 
     void setType(String type);
+
+
+
 }

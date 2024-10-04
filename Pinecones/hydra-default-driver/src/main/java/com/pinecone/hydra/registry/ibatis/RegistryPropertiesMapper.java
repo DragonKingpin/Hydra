@@ -9,6 +9,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -36,4 +37,19 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
 
     @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid` = #{guid}")
     void removeAll( GUID guid );
+    @Insert("INSERT INTO `hydra_registry_conf_node_properties` (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) SELECT\n" +
+            "\t#{destinationGuid},\n" +
+            "\t`key`,\n" +
+            "\t`type`,\n" +
+            "\t`create_time`,\n" +
+            "\t`update_time`,\n" +
+            "\t`value` \n" +
+            "FROM\n" +
+            "\t`hydra_registry_conf_node_properties` AS src \n" +
+            "WHERE\n" +
+            "\t`guid` = #{sourceGuid} \n" +
+            "\tAND NOT EXISTS ( \n" +
+            "\tSELECT `guid` FROM `hydra_registry_conf_node_properties` AS dest WHERE dest.`guid` = #{destinationGuid} AND dest.`key` = src.`key` \n" +
+            "\t)")
+    void copyPropertiesTo( @Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid);
 }

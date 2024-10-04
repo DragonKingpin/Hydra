@@ -19,6 +19,9 @@ public interface TextConfigNode extends ConfigNode {
 
     TextValue get ();
 
+    void copyValueTo(GUID destinationGuid );
+    void copyTo    (GUID destinationGuid);
+
     @Override
     default TextConfigNode evinceTextConfigNode() {
         return this;

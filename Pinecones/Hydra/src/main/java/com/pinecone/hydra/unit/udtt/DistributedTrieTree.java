@@ -93,4 +93,5 @@ public interface DistributedTrieTree extends PineUnit {
     void removeReparseLink( GUID guid );
 
     boolean isTagGuid( GUID guid );
+
 }

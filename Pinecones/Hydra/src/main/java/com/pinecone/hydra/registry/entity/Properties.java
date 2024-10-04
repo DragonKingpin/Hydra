@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.unit.UniScopeMap;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 
@@ -74,4 +75,7 @@ public interface Properties extends ConfigNode, PineUnit {
     default Properties evinceProperties() {
         return this;
     }
+
+    void copyValueTo(GUID destinationGuid );
+    void copyTo    (GUID destinationGuid);
 }

@@ -34,7 +34,7 @@ class StanMarsh extends Radium {
 
         //this.testBasicInsert( registry );
         //this.testDataExtends( registry );
-        this.testHardLink( registry );
+        //this.testHardLink( registry );
         //this.testCopy( registry );
         //this.testMisc( registry );
         //this.testSelector( registry );
@@ -42,7 +42,7 @@ class StanMarsh extends Radium {
 
     private void testBasicInsert( DistributedRegistry registry ) {
         registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
-        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, age:666, species:dragon, job:sorcerer }" ) );
+        registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, hp:666, species:dragon, job:sorcerer }" ) );
         registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
         registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
         registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
@@ -77,6 +77,7 @@ class StanMarsh extends Radium {
 
     private void testCopy( DistributedRegistry registry ) {
         //this.testBasicInsert( registry );
+        registry.queryTreeNode("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
     }
 
     private void testDataExtends( DistributedRegistry registry ) {

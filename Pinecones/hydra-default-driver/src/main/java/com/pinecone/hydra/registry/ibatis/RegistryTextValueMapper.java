@@ -9,6 +9,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -26,4 +27,7 @@ public interface RegistryTextValueMapper extends RegistryTextValueManipulator {
 
     @Update("UPDATE `hydra_registry_conf_node_text_value` SET `value`=#{value}, `update_time`=#{updateTime}, `type`=#{type} WHERE guid=#{guid}")
     void update(TextValue textValue);
+
+    @Insert("INSERT INTO `hydra_registry_conf_node_text_value` (`guid`, `type`, `create_time`, `update_time`, `value`) SELECT #{destinationGuid}, `type`, `create_time`, `update_time`, `value` FROM `hydra_registry_conf_node_text_value` WHERE `guid` = #{sourceGuid}")
+    void copyTextValueTo(@Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid);
 }

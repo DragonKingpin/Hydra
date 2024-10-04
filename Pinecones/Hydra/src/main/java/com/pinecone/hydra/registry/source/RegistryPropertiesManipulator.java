@@ -17,4 +17,6 @@ public interface RegistryPropertiesManipulator extends Pinenut {
     void update(Property property);
 
     void removeAll( GUID guid );
+
+    void copyPropertiesTo(GUID sourceGuid, GUID destinationGuid);
 }

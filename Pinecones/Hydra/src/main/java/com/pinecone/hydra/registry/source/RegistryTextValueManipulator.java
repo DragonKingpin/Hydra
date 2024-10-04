@@ -12,4 +12,6 @@ public interface RegistryTextValueManipulator extends Pinenut {
     TextValue getTextValue(GUID guid);
 
     void update(TextValue textValue);
+
+    void copyTextValueTo(GUID sourceGuid, GUID destinationGuid);
 }

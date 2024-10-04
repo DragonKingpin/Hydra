@@ -73,4 +73,6 @@ public interface NamespaceNode extends RegistryTreeNode {
 
     Set<Map.Entry<String,RegistryTreeNode>> entrySet();
 
+    void copyTo(GUID destinationGuid);
+    void copyNamespaceMetaTo(GUID destinationGuid);
 }

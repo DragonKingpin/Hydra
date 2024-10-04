@@ -652,6 +652,11 @@ public class GenericDistributeRegistry implements DistributedRegistry {
     }
 
     @Override
+    public void copyNamespaceMetaTo(GUID sourceGuid, GUID destinationGuid) {
+
+    }
+
+    @Override
     public void copyTextValueTo( GUID sourceGuid, GUID destinationGuid ) {
         this.registryTextValueManipulator.copyTextValueTo( sourceGuid, destinationGuid );
     }

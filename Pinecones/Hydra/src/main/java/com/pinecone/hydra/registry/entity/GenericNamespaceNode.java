@@ -5,6 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.registry.DistributedRegistry;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -211,6 +212,31 @@ public class GenericNamespaceNode implements NamespaceNode {
     @Override
     public Set<Map.Entry<String, RegistryTreeNode > > entrySet() {
         return this.getChildren().entrySet();
+    }
+
+    @Override
+    public void copyTo(GUID destinationGuid) {
+        List<TreeNode> childrenNodes = this.registry.getChildren(this.guid);
+        if ( !childrenNodes.isEmpty() && childrenNodes.get(0) instanceof RegistryTreeNode ){
+            List<RegistryTreeNode> registryNodes = (List<RegistryTreeNode>) (List<?>) childrenNodes;
+            for ( RegistryTreeNode node :  registryNodes){
+                if (node.evinceNamespaceNode() != null){
+                    this.copyTo( node.getGuid() );
+                }
+                else if ( node.evinceProperties() != null ){
+                    node.evinceProperties().copyTo(this.guid);
+                }
+                else if( node.evinceTextConfigNode() != null ){
+                    node.evinceTextConfigNode().copyTo( this.guid );
+                }
+            }
+        }
+       this.copyNamespaceMetaTo( destinationGuid );
+    }
+
+    @Override
+    public void copyNamespaceMetaTo(GUID destinationGuid) {
+        this.registry.copyNamespaceMetaTo(this.guid,destinationGuid);
     }
 
     @Override

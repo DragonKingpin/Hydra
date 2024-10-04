@@ -121,4 +121,6 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
     void copyPropertiesTo( GUID sourceGuid, GUID destinationGuid );
 
     void copyTextValueTo( GUID sourceGuid, GUID destinationGuid );
+
+    void copyNamespaceMetaTo( GUID sourceGuid, GUID destinationGuid );
 }

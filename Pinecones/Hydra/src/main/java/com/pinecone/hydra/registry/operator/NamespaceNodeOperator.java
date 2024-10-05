@@ -1,122 +1,128 @@
 package com.pinecone.hydra.registry.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
-import com.pinecone.hydra.registry.entity.GenericNamespaceNodeMeta;
-import com.pinecone.hydra.registry.entity.GenericNodeCommonData;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
-import com.pinecone.hydra.registry.entity.NamespaceNodeMeta;
-import com.pinecone.hydra.registry.entity.NodeCommonData;
+import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.registry.KOMRegistry;
+import com.pinecone.hydra.registry.entity.GenericNamespace;
+import com.pinecone.hydra.registry.entity.Namespace;
+import com.pinecone.hydra.registry.entity.NamespaceMeta;
+import com.pinecone.hydra.registry.entity.Attributes;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
-import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
-import com.pinecone.hydra.service.tree.UOIUtils;
-import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
-import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
-import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-public class NamespaceNodeOperator implements RegistryNodeOperator {
-    private RegistryMasterManipulator     registryMasterManipulator;
-
+public class NamespaceNodeOperator extends ArchRegistryOperator {
     private RegistryNSNodeManipulator     namespaceNodeManipulator;
-
-    private DistributedTrieTree           distributedTrieTree;
-
-    private RegistryCommonDataManipulator registryCommonDataManipulator;
-
     private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
-    public NamespaceNodeOperator ( GenericConfigOperatorFactory factory ) {
-        this( factory.getMasterManipulator() );
+
+    public NamespaceNodeOperator ( RegistryOperatorFactory factory ) {
+        this( factory.getMasterManipulator(),(KOMRegistry) factory.getRegistry() );
+        this.factory = factory;
     }
 
-    public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator ){
-        this.registryMasterManipulator      = masterManipulator;
+    public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator , KOMRegistry registry ){
+        super( masterManipulator, registry );
         this.namespaceNodeManipulator       = this.registryMasterManipulator.getNSNodeManipulator();
-        this.registryCommonDataManipulator  = this.registryMasterManipulator.getRegistryCommonDataManipulator();
         this.namespaceNodeMetaManipulator   = this.registryMasterManipulator.getNSNodeMetaManipulator();
-        this.distributedTrieTree            = new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
     }
 
     @Override
     public GUID insert( TreeNode treeNode ) {
-        GenericNamespaceNode namespaceNode = (GenericNamespaceNode) treeNode;
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID guid72 = uidGenerator.getGUID72();
+        Namespace nsNode        = (Namespace) treeNode;
+        DistributedTreeNode distributedTreeNode = this.affirmPreinsertionInitialize( treeNode );
+        GuidAllocator guidAllocator = this.registry.getGuidAllocator();
+        GUID guid72                 = nsNode.getGuid();
 
-        namespaceNode.setGuid(guid72);
-        namespaceNode.setCreateTime(LocalDateTime.now());
-        namespaceNode.setUpdateTime(LocalDateTime.now());
+        NamespaceMeta namespaceMeta = nsNode.getNamespaceWithMeta();
+        GUID namespaceNodeMetaGuid = guidAllocator.nextGUID72();
+        if (namespaceMeta != null){
+            namespaceMeta.setGuid(namespaceNodeMetaGuid);
+            this.namespaceNodeMetaManipulator.insert(namespaceMeta);
+        }
+        else {
+            namespaceNodeMetaGuid = null;
+        }
 
-        DistributedTreeNode distributeConfTreeNode = new GUIDDistributedTrieNode();
-        distributeConfTreeNode.setGuid(guid72);
-        distributeConfTreeNode.setType(UOIUtils.createLocalJavaClass(namespaceNode.getClass().getName()));
 
-        NamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
-        GUID namespaceNodeMetaGuid = uidGenerator.getGUID72();
-        namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
+        Attributes attributes = nsNode.getAttributes();
+        GUID nodeAttributesGuid = guidAllocator.nextGUID72();
+        if (attributes != null){
+            attributes.setGuid( nodeAttributesGuid );
+            this.attributesManipulator.insert(attributes);
+        }
+        else {
+            nodeAttributesGuid = null;
+        }
 
-        NodeCommonData nodeCommonData = namespaceNode.getNodeCommonData();
-        GUID nodeCommonDataGuid = uidGenerator.getGUID72();
-        nodeCommonData.setGuid( nodeCommonDataGuid );
-
-        distributeConfTreeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
-        distributeConfTreeNode.setBaseDataGUID(nodeCommonDataGuid);
-
-        this.namespaceNodeMetaManipulator.insert( namespaceNodeMeta );
-        this.registryCommonDataManipulator.insert( nodeCommonData );
-        this.distributedTrieTree.insert( distributeConfTreeNode );
-        this.namespaceNodeManipulator.insert( namespaceNode );
+        distributedTreeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
+        distributedTreeNode.setBaseDataGUID(nodeAttributesGuid);
+        this.distributedTrieTree.insert( distributedTreeNode );
+        this.namespaceNodeManipulator.insert( nsNode );
         return guid72;
     }
 
     @Override
-    public void remove(GUID guid) {
-        //namespace节点需要递归删除其拥有节点若其引用节点没有其他引用则进行清理
-        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildNode(guid);
-        if (childNodes.isEmpty()){
-            this.removeNode(guid);
-        }
-        else {
-            List<GUID> subordinates = this.distributedTrieTree.getSubordinates(guid);
-            if (!subordinates.isEmpty()){
-                for (GUID subordinateGuid : subordinates){
-                    this.remove(subordinateGuid);
+    public void purge( GUID guid ) {
+        //namespace节点需要递归删除其拥有节点若其引用节点，没有其他引用则进行清理
+        List<GUIDDistributedTrieNode> childNodes = this.distributedTrieTree.getChildren(guid);
+        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
+        if ( !childNodes.isEmpty() ){
+            List<GUID > subordinates = this.distributedTrieTree.getSubordinates(guid);
+            if ( !subordinates.isEmpty() ){
+                for ( GUID subordinateGuid : subordinates ){
+                    this.purge( subordinateGuid );
                 }
             }
-             childNodes = this.distributedTrieTree.getChildNode(guid);
+            childNodes = this.distributedTrieTree.getChildren( guid );
             for( GUIDDistributedTrieNode childNode : childNodes ){
-                List<GUID > parentNodes = this.distributedTrieTree.getParentNodes(childNode.getGuid());
+                List<GUID > parentNodes = this.distributedTrieTree.getParentGuids(childNode.getGuid());
                 if ( parentNodes.size() > 1 ){
                     this.distributedTrieTree.removeInheritance(childNode.getGuid(),guid);
                 }
                 else {
-                    this.remove(childNode.getGuid());
+                    this.purge( childNode.getGuid() );
                 }
             }
+        }
+
+        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ){
             this.removeNode(guid);
+        }
+        else {
+            UOI uoi = node.getType();
+            String metaType = this.getOperatorFactory().getMetaType( uoi.getObjectName() );
+            if( metaType == null ) {
+                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ KOMRegistry.class }, this.registry );
+                metaType = newInstance.getMetaType();
+            }
+
+            RegistryNodeOperator operator = this.getOperatorFactory().getOperator( metaType );
+            operator.purge( guid );
         }
     }
 
     @Override
     public RegistryTreeNode get( GUID guid ) {
-        return this.getNamespaceNodeWideData(guid);
+        return this.getNamespaceNodeWideData( guid, 0 );
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
-        return this.getNamespaceNodeWideData(guid);
+    public RegistryTreeNode get( GUID guid, int depth ) {
+        return this.getNamespaceNodeWideData( guid, depth );
+    }
+
+    @Override
+    public RegistryTreeNode getSelf( GUID guid ) {
+        return this.getNamespaceNodeWideData( guid, 0 );
     }
 
     @Override
@@ -124,22 +130,42 @@ public class NamespaceNodeOperator implements RegistryNodeOperator {
 
     }
 
-    private NamespaceNode getNamespaceNodeWideData( GUID guid ){
-        NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceMeta(guid);
+    @Override
+    public void updateName( GUID guid, String name ) {
+        this.namespaceNodeManipulator.updateName( guid, name );
+    }
+
+    private Namespace getNamespaceNodeWideData( GUID guid, int depth ){
+        Namespace ns = this.namespaceNodeManipulator.getNamespaceWithMeta( guid );
+        if ( ns instanceof GenericNamespace ){
+             ((GenericNamespace) ns).apply( this.registry );
+        }
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        GenericNodeCommonData nodeCommonData = (GenericNodeCommonData) this.registryCommonDataManipulator.getNodeCommonData(node.getBaseDataGUID());
-        GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
-        namespaceNode.setNodeCommonData(nodeCommonData);
-        namespaceNode.setNamespaceNodeMeta(namespaceNodeMeta);
-        return namespaceNode;
+
+        if( depth <= 0 ) {
+            List<GUIDDistributedTrieNode> childNode = this.distributedTrieTree.getChildren(guid);
+            ArrayList<GUID> guids = new ArrayList<>();
+            for ( GUIDDistributedTrieNode n : childNode ){
+                guids.add( n.getGuid() );
+            }
+            ++depth;
+            ns.setChildrenGuids( guids, depth );
+        }
+
+        Attributes           attributes = this.attributesManipulator.getAttributes( guid, ns );
+        NamespaceMeta namespaceNodeMeta = this.namespaceNodeMetaManipulator.getNamespaceNodeMeta( node.getNodeMetadataGUID() );
+        ns.setAttributes    ( attributes );
+        ns.setNamespaceMeta ( namespaceNodeMeta );
+        return ns;
     }
 
     private void removeNode( GUID guid ){
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        this.distributedTrieTree.remove(guid);
-        this.distributedTrieTree.removePath(guid);
+        this.distributedTrieTree.purge( guid );
+        this.distributedTrieTree.removeCachePath(guid);
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.registryCommonDataManipulator.remove(node.getBaseDataGUID());
+        this.attributesManipulator.remove(node.getAttributesGUID());
     }
+
 }

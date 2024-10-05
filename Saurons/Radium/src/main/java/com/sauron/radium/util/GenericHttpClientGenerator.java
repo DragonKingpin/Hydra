@@ -45,16 +45,16 @@ public class GenericHttpClientGenerator implements HttpClientGenerator {
     private transient Logger                           logger = LoggerFactory.getLogger( this.getClass() );
     private PoolingHttpClientConnectionManager         connectionManager;
     private final ReentrantReadWriteLock               generatorLock = new ReentrantReadWriteLock();
-    private final Registry<ConnectionSocketFactory >   registry;
+    private Registry<ConnectionSocketFactory >         registry;
 
     public GenericHttpClientGenerator() {
-        this.registry = RegistryBuilder.<ConnectionSocketFactory >create()
-                .register("http", PlainConnectionSocketFactory.INSTANCE)
-                .register("https", this.buildSSLConnectionSocketFactory()).build();
         this.initConnectionManager();
     }
 
     protected void initConnectionManager(){
+        this.registry = RegistryBuilder.<ConnectionSocketFactory >create()
+                .register("http", PlainConnectionSocketFactory.INSTANCE)
+                .register("https", this.buildSSLConnectionSocketFactory()).build();
         this.connectionManager = new PoolingHttpClientConnectionManager( this.registry );
         this.connectionManager.setDefaultMaxPerRoute(100);
         this.connectionManager.setValidateAfterInactivity(10000);

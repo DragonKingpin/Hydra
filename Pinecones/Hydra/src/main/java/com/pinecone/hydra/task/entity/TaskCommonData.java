@@ -6,8 +6,8 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface TaskCommonData extends Pinenut {
-    int getEnumId();
-    void setEnumId(int id);
+    long getEnumId();
+    void setEnumId(long id);
 
     GUID getGuid();
     void setGuid(GUID guid);

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.registry.ibatis.RegistryNodeOwnerMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryNodePathMapper;
+import com.pinecone.hydra.registry.ibatis.RegistryNodePathCacheMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryTreeMapper;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
@@ -19,8 +19,8 @@ import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator {
 
     @Resource
-    @Structure( type = RegistryNodePathMapper.class )
-    TriePathManipulator  triePathManipulator;
+    @Structure( type = RegistryNodePathCacheMapper.class )
+    TriePathCacheManipulator triePathCacheManipulator;
 
     @Resource
     @Structure( type = RegistryNodeOwnerMapper.class )
@@ -39,8 +39,8 @@ public class RegistryMasterTreeManipulatorImpl implements TreeMasterManipulator 
     }
 
     @Override
-    public TriePathManipulator getTriePathManipulator() {
-        return this.triePathManipulator;
+    public TriePathCacheManipulator getTriePathCacheManipulator() {
+        return this.triePathCacheManipulator;
     }
 
     @Override

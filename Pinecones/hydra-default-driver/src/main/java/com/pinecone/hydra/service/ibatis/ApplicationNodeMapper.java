@@ -21,7 +21,7 @@ public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
     @Delete("DELETE FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
 
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
     GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);
 
     void update(GenericApplicationNode applicationNode);

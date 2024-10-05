@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public class GenericScenarioCommonData implements ScenarioCommonData{
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
@@ -13,7 +13,7 @@ public class GenericScenarioCommonData implements ScenarioCommonData{
     public GenericScenarioCommonData() {
     }
 
-    public GenericScenarioCommonData(int enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericScenarioCommonData(long enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime) {
         this.enumId = enumId;
         this.guid = guid;
         this.createTime = createTime;
@@ -21,12 +21,12 @@ public class GenericScenarioCommonData implements ScenarioCommonData{
     }
 
 
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
 
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

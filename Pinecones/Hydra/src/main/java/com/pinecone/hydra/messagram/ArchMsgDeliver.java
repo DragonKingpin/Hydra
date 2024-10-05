@@ -1,5 +1,6 @@
 package com.pinecone.hydra.messagram;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umc.msg.*;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.system.Hydrarum;
@@ -75,6 +76,7 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
             szServiceKey = (String) joExHead.get( "/" );
         }
 
+        //Debug.trace( new String( msg.getStreamBody().readAllBytes() ) );
         if( this.isMyJob( that, szServiceKey ) ) {
             msgPackage.entrust( this );
 

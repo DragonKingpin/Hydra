@@ -11,7 +11,7 @@ public class PhysicalOperator implements TreeNodeOperator {
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void purge(GUID guid) {
 
     }
 
@@ -21,12 +21,17 @@ public class PhysicalOperator implements TreeNodeOperator {
     }
 
     @Override
-    public TreeNode getWithoutInheritance(GUID guid) {
+    public TreeNode getSelf(GUID guid) {
         return null;
     }
 
     @Override
     public void update(TreeNode treeNode) {
+
+    }
+
+    @Override
+    public void updateName(GUID guid, String name) {
 
     }
 }

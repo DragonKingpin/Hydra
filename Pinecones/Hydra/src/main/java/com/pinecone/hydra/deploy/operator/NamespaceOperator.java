@@ -12,7 +12,7 @@ public class NamespaceOperator implements TreeNodeOperator {
     }
 
     @Override
-    public void remove( GUID guid ) {
+    public void purge( GUID guid ) {
 
     }
 
@@ -22,12 +22,17 @@ public class NamespaceOperator implements TreeNodeOperator {
     }
 
     @Override
-    public RegistryTreeNode getWithoutInheritance( GUID guid ) {
+    public RegistryTreeNode getSelf( GUID guid ) {
         return null;
     }
 
     @Override
     public void update( TreeNode treeNode ) {
+
+    }
+
+    @Override
+    public void updateName(GUID guid, String name) {
 
     }
 }

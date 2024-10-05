@@ -6,7 +6,7 @@ import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 public class GenericConfigNodeMeta implements ConfigNodeMeta {
-    private int enumId;
+    private long enumId;
 
     private GUID guid;
 
@@ -14,18 +14,18 @@ public class GenericConfigNodeMeta implements ConfigNodeMeta {
     public GenericConfigNodeMeta() {
     }
 
-    public GenericConfigNodeMeta(int enumId, GUID guid) {
+    public GenericConfigNodeMeta(long enumId, GUID guid) {
         this.enumId = enumId;
         this.guid = guid;
     }
 
     @Override
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
     @Override
-    public void setEnumId( int enumId ) {
+    public void setEnumId( long enumId ) {
         this.enumId = enumId;
     }
 

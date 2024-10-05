@@ -2,14 +2,14 @@ package com.pinecone.hydra.registry.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.NamespaceNodeMeta;
+import com.pinecone.hydra.registry.entity.NamespaceMeta;
 
 public interface RegistryNSNodeMetaManipulator extends Pinenut {
-    void insert( NamespaceNodeMeta namespaceNodeMeta );
+    void insert( NamespaceMeta namespaceMeta);
 
     void remove( GUID guid );
 
-    NamespaceNodeMeta getNamespaceNodeMeta( GUID guid );
+    NamespaceMeta getNamespaceNodeMeta(GUID guid );
 
-    void update( NamespaceNodeMeta namespaceNodeMeta );
+    void update( NamespaceMeta namespaceMeta);
 }

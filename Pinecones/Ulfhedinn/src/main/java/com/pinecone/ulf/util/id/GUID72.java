@@ -52,4 +52,14 @@ public class GUID72 extends GUID64 {
     public String toJSONString() {
         return "\"" + this.toString() + "\"";
     }
+
+    @Override
+    public boolean equals( Object obj ) {
+        boolean b = false;
+        if( obj instanceof GUID72 ) {
+            b = this.nanoSeed == ((GUID72) obj).nanoSeed;
+        }
+
+        return super.equals(obj) && b;
+    }
 }

@@ -17,7 +17,7 @@ public interface ServiceCommonDataMapper extends CommonDataManipulator {
     void insert(GenericNodeCommonData nodeMetadata);
     @Delete("DELETE FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
-    @Select("SELECT `id`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
     GenericNodeCommonData getNodeMetadata(@Param("guid")GUID guid);
     void update(GenericNodeCommonData nodeMetadata);
 }

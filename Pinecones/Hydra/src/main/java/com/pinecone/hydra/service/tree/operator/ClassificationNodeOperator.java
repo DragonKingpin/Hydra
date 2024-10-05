@@ -8,36 +8,42 @@ import com.pinecone.hydra.service.tree.GenericClassificationRules;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
 import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ClassifNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GUIDs;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 
 public class ClassificationNodeOperator implements MetaNodeOperator {
-    private ClassifNodeManipulator  classifNodeManipulator;
-    private CommonDataManipulator commonDataManipulator;
-    private TrieTreeManipulator trieTreeManipulator;
-    private ClassifRulesManipulator classifRulesManipulator;
+    protected ClassifNodeManipulator   classifNodeManipulator;
+    protected CommonDataManipulator    commonDataManipulator;
+    protected TrieTreeManipulator      trieTreeManipulator;
+    protected TireOwnerManipulator     tireOwnerManipulator;
+    protected ClassifRulesManipulator  classifRulesManipulator;
 
     public ClassificationNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getClassifNodeManipulator(),
                 manipulators.getCommonDataManipulator(),
                 manipulators.getTrieTreeManipulator(),
-                manipulators.getClassifRulesManipulator()
+                manipulators.getClassifRulesManipulator(),
+                manipulators.getTireOwnerManipulator()
         );
     }
 
     public ClassificationNodeOperator(
-            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator, ClassifRulesManipulator classifRulesManipulator
+            ClassifNodeManipulator classifNodeManipulator, CommonDataManipulator commonDataManipulator,
+            TrieTreeManipulator trieTreeManipulator, ClassifRulesManipulator classifRulesManipulator,
+            TireOwnerManipulator tireOwnerManipulator
     ){
         this.classifNodeManipulator  = classifNodeManipulator;
-        this.commonDataManipulator = commonDataManipulator;
-        this.trieTreeManipulator = trieTreeManipulator;
+        this.commonDataManipulator   = commonDataManipulator;
         this.classifRulesManipulator = classifRulesManipulator;
+        this.trieTreeManipulator     = trieTreeManipulator;
+        this.tireOwnerManipulator    = tireOwnerManipulator;
     }
 
 
@@ -47,21 +53,21 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         GenericClassificationNode classifNodeInformation = (GenericClassificationNode) nodeWideData;
 
         //将应用节点基础信息存入信息表
-        UidGenerator uidGenerator = UUIDBuilder.getBuilder();
-        GUID descriptionGUID = uidGenerator.getGUID72();
+        GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
+        GUID descriptionGUID = guidAllocator.nextGUID72();
         GenericClassificationRules classificationRules = classifNodeInformation.getClassificationRules();
         classificationRules.setGuid(descriptionGUID);
 
         //将信息写入数据库
         //将节点信息存入应用节点表
-        GUID classifNodeGUID = uidGenerator.getGUID72();
+        GUID classifNodeGUID = guidAllocator.nextGUID72();
         classifNodeInformation.setGuid(classifNodeGUID);
         classifNodeInformation.setRulesGUID(descriptionGUID);
         this.classifNodeManipulator.insert(classifNodeInformation);
 
         //将应用元信息存入元信息表
-        GUID metadataGUID = uidGenerator.getGUID72();
-        GenericNodeCommonData metadata = classifNodeInformation.getNodeCommonData();
+        GUID metadataGUID = guidAllocator.nextGUID72();
+        GenericNodeCommonData metadata = classifNodeInformation.getAttributes();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -71,7 +77,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
         node.setGuid(classifNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node);
         return classifNodeGUID;
     }
 
@@ -86,11 +92,11 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     public ServiceTreeNode get(GUID guid ) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericClassificationNode genericClassificationNode = new GenericClassificationNode();
-        GenericNodeCommonData nodeCommonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getBaseDataGUID());
+        GenericNodeCommonData nodeAttributes = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getAttributesGUID());
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(node.getGuid());
 
-        genericClassificationNode.setNodeCommonData(nodeCommonData);
+        genericClassificationNode.setNodeCommonData(nodeAttributes);
         genericClassificationNode.setClassificationRules(classifRules);
         genericClassificationNode.setDistributedTreeNode(guidDistributedTrieNode);
         genericClassificationNode.setName(this.classifNodeManipulator.getClassifNode(guid).getName());

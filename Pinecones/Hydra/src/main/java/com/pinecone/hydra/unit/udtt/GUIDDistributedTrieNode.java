@@ -1,6 +1,8 @@
 package com.pinecone.hydra.unit.udtt;
 
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.uoi.UOI;
 
 import java.util.List;
@@ -15,129 +17,99 @@ import java.util.List;
  */
 public class GUIDDistributedTrieNode implements DistributedTreeNode {
     //节点id
-    private long enumId;
+    protected long enumId;
     //节点uuid
-    private GUID guid;
+    protected GUID guid;
     //父节点uuid
-    private List<GUID> parentGUID;
+    protected List<GUID > parentGUID;
     //基础信息uuid
-    private GUID baseDataGUID;
+    protected GUID attributesGUID;
     //元信息uuid
-    private GUID nodeMetadataGUID;
+    protected GUID nodeMetadataGUID;
     //节点的类型方便获取数据
-    private UOI type;
+    protected UOI type;
 
 
     public GUIDDistributedTrieNode() {
     }
 
-    public GUIDDistributedTrieNode( long enumId, GUID guid, List<GUID> parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type ) {
+    public GUIDDistributedTrieNode(
+            long enumId, GUID guid, List<GUID> parentGUID, GUID baseDataGUID, GUID nodeMetadataGUID, UOI type
+    ) {
         this.enumId = enumId;
         this.guid = guid;
         this.parentGUID = parentGUID;
-        this.baseDataGUID = baseDataGUID;
+        this.attributesGUID = baseDataGUID;
         this.nodeMetadataGUID = nodeMetadataGUID;
         this.type = type;
     }
 
-    /**
-     * 获取
-     * @return enumId
-     */
+    @Override
     public long getEnumId() {
         return this.enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
+    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
+    @Override
     public GUID getGuid() {
         return this.guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
-    public void setGuid(GUID guid) {
+    @Override
+    public void setGuid( GUID guid ) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return parentGUID
-     */
-    public List<GUID> getParentGUIDs() {
+    @Override
+    public List<GUID > getParentGUIDs() {
         return this.parentGUID;
     }
 
-    /**
-     * 设置
-     * @param parentGUID
-     */
-    public void setParentGUID(List<GUID> parentGUID) {
+    @Override
+    public void setParentGUID( List<GUID> parentGUID ) {
         this.parentGUID = parentGUID;
     }
 
-    /**
-     * 获取
-     * @return baseDataGUID
-     */
-    public GUID getBaseDataGUID() {
-        return this.baseDataGUID;
+    @Override
+    public GUID getAttributesGUID() {
+        return this.attributesGUID;
     }
 
-    /**
-     * 设置
-     * @param baseDataGUID
-     */
-    public void setBaseDataGUID(GUID baseDataGUID) {
-        this.baseDataGUID = baseDataGUID;
+    @Override
+    public void setBaseDataGUID( GUID baseDataGUID ) {
+        this.attributesGUID = baseDataGUID;
     }
 
-    /**
-     * 获取
-     * @return nodeMetadataGUID
-     */
+    @Override
     public GUID getNodeMetadataGUID() {
         return this.nodeMetadataGUID;
     }
 
-    /**
-     * 设置
-     * @param nodeMetadataGUID
-     */
-    public void setNodeMetadataGUID(GUID nodeMetadataGUID) {
+    @Override
+    public void setNodeMetadataGUID( GUID nodeMetadataGUID ) {
         this.nodeMetadataGUID = nodeMetadataGUID;
     }
 
-    /**
-     * 获取
-     * @return type
-     */
+    @Override
     public UOI getType() {
         return this.type;
     }
 
-    /**
-     * 设置
-     * @param type
-     */
+    @Override
     public void setType(UOI type) {
         this.type = type;
     }
 
     @Override
     public String toString() {
-        return "GUIDDistributedScopeNode{enumId = " + enumId + ", guid = " + guid + ", parentGUID = " + parentGUID + ", baseDataGUID = " + baseDataGUID + ", nodeMetadataGUID = " + nodeMetadataGUID + ", type = " + type + "}";
+        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
+                new KeyValue<>( "class", this.className() ),
+                new KeyValue<>( "guid", this.getGuid() ),
+                new KeyValue<>( "type", this.getType() )
+        } );
     }
 }

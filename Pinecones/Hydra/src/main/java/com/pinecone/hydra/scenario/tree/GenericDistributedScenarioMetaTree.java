@@ -23,8 +23,8 @@ import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GUIDs;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -62,7 +62,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public String getPath(GUID guid) {
-        String path = this.distributedScenarioTree.getPath(guid);
+        String path = this.distributedScenarioTree.getCachePath(guid);
         if (path!=null) return path;
         DistributedTreeNode node = this.distributedScenarioTree.getNode(guid);
         Debug.trace(node.toString());
@@ -73,27 +73,27 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
                 String nodeName = this.getNodeName(node);
                 assemblePath = nodeName + "." + assemblePath;
             }
-            this.distributedScenarioTree.insertPath(guid,assemblePath);
+            this.distributedScenarioTree.insertCachePath(guid,assemblePath);
             return assemblePath;
     }
 
     @Override
-    public GUID insert(TreeNode treeNode) {
+    public GUID insert( TreeNode treeNode ) {
         GenericNamespaceNode namespaceNode = (GenericNamespaceNode) treeNode;
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
+        GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
 
         NamespaceNodeMeta namespaceNodeMeta = namespaceNode.getNamespaceNodeMeta();
-        GUID namespaceNodeMetaGuid = uidGenerator.getGUID72();
+        GUID namespaceNodeMetaGuid = guidAllocator.nextGUID72();
         namespaceNodeMeta.setGuid(namespaceNodeMetaGuid);
 
         ScenarioCommonData scenarioCommonData = namespaceNode.getScenarioCommonData();
-        GUID scenarioCommonDataGuid = uidGenerator.getGUID72();
+        GUID scenarioCommonDataGuid = guidAllocator.nextGUID72();
         scenarioCommonData.setGuid(scenarioCommonDataGuid);
         scenarioCommonData.setCreateTime(LocalDateTime.now());
         scenarioCommonData.setUpdateTime(LocalDateTime.now());
 
         GUIDDistributedTrieNode guidDistributedTrieNode = new GUIDDistributedTrieNode();
-        GUID nodeGuid = uidGenerator.getGUID72();
+        GUID nodeGuid = guidAllocator.nextGUID72();
         namespaceNode.setGuid(nodeGuid);
         guidDistributedTrieNode.setGuid(nodeGuid);
         guidDistributedTrieNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
@@ -111,7 +111,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     public TreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceNode(guid);
-        GenericScenarioCommonData scenarioCommonData = (GenericScenarioCommonData) this.scenarioCommonDataManipulator.getScenarioCommonData(node.getBaseDataGUID());
+        GenericScenarioCommonData scenarioCommonData = (GenericScenarioCommonData) this.scenarioCommonDataManipulator.getScenarioCommonData(node.getAttributesGUID());
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
         namespaceNode.setNamespaceNodeMeta(namespaceNodeMeta);
         namespaceNode.setScenarioCommonData(scenarioCommonData);
@@ -126,7 +126,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         }
         else{
             String[] parts = this.processPath(path).split("\\.");
-            List<GUID> nodeByName = this.namespaceNodeManipulator.getNodeByName(parts[parts.length - 1]);
+            List<GUID> nodeByName = this.namespaceNodeManipulator.getGuidsByName(parts[parts.length - 1]);
             for(GUID nodeGuid :nodeByName){
                 if (this.getPath(nodeGuid).equals(path)){
                     return this.get(nodeGuid);
@@ -138,13 +138,13 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     @Override
     public void remove(GUID guid) {
-        List<GUIDDistributedTrieNode> childNodes = this.distributedScenarioTree.getChildNode(guid);
+        List<GUIDDistributedTrieNode> childNodes = this.distributedScenarioTree.getChildren(guid);
         if (childNodes == null || childNodes.isEmpty()){
             this.removeNode(guid);
         }
         else {
             for(GUIDDistributedTrieNode childNode : childNodes){
-                List<GUID> parentNodes = this.distributedScenarioTree.getParentNodes(childNode.getGuid());
+                List<GUID> parentNodes = this.distributedScenarioTree.getParentGuids(childNode.getGuid());
                 if (parentNodes.size() > 1){
                     this.distributedScenarioTree.removeInheritance(childNode.getGuid(),guid);
                 }else {
@@ -156,7 +156,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     }
 
     @Override
-    public TreeNode getWithoutInheritance(GUID guid) {
+    public TreeNode getSelf(GUID guid) {
         return null;
     }
 
@@ -171,11 +171,11 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
 
     private void removeNode(GUID guid){
         GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
-        this.distributedScenarioTree.remove(guid);
+        this.distributedScenarioTree.purge( guid );
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.scenarioCommonDataManipulator.remove(node.getBaseDataGUID());
-        this.distributedScenarioTree.removePath(guid);
+        this.scenarioCommonDataManipulator.remove(node.getAttributesGUID());
+        this.distributedScenarioTree.removeCachePath(guid);
     }
 
 }

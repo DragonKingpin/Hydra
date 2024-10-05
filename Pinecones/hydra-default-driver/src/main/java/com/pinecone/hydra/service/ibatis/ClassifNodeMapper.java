@@ -21,11 +21,11 @@ public interface ClassifNodeMapper extends ClassifNodeManipulator {
     @Delete("DELETE FROM `hydra_service_classification_node` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID GUID);
 
-    @Select("SELECT `id`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_service_classification_node` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_service_classification_node` WHERE `guid`=#{guid}")
     GenericClassificationNode getClassifNode(@Param("guid") GUID guid);
 
     void update(GenericClassificationNode classificationNode);
 
-    @Select("SELECT `id`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_service_classification_node` WHERE name=#{name}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_service_classification_node` WHERE name=#{name}")
     List<GenericClassificationNode> fetchClassifNodeByName(@Param("name") String name);
 }

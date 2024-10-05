@@ -20,6 +20,6 @@ public interface ServiceMetaMapper extends ServiceMetaManipulator {
 
     void update(GenericServiceNodeMeta serviceDescription);
 
-    @Select("SELECT `id`, `guid`, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `service_type` AS serviceType, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_service_serv_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `service_type` AS serviceType, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_service_serv_node_meta` WHERE `guid`=#{guid}")
     GenericServiceNodeMeta getServiceMeta(@Param("guid")GUID guid);
 }

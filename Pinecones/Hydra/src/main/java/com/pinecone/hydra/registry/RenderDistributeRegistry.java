@@ -1,4 +1,7 @@
 package com.pinecone.hydra.registry;
 
-public interface RenderDistributeRegistry extends DistributedRegistry {
+import com.pinecone.framework.util.template.UniformTemplateRenderer;
+
+public interface RenderDistributeRegistry extends KOMRegistry {
+    UniformTemplateRenderer getRenderer();
 }

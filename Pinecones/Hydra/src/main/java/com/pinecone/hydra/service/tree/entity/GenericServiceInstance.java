@@ -25,7 +25,7 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
     protected void removeDependence( GUID guid ) {
         GUIDDistributedTrieNode target = this.removeDependence0( guid );
         this.serviceNodeManipulator.remove(guid);
-        this.serviceMetaManipulator.remove(target.getBaseDataGUID());
+        this.serviceMetaManipulator.remove(target.getAttributesGUID());
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
         GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());
+        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
 
 
         genericServiceWideEntityMeta.setParentGUID(parentGUID);

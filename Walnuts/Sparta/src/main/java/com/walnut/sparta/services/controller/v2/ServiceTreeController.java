@@ -35,7 +35,7 @@ public class ServiceTreeController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        return BasicResultResponse.success( this.distributedTrieTree.getPath( new GUID72(guid) ) );
+        return BasicResultResponse.success( this.distributedTrieTree.getCachePath( new GUID72(guid) ) );
     }
 
     /**
@@ -48,7 +48,7 @@ public class ServiceTreeController {
     public BasicResultResponse<String> addNodeToParent(@RequestParam("nodeGUID") String nodeGUID, @RequestParam("parentGUID") String parentGUID ){
         GUID72 nodeGUID72 = new GUID72(nodeGUID);
         GUID72 parentGUID72 = new GUID72(parentGUID);
-        this.distributedTrieTree.insertNodeToParent(nodeGUID72,parentGUID72);
+        this.distributedTrieTree.affirmOwnedNode(nodeGUID72,parentGUID72);
         return BasicResultResponse.success();
     }
 }

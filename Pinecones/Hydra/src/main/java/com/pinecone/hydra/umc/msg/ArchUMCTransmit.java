@@ -23,7 +23,7 @@ public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTran
         this.sendPutMsg( msg, Status.OK );
     }
 
-    public void sendPostMsgHead(JSONObject msg ) throws IOException {
+    public void sendPostMsgHead( JSONObject msg ) throws IOException {
         this.mHead.applyExHead( msg );
         this.mHead.setMethod( UMCMethod.POST );
         this.sendMsgHead( this.mHead );

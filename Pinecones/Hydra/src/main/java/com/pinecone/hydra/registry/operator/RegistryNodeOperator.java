@@ -9,6 +9,8 @@ public interface RegistryNodeOperator extends TreeNodeOperator {
     @Override
     RegistryTreeNode get( GUID guid );
 
+    RegistryTreeNode get( GUID guid, int depth );
+
     @Override
-    RegistryTreeNode getWithoutInheritance( GUID guid );
+    RegistryTreeNode getSelf( GUID guid );
 }

@@ -4,8 +4,8 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface NamespaceNode extends TreeNode {
-    int getEnumId();
-    void setEnumId(int id);
+    long getEnumId();
+    void setEnumId(long id);
 
     GUID getGuid();
     void setGuid(GUID guid);

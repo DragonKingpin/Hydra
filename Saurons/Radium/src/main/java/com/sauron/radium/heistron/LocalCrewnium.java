@@ -9,8 +9,8 @@ import com.pinecone.framework.system.executum.ArchThreadum;
 public abstract class LocalCrewnium extends ArchThreadum implements Crewnium {
     protected int                            mnCrewId;
     protected Heistum                        mParentHeist;
-    protected TaskConsumer mTaskConsumer;
-    protected PageFrame64ConsumerAdapter mFrame64ConsumerAdapter = LocalCrewnium.this::consumeById;
+    protected TaskConsumer                   mTaskConsumer;
+    protected PageFrame64ConsumerAdapter     mFrame64ConsumerAdapter = LocalCrewnium.this::consumeById;
 
 
     public LocalCrewnium ( Heist heist, int nCrewId )  {

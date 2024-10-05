@@ -24,7 +24,7 @@ public interface DistributedTreeNode extends Pinenut {
     List<GUID> getParentGUIDs();
     void setParentGUID(List<GUID> parentGUID);
 
-    GUID getBaseDataGUID();
+    GUID getAttributesGUID();
     void setBaseDataGUID(GUID baseDataGUID);
 
     GUID getNodeMetadataGUID();

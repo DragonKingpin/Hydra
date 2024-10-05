@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public class GenericTaskCommonData implements TaskCommonData{
-    private int enumId;
+    private long enumId;
     private GUID guid;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
@@ -13,7 +13,7 @@ public class GenericTaskCommonData implements TaskCommonData{
     public GenericTaskCommonData() {
     }
 
-    public GenericTaskCommonData(int enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime) {
+    public GenericTaskCommonData(long enumId, GUID guid, LocalDateTime createTime, LocalDateTime updateTime) {
         this.enumId = enumId;
         this.guid = guid;
         this.createTime = createTime;
@@ -24,7 +24,7 @@ public class GenericTaskCommonData implements TaskCommonData{
      * 获取
      * @return enumId
      */
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
@@ -32,7 +32,7 @@ public class GenericTaskCommonData implements TaskCommonData{
      * 设置
      * @param enumId
      */
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

@@ -19,7 +19,7 @@ public interface RegistryNodeMetaMapper extends RegistryNodeMetaManipulator {
     void insert(ConfigNodeMeta configNodeMeta);
     @Delete("DELETE FROM `hydra_registry_conf_node_meta` WHERE `guid`=#{guid}")
     void remove(GUID guid);
-    @Select("SELECT `id`, `guid` FROM `hydra_registry_conf_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid` FROM `hydra_registry_conf_node_meta` WHERE `guid`=#{guid}")
     GenericConfigNodeMeta getConfigNodeMeta(GUID guid);
 
     void update(ConfigNodeMeta configNodeMeta);

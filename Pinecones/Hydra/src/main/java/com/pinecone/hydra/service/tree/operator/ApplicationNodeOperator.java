@@ -8,37 +8,41 @@ import com.pinecone.hydra.service.tree.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.tree.GenericNodeCommonData;
 import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.service.tree.source.CommonDataManipulator;
-import com.pinecone.ulf.util.id.UUIDBuilder;
-import com.pinecone.ulf.util.id.UidGenerator;
+import com.pinecone.ulf.util.id.GuidAllocator;
+import com.pinecone.ulf.util.id.GUIDs;
 
 public class ApplicationNodeOperator implements MetaNodeOperator {
-    private ApplicationNodeManipulator        applicationNodeManipulator;
-    private ApplicationMetaManipulator        applicationMetaManipulator;
-    private CommonDataManipulator             commonDataManipulator;
-    private TrieTreeManipulator               trieTreeManipulator;
+    protected ApplicationNodeManipulator        applicationNodeManipulator;
+    protected ApplicationMetaManipulator        applicationMetaManipulator;
+    protected CommonDataManipulator             commonDataManipulator;
+    protected TrieTreeManipulator               trieTreeManipulator;
+    protected TireOwnerManipulator              tireOwnerManipulator;
 
     public ApplicationNodeOperator( ServiceMasterManipulator manipulators ) {
         this(
                 manipulators.getApplicationNodeManipulator(),
                 manipulators.getApplicationMetaManipulator(),
                 manipulators.getCommonDataManipulator(),
-                manipulators.getTrieTreeManipulator()
+                manipulators.getTrieTreeManipulator(),
+                manipulators.getTireOwnerManipulator()
         );
     }
 
     public ApplicationNodeOperator(
             ApplicationNodeManipulator applicationNodeManipulator, ApplicationMetaManipulator applicationMetaManipulator,
-            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator
+            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator, TireOwnerManipulator ownerManipulator
     ){
         this.applicationNodeManipulator = applicationNodeManipulator;
         this.applicationMetaManipulator = applicationMetaManipulator;
         this.commonDataManipulator      = commonDataManipulator;
-        this.trieTreeManipulator = trieTreeManipulator;
+        this.trieTreeManipulator        = trieTreeManipulator;
+        this.tireOwnerManipulator       = ownerManipulator;
     }
 
 
@@ -48,20 +52,20 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         GenericApplicationNode applicationNodeInformation = (GenericApplicationNode) nodeWideData;
         //将信息写入数据库
         //将节点信息存入应用节点表
-        UidGenerator uidGenerator= UUIDBuilder.getBuilder();
-        GUID applicationNodeGUID = uidGenerator.getGUID72();
+        GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
+        GUID applicationNodeGUID = guidAllocator.nextGUID72();
         applicationNodeInformation.setGuid(applicationNodeGUID);
         this.applicationNodeManipulator.insert(applicationNodeInformation);
 
         //将应用节点基础信息存入信息表
-        GUID descriptionGUID = uidGenerator.getGUID72();
+        GUID descriptionGUID = guidAllocator.nextGUID72();
         GenericApplicationNodeMeta applicationDescription = applicationNodeInformation.getApplicationNodeMeta();
         applicationDescription.setGuid(descriptionGUID);
         this.applicationMetaManipulator.insert(applicationDescription);
 
         //将应用元信息存入元信息表
-        GUID metadataGUID = uidGenerator.getGUID72();
-        GenericNodeCommonData metadata = applicationNodeInformation.getNodeCommonData();
+        GUID metadataGUID = guidAllocator.nextGUID72();
+        GenericNodeCommonData metadata = applicationNodeInformation.getAttributes();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -71,14 +75,14 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         node.setGuid(applicationNodeGUID);
         node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert(node);
+        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node );
         return applicationNodeGUID;
     }
 
     @Override
     public void remove(GUID guid) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
-        this.applicationMetaManipulator.remove(node.getBaseDataGUID());
+        this.applicationMetaManipulator.remove(node.getAttributesGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
         this.applicationNodeManipulator.remove(node.getGuid());
     }
@@ -88,7 +92,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericApplicationNode genericApplicationNode = new GenericApplicationNode();
 
-        GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getBaseDataGUID());
+        GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
         GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
 

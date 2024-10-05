@@ -15,5 +15,5 @@ public interface DistributedTaskMetaTree extends Pinenut {
 
     void remove(GUID guid);
 
-    TreeNode getWithoutInheritance(GUID guid);
+    TreeNode getSelf(GUID guid);
 }

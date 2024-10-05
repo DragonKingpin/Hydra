@@ -3,13 +3,13 @@ package com.pinecone.hydra.task.entity;
 import com.pinecone.framework.util.id.GUID;
 
 public class GenericTaskNodeMeta implements TaskNodeMeta{
-    private int enumId;
+    private long enumId;
     private GUID guid;
 
     public GenericTaskNodeMeta() {
     }
 
-    public GenericTaskNodeMeta(int enumId, GUID guid) {
+    public GenericTaskNodeMeta(long enumId, GUID guid) {
         this.enumId = enumId;
         this.guid = guid;
     }
@@ -18,7 +18,7 @@ public class GenericTaskNodeMeta implements TaskNodeMeta{
      * 获取
      * @return enumId
      */
-    public int getEnumId() {
+    public long getEnumId() {
         return enumId;
     }
 
@@ -26,7 +26,7 @@ public class GenericTaskNodeMeta implements TaskNodeMeta{
      * 设置
      * @param enumId
      */
-    public void setEnumId(int enumId) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

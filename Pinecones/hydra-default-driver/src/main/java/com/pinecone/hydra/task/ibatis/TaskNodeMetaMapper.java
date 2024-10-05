@@ -16,7 +16,7 @@ public interface TaskNodeMetaMapper extends TaskNodeMetaManipulator {
     void insert(TaskNodeMeta taskNodeMeta);
     @Delete("DELETE FROM `hydra_task_task_node_meta` WHERE `guid`=#{guid}")
     void remove(GUID guid);
-    @Select("SELECT `id`, `guid` FROM `hydra_task_task_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid` FROM `hydra_task_task_node_meta` WHERE `guid`=#{guid}")
     GenericTaskNodeMeta getTaskNodeMeta(GUID guid);
 
     void update(TaskNodeMeta taskNodeMeta);

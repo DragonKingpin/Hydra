@@ -6,9 +6,13 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface Property extends Pinenut {
-    int getEnumId();
+    static Property newDummy() {
+        return new GenericProperty();
+    }
 
-    void setEnumId( int enumId );
+    long getEnumId();
+
+    void setEnumId( long enumId );
 
     GUID getGuid();
 
@@ -24,9 +28,9 @@ public interface Property extends Pinenut {
 
     Object getRawValue();
 
-    Object getValue();
-
     void setRawValue( Object value );
+
+    Object getValue();
 
     void setValue( Object value );
 
@@ -39,4 +43,15 @@ public interface Property extends Pinenut {
     LocalDateTime getUpdateTime();
 
     void  setUpdateTime( LocalDateTime updateTime );
+
+    // Not copy guid
+    void fromValue ( Property that );
+
+    void from      ( Property that );
+
+    void copy      ( Property that );
+
+    Properties parentProperties();
+
+    void setParentProperties( Properties parentProperties );
 }

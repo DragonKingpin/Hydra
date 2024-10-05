@@ -73,7 +73,7 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer write          ( Pinenut that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( Pinenut that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             writer.write( that.toJSONString() );
         }
@@ -84,12 +84,12 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer write          ( JSONObject that, Writer writer ) throws IOException {
+    public Writer write                    ( JSONObject that, Writer writer ) throws IOException {
         return this.write( that, writer,0,0  );
     }
 
     @Override
-    public Writer write          ( JSONObject that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( JSONObject that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             that.write( writer, nIndentFactor, nIndentBlankNum  );
         }
@@ -100,7 +100,7 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer write          ( JSONArray that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( JSONArray that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             that.write( writer, nIndentFactor, nIndentBlankNum  );
         }
@@ -111,7 +111,7 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public void writeKeyValue    ( Writer writer, Object key, Object val, int nIndentFactor, int nIndentBlankNum ) throws JSONException, IOException {
+    public void writeKeyValue              ( Writer writer, Object key, Object val, int nIndentFactor, int nIndentBlankNum ) throws JSONException, IOException {
         writer.write( StringUtils.jsonQuote( key.toString() ) );
         writer.write(':');
         if ( nIndentFactor > 0 ) {
@@ -121,12 +121,14 @@ public class GenericJSONEncoder implements JSONEncoder {
         this.write( val, writer, nIndentFactor, nIndentBlankNum  );
     }
 
+
+
     @Override
-    public Writer write          ( Map that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer writeMapFmtEntries       ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             boolean bHasNextElement = false;
             int length = that.size();
-            Iterator iter = that.entrySet().iterator();
+            Iterator iter = that.iterator();
             writer.write('{');
             if ( length == 1 ) {
                 Object o = iter.next();
@@ -158,7 +160,7 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer writeArray     ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer writeArray               ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             boolean bHasNextElement = false;
 
@@ -193,7 +195,7 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer write          ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( Collection that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             boolean bHasNextElement = false;
 
@@ -227,7 +229,7 @@ public class GenericJSONEncoder implements JSONEncoder {
         return writer;
     }
 
-    public Writer write          ( Map.Entry that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( Map.Entry that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             writer.write('{');
             this.writeKeyValue( writer, that.getKey(), that.getValue(), nIndentFactor, nIndentBlankNum  );
@@ -241,17 +243,17 @@ public class GenericJSONEncoder implements JSONEncoder {
     }
 
     @Override
-    public Writer write          ( Object that, Writer writer ) throws IOException {
+    public Writer write                    ( Object that, Writer writer ) throws IOException {
         return this.write( that, writer, 0, 0 );
     }
 
     @Override
-    public Writer write          ( Object that, Writer writer, int nIndentFactor ) throws IOException {
+    public Writer write                    ( Object that, Writer writer, int nIndentFactor ) throws IOException {
         return this.write( that, writer, nIndentFactor, 0 );
     }
 
     @Override
-    public Writer write          ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    public Writer write                    ( Object that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         if ( that != null ) {
             if ( that instanceof JSONObject ) {
                 ((JSONObject)that).write(writer, nIndentFactor, nIndentBlankNum );

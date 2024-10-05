@@ -1,11 +1,11 @@
 package com.walnut.sparta.services.drivers;
 
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
-import com.pinecone.hydra.task.ibatis.TaskNodePathMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodePathCacheMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class TaskTreeManipulatorSharerImpl implements TreeMasterManipulator {
     @Resource
     private TaskTreeMapper          taskTreeMapper;
     @Resource
-    private TaskNodePathMapper      taskNodePathMapper;
+    private TaskNodePathCacheMapper taskNodePathMapper;
     @Resource
     TaskNodeOwnerMapper             taskNodeOwnerMapper;
     @Override
@@ -30,7 +30,7 @@ public class TaskTreeManipulatorSharerImpl implements TreeMasterManipulator {
     }
 
     @Override
-    public TriePathManipulator getTriePathManipulator() {
+    public TriePathCacheManipulator getTriePathCacheManipulator() {
         return this.taskNodePathMapper;
     }
 }

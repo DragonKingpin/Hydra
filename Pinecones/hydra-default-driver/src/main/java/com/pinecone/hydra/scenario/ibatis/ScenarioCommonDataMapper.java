@@ -19,7 +19,7 @@ public interface ScenarioCommonDataMapper extends ScenarioCommonDataManipulator 
     @Delete("DELETE FROM `hydra_scenario_commom_data` WHERE `guid`=#{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `id`, `guid`, `create_time`, `update_time` FROM `hydra_scenario_commom_data` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `create_time`, `update_time` FROM `hydra_scenario_commom_data` WHERE `guid`=#{guid}")
     GenericScenarioCommonData getScenarioCommonData(GUID guid);
 
     void update(ScenarioCommonData scenarioCommonData);

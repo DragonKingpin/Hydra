@@ -6,27 +6,27 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface TextValue extends Pinenut {
-    int getEnumId();
+    long getEnumId();
 
-    void setEnumId(int enumId);
+    void setEnumId( long enumId );
 
     GUID getGuid();
 
-    void setGuid(GUID guid);
+    void setGuid( GUID guid );
 
     String getValue();
 
-    void setValue(String value);
+    void setValue( String value );
 
     LocalDateTime getCreateTime();
 
-    void setCreateTime(LocalDateTime createTime);
+    void setCreateTime( LocalDateTime createTime );
 
     LocalDateTime getUpdateTime();
 
-    void setUpdateTime(LocalDateTime updateTime);
+    void setUpdateTime( LocalDateTime updateTime );
 
     String getType();
 
-    void setType(String type);
+    void setType( String type );
 }

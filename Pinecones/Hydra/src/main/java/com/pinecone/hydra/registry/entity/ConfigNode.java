@@ -1,94 +1,43 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.template.UTRAlmondProvider;
-import com.pinecone.framework.util.template.UniformTemplateRenderer;
-import com.pinecone.hydra.registry.DistributedRegistry;
-
+import com.pinecone.hydra.registry.KOMRegistry;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
-public interface ConfigNode extends RegistryTreeNode {
+public interface ConfigNode extends ElementNode {
     @Override
     default ConfigNode evinceConfigNode() {
         return this;
     }
 
-    int getEnumId();
+    void setEnumId( long enumId );
 
-    void setEnumId(int enumId);
+    void setGuid( GUID guid );
 
-    GUID getGuid();
+    GUID getDataAffinityGuid();
 
-    void setGuid(GUID guid);
+    void setDataAffinityGuid( GUID guid );
 
-    GUID getNsGuid();
+    void setCreateTime( LocalDateTime createTime );
 
-    void setNsGuid(GUID guid);
+    void setUpdateTime( LocalDateTime updateTime );
 
-
-
-    GUID getParentGuid();
-
-    void setParentGuid(GUID guid);
-
-    LocalDateTime getCreateTime();
-
-    void setCreateTime(LocalDateTime createTime);
-
-    LocalDateTime getUpdateTime();
-
-    void setUpdateTime(LocalDateTime updateTime);
-
-    String getName();
-
-    void setName(String name);
-
-    List<GenericProperty > getProperties();
-
-    void setProperties(List<GenericProperty> properties);
-
-    TextValue getTextValue();
-
-    void setTextValue(TextValue textValue);
-
-    GenericConfigNodeMeta getConfigNodeMeta();
-
-    void setConfigNodeMeta(GenericConfigNodeMeta configNodeMeta);
-
-    GenericNodeCommonData getNodeCommonData();
-
-    void setNodeCommonData( GenericNodeCommonData nodeCommonData );
+    void setName( String name );
 
 
-    void put             ( String key, Object val );
-    void putProperty     ( Property property );
-    void removeProperty  ( String key );
-    void updateProperty  ( Property property );
-    Property getProperty ( String key );
-    Object getValue      ( String key );
-
-    boolean containsKey  ( String key );
+    void copyMetaTo( GUID guid );
 
 
-    int size();
-    boolean isEmpty();
-    List<Object > values();
-    Set<String > keySet();
-    Set<Property > entrySet();
+
+    ConfigNodeMeta getConfigNodeMeta();
+
+    void setConfigNodeMeta( ConfigNodeMeta configNodeMeta );
+
+    void setAttributes( Attributes attributes );
 
 
-    @Override
-    default PropertyConfigNode evincePropertyConfig() {
-        return null;
-    }
 
-    @Override
-    default TextConfigNode evinceTextConfigNode() {
-        return null;
-    }
+    KOMRegistry parentRegistry();
 
-    DistributedRegistry getRegistry();
 
 }

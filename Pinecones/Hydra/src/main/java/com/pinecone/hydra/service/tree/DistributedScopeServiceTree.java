@@ -83,7 +83,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         ServiceTreeNode newInstance = (ServiceTreeNode)type.newInstance();
         MetaNodeOperator operator = metaNodeOperatorProxy.getOperator(newInstance.getMetaType());
         operator.remove(guid);
-        this.distributedTrieTree.remove(guid);
+        this.distributedTrieTree.purge( guid );
     }
 
     /**
@@ -94,7 +94,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
      * @return Path
      */
     protected void affirmPathExist( GUID guid ) {
-        this.distributedTrieTree.getPath( guid );
+        this.distributedTrieTree.getCachePath( guid );
     }
 
     @Override
@@ -133,7 +133,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ServiceNode
         List<GenericServiceNode> genericServiceNodes = this.serviceNodeManipulator.fetchServiceNodeByName(parts[parts.length - 1]);
         for (GenericServiceNode genericServiceNode : genericServiceNodes) {
-            String nodePath = this.distributedTrieTree.getPath(genericServiceNode.getGuid());
+            String nodePath = this.distributedTrieTree.getCachePath(genericServiceNode.getGuid());
             if (nodePath.equals(path)) {
                 return getNode(genericServiceNode.getGuid());
             }
@@ -142,7 +142,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ApplicationNode
         List<GenericApplicationNode> genericApplicationNodes = this.applicationNodeManipulator.fetchApplicationNodeByName(parts[parts.length - 1]);
         for (GenericApplicationNode genericApplicationNode : genericApplicationNodes) {
-            String nodePath = this.distributedTrieTree.getPath(genericApplicationNode.getGuid());
+            String nodePath = this.distributedTrieTree.getCachePath(genericApplicationNode.getGuid());
             if (nodePath.equals(path)) {
                 return getNode(genericApplicationNode.getGuid());
             }
@@ -151,7 +151,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
         // 根据最后一个节点尝试查找 ClassificationNode
         List<GenericClassificationNode> genericClassificationNodes = this.classifNodeManipulator.fetchClassifNodeByName(parts[parts.length - 1]);
         for (GenericClassificationNode genericClassificationNode : genericClassificationNodes) {
-            String nodePath = this.distributedTrieTree.getPath(genericClassificationNode.getGuid());
+            String nodePath = this.distributedTrieTree.getCachePath(genericClassificationNode.getGuid());
             if (nodePath.equals(path)) {
                 return getNode(genericClassificationNode.getGuid());
             }
@@ -176,14 +176,14 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
 
     @Override
     public String getPath(GUID guid) {
-        String cachePath = this.distributedTrieTree.getPath( guid );
+        String cachePath = this.distributedTrieTree.getCachePath( guid );
         Debug.trace( "查找到路径：" + cachePath );
         //若不存在path信息则更新缓存表
         if ( cachePath == null ){
             GUIDDistributedTrieNode node = this.distributedTrieTree.getNode( guid );
             //查看是否具有拥有关系
             GUID owner = this.distributedTrieTree.getOwner(node.getGuid());
-            if (owner==null){
+            if ( owner == null ){
                 String nodeName = this.getNodeName(node);
 
                 // Assemble new path, if cache path dose not exist.
@@ -195,7 +195,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
                     nodeName = this.getNodeName(node);
                     assemblePath = nodeName + "." + assemblePath;
                 }
-                this.distributedTrieTree.insertPath( guid, assemblePath );
+                this.distributedTrieTree.insertCachePath( guid, assemblePath );
                 return assemblePath;
             }
             else {
@@ -209,7 +209,7 @@ public class DistributedScopeServiceTree implements ScopeServiceTree {
                     nodeName = this.getNodeName(node);
                     assemblePath = nodeName + "." + assemblePath;
                 }
-                this.distributedTrieTree.insertPath( guid, assemblePath );
+                this.distributedTrieTree.insertCachePath( guid, assemblePath );
                 return assemblePath;
             }
 

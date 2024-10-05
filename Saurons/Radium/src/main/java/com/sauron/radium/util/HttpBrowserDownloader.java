@@ -37,7 +37,6 @@ public class HttpBrowserDownloader extends AbstractDownloader {
     protected HttpUriRequestConverter httpUriRequestConverter = new HttpUriRequestConverter();
     protected ProxyProvider proxyProvider;
     protected boolean responseHeader = true;
-    protected ReentrantLock masterLock = new ReentrantLock();
 
     protected Task parentTask = null;
 
@@ -195,13 +194,7 @@ public class HttpBrowserDownloader extends AbstractDownloader {
 
     @Override
     public void reset() {
-        this.masterLock.lock();
-        try{
-            this.httpClientGenerator.clearPool();
-            this.httpClients.clear();
-        }
-        finally {
-            this.masterLock.unlock();
-        }
+        this.httpClientGenerator.clearPool();
+        this.httpClients.clear();
     }
 }

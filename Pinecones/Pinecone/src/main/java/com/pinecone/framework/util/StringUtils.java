@@ -995,4 +995,24 @@ public final class StringUtils {
     public static int countOccurrencesOf( String target, char specifiedChar ) {
         return StringUtils.countOccurrencesOf( target, specifiedChar, 0 );
     }
+
+
+    /**
+     *   Version: New add in Pinecone Java Ver 20241003
+     */
+    public static boolean isBlank( String str ) {
+        int strLen;
+        if ( str != null && (strLen = str.length()) != 0 ) {
+            for( int i = 0; i < strLen; ++i ) {
+                if ( !Character.isWhitespace(str.charAt(i)) ) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isNotBlank( String str ) {
+        return !StringUtils.isBlank( str );
+    }
 }

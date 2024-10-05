@@ -151,7 +151,7 @@ public abstract class HTTPHeist extends Heist {
             return this.queryHTTPPageOnly( request, bPooled );
         }
         catch ( ProxyProvokeHandleException e ) {
-            if( e.getCause() instanceof IOException) {
+            if( e.getCause() instanceof IOException ) {
                 this.tracer().warn( "[queryHTTPPage:Warning] [What: IOException, " + e.getMessage() + "]" );
                 // Fixed: CloseableHttpClient SSL exception using none pooled.
                 try{

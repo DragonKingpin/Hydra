@@ -7,5 +7,5 @@ public interface TreeMasterManipulator extends KOISkeletonMasterManipulator {
 
     TrieTreeManipulator getTrieTreeManipulator();
 
-    TriePathManipulator getTriePathManipulator();
+    TriePathCacheManipulator getTriePathCacheManipulator();
 }

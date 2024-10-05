@@ -25,8 +25,10 @@ public interface ServiceNodeOwnerMapper extends TireOwnerManipulator {
 
     @Select("SELECT `owner_guid` FROM `hydra_service_node_owner` WHERE `subordinate_guid`=#{guid}")
     GUID getOwner(GUID guid);
+
     @Update("UPDATE `hydra_service_node_owner` SET `owner_guid`=#{ownerGuid} WHERE `subordinate_guid`=#{subordinateGuid}")
     void update(@Param("subordinateGuid") GUID subordinateGuid,@Param("ownerGuid") GUID ownerGuid);
+
     @Select("SELECT `subordinate_guid` FROM `hydra_service_node_owner` WHERE `owner_guid`=#{guid}")
     List<GUID> getSubordinates(GUID guid);
 }

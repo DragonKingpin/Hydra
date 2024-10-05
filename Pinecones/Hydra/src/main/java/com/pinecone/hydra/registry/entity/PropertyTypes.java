@@ -1,5 +1,7 @@
 package com.pinecone.hydra.registry.entity;
 
+import java.util.Date;
+
 import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONArraytron;
 import com.pinecone.framework.util.json.JSONMaptron;
@@ -12,13 +14,17 @@ public final class PropertyTypes {
     public final static String ELEMENT_FLOAT32_TYPE_NAME     = "float32";
     public final static String ELEMENT_FLOAT64_TYPE_NAME     = "float64";
     public final static String ELEMENT_BOOLEAN_TYPE_NAME     = "bool";
+    public final static String ELEMENT_NULL_TYPE_NAME        = "Null";
 
     public final static String ELEMENT_JSONOBJECT_TYPE_NAME  = "JSONObject";
     public final static String ELEMENT_JSONARRAY_TYPE_NAME   = "JSONArray";
 
     public static String queryType( Object val ) {
         String type = PropertyTypes.ELEMENT_STRING_TYPE_NAME;
-        if( val instanceof JSONObject ) {
+        if( val == null ) {
+            type = PropertyTypes.ELEMENT_NULL_TYPE_NAME;
+        }
+        else if( val instanceof JSONObject ) {
             type = PropertyTypes.ELEMENT_JSONOBJECT_TYPE_NAME;
         }
         else if( val instanceof JSONArray ) {
@@ -45,6 +51,9 @@ public final class PropertyTypes {
 
     public static Object queryValue( String val, String type ) {
         switch ( type ) {
+            case PropertyTypes.ELEMENT_NULL_TYPE_NAME: {
+                return null;
+            }
             case PropertyTypes.ELEMENT_STRING_TYPE_NAME :{
                 return val;
             }
@@ -73,6 +82,39 @@ public final class PropertyTypes {
         return null;
     }
 
+    public static String queryRecognizedType( String type ) {
+        switch ( type ) {
+            case PropertyTypes.ELEMENT_NULL_TYPE_NAME: {
+                return PropertyTypes.ELEMENT_NULL_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_STRING_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_STRING_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_JSONOBJECT_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_JSONOBJECT_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_JSONARRAY_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_JSONARRAY_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_INT32_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_INT32_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_INT64_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_INT64_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_FLOAT32_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_FLOAT32_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_FLOAT64_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_FLOAT64_TYPE_NAME;
+            }
+            case PropertyTypes.ELEMENT_BOOLEAN_TYPE_NAME :{
+                return PropertyTypes.ELEMENT_BOOLEAN_TYPE_NAME;
+            }
+        }
+        return null;
+    }
+
     public static boolean isStringBasedType( String type ) {
         switch ( type ) {
             case PropertyTypes.ELEMENT_STRING_TYPE_NAME :{
@@ -87,5 +129,19 @@ public final class PropertyTypes {
         }
 
         return false;
+    }
+
+    public static boolean isJSON( Object val ) {
+        Class<?> type = val.getClass();
+        return val instanceof JSONObject || val instanceof JSONArray || (
+                type.isPrimitive() ||
+                        type == String.class ||
+                        Number.class.isAssignableFrom(type) ||
+                        type == Boolean.class ||
+                        type == Character.class ||
+                        type == Date.class ||
+                        type.isEnum() ||
+                        type == byte[].class
+        );
     }
 }

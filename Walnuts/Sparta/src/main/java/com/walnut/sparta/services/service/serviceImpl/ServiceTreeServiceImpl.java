@@ -35,7 +35,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
     @Override
     public void addNodeToParent(GUID nodeGUID, GUID parentGUID) {
         //将节点加入指定位置
-        this.trieTreeManipulator.insertNodeToParent(nodeGUID,parentGUID);
+        this.trieTreeManipulator.insertOwnedNode(nodeGUID,parentGUID);
         //添加后要更新节点路径
         //递归查询所有要更新的节点
         upDateAllPath(nodeGUID);
@@ -49,7 +49,7 @@ public class ServiceTreeServiceImpl implements ServiceTreeService {
 
     private void removeAllNode(GUID nodeGUID){
         List<GUIDDistributedTrieNode> childNodes = this.trieTreeManipulator.getChild(nodeGUID);
-        this.trieTreeManipulator.remove(nodeGUID);
+        this.trieTreeManipulator.purge(nodeGUID);
         this.trieTreeManipulator.removePath(nodeGUID);
         if (childNodes==null) return;
         for (GUIDDistributedTrieNode guidDistributedTrieNode :childNodes){

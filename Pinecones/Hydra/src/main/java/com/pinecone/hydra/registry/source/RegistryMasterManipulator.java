@@ -4,18 +4,18 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 
 public interface RegistryMasterManipulator extends KOIMasterManipulator {
 
-    RegistryNodeManipulator       getRegistryNodeManipulator();
+    RegistryConfigNodeManipulator getConfigNodeManipulator();
 
     RegistryNSNodeManipulator     getNSNodeManipulator();
 
-    RegistryPropertiesManipulator getRegistryPropertiesManipulator();
+    RegistryPropertiesManipulator getPropertiesManipulator();
 
-    RegistryTextValueManipulator  getRegistryTextValueManipulator();
+    RegistryTextFileManipulator   getTextFileManipulator();
 
-    RegistryNodeMetaManipulator   getRegistryNodeMetaManipulator();
+    RegistryNodeMetaManipulator   getNodeMetaManipulator();
 
     RegistryNSNodeMetaManipulator getNSNodeMetaManipulator();
 
-    RegistryCommonDataManipulator getRegistryCommonDataManipulator();
+    RegistryAttributesManipulator getAttributesManipulator();
 
 }

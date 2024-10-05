@@ -2,16 +2,12 @@ package com.pinecone.hydra.scenario.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.scenario.ibatis.ScenarioNodeOwnerMapper;
-import com.pinecone.hydra.scenario.ibatis.ScenarioNodePathMapper;
+import com.pinecone.hydra.scenario.ibatis.ScenarioNodePathCacheMapper;
 import com.pinecone.hydra.scenario.ibatis.ScenarioTreeMapper;
-import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
-import com.pinecone.hydra.service.ibatis.ServicePathMapper;
-import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
-import com.pinecone.hydra.service.ibatis.hydranium.ServiceMasterTreeManipulatorImpl;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
-import com.pinecone.hydra.unit.udtt.source.TriePathManipulator;
+import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +17,8 @@ import java.util.Map;
 public class ScenarioMasterTreeManipulatorImpl implements TreeMasterManipulator {
 
     @Resource
-    @Structure( type = ScenarioNodePathMapper.class )
-    TriePathManipulator  triePathManipulator;
+    @Structure( type = ScenarioNodePathCacheMapper.class )
+    TriePathCacheManipulator triePathCacheManipulator;
 
     @Resource
     @Structure( type = ScenarioNodeOwnerMapper.class )
@@ -50,7 +46,7 @@ public class ScenarioMasterTreeManipulatorImpl implements TreeMasterManipulator 
     }
 
     @Override
-    public TriePathManipulator getTriePathManipulator() {
-        return this.triePathManipulator;
+    public TriePathCacheManipulator getTriePathCacheManipulator() {
+        return this.triePathCacheManipulator;
     }
 }

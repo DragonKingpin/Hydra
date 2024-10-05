@@ -69,5 +69,10 @@
             <artifactId>javassist</artifactId>
             <version>3.29.0-GA</version>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.4</version>
+        </dependency>
     </dependencies>
 </project>

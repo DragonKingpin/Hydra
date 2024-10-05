@@ -39,8 +39,7 @@ public interface KOMRegistry extends Registry, KOMInstrument {
 
     TextValue getTextValue( GUID guid );
 
-    ConfigNode getConfigNode(GUID guid );
-
+    ConfigNode getConfigNode( GUID guid );
 
 
 

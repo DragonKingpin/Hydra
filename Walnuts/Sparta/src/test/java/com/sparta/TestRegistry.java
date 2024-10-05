@@ -10,8 +10,10 @@ import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.hydra.registry.entity.ElementNode;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
-import com.pinecone.hydra.registry.marshaling.JSONTransformer;
-import com.pinecone.hydra.registry.marshaling.RegistryTransformer;
+import com.pinecone.hydra.registry.marshaling.RegistryDOMEncoder;
+import com.pinecone.hydra.registry.marshaling.RegistryEncoder;
+import com.pinecone.hydra.registry.marshaling.RegistryJSONDecoder;
+import com.pinecone.hydra.registry.marshaling.RegistryJSONEncoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.sauron.radium.Radium;
@@ -42,7 +44,7 @@ class StanMarsh extends Radium {
         //this.testMisc( registry );
         //this.testSelector( registry );
         //this.testAttributes( registry );
-        this.testMarshaling( registry );
+        //this.testMarshaling( registry );
     }
 
     private void testBasicInsert( KOMRegistry registry ) {
@@ -228,22 +230,37 @@ class StanMarsh extends Radium {
         Debug.fmp( 2, registry.querySelectorJ( "game/witcher/jesus" ) );
     }
 
-    private void testAttributes( KOMRegistry registry ) {
+    private void testAttributes( KOMRegistry registry ) throws Exception {
         ElementNode node = registry.queryElement( "game/minecraft/sorcerer1" );
         //node.getAttributes().setAttribute( "title", "king" );
         //node.getAttributes().clear();
 
         Debug.fmp( 2, node.getAttributes().size() );
+
+
     }
 
     private void testMarshaling( KOMRegistry registry ) {
-        JSONTransformer transformer = new JSONTransformer( registry );
+//        RegistryJSONEncoder encoder = new RegistryJSONEncoder( registry );
 
 //        ElementNode node = registry.queryElement( "game/witcher/jesus" );
-//        Debug.trace( transformer.encode( node ) );
+//        Debug.trace( encoder.encode( node ) );
 
 
-        //Debug.trace( transformer.decode( node ) );
+//        RegistryJSONDecoder decoder = new RegistryJSONDecoder( registry );
+
+//        Debug.trace( decoder.decode( new JSONMaptron( "{ game: { character: { " +
+//                "Ifan: { name: Ifan, hp:90, species: Human }, RedPrince: { name:RedPrince, hp:100, species: Lizard } " +
+//                "}, attr: 1234, file: text_files } }" ), null ).evinceNamespace().toJSONObject() );
+
+//        Debug.trace( registry.querySelectorJ( "game" ) );
+//        registry.queryElement( "game/character/Ifan" ).getAttributes().setAttribute( "state", "live" );
+
+
+        RegistryEncoder encoder = new RegistryDOMEncoder( registry );
+        ElementNode node = registry.queryElement( "game" );
+        Debug.echo( encoder.encode( node ).toString() );
+
     }
 
 }

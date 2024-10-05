@@ -1,5 +1,6 @@
 package com.pinecone.hydra.unit.udtt;
 
+import com.pinecone.framework.system.NotImplementedException;
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.KOMInstrument;
@@ -36,9 +37,9 @@ public interface DistributedTrieTree extends PineUnit {
 
     String getCachePath( GUID guid );
 
-    void removeCachePath(GUID guid);
+    void removeCachePath( GUID guid );
 
-    GUID getOwner(GUID guid);
+    GUID getOwner( GUID guid);
 
     void setOwner( GUID sourceGuid, GUID targetGuid );
 

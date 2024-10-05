@@ -659,7 +659,7 @@ public class GenericKOMRegistry implements KOMRegistry {
     public List<RegistryTreeNode> listRoot() {
         List<GUID> guids = this.distributedTrieTree.listRoot();
         ArrayList<RegistryTreeNode> registryTreeNodes = new ArrayList<>();
-        for(GUID guid : guids){
+        for( GUID guid : guids ){
             RegistryTreeNode treeNode = this.get(guid);
             registryTreeNodes.add(treeNode);
         }
@@ -831,7 +831,7 @@ public class GenericKOMRegistry implements KOMRegistry {
         return this.newKOMSelector( szSelector ).querySelectorJ( null ) ;
     }
 
-    private boolean allNonNull(List<?> list ) {
+    private boolean allNonNull( List<?> list ) {
         return list.stream().noneMatch( Objects::isNull );
     }
 }

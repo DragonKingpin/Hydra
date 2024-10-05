@@ -136,7 +136,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
 
     @Override
-    public List<GUID> getSubordinates(GUID guid) {
+    public List<GUID > getSubordinates( GUID guid) {
         return this.tireOwnerManipulator.getSubordinates(guid);
     }
 
@@ -146,9 +146,10 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public List<GUID> listRoot() {
+    public List<GUID > listRoot() {
         return this.trieTreeManipulator.listRoot();
     }
+
 
     @Override
     public boolean isRoot( GUID guid ) {

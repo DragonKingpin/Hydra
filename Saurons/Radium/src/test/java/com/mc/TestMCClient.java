@@ -8,6 +8,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.UMCHead;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.messagram.WolfMCExpress;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
@@ -48,6 +49,8 @@ class Jesus extends JesusChrist {
         JSONObject jsonObject = new JSONMaptron(
                 "{Messagelet:'ServiceCenter', 'do': 'queryHeistConfTPL', 'heist': 'NeteaseMusic', 'instance': 'RavageAlbums'}"
         );
+        //Debug.trace( wolf.sendSyncMsg( new UlfMCMessage( jsonObject, "fuck me" ) ) );
+
         Debug.trace( wolf.sendSyncMsg( new UlfMCMessage( jsonObject ) ).getHead().getExtraHead() );
         Debug.trace( wolf.sendSyncMsg( new UlfMCMessage( jsonObject ) ) );
         //wolf.sendAsynMsg( new UlfMCMessage( jsonObject ) );

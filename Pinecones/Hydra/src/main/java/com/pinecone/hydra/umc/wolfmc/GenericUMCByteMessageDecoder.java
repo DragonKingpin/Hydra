@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umc.wolfmc;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,6 +22,10 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
     protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object > out ) throws Exception {
         this.cumulation = in;
         int nBufSize = ArchUMCProtocol.basicHeadLength( UMCHead.ProtocolSignature );
+        if ( in.readableBytes() < nBufSize ) {
+            return;
+        }
+
         byte[] buf = new byte[ nBufSize ];
         in.readBytes( buf );
 

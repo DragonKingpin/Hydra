@@ -61,7 +61,7 @@ public class UMCHead implements Pinenut {
         this.nKeepAlive = nKeepAlive;
     }
 
-    void setMethod           (UMCMethod umcMethod    ) {
+    void setMethod           ( UMCMethod umcMethod    ) {
         this.method = umcMethod;
         if ( this.method == UMCMethod.PUT ) {
             this.nBodyLength = 0;

@@ -1,22 +1,16 @@
 package com.pinecone.hydra.file;
 
-import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.entity.Folder;
 import com.pinecone.hydra.registry.Registry;
-import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
-import com.pinecone.hydra.registry.entity.Properties;
-import com.pinecone.hydra.registry.entity.Property;
-import com.pinecone.hydra.registry.entity.TextValue;
-import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.List;
 
-public interface DistributedFile extends Registry, DistributedKOInstrument {
+public interface DistributedFile extends Registry, KOMInstrument {
 
     String getPath( GUID guid );
 

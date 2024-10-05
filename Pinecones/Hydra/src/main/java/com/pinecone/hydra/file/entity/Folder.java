@@ -2,11 +2,7 @@ package com.pinecone.hydra.file.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.file.DistributedFile;
-import com.pinecone.hydra.registry.DistributedRegistry;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
-import com.pinecone.hydra.registry.entity.NodeAttribute;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
-import lombok.val;
+import com.pinecone.hydra.registry.entity.Attributes;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,8 +30,8 @@ public interface Folder extends FileTreeNode{
 
     void setUpdateTime( LocalDateTime updateTime );
 
-    NodeAttribute getNodeAttribute(GUID guid);
-    void setNodeAttribute(NodeAttribute nodeAttribute);
+    Attributes getNodeAttribute(GUID guid);
+    void setNodeAttribute(Attributes attributes);
 
     FolderMeta getFolderMeta(GUID guid);
     void setFolderMeta(FolderMeta folderMeta);

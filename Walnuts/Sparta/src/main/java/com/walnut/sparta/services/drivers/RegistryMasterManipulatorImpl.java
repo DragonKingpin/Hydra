@@ -5,9 +5,9 @@ import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
-import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
+import com.pinecone.hydra.registry.source.RegistryAttributesManipulator;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
-import com.pinecone.hydra.registry.source.RegistryTextValueManipulator;
+import com.pinecone.hydra.registry.source.RegistryTextFileManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryPropertiesManipulator registryPropertiesManipulator;
 
     @Resource
-    RegistryTextValueManipulator registryTextValueManipulator;
+    RegistryTextFileManipulator registryTextFileManipulator;
 
     @Resource
     RegistryNodeMetaManipulator configNodeMetaManipulator;
@@ -35,7 +35,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
     @Resource
-    RegistryCommonDataManipulator registryCommonDataManipulator;
+    RegistryAttributesManipulator registryAttributesManipulator;
 
     @Resource( type = RegistryMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator    skeletonMasterManipulator;
@@ -47,7 +47,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryConfigNodeManipulator getRegistryConfigNodeManipulator() {
+    public RegistryConfigNodeManipulator getConfigNodeManipulator() {
         return this.configNodeManipulator;
     }
 
@@ -57,17 +57,17 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryPropertiesManipulator getRegistryPropertiesManipulator() {
+    public RegistryPropertiesManipulator getPropertiesManipulator() {
         return this.registryPropertiesManipulator;
     }
 
     @Override
-    public RegistryTextValueManipulator getRegistryTextValueManipulator() {
-        return this.registryTextValueManipulator;
+    public RegistryTextFileManipulator getTextFileManipulator() {
+        return this.registryTextFileManipulator;
     }
 
     @Override
-    public RegistryNodeMetaManipulator getRegistryNodeMetaManipulator() {
+    public RegistryNodeMetaManipulator getNodeMetaManipulator() {
         return this.configNodeMetaManipulator;
     }
 
@@ -77,7 +77,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryCommonDataManipulator getRegistryCommonDataManipulator() {
-        return this.registryCommonDataManipulator;
+    public RegistryAttributesManipulator getAttributesManipulator() {
+        return this.registryAttributesManipulator;
     }
 }

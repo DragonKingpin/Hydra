@@ -1,9 +1,9 @@
 package com.pinecone.hydra.registry.operator;
 
-import com.pinecone.hydra.registry.DistributedRegistry;
-import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
+import com.pinecone.hydra.registry.KOMRegistry;
+import com.pinecone.hydra.registry.entity.GenericNamespace;
 import com.pinecone.hydra.registry.entity.GenericProperties;
-import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
+import com.pinecone.hydra.registry.entity.GenericTextFile;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
 
@@ -11,11 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
-
+public class GenericRegistryOperatorFactory implements RegistryOperatorFactory {
     protected RegistryMasterManipulator        registryMasterManipulator;
 
-    protected DistributedRegistry              registry;
+    protected KOMRegistry registry;
 
     protected Map<String, TreeNodeOperator>    registerer = new HashMap<>();
 
@@ -26,25 +25,25 @@ public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
     }
 
     protected void registerDefaultMetaTypes() {
-        this.registerDefaultMetaType( GenericNamespaceNode.class );
+        this.registerDefaultMetaType( GenericNamespace.class );
         this.registerDefaultMetaType( GenericProperties.class );
-        this.registerDefaultMetaType( GenericTextConfigNode.class );
+        this.registerDefaultMetaType( GenericTextFile.class );
     }
 
-    public GenericConfigOperatorFactory( DistributedRegistry registry, RegistryMasterManipulator registryMasterManipulator ){
+    public GenericRegistryOperatorFactory(KOMRegistry registry, RegistryMasterManipulator registryMasterManipulator ){
         this.registry = registry;
         this.registryMasterManipulator = registryMasterManipulator;
 
         this.registerer.put(
-                ConfigOperatorFactory.DefaultNamespaceNodeKey,
+                RegistryOperatorFactory.DefaultNamespaceNodeKey,
                 new NamespaceNodeOperator( this )
         );
 
-        this.registerer.put(ConfigOperatorFactory.DefaultPropertyConfigNodeKey,
+        this.registerer.put(RegistryOperatorFactory.DefaultPropertyConfigNodeKey,
                 new PropertiesOperator(this)
         );
 
-        this.registerer.put(ConfigOperatorFactory.DefaultTextConfigNode,
+        this.registerer.put(RegistryOperatorFactory.DefaultTextConfigNode,
                 new TextValueNodeOperator(this)
         );
 
@@ -78,7 +77,7 @@ public class GenericConfigOperatorFactory implements ConfigOperatorFactory {
     }
 
     @Override
-    public DistributedRegistry getRegistry() {
+    public KOMRegistry getRegistry() {
         return this.registry;
     }
 

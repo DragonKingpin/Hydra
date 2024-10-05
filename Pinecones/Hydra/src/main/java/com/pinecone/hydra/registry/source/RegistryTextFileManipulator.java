@@ -4,7 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.TextValue;
 
-public interface RegistryTextValueManipulator extends Pinenut {
+public interface RegistryTextFileManipulator extends Pinenut {
     void insert(TextValue textValue);
 
     void remove(GUID guid);

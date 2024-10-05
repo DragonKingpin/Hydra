@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.ElementNode;
+import com.pinecone.hydra.registry.entity.Namespace;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
-import com.pinecone.hydra.registry.entity.TextConfigNode;
+import com.pinecone.hydra.registry.entity.TextFile;
 import com.pinecone.hydra.registry.entity.TextValue;
+import com.pinecone.hydra.registry.entity.TypeConverter;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 import com.pinecone.hydra.unit.udtt.entity.EntityNode;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
@@ -20,12 +22,21 @@ public interface Registry extends KernelObjectInstrument {
 
     RegistryConfig getRegistryConfig();
 
+    void setPropertyTypeConverter( TypeConverter propertyTypeConverter ) ;
 
-    RegistryTreeNode queryTreeNode( String path );
+    void setTextValueTypeConverter( TypeConverter textValueTypeConverter ) ;
+
+    TypeConverter getTextValueTypeConverter() ;
+
+    TypeConverter getPropertyTypeConverter() ;
+
+
+
+    ElementNode queryElement( String path );
 
     Properties getProperties( String path );
 
-    NamespaceNode getNamespaceNode( String path );
+    Namespace getNamespace(String path );
 
     void remove( String path );
 
@@ -42,22 +53,37 @@ public interface Registry extends KernelObjectInstrument {
 
     List<TreeNode > selectByName( String name );
 
+
+    /**  Move "game/terraria/npc" => "game/minecraft/" => "game/minecraft/npc"*/
     void moveTo( String sourcePath, String destinationPath );
 
-    /** Ensure destination path existed.*/
+    /** Affirm destination path existed.*/
     void move( String sourcePath, String destinationPath );
+
+    /**  Copy "game/terraria/npc" => "game/minecraft/" => "game/minecraft/npc"*/
+    void copyTo( String sourcePath, String destinationPath );
+
+    void copy( String sourcePath, String destinationPath );
 
     List<RegistryTreeNode> listRoot();
 
 
 
-    NamespaceNode  affirmNamespace        ( String path );
+    Namespace      affirmNamespace        ( String path );
 
     Properties     affirmProperties       ( String path );
 
-    TextConfigNode affirmTextConfig       ( String path );
+    TextFile       affirmTextConfig       ( String path );
 
-    Properties putProperties              ( String path, Map<String, Object > properties );
+    Properties     putProperties          ( String path, Map<String, Object > properties );
 
-    TextConfigNode putTextValue           ( String path, String format, String value );
+    TextFile       putTextValue           ( String path, String format, String value );
+
+
+    // Return with json.
+    Object         querySelectorJ         ( String szSelector );
+
+    Object         querySelector          ( String szSelector );
+
+    List           querySelectorAll       ( String szSelector );
 }

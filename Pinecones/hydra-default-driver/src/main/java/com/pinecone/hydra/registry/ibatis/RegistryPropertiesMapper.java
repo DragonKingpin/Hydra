@@ -2,9 +2,11 @@ package com.pinecone.hydra.registry.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.GenericProperty;
+import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.pinecone.ulf.util.id.GUIDs;
 
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -13,7 +15,12 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 @IbatisDataAccessObject
@@ -25,7 +32,28 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
     void remove( GUID guid, String key );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
-    List<GenericProperty > getProperties0( GUID guid );
+    List<Map > getProperties0( GUID guid );
+
+    @Override
+    default List<Property > getProperties( GUID guid, Properties parent ) {
+        List<Map >    raws = this.getProperties0( guid );
+        List<Property > ps = new ArrayList<>( raws.size() );
+
+        for( Map raw : raws ) {
+            Property property = new GenericProperty( parent );
+            property.setEnumId( (long) raw.get( "enumId" ) );
+            property.setGuid  ( GUIDs.GUID72( (String) raw.get( "guid" ) )  );
+            property.setType  ( (String) raw.get( "type" )  );
+            property.setKey   ( (String) raw.get( "key" )   );
+
+            property.setCreateTime ( ( (Timestamp) raw.get("createTime") ).toLocalDateTime() );
+            property.setUpdateTime ( ( (Timestamp) raw.get("updateTime") ).toLocalDateTime() );
+            property.setRawValue   ( raw.get( "rawValue" )   );
+
+            ps.add( property );
+        }
+        return ps;
+    }
 
     @SuppressWarnings( "unchecked" )
     default List<Property > getProperties( GUID guid ) {

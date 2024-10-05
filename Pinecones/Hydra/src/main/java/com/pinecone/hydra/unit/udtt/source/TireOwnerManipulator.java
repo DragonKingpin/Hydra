@@ -45,15 +45,15 @@ public interface TireOwnerManipulator extends Pinenut {
 
 
 
-    void setLinkedType        ( GUID sourceGuid, GUID targetGuid, LinkedType linkedType );
+    void setLinkedType             ( GUID sourceGuid, GUID targetGuid, LinkedType linkedType );
 
-    default void setOwned     ( GUID sourceGuid, GUID targetGuid ) {
+    default void setOwned          ( GUID sourceGuid, GUID targetGuid ) {
         this.setLinkedType( sourceGuid, targetGuid, LinkedType.Owned );
     }
 
-    default void setHardLink  ( GUID sourceGuid, GUID targetGuid ) {
+    default void setHardLink       ( GUID sourceGuid, GUID targetGuid ) {
         this.setLinkedType( sourceGuid, targetGuid, LinkedType.Hard );
     }
 
-    LinkedType getLinkedType  ( GUID childGuid,GUID parentGuid );
+    LinkedType getLinkedType       ( GUID childGuid,GUID parentGuid );
 }

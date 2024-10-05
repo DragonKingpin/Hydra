@@ -1,20 +1,16 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.DistributedRegistry;
+import com.pinecone.hydra.registry.KOMRegistry;
 import java.time.LocalDateTime;
 
-public interface ConfigNode extends RegistryTreeNode {
+public interface ConfigNode extends ElementNode {
     @Override
     default ConfigNode evinceConfigNode() {
         return this;
     }
 
-    long getEnumId();
-
-    void setEnumId(long enumId);
-
-    GUID getGuid();
+    void setEnumId( long enumId );
 
     void setGuid( GUID guid );
 
@@ -22,21 +18,12 @@ public interface ConfigNode extends RegistryTreeNode {
 
     void setDataAffinityGuid( GUID guid );
 
-    LocalDateTime getCreateTime();
-
     void setCreateTime( LocalDateTime createTime );
-
-    LocalDateTime getUpdateTime();
 
     void setUpdateTime( LocalDateTime updateTime );
 
-    String getName();
-
     void setName( String name );
 
-    void copyTo( String path );
-
-    void copyTo( GUID guid );
 
     void copyMetaTo( GUID guid );
 
@@ -44,15 +31,13 @@ public interface ConfigNode extends RegistryTreeNode {
 
     ConfigNodeMeta getConfigNodeMeta();
 
-    void setConfigNodeMeta( GenericConfigNodeMeta configNodeMeta );
+    void setConfigNodeMeta( ConfigNodeMeta configNodeMeta );
 
-    NodeAttribute getNodeCommonData();
-
-    void setNodeCommonData( GenericNodeAttribute nodeCommonData );
+    void setAttributes( Attributes attributes );
 
 
 
-    DistributedRegistry getRegistry();
+    KOMRegistry parentRegistry();
 
 
 }

@@ -67,7 +67,7 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
 
         //将应用元信息存入元信息表
         GUID metadataGUID = guidAllocator.nextGUID72();
-        GenericNodeCommonData metadata = classifNodeInformation.getNodeCommonData();
+        GenericNodeCommonData metadata = classifNodeInformation.getAttributes();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -92,11 +92,11 @@ public class ClassificationNodeOperator implements MetaNodeOperator {
     public ServiceTreeNode get(GUID guid ) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericClassificationNode genericClassificationNode = new GenericClassificationNode();
-        GenericNodeCommonData nodeCommonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getBaseDataGUID());
+        GenericNodeCommonData nodeAttributes = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GenericClassificationRules classifRules = this.classifRulesManipulator.getClassifRules(node.getAttributesGUID());
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(node.getGuid());
 
-        genericClassificationNode.setNodeCommonData(nodeCommonData);
+        genericClassificationNode.setNodeCommonData(nodeAttributes);
         genericClassificationNode.setClassificationRules(classifRules);
         genericClassificationNode.setDistributedTreeNode(guidDistributedTrieNode);
         genericClassificationNode.setName(this.classifNodeManipulator.getClassifNode(guid).getName());

@@ -73,7 +73,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
             String nodeName = this.getNodeName(node);
             assemblePath = nodeName + "." + assemblePath;
         }
-        this.distributedTrieTree.insertCachePath(guid,assemblePath);
+        this.distributedTrieTree.insertCachePath(guid, assemblePath);
         return assemblePath;
     }
 
@@ -112,7 +112,7 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         TaskNode taskNode = this.taskNodeManipulator.getTaskNode(guid);
         GenericTaskNodeMeta taskNodeMeta = (GenericTaskNodeMeta) this.taskNodeMetaManipulator.getTaskNodeMeta(node.getNodeMetadataGUID());
-        GenericTaskCommonData taskCommonData = (GenericTaskCommonData) this.taskCommonDataManipulator.getTaskCommonData(node.getBaseDataGUID());
+        GenericTaskCommonData taskCommonData = (GenericTaskCommonData) this.taskCommonDataManipulator.getTaskCommonData(node.getAttributesGUID());
         taskNode.setGenericTaskNodeMeta(taskNodeMeta);
         taskNode.setGenericTaskCommonData(taskCommonData);
         return taskNode;
@@ -175,6 +175,6 @@ public class GenericDistributedTaskMetaTree implements DistributedTaskMetaTree{
         this.distributedTrieTree.removeCachePath( guid );
         this.taskNodeManipulator.remove(guid);
         this.taskNodeMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.taskCommonDataManipulator.remove(node.getBaseDataGUID());
+        this.taskCommonDataManipulator.remove(node.getAttributesGUID());
     }
 }

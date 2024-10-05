@@ -111,7 +111,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     public TreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedScenarioTree.getNode(guid);
         NamespaceNode namespaceNode = this.namespaceNodeManipulator.getNamespaceNode(guid);
-        GenericScenarioCommonData scenarioCommonData = (GenericScenarioCommonData) this.scenarioCommonDataManipulator.getScenarioCommonData(node.getBaseDataGUID());
+        GenericScenarioCommonData scenarioCommonData = (GenericScenarioCommonData) this.scenarioCommonDataManipulator.getScenarioCommonData(node.getAttributesGUID());
         GenericNamespaceNodeMeta namespaceNodeMeta = (GenericNamespaceNodeMeta) this.namespaceNodeMetaManipulator.getNamespaceNodeMeta(node.getNodeMetadataGUID());
         namespaceNode.setNamespaceNodeMeta(namespaceNodeMeta);
         namespaceNode.setScenarioCommonData(scenarioCommonData);
@@ -174,7 +174,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         this.distributedScenarioTree.purge( guid );
         this.namespaceNodeManipulator.remove(guid);
         this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.scenarioCommonDataManipulator.remove(node.getBaseDataGUID());
+        this.scenarioCommonDataManipulator.remove(node.getAttributesGUID());
         this.distributedScenarioTree.removeCachePath(guid);
     }
 

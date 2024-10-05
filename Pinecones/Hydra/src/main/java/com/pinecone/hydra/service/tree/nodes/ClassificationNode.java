@@ -30,7 +30,7 @@ public interface ClassificationNode extends ServiceTreeNode {
     GUIDDistributedTrieNode getDistributedTreeNode();
     void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode);
 
-    GenericNodeCommonData getNodeCommonData();
-    void setNodeCommonData(GenericNodeCommonData nodeCommonData);
+    GenericNodeCommonData getAttributes();
+    void setNodeCommonData(GenericNodeCommonData nodeAttributes);
 
 }

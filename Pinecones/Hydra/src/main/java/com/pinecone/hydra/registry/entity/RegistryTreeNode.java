@@ -1,5 +1,6 @@
 package com.pinecone.hydra.registry.entity;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface RegistryTreeNode extends TreeNode {
@@ -8,7 +9,7 @@ public interface RegistryTreeNode extends TreeNode {
         return null;
     }
 
-    default NamespaceNode evinceNamespaceNode(){
+    default Namespace evinceNamespace(){
         return null;
     }
 
@@ -16,9 +17,16 @@ public interface RegistryTreeNode extends TreeNode {
         return null;
     }
 
-    default TextConfigNode evinceTextConfigNode() {
+    default TextFile evinceTextFile() {
         return null;
     }
 
-    //DistributedRegistry getRegistry();
+    void copyTo( String path );
+
+    void copyTo( GUID guid );
+
+    void moveTo( String path );
+
+    void moveTo( GUID destinationGuid );
+
 }

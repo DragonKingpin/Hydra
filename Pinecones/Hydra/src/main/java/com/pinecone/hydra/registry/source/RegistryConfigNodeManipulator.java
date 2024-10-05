@@ -11,7 +11,9 @@ public interface RegistryConfigNodeManipulator extends GUIDNameManipulator {
 
     void remove( GUID guid );
 
-    ConfigNode getConfigNode( GUID guid );
+    boolean isConfigNode( GUID guid );
+
+    ConfigNode getConfigNode(GUID guid );
 
     void update( ConfigNode configNode );
 

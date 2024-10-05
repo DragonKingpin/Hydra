@@ -24,7 +24,7 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
 
     @Override
     default void insert ( TireOwnerManipulator ownerManipulator, GUIDDistributedTrieNode node ){
-        this.insertTreeNode( node.getGuid(), node.getType(), node.getBaseDataGUID(), node.getNodeMetadataGUID() );
+        this.insertTreeNode( node.getGuid(), node.getType(), node.getAttributesGUID(), node.getNodeMetadataGUID() );
         ownerManipulator.insertRootNode( node.getGuid() );
     }
 

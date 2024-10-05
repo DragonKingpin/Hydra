@@ -3,18 +3,28 @@ package com.pinecone.hydra.registry;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import com.pinecone.framework.util.CursorParser;
 import com.pinecone.framework.util.GeneralStrings;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.name.path.PathResolver;
+import com.pinecone.hydra.registry.entity.Namespace;
 import com.pinecone.hydra.registry.entity.Properties;
+import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
+import com.pinecone.hydra.registry.entity.TextFile;
+import com.pinecone.hydra.system.ko.kom.KOMSelector;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
-
-public class RegistryJPathSelector extends ReparseLinkSelector implements RegistrySelector {
+/**
+ * RegistryJPathSelector
+ * TODO: Advance Functions
+ */
+public class RegistryJPathSelector extends ReparseLinkSelector implements KOMSelector {
     protected Reader                    mReader;
     protected char                      mcPrevious;
     protected long                      mnCharacter;
@@ -24,7 +34,7 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
 
     protected TokenType                 mTokenType;
     protected StringBuilder             mCurrentToken;
-    protected DistributedRegistry       mRegistry;
+    protected KOMRegistry               mRegistry;
 
     protected CursorParser              mThisCursor;
     protected List<RegistryTreeNode>    mQueriedList          ;
@@ -33,7 +43,7 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
         T_UNDEFINED, T_DELIMITER, T_IDENTIFIER, T_INTEGER, T_FLOAT, T_KEYWORD, T_TEMP, T_STRING, T_BLOCK, T_ENDLINE
     }
 
-    public RegistryJPathSelector(Reader reader, PathResolver pathResolver, DistributedRegistry registry, GUIDNameManipulator dirMan, GUIDNameManipulator[] fileMans ) {
+    public RegistryJPathSelector(Reader reader, PathResolver pathResolver, KOMRegistry registry, GUIDNameManipulator dirMan, GUIDNameManipulator[] fileMans ) {
         super( pathResolver, registry.getMasterTrieTree(), dirMan, fileMans );
 
         this.mRegistry      = registry;
@@ -105,7 +115,7 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
         return this.mcPrevious;
     }
 
-    public String next(int n) throws SelectorParseException {
+    public String next( int n ) throws SelectorParseException {
         if ( n == 0 ) {
             return "";
         }
@@ -209,18 +219,10 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
         }
     }
 
-    protected void eval_root_point() {
-        String szTemp = this.mCurrentToken.toString();
-
-        List<GUID > guids;
-        guids = this.searchDirAndLinksFirstCase( szTemp );
-
-
-    }
-
-    public Object eval() {
+    public List eval() {
         int depth = 0;
         GUID parentGuid = null;
+        List<GUID> preGUIDs = null;
 
         do {
             this.getNextToken();
@@ -243,21 +245,37 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
                 guids = this.distributedTrieTree.getChildrenGuids( parentGuid );
             }
 
+            this.getNextToken();
             if ( guids == null || guids.isEmpty() ) {
-                continue;
+                if( this.mTokenType == TokenType.T_ENDLINE ) {
+                    guids = preGUIDs;
+                    if ( guids == null || guids.isEmpty() ) {
+                        continue;
+                    }
+                }
+                else {
+                    continue;
+                }
             }
 
-            this.getNextToken();
+            boolean bNone = true;
             for ( GUID guid : guids ) {
-                List result = this.eval_entities( guid, currentPart );
+                List result = this.eval_entities( guid, currentPart, parentGuid );
                 if ( result != null && !result.isEmpty() ) {
                     if ( this.mTokenType == TokenType.T_ENDLINE ) {
                         return result;
                     }
 
                     parentGuid = guid;
+                    preGUIDs = guids;
+
+                    bNone = false;
                 }
             }
+            if( bNone ) {
+                break;
+            }
+
             this.back();
 
             ++depth;
@@ -267,23 +285,88 @@ public class RegistryJPathSelector extends ReparseLinkSelector implements Regist
         return null;
     }
 
-    protected List eval_entities( GUID guid, String partName ) {
+    protected List eval_entities( GUID guid, String partName, GUID parentGuid ) {
         // 在中间部分只匹配文件夹，最后一部分匹配文件和文件夹
         // In the last part, check both files and directories
 
         if ( this.mTokenType == TokenType.T_ENDLINE ) {
             RegistryTreeNode node = this.mRegistry.get( guid );
             if( !this.checkPartInAllManipulators( guid, partName ) ) {
-                if( node instanceof Properties ) {
+                if( node instanceof Properties && node.getGuid().equals( parentGuid ) ) {
                     return List.of ( ((Properties) node).get( partName ) );
                 }
+                return null;
             }
-            return List.of ( node );
+            else {
+                return List.of ( node );
+            }
         }
         else {
-            // Middle part: Directory only.
-            //List<GUID > guids = this.dirManipulator.getGuidsByNameID( partName, guid );
-            return this.searchDirAndLinks( guid, partName );
+            return this.searchAllManipulators( guid, partName );
         }
+    }
+
+    protected List<GUID > searchAllManipulators ( GUID guid, String partName ) {
+        List<GUID > guids = this.searchDirAndLinks( guid, partName );
+        if( guids != null && !guids.isEmpty() ) {
+            return guids;
+        }
+
+        for ( GUIDNameManipulator manipulator : this.fileManipulators ) {
+            guids = manipulator.getGuidsByNameID( partName, guid );
+            if ( guids != null && !guids.isEmpty() ) {
+                return guids;
+            }
+        }
+        return null;
+    }
+
+    protected RegistryJPathSelector reinit( String szSelector ) {
+        if( szSelector != null ) {
+            // For thread safe.
+            return new RegistryJPathSelector(
+                    new StringReader( szSelector ), this.pathResolver, this.mRegistry, this.dirManipulator, this.fileManipulators
+            );
+        }
+        return this;
+    }
+
+    @Override
+    public List querySelectorAll( String szSelector ) {
+        return this.reinit( szSelector ).eval();
+    }
+
+    @Override
+    public Object querySelector( String szSelector ) {
+        List ret = this.reinit( szSelector ).eval();
+        if( ret != null && !ret.isEmpty() ) {
+            return ret.get( 0 );
+        }
+        return null;
+    }
+
+    @Override
+    public Object querySelectorJ( String szSelector ) {
+        Object raw = this.querySelector( szSelector );
+        if( raw instanceof Properties ) {
+            return ((Properties) raw).toJSONObject();
+        }
+        else if( raw instanceof TextFile) {
+            return ((TextFile) raw).toJSON();
+        }
+        else if( raw instanceof Namespace) {
+            return ((Namespace) raw).toJSONObject();
+        }
+        else if( raw instanceof Property ) {
+            return ((Property) raw).getValue();
+        }
+        else if( raw == null ) {
+            return null;
+        }
+
+        JSONObject repare = new JSONMaptron();
+        repare.put( "type", raw.getClass().getSimpleName() );
+        repare.put( "value", raw );
+        return repare;
     }
 }

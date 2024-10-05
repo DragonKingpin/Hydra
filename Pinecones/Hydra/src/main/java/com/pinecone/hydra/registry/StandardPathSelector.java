@@ -5,7 +5,9 @@ import java.util.Stack;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.name.path.PathResolver;
+import com.pinecone.hydra.system.ko.kom.PathSelector;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 
@@ -33,8 +35,29 @@ public class StandardPathSelector implements PathSelector {
         if( lpResolvedPath != null ) {
             lpResolvedPath[ 0 ] = this.pathResolver.assemblePath( resolvedParts );
         }
+
+        return this.searchGUID( resolvedParts );
+    }
+
+    @Override
+    public GUID searchGUID( List<String> resolvedParts ) {
         //return dfsSearchGUID(fileMan, dirMan, resolvedParts, 0, null);
         return (GUID) this.dfsSearch( resolvedParts );
+    }
+
+    @Override
+    public Object querySelector( String szSelector ) {
+        return this.searchGUID( this.pathResolver.resolvePathParts( szSelector ) );
+    }
+
+    @Override
+    public List querySelectorAll( String szSelector ) {
+        return List.of( this.querySelector( szSelector ) )  ;
+    }
+
+    @Override
+    public Object querySelectorJ( String szSelector ) {
+        return JSON.stringify( this.querySelector( szSelector ) );
     }
 
     /** Iterative DFS, 迭代 DFS 法 **/

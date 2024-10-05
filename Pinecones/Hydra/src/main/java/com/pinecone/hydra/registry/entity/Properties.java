@@ -13,9 +13,9 @@ import com.pinecone.framework.util.json.JSONObject;
 
 public interface Properties extends ConfigNode, PineUnit {
 
-    Properties getParent();
+    Properties getAffinityParent();
 
-    void setParent( Properties parent );
+    void setAffinityParent( Properties parent );
 
     Collection<Property > getProperties();
 
@@ -76,7 +76,7 @@ public interface Properties extends ConfigNode, PineUnit {
         return this;
     }
 
-    void copyValueTo(GUID destinationGuid );
+    void copyValueTo( GUID destinationGuid );
 
-    void copyTo    (GUID destinationGuid);
+    void copyTo    ( GUID destinationGuid );
 }

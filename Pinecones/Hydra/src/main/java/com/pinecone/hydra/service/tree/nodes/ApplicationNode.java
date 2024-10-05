@@ -26,6 +26,6 @@ public interface ApplicationNode extends ServiceTreeNode {
     GenericApplicationNodeMeta getApplicationNodeMeta();
     void setApplicationNodeMeta(GenericApplicationNodeMeta applicationNodeMeta);
 
-    GenericNodeCommonData getNodeCommonData();
-    void setNodeCommonData(GenericNodeCommonData nodeCommonData);
+    GenericNodeCommonData getAttributes();
+    void setNodeCommonData(GenericNodeCommonData nodeAttributes);
 }

@@ -2,12 +2,12 @@ package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ArchConfigNode;
-import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
-import com.pinecone.hydra.registry.entity.GenericProperty;
+import com.pinecone.hydra.registry.entity.GenericNamespace;
+import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import com.pinecone.hydra.registry.DistributedRegistry;
-import com.pinecone.hydra.registry.GenericDistributeRegistry;
+import com.pinecone.hydra.registry.KOMRegistry;
+import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.ulf.util.id.GUIDs;
 //import com.walnut.sparta.services.drivers.RegistryMasterManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
@@ -29,11 +29,11 @@ public class RegistryMetaController {
     @Resource
     private RegistryMasterManipulator               registryMasterManipulator;
 
-    private DistributedRegistry                     distributedRegistry;
+    private KOMRegistry KOMRegistry;
 
     @PostConstruct
     public void init() {
-        this.distributedRegistry = new GenericDistributeRegistry(null, this.registryMasterManipulator );
+        this.KOMRegistry = new GenericKOMRegistry(null, this.registryMasterManipulator );
     }
 
     /**
@@ -42,8 +42,8 @@ public class RegistryMetaController {
      * @return 返回操作情况
      */
     @PostMapping("/putNamespaceNode")
-    public BasicResultResponse<String> putNamespaceNode(@RequestBody GenericNamespaceNode namespaceNode){
-        this.distributedRegistry.put(namespaceNode);
+    public BasicResultResponse<String> putNamespaceNode(@RequestBody GenericNamespace namespaceNode){
+        this.KOMRegistry.put(namespaceNode);
         return BasicResultResponse.success();
     }
 
@@ -54,7 +54,7 @@ public class RegistryMetaController {
      */
     @PostMapping("/putConfigNode")
     public BasicResultResponse<String> putConfigNode( @RequestBody ArchConfigNode configNode ){
-        this.distributedRegistry.put(configNode);
+        this.KOMRegistry.put(configNode);
         return BasicResultResponse.success();
     }
 
@@ -65,7 +65,7 @@ public class RegistryMetaController {
      */
     @GetMapping("/getPath")
     public BasicResultResponse<String> getPath( @RequestParam("guid") String guid ){
-        String path = this.distributedRegistry.getPath( GUIDs.GUID72( guid ) );
+        String path = this.KOMRegistry.getPath( GUIDs.GUID72( guid ) );
         return BasicResultResponse.success(path);
     }
 
@@ -76,7 +76,7 @@ public class RegistryMetaController {
      */
     @GetMapping("/getNode")
     public BasicResultResponse<TreeNode> getNode( @RequestParam("guid") String guid ){
-        TreeNode node = this.distributedRegistry.get( GUIDs.GUID72( guid ) );
+        TreeNode node = this.KOMRegistry.get( GUIDs.GUID72( guid ) );
         return BasicResultResponse.success(node);
     }
 
@@ -91,14 +91,14 @@ public class RegistryMetaController {
     @PostMapping("/insertProperties")
     public BasicResultResponse<String> insertProperties(@RequestParam("key")String key, @RequestParam("Guid") String guid,
                                                         @RequestParam("value") String value, @RequestParam("type") String type){
-        GenericProperty genericProperties = new GenericProperty();
+        Property genericProperties = Property.newDummy();
         genericProperties.setCreateTime(LocalDateTime.now());
         genericProperties.setUpdateTime(LocalDateTime.now());
         genericProperties.setKey(key);
         genericProperties.setValue(value);
         genericProperties.setType(type);
 
-        this.distributedRegistry.putProperty( genericProperties, GUIDs.GUID72( guid ) );
+        this.KOMRegistry.putProperty( genericProperties, GUIDs.GUID72( guid ) );
         return BasicResultResponse.success();
     }
 
@@ -109,7 +109,7 @@ public class RegistryMetaController {
      */
     @DeleteMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("Guid") GUID guid){
-        this.distributedRegistry.remove( guid );
+        this.KOMRegistry.remove( guid );
         return BasicResultResponse.success();
     }
 
@@ -118,9 +118,9 @@ public class RegistryMetaController {
      * @param path 路径信息
      * @return 返回解析后的节点信息
      */
-    @GetMapping("/queryTreeNode")
+    @GetMapping("/queryElement")
     public BasicResultResponse<TreeNode> getNodeByPath( @RequestParam("path") String path ){
-        TreeNode treeNode = this.distributedRegistry.queryTreeNode(path);
+        TreeNode treeNode = this.KOMRegistry.queryElement(path);
         return BasicResultResponse.success( treeNode );
     }
 
@@ -135,7 +135,7 @@ public class RegistryMetaController {
     public BasicResultResponse<String> insertTextValue(@RequestParam("guid")String guid,
                                                        @RequestParam("text") String text,
                                                        @RequestParam("type") String type){
-        this.distributedRegistry.putTextValue( GUIDs.GUID72( guid ) ,text,type);
+        this.KOMRegistry.putTextValue( GUIDs.GUID72( guid ) ,text,type);
         return BasicResultResponse.success();
     }
 
@@ -147,7 +147,7 @@ public class RegistryMetaController {
     @GetMapping("/getSelf")
     public BasicResultResponse<TreeNode > getSelf(@RequestParam("guid") String guid){
         return BasicResultResponse.success(
-                this.distributedRegistry.getSelf( GUIDs.GUID72( guid ) )
+                this.KOMRegistry.getSelf( GUIDs.GUID72( guid ) )
         );
     }
 }

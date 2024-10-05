@@ -65,7 +65,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
 
         //将应用元信息存入元信息表
         GUID metadataGUID = guidAllocator.nextGUID72();
-        GenericNodeCommonData metadata = applicationNodeInformation.getNodeCommonData();
+        GenericNodeCommonData metadata = applicationNodeInformation.getAttributes();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -82,7 +82,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
     @Override
     public void remove(GUID guid) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
-        this.applicationMetaManipulator.remove(node.getBaseDataGUID());
+        this.applicationMetaManipulator.remove(node.getAttributesGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
         this.applicationNodeManipulator.remove(node.getGuid());
     }
@@ -92,7 +92,7 @@ public class ApplicationNodeOperator implements MetaNodeOperator {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericApplicationNode genericApplicationNode = new GenericApplicationNode();
 
-        GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getBaseDataGUID());
+        GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
         GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
 

@@ -36,10 +36,10 @@ public class PropertyJSONEncoder extends GenericJSONEncoder {
         UniScopeMap<String, Property > propertyMap = that.getPropertiesMap();
         int nNewIndent          = nIndentBlankNum + nIndentFactor;
         boolean bHasNextElement = false;
-        if ( that.getParent() != null ) {
+        if ( that.getAffinityParent() != null ) {
             GenericJSONEncoder.beforeJsonElementWrote( writer, nIndentFactor, nNewIndent, false );
             writer.write("\"__parent__\": ");
-            this.write( that.getParent(), writer, nIndentFactor, nNewIndent );
+            this.write( that.getAffinityParent(), writer, nIndentFactor, nNewIndent );
             bHasNextElement = true;
         }
 

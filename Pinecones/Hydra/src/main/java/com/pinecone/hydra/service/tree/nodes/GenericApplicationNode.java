@@ -11,7 +11,7 @@ public class GenericApplicationNode implements ApplicationNode {
 
     private GenericApplicationNodeMeta applicationNodeMeta;
 
-    private GenericNodeCommonData nodeCommonData;
+    private GenericNodeCommonData nodeAttributes;
     // 应用节点id
     private long enumId;
 
@@ -25,10 +25,10 @@ public class GenericApplicationNode implements ApplicationNode {
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(GUIDDistributedTrieNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name) {
+    public GenericApplicationNode(GUIDDistributedTrieNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name) {
         this.distributedTreeNode = distributedTreeNode;
         this.applicationNodeMeta = applicationNodeMeta;
-        this.nodeCommonData = nodeCommonData;
+        this.nodeAttributes = nodeAttributes;
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
@@ -55,13 +55,13 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
 
-    public GenericNodeCommonData getNodeCommonData() {
-        return nodeCommonData;
+    public GenericNodeCommonData getAttributes() {
+        return nodeAttributes;
     }
 
 
-    public void setNodeCommonData(GenericNodeCommonData nodeCommonData) {
-        this.nodeCommonData = nodeCommonData;
+    public void setNodeCommonData(GenericNodeCommonData nodeAttributes) {
+        this.nodeAttributes = nodeAttributes;
     }
 
 
@@ -100,6 +100,6 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
     public String toString() {
-        return "GenericApplicationNode{distributedTreeNode = " + distributedTreeNode + ", applicationNodeMeta = " + applicationNodeMeta + ", nodeCommonData = " + nodeCommonData + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
+        return "GenericApplicationNode{distributedTreeNode = " + distributedTreeNode + ", applicationNodeMeta = " + applicationNodeMeta + ", nodeAttributes = " + nodeAttributes + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

@@ -6,21 +6,21 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.registry.ibatis.RegistryCommonDataMapper;
+import com.pinecone.hydra.registry.ibatis.RegistryAttributesMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMetaMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryConfigNodeMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNodeMetaMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryPropertiesMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryTextValueMapper;
+import com.pinecone.hydra.registry.ibatis.RegistryTextFileMapper;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
-import com.pinecone.hydra.registry.source.RegistryCommonDataManipulator;
+import com.pinecone.hydra.registry.source.RegistryAttributesManipulator;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
-import com.pinecone.hydra.registry.source.RegistryTextValueManipulator;
+import com.pinecone.hydra.registry.source.RegistryTextFileManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 
@@ -39,8 +39,8 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryPropertiesManipulator registryPropertiesManipulator;
 
     @Resource
-    @Structure( type = RegistryTextValueMapper.class )
-    RegistryTextValueManipulator registryTextValueManipulator;
+    @Structure( type = RegistryTextFileMapper.class )
+    RegistryTextFileManipulator registryTextFileManipulator;
 
     @Resource
     @Structure( type = RegistryNodeMetaMapper.class )
@@ -51,8 +51,8 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
     @Resource
-    @Structure( type = RegistryCommonDataMapper.class )
-    RegistryCommonDataManipulator registryCommonDataManipulator;
+    @Structure( type = RegistryAttributesMapper.class )
+    RegistryAttributesManipulator registryAttributesManipulator;
 
     @Resource( type = RegistryMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;
@@ -73,7 +73,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryConfigNodeManipulator getRegistryConfigNodeManipulator() {
+    public RegistryConfigNodeManipulator getConfigNodeManipulator() {
         return this.configNodeManipulator;
     }
 
@@ -83,17 +83,17 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryPropertiesManipulator getRegistryPropertiesManipulator() {
+    public RegistryPropertiesManipulator getPropertiesManipulator() {
         return this.registryPropertiesManipulator;
     }
 
     @Override
-    public RegistryTextValueManipulator getRegistryTextValueManipulator() {
-        return this.registryTextValueManipulator;
+    public RegistryTextFileManipulator getTextFileManipulator() {
+        return this.registryTextFileManipulator;
     }
 
     @Override
-    public RegistryNodeMetaManipulator getRegistryNodeMetaManipulator() {
+    public RegistryNodeMetaManipulator getNodeMetaManipulator() {
         return this.configNodeMetaManipulator;
     }
 
@@ -103,7 +103,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     }
 
     @Override
-    public RegistryCommonDataManipulator getRegistryCommonDataManipulator() {
-        return this.registryCommonDataManipulator;
+    public RegistryAttributesManipulator getAttributesManipulator() {
+        return this.registryAttributesManipulator;
     }
 }

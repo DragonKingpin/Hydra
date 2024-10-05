@@ -1,16 +1,17 @@
 package com.sparta;
 
-import java.util.List;
-
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
-import com.pinecone.hydra.registry.DistributedRegistry;
-import com.pinecone.hydra.registry.GenericDistributeRegistry;
+import com.pinecone.hydra.registry.KOMRegistry;
+import com.pinecone.hydra.registry.GenericKOMRegistry;
+import com.pinecone.hydra.registry.entity.ElementNode;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
+import com.pinecone.hydra.registry.marshaling.JSONTransformer;
+import com.pinecone.hydra.registry.marshaling.RegistryTransformer;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.sauron.radium.Radium;
@@ -30,21 +31,25 @@ class StanMarsh extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        DistributedRegistry registry = new GenericDistributeRegistry( koiMappingDriver );
+        KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
 
         //this.testBasicInsert( registry );
         //this.testDeletion( registry );
         //this.testDataExtends( registry );
         //this.testHardLink( registry );
-        this.testCopy( registry );
+        //this.testCopy( registry );
+        //this.testMove( registry );
         //this.testMisc( registry );
         //this.testSelector( registry );
+        //this.testAttributes( registry );
+        this.testMarshaling( registry );
     }
 
-    private void testBasicInsert( DistributedRegistry registry ) {
+    private void testBasicInsert( KOMRegistry registry ) {
         registry.putProperties( "game/minecraft/wizard1", new JSONMaptron( "{ name:ken, age:22, species:human, job:wizard }" ) );
         registry.putProperties( "game/minecraft/sorcerer1", new JSONMaptron( "{ name:dragonking, hp:666, species:dragon, job:sorcerer }" ) );
         registry.putProperties( "game/terraria/mob1", new JSONMaptron( "{ name:lural, age:666, species:cthulhu, job:mob }" ) );
+        registry.putProperties( "game/witcher/mob1", new JSONMaptron( "{ name:witcher_mob1, age:-789, species:'undefined', job:mob }" ) );
         registry.putProperties( "game/witcher/mob2", new JSONMaptron( "{ name:wxsdw, age:666, species:cthulhu, job:mob }" ) );
         registry.putProperties( "game/witcher/mob3", new JSONMaptron( "{ name:mob3, age:661, species:cthulhu2, job:mob2 }" ) );
         registry.putProperties( "game/witcher/people/xxx", new JSONMaptron( "{ name:xxxx, age:999, species:elf, job:warrior }" ) );
@@ -52,10 +57,10 @@ class StanMarsh extends Radium {
 
         registry.putProperties( "game3a/witcher/people/s4/urge", new JSONMaptron( "{ name:darkurge, age:996, species:dragon, job:warrior }" ) );
 
-        registry.putTextValue( "game/witcher/jesus", "json", "{k:p}" );
+        registry.putTextValue( "game/witcher/jesus", "JSONObject", "{k:p}" );
     }
 
-    private void testDeletion( DistributedRegistry registry ) {
+    private void testDeletion( KOMRegistry registry ) {
         registry.remove( "game" );
         registry.remove( "game/witcher" );
         registry.remove( "game/minecraft" );
@@ -71,21 +76,43 @@ class StanMarsh extends Radium {
 //        Debug.fmp( 4, registry.getProperties( "泰拉瑞亚.灾厄.至尊灾厄" ).toJSONObject() );
     }
 
-    private void testMove( DistributedRegistry registry ) {
-        registry.move( "game/terraria/mob1", "game/minecraft/mob1" );
-        registry.move( "game/minecraft/", "game/terraria/more" );
+    private void testMove( KOMRegistry registry ) {
+        //registry.move( "game/terraria/mob1", "game/minecraft/mob1" );
+        //registry.move( "game/minecraft/", "game/terraria/more" );
+
+        //registry.move( "game/minecraft/sorcerer1 ", "game/terraria/." );
+        //Debug.trace( registry.queryElement( "game/terraria/sorcerer1" ), registry.queryElement( "game/minecraft/sorcerer1" )  );
     }
 
-    private void testCopy( DistributedRegistry registry ) {
+    private void testCopy( KOMRegistry registry ) {
         //this.testBasicInsert( registry );
-       // registry.queryTreeNode("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
+       // registry.queryElement("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
 
         //registry.getProperties( "game/terraria/mob1" ).copyTo( "game/moregame/mmob4" );
 
-        //.trace( registry.getProperties( "game/moregame/mmob4" ) );
+        //Debug.trace( registry.getProperties( "game/moregame/mmob4" ) );
+
+        //registry.getNamespace( "game3a/witcher/" ).copyTo( registry.affirmNamespace( "game/owo" ).getGuid() );
+        //registry.getNamespace( "game3a/witcher" ).copyTo( registry.affirmNamespace( "game/owo" ).getGuid() );
+
+
+        //Debug.trace( registry.getNamespace( "game/owo" ).getChildren() );
+
+
+        //registry.copy( "game/minecraft/sorcerer1 ", "game/terraria/." );
+        //Debug.trace( registry.queryElement( "game/terraria/sorcerer1" ), registry.queryElement( "game/minecraft/sorcerer1" )  );
+
+        //registry.copy( "game/minecraft", "game/terraria" );
+        //Debug.trace( registry.queryElement( "game/terraria" ).evinceNamespace().listItem(), registry.queryElement( "game/minecraft" ).evinceNamespace().listItem()  );
+
+        //registry.copy( "game/minecraft", "game/terraria/" );
+        //Debug.trace( registry.queryElement( "game/terraria" ).evinceNamespace().listItem(), registry.queryElement( "game/minecraft" ).evinceNamespace().listItem()  );
+
+        //registry.copy( "game/minecraft", "game/terraria/new" );
+        //Debug.trace( registry.queryElement( "game/terraria/new" ).evinceNamespace().listItem(), registry.queryElement( "game/minecraft" ).evinceNamespace().listItem()  );
     }
 
-    private void testDataExtends( DistributedRegistry registry ) {
+    private void testDataExtends( KOMRegistry registry ) {
 //          Debug.trace(registry.listRoot());
 //        registry.setAffinity(new GUID72("1f7c33d6-000309-0000-f8"),new GUID72("1f7c33d6-0003c1-0000-b0"));
 
@@ -155,7 +182,7 @@ class StanMarsh extends Radium {
 
     }
 
-    private void testMisc( DistributedRegistry registry ) {
+    private void testMisc( KOMRegistry registry ) {
         //registry.putProperties( "game/fiction/character/dragonKing", new JSONMaptron( "{ name:DragonKing, age:666, species:dragon, job:sorcerer, hp:999999 }" ) );
         //registry.putProperties( "game/3a/character/red-prince", new JSONMaptron( "{ name: RedPrince, species:lizard, job:warrior, force:777777 }" ) );
 
@@ -164,38 +191,59 @@ class StanMarsh extends Radium {
         Debug.trace( registry.getProperties( "game/3a/character/red-prince" ) );
     }
 
-    private void testHardLink( DistributedRegistry registry ) {
+    private void testHardLink( KOMRegistry registry ) {
         //this.testBasicInsert( registry );
 
-        //Debug.trace( registry.queryTreeNode( "game/minecraft" ) );
+        //Debug.trace( registry.queryElement( "game/minecraft" ) );
         //registry.newLinkTag( "game/witcher", "game/minecraft", "mount" );
 
         //Debug.trace( registry.getMasterTrieTree().queryAllLinkedCount( registry.queryGUIDByPath( "game/witcher" ) ) );
         //Debug.trace( registry.getMasterTrieTree().queryStrongLinkedCount( registry.queryGUIDByPath( "game/witcher" ) ) );
 
-        //Debug.fmp( 2, registry.queryTreeNode( "game/minecraft/mount/" ) );
-        //Debug.fmp( 2, registry.queryTreeNode( "game/minecraft/mount/mob2" ) );
-        //Debug.fmp( 2, registry.queryTreeNode( "mount" ) );
-        //Debug.fmp( 2, registry.queryTreeNode( "game/witcher/jesus/" ) );
+        //Debug.fmp( 2, registry.queryElement( "game/minecraft/mount/" ) );
+        //Debug.fmp( 2, registry.queryElement( "game/minecraft/mount/mob2" ) );
+        //Debug.fmp( 2, registry.queryElement( "mount" ) );
+        //Debug.fmp( 2, registry.queryElement( "game/witcher/jesus/" ) );
 
         //registry.remove( "game/minecraft/mount" );
-        Debug.fmp( 2, registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getEnumId() );
+        Debug.fmp( 2, registry.queryElement( "game3a" ).evinceNamespace().getEnumId() );
 
-        //var children = registry.queryTreeNode( "game" ).evinceNamespaceNode().getChildren();
-        //var mc = children.get("minecraft").evinceNamespaceNode().getChildren();
+        //var children = registry.queryElement( "game" ).evinceNamespace().getChildren();
+        //var mc = children.get("minecraft").evinceNamespace().getChildren();
 
-//        var children = registry.queryTreeNode( "game3a" ).evinceNamespaceNode().getChildren();
-//        var mc = children.get("witcher").evinceNamespaceNode().getChildren();
+//        var children = registry.queryElement( "game3a" ).evinceNamespace().getChildren();
+//        var mc = children.get("witcher").evinceNamespace().getChildren();
 //        Debug.trace( 2, mc );
 
         //Debug.trace( registry.get )
-        //Debug.fmp( 2, registry.queryTreeNode( "game/minecraft/" ).evinceNamespaceNode().listItem() );
+        //Debug.fmp( 2, registry.queryElement( "game/minecraft/" ).evinceNamespace().listItem() );
 
 
     }
 
-    private void testSelector( DistributedRegistry registry ) {
-        Debug.trace( registry.querySelector( "game.minecraft.wizard1" ) );
+    private void testSelector( KOMRegistry registry ) {
+        //this.testBasicInsert( registry );
+        //Debug.trace( registry.querySelectorJ( "game.minecraft.wizard1.name" ) );
+
+        Debug.fmp( 2, registry.querySelectorJ( "game/witcher/jesus" ) );
+    }
+
+    private void testAttributes( KOMRegistry registry ) {
+        ElementNode node = registry.queryElement( "game/minecraft/sorcerer1" );
+        //node.getAttributes().setAttribute( "title", "king" );
+        //node.getAttributes().clear();
+
+        Debug.fmp( 2, node.getAttributes().size() );
+    }
+
+    private void testMarshaling( KOMRegistry registry ) {
+        JSONTransformer transformer = new JSONTransformer( registry );
+
+//        ElementNode node = registry.queryElement( "game/witcher/jesus" );
+//        Debug.trace( transformer.encode( node ) );
+
+
+        //Debug.trace( transformer.decode( node ) );
     }
 
 }

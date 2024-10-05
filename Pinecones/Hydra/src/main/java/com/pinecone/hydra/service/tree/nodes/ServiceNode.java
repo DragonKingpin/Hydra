@@ -26,6 +26,6 @@ public interface ServiceNode extends ServiceTreeNode {
     GenericServiceNodeMeta getServiceNodeMetadata();
     void setServiceNodeMetadata(GenericServiceNodeMeta serviceNodeMetadata);
 
-    GenericNodeCommonData getNodeCommonData();
-    void setNodeCommonData(GenericNodeCommonData nodeCommonData);
+    GenericNodeCommonData getAttributes();
+    void setNodeCommonData(GenericNodeCommonData nodeAttributes);
 }

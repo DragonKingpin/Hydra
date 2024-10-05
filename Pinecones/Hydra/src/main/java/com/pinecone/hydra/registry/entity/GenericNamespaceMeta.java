@@ -3,15 +3,15 @@ package com.pinecone.hydra.registry.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
-public class GenericNodeAttribute implements NodeAttribute {
+public class GenericNamespaceMeta implements NamespaceMeta {
     private long enumId;
 
     private GUID guid;
 
-    public GenericNodeAttribute() {
+    public GenericNamespaceMeta() {
     }
 
-    public GenericNodeAttribute( long enumId, GUID guid ) {
+    public GenericNamespaceMeta(long enumId, GUID guid ) {
         this.enumId = enumId;
         this.guid = guid;
     }
@@ -22,7 +22,7 @@ public class GenericNodeAttribute implements NodeAttribute {
     }
 
     @Override
-    public void setEnumId( long enumId ) {
+    public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 

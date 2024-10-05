@@ -11,9 +11,9 @@ import java.util.List;
 public class PropertiesOperator extends ArchConfigNodeOperator {
     protected RegistryPropertiesManipulator registryPropertiesManipulator;
 
-    public PropertiesOperator( ConfigOperatorFactory factory ) {
+    public PropertiesOperator( RegistryOperatorFactory factory ) {
         super(factory);
-        this.registryPropertiesManipulator=factory.getMasterManipulator().getRegistryPropertiesManipulator();
+        this.registryPropertiesManipulator=factory.getMasterManipulator().getPropertiesManipulator();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class PropertiesOperator extends ArchConfigNodeOperator {
         Properties sp = (Properties) self;
         Properties pp = (Properties) prototype;
 
-        sp.setParent( pp );
+        sp.setAffinityParent( pp );
         sp.setParentProperties( pp.getPropertiesMap() );
     }
 
@@ -42,8 +42,8 @@ public class PropertiesOperator extends ArchConfigNodeOperator {
     protected Properties getConfigNodeWideData( GUID guid ) {
         ConfigNode configNodeWideData = super.getConfigNodeWideData( guid );
         if( configNodeWideData instanceof Properties ) {
-            List<Property > properties = this.registryPropertiesManipulator.getProperties( guid );
             Properties propertiesNode = (Properties) configNodeWideData;
+            List<Property > properties = this.registryPropertiesManipulator.getProperties( guid, propertiesNode );
             propertiesNode.setProperties( properties );
             return propertiesNode;
         }

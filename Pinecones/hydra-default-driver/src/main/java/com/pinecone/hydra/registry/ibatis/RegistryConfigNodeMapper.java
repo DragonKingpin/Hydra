@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.GenericProperties;
-import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
+import com.pinecone.hydra.registry.entity.GenericTextFile;
 import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 
@@ -27,6 +27,10 @@ public interface RegistryConfigNodeMapper extends RegistryConfigNodeManipulator 
     @Delete("DELETE FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
     void remove( @Param("guid") GUID guid );
 
+    @Override
+    @Select( "SELECT COUNT(`id`) FROM `hydra_registry_config_node` WHERE guid = #{guid}" )
+    boolean isConfigNode( GUID guid );
+
     @Select("SELECT `type` FROM `hydra_registry_nodes` WHERE `guid`=#{guid}")
     UOI getUOIByGUID( GUID guid );
 
@@ -34,12 +38,12 @@ public interface RegistryConfigNodeMapper extends RegistryConfigNodeManipulator 
     GenericProperties getPropertiesNode( GUID guid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `data_affinity_guid` AS dataAffinityGuid, `create_time` AS createTime, `update_time` updateTime, `name` FROM `hydra_registry_config_node` WHERE `guid`=#{guid}")
-    GenericTextConfigNode getTextConfigNode( GUID guid );
+    GenericTextFile getTextConfigNode(GUID guid );
 
     @Override
-    default ConfigNode getConfigNode ( GUID guid ) {
+    default ConfigNode getConfigNode (GUID guid ) {
         String objectName = this.getUOIByGUID(guid).getObjectName();
-        if ( objectName.equals( GenericTextConfigNode.class.getName()) ){
+        if ( objectName.equals( GenericTextFile.class.getName()) ){
             return this.getTextConfigNode(guid);
         }
         else if ( objectName.equals(GenericProperties.class.getName()) ){

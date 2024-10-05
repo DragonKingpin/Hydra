@@ -4,7 +4,8 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.unit.UniScopeMap;
 import com.pinecone.framework.unit.UniScopeMaptron;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.DistributedRegistry;
+import com.pinecone.hydra.registry.KOMRegistry;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -25,17 +26,17 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     public GenericProperties() {
     }
 
-    public GenericProperties( DistributedRegistry registry ) {
+    public GenericProperties( KOMRegistry registry ) {
         super( registry );
     }
 
     @Override
-    public Properties getParent() {
+    public Properties getAffinityParent() {
         return this.parent;
     }
 
     @Override
-    public void setParent( Properties parent ) {
+    public void setAffinityParent( Properties parent ) {
         this.parent = parent;
     }
 
@@ -46,14 +47,14 @@ public class GenericProperties extends ArchConfigNode implements Properties {
                 break;
             }
 
-            owned = owned.getParent();
+            owned = owned.getAffinityParent();
         }
         return owned;
     }
 
     @Override
     public void put( String key, Object val ) {
-        Property p = new GenericProperty();
+        Property p = new GenericProperty( this );
         p.setKey( key );
         p.setValue( val );
 
@@ -197,7 +198,7 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     @Override
     public void copyValueTo( GUID destinationGuid ) {
         if ( destinationGuid != null ){
-            this.registry.copyPropertiesTo( this.guid, destinationGuid);
+            this.registry.copyPropertiesTo( this.guid, destinationGuid );
         }
     }
 
@@ -248,7 +249,7 @@ public class GenericProperties extends ArchConfigNode implements Properties {
     }
 
     @Override
-    public DistributedRegistry getRegistry() {
+    public KOMRegistry parentRegistry() {
         return this.registry;
     }
 
@@ -259,8 +260,36 @@ public class GenericProperties extends ArchConfigNode implements Properties {
 
     @Override
     public void copyTo( GUID destinationGuid ) {
-        this.copyMetaTo( destinationGuid );
-        this.copyValueTo( destinationGuid );
+        Properties thisCopy = null;
+        RegistryTreeNode tn = this.registry.get( destinationGuid );
+        if( tn.evinceProperties() == null ) {
+            List<TreeNode > destChildren = this.registry.getChildren( destinationGuid );
+            for( TreeNode node : destChildren ) {
+                if( this.getName().equals( node.getName() ) ) {
+                    if( node instanceof Properties  ) {
+                        thisCopy = (Properties) node;
+                        break;
+                    }
+                    else {
+                        throw new IllegalArgumentException(
+                                String.format( "Existed child-destination [%s] should be properties.", this.getName() )
+                        );
+                    }
+                }
+            }
+        }
+        else {
+            thisCopy = (Properties) tn;
+        }
+
+        // Child-Destination non-exist.
+        if( thisCopy == null ) {
+            thisCopy = new GenericProperties( this.registry );
+            this.putNewCopy( thisCopy, destinationGuid );
+        }
+
+        this.copyMetaTo( thisCopy.getGuid() );
+        this.copyValueTo( thisCopy.getGuid() );
     }
 
     @Override

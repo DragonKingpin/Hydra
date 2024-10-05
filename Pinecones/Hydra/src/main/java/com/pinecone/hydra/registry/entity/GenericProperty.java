@@ -6,21 +6,32 @@ import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import java.time.LocalDateTime;
 
 public class GenericProperty implements Property {
-    private long          enumId;
-    private GUID          guid;
-    private String        key;
-    private String        type;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    private Object        rawValue;  //TODO
-    private Object        value;
+    private    long          enumId;
+    private    GUID          guid;
+    private    String        key;
+    private    String        type;
+    private    LocalDateTime createTime;
+    private    LocalDateTime updateTime;
+    private    Object        rawValue;  //TODO
+    private    Object        value;
+
+    protected  Properties    properties;
 
     public GenericProperty() {
+
+    }
+
+    public GenericProperty( Properties properties ) {
+        this.properties = properties;
     }
 
     public GenericProperty(
-            long enumId, GUID guid, String key, String type, LocalDateTime createTime, LocalDateTime updateTime, String value
+            Properties properties,
+            long enumId, GUID guid, String key, String type, LocalDateTime createTime,
+            LocalDateTime updateTime, String value
     ) {
+        this( properties );
+
         this.enumId = enumId;
         this.guid = guid;
         this.key = key;
@@ -95,10 +106,18 @@ public class GenericProperty implements Property {
         return this.rawValue;
     }
 
+    protected String queryType( Object val ) {
+        return this.parentProperties().parentRegistry().getPropertyTypeConverter().queryType( val );
+    }
+
+    protected Object converterValue( String val, String type ) {
+        return this.parentProperties().parentRegistry().getPropertyTypeConverter().converter( val, type );
+    }
+
     @Override
     public void setRawValue( Object rawValue ) {
         this.rawValue = rawValue;
-        this.value    = PropertyTypes.queryValue( this.rawValue.toString(), this.type );
+        this.value    = this.converterValue( this.rawValue.toString(), this.type );
     }
 
     @Override
@@ -109,8 +128,8 @@ public class GenericProperty implements Property {
     @Override
     public void setValue( Object value ) {
         this.rawValue = value.toString();
-        this.type     = PropertyTypes.queryType( value );
-        this.value    = PropertyTypes.queryValue( this.rawValue.toString(), this.type );
+        this.type     = this.queryType( value );
+        this.value    = this.converterValue( this.rawValue.toString(), this.type );
     }
 
     @Override
@@ -140,6 +159,15 @@ public class GenericProperty implements Property {
         this.from( that );
     }
 
+    @Override
+    public Properties parentProperties() {
+        return this.properties;
+    }
+
+    @Override
+    public void setParentProperties( Properties parentProperties ) {
+        this.properties = parentProperties;
+    }
 
     @Override
     public String toJSONString() {

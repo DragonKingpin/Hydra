@@ -1,21 +1,21 @@
 package com.pinecone.hydra.registry.source;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.Namespace;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;
 
 public interface RegistryNSNodeManipulator extends GUIDNameManipulator {
-    void insert( NamespaceNode namespaceNode );
+    void insert( Namespace namespace);
 
     void remove( GUID guid );
 
     boolean isNamespaceNode( GUID guid );
 
-    NamespaceNode getNamespaceMeta( GUID guid );
+    Namespace getNamespaceWithMeta( GUID guid );
 
-    void update( NamespaceNode namespaceNode );
+    void update( Namespace namespace);
 
     List<GUID > getGuidsByName( String name );
 

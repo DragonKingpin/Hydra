@@ -3,17 +3,17 @@ package com.pinecone.hydra.registry;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.NamespaceNode;
+import com.pinecone.hydra.registry.entity.Namespace;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
-import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.List;
 
-public interface DistributedRegistry extends Registry, DistributedKOInstrument {
+public interface KOMRegistry extends Registry, KOMInstrument {
 
     String getPath( GUID guid );
 
@@ -29,7 +29,7 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
 
     Properties getProperties( GUID guid );
 
-    NamespaceNode getNamespaceNode( GUID guid );
+    Namespace getNamespace( GUID guid );
 
     GUID queryGUIDByPath( String path );
 
@@ -39,7 +39,7 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
 
     TextValue getTextValue( GUID guid );
 
-    ConfigNode getConfigNode( GUID guid );
+    ConfigNode getConfigNode(GUID guid );
 
 
 
@@ -78,13 +78,17 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
         this.rename( this.assertPath( path ), name );
     }
 
-    default GUID assertPath( String path ) throws IllegalArgumentException {
+    default GUID assertPath( String path, String pathType ) throws IllegalArgumentException {
         GUID guid      = this.queryGUIDByPath( path );
         if( guid == null ) {
-            throw new IllegalArgumentException( "Undefined path '" + path + "'" );
+            throw new IllegalArgumentException( "Undefined " + pathType + " '" + path + "'" );
         }
 
         return guid;
+    }
+
+    default GUID assertPath( String path ) throws IllegalArgumentException {
+        return this.assertPath( path, "path" );
     }
 
     List<TreeNode > getAllTreeNode();
@@ -116,11 +120,7 @@ public interface DistributedRegistry extends Registry, DistributedKOInstrument {
     void updateLinkTag( GUID tagGuid,String tagName);
 
 
-    Object querySelector                  ( String szSelector );
-
     void copyPropertiesTo( GUID sourceGuid, GUID destinationGuid );
 
     void copyTextValueTo( GUID sourceGuid, GUID destinationGuid );
-
-    void copyNamespaceMetaTo( GUID sourceGuid, GUID destinationGuid );
 }

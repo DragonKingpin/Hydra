@@ -1,7 +1,7 @@
 package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TriePathCacheManipulator;
@@ -114,6 +114,11 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
+    public void setGuidLineage( GUID sourceGuid, GUID targetGuid ) {
+        this.tireOwnerManipulator.updateParentGuid( sourceGuid, targetGuid );
+    }
+
+    @Override
     public String getCachePath( GUID guid ){
         return this.triePathCacheManipulator.getPath(guid);
     }
@@ -137,7 +142,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     @Override
     public void insertCachePath( GUID guid, String path ) {
-        this.triePathCacheManipulator.insert(guid,path);
+        this.triePathCacheManipulator.insert( guid, path );
     }
 
     @Override
@@ -185,7 +190,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, DistributedKOInstrument instrument ) {
+    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KOMInstrument instrument ) {
         GuidAllocator guidAllocator = instrument.getGuidAllocator();
         GUID tagGuid = guidAllocator.nextGUID72();
         this.trieTreeManipulator.newLinkTag( originalGuid, dirGuid, tagName, tagGuid );

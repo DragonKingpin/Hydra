@@ -6,6 +6,10 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface Property extends Pinenut {
+    static Property newDummy() {
+        return new GenericProperty();
+    }
+
     long getEnumId();
 
     void setEnumId( long enumId );
@@ -46,4 +50,8 @@ public interface Property extends Pinenut {
     void from      ( Property that );
 
     void copy      ( Property that );
+
+    Properties parentProperties();
+
+    void setParentProperties( Properties parentProperties );
 }

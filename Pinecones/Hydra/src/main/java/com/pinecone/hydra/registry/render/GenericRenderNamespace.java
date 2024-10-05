@@ -1,9 +1,9 @@
 package com.pinecone.hydra.registry.render;
 
 import com.pinecone.hydra.registry.RenderDistributeRegistry;
-import com.pinecone.hydra.registry.entity.GenericNamespaceNode;
+import com.pinecone.hydra.registry.entity.GenericNamespace;
 
-public class GenericRenderNamespaceNode extends GenericNamespaceNode implements RenderNamespaceNode {
+public class GenericRenderNamespace extends GenericNamespace implements RenderNamespace {
     protected RenderDistributeRegistry registry;
 
     public void apply( RenderDistributeRegistry registry ) {
@@ -21,7 +21,7 @@ public class GenericRenderNamespaceNode extends GenericNamespaceNode implements 
     }
 
     @Override
-    public RenderNamespaceNode getNamespaceNode(String key) {
-        return (RenderNamespaceNode) this.children.get(key);
+    public RenderNamespace getNamespace(String key) {
+        return (RenderNamespace) this.children.get(key);
     }
 }

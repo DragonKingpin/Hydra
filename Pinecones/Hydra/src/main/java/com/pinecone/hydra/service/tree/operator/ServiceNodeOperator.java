@@ -65,7 +65,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
 
         //将应用元信息存入元信息表
         GUID metadataGUID = guidAllocator.nextGUID72();
-        GenericNodeCommonData metadata = serviceNodeInformation.getNodeCommonData();
+        GenericNodeCommonData metadata = serviceNodeInformation.getAttributes();
         metadata.setGuid(metadataGUID);
         this.commonDataManipulator.insert(metadata);
 
@@ -83,7 +83,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     public void remove(GUID guid) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         this.serviceNodeManipulator.remove(node.getGuid());
-        this.serviceMetaManipulator.remove(node.getBaseDataGUID());
+        this.serviceMetaManipulator.remove(node.getAttributesGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
@@ -91,7 +91,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         GenericServiceNode genericServiceNode = new GenericServiceNode();
-        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getBaseDataGUID());
+        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
         GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
         GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
 

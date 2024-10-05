@@ -2,7 +2,7 @@ package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.DistributedKOInstrument;
+import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 
 import java.util.List;
@@ -42,9 +42,11 @@ public interface DistributedTrieTree extends PineUnit {
 
     void setOwner( GUID sourceGuid, GUID targetGuid );
 
-    List<GUID> getSubordinates( GUID guid );
+    void setGuidLineage( GUID sourceGuid, GUID targetGuid );
 
-    void insertCachePath(GUID guid,String path);
+    List<GUID > getSubordinates( GUID guid );
+
+    void insertCachePath( GUID guid,String path );
 
     List<GUID > listRoot();
 
@@ -70,7 +72,7 @@ public interface DistributedTrieTree extends PineUnit {
 
     void moveTo( GUID sourceGuid, GUID destinationGuid );
 
-    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, DistributedKOInstrument instrument );
+    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KOMInstrument instrument );
 
     void updateLinkTagName( GUID tagGuid, String tagName );
 

@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 @IbatisDataAccessObject
 public interface RegistryNodePathCacheMapper extends TriePathCacheManipulator {
-    @Insert("INSERT INTO `hydra_registry_node_path` (`path`, `guid`) VALUES (#{path},#{guid})")
+    @Insert("INSERT INTO `hydra_registry_node_path` (`path`, `guid`) VALUES ( #{path}, #{guid} )")
     void insert( @Param("guid") GUID guid, @Param("path") String path );
 
     @Delete("DELETE FROM `hydra_registry_node_path` WHERE `guid`=#{guid}")

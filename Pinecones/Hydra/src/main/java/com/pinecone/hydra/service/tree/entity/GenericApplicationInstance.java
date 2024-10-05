@@ -25,7 +25,7 @@ public class GenericApplicationInstance extends ArchMetaNodeInstance {
     @Override
     protected void removeDependence( GUID guid ) {
         GUIDDistributedTrieNode target = this.removeDependence0( guid );
-        this.applicationMetaManipulator.remove( target.getBaseDataGUID() );
+        this.applicationMetaManipulator.remove( target.getAttributesGUID() );
         this.applicationNodeManipulator.remove(target.getGuid());
     }
 
@@ -34,7 +34,7 @@ public class GenericApplicationInstance extends ArchMetaNodeInstance {
         GenericApplicationWideEntityMeta genericApplicationWideEntity = new GenericApplicationWideEntityMeta();
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GenericApplicationNodeMeta applicationMeta = this.applicationMetaManipulator.getApplicationMeta(node.getBaseDataGUID());
+        GenericApplicationNodeMeta applicationMeta = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
 
         genericApplicationWideEntity.setParentGUID(parentGUID);

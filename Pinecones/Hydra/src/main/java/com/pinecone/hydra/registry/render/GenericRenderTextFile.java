@@ -1,9 +1,9 @@
 package com.pinecone.hydra.registry.render;
 
 import com.pinecone.hydra.registry.RenderDistributeRegistry;
-import com.pinecone.hydra.registry.entity.GenericTextConfigNode;
+import com.pinecone.hydra.registry.entity.GenericTextFile;
 
-public class GenericRenderTextConfigNode extends GenericTextConfigNode implements RenderTextConfigNode {
+public class GenericRenderTextFile extends GenericTextFile implements RenderTextFile {
     protected RenderDistributeRegistry registry;
 
     public void apply(RenderDistributeRegistry registry) {
@@ -16,6 +16,6 @@ public class GenericRenderTextConfigNode extends GenericTextConfigNode implement
 
     @Override
     public RenderDistributeRegistry getRegistry() {
-        return (RenderDistributeRegistry) super.getRegistry();
+        return (RenderDistributeRegistry) super.parentRegistry();
     }
 }

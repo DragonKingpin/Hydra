@@ -12,7 +12,7 @@ public class GenericClassificationNode implements ClassificationNode {
 
     private GenericClassificationRules classificationRules;
 
-    private GenericNodeCommonData nodeCommonData;
+    private GenericNodeCommonData nodeAttributes;
 
     // 节点id
     private long enumId;
@@ -30,10 +30,10 @@ public class GenericClassificationNode implements ClassificationNode {
     public GenericClassificationNode() {
     }
 
-    public GenericClassificationNode(GUIDDistributedTrieNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeCommonData, long enumId, GUID guid, String name, GUID rulesGUID) {
+    public GenericClassificationNode(GUIDDistributedTrieNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name, GUID rulesGUID) {
         this.distributedTreeNode = distributedTreeNode;
         this.classificationRules = classificationRules;
-        this.nodeCommonData = nodeCommonData;
+        this.nodeAttributes = nodeAttributes;
         this.enumId = enumId;
         this.guid = guid;
         this.name = name;
@@ -74,18 +74,18 @@ public class GenericClassificationNode implements ClassificationNode {
 
     /**
      * 获取
-     * @return nodeCommonData
+     * @return nodeAttributes
      */
-    public GenericNodeCommonData getNodeCommonData() {
-        return nodeCommonData;
+    public GenericNodeCommonData getAttributes() {
+        return nodeAttributes;
     }
 
     /**
      * 设置
-     * @param nodeCommonData
+     * @param nodeAttributes
      */
-    public void setNodeCommonData(GenericNodeCommonData nodeCommonData) {
-        this.nodeCommonData = nodeCommonData;
+    public void setNodeCommonData(GenericNodeCommonData nodeAttributes) {
+        this.nodeAttributes = nodeAttributes;
     }
 
     /**
@@ -153,6 +153,6 @@ public class GenericClassificationNode implements ClassificationNode {
     }
 
     public String toString() {
-        return "GenericClassificationNode{distributedTreeNode = " + distributedTreeNode + ", classificationRules = " + classificationRules + ", nodeCommonData = " + nodeCommonData + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", rulesGUID = " + rulesGUID + "}";
+        return "GenericClassificationNode{distributedTreeNode = " + distributedTreeNode + ", classificationRules = " + classificationRules + ", nodeAttributes = " + nodeAttributes + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", rulesGUID = " + rulesGUID + "}";
     }
 }

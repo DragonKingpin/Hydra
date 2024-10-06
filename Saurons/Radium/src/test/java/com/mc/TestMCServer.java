@@ -22,8 +22,8 @@ class Christ extends JesusChrist {
 
     @Override
     public void vitalize () throws Exception {
-        // this.testServer();
-        this.testSystemServer();
+        this.testServer();
+        // this.testSystemServer();
     }
 
     public void testServer() throws Exception {

@@ -248,7 +248,6 @@ class StanMarsh extends Radium {
 
 
 //        RegistryJSONDecoder decoder = new RegistryJSONDecoder( registry );
-
 //        Debug.trace( decoder.decode( new JSONMaptron( "{ game: { character: { " +
 //                "Ifan: { name: Ifan, hp:90, species: Human }, RedPrince: { name:RedPrince, hp:100, species: Lizard } " +
 //                "}, attr: 1234, file: text_files } }" ), null ).evinceNamespace().toJSONObject() );

@@ -4,6 +4,7 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.system.prototype.ObjectiveClass;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.json.*;
 import com.pinecone.framework.util.json.hometype.*;
 
@@ -161,6 +162,10 @@ public class TestJSON {
             naBean.set( key, bean.get( key ) );
         }
         Debug.trace( vagina, na );
+
+        ReflectionUtils.beanSet( na, "name", "jesus" );
+        Debug.trace( vagina, na );
+
     }
 
     public static void testStringfiy() {

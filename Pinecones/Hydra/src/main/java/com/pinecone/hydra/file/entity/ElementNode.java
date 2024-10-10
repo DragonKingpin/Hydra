@@ -1,0 +1,24 @@
+package com.pinecone.hydra.file.entity;
+
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.file.KOMFileSystem;
+
+import java.time.LocalDateTime;
+
+public interface ElementNode extends FileTreeNode{
+    long getEnumId();
+
+    GUID getGuid();
+
+    LocalDateTime getCreateTime();
+
+    LocalDateTime getUpdateTime();
+
+    String getName();
+    void setName(String name);
+
+    FileSystemAttributes getAttributes();
+    void setAttributes(FileSystemAttributes attributes);
+
+    KOMFileSystem parentFileSystem();
+}

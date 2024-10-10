@@ -4,27 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public interface FileNode extends FileTreeNode{
-    long getEnumId();
-
-    void setEnumId(long enumId);
-
-    GUID getGuid();
-
-    void setGuid( GUID guid );
-
-    LocalDateTime getCreateTime();
-
-    void setCreateTime( LocalDateTime createTime );
-
-    LocalDateTime getUpdateTime();
-
-    void setUpdateTime( LocalDateTime updateTime );
-
-    String getName();
-
-    void setName( String name );
-
+public interface FileNode extends ElementNode{
     LocalDateTime getDeletedTime();
     void setDeletedTime(LocalDateTime deletedTime);
 
@@ -40,8 +20,15 @@ public interface FileNode extends FileTreeNode{
     void copyValueTo(GUID destinationGuid );
     void copyTo    (GUID destinationGuid);
 
+    FileMeta getFileMeta();
+    void setFileMeta(FileMeta fileMeta);
+    GUID getDataAffinityGuid();
+
+
     @Override
     default FileNode evinceFileNode() {
         return this;
     }
+    void fragmentation( long size );
+    void removeFrame();
 }

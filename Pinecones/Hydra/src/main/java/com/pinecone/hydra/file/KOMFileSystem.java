@@ -1,16 +1,25 @@
 package com.pinecone.hydra.file;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.file.creator.FileSystemCreator;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.entity.Folder;
-import com.pinecone.hydra.registry.Registry;
+import com.pinecone.hydra.file.entity.ElementNode;
+import com.pinecone.hydra.file.entity.Frame;
+import com.pinecone.hydra.file.entity.Symbolic;
+import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.system.ko.KOMInstrument;
+import com.pinecone.hydra.unit.udtt.entity.EntityNode;
+import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-public interface DistributedFile extends Registry, KOMInstrument {
+public interface KOMFileSystem extends KOMInstrument {
+    FileSystemConfig  KernelFileSystemConfig = new kernelFileSystemConfig();
 
     String getPath( GUID guid );
 
@@ -51,13 +60,17 @@ public interface DistributedFile extends Registry, KOMInstrument {
         this.rename( this.assertPath( path ), name );
     }
 
-    default GUID assertPath( String path ) throws IllegalArgumentException {
+    default GUID assertPath( String path, String pathType ) throws IllegalArgumentException {
         GUID guid      = this.queryGUIDByPath( path );
         if( guid == null ) {
-            throw new IllegalArgumentException( "Undefined path '" + path + "'" );
+            throw new IllegalArgumentException( "Undefined " + pathType + " '" + path + "'" );
         }
 
         return guid;
+    }
+
+    default GUID assertPath( String path ) throws IllegalArgumentException {
+        return this.assertPath( path, "path" );
     }
 
     List<TreeNode > getAllTreeNode();
@@ -66,6 +79,9 @@ public interface DistributedFile extends Registry, KOMInstrument {
 
     /** 断言，确保节点唯一拥有关系*/
     void affirmOwnedNode( GUID parentGuid, GUID childGuid  );
+    FileNode  affirmFileNode( String path );
+
+    Folder    affirmFolder( String path);
 
     void newHardLink    ( GUID sourceGuid, GUID targetGuid );
 
@@ -93,4 +109,19 @@ public interface DistributedFile extends Registry, KOMInstrument {
 
     void copyFileNodeTo( GUID sourceGuid, GUID destinationGuid );
     void copyFolderTo( GUID sourceGuid, GUID destinationGuid );
+
+    ElementNode queryElement(String path);
+    void remove(String path);
+    EntityNode queryNode(String path);
+    ReparseLinkNode queryReparseLink(String path);
+    List<TreeNode> selectByName(String name);
+    void moveTo(String sourcePath, String destinationPath);
+    void move(String sourcePath, String destinationPath);
+    void copyTo(String sourcePath, String destinationPath);
+    void copy(String sourcePath, String destinationPath);
+    List<FileTreeNode> listRoot();
+    Object querySelectorJ(String szSelector);
+    List querySelectorAll(String szSelector);
+    FileSystemCreator getFileSystemCreator();
+    TreeMap<Long, Frame> getFrameByFileGuid(GUID guid);
 }

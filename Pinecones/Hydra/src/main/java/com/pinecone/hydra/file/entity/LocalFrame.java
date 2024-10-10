@@ -1,8 +1,10 @@
 package com.pinecone.hydra.file.entity;
 
+import com.pinecone.hydra.file.source.LocalFrameManipulator;
+
 import java.time.LocalDateTime;
 
-public interface LocalCluster extends Cluster{
+public interface LocalFrame extends Frame {
     LocalDateTime getCreateTime();
     void setCreateTime(LocalDateTime createTime);
 
@@ -11,5 +13,5 @@ public interface LocalCluster extends Cluster{
 
     String getSourceName();
     void setSourceName(String sourceName);
-
+    void setLocalFrameManipulator(LocalFrameManipulator localFrameManipulator);
 }

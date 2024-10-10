@@ -11,7 +11,8 @@ public abstract class ArchConfigNode extends ArchElementNode implements ConfigNo
     protected GUID                    dataAffinityGuid;
 
     protected ConfigNodeMeta          configNodeMeta;
-    protected KOMRegistry registry;
+
+    protected KOMRegistry             registry;
 
     protected ArchConfigNode() {
 

@@ -1,7 +1,7 @@
 package com.pinecone.hydra.file.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.DistributedFile;
+import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.registry.entity.Attributes;
 
 import java.time.LocalDateTime;
@@ -9,31 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface Folder extends FileTreeNode{
-    long getEnumId();
+public interface Folder extends ElementNode{
+    void setNodeAttribute(FileSystemAttributes attributes);
 
-    void setEnumId(long enumId);
-
-    GUID getGuid();
-
-    void setGuid(GUID guid);
-
-    String getName();
-
-    void setName( String name );
-
-    LocalDateTime getCreateTime();
-
-    void setCreateTime( LocalDateTime createTime );
-
-    LocalDateTime getUpdateTime();
-
-    void setUpdateTime( LocalDateTime updateTime );
-
-    Attributes getNodeAttribute(GUID guid);
-    void setNodeAttribute(Attributes attributes);
-
-    FolderMeta getFolderMeta(GUID guid);
+    FolderMeta getFolderMeta();
     void setFolderMeta(FolderMeta folderMeta);
 
     Map<String, FileTreeNode> getChildren();
@@ -49,7 +28,7 @@ public interface Folder extends FileTreeNode{
 
     void remove ( String key );
 
-    DistributedFile getFileTree();
+    KOMFileSystem getFileTree();
 
     boolean containsKey  ( String key );
 
@@ -68,4 +47,5 @@ public interface Folder extends FileTreeNode{
 
     void copyTo(GUID destinationGuid);
     void copyNamespaceMetaTo(GUID destinationGuid);
+
 }

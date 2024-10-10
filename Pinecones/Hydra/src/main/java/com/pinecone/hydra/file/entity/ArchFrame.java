@@ -2,7 +2,7 @@ package com.pinecone.hydra.file.entity;
 
 import com.pinecone.framework.util.id.GUID;
 
-public class ArchCluster implements Cluster{
+public class ArchFrame implements Frame {
     private long enumId;
     private GUID fileGuid;
     private GUID segGuid;
@@ -10,10 +10,10 @@ public class ArchCluster implements Cluster{
     private String crc32;
     private long size;
 
-    public ArchCluster() {
+    public ArchFrame() {
     }
 
-    public ArchCluster(long enumId, GUID fileGuid, GUID segGuid, long segId, String crc32, long size) {
+    public ArchFrame(long enumId, GUID fileGuid, GUID segGuid, long segId, String crc32, long size) {
         this.enumId = enumId;
         this.fileGuid = fileGuid;
         this.segGuid = segGuid;
@@ -80,6 +80,16 @@ public class ArchCluster implements Cluster{
 
     public void setSize(long size) {
         this.size = size;
+    }
+
+    @Override
+    public void remove() {
+
+    }
+
+    @Override
+    public void save() {
+
     }
 
     public String toString() {

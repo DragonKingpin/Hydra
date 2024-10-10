@@ -3,7 +3,7 @@ package com.pinecone.hydra.file.entity;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-public interface Cluster extends Pinenut {
+public interface Frame extends Pinenut {
     long getEnumId();
 
     void setEnumId(long enumId);
@@ -22,5 +22,6 @@ public interface Cluster extends Pinenut {
 
     long getSize();
     void setSize(long size);
-
+    void save();
+    void remove();
 }

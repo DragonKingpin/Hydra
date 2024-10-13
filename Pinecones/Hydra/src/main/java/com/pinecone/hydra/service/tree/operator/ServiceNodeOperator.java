@@ -80,7 +80,7 @@ public class ServiceNodeOperator implements MetaNodeOperator {
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
         this.serviceNodeManipulator.remove(node.getGuid());
         this.serviceMetaManipulator.remove(node.getAttributesGUID());

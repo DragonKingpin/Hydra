@@ -68,8 +68,8 @@ class StanMarsh extends Radium {
         registry.remove( "game/minecraft" );
         registry.remove("game/terraria");
         registry.remove("game/witcher");
-        Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
-        Debug.fmp( 2, registry.get( registry.queryGUIDByFN( "game3a" ) ) );
+        //Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
+        //Debug.fmp( 2, registry.get( registry.queryGUIDByFN( "game3a" ) ) );
 
         registry.remove( "game" );
 

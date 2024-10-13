@@ -2,13 +2,15 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.hydra.file.GenericKOMFileSystem;
+import com.pinecone.framework.util.Debug;
+import com.pinecone.hydra.file.UniformObjectFileSystem;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.file.transmit.ChannelReceiverEntity;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.id.GUIDs;
 import com.pinecone.ulf.util.id.GuidAllocator;
 import com.sauron.radium.Radium;
 
@@ -32,10 +34,11 @@ class Steve extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOMFileSystem fileSystem = new GenericKOMFileSystem( koiMappingDriver );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiMappingDriver );
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
+        Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
         //this.testInsert( fileSystem );
-        this.testUpload(fileSystem);
+        //this.testUpload(fileSystem);
     }
 
     private void testInsert( KOMFileSystem fileSystem ){
@@ -59,7 +62,7 @@ class Steve extends Radium {
     }
 
 }
-public class TestFileSystem {
+public class TestUOFS {
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
             Steve Steve = (Steve) Pinecone.sys().getTaskManager().add( new Steve( args, Pinecone.sys() ) );

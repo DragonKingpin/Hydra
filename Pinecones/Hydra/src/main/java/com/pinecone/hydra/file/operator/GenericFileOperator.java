@@ -31,7 +31,7 @@ public class GenericFileOperator extends ArchFileSystemOperator{
         this.factory = factory;
     }
 
-    public GenericFileOperator(FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
+    public GenericFileOperator( FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
         super( masterManipulator, fileSystem );
         this.fileManipulator               =  masterManipulator.getFileManipulator();
         this.fileMetaManipulator           =  masterManipulator.getFileMetaManipulator();

@@ -1,27 +1,21 @@
-package com.pinecone.hydra.unit.udtt;
+package com.pinecone.hydra.system.ko.kom;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.file.KOMFileSystem;
-import com.pinecone.hydra.registry.KOMRegistry;
-import com.pinecone.hydra.registry.ReparseLinkSelector;
-import com.pinecone.hydra.registry.StandardPathSelector;
-import com.pinecone.hydra.registry.entity.ElementNode;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
-import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
-import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.system.ko.kom.PathSelector;
-import com.pinecone.hydra.system.ko.kom.ReparsePointSelector;
+import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.entity.EntityNode;
-import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.unit.udtt.operator.OperatorFactory;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
@@ -32,49 +26,57 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ArchKOMTree implements KOMTree, KOMInstrument {
+public abstract class ArchKOMTree implements KOMTreeInstrument {
     protected Hydrarum              hydrarum;
+    protected DistributedTrieTree   distributedTrieTree;
     protected GuidAllocator         guidAllocator;
-    protected KOMInstrument         komInstrument;
     protected OperatorFactory       operatorFactory;
 
-    protected DistributedTrieTree   distributedTrieTree;
     protected KernelObjectConfig    kernelObjectConfig;
     protected PathResolver          pathResolver;
     protected PathSelector          pathSelector;
-    protected ReparsePointSelector  reparsePointSelector;
+
     protected DynamicFactory        dynamicFactory;
-    public ArchKOMTree(KOIMasterManipulator masterManipulator , OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector, Hydrarum hydrarum){
+
+    public ArchKOMTree (
+            Hydrarum hydrarum, KOIMasterManipulator masterManipulator,
+            OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector
+    ){
+        this( hydrarum, masterManipulator );
+
+        this.pathSelector              =  pathSelector;
+        this.kernelObjectConfig        =  kernelObjectConfig;
+        this.operatorFactory           =  operatorFactory;
+    }
+
+    public ArchKOMTree (
+            Hydrarum hydrarum, KOIMasterManipulator masterManipulator
+    ){
         this.hydrarum                      =  hydrarum;
-        this.komInstrument                 =  komInstrument;
-        this.operatorFactory               =  operatorFactory;
-        this.kernelObjectConfig            =  kernelObjectConfig;
-        this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
         this.dynamicFactory                =  new GenericDynamicFactory( hydrarum.getTaskManager().getClassLoader() );
 
         KOISkeletonMasterManipulator skeletonMasterManipulator = masterManipulator.getSkeletonMasterManipulator();
-        TreeMasterManipulator treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
+        TreeMasterManipulator treeMasterManipulator            = (TreeMasterManipulator) skeletonMasterManipulator;
         this.distributedTrieTree           =  new GenericDistributedTrieTree( treeMasterManipulator );
-        this.pathSelector                  =  pathSelector;
-        this.reparsePointSelector          =  new ReparseLinkSelector( (StandardPathSelector) this.pathSelector );
     }
+
     @Override
     public GUID put( TreeNode treeNode ) {
-        TreeNodeOperator operator = this.operatorFactory.getOperator(treeNode.getMetaType());
+        TreeNodeOperator operator = this.operatorFactory.getOperator( treeNode.getMetaType() );
         return operator.insert( treeNode );
     }
 
     @Override
-    public TreeNode get(GUID guid, int depth) {
+    public TreeNode get( GUID guid, int depth ) {
         return this.getOperatorByGuid( guid ).get( guid, depth );
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getSelf( GUID guid) {
         return this.getOperatorByGuid( guid ).getSelf( guid );
     }
 
-    protected String getNS(GUID guid, String szSeparator ) {
+    protected String getNS( GUID guid, String szSeparator ) {
         String path = this.distributedTrieTree.getCachePath(guid);
         if ( path != null ) {
             return path;
@@ -110,25 +112,29 @@ public class ArchKOMTree implements KOMTree, KOMInstrument {
             return assemblePath;
         }
     }
+
     @Override
-    public String getPath(GUID guid) {
+    public String getPath( GUID guid ) {
         return this.getNS( guid, this.kernelObjectConfig.getPathNameSeparator() );
     }
 
     @Override
-    public String getFullName(GUID guid) {
+    public String getFullName( GUID guid ) {
         return this.getNS( guid, this.kernelObjectConfig.getFullNameSeparator() );
     }
 
-    protected TreeNodeOperator getOperatorByGuid(GUID guid ) {
+    protected TreeNodeOperator getOperatorByGuid( GUID guid ) {
         DistributedTreeNode node = this.distributedTrieTree.getNode( guid );
-        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{ komInstrument.getClass() }, this );
+        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{KOMFileSystem.class}, this );
         return this.operatorFactory.getOperator( newInstance.getMetaType() );
     }
+
     @Override
     public TreeNode get( GUID guid ) {
         return this.getOperatorByGuid( guid ).get( guid );
     }
+
+    /** Final Solution 20240929: 无法获取类型 */
     @Override
     public GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep ) {
         if( szTargetSep != null ) {
@@ -156,91 +162,27 @@ public class ArchKOMTree implements KOMTree, KOMInstrument {
     public GUID queryGUIDByPath(String path) {
         return this.queryGUIDByNS( path, null, null );
     }
-    public ReparseLinkNode queryReparseLinkByNS( String path, String szBadSep, String szTargetSep ) {
-        if( szTargetSep != null ) {
-            path = path.replace( szBadSep, szTargetSep );
-        }
-
-        String[] parts = this.pathResolver.segmentPathParts( path );
-        return this.reparsePointSelector.searchLinkNode( parts );
-    }
-    @Override
-    public ElementNode queryElement(String path ){
-        //GUID guid = this.distributedConfTree.queryGUIDByPath( path );
-        GUID guid = this.queryGUIDByPath( path );
-        if( guid != null ) {
-            return (ElementNode) this.get( guid );
-        }
-        return null;
-    }
-    @Override
-    public ReparseLinkNode queryReparseLink(String path) {
-        return this.queryReparseLinkByNS( path, null, null );
-    }
 
     @Override
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode( guid );
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.operatorFactory.getOperator( newInstance.getMetaType() );
         operator.purge( guid );
     }
-    public Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) {
-        if( szTargetSep != null ) {
-            path = path.replace( szBadSep, szTargetSep );
-        }
 
-        String[] parts = this.pathResolver.segmentPathParts( path );
-        return this.reparsePointSelector.search( parts );
-    }
+    @Override
+    public abstract Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) ;
+
     public Object queryEntityHandle( String path ) {
         return this.queryEntityHandleByNS( path, null, null );
     }
 
     @Override
-    public void affirmOwnedNode(GUID parentGuid, GUID childGuid) {
-        this.distributedTrieTree.affirmOwnedNode( childGuid, parentGuid );
-    }
-
-    @Override
-    public void newHardLink( GUID sourceGuid, GUID targetGuid ) {
-        this.distributedTrieTree.newHardLink( sourceGuid, targetGuid );
-    }
-
-    @Override
-    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName ) {
-        this.distributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this );
-    }
-
-    @Override
-    public void updateLinkTag( GUID tagGuid, String tagName ) {
-        this.distributedTrieTree.updateLinkTagName( tagGuid, tagName );
-    }
-
-    @Override
-    public void remove(String path) {
+    public void remove( String path ) {
         Object handle = this.queryEntityHandle( path );
         if( handle instanceof GUID ) {
             this.remove( (GUID) handle );
-        }
-        else if( handle instanceof ReparseLinkNode ) {
-            ReparseLinkNode linkNode = (ReparseLinkNode) handle;
-            this.removeReparseLink( linkNode.getTagGuid() );
-        }
-    }
-
-    @Override
-    public void removeReparseLink(GUID guid) {
-        this.distributedTrieTree.removeReparseLink( guid );
-    }
-
-    @Override
-    public void newLinkTag(String originalPath, String dirPath, String tagName) {
-        GUID originalGuid           = this.queryGUIDByPath( originalPath );
-        GUID dirGuid                = this.queryGUIDByPath( dirPath );
-
-        if( this.distributedTrieTree.getOriginalGuid( tagName, dirGuid ) == null ) {
-            this.distributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this );
         }
     }
 
@@ -268,7 +210,7 @@ public class ArchKOMTree implements KOMTree, KOMInstrument {
     }
 
     @Override
-    public List<TreeNode> listRoot() {
+    public List<? extends TreeNode > listRoot() {
         List<GUID> guids = this.distributedTrieTree.listRoot();
         ArrayList<TreeNode> treeNodes = new ArrayList<>();
         for( GUID guid : guids ){
@@ -296,7 +238,7 @@ public class ArchKOMTree implements KOMTree, KOMInstrument {
 
 
     @Override
-    public GUID queryGUIDByFN(String fullName) {
+    public GUID queryGUIDByFN( String fullName ) {
         return this.queryGUIDByNS(
                 fullName, this.kernelObjectConfig.getFullNameSeparator(), this.kernelObjectConfig.getPathNameSeparator()
         );
@@ -317,11 +259,11 @@ public class ArchKOMTree implements KOMTree, KOMInstrument {
 
     @Override
     public GuidAllocator getGuidAllocator() {
-        return null;
+        return this.guidAllocator;
     }
 
     @Override
     public DistributedTrieTree getMasterTrieTree() {
-        return null;
+        return this.distributedTrieTree;
     }
 }

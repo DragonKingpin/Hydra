@@ -23,18 +23,20 @@ public abstract class ArchFileSystemOperator implements FileSystemOperator{
     protected DistributedTrieTree               distributedTrieTree;
     protected FileSystemAttributeManipulator    fileSystemAttributeManipulator;
     protected FileMasterManipulator             fileMasterManipulator;
+
     public ArchFileSystemOperator( FileSystemOperatorFactory factory ) {
         this( factory.getMasterManipulator(), (KOMFileSystem) factory.getFileSystem() );
         this.factory = factory;
     }
 
-    public ArchFileSystemOperator(FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
-        this.distributedTrieTree           =  new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
+    public ArchFileSystemOperator( FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
+        this.distributedTrieTree            =  new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
         this.fileSystemAttributeManipulator =  masterManipulator.getAttributeManipulator();
-        this.fileSystem                    =  fileSystem;
-        this.fileMasterManipulator         =  masterManipulator;
+        this.fileSystem                     =  fileSystem;
+        this.fileMasterManipulator          =  masterManipulator;
     }
-    protected DistributedTreeNode affirmPreinsertionInitialize(TreeNode treeNode ) {
+
+    protected DistributedTreeNode affirmPreinsertionInitialize( TreeNode treeNode ) {
         ArchElementNode entityNode   = (ArchElementNode) treeNode;
 
         GUID guid72 = entityNode.getGuid();

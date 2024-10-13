@@ -1,5 +1,7 @@
 package com.pinecone.hydra.file.transmit;
 
+import com.pinecone.framework.util.Bytes;
+import com.pinecone.hydra.file.FrameSegmentNaming;
 import com.pinecone.hydra.file.KOFSFrameSegmentNaming;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FSNodeAllotment;
@@ -16,9 +18,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.zip.CRC32;
 
 public class GenericChannelReceiver extends ArchReceiver implements ChannelReceiver{
+    protected KOMFileSystem           mKOMFileSystem;
+    protected FrameSegmentNaming      mFrameSegmentNaming;
+
+    public GenericChannelReceiver( KOMFileSystem komFileSystem ) {
+        this.mKOMFileSystem      = komFileSystem;
+        this.mFrameSegmentNaming = new KOFSFrameSegmentNaming();
+    }
+
 
     @Override
-    public void receive(ReceiveEntity entity) throws IOException {
+    public void receive( ReceiveEntity entity ) throws IOException {
         ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
         FileChannel fileChannel = channelReceiverEntity.getChannel();
         String destDirPath = channelReceiverEntity.getDestDirPath();
@@ -44,16 +54,16 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 buffer.flip();
 
                 CRC32 crc = new CRC32();
-                while (buffer.hasRemaining()) {
+                while ( buffer.hasRemaining() ) {
                     byte b = buffer.get();
-                    parityCheck += calculateParity(b);
+                    parityCheck += Bytes.calculateParity( b );
                     checksum += b & 0xFF;
                     crc.update(b);
                 }
-                String sourceName = KOFSFrameSegmentNaming.frameName(file.getName(),segId,Long.toHexString(crc.getValue()));
+                String sourceName = this.mFrameSegmentNaming.naming( file.getName(),segId,Long.toHexString(crc.getValue()) );
                 Path chunkFile = Paths.get(destDirPath, sourceName);
                 LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
-                try (FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                try ( FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE) ) {
                     buffer.rewind();
                     chunkChannel.write(buffer);
                 }
@@ -70,7 +80,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
     }
 
     @Override
-    public void resumableTransfer(ReceiveEntity entity) throws IOException {
+    public void resumableTransfer( ReceiveEntity entity ) throws IOException {
         ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
         FileChannel fileChannel = channelReceiverEntity.getChannel();
         String destDirPath = channelReceiverEntity.getDestDirPath();
@@ -96,7 +106,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
     }
 
     // 校验frame是否存在数据损坏
-    private boolean isFrameCorrupted(LocalFrame frame, FileChannel fileChannel, long chunkSize) throws IOException {
+    private boolean isFrameCorrupted( LocalFrame frame, FileChannel fileChannel, long chunkSize ) throws IOException {
         FileChannel chunkFileChannel = FileChannel.open(Paths.get(frame.getSourceName()), StandardOpenOption.READ);
             long position = 0;
             long frameSize = frame.getSize();
@@ -122,7 +132,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
     }
 
     // 补全损坏的分片
-    private long resumeIncompleteFrame(LocalFrame frame, FileChannel fileChannel, long chunkSize) {
+    private long resumeIncompleteFrame( LocalFrame frame, FileChannel fileChannel, long chunkSize ) {
         long bytesRead = frame.getSegId() * chunkSize + frame.getSize();
         long remainingSize = chunkSize - frame.getSize();
         ByteBuffer buffer = ByteBuffer.allocate((int) remainingSize);
@@ -144,7 +154,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
     }
 
     // 处理文件剩余部分的传输
-    private void transferRemaining(FileChannel fileChannel, long bytesRead, long segId, FSNodeAllotment allotment, GuidAllocator guidAllocator, String destDirPath, FileNode file, long chunkSize) throws IOException {
+    private void transferRemaining( FileChannel fileChannel, long bytesRead, long segId, FSNodeAllotment allotment, GuidAllocator guidAllocator, String destDirPath, FileNode file, long chunkSize ) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate((int) chunkSize);
 
         while (true) {
@@ -164,7 +174,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 }
 
                 // 创建新的frame并写入分片文件
-                String sourceName = KOFSFrameSegmentNaming.frameName(file.getName(),segId,Long.toHexString(crc.getValue()));
+                String sourceName = this.mFrameSegmentNaming.naming( file.getName(),segId,Long.toHexString(crc.getValue()) );
                 Path chunkFile = Paths.get(destDirPath, sourceName);
                 LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
                 localFrame.save();
@@ -177,18 +187,6 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 bytesRead += read;
 
         }
-    }
-    private  int calculateParity(byte b) {
-        int count = 0;
-        for (int i = 0; i < 8; i++) {
-            if ((b & (1 << i)) != 0) {
-                count++;
-            }
-        }
-        if( (count % 2) == 0 ){
-            return 1;
-        }
-        return 0;
     }
 
 

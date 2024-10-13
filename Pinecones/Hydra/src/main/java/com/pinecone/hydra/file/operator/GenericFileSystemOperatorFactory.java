@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class GenericFileSystemOperatorFactory implements FileSystemOperatorFactory{
-    protected FileMasterManipulator         fileMasterManipulator;
-    protected KOMFileSystem                 fileSystem;
+    protected FileMasterManipulator            fileMasterManipulator;
+    protected KOMFileSystem                    fileSystem;
 
-    protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
+    protected Map<String, TreeNodeOperator>    registerer = new HashMap<>();
 
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
 
@@ -38,7 +38,7 @@ public class GenericFileSystemOperatorFactory implements FileSystemOperatorFacto
         this.registerDefaultMetaType( GenericFileNode.class );
     }
 
-    public GenericFileSystemOperatorFactory(KOMFileSystem fileSystem, FileMasterManipulator fileMasterManipulator ){
+    public GenericFileSystemOperatorFactory( KOMFileSystem fileSystem, FileMasterManipulator fileMasterManipulator ){
         this.fileSystem = fileSystem;
         this.fileMasterManipulator = fileMasterManipulator;
 

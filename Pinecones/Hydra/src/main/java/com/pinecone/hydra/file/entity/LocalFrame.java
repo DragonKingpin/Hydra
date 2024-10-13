@@ -13,5 +13,11 @@ public interface LocalFrame extends Frame {
 
     String getSourceName();
     void setSourceName(String sourceName);
+
+    @Override
+    default LocalFrame evinceLocalFrame() {
+        return this;
+    }
+
     void setLocalFrameManipulator(LocalFrameManipulator localFrameManipulator);
 }

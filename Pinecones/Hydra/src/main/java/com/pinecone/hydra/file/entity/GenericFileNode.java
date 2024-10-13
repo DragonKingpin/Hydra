@@ -12,11 +12,37 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     private LocalDateTime               deletedTime;
     private long                        checksum;
     private int                         parityCheck;
-    private long                        size;
     private FileMeta                    fileMeta;
+
     private KOMFileSystem               fileSystem;
     private FileManipulator             fileManipulator;
     private TreeMap<Long, Frame>        frames = new TreeMap<>();
+    private boolean                     isUploadSuccessful;
+    private long                        physicalSize;
+    private long                        logicSize;
+    private long                        definitionSize;
+    private boolean                     crc32Xor;
+    private boolean                     integrityCheckEnable;
+    private boolean                     disableCluster;
+
+    @Override
+    public boolean getIsUploadSuccessful() {
+        return this.isUploadSuccessful;
+    }
+
+    @Override
+    public void setIsUploadSuccessful(boolean isUploadSuccessful) {
+        this.isUploadSuccessful = isUploadSuccessful;
+    }
+
+
+    @Override
+    public TreeMap<Long, Frame> getFrames() {
+        return this.frames;
+    }
+
+
+
 
     public GenericFileNode() {
     }
@@ -129,15 +155,6 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     }
 
 
-    public long getSize() {
-        return size;
-    }
-
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
     @Override
     public void copyValueTo(GUID destinationGuid) {
 
@@ -183,28 +200,95 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
         }
     }
 
-    public void fragmentation(long size ){
-        // todo 没有考虑远程情况
-        long segNum = (this.size + size - 1) / size;
-        for( int i = 0 ; i<segNum ;i++ ){
-            GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
-            LocalFrame localFrame = this.fileSystem.getFileSystemCreator().dummyLocalFrame();
-            GUID segGuid = guidAllocator.nextGUID72();
-            localFrame.setSegGuid(segGuid);
-            localFrame.setFileGuid(this.guid);
-            localFrame.setSegId(i);
+    @Override
+    public long getPhysicalSize() {
+        return this.physicalSize;
+    }
 
-            long segmentSize = (i == segNum - 1) ? this.size % size : size;
-            if (segmentSize == 0) {
-                segmentSize = size;
-            }
-            localFrame.setSize(segmentSize);
-            localFrame.setSourceName(this.name+i);
-            localFrame.save();
+    @Override
+    public void setPhysicalSize(long physicalSize) {
+        this.physicalSize = physicalSize;
+    }
+
+    @Override
+    public long getLogicSize() {
+        return this.logicSize;
+    }
+
+    @Override
+    public void setLogicSize(long logicSize) {
+        this.logicSize = logicSize;
+    }
+
+    @Override
+    public long getDefinitionSize() {
+        return this.definitionSize;
+    }
+
+    @Override
+    public void setDefinitionSize(long definitionSize) {
+        this.definitionSize = definitionSize;
+    }
+
+    @Override
+    public boolean getCrc32Xor() {
+        return this.crc32Xor;
+    }
+
+    @Override
+    public void setCrc32Xor(boolean crc32Xor) {
+        this.crc32Xor = crc32Xor;
+    }
+
+    @Override
+    public boolean getIntegrityCheckEnable() {
+        return this.integrityCheckEnable;
+    }
+
+    @Override
+    public void setIntegrityCheckEnable(boolean integrityCheckEnable) {
+        this.integrityCheckEnable = integrityCheckEnable;
+    }
+
+    @Override
+    public boolean getDisableCluster() {
+        return this.disableCluster;
+    }
+
+    @Override
+    public boolean isUploadSuccess() {
+        if ( this.physicalSize == this.definitionSize ){
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public void setDisableCluster(boolean disableCluster) {
+        this.disableCluster = disableCluster;
+    }
+
+    public void fragmentation(long size ){
+//        long segNum = (this.size + size - 1) / size;
+//        for( int i = 0 ; i<segNum ;i++ ){
+//            GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
+//            LocalFrame localFrame = this.fileSystem.getFileSystemCreator().dummyLocalFrame();
+//            GUID segGuid = guidAllocator.nextGUID72();
+//            localFrame.setSegGuid(segGuid);
+//            localFrame.setFileGuid(this.guid);
+//            localFrame.setSegId(i);
+//
+//            long segmentSize = (i == segNum - 1) ? this.size % size : size;
+//            if (segmentSize == 0) {
+//                segmentSize = size;
+//            }
+//            localFrame.setSize(segmentSize);
+//            localFrame.setSourceName(this.name+i);
+//            localFrame.save();
+//        }
     }
 
     public String toString() {
-        return "GenericFileNode{enumId = " + enumId + ", guid = " + guid + ", createTime = " + createTime + ", updateTime = " + updateTime + ", name = " + name + ", deletedTime = " + deletedTime + ", checksum = " + checksum + ", parityCheck = " + parityCheck + ", size = " + size + ", fileMeta = " + fileMeta + ", attribute = " + fileSystemAttributes + "}";
+        return "GenericFileNode{enumId = " + enumId + ", guid = " + guid + ", createTime = " + createTime + ", updateTime = " + updateTime + ", name = " + name + ", deletedTime = " + deletedTime + ", checksum = " + checksum + ", parityCheck = " + parityCheck + ", "  + ", fileMeta = " + fileMeta + ", attribute = " + fileSystemAttributes + "}";
     }
 }

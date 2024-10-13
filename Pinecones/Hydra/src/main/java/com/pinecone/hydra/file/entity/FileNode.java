@@ -3,6 +3,7 @@ package com.pinecone.hydra.file.entity;
 import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
+import java.util.TreeMap;
 
 public interface FileNode extends ElementNode{
     LocalDateTime getDeletedTime();
@@ -14,8 +15,6 @@ public interface FileNode extends ElementNode{
     int getParityCheck();
     void setParityCheck(int parityCheck);
 
-    long getSize();
-    void setSize(long size);
 
     void copyValueTo(GUID destinationGuid );
     void copyTo    (GUID destinationGuid);
@@ -24,6 +23,9 @@ public interface FileNode extends ElementNode{
     void setFileMeta(FileMeta fileMeta);
     GUID getDataAffinityGuid();
 
+    boolean getIsUploadSuccessful();
+    void setIsUploadSuccessful( boolean isUploadSuccessful );
+    TreeMap<Long, Frame> getFrames();
 
     @Override
     default FileNode evinceFileNode() {
@@ -31,4 +33,23 @@ public interface FileNode extends ElementNode{
     }
     void fragmentation( long size );
     void removeFrame();
+
+    long getPhysicalSize();
+    void setPhysicalSize(long physicalSize);
+
+    long getLogicSize();
+    void setLogicSize(long logicSize);
+
+    long getDefinitionSize();
+    void setDefinitionSize(long definitionSize);
+
+    boolean getCrc32Xor();
+    void setCrc32Xor(boolean crc32Xor);
+
+    boolean getIntegrityCheckEnable();
+    void setIntegrityCheckEnable(boolean integrityCheckEnable);
+
+    boolean getDisableCluster();
+    void setDisableCluster(boolean disableCluster);
+    boolean isUploadSuccess();
 }

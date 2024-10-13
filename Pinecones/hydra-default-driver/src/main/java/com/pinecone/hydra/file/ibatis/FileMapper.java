@@ -18,11 +18,11 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface FileMapper extends FileManipulator {
     FileNode getFileNode(GUID guid, ElementNode element);
-    @Insert("INSERT INTO `hydra_uofs_files` (`guid`, `create_time`, `update_time`, `deleted_at`, `name`, `checksum`, `parity_check`, `size`) VALUES (#{guid},#{createTime},#{updateTime},#{deletedTime},#{name},#{checksum},#{parityCheck},#{size})")
+    @Insert("INSERT INTO `hydra_uofs_files` (`guid`, `create_time`, `update_time`, `deleted_at`, `name`, `checksum`, `parity_check`, `physical_size`,`logic_size`,`definition_size`,`crc32_xor`,`integrity_check_enable`,`disable_cluster`) VALUES (#{guid},#{createTime},#{updateTime},#{deletedTime},#{name},#{checksum},#{parityCheck},#{physicalSize},#{logicSize},#{definitionSize},#{crc32Xor},#{integrityCheckEnable},#{disableCluster})")
     void insert( FileNode fileNode );
     @Delete("DELETE FROM `hydra_uofs_files` WHERE `guid` = #{guid}")
     void remove( GUID guid );
-    @Select("SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `deleted_at` AS deletedTime, `name`, `checksum`, `parity_check` AS parityCheck, `size` FROM hydra_uofs_files WHERE `guid` = #{guid}")
+    @Select("SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `deleted_at` AS deletedTime, `name`, `checksum`, `parity_check` AS parityCheck, `physical_size` AS physicalSize,`logic_size` AS logicSize,`definition_size` AS definitionSize,`crc32_xor` AS crc32Xor,`integrity_check_enable` AS integrityCheckEnable,`disable_cluster` AS disableCluster FROM hydra_uofs_files WHERE `guid` = #{guid}")
     GenericFileNode getFileNodeByGuid(GUID guid);
 
     @Select("SELECT `guid` FROM `hydra_uofs_files` WHERE `name` = #{name}")

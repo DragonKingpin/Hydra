@@ -9,6 +9,7 @@ public interface ElementNode extends FileTreeNode{
     long getEnumId();
 
     GUID getGuid();
+    void setGuid(GUID guid);
 
     LocalDateTime getCreateTime();
 

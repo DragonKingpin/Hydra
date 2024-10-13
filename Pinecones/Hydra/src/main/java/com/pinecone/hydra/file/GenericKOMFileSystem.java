@@ -1,13 +1,12 @@
 package com.pinecone.hydra.file;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.file.creator.FileSystemCreator;
-import com.pinecone.hydra.file.creator.GenericFileSystemCreator;
+import com.pinecone.hydra.file.entity.FSNodeAllotment;
+import com.pinecone.hydra.file.entity.GenericFSNodeAllotment;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.entity.Folder;
@@ -16,7 +15,6 @@ import com.pinecone.hydra.file.entity.GenericFileNode;
 import com.pinecone.hydra.file.entity.GenericFolder;
 import com.pinecone.hydra.file.entity.LocalFrame;
 import com.pinecone.hydra.file.entity.RemoteFrame;
-import com.pinecone.hydra.file.entity.Symbolic;
 import com.pinecone.hydra.file.operator.FileSystemOperator;
 import com.pinecone.hydra.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.file.operator.GenericFileSystemOperatorFactory;
@@ -33,9 +31,6 @@ import com.pinecone.hydra.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.registry.ReparseLinkSelector;
 import com.pinecone.hydra.registry.StandardPathSelector;
 import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.Namespace;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -59,7 +54,6 @@ import com.pinecone.ulf.util.id.GUIDs;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +64,7 @@ public class GenericKOMFileSystem implements KOMFileSystem {
     protected KOMTree                   komTree;
     protected Hydrarum                  hydrarum;
     protected DistributedTrieTree       distributedTrieTree;
-    protected FileSystemCreator         fileSystemCreator;
+    protected FSNodeAllotment fileSystemCreator;
 
     protected FileSystemConfig          fileSystemConfig;
     protected DynamicFactory            dynamicFactory;
@@ -118,7 +112,7 @@ public class GenericKOMFileSystem implements KOMFileSystem {
                 this.pathResolver, this.distributedTrieTree, this.folderManipulator, new GUIDNameManipulator[] { this.fileManipulator }
         );
         this.reparsePointSelector          =  new ReparseLinkSelector( (StandardPathSelector) this.pathSelector );
-        this.fileSystemCreator             =  new GenericFileSystemCreator(this.fileMasterManipulator,this);
+        this.fileSystemCreator             =  new GenericFSNodeAllotment(this.fileMasterManipulator,this);
         this.komTree                       =  new ArchKOMTree(this.fileMasterManipulator,this.fileSystemOperatorFactory,this.fileSystemConfig,this.pathSelector,this.hydrarum);
     }
 
@@ -169,7 +163,7 @@ public class GenericKOMFileSystem implements KOMFileSystem {
 
     @Override
     public FileTreeNode getSelf(GUID guid) {
-       //return (FileTreeNode) this.komTree.getSelf( guid );
+        //return (FileTreeNode) this.komTree.getSelf( guid );
         return this.getOperatorByGuid( guid ).getSelf( guid );
     }
 
@@ -520,7 +514,7 @@ public class GenericKOMFileSystem implements KOMFileSystem {
     }
 
     @Override
-    public FileSystemCreator getFileSystemCreator() {
+    public FSNodeAllotment getFSNodeAllotment() {
         return this.fileSystemCreator;
     }
 
@@ -554,7 +548,20 @@ public class GenericKOMFileSystem implements KOMFileSystem {
         return this.distributedTrieTree;
     }
 
-    private String getNodeName( DistributedTreeNode node ){
+    @Override
+    public void upload(FileNode file, String destDirPath) {
+        if ( file.getIsUploadSuccessful() ){
+            //this.upload0(file,destDirPath,0);
+        }
+        else {
+            TreeMap<Long, Frame> frames = file.getFrames();
+            Map.Entry<Long, Frame> longFrameEntry = frames.lastEntry();
+            long segId = longFrameEntry.getValue().getSegId();
+            //this.upload0(file, destDirPath, segId);
+        }
+    }
+
+    private String getNodeName(DistributedTreeNode node ){
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         TreeNodeOperator operator = this.fileSystemOperatorFactory.getOperator(newInstance.getMetaType());
@@ -598,5 +605,94 @@ public class GenericKOMFileSystem implements KOMFileSystem {
 
         return new GUID[] { sourceGuid, destinationGuid };
     }
+//    protected void upload0(FileNode file, String destDirPath, long startChunkIndex) {
+//        long chunkSize = 10 * 1024 * 1024; // 每片的大小
+//        File sourceFile = new File(file.getSourceName());
+//        Path sourcePath = sourceFile.toPath();
+//
+//        try (FileChannel sourceChannel = FileChannel.open(sourcePath, StandardOpenOption.READ)) {
+//            ByteBuffer buffer = ByteBuffer.allocateDirect((int) chunkSize);
+//
+//            long chunkIndex = startChunkIndex; // 从指定的分片开始
+//            long bytesRead = chunkIndex * chunkSize; // 计算读取的初始位置
+//            long totalBytesRead = bytesRead; // 总读取的字节数
+//
+//            // 获取上一次的分片信息
+//            if (!file.getFrames().isEmpty()) {
+//                LocalFrame lastFrame = (LocalFrame) file.getFrames().lastEntry().getValue();
+//                bytesRead += lastFrame.getSize();
+//            }
+//
+//            sourceChannel.position(bytesRead); // 设置 FileChannel 的起始位置
+//
+//            while (bytesRead < file.getSize()) {
+//                LocalFrame localFrame = this.fileSystemCreator.dummyLocalFrame();
+//                GUID frameGuid = this.guidAllocator.nextGUID72();
+//                localFrame.setSegGuid(frameGuid);
+//                localFrame.setFileGuid(file.getGuid());
+//                localFrame.setSegId(chunkIndex);
+//
+//                buffer.clear();
+//                int readBytes = sourceChannel.read(buffer);
+//                int actualBytesRead = 0; // 实际写入的字节数
+//
+//                if (readBytes == -1) {
+//                    break;
+//                }
+//
+//                buffer.flip();
+//
+//                // 如果读到的字节小于 chunkSize，说明这是最后一片
+//                if (bytesRead + readBytes > file.getSize()) {
+//                    readBytes = (int)(file.getSize() - bytesRead);
+//                }
+//
+//                try {
+//                    // 计算当前分片的 CRC32 校验值
+//                    CRC32 crc = new CRC32();
+//                    while (buffer.hasRemaining()) {
+//                        crc.update(buffer.get());
+//                        actualBytesRead++; // 记录已经读取的字节
+//                    }
+//
+//                    long crcValue = crc.getValue(); // 获取CRC32值
+//                    localFrame.setCrc32(String.valueOf(crcValue)); // 将CRC32值设置在LocalFrame中
+//
+//                    buffer.rewind(); // 重置buffer的位置以便再次写入文件
+//
+//                    // 创建分片文件路径，确保分片的命名和索引一致
+//                    Path chunkFile = Path.of(destDirPath, file.getName() + "_" + chunkIndex);
+//                    localFrame.setSourceName(chunkFile.toString());
+//
+//                    // 设置实际的分片大小
+//                    localFrame.setSize(actualBytesRead);
+//
+//                    // 写入分片文件
+//                    try (FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+//                        chunkChannel.write(buffer);
+//                    }
+//
+//                    localFrame.save();
+//                    bytesRead += actualBytesRead;
+//                    chunkIndex++;
+//
+//                } catch (IOException e) {
+//                    // 发生异常时，记录当前已写入的字节数
+//                    localFrame.setSize(actualBytesRead);
+//                    file.getFrames().put(chunkIndex, localFrame); // 记录这个 frame 的大小
+//                    this.put(file); // 保存上传状态
+//                    throw new RuntimeException("文件传输中断", e);
+//                }
+//
+//                totalBytesRead += actualBytesRead;
+//            }
+//
+//            // 上传完成，更新状态
+//            file.setIsUploadSuccessful(true);
+//            this.put(file);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

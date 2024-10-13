@@ -24,4 +24,11 @@ public interface Frame extends Pinenut {
     void setSize(long size);
     void save();
     void remove();
+
+    default LocalFrame evinceLocalFrame(){
+        return null;
+    }
+    default RemoteFrame evinceRemoteFrame(){
+        return null;
+    }
 }

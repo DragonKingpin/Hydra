@@ -1,0 +1,195 @@
+package com.pinecone.hydra.file.transmit;
+
+import com.pinecone.hydra.file.KOFSFrameSegmentNaming;
+import com.pinecone.hydra.file.KOMFileSystem;
+import com.pinecone.hydra.file.entity.FSNodeAllotment;
+import com.pinecone.hydra.file.entity.FileNode;
+import com.pinecone.hydra.file.entity.LocalFrame;
+import com.pinecone.ulf.util.id.GuidAllocator;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.zip.CRC32;
+
+public class GenericChannelReceiver extends ArchReceiver implements ChannelReceiver{
+
+    @Override
+    public void receive(ReceiveEntity entity) throws IOException {
+        ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
+        FileChannel fileChannel = channelReceiverEntity.getChannel();
+        String destDirPath = channelReceiverEntity.getDestDirPath();
+        FileNode file = channelReceiverEntity.getFile();
+        KOMFileSystem fileSystem = channelReceiverEntity.getFileSystem();
+        long chunkSize = 10 * 1024 * 1024;
+        int parityCheck = 0;
+        long checksum = 0;
+        ByteBuffer buffer = ByteBuffer.allocate((int) chunkSize);
+        FSNodeAllotment allotment = fileSystem.getFSNodeAllotment();
+        GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
+        long bytesRead = 0;
+        long segId = 0;
+
+        while (true) {
+            buffer.clear();
+            int read = 0;
+
+                read = fileChannel.read(buffer);
+                if (read == -1) {
+                    break;
+                }
+                buffer.flip();
+
+                CRC32 crc = new CRC32();
+                while (buffer.hasRemaining()) {
+                    byte b = buffer.get();
+                    parityCheck += calculateParity(b);
+                    checksum += b & 0xFF;
+                    crc.update(b);
+                }
+                String sourceName = KOFSFrameSegmentNaming.frameName(file.getName(),segId,Long.toHexString(crc.getValue()));
+                Path chunkFile = Paths.get(destDirPath, sourceName);
+                LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
+                try (FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                    buffer.rewind();
+                    chunkChannel.write(buffer);
+                }
+
+                segId++;
+                bytesRead += read;
+                localFrame.save();
+        }
+        file.setPhysicalSize( bytesRead );
+        file.setLogicSize( bytesRead );
+        file.setChecksum( checksum );
+        file.setParityCheck( parityCheck );
+        fileSystem.put( file );
+    }
+
+    @Override
+    public void resumableTransfer(ReceiveEntity entity) throws IOException {
+        ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
+        FileChannel fileChannel = channelReceiverEntity.getChannel();
+        String destDirPath = channelReceiverEntity.getDestDirPath();
+        FileNode file = channelReceiverEntity.getFile();
+        KOMFileSystem fileSystem = channelReceiverEntity.getFileSystem();
+        FSNodeAllotment creator = fileSystem.getFSNodeAllotment();
+        GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
+
+        long chunkSize = 10 * 1024 * 1024;
+        // todo 使用sql优化
+        LocalFrame lastFrame = file.getFrames().lastEntry().getValue().evinceLocalFrame();
+        long segId = lastFrame.getSegId();
+        long bytesRead = segId * chunkSize; // 从最后一个已传输的分片计算出起始位置
+
+        // 校验最后的frame是否存在数据错误
+        if (lastFrame.getSize() > 0 && isFrameCorrupted(lastFrame, fileChannel,chunkSize)) {
+            // 补全并传输损坏的分片
+            bytesRead = resumeIncompleteFrame(lastFrame, fileChannel, chunkSize);
+        }
+
+        // 从剩余部分继续传输文件
+        transferRemaining(fileChannel, bytesRead, segId, creator, guidAllocator, destDirPath, file, chunkSize);
+    }
+
+    // 校验frame是否存在数据损坏
+    private boolean isFrameCorrupted(LocalFrame frame, FileChannel fileChannel, long chunkSize) throws IOException {
+        FileChannel chunkFileChannel = FileChannel.open(Paths.get(frame.getSourceName()), StandardOpenOption.READ);
+            long position = 0;
+            long frameSize = frame.getSize();
+            ByteBuffer buffer = ByteBuffer.allocate((int) frameSize);
+            ByteBuffer sourceBuffer = ByteBuffer.allocate((int) frameSize);
+
+            // 逐步比较frame中的数据和文件中的数据
+            while (position < frameSize) {
+                buffer.clear();
+                int readFromFrame = chunkFileChannel.read(buffer, position);
+                buffer.flip();
+
+                sourceBuffer.clear();
+                fileChannel.read(sourceBuffer, frame.getSegId() * chunkSize + position);
+                sourceBuffer.flip();
+
+                if (!buffer.equals(sourceBuffer)) {
+                    return true; // 如果frame与源文件的数据不一致，说明数据损坏
+                }
+                position += readFromFrame;
+            }
+        return false;
+    }
+
+    // 补全损坏的分片
+    private long resumeIncompleteFrame(LocalFrame frame, FileChannel fileChannel, long chunkSize) {
+        long bytesRead = frame.getSegId() * chunkSize + frame.getSize();
+        long remainingSize = chunkSize - frame.getSize();
+        ByteBuffer buffer = ByteBuffer.allocate((int) remainingSize);
+
+        try {
+            fileChannel.read(buffer, bytesRead);
+            buffer.flip();
+
+            try (FileChannel chunkFileChannel = FileChannel.open(Paths.get(frame.getSourceName()), StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
+                chunkFileChannel.write(buffer); // 写入frame剩余部分的数据
+            }
+
+            bytesRead += buffer.remaining();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return bytesRead;
+    }
+
+    // 处理文件剩余部分的传输
+    private void transferRemaining(FileChannel fileChannel, long bytesRead, long segId, FSNodeAllotment allotment, GuidAllocator guidAllocator, String destDirPath, FileNode file, long chunkSize) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate((int) chunkSize);
+
+        while (true) {
+            buffer.clear();
+            int read = 0;
+
+                read = fileChannel.read(buffer, bytesRead);
+                if (read == -1) {
+                    break;  // 文件读取完毕
+                }
+                buffer.flip();
+
+                // 计算CRC32
+                CRC32 crc = new CRC32();
+                while (buffer.hasRemaining()) {
+                    crc.update(buffer.get());
+                }
+
+                // 创建新的frame并写入分片文件
+                String sourceName = KOFSFrameSegmentNaming.frameName(file.getName(),segId,Long.toHexString(crc.getValue()));
+                Path chunkFile = Paths.get(destDirPath, sourceName);
+                LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
+                localFrame.save();
+                try (FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                    buffer.rewind();
+                    chunkChannel.write(buffer);
+                }
+
+                segId++;
+                bytesRead += read;
+
+        }
+    }
+    private  int calculateParity(byte b) {
+        int count = 0;
+        for (int i = 0; i < 8; i++) {
+            if ((b & (1 << i)) != 0) {
+                count++;
+            }
+        }
+        if( (count % 2) == 0 ){
+            return 1;
+        }
+        return 0;
+    }
+
+
+}

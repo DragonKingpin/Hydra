@@ -1,21 +1,18 @@
 package com.pinecone.hydra.file;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.creator.FileSystemCreator;
+import com.pinecone.hydra.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.entity.Folder;
 import com.pinecone.hydra.file.entity.ElementNode;
 import com.pinecone.hydra.file.entity.Frame;
-import com.pinecone.hydra.file.entity.Symbolic;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.EntityNode;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 public interface KOMFileSystem extends KOMInstrument {
@@ -122,6 +119,7 @@ public interface KOMFileSystem extends KOMInstrument {
     List<FileTreeNode> listRoot();
     Object querySelectorJ(String szSelector);
     List querySelectorAll(String szSelector);
-    FileSystemCreator getFileSystemCreator();
+    FSNodeAllotment getFSNodeAllotment();
     TreeMap<Long, Frame> getFrameByFileGuid(GUID guid);
+    void upload( FileNode file, String destDirPath );
 }

@@ -7,7 +7,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import com.pinecone.hydra.service.tree.UOIUtils;
+import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.task.entity.GenericTaskCommonData;
 import com.pinecone.hydra.task.entity.GenericTaskNode;
 import com.pinecone.hydra.task.entity.GenericTaskNodeMeta;

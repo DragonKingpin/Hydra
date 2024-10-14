@@ -47,6 +47,7 @@ public interface KOMFileSystem extends ReparseKOMTree {
     @Override
     GUID queryGUIDByFN  ( String fullName );
 
+    @Override
     FileSystemConfig getConfig();
 
 

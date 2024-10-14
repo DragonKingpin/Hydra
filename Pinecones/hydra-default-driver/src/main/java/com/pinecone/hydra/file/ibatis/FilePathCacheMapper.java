@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Select;
 public interface FilePathCacheMapper extends TriePathCacheManipulator {
     @Insert("INSERT INTO `hydra_uofs_node_cache_path` (`path`, `guid`) VALUES ( #{path}, #{guid} )")
     void insert(@Param("guid") GUID guid, @Param("path") String path );
+
     @Insert("INSERT INTO `hydra_uofs_node_cache_path` (path, long_path, guid) VALUES ( #{path},#{longPath},#{guid} )")
     void insertLongPath( @Param("guid") GUID guid, @Param("path") String path, @Param("longPath") String longPath );
 

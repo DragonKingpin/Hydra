@@ -8,7 +8,6 @@ import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.Property;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextValue;
-import com.pinecone.hydra.system.ko.KOMInstrument;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
@@ -50,6 +49,7 @@ public interface KOMRegistry extends Registry, ReparseKOMTree {
 
     ConfigNode getConfigNode( GUID guid );
 
+    @Override
     RegistryConfig getConfig();
 
 

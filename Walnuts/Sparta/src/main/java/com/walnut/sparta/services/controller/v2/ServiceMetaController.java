@@ -1,18 +1,18 @@
 package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.ScopeServiceTree;
-import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.tree.nodes.GenericClassificationNode;
-import com.pinecone.hydra.service.tree.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.tree.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.tree.source.ServiceMasterManipulator;
-import com.pinecone.hydra.service.tree.source.ServiceFamilyTreeManipulator;
-import com.pinecone.hydra.service.tree.entity.GenericMetaNodeInstanceFactory;
-import com.pinecone.hydra.service.tree.entity.MetaNodeWideEntity;
-import com.pinecone.hydra.service.tree.entity.MetaNodeInstanceFactory;
+import com.pinecone.hydra.service.kom.ServicesTree;
+import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
+import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
+import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceFamilyTreeManipulator;
+import com.pinecone.hydra.service.kom.entity.GenericMetaNodeInstanceFactory;
+import com.pinecone.hydra.service.kom.entity.MetaNodeWideEntity;
+import com.pinecone.hydra.service.kom.entity.MetaNodeInstanceFactory;
 import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.pinecone.hydra.service.kom.CentralServicesTree;
 import com.walnut.sparta.services.drivers.ServiceMasterTreeManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,13 +36,13 @@ public class ServiceMetaController {
     @Resource
     private ServiceMasterTreeManipulatorImpl treeManipulatorSharer;
 
-    private ScopeServiceTree scopeServiceTree;
+    private ServicesTree servicesTree;
 
     MetaNodeInstanceFactory metaNodeInstanceFactory;
 
     @PostConstruct
     public void init() {
-        this.scopeServiceTree = new DistributedScopeServiceTree( null,serviceMasterManipulator);
+        this.servicesTree = new CentralServicesTree( null,serviceMasterManipulator);
         this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeManipulatorSharer);
     }
 
@@ -54,7 +54,7 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeInfoByGUID/{guid}")
     public BasicResultResponse<ServiceTreeNode> queryNodeInfoByGUID(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        return BasicResultResponse.success(this.scopeServiceTree.getNode( guid72 ));
+        return BasicResultResponse.success(this.servicesTree.getNode( guid72 ));
     }
 
     /**
@@ -64,11 +64,11 @@ public class ServiceMetaController {
      */
     @GetMapping("/queryNodeInfoByPath")
     public BasicResultResponse<ServiceTreeNode> queryNodeInfoByPath( @RequestParam("path") String path ){
-        ServiceTreeNode node = this.scopeServiceTree.parsePath( path );
+        ServiceTreeNode node = this.servicesTree.parsePath( path );
         if( node == null ) {
             return BasicResultResponse.error( "No such node" );
         }
-        return BasicResultResponse.success( this.scopeServiceTree.parsePath(path) );
+        return BasicResultResponse.success( this.servicesTree.parsePath(path) );
     }
 
     /**
@@ -78,7 +78,7 @@ public class ServiceMetaController {
      */
     @PostMapping("/putServiceNode")
     public BasicResultResponse<String> putServiceNode( @RequestBody GenericServiceNode serviceNode ){
-        return BasicResultResponse.success(this.scopeServiceTree.addNode( serviceNode ).toString());
+        return BasicResultResponse.success(this.servicesTree.addNode( serviceNode ).toString());
     }
 
     /**
@@ -88,7 +88,7 @@ public class ServiceMetaController {
      */
     @PostMapping("/putApplicationNode")
     public BasicResultResponse<String> putApplicationNode( @RequestBody GenericApplicationNode applicationNode ){
-        return BasicResultResponse.success(this.scopeServiceTree.addNode(applicationNode).toString());
+        return BasicResultResponse.success(this.servicesTree.addNode(applicationNode).toString());
     }
 
     /**
@@ -97,8 +97,8 @@ public class ServiceMetaController {
      * @return 创建的节点的GUID
      */
     @PostMapping("/putClassificationNode")
-    public BasicResultResponse<String> putClassificationNode( @RequestBody GenericClassificationNode classificationNode ){
-        return BasicResultResponse.success(this.scopeServiceTree.addNode(classificationNode).toString());
+    public BasicResultResponse<String> putClassificationNode( @RequestBody GenericNamespace classificationNode ){
+        return BasicResultResponse.success(this.servicesTree.addNode(classificationNode).toString());
     }
 
     /**
@@ -108,7 +108,7 @@ public class ServiceMetaController {
      */
     @DeleteMapping("/removeSingleNode")
     public BasicResultResponse<String> removeSingleNode(@RequestParam("guid") String guid){
-        this.scopeServiceTree.removeNode( new GUID72( guid ) );
+        this.servicesTree.removeNode( new GUID72( guid ) );
         return BasicResultResponse.success();
     }
 
@@ -120,7 +120,7 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeWideInfo/{guid}")
     public BasicResultResponse<MetaNodeWideEntity> queryNodeWideInfo(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        return BasicResultResponse.success(this.scopeServiceTree.getWideMeta(guid72));
+        return BasicResultResponse.success(this.servicesTree.getWideMeta(guid72));
     }
 
     /**
@@ -131,7 +131,7 @@ public class ServiceMetaController {
     @GetMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("guid") String guid){
         GUID72 guid72 = new GUID72( guid );
-        this.scopeServiceTree.remove(guid72);
+        this.servicesTree.remove(guid72);
         return BasicResultResponse.success();
     }
 
@@ -155,6 +155,6 @@ public class ServiceMetaController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        return BasicResultResponse.success( this.scopeServiceTree.getPath( new GUID72(guid) ) );
+        return BasicResultResponse.success( this.servicesTree.getPath( new GUID72(guid) ) );
     }
 }

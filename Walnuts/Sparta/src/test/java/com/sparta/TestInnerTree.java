@@ -7,7 +7,7 @@ import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
 import com.pinecone.hydra.scenario.tree.GenericDistributedScenarioMetaTree;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.tree.DistributedScopeServiceTree;
+import com.pinecone.hydra.service.kom.CentralServicesTree;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.tree.DistributedTaskMetaTree;
@@ -56,7 +56,7 @@ class LadyGaga extends Radium {
         KOIMappingDriver koiMappingDriver = new ServiceMappingDriver(
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        DistributedScopeServiceTree distributedScopeServiceTree = new DistributedScopeServiceTree(koiMappingDriver);
+        CentralServicesTree distributedScopeServiceTree = new CentralServicesTree(koiMappingDriver);
 
         Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
         Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")));

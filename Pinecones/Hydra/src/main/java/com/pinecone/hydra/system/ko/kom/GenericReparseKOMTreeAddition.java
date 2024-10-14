@@ -3,14 +3,17 @@ package com.pinecone.hydra.system.ko.kom;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.ReparseLinkSelector;
 import com.pinecone.hydra.registry.StandardPathSelector;
+import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 
 public class GenericReparseKOMTreeAddition implements ReparseKOMTreeAddition {
     protected ArchKOMTree           mKOMTree;
+    protected DistributedTrieTree   mDistributedTrieTree;
     protected ReparsePointSelector  mReparsePointSelector;
 
     public GenericReparseKOMTreeAddition( ArchKOMTree tree ) {
         this.mKOMTree              = tree;
+        this.mDistributedTrieTree  = tree.getMasterTrieTree();
         this.mReparsePointSelector = new ReparseLinkSelector( (StandardPathSelector) this.mKOMTree.pathSelector ) ;
     }
 
@@ -31,27 +34,27 @@ public class GenericReparseKOMTreeAddition implements ReparseKOMTreeAddition {
 
     @Override
     public void affirmOwnedNode( GUID parentGuid, GUID childGuid ) {
-        this.mKOMTree.distributedTrieTree.affirmOwnedNode( childGuid, parentGuid );
+        this.mDistributedTrieTree.affirmOwnedNode( childGuid, parentGuid );
     }
 
     @Override
     public void newHardLink( GUID sourceGuid, GUID targetGuid ) {
-        this.mKOMTree.distributedTrieTree.newHardLink( sourceGuid, targetGuid );
+        this.mDistributedTrieTree.newHardLink( sourceGuid, targetGuid );
     }
 
     @Override
     public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName ) {
-        this.mKOMTree.distributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this.mKOMTree );
+        this.mDistributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this.mKOMTree );
     }
 
     @Override
     public void updateLinkTag( GUID tagGuid, String tagName ) {
-        this.mKOMTree.distributedTrieTree.updateLinkTagName( tagGuid, tagName );
+        this.mDistributedTrieTree.updateLinkTagName( tagGuid, tagName );
     }
 
     @Override
     public void removeReparseLink( GUID guid ) {
-        this.mKOMTree.distributedTrieTree.removeReparseLink( guid );
+        this.mDistributedTrieTree.removeReparseLink( guid );
     }
 
     @Override
@@ -59,8 +62,8 @@ public class GenericReparseKOMTreeAddition implements ReparseKOMTreeAddition {
         GUID originalGuid           = this.mKOMTree.queryGUIDByPath( originalPath );
         GUID dirGuid                = this.mKOMTree.queryGUIDByPath( dirPath );
 
-        if( this.mKOMTree.distributedTrieTree.getOriginalGuid( tagName, dirGuid ) == null ) {
-            this.mKOMTree.distributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this.mKOMTree );
+        if( this.mDistributedTrieTree.getOriginalGuid( tagName, dirGuid ) == null ) {
+            this.mDistributedTrieTree.newLinkTag( originalGuid, dirGuid, tagName, this.mKOMTree );
         }
     }
 

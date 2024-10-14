@@ -17,7 +17,7 @@ import com.pinecone.hydra.scenario.source.ScenarioMasterManipulator;
 import com.pinecone.hydra.scenario.source.NamespaceNodeManipulator;
 import com.pinecone.hydra.scenario.source.NamespaceNodeMetaManipulator;
 import com.pinecone.hydra.scenario.source.ScenarioCommonDataManipulator;
-import com.pinecone.hydra.service.tree.UOIUtils;
+import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;

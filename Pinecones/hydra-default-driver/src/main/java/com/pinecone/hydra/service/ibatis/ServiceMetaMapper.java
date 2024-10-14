@@ -1,8 +1,8 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.tree.source.ServiceMetaManipulator;
+import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
+import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

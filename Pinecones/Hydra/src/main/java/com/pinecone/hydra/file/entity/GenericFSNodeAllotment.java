@@ -45,7 +45,7 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
         GenericFileNode fileNode = new GenericFileNode(fileSystem, fileMasterManipulator.getFileManipulator());
         fileNode.setGuid( guidAllocator.nextGUID72() );
         fileNode.setName( name );
-        fileNode.setCrc32Xor( crc32Xor );
+        //fileNode.setCrc32Xor( crc32Xor );
         fileNode.setDefinitionSize( definitionSize );
         fileNode.setIntegrityCheckEnable( integrityCheckEnable );
         fileNode.setDisableCluster( disableCluster );
@@ -65,7 +65,7 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
     public FileNode newFileNode(String name, boolean crc32Xor, boolean integrityCheckEnable, boolean disableCluster) {
         GenericFileNode fileNode = new GenericFileNode(fileSystem, fileMasterManipulator.getFileManipulator());
         fileNode.setName( name );
-        fileNode.setCrc32Xor( crc32Xor );
+        //fileNode.setCrc32Xor( crc32Xor );
         fileNode.setDisableCluster( disableCluster );
         fileNode.setIntegrityCheckEnable( integrityCheckEnable );
         return fileNode;

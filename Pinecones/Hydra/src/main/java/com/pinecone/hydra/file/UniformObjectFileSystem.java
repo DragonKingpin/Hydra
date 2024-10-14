@@ -73,15 +73,15 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     public UniformObjectFileSystem( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         // Phase [1] Construct system.
-        super( hydrarum, masterManipulator );
+        super( hydrarum, masterManipulator, KOMFileSystem.KernelFileSystemConfig );
 
         // Phase [2] Construct fundamentals.
         this.fileMasterManipulator         = (FileMasterManipulator) masterManipulator;
-        this.kernelObjectConfig            =  KOMFileSystem.KernelFileSystemConfig;
         this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator                 =  GUIDs.newGuidAllocator();
 
         // Phase [3] Construct manipulators.
+        this.operatorFactory                =  new GenericFileSystemOperatorFactory( this, (FileMasterManipulator) masterManipulator );
         this.fileSystemAttributeManipulator =  this.fileMasterManipulator.getAttributeManipulator();
         this.fileManipulator                =  this.fileMasterManipulator.getFileManipulator();
         this.fileMetaManipulator            =  this.fileMasterManipulator.getFileMetaManipulator();

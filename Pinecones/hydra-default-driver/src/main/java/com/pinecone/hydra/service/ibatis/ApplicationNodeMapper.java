@@ -1,16 +1,14 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.tree.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
+import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 @Mapper
 @IbatisDataAccessObject

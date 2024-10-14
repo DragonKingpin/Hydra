@@ -80,11 +80,10 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
 
     public GenericKOMRegistry( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         // Phase [1] Construct system.
-        super( hydrarum, masterManipulator );
+        super( hydrarum, masterManipulator, Registry.KernelRegistryConfig );
 
         // Phase [2] Construct fundamentals.
         this.registryMasterManipulator     =  (RegistryMasterManipulator) masterManipulator;
-        this.kernelObjectConfig            =  Registry.KernelRegistryConfig;
         this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator                 =  GUIDs.newGuidAllocator();
 
@@ -107,9 +106,9 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
         this.textValueTypeConverter        =  new DefaultTextValueConverter();
     }
 
-//    public GenericKOMRegistry( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
-//    }
+    public GenericKOMRegistry( Hydrarum hydrarum ) {
+        this( hydrarum, null );
+    }
 
     public GenericKOMRegistry( KOIMappingDriver driver ) {
         this(
@@ -193,7 +192,11 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
 
     @Override
     public Properties getProperties( String path ) {
-        return this.getProperties( this.queryGUIDByPath( path ) );
+        GUID guid = this.queryGUIDByPath( path );
+        if( guid == null ) {
+            return null;
+        }
+        return this.getProperties( guid );
     }
 
     @Override
@@ -203,7 +206,11 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
 
     @Override
     public Namespace getNamespace( String path ){
-        return this.getNamespace( this.queryGUIDByPath( path ) );
+        GUID guid = this.queryGUIDByPath( path );
+        if( guid == null ) {
+            return null;
+        }
+        return this.getNamespace( guid );
     }
 
     @Override
@@ -217,7 +224,11 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
 
     @Override
     public List<Property > fetchProperties( String path ) {
-        return this.fetchProperties( this.queryGUIDByPath( path ) );
+        GUID guid = this.queryGUIDByPath( path );
+        if( guid == null ) {
+            return null;
+        }
+        return this.fetchProperties( guid );
     }
 
     @Override
@@ -227,7 +238,11 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
 
     @Override
     public TextValue getTextValue( String path ) {
-        return this.getTextValue( this.queryGUIDByPath( path ) );
+        GUID guid = this.queryGUIDByPath( path );
+        if( guid == null ) {
+            return null;
+        }
+        return this.getTextValue( guid );
     }
 
     @Override

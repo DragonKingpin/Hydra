@@ -1,9 +1,8 @@
 package com.pinecone.hydra.unit.udtt;
 
-import com.pinecone.framework.system.NotImplementedException;
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.KOMInstrument;
+import com.pinecone.hydra.system.ko.KOInstrument;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 
 import java.util.List;
@@ -74,7 +73,7 @@ public interface DistributedTrieTree extends PineUnit {
 
     void moveTo( GUID sourceGuid, GUID destinationGuid );
 
-    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KOMInstrument instrument );
+    void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KOInstrument instrument );
 
     void updateLinkTagName( GUID tagGuid, String tagName );
 

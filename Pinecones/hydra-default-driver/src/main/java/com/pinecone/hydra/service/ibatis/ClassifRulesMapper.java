@@ -1,8 +1,8 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.tree.GenericClassificationRules;
-import com.pinecone.hydra.service.tree.source.ClassifRulesManipulator;
+import com.pinecone.hydra.service.kom.GenericClassificationRules;
+import com.pinecone.hydra.service.kom.source.ClassifRulesManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

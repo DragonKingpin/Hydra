@@ -1,7 +1,6 @@
 package com.pinecone.hydra.system.ko.kom;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
@@ -15,7 +14,7 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
     public ArchReparseKOMTree(
             Hydrarum hydrarum, KOIMasterManipulator masterManipulator , OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector
     ){
-        this( hydrarum, masterManipulator );
+        this( hydrarum, masterManipulator, kernelObjectConfig );
         this.pathResolver                  =  new KOPathResolver( kernelObjectConfig );
         this.pathSelector                  =  pathSelector;
         this.operatorFactory               =  operatorFactory;
@@ -23,9 +22,9 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
     }
 
     public ArchReparseKOMTree (
-            Hydrarum hydrarum, KOIMasterManipulator masterManipulator
+            Hydrarum hydrarum, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig
     ){
-        super( hydrarum, masterManipulator );
+        super( hydrarum, masterManipulator, kernelObjectConfig );
     }
 
     @Override

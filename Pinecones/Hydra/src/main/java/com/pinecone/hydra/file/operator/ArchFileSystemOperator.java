@@ -6,13 +6,11 @@ import com.pinecone.hydra.file.entity.ArchElementNode;
 import com.pinecone.hydra.file.source.FileSystemAttributeManipulator;
 import com.pinecone.hydra.file.source.FileMasterManipulator;
 
-import com.pinecone.hydra.service.tree.UOIUtils;
+import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
-import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.time.LocalDateTime;
@@ -30,7 +28,7 @@ public abstract class ArchFileSystemOperator implements FileSystemOperator{
     }
 
     public ArchFileSystemOperator( FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
-        this.distributedTrieTree            =  new GenericDistributedTrieTree( (TreeMasterManipulator) masterManipulator.getSkeletonMasterManipulator() );
+        this.distributedTrieTree            =  fileSystem.getMasterTrieTree();
         this.fileSystemAttributeManipulator =  masterManipulator.getAttributeManipulator();
         this.fileSystem                     =  fileSystem;
         this.fileMasterManipulator          =  masterManipulator;

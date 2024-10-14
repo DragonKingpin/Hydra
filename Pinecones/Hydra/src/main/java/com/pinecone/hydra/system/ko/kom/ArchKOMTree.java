@@ -5,36 +5,28 @@ import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.file.KOMFileSystem;
-import com.pinecone.hydra.file.operator.GenericFileSystemOperatorFactory;
-import com.pinecone.hydra.file.source.FileMasterManipulator;
 import com.pinecone.hydra.system.Hydrarum;
-import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
-import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
+import com.pinecone.hydra.unit.udtt.ArchTrieObjectModel;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
-import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.entity.EntityNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.unit.udtt.operator.OperatorFactory;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class ArchKOMTree implements KOMTreeInstrument {
+public abstract class ArchKOMTree extends ArchTrieObjectModel implements KOMInstrument {
     protected Hydrarum              hydrarum;
-    protected DistributedTrieTree   distributedTrieTree;
     protected GuidAllocator         guidAllocator;
     protected OperatorFactory       operatorFactory;
 
-    protected KernelObjectConfig    kernelObjectConfig;
     protected PathResolver          pathResolver;
     protected PathSelector          pathSelector;
 
@@ -44,23 +36,18 @@ public abstract class ArchKOMTree implements KOMTreeInstrument {
             Hydrarum hydrarum, KOIMasterManipulator masterManipulator,
             OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector
     ){
-        this( hydrarum, masterManipulator );
+        this( hydrarum, masterManipulator, kernelObjectConfig );
 
         this.pathSelector              =  pathSelector;
-        this.kernelObjectConfig        =  kernelObjectConfig;
         this.operatorFactory           =  operatorFactory;
     }
 
     public ArchKOMTree (
-            Hydrarum hydrarum, KOIMasterManipulator masterManipulator
+            Hydrarum hydrarum, KOIMasterManipulator masterManipulator, KernelObjectConfig kernelObjectConfig
     ){
+        super( masterManipulator, kernelObjectConfig );
         this.hydrarum                      =  hydrarum;
         this.dynamicFactory                =  new GenericDynamicFactory( hydrarum.getTaskManager().getClassLoader() );
-        this.operatorFactory               =  new GenericFileSystemOperatorFactory( ( KOMFileSystem ) this, (FileMasterManipulator) masterManipulator );
-
-        KOISkeletonMasterManipulator skeletonMasterManipulator = masterManipulator.getSkeletonMasterManipulator();
-        TreeMasterManipulator treeMasterManipulator            = (TreeMasterManipulator) skeletonMasterManipulator;
-        this.distributedTrieTree           =  new GenericDistributedTrieTree( treeMasterManipulator );
     }
 
     @Override

@@ -36,7 +36,7 @@ class StanMarsh extends Radium {
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
 
         //this.testBasicInsert( registry );
-        this.testDeletion( registry );
+        //this.testDeletion( registry );
         //this.testDataExtends( registry );
         //this.testHardLink( registry );
         //this.testCopy( registry );
@@ -63,8 +63,8 @@ class StanMarsh extends Radium {
     }
 
     private void testDeletion( KOMRegistry registry ) {
-        registry.remove( "game" );
-        registry.remove("game3a");
+//        registry.remove( "game" );
+//        registry.remove("game3a");
 //        registry.remove( "game/witcher" );
 //        registry.remove( "game/minecraft" );
 //        registry.remove("game/terraria");
@@ -89,7 +89,7 @@ class StanMarsh extends Radium {
 
     private void testCopy( KOMRegistry registry ) {
         //this.testBasicInsert( registry );
-       // registry.queryElement("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
+        //registry.queryElement("game/minecraft/sorcerer1").evinceProperties().copyTo(registry.queryGUIDByPath("game/minecraft/wizard1"));
 
         //registry.getProperties( "game/terraria/mob1" ).copyTo( "game/moregame/mmob4" );
 
@@ -225,7 +225,7 @@ class StanMarsh extends Radium {
     }
 
     private void testSelector( KOMRegistry registry ) {
-        //this.testBasicInsert( registry );
+        this.testBasicInsert( registry );
         //Debug.trace( registry.querySelectorJ( "game.minecraft.wizard1.name" ) );
 
         Debug.fmp( 2, registry.querySelectorJ( "game/witcher/jesus" ) );
@@ -248,19 +248,19 @@ class StanMarsh extends Radium {
 //        Debug.trace( encoder.encode( node ) );
 
 
-//        RegistryJSONDecoder decoder = new RegistryJSONDecoder( registry );
+        RegistryJSONDecoder decoder = new RegistryJSONDecoder( registry );
 
-//        Debug.trace( decoder.decode( new JSONMaptron( "{ game: { character: { " +
-//                "Ifan: { name: Ifan, hp:90, species: Human }, RedPrince: { name:RedPrince, hp:100, species: Lizard } " +
-//                "}, attr: 1234, file: text_files } }" ), null ).evinceNamespace().toJSONObject() );
+        Debug.trace( decoder.decode( new JSONMaptron( "{ game: { character: { " +
+                "Ifan: { name: Ifan, hp:90, species: Human }, RedPrince: { name:RedPrince, hp:100, species: Lizard } " +
+                "}, attr: 1234, file: text_files } }" ), null ).evinceNamespace().toJSONObject() );
 
-//        Debug.trace( registry.querySelectorJ( "game" ) );
+        Debug.trace( registry.querySelectorJ( "game" ) );
 //        registry.queryElement( "game/character/Ifan" ).getAttributes().setAttribute( "state", "live" );
 
 
-        RegistryEncoder encoder = new RegistryDOMEncoder( registry );
-        ElementNode node = registry.queryElement( "game" );
-        Debug.echo( encoder.encode( node ).toString() );
+//        RegistryEncoder encoder = new RegistryDOMEncoder( registry );
+//        ElementNode node = registry.queryElement( "game" );
+//        Debug.echo( encoder.encode( node ).toString() );
 
     }
 

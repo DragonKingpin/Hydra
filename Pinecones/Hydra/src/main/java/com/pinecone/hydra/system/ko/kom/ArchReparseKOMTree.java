@@ -40,7 +40,7 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
 
     @Override
     public void affirmOwnedNode( GUID parentGuid, GUID childGuid ) {
-        this.mReparseKOM.affirmOwnedNode( childGuid, parentGuid );
+        this.mReparseKOM.affirmOwnedNode( parentGuid, childGuid );
     }
 
     @Override

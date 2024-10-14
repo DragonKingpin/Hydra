@@ -78,7 +78,7 @@ public class GenericFileOperator extends ArchFileSystemOperator{
         this.distributedTrieTree.purge( guid );
         this.fileManipulator.remove(guid);
         this.fileMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
+        //this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
         this.distributedTrieTree.removeCachePath(guid);
     }
 

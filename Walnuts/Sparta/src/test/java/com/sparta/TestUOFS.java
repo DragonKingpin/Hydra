@@ -2,7 +2,6 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.file.UniformObjectFileSystem;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FileNode;
@@ -10,7 +9,6 @@ import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.file.transmit.ChannelReceiverEntity;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.ulf.util.id.GUIDs;
 import com.pinecone.ulf.util.id.GuidAllocator;
 import com.sauron.radium.Radium;
 
@@ -36,9 +34,10 @@ class Steve extends Radium {
 
         KOMFileSystem fileSystem = new UniformObjectFileSystem( koiMappingDriver );
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
-        Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
+        //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
         //this.testInsert( fileSystem );
         //this.testUpload(fileSystem);
+        this.testDelete( fileSystem );
     }
 
     private void testInsert( KOMFileSystem fileSystem ){
@@ -46,6 +45,7 @@ class Steve extends Radium {
         fileSystem.affirmFileNode("game/我的世界/村民");
         fileSystem.affirmFileNode("game/我的世界/暮色森林/暮色惡魂");
         fileSystem.affirmFileNode("game/泰拉瑞亚/腐化之地/世界吞噬者");
+        fileSystem.affirmFileNode("movie/生还危机/浣熊市");
     }
 
     private void testUpload( KOMFileSystem fileSystem ) throws IOException {
@@ -59,6 +59,11 @@ class Steve extends Radium {
         channelReceiverEntity.setChannel(FileChannel.open(path, StandardOpenOption.READ));
         channelReceiverEntity.setFile( fileNode );
         channelReceiverEntity.receive();
+    }
+
+    private void testDelete(KOMFileSystem fileSystem ){
+        fileSystem.remove( "game" );
+        fileSystem.remove( "movie" );
     }
 
 }

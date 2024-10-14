@@ -37,6 +37,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
         long chunkSize = 10 * 1024 * 1024;
         int parityCheck = 0;
         long checksum = 0;
+        long crc32Xor = 0;
         ByteBuffer buffer = ByteBuffer.allocate((int) chunkSize);
         FSNodeAllotment allotment = fileSystem.getFSNodeAllotment();
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
@@ -60,12 +61,19 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                     checksum += b & 0xFF;
                     crc.update(b);
                 }
+                if( segId == 0 ){
+                    crc32Xor = crc.getValue();
+                }
+                else {
+                    crc32Xor = crc32Xor^crc.getValue();
+                }
                 String sourceName = this.mFrameSegmentNaming.naming( file.getName(),segId,Long.toHexString(crc.getValue()) );
                 Path chunkFile = Paths.get(destDirPath, sourceName);
                 LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
                 try ( FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE) ) {
                     buffer.rewind();
-                    chunkChannel.write(buffer);
+                    int write = chunkChannel.write(buffer);
+                    localFrame.setFileStartOffset( write );
                 }
 
                 segId++;
@@ -76,6 +84,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
         file.setLogicSize( bytesRead );
         file.setChecksum( checksum );
         file.setParityCheck( parityCheck );
+        file.setCrc32Xor( Long.toHexString(crc32Xor) );
         fileSystem.put( file );
     }
 

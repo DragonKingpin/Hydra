@@ -6,6 +6,8 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.file.KOMFileSystem;
+import com.pinecone.hydra.file.operator.GenericFileSystemOperatorFactory;
+import com.pinecone.hydra.file.source.FileMasterManipulator;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
@@ -54,6 +56,7 @@ public abstract class ArchKOMTree implements KOMTreeInstrument {
     ){
         this.hydrarum                      =  hydrarum;
         this.dynamicFactory                =  new GenericDynamicFactory( hydrarum.getTaskManager().getClassLoader() );
+        this.operatorFactory               =  new GenericFileSystemOperatorFactory( ( KOMFileSystem ) this, (FileMasterManipulator) masterManipulator );
 
         KOISkeletonMasterManipulator skeletonMasterManipulator = masterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator treeMasterManipulator            = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -125,7 +128,7 @@ public abstract class ArchKOMTree implements KOMTreeInstrument {
 
     protected TreeNodeOperator getOperatorByGuid( GUID guid ) {
         DistributedTreeNode node = this.distributedTrieTree.getNode( guid );
-        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{KOMFileSystem.class}, this );
+        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{this.getClass()}, this );
         return this.operatorFactory.getOperator( newInstance.getMetaType() );
     }
 

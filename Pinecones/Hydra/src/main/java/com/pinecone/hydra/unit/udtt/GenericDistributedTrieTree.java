@@ -142,8 +142,17 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
 
     @Override
     public void insertCachePath( GUID guid, String path ) {
-        this.triePathCacheManipulator.insert( guid, path );
+        if ( path.length() > 330 ){
+            String part1 = path.substring(0, 330);
+            String part2 = path.substring(330);
+            this.triePathCacheManipulator.insertLongPath( guid,part1,part2 );
+        }else
+        {
+            this.triePathCacheManipulator.insert( guid, path );
+        }
     }
+
+
 
     @Override
     public List<GUID > listRoot() {

@@ -36,7 +36,7 @@ class StanMarsh extends Radium {
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
 
         //this.testBasicInsert( registry );
-        //this.testDeletion( registry );
+        this.testDeletion( registry );
         //this.testDataExtends( registry );
         //this.testHardLink( registry );
         //this.testCopy( registry );
@@ -64,14 +64,15 @@ class StanMarsh extends Radium {
 
     private void testDeletion( KOMRegistry registry ) {
         registry.remove( "game" );
-        registry.remove( "game/witcher" );
-        registry.remove( "game/minecraft" );
-        registry.remove("game/terraria");
-        registry.remove("game/witcher");
+        registry.remove("game3a");
+//        registry.remove( "game/witcher" );
+//        registry.remove( "game/minecraft" );
+//        registry.remove("game/terraria");
+//        registry.remove("game/witcher");
         //Debug.fmp( 2, registry.getProperties( registry.queryGUIDByFN( "game.witcher.mob3" ) ).getValue( "name" ) );
         //Debug.fmp( 2, registry.get( registry.queryGUIDByFN( "game3a" ) ) );
 
-        registry.remove( "game" );
+        //registry.remove( "game" );
 
 //        registry.affirmProperties( "泰拉瑞亚.灾厄.至尊灾厄" );
 //        registry.remove( "泰拉瑞亚.灾厄.至尊灾厄" );

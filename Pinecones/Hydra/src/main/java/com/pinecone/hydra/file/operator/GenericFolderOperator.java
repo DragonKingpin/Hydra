@@ -94,14 +94,14 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
             }
         }
 
-        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ){
+        if ( node.getType().getObjectName().equals(GenericFolder.class.getName()) ){
             this.removeNode(guid);
         }
         else {
             UOI uoi = node.getType();
             String metaType = this.getOperatorFactory().getMetaType( uoi.getObjectName() );
             if( metaType == null ) {
-                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ KOMRegistry.class }, this.fileSystem );
+                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ KOMFileSystem.class }, this.fileSystem );
                 metaType = newInstance.getMetaType();
             }
 
@@ -167,6 +167,6 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
         this.distributedTrieTree.removeCachePath(guid);
         this.folderManipulator.remove(guid);
         this.folderMetaManipulator.remove(node.getNodeMetadataGUID());
-        this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
+        //this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
     }
 }

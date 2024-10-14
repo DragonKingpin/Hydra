@@ -43,8 +43,8 @@ public interface FileNode extends ElementNode{
     long getDefinitionSize();
     void setDefinitionSize(long definitionSize);
 
-    boolean getCrc32Xor();
-    void setCrc32Xor(boolean crc32Xor);
+    String getCrc32Xor();
+    void setCrc32Xor(String crc32Xor);
 
     boolean getIntegrityCheckEnable();
     void setIntegrityCheckEnable(boolean integrityCheckEnable);

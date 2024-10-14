@@ -9,6 +9,18 @@ public class GenericLocalFrame extends ArchFrame implements LocalFrame {
     private LocalDateTime               updateTime;
     private String                      sourceName;
     private LocalFrameManipulator       localFrameManipulator;
+    private long                        definitionSize;
+    private long                        fileStartOffset;
+
+    @Override
+    public long getDefinitionSize() {
+        return this.definitionSize;
+    }
+
+    @Override
+    public void setDefinitionSize(long definitionSize) {
+        this.definitionSize = definitionSize;
+    }
 
     public GenericLocalFrame() {
     }
@@ -35,6 +47,15 @@ public class GenericLocalFrame extends ArchFrame implements LocalFrame {
         this.createTime = createTime;
     }
 
+    @Override
+    public long getFileStartOffset() {
+        return this.fileStartOffset;
+    }
+
+    @Override
+    public void setFileStartOffset(long fileStartOffset) {
+        this.fileStartOffset = fileStartOffset;
+    }
 
     public LocalDateTime getUpdateTime() {
         return updateTime;

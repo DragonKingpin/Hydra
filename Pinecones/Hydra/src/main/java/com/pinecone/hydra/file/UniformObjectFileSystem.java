@@ -93,9 +93,9 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.symbolicMetaManipulator        =  this.fileMasterManipulator.getSymbolicMetaManipulator();
 
         // Phase [4] Construct selectors.
-//        this.pathSelector                  =  new StandardPathSelector(
-//                this.pathResolver, this.distributedTrieTree, this.namespaceNodeManipulator, new GUIDNameManipulator[] { this.configNodeManipulator }
-//        );
+        this.pathSelector                  =  new StandardPathSelector(
+                this.pathResolver, this.distributedTrieTree, this.folderManipulator, new GUIDNameManipulator[] { this.fileManipulator }
+        );
         // Warning: ReparseKOMTreeAddition must be constructed only after `pathSelector` has been constructed.
         this.mReparseKOM                   =  new GenericReparseKOMTreeAddition( this );
 

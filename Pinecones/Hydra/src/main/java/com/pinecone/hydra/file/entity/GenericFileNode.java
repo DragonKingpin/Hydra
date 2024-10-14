@@ -21,7 +21,7 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     private long                        physicalSize;
     private long                        logicSize;
     private long                        definitionSize;
-    private boolean                     crc32Xor;
+    private String                     crc32Xor;
     private boolean                     integrityCheckEnable;
     private boolean                     disableCluster;
 
@@ -231,12 +231,12 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     }
 
     @Override
-    public boolean getCrc32Xor() {
+    public String getCrc32Xor() {
         return this.crc32Xor;
     }
 
     @Override
-    public void setCrc32Xor(boolean crc32Xor) {
+    public void setCrc32Xor(String crc32Xor) {
         this.crc32Xor = crc32Xor;
     }
 

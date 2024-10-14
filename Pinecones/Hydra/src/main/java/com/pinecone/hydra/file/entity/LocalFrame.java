@@ -20,4 +20,10 @@ public interface LocalFrame extends Frame {
     }
 
     void setLocalFrameManipulator(LocalFrameManipulator localFrameManipulator);
+
+    long getDefinitionSize();
+    void setDefinitionSize( long definitionSize );
+
+    long getFileStartOffset();
+    void setFileStartOffset( long fileStartOffset );
 }

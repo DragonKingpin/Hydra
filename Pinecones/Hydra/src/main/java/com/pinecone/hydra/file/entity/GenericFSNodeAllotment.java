@@ -3,8 +3,8 @@ package com.pinecone.hydra.file.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.source.FileMasterManipulator;
-import com.pinecone.hydra.file.transmit.ChannelReceiverEntity;
-import com.pinecone.hydra.file.transmit.GenericChannelReceiveEntity;
+import com.pinecone.hydra.file.transmit.receiver.channel.ChannelReceiverEntity;
+import com.pinecone.hydra.file.transmit.receiver.channel.GenericChannelReceiveEntity;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 public class GenericFSNodeAllotment implements FSNodeAllotment {

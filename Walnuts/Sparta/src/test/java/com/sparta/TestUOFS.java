@@ -5,14 +5,22 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.hydra.file.UniformObjectFileSystem;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FileNode;
+import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
-import com.pinecone.hydra.file.transmit.ChannelReceiverEntity;
+import com.pinecone.hydra.file.transmit.exporter.stream.GenericStreamExporterEntity;
+import com.pinecone.hydra.file.transmit.receiver.channel.ChannelReceiverEntity;
+import com.pinecone.hydra.file.transmit.exporter.channel.GenericChannelExporterEntity;
+import com.pinecone.hydra.file.transmit.receiver.stream.GenericStreamReceiverEntity;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.id.GUIDs;
 import com.pinecone.ulf.util.id.GuidAllocator;
 import com.sauron.radium.Radium;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -37,7 +45,10 @@ class Steve extends Radium {
         //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
         //this.testInsert( fileSystem );
         //this.testUpload(fileSystem);
-        this.testDelete( fileSystem );
+        //this.testDelete( fileSystem );
+        //this.testChannelExport( fileSystem );
+        //this.testStreamReceiver( fileSystem );
+        this.testStreamExport( fileSystem );
     }
 
     private void testInsert( KOMFileSystem fileSystem ){
@@ -48,7 +59,7 @@ class Steve extends Radium {
         fileSystem.affirmFileNode("movie/生还危机/浣熊市");
     }
 
-    private void testUpload( KOMFileSystem fileSystem ) throws IOException {
+    private void testChannelReceiver(KOMFileSystem fileSystem ) throws IOException {
         ChannelReceiverEntity channelReceiverEntity = fileSystem.getFSNodeAllotment().newChannelReceiverEntity();
         channelReceiverEntity.setDestDirPath("D:\\文件系统");
         File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
@@ -61,9 +72,36 @@ class Steve extends Radium {
         channelReceiverEntity.receive();
     }
 
+    private void testStreamReceiver( KOMFileSystem fileSystem ) throws IOException {
+        FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
+        File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
+        fileNode.setName(sourceFile.getName());
+        FileInputStream fileInputStream = new FileInputStream( sourceFile );
+        GenericStreamReceiverEntity entity = new GenericStreamReceiverEntity( fileSystem, "D:\\文件系统",fileNode,fileInputStream);
+        entity.receive();
+    }
+
     private void testDelete(KOMFileSystem fileSystem ){
         fileSystem.remove( "game" );
         fileSystem.remove( "movie" );
+    }
+
+    private void testChannelExport(KOMFileSystem fileSystem ) throws IOException {
+        FileTreeNode fileTreeNode = fileSystem.get(GUIDs.GUID72("0271940-00035d-0001-58"));
+        FileNode file = fileTreeNode.evinceFileNode();
+        File file1 = new File("D:\\文件系统\\大文件\\视频.mp4");
+        FileChannel channel = FileChannel.open(file1.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        GenericChannelExporterEntity entity = new GenericChannelExporterEntity(fileSystem,file,channel);
+        entity.export();
+    }
+
+    private void testStreamExport( KOMFileSystem fileSystem ) throws IOException {
+        FileTreeNode fileTreeNode = fileSystem.get(GUIDs.GUID72("0271940-00035d-0001-58"));
+        FileNode file = fileTreeNode.evinceFileNode();
+        File file1 = new File("D:\\文件系统\\大文件\\视频.mp4");
+        FileOutputStream fileOutputStream = new FileOutputStream(file1);
+        GenericStreamExporterEntity entity = new GenericStreamExporterEntity(fileSystem,file,fileOutputStream);
+        entity.export();
     }
 
 }

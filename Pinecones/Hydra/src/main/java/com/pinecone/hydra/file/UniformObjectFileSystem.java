@@ -349,13 +349,15 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public TreeMap<Long, Frame> getFrameByFileGuid( GUID guid ) {
         TreeMap< Long, Frame > frameMap = new TreeMap<>();
-        List<LocalFrame> localFrames = this.localFrameManipulator.getLocalFrameByFileGuid(guid);
-        for( Frame frame : localFrames ){
-            frameMap.put( frame.getSegId(),frame );
-        }
         List<RemoteFrame> remoteFrames = this.remoteFrameManipulator.getRemoteFrameByFileGuid(guid);
-        for ( Frame frame : remoteFrames ){
-            frameMap.put( frame.getSegId(),frame );
+        for( RemoteFrame remoteFrame : remoteFrames ){
+            if( remoteFrame.getDeviceGuid().equals(GUIDs.GUID72("0000000-000000-0000-00")) ){
+                LocalFrame localFrame = this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
+                frameMap.put( localFrame.getSegId(),localFrame );
+            }
+            else {
+                //todo 远程获取逻辑
+            }
         }
 
         return frameMap;
@@ -379,6 +381,18 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public void copyFileNodeTo(GUID sourceGuid, GUID destinationGuid) {
 
+    }
+
+    @Override
+    public Frame getLastFrame(GUID guid) {
+        RemoteFrame remoteFrame = this.remoteFrameManipulator.getLastFrame(guid);
+        if ( remoteFrame.getDeviceGuid().equals( GUIDs.GUID72("0000000-000000-0000-00") ) ){
+            return this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
+        }
+        else {
+            //todo 远端获取方法
+        }
+        return null;
     }
 
     @Override

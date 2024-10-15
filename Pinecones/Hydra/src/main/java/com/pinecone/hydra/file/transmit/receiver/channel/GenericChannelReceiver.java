@@ -1,4 +1,4 @@
-package com.pinecone.hydra.file.transmit;
+package com.pinecone.hydra.file.transmit.receiver.channel;
 
 import com.pinecone.framework.util.Bytes;
 import com.pinecone.hydra.file.FrameSegmentNaming;
@@ -7,6 +7,10 @@ import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.file.entity.FileNode;
 import com.pinecone.hydra.file.entity.LocalFrame;
+import com.pinecone.hydra.file.entity.RemoteFrame;
+import com.pinecone.hydra.file.transmit.receiver.ArchReceiver;
+import com.pinecone.hydra.file.transmit.receiver.ReceiveEntity;
+import com.pinecone.ulf.util.id.GUIDs;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.io.IOException;
@@ -70,6 +74,9 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 String sourceName = this.mFrameSegmentNaming.naming( file.getName(),segId,Long.toHexString(crc.getValue()) );
                 Path chunkFile = Paths.get(destDirPath, sourceName);
                 LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
+                RemoteFrame remoteFrame = allotment.newRemoteFrame( file.getGuid(),(int)segId,Long.toHexString(crc.getValue()), read);
+                remoteFrame.setDeviceGuid(GUIDs.GUID72("0000000-000000-0000-00"));
+                remoteFrame.setSegGuid( localFrame.getSegGuid() );
                 try ( FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE) ) {
                     buffer.rewind();
                     int write = chunkChannel.write(buffer);
@@ -79,6 +86,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 segId++;
                 bytesRead += read;
                 localFrame.save();
+                remoteFrame.save();
         }
         file.setPhysicalSize( bytesRead );
         file.setLogicSize( bytesRead );
@@ -89,7 +97,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
     }
 
     @Override
-    public void resumableTransfer( ReceiveEntity entity ) throws IOException {
+    public void resumableReceive(ReceiveEntity entity ) throws IOException {
         ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
         FileChannel fileChannel = channelReceiverEntity.getChannel();
         String destDirPath = channelReceiverEntity.getDestDirPath();
@@ -99,8 +107,8 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
 
         long chunkSize = 10 * 1024 * 1024;
-        // todo 使用sql优化
-        LocalFrame lastFrame = file.getFrames().lastEntry().getValue().evinceLocalFrame();
+        //todo 如果簇不在本地？
+        LocalFrame lastFrame = fileSystem.getLastFrame( file.getGuid() ).evinceLocalFrame();
         long segId = lastFrame.getSegId();
         long bytesRead = segId * chunkSize; // 从最后一个已传输的分片计算出起始位置
 

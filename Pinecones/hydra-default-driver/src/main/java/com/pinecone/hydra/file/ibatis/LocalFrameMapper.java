@@ -24,8 +24,15 @@ public interface LocalFrameMapper extends LocalFrameManipulator {
     void insert( LocalFrame localFrame );
     @Delete("DELETE FROM `hydra_uofs_local_cluster_fat` WHERE `seg_guid` = #{guid}")
     void remove( GUID guid );
+
+    default GenericLocalFrame getLocalFrameByGuid(GUID guid){
+        GenericLocalFrame localFrame = this.getLocalFrameByGuid0(guid);
+        if ( localFrame == null ) return null;
+        localFrame.setLocalFrameManipulator( this );
+        return localFrame;
+    }
     @Select("SELECT `id` AS enumId, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `seg_id` AS segId, `create_time` AS createTime, `update_time` AS updateTime, `source_name` AS sourceName, `crc32`, `size` FROM `hydra_uofs_local_cluster_fat` WHERE `seg_guid` = #{guid}")
-    GenericLocalFrame getLocalFrameByGuid(GUID guid);
+    GenericLocalFrame getLocalFrameByGuid0(GUID guid);
     @Select("SELECT `id`, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `seg_id` AS segId, `create_time` AS createTime, `update_time` AS updateTime, `source_name` AS sourceName, `crc32`, `size` FROM `hydra_uofs_local_cluster_fat` WHERE `file_guid` = #{guid}")
     List<GenericLocalFrame> getLocalFrameByFileGuid0(GUID guid );
 

@@ -160,4 +160,5 @@ public interface KOMFileSystem extends ReparseKOMTree {
     TreeMap<Long, Frame> getFrameByFileGuid(GUID guid);
 
     void upload( FileNode file, String destDirPath );
+    Frame getLastFrame( GUID guid );
 }

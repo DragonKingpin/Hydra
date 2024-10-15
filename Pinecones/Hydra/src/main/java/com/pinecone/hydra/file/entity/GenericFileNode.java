@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.source.FileManipulator;
 import com.pinecone.ulf.util.id.GuidAllocator;
+import com.rabbitmq.client.Return;
 
 import java.time.LocalDateTime;
 import java.util.TreeMap;
@@ -38,7 +39,7 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
 
     @Override
     public TreeMap<Long, Frame> getFrames() {
-        return this.frames;
+        return this.fileSystem.getFrameByFileGuid( this.guid );
     }
 
 
@@ -49,8 +50,6 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
 
     public GenericFileNode(KOMFileSystem fileSystem ) {
         this.fileSystem = fileSystem;
-
-        this.frames = fileSystem.getFrameByFileGuid(this.guid);
         GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID72() );
         this.setCreateTime( LocalDateTime.now() );

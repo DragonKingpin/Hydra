@@ -2,7 +2,7 @@ package com.pinecone.hydra.file.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.transmit.ChannelReceiverEntity;
+import com.pinecone.hydra.file.transmit.receiver.channel.ChannelReceiverEntity;
 
 public interface FSNodeAllotment extends Pinenut {
      Folder              newFolder();

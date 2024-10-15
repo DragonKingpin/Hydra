@@ -1,4 +1,4 @@
-package com.pinecone.hydra.file.transmit;
+package com.pinecone.hydra.file.transmit.receiver;
 
 import com.pinecone.hydra.file.KOMFileSystem;
 import com.pinecone.hydra.file.entity.FileNode;

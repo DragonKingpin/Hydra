@@ -9,7 +9,7 @@ import java.util.Objects;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.source.CommonDataManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceAttributeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
@@ -22,7 +22,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     protected ServiceMasterManipulator            serviceMasterManipulator;
     protected Map<GUID, MetaNodeWideEntity>       cacheMap = new HashMap<>();
     protected ServiceFamilyTreeManipulator        serviceFamilyTreeManipulator;
-    protected CommonDataManipulator               commonDataManipulator;
+    protected ServiceAttributeManipulator serviceAttributeManipulator;
     protected TireOwnerManipulator                tireOwnerManipulator;
     protected DistributedTrieTree                 distributedTrieTree;
 
@@ -30,7 +30,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
     public ArchMetaNodeInstance( ServiceMasterManipulator serviceMasterManipulator, TreeMasterManipulator treeManipulatorSharer ){
         this.serviceMasterManipulator           =       serviceMasterManipulator;
         this.serviceFamilyTreeManipulator       =       this.serviceMasterManipulator.getServiceFamilyTreeManipulator();
-        this.commonDataManipulator              =       this.serviceMasterManipulator.getCommonDataManipulator();
+        this.serviceAttributeManipulator =       this.serviceMasterManipulator.getAttributeManipulator();
         this.tireOwnerManipulator               =       this.serviceMasterManipulator.getTireOwnerManipulator();
         this.distributedTrieTree                =       new GenericDistributedTrieTree(treeManipulatorSharer);
     }
@@ -99,7 +99,7 @@ public abstract class ArchMetaNodeInstance implements MetaNodeInstance {
         GUIDDistributedTrieNode target = this.distributedTrieTree.getNode( guid );
         this.distributedTrieTree.purge( guid );
         this.distributedTrieTree.removeCachePath( guid );
-        this.commonDataManipulator.remove( target.getNodeMetadataGUID() );
+        this.serviceAttributeManipulator.remove( target.getNodeMetadataGUID() );
         this.serviceFamilyTreeManipulator.removeByChildGUID( guid );
         this.serviceFamilyTreeManipulator.removeByParentGUID( guid );
         this.cacheMap.remove( guid );

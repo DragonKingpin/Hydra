@@ -54,7 +54,7 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeInfoByGUID/{guid}")
     public BasicResultResponse<ServiceTreeNode> queryNodeInfoByGUID(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        return BasicResultResponse.success(this.servicesTree.getNode( guid72 ));
+        return BasicResultResponse.success((ServiceTreeNode) this.servicesTree.get( guid72 ));
     }
 
     /**
@@ -64,11 +64,12 @@ public class ServiceMetaController {
      */
     @GetMapping("/queryNodeInfoByPath")
     public BasicResultResponse<ServiceTreeNode> queryNodeInfoByPath( @RequestParam("path") String path ){
-        ServiceTreeNode node = this.servicesTree.parsePath( path );
-        if( node == null ) {
-            return BasicResultResponse.error( "No such node" );
-        }
-        return BasicResultResponse.success( this.servicesTree.parsePath(path) );
+//        ServiceTreeNode node = this.servicesTree.parsePath( path );
+//        if( node == null ) {
+//            return BasicResultResponse.error( "No such node" );
+//        }
+//        return BasicResultResponse.success( this.servicesTree.parsePath(path) );
+        return null;
     }
 
     /**
@@ -78,7 +79,8 @@ public class ServiceMetaController {
      */
     @PostMapping("/putServiceNode")
     public BasicResultResponse<String> putServiceNode( @RequestBody GenericServiceNode serviceNode ){
-        return BasicResultResponse.success(this.servicesTree.addNode( serviceNode ).toString());
+        //return BasicResultResponse.success(this.servicesTree.put( serviceNode ).toString());
+        return null;
     }
 
     /**
@@ -88,7 +90,8 @@ public class ServiceMetaController {
      */
     @PostMapping("/putApplicationNode")
     public BasicResultResponse<String> putApplicationNode( @RequestBody GenericApplicationNode applicationNode ){
-        return BasicResultResponse.success(this.servicesTree.addNode(applicationNode).toString());
+        //return BasicResultResponse.success(this.servicesTree.addNode(applicationNode).toString());
+        return null;
     }
 
     /**
@@ -98,7 +101,8 @@ public class ServiceMetaController {
      */
     @PostMapping("/putClassificationNode")
     public BasicResultResponse<String> putClassificationNode( @RequestBody GenericNamespace classificationNode ){
-        return BasicResultResponse.success(this.servicesTree.addNode(classificationNode).toString());
+        //return BasicResultResponse.success(this.servicesTree.addNode(classificationNode).toString());
+        return null;
     }
 
     /**
@@ -108,7 +112,7 @@ public class ServiceMetaController {
      */
     @DeleteMapping("/removeSingleNode")
     public BasicResultResponse<String> removeSingleNode(@RequestParam("guid") String guid){
-        this.servicesTree.removeNode( new GUID72( guid ) );
+        //this.servicesTree.removeNode( new GUID72( guid ) );
         return BasicResultResponse.success();
     }
 
@@ -120,7 +124,8 @@ public class ServiceMetaController {
     @GetMapping("/queryNodeWideInfo/{guid}")
     public BasicResultResponse<MetaNodeWideEntity> queryNodeWideInfo(@PathVariable("guid") String guid ){
         GUID72 guid72 = new GUID72( guid );
-        return BasicResultResponse.success(this.servicesTree.getWideMeta(guid72));
+        //return BasicResultResponse.success(this.servicesTree.getWideMeta(guid72));
+        return null;
     }
 
     /**
@@ -131,7 +136,7 @@ public class ServiceMetaController {
     @GetMapping("/remove")
     public BasicResultResponse<String> remove(@RequestParam("guid") String guid){
         GUID72 guid72 = new GUID72( guid );
-        this.servicesTree.remove(guid72);
+        //this.servicesTree.remove(guid72);
         return BasicResultResponse.success();
     }
 
@@ -155,6 +160,7 @@ public class ServiceMetaController {
      */
     @GetMapping("/getPath/{GUID}")
     public BasicResultResponse<String> getPath(@PathVariable("GUID") String guid){
-        return BasicResultResponse.success( this.servicesTree.getPath( new GUID72(guid) ) );
+        //return BasicResultResponse.success( this.servicesTree.getPath( new GUID72(guid) ) );
+        return null;
     }
 }

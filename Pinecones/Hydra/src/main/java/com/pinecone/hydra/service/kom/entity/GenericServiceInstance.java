@@ -33,7 +33,7 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
         GenericServiceWideEntityMeta genericServiceWideEntityMeta = new GenericServiceWideEntityMeta();
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
-        GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GenericNodeCommonData commonData = this.serviceAttributeManipulator.getNodeMetadata(node.getNodeMetadataGUID());
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
 
 

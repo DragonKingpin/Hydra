@@ -2,8 +2,11 @@ package com.pinecone.hydra.service.kom.nodes;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.ServicesTree;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
+import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 public class GenericApplicationNode implements ApplicationNode {
 
@@ -21,17 +24,22 @@ public class GenericApplicationNode implements ApplicationNode {
     // 应用节点名称
     private String name;
 
+    private ServicesTree servicesTree;
+    private ApplicationNodeManipulator applicationNodeManipulator;
+
 
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(GUIDDistributedTrieNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name) {
-        this.distributedTreeNode = distributedTreeNode;
-        this.applicationNodeMeta = applicationNodeMeta;
-        this.nodeAttributes = nodeAttributes;
-        this.enumId = enumId;
-        this.guid = guid;
-        this.name = name;
+    public GenericApplicationNode(ServicesTree servicesTree ) {
+       this.servicesTree = servicesTree;
+        GuidAllocator guidAllocator = this.servicesTree.getGuidAllocator();
+        this.setGuid( guidAllocator.nextGUID72() );
+    }
+
+    public GenericApplicationNode( ServicesTree servicesTree, ApplicationNodeManipulator applicationNodeManipulator ) {
+        this(servicesTree);
+        this.applicationNodeManipulator = applicationNodeManipulator;
     }
 
 

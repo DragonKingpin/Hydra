@@ -16,6 +16,7 @@ import com.pinecone.hydra.registry.marshaling.RegistryJSONDecoder;
 import com.pinecone.hydra.registry.marshaling.RegistryJSONEncoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.id.GUIDs;
 import com.sauron.radium.Radium;
 
 class StanMarsh extends Radium {
@@ -34,7 +35,7 @@ class StanMarsh extends Radium {
         );
 
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
-
+        Debug.trace( registry.get(GUIDs.GUID72( "02b7934-000019-0000-b4" ) ) );
         //this.testBasicInsert( registry );
         //this.testDeletion( registry );
         //this.testDataExtends( registry );

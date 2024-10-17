@@ -7,7 +7,7 @@ import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 public interface ServiceMasterManipulator extends KOIMasterManipulator {
     TrieTreeManipulator getTrieTreeManipulator() ;
 
-    CommonDataManipulator getCommonDataManipulator();
+    ServiceAttributeManipulator getAttributeManipulator();
 
     ApplicationNodeManipulator getApplicationNodeManipulator();
 
@@ -17,9 +17,9 @@ public interface ServiceMasterManipulator extends KOIMasterManipulator {
 
     ServiceMetaManipulator getServiceMetaManipulator();
 
-    ClassifNodeManipulator getClassifNodeManipulator();
+    ServiceNamespaceManipulator getNamespaceManipulator();
 
-    ClassifRulesManipulator getClassifRulesManipulator();
+    NamespaceRulesManipulator getNamespaceRulesManipulator();
 
     ServiceFamilyTreeManipulator getServiceFamilyTreeManipulator();
     TireOwnerManipulator getTireOwnerManipulator();

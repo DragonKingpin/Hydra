@@ -14,7 +14,7 @@ import java.util.TreeMap;
 public class GenericRegistryOperatorFactory implements RegistryOperatorFactory {
     protected RegistryMasterManipulator        registryMasterManipulator;
 
-    protected KOMRegistry registry;
+    protected KOMRegistry                       registry;
 
     protected Map<String, TreeNodeOperator>    registerer = new HashMap<>();
 

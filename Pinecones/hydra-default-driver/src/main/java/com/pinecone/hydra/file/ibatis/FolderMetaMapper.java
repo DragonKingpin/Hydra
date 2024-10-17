@@ -1,11 +1,10 @@
 package com.pinecone.hydra.file.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.file.entity.FolderMeta;
-import com.pinecone.hydra.file.entity.GenericFileMeta;
-import com.pinecone.hydra.file.entity.GenericFolderMeta;
-import com.pinecone.hydra.file.source.FolderMetaManipulator;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.FolderMeta;
+import com.pinecone.hydra.storage.file.entity.GenericFolderMeta;
+import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

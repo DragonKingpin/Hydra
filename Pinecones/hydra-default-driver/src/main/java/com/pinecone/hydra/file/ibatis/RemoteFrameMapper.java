@@ -1,10 +1,10 @@
 package com.pinecone.hydra.file.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.file.entity.GenericRemoteFrame;
-import com.pinecone.hydra.file.entity.RemoteFrame;
-import com.pinecone.hydra.file.source.RemoteFrameManipulator;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.GenericRemoteFrame;
+import com.pinecone.hydra.storage.file.entity.RemoteFrame;
+import com.pinecone.hydra.storage.file.source.RemoteFrameManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

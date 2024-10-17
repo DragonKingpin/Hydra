@@ -1,10 +1,10 @@
 package com.pinecone.hydra.file.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.file.entity.Folder;
-import com.pinecone.hydra.file.entity.GenericFolder;
-import com.pinecone.hydra.file.source.FolderManipulator;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.Folder;
+import com.pinecone.hydra.storage.file.entity.GenericFolder;
+import com.pinecone.hydra.storage.file.source.FolderManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -33,4 +33,5 @@ public interface FolderMapper extends FolderManipulator {
     List<GUID > dumpGuid();
     @Select("SELECT COUNT('id') FROM hydra_uofs_folders WHERE guid = #{guid}")
     boolean isFolder(GUID guid);
+
 }

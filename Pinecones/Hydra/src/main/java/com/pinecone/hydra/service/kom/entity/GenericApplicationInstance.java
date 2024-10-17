@@ -33,7 +33,7 @@ public class GenericApplicationInstance extends ArchMetaNodeInstance {
     protected MetaNodeWideEntity getWideData(GUID guid){
         GenericApplicationWideEntityMeta genericApplicationWideEntity = new GenericApplicationWideEntityMeta();
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        GenericNodeCommonData nodeMetadata = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        GenericNodeCommonData nodeMetadata = this.serviceAttributeManipulator.getNodeMetadata(node.getNodeMetadataGUID());
         GenericApplicationNodeMeta applicationMeta = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
 

@@ -2,15 +2,19 @@ package com.pinecone.hydra.service.kom.nodes;
 
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericClassificationRules;
+import com.pinecone.hydra.service.kom.GenericNamespaceRules;
 import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.ServicesTree;
+import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 public class GenericNamespace implements Namespace {
 
     private GUIDDistributedTrieNode distributedTreeNode;
 
-    private GenericClassificationRules classificationRules;
+    private GenericNamespaceRules classificationRules;
 
     private GenericNodeCommonData nodeAttributes;
 
@@ -26,128 +30,89 @@ public class GenericNamespace implements Namespace {
     // 分类规则uuid
     private GUID rulesGUID;
 
+    private ServicesTree servicesTree;
+    private ServiceNamespaceManipulator namespaceManipulator;
 
     public GenericNamespace() {
     }
 
-    public GenericNamespace(GUIDDistributedTrieNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name, GUID rulesGUID) {
-        this.distributedTreeNode = distributedTreeNode;
-        this.classificationRules = classificationRules;
-        this.nodeAttributes = nodeAttributes;
-        this.enumId = enumId;
-        this.guid = guid;
-        this.name = name;
-        this.rulesGUID = rulesGUID;
+    public GenericNamespace(ServicesTree servicesTree ) {
+        this.servicesTree = servicesTree;
+        GuidAllocator guidAllocator = this.servicesTree.getGuidAllocator();
+        this.setGuid( guidAllocator.nextGUID72() );
     }
 
-    /**
-     * 获取
-     * @return distributedTreeNode
-     */
+    public GenericNamespace( ServicesTree servicesTree, ServiceNamespaceManipulator namespaceManipulator ) {
+        this(servicesTree);
+        this.namespaceManipulator = namespaceManipulator;
+    }
+
+
     public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
-    /**
-     * 设置
-     * @param distributedTreeNode
-     */
+
     public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 
-    /**
-     * 获取
-     * @return classificationRules
-     */
-    public GenericClassificationRules getClassificationRules() {
+
+    public GenericNamespaceRules getClassificationRules() {
         return classificationRules;
     }
 
-    /**
-     * 设置
-     * @param classificationRules
-     */
-    public void setClassificationRules(GenericClassificationRules classificationRules) {
+
+    public void setClassificationRules(GenericNamespaceRules classificationRules) {
         this.classificationRules = classificationRules;
     }
 
-    /**
-     * 获取
-     * @return nodeAttributes
-     */
+
     public GenericNodeCommonData getAttributes() {
         return nodeAttributes;
     }
 
-    /**
-     * 设置
-     * @param nodeAttributes
-     */
+
     public void setNodeCommonData(GenericNodeCommonData nodeAttributes) {
         this.nodeAttributes = nodeAttributes;
     }
 
-    /**
-     * 获取
-     * @return enumId
-     */
+
     public long getEnumId() {
         return enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
+
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
+
     public GUID getGuid() {
         return guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
+
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return name
-     */
+
     public String getName() {
         return name;
     }
 
-    /**
-     * 设置
-     * @param name
-     */
+
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return rulesGUID
-     */
+
     public GUID getRulesGUID() {
         return rulesGUID;
     }
 
-    /**
-     * 设置
-     * @param rulesGUID
-     */
+
     public void setRulesGUID(GUID rulesGUID) {
         this.rulesGUID = rulesGUID;
     }

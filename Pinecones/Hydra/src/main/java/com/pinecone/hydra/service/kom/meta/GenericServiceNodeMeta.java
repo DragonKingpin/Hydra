@@ -37,6 +37,7 @@ public class GenericServiceNodeMeta implements ServiceNodeMeta {
 
 
     public GenericServiceNodeMeta() {
+
     }
 
     public GenericServiceNodeMeta(long enumId, GUID guid, String name, String path, String type, String alias, String resourceType, String serviceType, LocalDateTime createTime, LocalDateTime updateTime) {

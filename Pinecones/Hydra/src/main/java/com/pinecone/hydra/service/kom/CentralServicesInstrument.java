@@ -28,7 +28,7 @@ import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 
 import java.util.List;
 
-public class CentralServicesTree implements ServicesTree {
+public class CentralServicesInstrument implements ServicesInstrument {
     protected Hydrarum                  hydrarum;
     //GenericDistributedScopeTree
     private DistributedTrieTree         distributedTrieTree;
@@ -43,7 +43,7 @@ public class CentralServicesTree implements ServicesTree {
 
 
 
-    public CentralServicesTree( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
+    public CentralServicesInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         Debug.trace(masterManipulator);
         this.hydrarum = hydrarum;
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
@@ -57,11 +57,11 @@ public class CentralServicesTree implements ServicesTree {
         this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeMasterManipulator);
     }
 
-    public CentralServicesTree( Hydrarum hydrarum ) {
+    public CentralServicesInstrument(Hydrarum hydrarum ) {
         this.hydrarum = hydrarum;
     }
 
-    public CentralServicesTree( KOIMappingDriver driver ) {
+    public CentralServicesInstrument(KOIMappingDriver driver ) {
         this(
                 driver.getSystem(),
                 driver.getMasterManipulator()

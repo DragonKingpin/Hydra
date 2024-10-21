@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public class GenericServiceNodeMeta implements ServiceNodeMeta {
+public class GenericServiceNodeMeta implements KOServiceMeta {
     // 服务id
     private long enumId;
 

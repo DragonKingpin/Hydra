@@ -19,6 +19,7 @@ import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextFile;
 import com.pinecone.hydra.system.ko.kom.KOMSelector;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
+import com.pinecone.hydra.system.ko.kom.ReparseLinkSelector;
 
 /**
  * RegistryJPathSelector

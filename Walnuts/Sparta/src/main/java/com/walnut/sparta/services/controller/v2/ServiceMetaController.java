@@ -1,7 +1,7 @@
 package com.walnut.sparta.services.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServicesTree;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
 import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
@@ -12,7 +12,7 @@ import com.pinecone.hydra.service.kom.entity.GenericMetaNodeInstanceFactory;
 import com.pinecone.hydra.service.kom.entity.MetaNodeWideEntity;
 import com.pinecone.hydra.service.kom.entity.MetaNodeInstanceFactory;
 import com.pinecone.ulf.util.id.GUID72;
-import com.pinecone.hydra.service.kom.CentralServicesTree;
+import com.pinecone.hydra.service.kom.CentralServicesInstrument;
 import com.walnut.sparta.services.drivers.ServiceMasterTreeManipulatorImpl;
 import com.walnut.sparta.system.BasicResultResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,13 +36,13 @@ public class ServiceMetaController {
     @Resource
     private ServiceMasterTreeManipulatorImpl treeManipulatorSharer;
 
-    private ServicesTree servicesTree;
+    private ServicesInstrument servicesTree;
 
     MetaNodeInstanceFactory metaNodeInstanceFactory;
 
     @PostConstruct
     public void init() {
-        this.servicesTree = new CentralServicesTree( null,serviceMasterManipulator);
+        this.servicesTree = new CentralServicesInstrument( null,serviceMasterManipulator);
         this.metaNodeInstanceFactory = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeManipulatorSharer);
     }
 

@@ -1,32 +1,5 @@
 package com.pinecone.hydra.service;
 
-import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.name.Namespace;
-
-public interface Service extends Pinenut {
-    GUID getGuid() ;
-
-    String getName();        // Service Name, e.g. WpnService
-
-    String getDisplayName(); // Service Long Name, e.g. Windows Push Notification System Service
-
-    String getDescription();
-
-    String getFullName();
-
-    Namespace getGroupNamespace();
-
-    String getGroupName();
-
-    String getScenario() ;
-
-    String getPrimaryImplLang() ;
-
-    String getExtraInformation() ;
-
-    String getLevel() ;
-
-    Processum getMainProcess();
+public interface Service extends ServiceMeta {
+    Object getProcessImageObject();
 }

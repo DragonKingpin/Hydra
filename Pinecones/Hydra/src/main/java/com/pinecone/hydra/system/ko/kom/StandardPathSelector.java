@@ -1,4 +1,4 @@
-package com.pinecone.hydra.registry;
+package com.pinecone.hydra.system.ko.kom;
 
 import java.util.List;
 import java.util.Stack;
@@ -8,7 +8,6 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.name.path.PathResolver;
-import com.pinecone.hydra.system.ko.kom.PathSelector;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 

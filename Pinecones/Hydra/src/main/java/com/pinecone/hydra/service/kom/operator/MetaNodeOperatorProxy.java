@@ -1,7 +1,7 @@
 package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.service.kom.ServicesTree;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 
 import java.util.HashMap;
@@ -14,9 +14,9 @@ public class MetaNodeOperatorProxy implements Pinenut {
     public MetaNodeOperatorProxy( ServiceMasterManipulator manipulators ){
         this.serviceMasterManipulator = manipulators;
 
-        this.register( ServicesTree.DefaultMetaNodeApplication, new ApplicationNodeOperator( this.serviceMasterManipulator) );
-        this.register( ServicesTree.DefaultMetaNodeClassification, new ClassificationNodeOperator( this.serviceMasterManipulator) );
-        this.register( ServicesTree.DefaultMetaNodeService, new ServiceNodeOperator( this.serviceMasterManipulator) );
+        this.register( ServicesInstrument.DefaultMetaNodeApplication, new ApplicationNodeOperator( this.serviceMasterManipulator) );
+        this.register( ServicesInstrument.DefaultMetaNodeClassification, new ClassificationNodeOperator( this.serviceMasterManipulator) );
+        this.register( ServicesInstrument.DefaultMetaNodeService, new ServiceNodeOperator( this.serviceMasterManipulator) );
     }
 
     public void register( String typeName, MetaNodeOperator functionalNodeOperation ) {

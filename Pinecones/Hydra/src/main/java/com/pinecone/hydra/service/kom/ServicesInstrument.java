@@ -5,15 +5,15 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.entity.MetaNodeWideEntity;
 import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
 
-public interface ServicesTree extends Pinenut {
+public interface ServicesInstrument extends Pinenut {
     String DefaultMetaNodeClassification = "ClassificationNode";
     String DefaultMetaNodeApplication    = "ApplicationNode";
     String DefaultMetaNodeService        = "ServiceNode";
 
     default boolean isDefauteMetaNode( ServiceTreeNode node ) {
-        return  !node.getMetaType().equals( ServicesTree.DefaultMetaNodeClassification ) ||
-                !node.getMetaType().equals( ServicesTree.DefaultMetaNodeApplication    ) ||
-                !node.getMetaType().equals( ServicesTree.DefaultMetaNodeService        ) ;
+        return  !node.getMetaType().equals( ServicesInstrument.DefaultMetaNodeClassification ) ||
+                !node.getMetaType().equals( ServicesInstrument.DefaultMetaNodeApplication    ) ||
+                !node.getMetaType().equals( ServicesInstrument.DefaultMetaNodeService        ) ;
     }
 
     GUID addNode( ServiceTreeNode node );

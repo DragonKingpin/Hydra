@@ -31,24 +31,28 @@ class Jesse extends Radium {
         );
 
         CentralServicesInstrument servicesTree = new CentralServicesInstrument( koiMappingDriver );
-        //this.testInsert( servicesTree );
+        this.testInsert( servicesTree );
         //this.testGet( servicesTree );
-        this.testDelete( servicesTree );
+        //this.testDelete( servicesTree );
     }
+
     private void testInsert( ServicesInstrument servicesInstrument){
 
-        GenericNamespace namespace = new GenericNamespace();
-        namespace.setName( "规则1" );
-        servicesInstrument.put( namespace );
+//        GenericNamespace namespace = new GenericNamespace();
+//        namespace.setName( "Test1" );
+//        servicesInstrument.put( namespace );
 
-        GenericApplicationNode applicationNode = new GenericApplicationNode();
-        applicationNode.setName( "很好的服务" );
-        servicesInstrument.put( applicationNode );
+        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03a33a2-0001f0-0001-20") ) );
 
-        GenericServiceNode serviceNode = new GenericServiceNode();
-        serviceNode.setGuid( servicesInstrument.getGuidAllocator().nextGUID72() );
-        serviceNode.setName("我的世界");
-        servicesInstrument.put( serviceNode );
+
+//        GenericApplicationNode applicationNode = new GenericApplicationNode();
+//        applicationNode.setName( "很好的服务" );
+//        servicesInstrument.put( applicationNode );
+//
+//        GenericServiceNode serviceNode = new GenericServiceNode();
+//        serviceNode.setGuid( servicesInstrument.getGuidAllocator().nextGUID72() );
+//        serviceNode.setName("我的世界");
+//        servicesInstrument.put( serviceNode );
     }
 
     private void testGet( ServicesInstrument servicesInstrument){

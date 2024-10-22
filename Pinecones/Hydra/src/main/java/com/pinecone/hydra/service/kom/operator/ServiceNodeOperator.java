@@ -1,8 +1,6 @@
 package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.BaseNodeCommonData;
-import com.pinecone.hydra.service.kom.NodeCommonData;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;

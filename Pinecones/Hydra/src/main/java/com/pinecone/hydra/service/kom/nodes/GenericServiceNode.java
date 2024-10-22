@@ -1,14 +1,14 @@
 package com.pinecone.hydra.service.kom.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
-public class GenericServiceNode extends BaseNodeCommonData implements ServiceNode {
+public class GenericServiceNode extends ArchServiceFamilyNode implements ServiceNode {
     private GUIDDistributedTrieNode distributedTreeNode;
 
     private GenericServiceNodeMeta serviceNodeMetadata;

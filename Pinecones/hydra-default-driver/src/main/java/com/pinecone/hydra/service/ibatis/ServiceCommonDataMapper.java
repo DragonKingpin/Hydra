@@ -1,10 +1,9 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.BaseNodeCommonData;
-import com.pinecone.hydra.service.kom.NodeCommonData;
+import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
+import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.source.CommonDataManipulator;
-import com.pinecone.hydra.unit.udtt.entity.EntityNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -16,10 +15,10 @@ import org.apache.ibatis.annotations.Select;
 @IbatisDataAccessObject
 public interface ServiceCommonDataMapper extends CommonDataManipulator {
     @Insert("INSERT INTO `hydra_service_node_common_data` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{guid},#{scenario},#{primaryImplLang},#{extraInformation},#{level},#{description})")
-    void insert(NodeCommonData node);
+    void insert(ServiceFamilyNode node);
     @Delete("DELETE FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
     @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
-    BaseNodeCommonData getNodeCommonData(@Param("guid")GUID guid);
-    void update(NodeCommonData node);
+    ArchServiceFamilyNode getNodeCommonData(@Param("guid")GUID guid);
+    void update(ServiceFamilyNode node);
 }

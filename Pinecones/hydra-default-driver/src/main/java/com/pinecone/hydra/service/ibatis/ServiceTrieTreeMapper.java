@@ -30,7 +30,7 @@ public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     }
 
     @Insert("INSERT INTO hydra_service_meta_map (`guid`, `type`,`base_data_guid`,`node_metadata_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
-    void insertTreeNode(@Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
+    void insertTreeNode( @Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `type`, base_data_guid AS baseDataGUID, node_metadata_guid AS nodeMetadataGUID FROM hydra_service_meta_map WHERE guid=#{guid}")
     GUIDDistributedTrieNode getNodeExtendsFromMeta( GUID guid );
@@ -38,6 +38,9 @@ public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
     @Override
     default GUIDDistributedTrieNode getNode( GUID guid ) {
         GUIDDistributedTrieNode node = this.getNodeExtendsFromMeta( guid );
+        if( node == null ) {
+            return null;
+        }
         List<GUID > parent = this.getParentGuids( guid );
         node.setParentGUID( parent );
         return node;

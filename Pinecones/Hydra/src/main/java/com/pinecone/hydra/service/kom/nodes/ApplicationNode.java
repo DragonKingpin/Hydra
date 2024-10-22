@@ -1,11 +1,11 @@
 package com.pinecone.hydra.service.kom.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.NodeCommonData;
+import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
-public interface ApplicationNode extends ServiceTreeNode, NodeCommonData {
+public interface ApplicationNode extends ServiceTreeNode, ServiceFamilyNode {
     long getEnumId();
     void setEnumId(long id);
 

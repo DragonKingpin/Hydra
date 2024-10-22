@@ -1,164 +1,131 @@
 package com.pinecone.hydra.service.kom.nodes;
 
 
+import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 public class GenericNamespace implements Namespace {
+    protected long enumId;
 
-    private GUIDDistributedTrieNode distributedTreeNode;
+    protected GUID guid;
 
-    private GenericNamespaceRules classificationRules;
+    protected String name;
 
-    private BaseNodeCommonData nodeAttributes;
+    protected GUID rulesGUID;
 
-    // 节点id
-    private long enumId;
+    protected GUIDDistributedTrieNode     distributedTreeNode;
 
-    // 节点uuid
-    private GUID guid;
+    protected GenericNamespaceRules       classificationRules;
 
-    // 节点名称
-    private String name;
+    protected ArchServiceFamilyNode nodeAttributes;
 
-    // 分类规则uuid
-    private GUID rulesGUID;
-    private ServicesInstrument servicesInstrument;
-    private ServiceNamespaceManipulator namespaceManipulator;
+
+    protected ServicesInstrument          servicesInstrument;
+
+    protected ServiceNamespaceManipulator namespaceManipulator;
 
 
     public GenericNamespace() {
     }
 
-    public GenericNamespace(ServicesInstrument servicesInstrument) {
+    public GenericNamespace( ServicesInstrument servicesInstrument ) {
         this.servicesInstrument = servicesInstrument;
         GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID72() );
     }
 
-    public GenericNamespace(ServicesInstrument servicesInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
+    public GenericNamespace( ServicesInstrument servicesInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
         this(servicesInstrument);
         this.namespaceManipulator = namespaceManipulator;
     }
 
-    /**
-     * 获取
-     * @return distributedTreeNode
-     */
+    @Override
     public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
-    /**
-     * 设置
-     * @param distributedTreeNode
-     */
+    @Override
     public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 
-    /**
-     * 获取
-     * @return classificationRules
-     */
+    @Override
     public GenericNamespaceRules getClassificationRules() {
         return classificationRules;
     }
 
-    /**
-     * 设置
-     * @param classificationRules
-     */
+    @Override
     public void setClassificationRules(GenericNamespaceRules classificationRules) {
         this.classificationRules = classificationRules;
     }
 
-    /**
-     * 获取
-     * @return nodeAttributes
-     */
-    public BaseNodeCommonData getAttributes() {
+    @Override
+    public ArchServiceFamilyNode getAttributes() {
         return nodeAttributes;
     }
 
-    /**
-     * 设置
-     * @param nodeAttributes
-     */
-    public void setNodeCommonData(BaseNodeCommonData nodeAttributes) {
+    @Override
+    public void setNodeCommonData(ArchServiceFamilyNode nodeAttributes) {
         this.nodeAttributes = nodeAttributes;
     }
 
-    /**
-     * 获取
-     * @return enumId
-     */
+    @Override
     public long getEnumId() {
         return enumId;
     }
 
-    /**
-     * 设置
-     * @param enumId
-     */
+    @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
     }
 
-    /**
-     * 获取
-     * @return guid
-     */
+    @Override
     public GUID getGuid() {
         return guid;
     }
 
-    /**
-     * 设置
-     * @param guid
-     */
+    @Override
     public void setGuid(GUID guid) {
         this.guid = guid;
     }
 
-    /**
-     * 获取
-     * @return name
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * 设置
-     * @param name
-     */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * 获取
-     * @return rulesGUID
-     */
+    @Override
     public GUID getRulesGUID() {
         return rulesGUID;
     }
 
-    /**
-     * 设置
-     * @param rulesGUID
-     */
+    @Override
     public void setRulesGUID(GUID rulesGUID) {
         this.rulesGUID = rulesGUID;
     }
 
+    @Override
+    public String toJSONString() {
+        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
+                new KeyValue<>( "guid"        , this.getGuid()            ),
+                new KeyValue<>( "name"        , this.getName()            )
+        } );
+    }
+
+    @Override
     public String toString() {
-        return "GenericClassificationNode{distributedTreeNode = " + distributedTreeNode + ", classificationRules = " + classificationRules + ", nodeAttributes = " + nodeAttributes + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + ", rulesGUID = " + rulesGUID + "}";
+        return this.name;
     }
 }

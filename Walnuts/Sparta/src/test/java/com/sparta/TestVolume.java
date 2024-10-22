@@ -43,27 +43,27 @@ class Alice extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
-
-        UniformVolumeTree volumeTree = new UniformVolumeTree( koiMappingDriver );
-        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
-        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
-        simpleVolume.setName("game");
-        MountPoint mountPoint = volumeAllotment.newMountPoint();
-        mountPoint.setMountPoint("UOFS://D:\\文件系统");
-        simpleVolume.setMountPoint( mountPoint );
-        //volumeTree.put( simpleVolume );
-        //Debug.trace( volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44") ).toString() );
-        //volumeTree.remove( GUIDs.GUID72("03981de-00029f-0000-44") );
-        //Debug.trace(volumeTree.getPath( GUIDs.GUID72("038b7ea-000078-0000-a8") ));
-        LogicVolume volume = volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44"));
-        SimpleVolume evinceSimpleVolume = volume.evinceSimpleVolume();
-        File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
-        Path path = sourceFile.toPath();
-        FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
-        fileNode.setName(sourceFile.getName());
-        fileNode.setGuid( fileSystem.getGuidAllocator().nextGUID72() );
-        evinceSimpleVolume.channelReceiver( fileSystem,fileNode, FileChannel.open(path, StandardOpenOption.READ));
+//        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
+//
+//        UniformVolumeTree volumeTree = new UniformVolumeTree( koiMappingDriver );
+//        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
+//        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
+//        simpleVolume.setName("game");
+//        MountPoint mountPoint = volumeAllotment.newMountPoint();
+//        mountPoint.setMountPoint("UOFS://D:\\文件系统");
+//        simpleVolume.setMountPoint( mountPoint );
+//        //volumeTree.put( simpleVolume );
+//        //Debug.trace( volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44") ).toString() );
+//        //volumeTree.remove( GUIDs.GUID72("03981de-00029f-0000-44") );
+//        //Debug.trace(volumeTree.getPath( GUIDs.GUID72("038b7ea-000078-0000-a8") ));
+//        LogicVolume volume = volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44"));
+//        SimpleVolume evinceSimpleVolume = volume.evinceSimpleVolume();
+//        File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
+//        Path path = sourceFile.toPath();
+//        FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
+//        fileNode.setName(sourceFile.getName());
+//        fileNode.setGuid( fileSystem.getGuidAllocator().nextGUID72() );
+//        evinceSimpleVolume.channelReceiver( fileSystem,fileNode, FileChannel.open(path, StandardOpenOption.READ));
     }
 
 

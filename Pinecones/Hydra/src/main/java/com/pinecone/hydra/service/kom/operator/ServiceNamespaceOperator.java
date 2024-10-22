@@ -3,8 +3,9 @@ package com.pinecone.hydra.service.kom.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.entity.GenericNamespaceMeta;
 import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
 import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
@@ -35,16 +36,17 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
     }
 
     @Override
-    public GUID insert(TreeNode nodeWideData) {
-        GenericNamespace namespaceInformation = (GenericNamespace) nodeWideData;
+    public GUID insert( TreeNode nodeWideData ) {
+        GenericNamespace namespaceInformation = ( GenericNamespace ) nodeWideData;
 
         //将应用节点基础信息存入信息表
         GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
-        GUID namespaceRulesGuid = guidAllocator.nextGUID72();
+        GUID     namespaceRulesGuid = guidAllocator.nextGUID72();
         GenericNamespaceRules namespaceRules = namespaceInformation.getClassificationRules();
         if ( namespaceRules!= null ){
-            namespaceRules.setGuid(namespaceRulesGuid);
-        }else {
+            namespaceRules.setGuid( namespaceRulesGuid );
+        }
+        else {
             namespaceRulesGuid = null;
         }
 
@@ -53,18 +55,23 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
         //将节点信息存入应用节点表
         GUID namespaceGuid = guidAllocator.nextGUID72();
         namespaceInformation.setGuid(namespaceGuid);
-        namespaceInformation.setRulesGUID(namespaceRulesGuid);
-        this.namespaceManipulator.insert(namespaceInformation);
+        namespaceInformation.setRulesGUID( namespaceRulesGuid );
+        this.namespaceManipulator.insert( namespaceInformation );
 
         //将应用元信息存入元信息表
-        GUID metadataGUID = guidAllocator.nextGUID72();
-        BaseNodeCommonData metadata = namespaceInformation.getAttributes();
-        if ( metadata != null ){
-            metadata.setGuid(metadataGUID);
-            this.commonDataManipulator.insert(metadata);
-        }else {
+        GUID           metadataGUID;
+        ArchServiceFamilyNode metadata = namespaceInformation.getAttributes();
+        if( metadata == null ) {
+            metadataGUID = guidAllocator.nextGUID72();
+            metadata = new GenericNamespaceMeta();
+            metadata.setGuid( metadataGUID );
+        }
+        else {
             metadataGUID = null;
         }
+
+        metadata.setGuid( metadataGUID );
+        this.commonDataManipulator.insert(metadata);
 
 
         //将节点信息存入主表

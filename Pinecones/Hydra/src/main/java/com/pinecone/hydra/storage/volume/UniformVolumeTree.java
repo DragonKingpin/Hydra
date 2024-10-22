@@ -85,6 +85,7 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
     public VolumeAllotment getVolumeAllotment(){
         return this.volumeAllotment;
     }
+
     protected String getNS( GUID guid, String szSeparator ){
         String path = this.distributedTrieTree.getCachePath(guid);
         if ( path != null ) {
@@ -107,6 +108,7 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
         this.distributedTrieTree.insertCachePath( guid, assemblePath );
         return assemblePath;
     }
+
     @Override
     public String getPath(GUID guid) {
         return this.getNS( guid, this.kernelObjectConfig.getPathNameSeparator() );
@@ -199,6 +201,7 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
     private boolean allNonNull( List<?> list ) {
         return list.stream().noneMatch( Objects::isNull );
     }
+
     private String getNodeName( DistributedTreeNode node ){
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
@@ -206,6 +209,7 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
         TreeNode treeNode = operator.get(node.getGuid());
         return treeNode.getName();
     }
+
     private String getVolumeMetaType( TreeNode treeNode ){
         return treeNode.className().replace("Titan","");
     }

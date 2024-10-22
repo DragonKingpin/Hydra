@@ -1,9 +1,10 @@
 package com.pinecone.hydra.service.kom;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.Identification;
+import com.pinecone.hydra.service.ServiceFamilyObject;
 
-public interface NodeCommonData extends Pinenut {
+public interface ServiceFamilyNode extends ServiceFamilyObject {
     long getEnumId();
 
     void setEnumId(long id);
@@ -11,6 +12,11 @@ public interface NodeCommonData extends Pinenut {
     GUID getGuid();
 
     void setGuid(GUID guid);
+
+    @Override
+    default Identification getId() {
+        return this.getGuid();
+    }
 
     String getScenario();
 

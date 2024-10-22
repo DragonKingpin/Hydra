@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.volume.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.volume.VolumeTree;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -8,13 +9,30 @@ import java.util.List;
 
 public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
 
-    private List<Volume>            children;
-    private VolumeCapacity          volumeCapacity;
+    protected List<Volume>            children;
+    protected VolumeCapacity          volumeCapacity;
+    protected MountPoint              mountPoint;
+
+    public ArchLogicVolume(VolumeTree volumeTree) {
+        super(volumeTree);
+    }
+
+    public ArchLogicVolume(){}
 
 
     @Override
+    public MountPoint getMountPoint() {
+        return this.mountPoint;
+    }
+
+    @Override
+    public void setMountPoint(MountPoint mountPoint) {
+        this.mountPoint = mountPoint;
+    }
+
+    @Override
     public List<Volume> getChildren() {
-        return this.children;
+        return null;
     }
 
     @Override
@@ -31,4 +49,6 @@ public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
     public void setVolumeCapacity(VolumeCapacity volumeCapacity) {
         this.volumeCapacity = volumeCapacity;
     }
+
+
 }

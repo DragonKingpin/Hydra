@@ -2,15 +2,15 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.hydra.file.UniformObjectFileSystem;
-import com.pinecone.hydra.file.KOMFileSystem;
-import com.pinecone.hydra.file.entity.FileNode;
-import com.pinecone.hydra.file.entity.FileTreeNode;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
-import com.pinecone.hydra.file.transmit.exporter.stream.GenericStreamExporterEntity;
-import com.pinecone.hydra.file.transmit.receiver.channel.ChannelReceiverEntity;
-import com.pinecone.hydra.file.transmit.exporter.channel.GenericChannelExporterEntity;
-import com.pinecone.hydra.file.transmit.receiver.stream.GenericStreamReceiverEntity;
+import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
+import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.file.entity.FileTreeNode;
+import com.pinecone.hydra.storage.file.transmit.exporter.channel.GenericChannelExporterEntity;
+import com.pinecone.hydra.storage.file.transmit.exporter.stream.GenericStreamExporterEntity;
+import com.pinecone.hydra.storage.file.transmit.receiver.channel.ChannelReceiverEntity;
+import com.pinecone.hydra.storage.file.transmit.receiver.stream.GenericStreamReceiverEntity;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.id.GUIDs;
@@ -43,12 +43,12 @@ class Steve extends Radium {
         KOMFileSystem fileSystem = new UniformObjectFileSystem( koiMappingDriver );
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
         //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
-        //this.testInsert( fileSystem );
+        this.testInsert( fileSystem );
         //this.testUpload(fileSystem);
         //this.testDelete( fileSystem );
         //this.testChannelExport( fileSystem );
         //this.testStreamReceiver( fileSystem );
-        this.testStreamExport( fileSystem );
+        //this.testStreamExport( fileSystem );
     }
 
     private void testInsert( KOMFileSystem fileSystem ){

@@ -1,10 +1,10 @@
 package com.pinecone.hydra.file.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.file.entity.GenericRemoteFrame;
-import com.pinecone.hydra.file.entity.RemoteFrame;
-import com.pinecone.hydra.file.source.RemoteFrameManipulator;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.GenericRemoteFrame;
+import com.pinecone.hydra.storage.file.entity.RemoteFrame;
+import com.pinecone.hydra.storage.file.source.RemoteFrameManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -25,7 +25,7 @@ public interface RemoteFrameMapper extends RemoteFrameManipulator {
     @Select("SELECT `id` AS enumID, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `seg_guid` = #{guid}")
     RemoteFrame getRemoteFrameByGuid(GUID guid);
     @Select("SELECT `id`, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `file_guid` = #{guid}")
-    List< GenericRemoteFrame > getRemoteFrameByFileGuid0(GUID guid );
+    List<GenericRemoteFrame> getRemoteFrameByFileGuid0(GUID guid );
     default List< RemoteFrame > getRemoteFrameByFileGuid(GUID guid ){
         List<RemoteFrame> remoteFrames = new ArrayList<>();
         List<GenericRemoteFrame> frames = this.getRemoteFrameByFileGuid0(guid);

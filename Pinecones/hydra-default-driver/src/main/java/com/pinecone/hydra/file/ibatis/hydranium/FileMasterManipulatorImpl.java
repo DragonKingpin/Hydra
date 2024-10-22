@@ -10,16 +10,17 @@ import com.pinecone.hydra.file.ibatis.LocalFrameMapper;
 import com.pinecone.hydra.file.ibatis.RemoteFrameMapper;
 import com.pinecone.hydra.file.ibatis.SymbolicMapper;
 import com.pinecone.hydra.file.ibatis.SymbolicMetaMapper;
-import com.pinecone.hydra.file.source.FileManipulator;
-import com.pinecone.hydra.file.source.FileMasterManipulator;
-import com.pinecone.hydra.file.source.FileMetaManipulator;
-import com.pinecone.hydra.file.source.FileSystemAttributeManipulator;
-import com.pinecone.hydra.file.source.FolderManipulator;
-import com.pinecone.hydra.file.source.FolderMetaManipulator;
-import com.pinecone.hydra.file.source.LocalFrameManipulator;
-import com.pinecone.hydra.file.source.RemoteFrameManipulator;
-import com.pinecone.hydra.file.source.SymbolicManipulator;
-import com.pinecone.hydra.file.source.SymbolicMetaManipulator;
+
+import com.pinecone.hydra.storage.file.source.FileManipulator;
+import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
+import com.pinecone.hydra.storage.file.source.FileMetaManipulator;
+import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
+import com.pinecone.hydra.storage.file.source.FolderManipulator;
+import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
+import com.pinecone.hydra.storage.file.source.LocalFrameManipulator;
+import com.pinecone.hydra.storage.file.source.RemoteFrameManipulator;
+import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
+import com.pinecone.hydra.storage.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import org.springframework.stereotype.Component;
@@ -35,35 +36,35 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
 
     @Resource
     @Structure( type = FileMapper.class )
-    FileManipulator                 fileManipulator;
+    FileManipulator fileManipulator;
 
     @Resource
     @Structure( type = FileMetaMapper.class )
-    FileMetaManipulator             fileMetaManipulator;
+    FileMetaManipulator fileMetaManipulator;
 
     @Resource
     @Structure( type = FolderMapper.class )
-    FolderManipulator               folderManipulator;
+    FolderManipulator folderManipulator;
 
     @Resource
     @Structure( type = FolderMetaMapper.class )
-    FolderMetaManipulator           folderMetaManipulator;
+    FolderMetaManipulator folderMetaManipulator;
 
     @Resource
     @Structure( type = LocalFrameMapper.class )
-    LocalFrameManipulator           localFrameManipulator;
+    LocalFrameManipulator localFrameManipulator;
 
     @Resource
     @Structure( type = RemoteFrameMapper.class )
-    RemoteFrameManipulator          remoteFrameManipulator;
+    RemoteFrameManipulator remoteFrameManipulator;
 
     @Resource
     @Structure( type = SymbolicMapper.class )
-    SymbolicManipulator             symbolicManipulator;
+    SymbolicManipulator symbolicManipulator;
 
     @Resource
     @Structure( type = SymbolicMetaMapper.class )
-    SymbolicMetaManipulator         symbolicMetaManipulator;
+    SymbolicMetaManipulator symbolicMetaManipulator;
 
     @Resource( type = FileMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;

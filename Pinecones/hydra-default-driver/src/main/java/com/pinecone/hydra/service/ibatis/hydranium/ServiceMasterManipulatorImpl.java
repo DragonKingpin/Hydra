@@ -3,8 +3,8 @@ package com.pinecone.hydra.service.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.service.ibatis.AppNodeMetaMapper;
 import com.pinecone.hydra.service.ibatis.ApplicationNodeMapper;
-import com.pinecone.hydra.service.ibatis.ClassifNodeMapper;
-import com.pinecone.hydra.service.ibatis.ClassifRulesMapper;
+import com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper;
+import com.pinecone.hydra.service.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.service.ibatis.ServiceCommonDataMapper;
 import com.pinecone.hydra.service.ibatis.ServiceFamilyTreeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceMetaMapper;
@@ -13,8 +13,8 @@ import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServiceTrieTreeMapper;
 import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.service.kom.source.ClassifNodeManipulator;
-import com.pinecone.hydra.service.kom.source.ClassifRulesManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
+import com.pinecone.hydra.service.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.service.kom.source.CommonDataManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceFamilyTreeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
@@ -52,11 +52,11 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     @Structure( type = ServiceMetaMapper.class )
     ServiceMetaManipulator          serviceMetaManipulator;
     @Resource
-    @Structure( type = ClassifNodeMapper.class )
-    ClassifNodeManipulator          classifNodeManipulator;
+    @Structure( type = ServiceNamespaceMapper.class )
+    ServiceNamespaceManipulator serviceNamespaceManipulator;
     @Resource
-    @Structure( type = ClassifRulesMapper.class )
-    ClassifRulesManipulator         classifRulesManipulator;
+    @Structure( type = NamespaceRulesMapper.class )
+    NamespaceRulesManipulator namespaceRulesManipulator;
     @Resource
     @Structure( type = ServiceFamilyTreeMapper.class )
     ServiceFamilyTreeManipulator    serviceFamilyTreeManipulator;
@@ -104,13 +104,13 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     }
 
     @Override
-    public ClassifNodeManipulator getClassifNodeManipulator() {
-        return this.classifNodeManipulator;
+    public ServiceNamespaceManipulator getNamespaceManipulator() {
+        return this.serviceNamespaceManipulator;
     }
 
     @Override
-    public ClassifRulesManipulator getClassifRulesManipulator() {
-        return this.classifRulesManipulator;
+    public NamespaceRulesManipulator getNamespaceRulesManipulator() {
+        return this.namespaceRulesManipulator;
     }
 
     @Override

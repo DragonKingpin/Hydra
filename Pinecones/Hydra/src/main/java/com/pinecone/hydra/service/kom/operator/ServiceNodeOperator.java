@@ -1,53 +1,40 @@
 package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.UOIUtils;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.NodeCommonData;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
-import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
-import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
-import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
-import com.pinecone.hydra.service.kom.source.CommonDataManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
-import com.pinecone.ulf.util.id.GuidAllocator;
+import com.pinecone.hydra.system.ko.UOIUtils;
+import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.ulf.util.id.GUIDs;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
-public class ServiceNodeOperator implements MetaNodeOperator {
+public class ServiceNodeOperator extends ArchServiceOperator implements ServiceOperator {
     protected ServiceNodeManipulator  serviceNodeManipulator;
     protected ServiceMetaManipulator  serviceMetaManipulator;
-    protected CommonDataManipulator   commonDataManipulator;
-    protected TrieTreeManipulator     trieTreeManipulator;
-    protected TireOwnerManipulator    tireOwnerManipulator;
 
-    public ServiceNodeOperator( ServiceMasterManipulator manipulators ) {
-        this(
-                manipulators.getServiceNodeManipulator(),
-                manipulators.getServiceMetaManipulator(),
-                manipulators.getCommonDataManipulator(),
-                manipulators.getTrieTreeManipulator(),
-                manipulators.getTireOwnerManipulator()
-        );
+    public ServiceNodeOperator( ServiceOperatorFactory factory ) {
+        this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
+        this.factory = factory;
     }
 
-    public ServiceNodeOperator(
-            ServiceNodeManipulator serviceNodeManipulator, ServiceMetaManipulator serviceMetaManipulator,
-            CommonDataManipulator commonDataManipulator, TrieTreeManipulator trieTreeManipulator,
-            TireOwnerManipulator ownerManipulator
-    ){
-        this.serviceNodeManipulator  = serviceNodeManipulator;
-        this.serviceMetaManipulator  = serviceMetaManipulator;
-        this.commonDataManipulator   = commonDataManipulator;
-        this.trieTreeManipulator     = trieTreeManipulator;
-        this.tireOwnerManipulator    = ownerManipulator;
+    public ServiceNodeOperator(ServiceMasterManipulator masterManipulator, ServicesInstrument servicesInstrument){
+        super( masterManipulator, servicesInstrument);
+       this.serviceNodeManipulator = masterManipulator.getServiceNodeManipulator();
+       this.serviceMetaManipulator = masterManipulator.getServiceMetaManipulator();
+
     }
 
 
     @Override
-    public GUID insert(ServiceTreeNode nodeWideData) {
+    public GUID insert(TreeNode nodeWideData) {
         GenericServiceNode serviceNodeInformation=(GenericServiceNode) nodeWideData;
 
         //将信息写入数据库
@@ -60,53 +47,76 @@ public class ServiceNodeOperator implements MetaNodeOperator {
         //将应用节点基础信息存入信息表
         GUID descriptionGUID = guidAllocator.nextGUID72();
         GenericServiceNodeMeta serviceDescription = serviceNodeInformation.getServiceNodeMetadata();
-        serviceDescription.setGuid(descriptionGUID);
-        this.serviceMetaManipulator.insert(serviceDescription);
+        if ( serviceDescription != null ){
+            serviceDescription.setGuid(descriptionGUID);
+            this.serviceMetaManipulator.insert(serviceDescription);
+        }
+        else {
+            descriptionGUID = null;
+        }
+
 
         //将应用元信息存入元信息表
-        GUID metadataGUID = guidAllocator.nextGUID72();
-        GenericNodeCommonData metadata = serviceNodeInformation.getAttributes();
-        metadata.setGuid(metadataGUID);
-        this.commonDataManipulator.insert(metadata);
+       this.commonDataManipulator.insert( serviceNodeInformation );
+
 
         //将节点信息存入主表
         GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(serviceNodeGUID);
-        node.setNodeMetadataGUID(metadataGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
-        this.trieTreeManipulator.insert( this.tireOwnerManipulator, node);
+        this.distributedTrieTree.insert( node);
         return serviceNodeGUID;
     }
 
     @Override
-    public void remove( GUID guid ) {
-        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
-        this.serviceNodeManipulator.remove(node.getGuid());
-        this.serviceMetaManipulator.remove(node.getAttributesGUID());
-        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
+    public void purge(GUID guid ) {
+        this.removeNode( guid );
     }
 
     @Override
     public ServiceTreeNode get(GUID guid) {
-        GUIDDistributedTrieNode node = this.trieTreeManipulator.getNode(guid);
-        GenericServiceNode genericServiceNode = new GenericServiceNode();
+        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
+        GenericServiceNode serviceNode = ( GenericServiceNode )this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID());
+        if ( serviceNode == null ){
+            serviceNode = new GenericServiceNode();
+        }
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
-        GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
-        GUIDDistributedTrieNode guidDistributedTrieNode = this.trieTreeManipulator.getNode(guid);
 
-        genericServiceNode.setServiceNodeMetadata(serviceMeta);
-        genericServiceNode.setNodeCommonData(commonData);
-        genericServiceNode.setDistributedTreeNode(guidDistributedTrieNode);
-        genericServiceNode.setGuid(guid);
-        genericServiceNode.setName(serviceMeta.getName());
+        serviceNode.setServiceNodeMetadata(serviceMeta);
+        serviceNode.setDistributedTreeNode(node);
+        serviceNode.setGuid(guid);
+        serviceNode.setName(this.serviceNodeManipulator.getServiceNode(guid).getName());
 
-        return genericServiceNode;
+        return serviceNode;
     }
 
     @Override
-    public void update(ServiceTreeNode nodeWideData) {
+    public TreeNode get(GUID guid, int depth) {
+        return null;
+    }
+
+    @Override
+    public TreeNode getSelf(GUID guid) {
+        return this.get( guid );
+    }
+
+    @Override
+    public void update(TreeNode nodeWideData) {
 
     }
 
+    @Override
+    public void updateName(GUID guid, String name) {
+
+    }
+
+    private void removeNode( GUID guid ){
+        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
+        this.distributedTrieTree.purge( guid );
+        this.distributedTrieTree.removeCachePath(guid);
+        this.serviceNodeManipulator.remove(node.getGuid());
+        this.serviceMetaManipulator.remove(node.getAttributesGUID());
+        this.commonDataManipulator.remove(node.getNodeMetadataGUID());
+    }
 }

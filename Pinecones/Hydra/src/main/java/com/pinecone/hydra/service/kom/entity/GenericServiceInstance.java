@@ -3,7 +3,8 @@ package com.pinecone.hydra.service.kom.entity;
 import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.unit.affinity.DataSharer;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.NodeCommonData;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
@@ -33,7 +34,7 @@ public class GenericServiceInstance extends ArchMetaNodeInstance {
         GenericServiceWideEntityMeta genericServiceWideEntityMeta = new GenericServiceWideEntityMeta();
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         GUID parentGUID = this.serviceFamilyTreeManipulator.getParentByChildGUID(guid);
-        GenericNodeCommonData commonData = this.commonDataManipulator.getNodeMetadata(node.getNodeMetadataGUID());
+        NodeCommonData commonData = this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID());
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
 
 

@@ -58,7 +58,7 @@ class LadyGaga extends Radium {
         );
         CentralServicesInstrument distributedScopeServiceTree = new CentralServicesInstrument(koiMappingDriver);
 
-        Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
+        //Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
         Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")));
     }
 

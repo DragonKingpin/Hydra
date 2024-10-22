@@ -2,17 +2,20 @@ package com.pinecone.hydra.service.kom.nodes;
 
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericClassificationRules;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.GenericNamespaceRules;
+import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
 public class GenericNamespace implements Namespace {
 
     private GUIDDistributedTrieNode distributedTreeNode;
 
-    private GenericClassificationRules classificationRules;
+    private GenericNamespaceRules classificationRules;
 
-    private GenericNodeCommonData nodeAttributes;
+    private BaseNodeCommonData nodeAttributes;
 
     // 节点id
     private long enumId;
@@ -25,19 +28,22 @@ public class GenericNamespace implements Namespace {
 
     // 分类规则uuid
     private GUID rulesGUID;
+    private ServicesInstrument servicesInstrument;
+    private ServiceNamespaceManipulator namespaceManipulator;
 
 
     public GenericNamespace() {
     }
 
-    public GenericNamespace(GUIDDistributedTrieNode distributedTreeNode, GenericClassificationRules classificationRules, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name, GUID rulesGUID) {
-        this.distributedTreeNode = distributedTreeNode;
-        this.classificationRules = classificationRules;
-        this.nodeAttributes = nodeAttributes;
-        this.enumId = enumId;
-        this.guid = guid;
-        this.name = name;
-        this.rulesGUID = rulesGUID;
+    public GenericNamespace(ServicesInstrument servicesInstrument) {
+        this.servicesInstrument = servicesInstrument;
+        GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
+        this.setGuid( guidAllocator.nextGUID72() );
+    }
+
+    public GenericNamespace(ServicesInstrument servicesInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
+        this(servicesInstrument);
+        this.namespaceManipulator = namespaceManipulator;
     }
 
     /**
@@ -60,7 +66,7 @@ public class GenericNamespace implements Namespace {
      * 获取
      * @return classificationRules
      */
-    public GenericClassificationRules getClassificationRules() {
+    public GenericNamespaceRules getClassificationRules() {
         return classificationRules;
     }
 
@@ -68,7 +74,7 @@ public class GenericNamespace implements Namespace {
      * 设置
      * @param classificationRules
      */
-    public void setClassificationRules(GenericClassificationRules classificationRules) {
+    public void setClassificationRules(GenericNamespaceRules classificationRules) {
         this.classificationRules = classificationRules;
     }
 
@@ -76,7 +82,7 @@ public class GenericNamespace implements Namespace {
      * 获取
      * @return nodeAttributes
      */
-    public GenericNodeCommonData getAttributes() {
+    public BaseNodeCommonData getAttributes() {
         return nodeAttributes;
     }
 
@@ -84,7 +90,7 @@ public class GenericNamespace implements Namespace {
      * 设置
      * @param nodeAttributes
      */
-    public void setNodeCommonData(GenericNodeCommonData nodeAttributes) {
+    public void setNodeCommonData(BaseNodeCommonData nodeAttributes) {
         this.nodeAttributes = nodeAttributes;
     }
 

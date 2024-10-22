@@ -1,8 +1,8 @@
 package com.pinecone.hydra.service.kom.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericClassificationRules;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.GenericNamespaceRules;
+import com.pinecone.hydra.service.kom.BaseNodeCommonData;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public interface Namespace extends ServiceTreeNode {
@@ -24,13 +24,13 @@ public interface Namespace extends ServiceTreeNode {
     GUID getRulesGUID();
     void setRulesGUID(GUID rulesGUID);
 
-    GenericClassificationRules getClassificationRules();
-    void setClassificationRules(GenericClassificationRules classificationRules);
+    GenericNamespaceRules getClassificationRules();
+    void setClassificationRules(GenericNamespaceRules classificationRules);
 
     GUIDDistributedTrieNode getDistributedTreeNode();
     void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode);
 
-    GenericNodeCommonData getAttributes();
-    void setNodeCommonData(GenericNodeCommonData nodeAttributes);
+    BaseNodeCommonData getAttributes();
+    void setNodeCommonData(BaseNodeCommonData nodeAttributes);
 
 }

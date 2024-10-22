@@ -2,15 +2,15 @@ package com.pinecone.hydra.service.kom.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.NodeCommonData;
 
 public interface CommonDataManipulator extends Pinenut {
     //NodeMetadata节点的CRUD
-    void insert(GenericNodeCommonData nodeMetadata);
+    void insert(NodeCommonData node);
 
     void remove(GUID guid);
 
-    GenericNodeCommonData getNodeMetadata(GUID guid);
+    NodeCommonData getNodeCommonData(GUID guid);
 
-    void update(GenericNodeCommonData nodeMetadata);
+    void update(NodeCommonData node);
 }

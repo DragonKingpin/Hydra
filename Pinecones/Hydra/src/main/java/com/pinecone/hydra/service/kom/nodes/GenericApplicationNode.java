@@ -1,37 +1,41 @@
 package com.pinecone.hydra.service.kom.nodes;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.GenericNodeCommonData;
+import com.pinecone.hydra.service.kom.BaseNodeCommonData;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
+import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.ulf.util.id.GuidAllocator;
 
-public class GenericApplicationNode implements ApplicationNode {
+public class GenericApplicationNode extends BaseNodeCommonData implements ApplicationNode {
 
     private GUIDDistributedTrieNode distributedTreeNode;
 
     private GenericApplicationNodeMeta applicationNodeMeta;
 
-    private GenericNodeCommonData nodeAttributes;
-    // 应用节点id
     private long enumId;
 
-    // 应用节点UUID
     private GUID guid;
 
-    // 应用节点名称
     private String name;
+
+    private ServicesInstrument servicesInstrument;
+    private ApplicationNodeManipulator applicationNodeManipulator;
 
 
     public GenericApplicationNode() {
     }
 
-    public GenericApplicationNode(GUIDDistributedTrieNode distributedTreeNode, GenericApplicationNodeMeta applicationNodeMeta, GenericNodeCommonData nodeAttributes, long enumId, GUID guid, String name) {
-        this.distributedTreeNode = distributedTreeNode;
-        this.applicationNodeMeta = applicationNodeMeta;
-        this.nodeAttributes = nodeAttributes;
-        this.enumId = enumId;
-        this.guid = guid;
-        this.name = name;
+    public GenericApplicationNode(ServicesInstrument servicesInstrument) {
+        this.servicesInstrument = servicesInstrument;
+        GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
+        this.setGuid( guidAllocator.nextGUID72() );
+    }
+
+    public GenericApplicationNode(ServicesInstrument servicesInstrument, ApplicationNodeManipulator applicationNodeManipulator ) {
+        this(servicesInstrument);
+        this.applicationNodeManipulator = applicationNodeManipulator;
     }
 
 
@@ -55,28 +59,14 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
 
-    public GenericNodeCommonData getAttributes() {
-        return nodeAttributes;
-    }
-
-
-    public void setNodeCommonData(GenericNodeCommonData nodeAttributes) {
-        this.nodeAttributes = nodeAttributes;
-    }
-
-
     public long getEnumId() {
         return enumId;
     }
 
 
+
     public void setEnumId(long enumId) {
         this.enumId = enumId;
-    }
-
-    @Override
-    public ApplicationNode evinceTreeNode() {
-        return ApplicationNode.super.evinceTreeNode();
     }
 
 
@@ -100,6 +90,6 @@ public class GenericApplicationNode implements ApplicationNode {
     }
 
     public String toString() {
-        return "GenericApplicationNode{distributedTreeNode = " + distributedTreeNode + ", applicationNodeMeta = " + applicationNodeMeta + ", nodeAttributes = " + nodeAttributes + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
+        return "GenericApplicationNode{distributedTreeNode = " + distributedTreeNode + ", applicationNodeMeta = " + applicationNodeMeta + ", enumId = " + enumId + ", guid = " + guid + ", name = " + name + "}";
     }
 }

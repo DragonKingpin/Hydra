@@ -1,6 +1,10 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.unit.udtt.LinkedType;
+import com.pinecone.hydra.unit.udtt.entity.TreeReparseLinkNode;
+import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.udtt.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
@@ -16,89 +20,143 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface ServiceTrieTreeMapper extends TrieTreeManipulator {
-    default void insert(GUIDDistributedTrieNode node){
-        this.putNodeMeta(node);
-        if (node.getParentGUIDs()==null) return;
-        if ( !node.getParentGUIDs().isEmpty() ){
-            for ( GUID guid:node.getParentGUIDs() ){
-                this.putTreeNode( node.getGuid(), guid );
-            }
-        }
+    @Insert("INSERT INTO `hydra_service_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )")
+    void insertRootNode(@Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
+
+    @Override
+    default void insert (TireOwnerManipulator ownerManipulator, GUIDDistributedTrieNode node ){
+        this.insertTreeNode( node.getGuid(), node.getType(), node.getAttributesGUID(), node.getNodeMetadataGUID() );
+        ownerManipulator.insertRootNode( node.getGuid() );
     }
 
-    @Insert("INSERT INTO `hydra_service_meta_map` (`guid`, `base_data_guid`, `node_metadata_guid`, `type`) VALUES (#{guid},#{baseDataGUID},#{nodeMetadataGUID},#{type})")
-    void putNodeMeta(GUIDDistributedTrieNode node);
+    @Insert("INSERT INTO hydra_service_meta_map (`guid`, `type`,`base_data_guid`,`node_metadata_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
+    void insertTreeNode(@Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
 
-    @Insert("INSERT INTO `hydra_service_node_tree` (`guid`, `parent_guid`) VALUES (#{guid},#{parentGUID})")
-    void putTreeNode(@Param("guid") GUID guid,@Param("parentGUID") GUID parentGUID);
+    @Select("SELECT `id` AS `enumId`, `guid`, `type`, base_data_guid AS baseDataGUID, node_metadata_guid AS nodeMetadataGUID FROM hydra_service_meta_map WHERE guid=#{guid}")
+    GUIDDistributedTrieNode getNodeExtendsFromMeta( GUID guid );
 
-    default GUIDDistributedTrieNode getNode(@Param("guid") GUID guid) {
-        GUIDDistributedTrieNode nodeMeta = this.getNodeMeta( guid );
-        if( nodeMeta != null ) {
-            List<GUID > parentNode = this.getParentGuids( guid );
-            if ( parentNode != null ){
-                nodeMeta.setParentGUID( parentNode );
-            }
-        }
-        return nodeMeta;
+    @Override
+    default GUIDDistributedTrieNode getNode( GUID guid ) {
+        GUIDDistributedTrieNode node = this.getNodeExtendsFromMeta( guid );
+        List<GUID > parent = this.getParentGuids( guid );
+        node.setParentGUID( parent );
+        return node;
     }
 
-    @Select("SELECT parent_guid FROM hydra_service_node_tree WHERE guid = #{guid}" )
-    List<GUID> getParentGuids(@Param("guid") GUID guid);
+    @Select("SELECT id, guid, parent_guid, linked_type FROM hydra_service_node_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
+    GUIDDistributedTrieNode getTreeNodeOnly( @Param("guid") GUID guid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `guid`, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, `type` FROM `hydra_service_meta_map` WHERE `guid`=#{guid}")
-    GUIDDistributedTrieNode getNodeMeta(@Param("guid") GUID guid);
-
+    @Select("SELECT count( * ) FROM hydra_service_node_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
+    long countNode( GUID guid, GUID parentGuid );
 
 
 
     @Override
-    default void purge( @Param("guid") GUID guid ){
+    default void purge( GUID guid ) {
         this.removeNodeMeta( guid );
         this.removeTreeNode( guid );
+        this.removeOwnedTreeNode( guid );
     }
 
-    @Delete("DELETE FROM `hydra_service_meta_map` WHERE `guid` = #{guid}")
+    @Delete("DELETE FROM `hydra_service_meta_map` WHERE `guid`=#{guid}")
     void removeNodeMeta( @Param("guid") GUID guid );
 
     @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid` = #{guid}")
     void removeTreeNode( @Param("guid") GUID guid );
 
+    @Delete("DELETE FROM `hydra_service_node_tree` WHERE `parent_guid` = #{parent_guid}")
+    void removeTreeNodeByParentGuid( @Param("parent_guid") GUID parentGuid );
+
+    @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid` = #{guid} AND `parent_guid` = #{parent_guid}")
+    void removeTreeNodeYoke( @Param("guid") GUID guid, @Param("parent_guid") GUID parentGuid );
+
+    @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid` = #{guid} AND `linked_type` = #{linkedType}")
+    void removeTreeNodeWithLinkedType( @Param("guid") GUID guid, @Param("linkedType") LinkedType linkedType );
 
 
 
 
+    @Delete("DELETE FROM `hydra_service_node_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
+    void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+
+    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_service_node_tree` WHERE `parent_guid`=#{guid}")
+    List<GUIDDistributedTrieNode > getChildren( GUID guid );
+
+    @Select("SELECT `guid` FROM `hydra_service_node_tree` WHERE `parent_guid` = #{parentGuid}")
+    List<GUID > getChildrenGuids( @Param("parentGuid") GUID parentGuid );
+
+    @Select("SELECT `parent_guid` FROM `hydra_service_node_tree` WHERE `guid`=#{guid}")
+    List<GUID > getParentGuids( GUID guid );
+
+    @Update("UPDATE `hydra_service_meta_map` SET `type` = #{type} WHERE guid=#{guid}")
+    void updateType( UOI type , GUID guid );
+
+    @Select( "SELECT guid FROM hydra_service_node_tree WHERE parent_guid IS NULL " )
+    List<GUID > listRoot();
+
+    @Override
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_service_node_tree WHERE `parent_guid` IS NULL AND guid = #{guid}" )
+    boolean isRoot( GUID guid );
 
 
-    @Update("UPDATE `hydra_service_node_path` SET `path`=#{Path} WHERE `guid` = #{guid}")
-    void updatePath(@Param("guid") GUID guid, @Param("Path") String path);
-
-    @Select("SELECT `path` FROM `hydra_service_node_path`  WHERE `guid` = #{guid}")
-    String getPath(@Param("guid") GUID guid);
-
-    @Insert("INSERT INTO `hydra_service_node_path` (`guid`, `path`) VALUES (#{guid},#{path})")
-    void putPath(@Param("path") String path,@Param("guid") GUID guid );
 
 
-    @Select("SELECT `guid` FROM `hydra_service_node_path` WHERE `path`=#{path}")
-    GUID queryGUIDByPath(@Param("path") String path);
+    @Override
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_service_node_tree WHERE `guid` = #{guid} AND `linked_type` = #{linkedType}" )
+    long queryLinkedCount( @Param("guid") GUID guid, @Param("linkedType") LinkedType linkedType );
 
-    @Insert("INSERT INTO hydra_service_node_tree SET guid=#{nodeGUID}, parent_guid=#{parentGUID}")
-    void insertOwnedNode(@Param("nodeGUID") GUID nodeGUID,@Param("parentGUID") GUID parentGUID);
+    @Override
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_service_node_tree WHERE `guid` = #{guid}" )
+    long queryAllLinkedCount( @Param("guid") GUID guid );
 
 
-    @Select("SELECT hsnt.`guid` , `parent_guid` AS parentGUID, `base_data_guid` AS baseDataGUID, `node_metadata_guid` AS nodeMetadataGUID, type FROM `hydra_service_node_tree` hsnt,hydra_service_meta_map hsmm WHERE `parent_guid`=#{guid} AND hsmm.guid=hsnt.guid")
-    List<GUIDDistributedTrieNode> getChild(GUID guid);
+    @Override
+    @Insert(
+            "INSERT INTO `hydra_service_node_tree` (`guid`, `linked_type`,`tag_name`,`tag_guid`,`parent_guid`) " +
+                    "VALUES (#{originalGuid}, #{linkedType}, #{tagName}, #{tagGuid}, #{dirGuid})"
+    )
+    void newLinkTag(
+            @Param("originalGuid") GUID originalGuid, @Param("dirGuid") GUID dirGuid,
+            @Param("tagName") String tagName, @Param("tagGuid") GUID tagGuid, @Param("linkedType") LinkedType linkedType
+    );
 
-    @Delete("DELETE FROM `hydra_service_node_path` WHERE `guid`=#{guid}")
-    void removePath(GUID guid);
+    @Override
+    @Update( "UPDATE hydra_service_node_tree SET tag_name = #{tagName} WHERE tag_guid =#{tagGuid}" )
+    void updateLinkTagName( @Param("tagGuid") GUID tagGuid, @Param("tagName") String tagName );
 
-    @Update("UPDATE `hydra_service_node_tree` hsnt,`hydra_service_meta_map` hsmm set `parent_guid`=#{node.parentGUID},`base_data_guid`=#{node.baseDataGUID},`node_metadata_guid`=#{node.nodeMetadataGUID} WHERE `guid`=#{guid} AND hsmm.guid=hsnt.guid")
-    void putNode(@Param("guid") GUID guid,@Param("node") GUIDDistributedTrieNode distributedTreeNode);
+    @Override
+    @Select( "SELECT `guid` FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND parent_guid = #{dirGuid}" )
+    GUID getOriginalGuid( @Param("tagName") String tagName, @Param("dirGuid") GUID dirGuid );
 
-    @Select(" SELECT COUNT(*) FROM `hydra_service_node_tree` ")
-    long size();
+    @Override
+    @Select( "SELECT `guid` FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
+    GUID getOriginalGuidByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
 
-    @Delete("DELETE FROM hydra_service_node_tree WHERE guid = #{childGUID} AND parent_guid = #{parentGUID}")
-    void removeInheritance(@Param("childGUID") GUID childNode, @Param("parentGUID") GUID parentGUID);
+    @Override
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND parent_guid = #{parentDirGuid}" )
+    TreeReparseLinkNode getReparseLinkNode(@Param("tagName") String tagName, @Param("parentDirGuid") GUID parentDirGuid );
+
+    @Override
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
+    TreeReparseLinkNode getReparseLinkNodeByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_service_node_tree WHERE `tag_name` = #{tagName}" )
+    List<GUID > fetchOriginalGuid( String tagName );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_service_node_tree WHERE `tag_name` = #{tagName} AND `parent_guid` IS NULL" )
+    List<GUID > fetchOriginalGuidRoot( String tagName );
+
+    @Override
+    @Select( "SELECT COUNT(*) FROM `hydra_service_node_tree` WHERE `tag_guid` = #{guid}" )
+    boolean isTagGuid(GUID guid);
+
+    @Override
+    @Delete( "DELETE FROM `hydra_service_node_tree` WHERE `tag_guid` = #{guid}" )
+    void removeReparseLink( GUID guid );
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_node_tree` WHERE `tag_guid` = #{tagGuid}" )
+    GUID getOriginalGuidByTagGuid(GUID tagGuid);
 }

@@ -1,9 +1,9 @@
 package com.pinecone.hydra.file.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.file.entity.ElementNode;
-import com.pinecone.hydra.file.entity.FileSystemAttributes;
-import com.pinecone.hydra.file.source.FileSystemAttributeManipulator;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.FileSystemAttributes;
+import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;

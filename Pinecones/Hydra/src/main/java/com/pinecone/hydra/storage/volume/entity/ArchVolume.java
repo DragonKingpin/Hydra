@@ -1,18 +1,31 @@
 package com.pinecone.hydra.storage.volume.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.volume.VolumeTree;
 
 import java.time.LocalDateTime;
 
-public class ArchVolume implements Volume{
-    private long                    enumId;
-    private GUID                    guid;
-    private LocalDateTime           createTime;
-    private LocalDateTime           updateTime;
-    private String                  name;
-    private String                  type;
-    private String                  extConfig;
+public abstract class ArchVolume implements Volume{
+    protected long                    enumId;
+    protected GUID                    guid;
+    protected LocalDateTime           createTime;
+    protected LocalDateTime           updateTime;
+    protected String                  name;
+    protected String                  type;
+    protected String                  extConfig;
+    protected VolumeTree              volumeTree;
+    protected long                    definitionCapacity;
+    protected long                    usedSize;
+    protected long                    quotaCapacity;
 
+    public ArchVolume( VolumeTree volumeTree ){
+        this.volumeTree = volumeTree;
+        this.guid = volumeTree.getGuidAllocator().nextGUID72();
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
+    }
+
+    public ArchVolume(){}
 
     @Override
     public long getEnumId() {
@@ -77,5 +90,34 @@ public class ArchVolume implements Volume{
     @Override
     public void setExtConfig(String extConfig) {
         this.extConfig = extConfig;
+    }
+    @Override
+    public long getDefinitionCapacity() {
+        return this.definitionCapacity;
+    }
+
+    @Override
+    public void setDefinitionCapacity(long definitionCapacity) {
+        this.definitionCapacity = definitionCapacity;
+    }
+
+    @Override
+    public long getUsedSize() {
+        return this.usedSize;
+    }
+
+    @Override
+    public void setUsedSize(long usedSize) {
+        this.usedSize = usedSize;
+    }
+
+    @Override
+    public long getQuotaCapacity() {
+        return this.quotaCapacity;
+    }
+
+    @Override
+    public void setQuotaCapacity(long quotaCapacity) {
+        this.quotaCapacity = quotaCapacity;
     }
 }

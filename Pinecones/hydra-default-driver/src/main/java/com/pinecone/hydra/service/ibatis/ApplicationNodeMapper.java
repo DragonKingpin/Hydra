@@ -10,6 +10,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 @IbatisDataAccessObject
 public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
@@ -23,4 +25,12 @@ public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
     GenericApplicationNode getApplicationNode(@Param("guid")GUID guid);
 
     void update(GenericApplicationNode applicationNode);
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_application_node` WHERE `name` = #{name}" )
+    List<GUID> getGuidsByName(String name);
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_application_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
+    List<GUID> getGuidsByNameID(String name, GUID guid);
 }

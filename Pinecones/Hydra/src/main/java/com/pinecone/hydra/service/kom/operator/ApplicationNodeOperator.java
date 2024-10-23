@@ -3,8 +3,10 @@ package com.pinecone.hydra.service.kom.operator;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
+import com.pinecone.hydra.service.kom.nodes.ApplicationNode;
 import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
@@ -113,10 +115,8 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        GenericApplicationNode applicationNode = ( GenericApplicationNode )this.commonDataManipulator.getNodeCommonData( guid );
-        if( applicationNode == null ){
-            applicationNode = new GenericApplicationNode();
-        }
+        ApplicationNode applicationNode = this.ToApplicationNode( this.commonDataManipulator.getNodeCommonData(guid) );
+
         GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
 
 
@@ -155,5 +155,16 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
         this.applicationMetaManipulator.remove(node.getAttributesGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
         this.applicationNodeManipulator.remove(node.getGuid());
+    }
+
+    private ApplicationNode ToApplicationNode( ServiceFamilyNode serviceFamilyNode ){
+        GenericApplicationNode applicationNode = new GenericApplicationNode();
+        applicationNode.setGuid( serviceFamilyNode.getGuid() );
+        applicationNode.setScenario( serviceFamilyNode.getScenario() );
+        applicationNode.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
+        applicationNode.setExtraInformation( serviceFamilyNode.getExtraInformation() );
+        applicationNode.setLevel( serviceFamilyNode.getLevel() );
+        applicationNode.setDescription( serviceFamilyNode.getDescription() );
+        return applicationNode;
     }
 }

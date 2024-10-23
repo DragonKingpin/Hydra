@@ -5,7 +5,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
 import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.entity.GenericNamespaceMeta;
+import com.pinecone.hydra.service.kom.entity.GenericCommonMeta;
 import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
 import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
 import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
@@ -41,7 +41,7 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
 
         //将应用节点基础信息存入信息表
         GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
-        GUID     namespaceRulesGuid = guidAllocator.nextGUID72();
+        GUID     namespaceRulesGuid = namespaceInformation.getGuid();
         GenericNamespaceRules namespaceRules = namespaceInformation.getClassificationRules();
         if ( namespaceRules!= null ){
             namespaceRules.setGuid( namespaceRulesGuid );
@@ -63,7 +63,7 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
         ArchServiceFamilyNode metadata = namespaceInformation.getAttributes();
         if( metadata == null ) {
             metadataGUID = guidAllocator.nextGUID72();
-            metadata = new GenericNamespaceMeta();
+            metadata = new GenericCommonMeta();
             metadata.setGuid( metadataGUID );
         }
         else {

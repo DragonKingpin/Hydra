@@ -1,9 +1,11 @@
 package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.kom.nodes.ServiceNode;
 import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
@@ -75,10 +77,8 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        GenericServiceNode serviceNode = ( GenericServiceNode )this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID());
-        if ( serviceNode == null ){
-            serviceNode = new GenericServiceNode();
-        }
+        ServiceNode serviceNode = this.ToServiceNode( this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID()) );
+
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
 
         serviceNode.setServiceNodeMetadata(serviceMeta);
@@ -116,5 +116,16 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
         this.serviceNodeManipulator.remove(node.getGuid());
         this.serviceMetaManipulator.remove(node.getAttributesGUID());
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
+    }
+
+    private ServiceNode ToServiceNode( ServiceFamilyNode serviceFamilyNode ){
+        GenericServiceNode serviceNode = new GenericServiceNode();
+        serviceNode.setGuid( serviceFamilyNode.getGuid() );
+        serviceNode.setScenario( serviceFamilyNode.getScenario() );
+        serviceNode.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
+        serviceNode.setExtraInformation( serviceFamilyNode.getExtraInformation() );
+        serviceNode.setLevel( serviceFamilyNode.getLevel() );
+        serviceNode.setDescription( serviceFamilyNode.getDescription() );
+        return serviceNode;
     }
 }

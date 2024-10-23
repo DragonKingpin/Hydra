@@ -28,4 +28,12 @@ public interface ServiceNamespaceMapper extends ServiceNamespaceManipulator {
 
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_service_namespace_node` WHERE name=#{name}")
     List<GenericNamespace> fetchNamespaceNodeByName(@Param("name") String name);
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_namespace_node` WHERE `name` = #{name}" )
+    List<GUID> getGuidsByName(String name);
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_namespace_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
+    List<GUID> getGuidsByNameID(String name, GUID guid);
 }

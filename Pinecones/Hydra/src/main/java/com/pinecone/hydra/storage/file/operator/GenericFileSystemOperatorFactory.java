@@ -1,5 +1,6 @@
 package com.pinecone.hydra.storage.file.operator;
 
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
@@ -19,7 +20,7 @@ public class GenericFileSystemOperatorFactory implements FileSystemOperatorFacto
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
 
     protected void registerDefaultMetaType( Class<?> genericType ) {
-        this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace("Generic","") );
+        this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace(FileSystemConfig.filePrefix,"") );
     }
 
     protected void registerDefaultMetaTypes() {

@@ -26,6 +26,7 @@ public class GenericServiceNode extends ArchServiceFamilyNode implements Service
 
 
     public GenericServiceNode() {
+        super();
     }
 
     public GenericServiceNode(ServicesInstrument servicesInstrument) {

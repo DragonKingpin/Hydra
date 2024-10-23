@@ -4,10 +4,8 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
 public interface VolumeCapacity extends Pinenut {
-    long getEnumId();
-
-    GUID getGuid();
-    void setGuid(GUID guid);
+    GUID getVolumeGuid();
+    void setVolumeGuid( GUID volumeGuid );
     long getDefinitionCapacity();
     void setDefinitionCapacity( long definitionCapacity );
     long getUsedSize();

@@ -40,18 +40,13 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     @Override
     public GUID insert(TreeNode treeNode) {
         LocalSimpleVolume simpleVolume = ( LocalSimpleVolume ) treeNode;
-        GuidAllocator guidAllocator = this.volumeTree.getGuidAllocator();
         DistributedTreeNode distributedTreeNode = this.affirmPreinsertionInitialize(simpleVolume);
         GUID guid = simpleVolume.getGuid();
-
-        GUID mountPointGuid = null;
-        MountPoint mountPoint = simpleVolume.getMountPoint();
-        if ( mountPoint != null ){
-            mountPointGuid = mountPoint.getGuid();
-            mountPoint.setVolumeGuid( guid );
-            this.mountPointManipulator.insert( mountPoint );
+        VolumeCapacity volumeCapacity = simpleVolume.getVolumeCapacity();
+        if ( volumeCapacity.getVolumeGuid() == null ){
+            volumeCapacity.setVolumeGuid( guid );
         }
-
+        this.volumeCapacityManipulator.insert( volumeCapacity );
         this.distributedTrieTree.insert( distributedTreeNode );
         this.simpleVolumeManipulator.insert( simpleVolume );
         return guid;
@@ -70,10 +65,10 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     }
 
     @Override
-    public TreeNode get(GUID guid) {
+    public SimpleVolume get(GUID guid) {
         SimpleVolume simpleVolume = this.simpleVolumeManipulator.getSimpleVolume(guid);
-        MountPoint mountPoint = this.mountPointManipulator.getMountPointByVolumeGuid(guid);
-        simpleVolume.setMountPoint( mountPoint );
+        VolumeCapacity volumeCapacity = this.volumeCapacityManipulator.getVolumeCapacity(guid);
+        simpleVolume.setVolumeCapacity( volumeCapacity );
         return simpleVolume;
     }
 

@@ -11,7 +11,6 @@ public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
 
     protected List<Volume>            children;
     protected VolumeCapacity          volumeCapacity;
-    protected MountPoint              mountPoint;
 
     public ArchLogicVolume(VolumeTree volumeTree) {
         super(volumeTree);
@@ -20,15 +19,6 @@ public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
     public ArchLogicVolume(){}
 
 
-    @Override
-    public MountPoint getMountPoint() {
-        return this.mountPoint;
-    }
-
-    @Override
-    public void setMountPoint(MountPoint mountPoint) {
-        this.mountPoint = mountPoint;
-    }
 
     @Override
     public List<Volume> getChildren() {

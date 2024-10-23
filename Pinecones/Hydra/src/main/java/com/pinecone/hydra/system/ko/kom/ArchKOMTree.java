@@ -115,6 +115,9 @@ public abstract class ArchKOMTree extends ArchTrieObjectModel implements KOMInst
 
     protected TreeNodeOperator getOperatorByGuid( GUID guid ) {
         DistributedTreeNode node = this.distributedTrieTree.getNode( guid );
+        if ( node == null ){
+            return null;
+        }
         TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{this.getClass()}, this );
         return this.operatorFactory.getOperator( newInstance.getMetaType() );
     }

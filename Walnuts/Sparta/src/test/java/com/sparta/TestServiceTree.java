@@ -31,23 +31,23 @@ class Jesse extends Radium {
         );
 
         CentralServicesInstrument servicesTree = new CentralServicesInstrument( koiMappingDriver );
-        this.testInsert( servicesTree );
-        //this.testGet( servicesTree );
+        //this.testInsert( servicesTree );
+        this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 
     private void testInsert( ServicesInstrument servicesInstrument){
 
-//        GenericNamespace namespace = new GenericNamespace();
-//        namespace.setName( "Test1" );
-//        servicesInstrument.put( namespace );
+        GenericNamespace namespace = new GenericNamespace();
+        namespace.setName( "Test1" );
+        servicesInstrument.put( namespace );
 
-        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03a33a2-0001f0-0001-20") ) );
+        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03c2f90-000133-0000-44") ) );
 
 
-//        GenericApplicationNode applicationNode = new GenericApplicationNode();
-//        applicationNode.setName( "很好的服务" );
-//        servicesInstrument.put( applicationNode );
+        GenericApplicationNode applicationNode = new GenericApplicationNode();
+        applicationNode.setName( "很好的服务" );
+        servicesInstrument.put( applicationNode );
 //
 //        GenericServiceNode serviceNode = new GenericServiceNode();
 //        serviceNode.setGuid( servicesInstrument.getGuidAllocator().nextGUID72() );
@@ -57,9 +57,10 @@ class Jesse extends Radium {
 
     private void testGet( ServicesInstrument servicesInstrument){
         //Debug.trace( servicesInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
-        //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "039338e-0002ba-0000-4c" ) ) );
+        //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
         //Debug.trace( servicesInstrument.get( GUIDs.GUID72("039338e-0002ba-0000-4c") ) );
 //        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
+        Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ) );
     }
 
     private void testDelete( ServicesInstrument servicesInstrument){

@@ -2,7 +2,6 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
@@ -14,7 +13,6 @@ import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
 import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.local.LocalSimpleVolume;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.id.GUIDs;
@@ -43,27 +41,27 @@ class Alice extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-//        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
-//
-//        UniformVolumeTree volumeTree = new UniformVolumeTree( koiMappingDriver );
-//        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
-//        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
-//        simpleVolume.setName("game");
-//        MountPoint mountPoint = volumeAllotment.newMountPoint();
-//        mountPoint.setMountPoint("UOFS://D:\\文件系统");
-//        simpleVolume.setMountPoint( mountPoint );
-//        //volumeTree.put( simpleVolume );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
+
+        UniformVolumeTree volumeTree = new UniformVolumeTree( koiMappingDriver );
+        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
+        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
+        simpleVolume.setName("game");
+        MountPoint mountPoint = volumeAllotment.newMountPoint();
+        mountPoint.setMountPoint("UOFS://D:\\文件系统");
+        simpleVolume.setMountPoint( mountPoint );
+        //volumeTree.put( simpleVolume );
 //        //Debug.trace( volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44") ).toString() );
 //        //volumeTree.remove( GUIDs.GUID72("03981de-00029f-0000-44") );
 //        //Debug.trace(volumeTree.getPath( GUIDs.GUID72("038b7ea-000078-0000-a8") ));
-//        LogicVolume volume = volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44"));
-//        SimpleVolume evinceSimpleVolume = volume.evinceSimpleVolume();
-//        File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
-//        Path path = sourceFile.toPath();
-//        FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
-//        fileNode.setName(sourceFile.getName());
-//        fileNode.setGuid( fileSystem.getGuidAllocator().nextGUID72() );
-//        evinceSimpleVolume.channelReceiver( fileSystem,fileNode, FileChannel.open(path, StandardOpenOption.READ));
+        LogicVolume volume = volumeTree.get(GUIDs.GUID72("03affe0-0003a8-0000-b8"));
+        SimpleVolume evinceSimpleVolume = volume.evinceSimpleVolume();
+        File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
+        Path path = sourceFile.toPath();
+        FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
+        fileNode.setName(sourceFile.getName());
+        fileNode.setGuid( fileSystem.getGuidAllocator().nextGUID72() );
+        //evinceSimpleVolume.channelReceive( fileSystem,fileNode, FileChannel.open(path, StandardOpenOption.READ));
     }
 
 

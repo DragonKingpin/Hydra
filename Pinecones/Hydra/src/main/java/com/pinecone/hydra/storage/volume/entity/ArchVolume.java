@@ -14,9 +14,6 @@ public abstract class ArchVolume implements Volume{
     protected String                  type;
     protected String                  extConfig;
     protected VolumeTree              volumeTree;
-    protected long                    definitionCapacity;
-    protected long                    usedSize;
-    protected long                    quotaCapacity;
 
     public ArchVolume( VolumeTree volumeTree ){
         this.volumeTree = volumeTree;
@@ -90,34 +87,5 @@ public abstract class ArchVolume implements Volume{
     @Override
     public void setExtConfig(String extConfig) {
         this.extConfig = extConfig;
-    }
-    @Override
-    public long getDefinitionCapacity() {
-        return this.definitionCapacity;
-    }
-
-    @Override
-    public void setDefinitionCapacity(long definitionCapacity) {
-        this.definitionCapacity = definitionCapacity;
-    }
-
-    @Override
-    public long getUsedSize() {
-        return this.usedSize;
-    }
-
-    @Override
-    public void setUsedSize(long usedSize) {
-        this.usedSize = usedSize;
-    }
-
-    @Override
-    public long getQuotaCapacity() {
-        return this.quotaCapacity;
-    }
-
-    @Override
-    public void setQuotaCapacity(long quotaCapacity) {
-        this.quotaCapacity = quotaCapacity;
     }
 }

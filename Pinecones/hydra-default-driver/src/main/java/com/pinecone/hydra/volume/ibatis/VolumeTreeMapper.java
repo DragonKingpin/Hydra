@@ -33,6 +33,9 @@ public interface VolumeTreeMapper extends VolumeTreeManipulator {
     @Override
     default GUIDDistributedTrieNode getNode( GUID guid ) {
         GUIDDistributedTrieNode node = this.getNodeExtendsFromMeta( guid );
+        if( node == null ){
+            return node;
+        }
         List<GUID > parent = this.getParentGuids( guid );
         node.setParentGUID( parent );
         return node;

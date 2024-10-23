@@ -3,14 +3,10 @@ package com.pinecone.hydra.storage.volume.source;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
-import com.pinecone.hydra.storage.volume.entity.StripedVolume;
 
 import java.util.List;
 
-public interface StripedVolumeManipulator extends LogicVolumeManipulator {
-    void insert( StripedVolume stripedVolume );
-    void remove( GUID guid );
-    StripedVolume getStripedVolume(GUID guid);
+public interface LogicVolumeManipulator extends Pinenut {
     void extendLogicalVolume( GUID logicGuid, GUID physicalGuid );
-    List<GUID> lsblk(GUID logicGuid );
+    List< GUID > lsblk( GUID logicGuid );
 }

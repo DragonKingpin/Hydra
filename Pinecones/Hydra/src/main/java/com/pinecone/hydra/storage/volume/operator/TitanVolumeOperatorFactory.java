@@ -8,6 +8,7 @@ import com.pinecone.hydra.storage.file.operator.FileSystemOperator;
 import com.pinecone.hydra.storage.file.operator.GenericFileOperator;
 import com.pinecone.hydra.storage.file.operator.GenericFolderOperator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
+import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
 import com.pinecone.hydra.unit.udtt.operator.TreeNodeOperator;
@@ -23,7 +24,7 @@ public class TitanVolumeOperatorFactory implements VolumeOperatorFactory{
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
 
     protected void registerDefaultMetaType( Class<?> genericType ) {
-        this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace("Titan","") );
+        this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace(VolumeConfig.filePrefix,"") );
     }
 
     protected void registerDefaultMetaTypes() {

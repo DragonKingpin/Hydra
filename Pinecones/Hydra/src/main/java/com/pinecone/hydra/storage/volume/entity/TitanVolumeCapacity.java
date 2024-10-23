@@ -6,8 +6,7 @@ import com.pinecone.hydra.storage.volume.entity.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
 
 public class TitanVolumeCapacity implements VolumeCapacity {
-    private long                        enumId;
-    private GUID                        guid;
+    private GUID                        volumeGuid;
     private long                        definitionCapacity;
     private long                        usedSize;
     private long                        quotaCapacity;
@@ -17,23 +16,8 @@ public class TitanVolumeCapacity implements VolumeCapacity {
     public TitanVolumeCapacity( VolumeTree volumeTree, VolumeCapacityManipulator volumeCapacityManipulator ){
         this.volumeTree = volumeTree;
         this.volumeCapacityManipulator = volumeCapacityManipulator;
-        this.guid = volumeTree.getGuidAllocator().nextGUID72();
     }
 
-    @Override
-    public long getEnumId() {
-        return this.enumId;
-    }
-
-    @Override
-    public GUID getGuid() {
-        return this.guid;
-    }
-
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
 
     @Override
     public long getDefinitionCapacity() {
@@ -48,6 +32,16 @@ public class TitanVolumeCapacity implements VolumeCapacity {
     @Override
     public long getUsedSize() {
         return this.usedSize;
+    }
+
+    @Override
+    public GUID getVolumeGuid() {
+        return this.volumeGuid;
+    }
+
+    @Override
+    public void setVolumeGuid(GUID volumeGuid) {
+        this.volumeGuid = volumeGuid;
     }
 
     @Override

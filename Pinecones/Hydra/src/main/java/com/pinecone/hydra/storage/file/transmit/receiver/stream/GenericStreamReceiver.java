@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file.transmit.receiver.stream;
 
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.FrameSegmentNaming;
 import com.pinecone.hydra.storage.file.KOFSFrameSegmentNaming;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -35,7 +36,7 @@ public class GenericStreamReceiver extends ArchReceiver implements StreamReceive
         FileNode file = streamReceiverEntity.getFile();
         KOMFileSystem fileSystem = streamReceiverEntity.getFileSystem();
 
-        long chunkSize = 10 * 1024 * 1024; // 每片10MB
+        long chunkSize = FileSystemConfig.defaultChunkSize; // 每片10MB
         int parityCheck = 0;
         long checksum = 0;
         long crc32Xor = 0;
@@ -68,7 +69,7 @@ public class GenericStreamReceiver extends ArchReceiver implements StreamReceive
                 // 创建本地和远程分片信息
                 LocalFrame localFrame = allotment.newLocalFrame(file.getGuid(), (int) segId, chunkFile.toString(), Long.toHexString(crc.getValue()), read, 0);
                 RemoteFrame remoteFrame = allotment.newRemoteFrame(file.getGuid(), (int) segId, Long.toHexString(crc.getValue()), read);
-                remoteFrame.setDeviceGuid(GUIDs.GUID72("0000000-000000-0000-00"));
+                remoteFrame.setDeviceGuid(FileSystemConfig.localhostGUID);
                 remoteFrame.setSegGuid(localFrame.getSegGuid());
 
                 // 使用 OutputStream 将数据写入文件片段

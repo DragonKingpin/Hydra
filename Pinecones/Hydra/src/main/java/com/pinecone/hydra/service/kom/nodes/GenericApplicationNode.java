@@ -25,6 +25,7 @@ public class GenericApplicationNode extends ArchServiceFamilyNode implements App
 
 
     public GenericApplicationNode() {
+        super();
     }
 
     public GenericApplicationNode(ServicesInstrument servicesInstrument) {

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file.transmit.receiver.channel;
 
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.FrameSegmentNaming;
 import com.pinecone.hydra.storage.file.KOFSFrameSegmentNaming;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -38,7 +39,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
         String destDirPath = channelReceiverEntity.getDestDirPath();
         FileNode file = channelReceiverEntity.getFile();
         KOMFileSystem fileSystem = channelReceiverEntity.getFileSystem();
-        long chunkSize = 10 * 1024 * 1024;
+        long chunkSize = FileSystemConfig.defaultChunkSize;
         int parityCheck = 0;
         long checksum = 0;
         long crc32Xor = 0;
@@ -75,7 +76,7 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
                 Path chunkFile = Paths.get(destDirPath, sourceName);
                 LocalFrame localFrame = allotment.newLocalFrame( file.getGuid(),(int) segId,chunkFile.toString(),Long.toHexString(crc.getValue()),read,0 );
                 RemoteFrame remoteFrame = allotment.newRemoteFrame( file.getGuid(),(int)segId,Long.toHexString(crc.getValue()), read);
-                remoteFrame.setDeviceGuid(GUIDs.GUID72("0000000-000000-0000-00"));
+                remoteFrame.setDeviceGuid(FileSystemConfig.localhostGUID);
                 remoteFrame.setSegGuid( localFrame.getSegGuid() );
                 try ( FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE) ) {
                     buffer.rewind();

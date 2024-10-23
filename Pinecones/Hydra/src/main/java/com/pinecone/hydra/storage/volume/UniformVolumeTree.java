@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
+import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.TitanVolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
 import com.pinecone.hydra.storage.volume.operator.TitanVolumeOperatorFactory;
@@ -172,6 +173,11 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
     @Override
     public void remove(String path) {
 
+    }
+
+    @Override
+    public PhysicalVolume getPhysicalVolume(GUID guid) {
+        return this.physicalVolumeManipulator.getPhysicalVolume( guid );
     }
 
     @Override

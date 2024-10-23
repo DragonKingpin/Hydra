@@ -1,10 +1,10 @@
 package com.pinecone.hydra.storage.volume.entity;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
@@ -23,13 +23,13 @@ public interface LogicVolume extends Volume, TreeNode {
 
     void setVolumeCapacity( VolumeCapacity volumeCapacity );
 
-    MountPoint getMountPoint();
-    void setMountPoint( MountPoint mountPoint );
+    void extendLogicalVolume( GUID physicalGuid );
+    List< GUID > lsblk();
 
     void channelExport( KOMFileSystem fileSystem, FileNode file ) throws IOException;
     void streamExport( KOMFileSystem fileSystem, FileNode file ) throws IOException;
-    void channelReceiver(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException;
-    void streamReceiver(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException;
+    void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException;
+    void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException;
 
     default MirroredVolume evinceMirroredVolume(){
         return null;

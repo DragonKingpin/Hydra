@@ -1,5 +1,6 @@
 package com.pinecone.hydra.storage.volume.entity.local;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
@@ -11,9 +12,11 @@ import com.pinecone.hydra.storage.file.transmit.receiver.channel.GenericChannelR
 import com.pinecone.hydra.storage.file.transmit.receiver.stream.GenericStreamReceiverEntity;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
+import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.Volume;
 import com.pinecone.hydra.storage.volume.source.SimpleVolumeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,30 +54,40 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
 
     @Override
     public void channelExport( KOMFileSystem fileSystem, FileNode file ) throws IOException {
-        File temporaryFile = new File(this.mountPoint.getMountPoint());
-        FileChannel channel = FileChannel.open(temporaryFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-        GenericChannelExporterEntity exporterEntity = new GenericChannelExporterEntity(fileSystem, file, channel);
-        exporterEntity.export();
+        List<GUID> physicalVolumes = this.lsblk();
+        PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
+        physicalVolume.channelExport( fileSystem,file );
     }
 
     @Override
     public void streamExport( KOMFileSystem fileSystem, FileNode file ) throws IOException {
-        File temporaryFile = new File(this.mountPoint.getMountPoint());
-        FileOutputStream fileOutputStream = new FileOutputStream(temporaryFile);
-        GenericStreamExporterEntity exporterEntity = new GenericStreamExporterEntity(fileSystem, file, fileOutputStream);
-        exporterEntity.export();
+        List<GUID> physicalVolumes = this.lsblk();
+        PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
+        physicalVolume.streamExport( fileSystem, file );
     }
 
     @Override
-    public void channelReceiver(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException {
-        GenericChannelReceiveEntity receiveEntity = new GenericChannelReceiveEntity(fileSystem, this.mountPoint.getMountPoint(), file, channel);
-        receiveEntity.receive();
+    public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException {
+        List<GUID> physicalVolumes = this.lsblk();
+        PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
+        physicalVolume.channelReceive( fileSystem, file, channel );
     }
 
     @Override
-    public void streamReceiver(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException {
-        GenericStreamReceiverEntity receiverEntity = new GenericStreamReceiverEntity(fileSystem, this.mountPoint.getMountPoint(), file, inputStream);
-        receiverEntity.receive();
+    public void extendLogicalVolume(GUID physicalGuid) {
+        this.simpleVolumeManipulator.extendLogicalVolume( this.guid, physicalGuid );
+    }
+
+    @Override
+    public List<GUID> lsblk() {
+        return this.simpleVolumeManipulator.lsblk( this.guid );
+    }
+
+    @Override
+    public void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException {
+        List<GUID> physicalVolumes = this.lsblk();
+        PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
+        physicalVolume.streamReceive( fileSystem,file,inputStream );
     }
 
     @Override

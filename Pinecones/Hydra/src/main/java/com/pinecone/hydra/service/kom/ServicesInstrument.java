@@ -1,22 +1,20 @@
 package com.pinecone.hydra.service.kom;
 
-import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.ElementNode;
-import com.pinecone.hydra.service.kom.entity.MetaNodeWideEntity;
-import com.pinecone.hydra.service.kom.nodes.ApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.Namespace;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.entity.ApplicationElement;
+import com.pinecone.hydra.service.kom.entity.Namespace;
+import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 
 public interface ServicesInstrument extends KOMInstrument {
 
     ServiceConfig KernelServiceConfig = new KernelServiceConfig();
 
-    ApplicationNode affirmApplication( String path );
+    ApplicationElement affirmApplication (String path );
 
-    Namespace       affirmNamespace( String path );
+    Namespace       affirmNamespace   ( String path );
 
-    ServiceTreeNode queryElement(String path );
+    //ServiceNode     affirmService     ( String path );
+
+    ServiceTreeNode queryElement      ( String path );
 
 }

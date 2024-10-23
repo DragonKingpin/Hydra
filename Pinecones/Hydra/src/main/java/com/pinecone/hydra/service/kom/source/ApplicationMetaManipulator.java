@@ -2,15 +2,15 @@ package com.pinecone.hydra.service.kom.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
 
 public interface ApplicationMetaManipulator extends Pinenut {
-    //ApplicationDescription的CRUD
-    void insert(GenericApplicationNodeMeta applicationMeta);
+    void insert( ApplicationElement applicationElement );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
 
-    GenericApplicationNodeMeta getApplicationMeta(GUID guid);
+    ApplicationElement getApplicationElement( GUID guid );
 
-    void update(GenericApplicationNodeMeta applicationMeta);
+    void update( ApplicationElement applicationElement );
 }

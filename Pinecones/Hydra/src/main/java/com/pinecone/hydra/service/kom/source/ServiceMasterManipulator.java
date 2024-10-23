@@ -11,7 +11,7 @@ public interface ServiceMasterManipulator extends KOIMasterManipulator {
 
     ApplicationNodeManipulator getApplicationNodeManipulator();
 
-    ApplicationMetaManipulator getApplicationMetaManipulator();
+    ApplicationMetaManipulator getApplicationElementManipulator();
 
     ServiceNodeManipulator getServiceNodeManipulator();
 

@@ -4,9 +4,9 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
-import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
-import com.pinecone.hydra.service.kom.nodes.ServiceNode;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
@@ -35,7 +35,7 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
 
     @Override
     public GUID insert(TreeNode nodeWideData) {
-        GenericServiceNode serviceNodeInformation=(GenericServiceNode) nodeWideData;
+        GenericServiceElement serviceNodeInformation=(GenericServiceElement) nodeWideData;
 
         //将信息写入数据库
         //将节点信息存入应用节点表
@@ -77,16 +77,16 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ServiceNode serviceNode = this.ToServiceNode( this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID()) );
+        ServiceElement serviceElement = this.ToServiceNode( this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID()) );
 
         GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
 
-        serviceNode.setServiceNodeMetadata(serviceMeta);
-        serviceNode.setDistributedTreeNode(node);
-        serviceNode.setGuid(guid);
-        serviceNode.setName(this.serviceNodeManipulator.getServiceNode(guid).getName());
+        serviceElement.setServiceNodeMetadata(serviceMeta);
+        serviceElement.setDistributedTreeNode(node);
+        serviceElement.setGuid(guid);
+        serviceElement.setName(this.serviceNodeManipulator.getServiceNode(guid).getName());
 
-        return serviceNode;
+        return serviceElement;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
-    private ServiceNode ToServiceNode( ServiceFamilyNode serviceFamilyNode ){
-        GenericServiceNode serviceNode = new GenericServiceNode();
+    private ServiceElement ToServiceNode(ServiceFamilyNode serviceFamilyNode ){
+        GenericServiceElement serviceNode = new GenericServiceElement();
         serviceNode.setGuid( serviceFamilyNode.getGuid() );
         serviceNode.setScenario( serviceFamilyNode.getScenario() );
         serviceNode.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );

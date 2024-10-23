@@ -1,16 +1,16 @@
-package com.pinecone.hydra.service.kom.nodes;
+package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
-import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
+import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
-public interface ApplicationNode extends ServiceTreeNode, ServiceFamilyNode {
+public interface ServiceElement extends ServiceTreeNode, ServiceFamilyNode {
     long getEnumId();
     void setEnumId(long id);
 
     @Override
-    default ApplicationNode evinceTreeNode() {
+    default ServiceElement evinceTreeNode() {
         return this;
     }
 
@@ -23,7 +23,7 @@ public interface ApplicationNode extends ServiceTreeNode, ServiceFamilyNode {
     GUIDDistributedTrieNode getDistributedTreeNode();
     void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode);
 
-    GenericApplicationNodeMeta getApplicationNodeMeta();
-    void setApplicationNodeMeta(GenericApplicationNodeMeta applicationNodeMeta);
+    GenericServiceNodeMeta getServiceNodeMetadata();
+    void setServiceNodeMetadata(GenericServiceNodeMeta serviceNodeMetadata);
 
 }

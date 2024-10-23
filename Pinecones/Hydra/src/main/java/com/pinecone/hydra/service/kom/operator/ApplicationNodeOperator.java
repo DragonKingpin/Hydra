@@ -6,9 +6,9 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
-import com.pinecone.hydra.service.kom.nodes.ApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.entity.ApplicationElement;
+import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
+import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
@@ -32,41 +32,40 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
     public ApplicationNodeOperator(ServiceMasterManipulator masterManipulator, ServicesInstrument servicesInstrument){
         super( masterManipulator, servicesInstrument);
         this.applicationNodeManipulator = masterManipulator.getApplicationNodeManipulator();
-        this.applicationMetaManipulator = masterManipulator.getApplicationMetaManipulator();
+        this.applicationMetaManipulator = masterManipulator.getApplicationElementManipulator();
     }
 
 
     @Override
-    public GUID insert( TreeNode nodeWideData ) {
-        Debug.trace("保存节点"+nodeWideData);
-        GenericApplicationNode applicationNodeInformation = (GenericApplicationNode) nodeWideData;
-        //将信息写入数据库
-        //将节点信息存入应用节点表
+    public GUID insert( TreeNode treeNode ) {
+        GenericApplicationElement applicationElement = (GenericApplicationElement) treeNode;
+
         GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
         GUID applicationNodeGUID = guidAllocator.nextGUID72();
-        applicationNodeInformation.setGuid(applicationNodeGUID);
-        this.applicationNodeManipulator.insert(applicationNodeInformation);
+        applicationElement.setGuid( applicationNodeGUID );
+        this.applicationNodeManipulator.insert( applicationElement );
 
-        //将应用节点基础信息存入信息表
-        GUID descriptionGUID = guidAllocator.nextGUID72();
-        GenericApplicationNodeMeta applicationDescription = applicationNodeInformation.getApplicationNodeMeta();
-        if ( applicationDescription!=null ){
-            applicationDescription.setGuid(descriptionGUID);
-            this.applicationMetaManipulator.insert(applicationDescription);
-        }else {
+
+        GUID descriptionGUID;
+        if ( applicationElement.getMetaGuid() != null ){
+            descriptionGUID = guidAllocator.nextGUID72();
+            applicationElement.setMetaGuid( descriptionGUID );
+            this.applicationMetaManipulator.insert( applicationElement );
+        }
+        else {
             descriptionGUID = null;
         }
 
 
         //将应用元信息存入元信息表
-        this.commonDataManipulator.insert( applicationNodeInformation );
+        this.commonDataManipulator.insert( applicationElement );
 
 
         //将节点信息存入主表
         GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
         node.setBaseDataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
-        node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
+        node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
         this.distributedTrieTree.insert( node );
         return applicationNodeGUID;
     }
@@ -113,19 +112,17 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
     }
 
     @Override
-    public ServiceTreeNode get(GUID guid) {
-        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ApplicationNode applicationNode = this.ToApplicationNode( this.commonDataManipulator.getNodeCommonData(guid) );
+    public ServiceTreeNode get( GUID guid ) {
+        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode( guid );
+        ApplicationElement applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getAttributesGUID() );
+        this.applyApplicationNode( applicationElement, this.commonDataManipulator.getNodeCommonData(guid) );
 
-        GenericApplicationNodeMeta applicationDescription = this.applicationMetaManipulator.getApplicationMeta(node.getAttributesGUID());
 
+        applicationElement.setDistributedTreeNode(node);
 
-        applicationNode.setApplicationNodeMeta(applicationDescription);
-        applicationNode.setDistributedTreeNode(node);
-
-        applicationNode.setName(this.applicationNodeManipulator.getApplicationNode(guid).getName());
-        applicationNode.setGuid(applicationNode.getGuid());
-        return applicationNode;
+        applicationElement.setName(this.applicationNodeManipulator.getApplicationNode(guid).getName());
+        applicationElement.setGuid(applicationElement.getGuid());
+        return applicationElement;
     }
 
     @Override
@@ -157,14 +154,12 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
         this.applicationNodeManipulator.remove(node.getGuid());
     }
 
-    private ApplicationNode ToApplicationNode( ServiceFamilyNode serviceFamilyNode ){
-        GenericApplicationNode applicationNode = new GenericApplicationNode();
-        applicationNode.setGuid( serviceFamilyNode.getGuid() );
-        applicationNode.setScenario( serviceFamilyNode.getScenario() );
-        applicationNode.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
-        applicationNode.setExtraInformation( serviceFamilyNode.getExtraInformation() );
-        applicationNode.setLevel( serviceFamilyNode.getLevel() );
-        applicationNode.setDescription( serviceFamilyNode.getDescription() );
-        return applicationNode;
+    private void applyApplicationNode( ApplicationElement app, ServiceFamilyNode serviceFamilyNode ){
+        app.setGuid( serviceFamilyNode.getGuid() );
+        app.setScenario( serviceFamilyNode.getScenario() );
+        app.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
+        app.setExtraInformation( serviceFamilyNode.getExtraInformation() );
+        app.setLevel( serviceFamilyNode.getLevel() );
+        app.setDescription( serviceFamilyNode.getDescription() );
     }
 }

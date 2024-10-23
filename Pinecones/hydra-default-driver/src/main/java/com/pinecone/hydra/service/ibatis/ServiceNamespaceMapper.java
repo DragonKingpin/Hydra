@@ -1,7 +1,7 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
+import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -35,5 +35,5 @@ public interface ServiceNamespaceMapper extends ServiceNamespaceManipulator {
 
     @Override
     @Select( "SELECT `guid` FROM `hydra_service_namespace_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
-    List<GUID> getGuidsByNameID(String name, GUID guid);
+    List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 }

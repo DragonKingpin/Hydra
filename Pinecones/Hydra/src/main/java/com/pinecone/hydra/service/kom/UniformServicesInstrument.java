@@ -2,16 +2,11 @@ package com.pinecone.hydra.service.kom;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.ElementNode;
-import com.pinecone.hydra.registry.entity.RegistryTreeNode;
-import com.pinecone.hydra.service.kom.entity.GenericMetaNodeInstanceFactory;
-import com.pinecone.hydra.service.kom.entity.MetaNodeInstanceFactory;
-import com.pinecone.hydra.service.kom.nodes.ApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
-import com.pinecone.hydra.service.kom.nodes.Namespace;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.entity.ApplicationElement;
+import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
+import com.pinecone.hydra.service.kom.entity.GenericNamespace;
+import com.pinecone.hydra.service.kom.entity.Namespace;
+import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.operator.GenericServiceOperatorFactory;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
@@ -22,20 +17,18 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.system.ko.kom.ArchKOMTree;
 import com.pinecone.hydra.system.ko.kom.ArchReparseKOMTree;
+import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.StandardPathSelector;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GenericDistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.id.GUIDs;
 
-public class CentralServicesInstrument extends ArchReparseKOMTree implements ServicesInstrument {
+public class UniformServicesInstrument extends ArchReparseKOMTree implements ServicesInstrument {
     protected Hydrarum                  hydrarum;
     //GenericDistributedScopeTree
     private DistributedTrieTree         distributedTrieTree;
-
-    MetaNodeInstanceFactory             metaNodeInstanceFactory;
 
     private ServiceMasterManipulator    serviceMasterManipulator;
 
@@ -45,7 +38,7 @@ public class CentralServicesInstrument extends ArchReparseKOMTree implements Ser
 
 
 
-    public CentralServicesInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
+    public UniformServicesInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         super( hydrarum,masterManipulator, ServicesInstrument.KernelServiceConfig);
         Debug.trace(masterManipulator);
         this.hydrarum = hydrarum;
@@ -55,20 +48,22 @@ public class CentralServicesInstrument extends ArchReparseKOMTree implements Ser
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.distributedTrieTree         = new GenericDistributedTrieTree(treeMasterManipulator);
-        this.metaNodeInstanceFactory     = new GenericMetaNodeInstanceFactory(this.serviceMasterManipulator,treeMasterManipulator);
         this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericServiceOperatorFactory(this,(ServiceMasterManipulator) masterManipulator);
+
         this.pathResolver                =  new KOPathResolver( this.kernelObjectConfig );
-        this.pathSelector                  =  new StandardPathSelector(
+        this.pathSelector                =  new StandardPathSelector(
                 this.pathResolver, this.distributedTrieTree, this.serviceNamespaceManipulator, new GUIDNameManipulator[] { this.applicationNodeManipulator }
         );
+
+        this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 
 //    public CentralServicesTree( Hydrarum hydrarum ) {
 //        this.hydrarum = hydrarum;
 //    }
 
-    protected ServiceTreeNode affirmTreeNodeByPath(String path, Class<? > cnSup, Class<? > nsSup ) {
+    protected ServiceTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
         GUID parentGuid = GUIDs.Dummy72();
@@ -84,11 +79,11 @@ public class CentralServicesInstrument extends ArchReparseKOMTree implements Ser
             node = this.queryElement( currentPath );
             if ( node == null){
                 if ( i == parts.length - 1 && cnSup != null ){
-                    ApplicationNode applicationNode = (ApplicationNode) this.dynamicFactory.optNewInstance( cnSup, new Object[]{ this } );
-                    applicationNode.setName( parts[i] );
-                    GUID guid = this.put( applicationNode );
+                    ApplicationElement applicationElement = (ApplicationElement) this.dynamicFactory.optNewInstance( cnSup, new Object[]{ this } );
+                    applicationElement.setName( parts[i] );
+                    GUID guid = this.put(applicationElement);
                     this.affirmOwnedNode( parentGuid, guid );
-                    return applicationNode;
+                    return applicationElement;
                 }
                 else {
                     Namespace namespace = (Namespace) this.dynamicFactory.optNewInstance( nsSup, new Object[]{ this } );
@@ -114,12 +109,12 @@ public class CentralServicesInstrument extends ArchReparseKOMTree implements Ser
     }
 
     @Override
-    public ApplicationNode affirmApplication(String path) {
-        return ( ApplicationNode ) this.affirmTreeNodeByPath( path, GenericNamespace.class, GenericApplicationNode.class );
+    public ApplicationElement affirmApplication(String path ) {
+        return (ApplicationElement) this.affirmTreeNodeByPath( path, GenericApplicationElement.class, GenericNamespace.class );
     }
 
     @Override
-    public ServiceTreeNode queryElement(String path) {
+    public ServiceTreeNode queryElement( String path ) {
         GUID guid = this.queryGUIDByPath( path );
         if( guid != null ) {
             return  this.get( guid );
@@ -129,11 +124,11 @@ public class CentralServicesInstrument extends ArchReparseKOMTree implements Ser
     }
 
     @Override
-    public Namespace affirmNamespace(String path) {
+    public Namespace affirmNamespace( String path ) {
         return ( Namespace ) this.affirmTreeNodeByPath( path, null, GenericNamespace.class );
     }
 
-    public CentralServicesInstrument(KOIMappingDriver driver ) {
+    public UniformServicesInstrument(KOIMappingDriver driver ) {
         this(
                 driver.getSystem(),
                 driver.getMasterManipulator()

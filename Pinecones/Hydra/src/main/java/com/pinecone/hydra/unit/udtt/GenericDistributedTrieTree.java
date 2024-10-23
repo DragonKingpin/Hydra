@@ -1,8 +1,8 @@
 package com.pinecone.hydra.unit.udtt;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.KOInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.unit.udtt.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.udtt.source.TireOwnerManipulator;
@@ -230,7 +230,7 @@ public class GenericDistributedTrieTree implements UniDistributedTrieTree {
     }
 
     @Override
-    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KOInstrument instrument ) {
+    public void newLinkTag( GUID originalGuid, GUID dirGuid, String tagName, KernelObjectInstrument instrument ) {
         GuidAllocator guidAllocator = instrument.getGuidAllocator();
         GUID tagGuid = guidAllocator.nextGUID72();
         this.trieTreeManipulator.newLinkTag( originalGuid, dirGuid, tagName, tagGuid );

@@ -89,7 +89,7 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     }
 
     @Override
-    public ApplicationMetaManipulator getApplicationMetaManipulator() {
+    public ApplicationMetaManipulator getApplicationElementManipulator() {
         return this.applicationMetaManipulator;
     }
 

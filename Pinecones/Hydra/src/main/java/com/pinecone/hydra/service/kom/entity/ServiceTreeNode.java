@@ -1,6 +1,5 @@
-package com.pinecone.hydra.service.kom.nodes;
+package com.pinecone.hydra.service.kom.entity;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 public interface ServiceTreeNode extends TreeNode {

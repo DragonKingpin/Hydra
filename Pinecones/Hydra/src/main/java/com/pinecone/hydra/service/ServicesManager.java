@@ -1,6 +1,6 @@
 package com.pinecone.hydra.service;
 
-import com.pinecone.hydra.system.ko.KOInstrument;
+import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 
-public interface ServicesManager extends KOInstrument {
+public interface ServicesManager extends KernelObjectInstrument {
 }

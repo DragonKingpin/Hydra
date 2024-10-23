@@ -4,11 +4,10 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.CentralServicesInstrument;
+import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
-import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
+import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
+import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.id.GUIDs;
@@ -30,7 +29,7 @@ class Jesse extends Radium {
                 this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        CentralServicesInstrument servicesTree = new CentralServicesInstrument( koiMappingDriver );
+        UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
         //this.testInsert( servicesTree );
         this.testGet( servicesTree );
         //this.testDelete( servicesTree );
@@ -45,7 +44,7 @@ class Jesse extends Radium {
         //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03c2f90-000133-0000-44") ) );
 
 
-        GenericApplicationNode applicationNode = new GenericApplicationNode();
+        GenericApplicationElement applicationNode = new GenericApplicationElement();
         applicationNode.setName( "很好的服务" );
         servicesInstrument.put( applicationNode );
 //
@@ -60,7 +59,7 @@ class Jesse extends Radium {
         //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
         //Debug.trace( servicesInstrument.get( GUIDs.GUID72("039338e-0002ba-0000-4c") ) );
 //        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
-        Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ) );
+        Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ).className() );
     }
 
     private void testDelete( ServicesInstrument servicesInstrument){

@@ -1,8 +1,7 @@
 package com.pinecone.hydra.service.kom.source;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
+import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;

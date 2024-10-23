@@ -49,7 +49,7 @@ class Alice extends Radium {
         simpleVolume.setName("game");
         MountPoint mountPoint = volumeAllotment.newMountPoint();
         mountPoint.setMountPoint("UOFS://D:\\文件系统");
-        simpleVolume.setMountPoint( mountPoint );
+        //simpleVolume.setMountPoint( mountPoint );
         //volumeTree.put( simpleVolume );
 //        //Debug.trace( volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44") ).toString() );
 //        //volumeTree.remove( GUIDs.GUID72("03981de-00029f-0000-44") );

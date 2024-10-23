@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.kom.nodes;
+package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;

@@ -6,9 +6,9 @@ import com.pinecone.hydra.service.kom.GenericNamespaceRules;
 import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericCommonMeta;
-import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
-import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
-import com.pinecone.hydra.service.kom.nodes.ServiceTreeNode;
+import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
+import com.pinecone.hydra.service.kom.entity.GenericNamespace;
+import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
@@ -108,7 +108,7 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
             }
         }
 
-        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericApplicationNode.class.getName())){
+        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericApplicationElement.class.getName())){
             this.removeNode(guid);
         }
         else {

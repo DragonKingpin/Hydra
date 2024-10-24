@@ -12,4 +12,7 @@ public interface VolumeTree extends KOMInstrument {
     LogicVolume get(GUID guid);
 
     PhysicalVolume getPhysicalVolume( GUID guid );
+    GUID insertPhysicalVolume( PhysicalVolume physicalVolume );
+    void purgePhysicalVolume( GUID guid );
+
 }

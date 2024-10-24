@@ -36,4 +36,9 @@ public class GenericChannelReceiveEntity extends ArchReceiveEntity implements Ch
     public void receive() throws IOException {
         this.channelReceiver.receive(this);
     }
+
+    @Override
+    public void receive(long offset, long endSize) throws IOException {
+        this.channelReceiver.receive( this, offset, endSize );
+    }
 }

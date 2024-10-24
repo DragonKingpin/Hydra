@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
+import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.id.GUIDs;
@@ -30,8 +31,8 @@ class Jesse extends Radium {
         );
 
         UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
-        //this.testInsert( servicesTree );
-        this.testGet( servicesTree );
+        this.testInsert( servicesTree );
+        //this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 
@@ -46,20 +47,40 @@ class Jesse extends Radium {
 
         GenericApplicationElement applicationNode = new GenericApplicationElement();
         applicationNode.setName( "很好的服务" );
+        applicationNode.setAlias("我是别名");
+        applicationNode.setDeploymentMethod("我是部署方式");
+        applicationNode.setPath("我是路径");
+        applicationNode.setResourceType("我是资源类型");
+        applicationNode.setType("我是类型");
+        applicationNode.setDescription("我是描述");
+        applicationNode.setExtraInformation("我是额外信息");
+        applicationNode.setLevel("我是等级");
+        applicationNode.setPrimaryImplLang("JAVA");
+        applicationNode.setScenario("我是场景");
         servicesInstrument.put( applicationNode );
 //
-//        GenericServiceNode serviceNode = new GenericServiceNode();
-//        serviceNode.setGuid( servicesInstrument.getGuidAllocator().nextGUID72() );
-//        serviceNode.setName("我的世界");
-//        servicesInstrument.put( serviceNode );
+        GenericServiceElement serviceNode = new GenericServiceElement();
+        serviceNode.setGuid( servicesInstrument.getGuidAllocator().nextGUID72() );
+        serviceNode.setName("我的世界");
+        serviceNode.setAlias("我是别名");
+        serviceNode.setDescription("我是描述");
+        serviceNode.setLevel("我是等级");
+        serviceNode.setScenario("我是场景");
+        serviceNode.setResourceType("我是资源类型");
+        serviceNode.setServiceType("我是服务类型");
+        serviceNode.setExtraInformation("我是额外信息");
+        serviceNode.setPrimaryImplLang("JAVA");
+        servicesInstrument.put( serviceNode );
     }
 
     private void testGet( ServicesInstrument servicesInstrument){
         //Debug.trace( servicesInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
         //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
-        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("039338e-0002ba-0000-4c") ) );
+        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
+        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
+        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
 //        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
-        Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ).className() );
+        //Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ).toString() );
     }
 
     private void testDelete( ServicesInstrument servicesInstrument){

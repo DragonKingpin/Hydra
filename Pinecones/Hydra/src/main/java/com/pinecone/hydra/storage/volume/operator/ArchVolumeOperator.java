@@ -9,6 +9,7 @@ import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.DistributedTrieTree;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
+import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.time.LocalDateTime;
 
@@ -38,5 +39,8 @@ public abstract class ArchVolumeOperator implements VolumeOperator{
 
     public VolumeOperatorFactory  getVolumeOperatorFactory(){
         return this.factory;
+    }
+    protected String getVolumeMetaType( TreeNode treeNode ){
+        return treeNode.className().replace("Titan","");
     }
 }

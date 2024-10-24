@@ -46,15 +46,11 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
         this.applicationNodeManipulator.insert( applicationElement );
 
 
-        GUID descriptionGUID;
-        if ( applicationElement.getMetaGuid() != null ){
-            descriptionGUID = guidAllocator.nextGUID72();
+        GUID descriptionGUID = guidAllocator.nextGUID72();
+        if( applicationElement.getMetaGuid() == null ){
             applicationElement.setMetaGuid( descriptionGUID );
-            this.applicationMetaManipulator.insert( applicationElement );
         }
-        else {
-            descriptionGUID = null;
-        }
+        this.applicationMetaManipulator.insert( applicationElement );
 
 
         //将应用元信息存入元信息表
@@ -63,7 +59,7 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
 
         //将节点信息存入主表
         GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
-        node.setBaseDataGUID(descriptionGUID);
+        node.setNodeMetadataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
         node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
         this.distributedTrieTree.insert( node );
@@ -114,7 +110,11 @@ public class ApplicationNodeOperator extends ArchServiceOperator implements Serv
     @Override
     public ServiceTreeNode get( GUID guid ) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode( guid );
-        ApplicationElement applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getAttributesGUID() );
+        ApplicationElement applicationElement = new GenericApplicationElement();
+        if( node.getNodeMetadataGUID() != null ){
+            applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getNodeMetadataGUID() );
+        }
+
         this.applyApplicationNode( applicationElement, this.commonDataManipulator.getNodeCommonData(guid) );
 
 

@@ -33,6 +33,83 @@ public class GenericChannelReceiver extends ArchReceiver implements ChannelRecei
 
 
     @Override
+    public void receive(ReceiveEntity entity, long offset, long endSize) throws IOException {
+        ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
+        FileChannel fileChannel = channelReceiverEntity.getChannel();
+        String destDirPath = channelReceiverEntity.getDestDirPath();
+        FileNode file = channelReceiverEntity.getFile();
+        KOMFileSystem fileSystem = channelReceiverEntity.getFileSystem();
+        long chunkSize = FileSystemConfig.defaultChunkSize;
+        int parityCheck = 0;
+        long checksum = 0;
+        long crc32Xor = 0;
+        ByteBuffer buffer = ByteBuffer.allocate((int) chunkSize);
+        FSNodeAllotment allotment = fileSystem.getFSNodeAllotment();
+        GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
+        long bytesRead = 0;
+        long segId = 0;
+        long totalBytesToRead = endSize;  // 需要读取的总字节数
+        long remainingBytes = endSize;    // 剩余需要读取的字节数
+
+        // 将文件指针移动到 offset 位置
+        fileChannel.position(offset);
+
+        while (remainingBytes > 0) {
+            buffer.clear();
+            int bytesToRead = (int) Math.min(chunkSize, remainingBytes);  // 计算本次读取的字节数
+            buffer.limit(bytesToRead);
+
+            int read = fileChannel.read(buffer);
+            if (read == -1) {
+                break; // 文件结束，跳出循环
+            }
+
+            buffer.flip();
+
+            CRC32 crc = new CRC32();
+            while (buffer.hasRemaining()) {
+                byte b = buffer.get();
+                parityCheck += Bytes.calculateParity(b);
+                checksum += b & 0xFF;
+                crc.update(b);
+            }
+
+            if (segId == 0) {
+                crc32Xor = crc.getValue();
+            } else {
+                crc32Xor = crc32Xor ^ crc.getValue();
+            }
+
+            String sourceName = this.mFrameSegmentNaming.naming(file.getName(), segId, Long.toHexString(crc.getValue()));
+            Path chunkFile = Paths.get(destDirPath, sourceName);
+            LocalFrame localFrame = allotment.newLocalFrame(file.getGuid(), (int) segId, chunkFile.toString(), Long.toHexString(crc.getValue()), read, 0);
+            RemoteFrame remoteFrame = allotment.newRemoteFrame(file.getGuid(), (int) segId, Long.toHexString(crc.getValue()), read);
+            remoteFrame.setDeviceGuid(FileSystemConfig.localhostGUID);
+            remoteFrame.setSegGuid(localFrame.getSegGuid());
+
+            try (FileChannel chunkChannel = FileChannel.open(chunkFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+                buffer.rewind();
+                int write = chunkChannel.write(buffer);
+                localFrame.setFileStartOffset(write);
+            }
+
+            segId++;
+            bytesRead += read;
+            remainingBytes -= read;  // 更新剩余需要读取的字节数
+
+            localFrame.save();
+            remoteFrame.save();
+        }
+
+        file.setPhysicalSize(bytesRead);
+        file.setLogicSize(bytesRead);
+        file.setChecksum(checksum);
+        file.setParityCheck(parityCheck);
+        file.setCrc32Xor(Long.toHexString(crc32Xor));
+        fileSystem.put(file);
+    }
+
+    @Override
     public void receive( ReceiveEntity entity ) throws IOException {
         ChannelReceiverEntity channelReceiverEntity = entity.evinceChannelReceiverEntity();
         FileChannel fileChannel = channelReceiverEntity.getChannel();

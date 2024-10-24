@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
+import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.source.MirroredVolumeManipulator;
 
 import java.io.IOException;
@@ -46,6 +47,11 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
     }
 
     @Override
+    public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel, long offset, long endSize) {
+
+    }
+
+    @Override
     public void extendLogicalVolume(GUID physicalGuid) {
 
     }
@@ -57,11 +63,17 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
 
     @Override
     public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException {
+        List<LogicVolume> volumes = this.getChildren();
 
     }
 
     @Override
     public void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) {
 
+    }
+
+    @Override
+    public void setVolumeTree(VolumeTree volumeTree) {
+        this.volumeTree = volumeTree;
     }
 }

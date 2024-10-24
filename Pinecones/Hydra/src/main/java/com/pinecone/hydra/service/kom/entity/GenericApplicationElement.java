@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.kom.entity;
 import java.time.LocalDateTime;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
@@ -21,6 +22,16 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
     private GUID guid;
 
     private String name;
+    protected GUID metaGuid;
+
+    protected String path;
+
+    protected String type;
+    protected String alias;
+    protected String resourceType;
+    protected String deploymentMethod;
+    protected LocalDateTime createTime;
+    protected LocalDateTime updateTime;
 
     private ServicesInstrument servicesInstrument;
     private ApplicationNodeManipulator applicationNodeManipulator;
@@ -28,6 +39,8 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
 
     public GenericApplicationElement() {
         super();
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public GenericApplicationElement(ServicesInstrument servicesInstrument) {
@@ -92,24 +105,6 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
     public void setName(String name) {
         this.name = name;
     }
-
-    public String toString() {
-        return "";
-    }
-
-
-
-
-
-    protected GUID metaGuid;
-    protected String path;
-    protected String type;
-    protected String alias;
-    protected String resourceType;
-    protected String deploymentMethod;
-    protected LocalDateTime createTime;
-    protected LocalDateTime updateTime;
-
 
     @Override
     public GUID getMetaGuid() {
@@ -189,5 +184,15 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
     @Override
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSONString();
     }
 }

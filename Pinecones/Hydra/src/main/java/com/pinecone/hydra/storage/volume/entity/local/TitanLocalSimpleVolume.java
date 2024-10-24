@@ -12,6 +12,7 @@ import com.pinecone.hydra.storage.file.transmit.receiver.channel.GenericChannelR
 import com.pinecone.hydra.storage.file.transmit.receiver.stream.GenericStreamReceiverEntity;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
+import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.Volume;
 import com.pinecone.hydra.storage.volume.source.SimpleVolumeManipulator;
@@ -48,7 +49,7 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
     }
 
     @Override
-    public List<Volume> getChildren() {
+    public List<LogicVolume> getChildren() {
         return super.getChildren();
     }
 
@@ -88,6 +89,18 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
         List<GUID> physicalVolumes = this.lsblk();
         PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
         physicalVolume.streamReceive( fileSystem,file,inputStream );
+    }
+
+    @Override
+    public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel, long offset, long endSize) throws IOException {
+        List<GUID> physicalVolumes = this.lsblk();
+        PhysicalVolume physicalVolume = this.volumeTree.getPhysicalVolume(physicalVolumes.get(0));
+        physicalVolume.channelReceive( fileSystem,file,channel,offset,endSize );
+    }
+
+    @Override
+    public void setVolumeTree(VolumeTree volumeTree) {
+        this.volumeTree = volumeTree;
     }
 
     @Override

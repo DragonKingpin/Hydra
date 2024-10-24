@@ -2,6 +2,7 @@ package com.pinecone.hydra.volume.ibatis;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.volume.entity.TitanVolumeCapacity;
 import com.pinecone.hydra.storage.volume.entity.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
@@ -15,5 +16,5 @@ public interface VolumeCapacityMapper extends VolumeCapacityManipulator {
     void insert( VolumeCapacity volumeCapacity );
     void remove( GUID guid );
     @Select("SELECT `guid` AS volumeGuid, `definition_capacity` AS definitionCapacity, `used_size` AS userSize, `quota_capacity` AS quotaCapacity FROM `hydra_uofs_volumes` WHERE `guid` = #{guid}")
-    VolumeCapacity getVolumeCapacity(GUID guid);
+    TitanVolumeCapacity getVolumeCapacity(GUID guid);
 }

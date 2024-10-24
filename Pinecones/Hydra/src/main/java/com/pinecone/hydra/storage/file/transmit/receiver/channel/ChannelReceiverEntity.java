@@ -11,4 +11,5 @@ public interface ChannelReceiverEntity extends ReceiveEntity {
     void setChannel( FileChannel channel );
 
     void receive( )throws IOException;
+    void receive( long offset, long endSize )throws IOException;
 }

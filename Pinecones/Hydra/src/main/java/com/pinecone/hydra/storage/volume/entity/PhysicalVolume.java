@@ -11,8 +11,10 @@ public interface PhysicalVolume extends Volume{
     MountPoint getMountPoint();
     void setMountPoint( MountPoint mountPoint );
 
+
     void channelExport(KOMFileSystem fileSystem, FileNode file ) throws IOException;
     void streamExport( KOMFileSystem fileSystem, FileNode file ) throws IOException;
     void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException;
+    void channelReceive( KOMFileSystem fileSystem, FileNode file, FileChannel channel, long offset, long endSize ) throws IOException;
     void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException;
 }

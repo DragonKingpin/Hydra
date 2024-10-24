@@ -6,11 +6,14 @@ import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.volume.UniformVolumeTree;
-import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.MountPoint;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
+import com.pinecone.hydra.storage.volume.entity.SpannedVolume;
 import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
+import com.pinecone.hydra.storage.volume.entity.VolumeCapacity;
+import com.pinecone.hydra.storage.volume.entity.local.LocalPhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.local.LocalSimpleVolume;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
@@ -19,6 +22,7 @@ import com.pinecone.ulf.util.id.GUIDs;
 import com.sauron.radium.Radium;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -45,25 +49,106 @@ class Alice extends Radium {
 
         UniformVolumeTree volumeTree = new UniformVolumeTree( koiMappingDriver );
         VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
-        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
-        simpleVolume.setName("game");
+
+        //this.testInsert( volumeTree );
+        //this.testChannelReceive( fileSystem,volumeTree );
+        this.testRaid0Insert( fileSystem,volumeTree );
+    }
+    private void testBaseInsert(UniformVolumeTree volumeTree ){
+        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
+        VolumeCapacity physicalVolumeCapacity = volumeAllotment.newVolumeCapacity();
+        VolumeCapacity logicVolumeCapacity = volumeAllotment.newVolumeCapacity();
+        physicalVolumeCapacity.setDefinitionCapacity(1000);
+        logicVolumeCapacity.setDefinitionCapacity( 1000 );
+
+        LocalPhysicalVolume physicalVolume = volumeAllotment.newLocalPhysicalVolume();
+        physicalVolume.setName("D");
+        physicalVolume.setType("PhysicalVolume");
         MountPoint mountPoint = volumeAllotment.newMountPoint();
-        mountPoint.setMountPoint("UOFS://D:\\文件系统");
-        //simpleVolume.setMountPoint( mountPoint );
-        //volumeTree.put( simpleVolume );
-//        //Debug.trace( volumeTree.get(GUIDs.GUID72("03981de-00029f-0000-44") ).toString() );
-//        //volumeTree.remove( GUIDs.GUID72("03981de-00029f-0000-44") );
-//        //Debug.trace(volumeTree.getPath( GUIDs.GUID72("038b7ea-000078-0000-a8") ));
-        LogicVolume volume = volumeTree.get(GUIDs.GUID72("03affe0-0003a8-0000-b8"));
-        SimpleVolume evinceSimpleVolume = volume.evinceSimpleVolume();
+        mountPoint.setMountPoint("D:\\文件系统");
+        mountPoint.setVolumeGuid( physicalVolume.getGuid() );
+        physicalVolume.setMountPoint( mountPoint );
+        physicalVolume.setVolumeCapacity( physicalVolumeCapacity );
+
+        LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
+        simpleVolume.setName("简单卷一");
+        simpleVolume.setType("SimpleVolume");
+        simpleVolume.setVolumeCapacity( logicVolumeCapacity );
+
+        volumeTree.insertPhysicalVolume( physicalVolume );
+        volumeTree.put( simpleVolume );
+    }
+
+    private void testChannelReceive(KOMFileSystem fileSystem, UniformVolumeTree volumeTree ) throws IOException {
+        SimpleVolume simpleVolume  = volumeTree.get(GUIDs.GUID72("03e7f10-0003dd-0002-98")).evinceSimpleVolume();
+        simpleVolume.extendLogicalVolume( GUIDs.GUID72("03e7f10-0003dd-0000-84") );
         File sourceFile = new File("D:\\井盖视频块\\4月13日 (2).mp4");
         Path path = sourceFile.toPath();
         FileNode fileNode = fileSystem.getFSNodeAllotment().newFileNode();
         fileNode.setName(sourceFile.getName());
         fileNode.setGuid( fileSystem.getGuidAllocator().nextGUID72() );
-        //evinceSimpleVolume.channelReceive( fileSystem,fileNode, FileChannel.open(path, StandardOpenOption.READ));
+        simpleVolume.channelReceive( fileSystem, fileNode,FileChannel.open(path, StandardOpenOption.READ));
     }
 
+    private void testChannelExport( KOMFileSystem fileSystem, UniformVolumeTree volumeTree ) throws IOException {
+        SimpleVolume simpleVolume  = volumeTree.get(GUIDs.GUID72("03e7f10-0003dd-0002-98")).evinceSimpleVolume();
+        FileTreeNode fileTreeNode = fileSystem.get(GUIDs.GUID72("0271940-00035d-0001-58"));
+        FileNode file = fileTreeNode.evinceFileNode();
+        File file1 = new File("D:\\文件系统\\大文件\\视频.mp4");
+        simpleVolume.channelExport(fileSystem, file);
+    }
+
+    private void testRaid0Insert( KOMFileSystem fileSystem, UniformVolumeTree volumeTree ){
+        VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
+        VolumeCapacity volumeCapacity1 = volumeAllotment.newVolumeCapacity();
+        volumeCapacity1.setDefinitionCapacity( 1000 );
+        VolumeCapacity volumeCapacity2 = volumeAllotment.newVolumeCapacity();
+        volumeCapacity2.setDefinitionCapacity( 2000 );
+
+        LocalPhysicalVolume physicalVolume1 = volumeAllotment.newLocalPhysicalVolume();
+        physicalVolume1.setType("PhysicalVolume");
+        physicalVolume1.setVolumeCapacity( volumeCapacity1 );
+        physicalVolume1.setName( "D" );
+        MountPoint mountPoint1 = volumeAllotment.newMountPoint();
+        mountPoint1.setMountPoint("D:\\文件系统\\簇1");
+        physicalVolume1.setMountPoint( mountPoint1 );
+
+        LocalPhysicalVolume physicalVolume2 = volumeAllotment.newLocalPhysicalVolume();
+        physicalVolume2.setType("PhysicalVolume");
+        physicalVolume2.setVolumeCapacity( volumeCapacity2 );
+        physicalVolume2.setName( "E" );
+        MountPoint mountPoint2 = volumeAllotment.newMountPoint();
+        mountPoint2.setMountPoint( "D:\\文件系统\\簇2" );
+        physicalVolume2.setMountPoint( mountPoint2 );
+
+        VolumeCapacity logicVolumeCapacity1 = volumeAllotment.newVolumeCapacity();
+        logicVolumeCapacity1.setDefinitionCapacity( 1000 );
+        VolumeCapacity logicVolumeCapacity2 = volumeAllotment.newVolumeCapacity();
+        logicVolumeCapacity2.setDefinitionCapacity( 2000 );
+        VolumeCapacity logicVolumeCapacity3 = volumeAllotment.newVolumeCapacity();
+        logicVolumeCapacity3.setDefinitionCapacity( 3000 );
+
+        LocalSimpleVolume simpleVolume1 = volumeAllotment.newLocalSimpleVolume();
+        simpleVolume1.setName( "逻辑卷一" );
+        simpleVolume1.setType( "SimpleVolume" );
+        simpleVolume1.setVolumeCapacity( logicVolumeCapacity1 );
+
+        LocalSimpleVolume simpleVolume2 = volumeAllotment.newLocalSimpleVolume();
+        simpleVolume2.setName( "逻辑卷二" );
+        simpleVolume2.setVolumeCapacity( logicVolumeCapacity2 );
+        simpleVolume2.setType( "SimpleVolume" );
+
+        SpannedVolume spannedVolume = volumeAllotment.newLocalSpannedVolume();
+        spannedVolume.setName( "逻辑卷三" );
+        spannedVolume.setVolumeCapacity( logicVolumeCapacity3 );
+        spannedVolume.setType( "SpannedVolume" );
+
+        volumeTree.insertPhysicalVolume( physicalVolume1 );
+        volumeTree.insertPhysicalVolume( physicalVolume2 );
+        volumeTree.put( simpleVolume1 );
+        volumeTree.put( simpleVolume2 );
+        volumeTree.put( spannedVolume );
+    }
 
 }
 public class TestVolume {

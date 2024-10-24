@@ -18,6 +18,10 @@ public class TitanVolumeCapacity implements VolumeCapacity {
         this.volumeCapacityManipulator = volumeCapacityManipulator;
     }
 
+    public TitanVolumeCapacity(){
+
+    }
+
 
     @Override
     public long getDefinitionCapacity() {

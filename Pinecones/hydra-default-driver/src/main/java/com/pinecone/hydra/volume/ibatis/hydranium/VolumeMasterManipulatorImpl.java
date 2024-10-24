@@ -13,6 +13,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.volume.ibatis.MirroredVolumeMapper;
 import com.pinecone.hydra.volume.ibatis.MountPointMapper;
+import com.pinecone.hydra.volume.ibatis.PhysicalVolumeMapper;
 import com.pinecone.hydra.volume.ibatis.SimpleVolumeMapper;
 import com.pinecone.hydra.volume.ibatis.SpannedVolumeMapper;
 import com.pinecone.hydra.volume.ibatis.StripedVolumeMapper;
@@ -52,7 +53,7 @@ public class VolumeMasterManipulatorImpl implements VolumeMasterManipulator {
     VolumeCapacityManipulator volumeCapacityManipulator;
 
     @Resource
-    //@Structure( type = PhysicalVolumeMapper.class )
+    @Structure( type = PhysicalVolumeMapper.class )
     PhysicalVolumeManipulator physicalVolumeManipulator;
 
     public VolumeMasterManipulatorImpl() {

@@ -3,9 +3,11 @@ package com.pinecone.hydra.storage.volume;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
+import com.pinecone.hydra.storage.volume.entity.MountPoint;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.TitanVolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
+import com.pinecone.hydra.storage.volume.entity.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.operator.TitanVolumeOperatorFactory;
 import com.pinecone.hydra.storage.volume.operator.VolumeOperatorFactory;
 import com.pinecone.hydra.storage.volume.source.MirroredVolumeManipulator;
@@ -177,7 +179,12 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
 
     @Override
     public PhysicalVolume getPhysicalVolume(GUID guid) {
-        return this.physicalVolumeManipulator.getPhysicalVolume( guid );
+        PhysicalVolume physicalVolume = this.physicalVolumeManipulator.getPhysicalVolume(guid);
+        MountPoint mountPoint = this.mountPointManipulator.getMountPointByVolumeGuid(guid);
+        VolumeCapacity volumeCapacity = this.volumeCapacityManipulator.getVolumeCapacity(guid);
+        physicalVolume.setMountPoint( mountPoint );
+        physicalVolume.setVolumeCapacity( volumeCapacity );
+        return physicalVolume;
     }
 
     @Override
@@ -208,7 +215,34 @@ public class UniformVolumeTree extends ArchKOMTree implements VolumeTree{
         return list.stream().noneMatch( Objects::isNull );
     }
 
-    private String getNodeName( DistributedTreeNode node ){
+    @Override
+    public GUID insertPhysicalVolume(PhysicalVolume physicalVolume) {
+        GUID guid = physicalVolume.getGuid();
+        VolumeCapacity volumeCapacity = physicalVolume.getVolumeCapacity();
+        if( volumeCapacity.getVolumeGuid() == null ){
+            volumeCapacity.setVolumeGuid( guid );
+        }
+
+        MountPoint mountPoint = physicalVolume.getMountPoint();
+        if( mountPoint.getVolumeGuid() == null ){
+            mountPoint.setVolumeGuid( guid );
+        }
+
+
+        this.physicalVolumeManipulator.insert( physicalVolume );
+        this.volumeCapacityManipulator.insert( volumeCapacity );
+        this.mountPointManipulator.insert( mountPoint );
+        return guid;
+    }
+
+    @Override
+    public void purgePhysicalVolume(GUID guid) {
+        this.physicalVolumeManipulator.remove( guid );
+        this.volumeCapacityManipulator.remove( guid );
+        this.mountPointManipulator.removeByVolumeGuid( guid );
+    }
+
+    private String getNodeName(DistributedTreeNode node ){
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         TreeNodeOperator operator = this.operatorFactory.getOperator(this.getVolumeMetaType( newInstance ));

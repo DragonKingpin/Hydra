@@ -3,50 +3,47 @@ package com.pinecone.hydra.storage.volume.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
-import com.pinecone.hydra.storage.volume.entity.MountPoint;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
-import com.pinecone.hydra.storage.volume.entity.Volume;
+import com.pinecone.hydra.storage.volume.entity.StripedVolume;
 import com.pinecone.hydra.storage.volume.entity.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.entity.local.LocalSimpleVolume;
-import com.pinecone.hydra.storage.volume.source.MountPointManipulator;
-import com.pinecone.hydra.storage.volume.source.SimpleVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
+import com.pinecone.hydra.storage.volume.entity.local.LocalStripedVolume;
+import com.pinecone.hydra.storage.volume.source.StripedVolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
 import com.pinecone.hydra.unit.udtt.DistributedTreeNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
-import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeOperator{
-    protected Map<GUID, LogicVolume>  cacheMap  =  new HashMap<>();
-    protected SimpleVolumeManipulator       simpleVolumeManipulator;
+public class StripedVolumeOperator extends ArchVolumeOperator  implements VolumeOperator{
+    protected Map<GUID, LogicVolume> cacheMap  =  new HashMap<>();
+    protected StripedVolumeManipulator          stripedVolumeManipulator;
 
-    public SimpleVolumeOperator( VolumeOperatorFactory  factory ){
+    public StripedVolumeOperator( VolumeOperatorFactory  factory ){
         this( factory.getMasterManipulator(), factory.getVolumeTree() );
         this.factory = factory;
     }
 
-    public SimpleVolumeOperator(VolumeMasterManipulator masterManipulator, VolumeTree volumeTree) {
+    public StripedVolumeOperator(VolumeMasterManipulator masterManipulator, VolumeTree volumeTree) {
         super(masterManipulator, volumeTree);
-        this.simpleVolumeManipulator    =  masterManipulator.getSimpleVolumeManipulator();
+        this.stripedVolumeManipulator = masterManipulator.getStripedVolumeManipulator();
     }
 
     @Override
     public GUID insert(TreeNode treeNode) {
-        LocalSimpleVolume simpleVolume = ( LocalSimpleVolume ) treeNode;
-        DistributedTreeNode distributedTreeNode = this.affirmPreinsertionInitialize(simpleVolume);
-        GUID guid = simpleVolume.getGuid();
-        VolumeCapacity volumeCapacity = simpleVolume.getVolumeCapacity();
+        LocalStripedVolume stripedVolume = ( LocalStripedVolume ) treeNode;
+        DistributedTreeNode distributedTreeNode = this.affirmPreinsertionInitialize(stripedVolume);
+        GUID guid = stripedVolume.getGuid();
+        VolumeCapacity volumeCapacity = stripedVolume.getVolumeCapacity();
         if ( volumeCapacity.getVolumeGuid() == null ){
             volumeCapacity.setVolumeGuid( guid );
         }
 
         this.distributedTrieTree.insert( distributedTreeNode );
-        this.simpleVolumeManipulator.insert( simpleVolume );
+        this.stripedVolumeManipulator.insert( stripedVolume );
         this.volumeCapacityManipulator.insert( volumeCapacity );
         return guid;
     }
@@ -63,12 +60,12 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     }
 
     @Override
-    public SimpleVolume get(GUID guid) {
-        SimpleVolume simpleVolume = this.simpleVolumeManipulator.getSimpleVolume(guid);
+    public TreeNode get(GUID guid) {
+        StripedVolume stripedVolume = this.stripedVolumeManipulator.getStripedVolume(guid);
         VolumeCapacity volumeCapacity = this.volumeCapacityManipulator.getVolumeCapacity(guid);
-        simpleVolume.setVolumeCapacity( volumeCapacity );
-        simpleVolume.setVolumeTree( this.volumeTree );
-        return simpleVolume;
+        stripedVolume.setVolumeCapacity( volumeCapacity );
+        stripedVolume.setVolumeTree( this.volumeTree );
+        return stripedVolume;
     }
 
     @Override
@@ -90,11 +87,10 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     public void updateName(GUID guid, String name) {
 
     }
+
     private void removeNode( GUID guid ){
-        GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
         this.distributedTrieTree.purge( guid );
         this.distributedTrieTree.removeCachePath( guid );
-        this.simpleVolumeManipulator.remove( guid );
+        this.stripedVolumeManipulator.remove( guid );
     }
-
 }

@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Select;
 
 @IbatisDataAccessObject
 public interface SpannedVolumeMapper extends SpannedVolumeManipulator {
-    @Insert("INSERT INTO `hydra_uofs_volumes` (`guid`, `create_time`, `update_time`, `name`, `definition_capacity`, `used_size`, `quota_capacity`, `type`, `ext_config`) VALUES ( #{guid}, #{createTime}, #{updateTime}, #{name}, #{definitionCapacity}, #{usedSize}, #{quotaCapacity}, #{type}, #{extConfig} )")
+    @Insert("INSERT INTO `hydra_uofs_volumes` (`guid`, `create_time`, `update_time`, `name`,  `type`, `ext_config`) VALUES ( #{guid}, #{createTime}, #{updateTime}, #{name}, #{type}, #{extConfig} )")
     void insert( SpannedVolume spannedVolume );
     @Delete("DELETE FROM `hydra_uofs_volumes` where `guid` = #{guid}")
     void remove( GUID guid );

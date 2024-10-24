@@ -41,7 +41,15 @@ public class TitanVolumeOperatorFactory implements VolumeOperatorFactory{
                 new SimpleVolumeOperator( this )
         );
 
+        this.registerer.put(
+                DefaultStripedVolume,
+                new StripedVolumeOperator( this )
+        );
 
+        this.registerer.put(
+                DefaultSpannedVolume,
+                new SpannedVolumeOperator( this )
+        );
         this.registerDefaultMetaTypes();
     }
     @Override

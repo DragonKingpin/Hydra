@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.unit.udtt.entity.TreeNode;
 
 import java.io.IOException;
@@ -15,9 +16,9 @@ public interface LogicVolume extends Volume, TreeNode {
 
     void setName( String name );
 
-    List<Volume> getChildren();
+    List<LogicVolume> getChildren();
 
-    void setChildren( List<Volume> children );
+    void setChildren( List<LogicVolume> children );
 
     VolumeCapacity getVolumeCapacity();
 
@@ -29,6 +30,7 @@ public interface LogicVolume extends Volume, TreeNode {
     void channelExport( KOMFileSystem fileSystem, FileNode file ) throws IOException;
     void streamExport( KOMFileSystem fileSystem, FileNode file ) throws IOException;
     void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException;
+    void channelReceive( KOMFileSystem fileSystem, FileNode file, FileChannel channel, long offset, long endSize ) throws IOException;
     void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) throws IOException;
 
     default MirroredVolume evinceMirroredVolume(){
@@ -43,4 +45,5 @@ public interface LogicVolume extends Volume, TreeNode {
     default StripedVolume  evinceStripeVolume(){
         return null;
     }
+    void setVolumeTree( VolumeTree volumeTree );
 }

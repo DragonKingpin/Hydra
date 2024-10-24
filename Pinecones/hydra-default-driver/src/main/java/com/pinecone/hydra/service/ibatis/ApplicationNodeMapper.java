@@ -23,7 +23,7 @@ public interface ApplicationNodeMapper extends ApplicationNodeManipulator {
     void remove( @Param("guid")GUID guid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_service_application_node` WHERE `guid`=#{guid}")
-    ApplicationElement getApplicationNode(@Param("guid")GUID guid);
+    GenericApplicationElement getApplicationNode(@Param("guid")GUID guid);
 
     void update( ApplicationElement applicationElement );
 

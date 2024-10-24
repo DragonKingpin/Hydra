@@ -27,10 +27,6 @@ public interface Volume extends Pinenut {
     String getExtConfig();
     void setExtConfig( String extConfig );
 
-//    long getDefinitionCapacity();
-//    void setDefinitionCapacity( long definitionCapacity );
-//    long getUsedSize();
-//    void setUsedSize( long usedSize );
-//    long getQuotaCapacity();
-//    void setQuotaCapacity( long quotaCapacity );
+    VolumeCapacity getVolumeCapacity();
+    void setVolumeCapacity( VolumeCapacity volumeCapacity );
 }

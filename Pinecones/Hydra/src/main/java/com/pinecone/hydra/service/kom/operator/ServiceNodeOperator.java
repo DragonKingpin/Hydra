@@ -35,34 +35,30 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
 
     @Override
     public GUID insert(TreeNode nodeWideData) {
-        GenericServiceElement serviceNodeInformation=(GenericServiceElement) nodeWideData;
+        GenericServiceElement serviceElement=(GenericServiceElement) nodeWideData;
 
         //将信息写入数据库
         //将节点信息存入应用节点表
         GuidAllocator guidAllocator = GUIDs.newGuidAllocator();
         GUID serviceNodeGUID = guidAllocator.nextGUID72();
-        serviceNodeInformation.setGuid(serviceNodeGUID);
-        this.serviceNodeManipulator.insert(serviceNodeInformation);
+        serviceElement.setGuid(serviceNodeGUID);
+        this.serviceNodeManipulator.insert(serviceElement);
 
         //将应用节点基础信息存入信息表
         GUID descriptionGUID = guidAllocator.nextGUID72();
-        GenericServiceNodeMeta serviceDescription = serviceNodeInformation.getServiceNodeMetadata();
-        if ( serviceDescription != null ){
-            serviceDescription.setGuid(descriptionGUID);
-            this.serviceMetaManipulator.insert(serviceDescription);
+        if ( serviceElement.getMetaGuid() == null ){
+            serviceElement.setMetaGuid( descriptionGUID);
         }
-        else {
-            descriptionGUID = null;
-        }
+        this.serviceMetaManipulator.insert( serviceElement );
 
 
         //将应用元信息存入元信息表
-       this.commonDataManipulator.insert( serviceNodeInformation );
+       this.commonDataManipulator.insert( serviceElement );
 
 
         //将节点信息存入主表
         GUIDDistributedTrieNode node = new GUIDDistributedTrieNode();
-        node.setBaseDataGUID(descriptionGUID);
+        node.setNodeMetadataGUID(descriptionGUID);
         node.setGuid(serviceNodeGUID);
         node.setType( UOIUtils.createLocalJavaClass( nodeWideData.getClass().getName() ) );
         this.distributedTrieTree.insert( node);
@@ -77,11 +73,13 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
     @Override
     public ServiceTreeNode get(GUID guid) {
         GUIDDistributedTrieNode node = this.distributedTrieTree.getNode(guid);
-        ServiceElement serviceElement = this.ToServiceNode( this.commonDataManipulator.getNodeCommonData(node.getNodeMetadataGUID()) );
+        ServiceElement serviceElement = new GenericServiceElement();
+        if( node.getNodeMetadataGUID() != null ){
+            serviceElement = this.serviceMetaManipulator.getServiceMeta( node.getNodeMetadataGUID() );
+        }
 
-        GenericServiceNodeMeta serviceMeta = this.serviceMetaManipulator.getServiceMeta(node.getAttributesGUID());
+        this.applyServiceNode( serviceElement, this.commonDataManipulator.getNodeCommonData( guid ) );
 
-        serviceElement.setServiceNodeMetadata(serviceMeta);
         serviceElement.setDistributedTreeNode(node);
         serviceElement.setGuid(guid);
         serviceElement.setName(this.serviceNodeManipulator.getServiceNode(guid).getName());
@@ -118,14 +116,12 @@ public class ServiceNodeOperator extends ArchServiceOperator implements ServiceO
         this.commonDataManipulator.remove(node.getNodeMetadataGUID());
     }
 
-    private ServiceElement ToServiceNode(ServiceFamilyNode serviceFamilyNode ){
-        GenericServiceElement serviceNode = new GenericServiceElement();
-        serviceNode.setGuid( serviceFamilyNode.getGuid() );
-        serviceNode.setScenario( serviceFamilyNode.getScenario() );
-        serviceNode.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
-        serviceNode.setExtraInformation( serviceFamilyNode.getExtraInformation() );
-        serviceNode.setLevel( serviceFamilyNode.getLevel() );
-        serviceNode.setDescription( serviceFamilyNode.getDescription() );
-        return serviceNode;
+    private void applyServiceNode( ServiceElement serviceElement, ServiceFamilyNode serviceFamilyNode ){
+        serviceElement.setGuid( serviceFamilyNode.getGuid() );
+        serviceElement.setScenario( serviceFamilyNode.getScenario() );
+        serviceElement.setPrimaryImplLang( serviceFamilyNode.getPrimaryImplLang() );
+        serviceElement.setExtraInformation( serviceFamilyNode.getExtraInformation() );
+        serviceElement.setLevel( serviceElement.getLevel() );
+        serviceElement.setDescription( serviceElement.getDescription() );
     }
 }

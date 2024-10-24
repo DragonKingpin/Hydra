@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
+import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.source.StripedVolumeManipulator;
 
 import java.io.IOException;
@@ -21,6 +22,13 @@ public class TitanLocalStripedVolume extends ArchLogicVolume implements LocalStr
         this.stripedVolumeManipulator = stripedVolumeManipulator;
     }
 
+    public TitanLocalStripedVolume( VolumeTree volumeTree ){
+        super( volumeTree );
+    }
+
+    public TitanLocalStripedVolume(){
+    }
+
     @Override
     public void channelExport(KOMFileSystem fileSystem, FileNode file) throws IOException {
 
@@ -33,6 +41,11 @@ public class TitanLocalStripedVolume extends ArchLogicVolume implements LocalStr
 
     @Override
     public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException {
+
+    }
+
+    @Override
+    public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel, long offset, long endSize) {
 
     }
 
@@ -58,6 +71,11 @@ public class TitanLocalStripedVolume extends ArchLogicVolume implements LocalStr
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
+    public void setVolumeTree(VolumeTree volumeTree) {
+        this.volumeTree = volumeTree;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.volume.VolumeTree;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
+import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.source.SpannedVolumeManipulator;
 
 import java.io.IOException;
@@ -19,6 +20,12 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
     public TitanLocalSpannedVolume(VolumeTree volumeTree, SpannedVolumeManipulator spannedVolumeManipulator) {
         super(volumeTree);
         this.spannedVolumeManipulator = spannedVolumeManipulator;
+    }
+    public TitanLocalSpannedVolume( VolumeTree volumeTree ){
+        super( volumeTree );
+    }
+
+    public TitanLocalSpannedVolume(){
     }
     public void setSpannedVolumeManipulator( SpannedVolumeManipulator spannedVolumeManipulator ){
         this.spannedVolumeManipulator = spannedVolumeManipulator;
@@ -40,7 +47,16 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
 
     @Override
     public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel) throws IOException {
-
+        long definitionSize = file.getDefinitionSize();
+        List<LogicVolume> volumes = this.getChildren();
+        LogicVolume volume0 = volumes.get(0);
+        LogicVolume volume1 = volumes.get(1);
+        long volume0DefinitionSize = volume0.getVolumeCapacity().getDefinitionCapacity();
+        long volume1DefinitionSize = volume1.getVolumeCapacity().getDefinitionCapacity();
+        long endSize0 = definitionSize * (volume0DefinitionSize / (volume0DefinitionSize+volume1DefinitionSize));
+        long endSize1 = definitionSize - endSize0;
+        volume0.channelReceive( fileSystem,file,channel,0,endSize0 );
+        volume1.channelReceive( fileSystem,file,channel,endSize0,endSize1 );
     }
 
     @Override
@@ -56,6 +72,16 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
     @Override
     public void streamReceive(KOMFileSystem fileSystem, FileNode file, InputStream inputStream) {
 
+    }
+
+    @Override
+    public void channelReceive(KOMFileSystem fileSystem, FileNode file, FileChannel channel, long start, long offset) throws IOException {
+
+    }
+
+    @Override
+    public void setVolumeTree(VolumeTree volumeTree) {
+        this.volumeTree = volumeTree;
     }
 
     @Override

@@ -14,6 +14,7 @@ public abstract class ArchVolume implements Volume{
     protected String                  type;
     protected String                  extConfig;
     protected VolumeTree              volumeTree;
+    protected VolumeCapacity          volumeCapacity;
 
     public ArchVolume( VolumeTree volumeTree ){
         this.volumeTree = volumeTree;
@@ -77,6 +78,16 @@ public abstract class ArchVolume implements Volume{
     @Override
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public VolumeCapacity getVolumeCapacity() {
+        return this.volumeCapacity;
+    }
+
+    @Override
+    public void setVolumeCapacity(VolumeCapacity volumeCapacity) {
+        this.volumeCapacity = volumeCapacity;
     }
 
     @Override

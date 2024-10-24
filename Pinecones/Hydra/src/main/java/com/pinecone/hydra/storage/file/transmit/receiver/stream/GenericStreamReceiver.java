@@ -95,6 +95,11 @@ public class GenericStreamReceiver extends ArchReceiver implements StreamReceive
     }
 
     @Override
+    public void receive(ReceiveEntity entity, long offset, long endSize) throws IOException {
+
+    }
+
+    @Override
     public void resumableReceive(ReceiveEntity entity) throws IOException {
 
     }

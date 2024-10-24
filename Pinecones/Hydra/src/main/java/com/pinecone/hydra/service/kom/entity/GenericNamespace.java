@@ -5,26 +5,19 @@ import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
-public class GenericNamespace implements Namespace {
-    protected long enumId;
-
-    protected GUID guid;
-
-    protected String name;
-
+public class GenericNamespace extends ArchElementNode implements Namespace {
     protected GUID rulesGUID;
 
     protected GUIDDistributedTrieNode     distributedTreeNode;
 
     protected GenericNamespaceRules       classificationRules;
 
-    protected ArchServiceFamilyNode nodeAttributes;
+    protected ArchElementNode nodeAttributes;
 
 
     protected ServicesInstrument          servicesInstrument;
@@ -67,43 +60,13 @@ public class GenericNamespace implements Namespace {
     }
 
     @Override
-    public ArchServiceFamilyNode getAttributes() {
+    public ArchElementNode getAttributes() {
         return nodeAttributes;
     }
 
     @Override
-    public void setNodeCommonData(ArchServiceFamilyNode nodeAttributes) {
+    public void setNodeCommonData(ArchElementNode nodeAttributes) {
         this.nodeAttributes = nodeAttributes;
-    }
-
-    @Override
-    public long getEnumId() {
-        return enumId;
-    }
-
-    @Override
-    public void setEnumId(long enumId) {
-        this.enumId = enumId;
-    }
-
-    @Override
-    public GUID getGuid() {
-        return guid;
-    }
-
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override

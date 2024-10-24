@@ -31,8 +31,8 @@ class Jesse extends Radium {
         );
 
         UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
-        this.testInsert( servicesTree );
-        //this.testGet( servicesTree );
+        //this.testInsert( servicesTree );
+        this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 
@@ -76,11 +76,11 @@ class Jesse extends Radium {
     private void testGet( ServicesInstrument servicesInstrument){
         //Debug.trace( servicesInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
         //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
-        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
-        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
-        Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
+        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
+        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
+        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
 //        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
-        //Debug.trace( servicesInstrument.affirmApplication( "Test1/很好的服务" ).toString() );
+        Debug.trace( servicesInstrument.affirmApplication( "Test1/特殊服务" ) );
     }
 
     private void testDelete( ServicesInstrument servicesInstrument){

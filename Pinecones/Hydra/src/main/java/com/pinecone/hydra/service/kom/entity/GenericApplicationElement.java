@@ -1,31 +1,20 @@
 package com.pinecone.hydra.service.kom.entity;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
-public class GenericApplicationElement extends ArchServiceFamilyNode implements ApplicationElement {
+public class GenericApplicationElement extends ArchElementNode implements ApplicationElement {
+    protected GUIDDistributedTrieNode distributedTreeNode;
 
-    private GUIDDistributedTrieNode distributedTreeNode;
-
-    //private GenericApplicationNodeMeta applicationNodeMeta;
-
-    private long enumId;
-
-    private GUID guid;
-
-    private String name;
     protected GUID metaGuid;
-
     protected String path;
-
     protected String type;
     protected String alias;
     protected String resourceType;
@@ -54,56 +43,28 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
         this.applicationNodeManipulator = applicationNodeManipulator;
     }
 
-
+    @Override
     public GUIDDistributedTrieNode getDistributedTreeNode() {
         return distributedTreeNode;
     }
 
-
+    @Override
     public void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode) {
         this.distributedTreeNode = distributedTreeNode;
     }
 
 
-//    public GenericApplicationNodeMeta getApplicationNodeMeta() {
-//        return applicationNodeMeta;
-//    }
-//
-//
-//    public void setApplicationNodeMeta(GenericApplicationNodeMeta applicationNodeMeta) {
-//        this.applicationNodeMeta = applicationNodeMeta;
-//    }
-
+    /**
+     *  Overridden to keep keys in prior json-decode.
+     */
     @Override
-    public long getEnumId() {
-        return enumId;
-    }
-
-
-    @Override
-    public void setEnumId(long enumId) {
-        this.enumId = enumId;
-    }
-
-
     public GUID getGuid() {
-        return guid;
+        return super.getGuid();
     }
-
-
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
-
 
     @Override
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
+        return super.getName();
     }
 
     @Override
@@ -188,7 +149,9 @@ public class GenericApplicationElement extends ArchServiceFamilyNode implements 
 
     @Override
     public String toJSONString() {
-        return BeanJSONEncoder.BasicEncoder.encode( this );
+        return BeanJSONEncoder.BasicEncoder.encode( this, Set.of(
+                "distributedTreeNode"
+        ) );
     }
 
     @Override

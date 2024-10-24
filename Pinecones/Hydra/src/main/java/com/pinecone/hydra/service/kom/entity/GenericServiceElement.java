@@ -1,52 +1,40 @@
 package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.meta.GenericServiceNodeMeta;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 import com.pinecone.ulf.util.id.GuidAllocator;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
-public class GenericServiceElement extends ArchServiceFamilyNode implements ServiceElement {
-    private GUIDDistributedTrieNode distributedTreeNode;
+public class GenericServiceElement extends ArchElementNode implements ServiceElement {
+    protected GUIDDistributedTrieNode distributedTreeNode;
 
+    protected GUID metaGuid;
 
-    // 服务节点id
-    private long enumId;
-
-    // 服务节点UUID
-    private GUID guid;
-
-    private GUID metaGuid;
-
-    // 服务节点名称
-    private String name;
-
-    private String path;
+    protected String path;
 
     // 类型
-    private String type;
+    protected String type;
 
     // 服务别名
-    private String alias;
+    protected String alias;
 
     // 资源类型
-    private String resourceType;
+    protected String resourceType;
 
     // 服务类型
-    private String serviceType;
+    protected String serviceType;
 
-    // 创建时间
-    private LocalDateTime createTime;
+    protected LocalDateTime createTime;
+    protected LocalDateTime updateTime;
 
-    // 最近更新时间
-    private LocalDateTime updateTime;
-    private ServicesInstrument servicesInstrument;
-    private ServiceNodeManipulator serviceNodeManipulator;
+    protected ServicesInstrument servicesInstrument;
+    protected ServiceNodeManipulator serviceNodeManipulator;
 
 
     public GenericServiceElement() {
@@ -66,43 +54,16 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
         this.serviceNodeManipulator = serviceNodeManipulator;
     }
 
-    @Override
-    public long getEnumId() {
-        return enumId;
-    }
 
 
-    @Override
-    public void setEnumId(long enumId) {
-        this.enumId = enumId;
-    }
-
-    @Override
-    public GUID getGuid() {
-        return guid;
-    }
-
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
     @Override
     public GUID getMetaGuid(){
         return this.metaGuid;
     }
+
     @Override
     public void setMetaGuid( GUID metaGuid ){
         this.metaGuid = metaGuid;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -115,13 +76,27 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
         this.distributedTreeNode = distributedTreeNode;
     }
 
+
+    /**
+     *  Overridden to keep keys in prior json-decode.
+     */
+    @Override
+    public GUID getGuid() {
+        return super.getGuid();
+    }
+
+    @Override
+    public String getName() {
+        return super.getName();
+    }
+
     @Override
     public String getPath() {
         return this.path;
     }
 
     @Override
-    public void setPath(String path) {
+    public void setPath( String path ) {
         this.path = path;
     }
 
@@ -131,7 +106,7 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setType(String type) {
+    public void setType( String type ) {
         this.type = type;
     }
 
@@ -141,7 +116,7 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setAlias(String alias) {
+    public void setAlias( String alias ) {
         this.alias = alias;
     }
 
@@ -151,7 +126,7 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setResourceType(String resourceType) {
+    public void setResourceType( String resourceType ) {
         this.resourceType = resourceType;
     }
 
@@ -161,7 +136,7 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setServiceType(String serviceType) {
+    public void setServiceType( String serviceType ) {
         this.serviceType = serviceType;
     }
 
@@ -171,7 +146,7 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setCreateTime(LocalDateTime createTime) {
+    public void setCreateTime( LocalDateTime createTime ) {
         this.createTime = createTime;
     }
 
@@ -181,13 +156,13 @@ public class GenericServiceElement extends ArchServiceFamilyNode implements Serv
     }
 
     @Override
-    public void setUpdateTime(LocalDateTime updateTime) {
+    public void setUpdateTime( LocalDateTime updateTime ) {
         this.updateTime = updateTime;
     }
 
     @Override
     public String toJSONString() {
-        return BeanJSONEncoder.BasicEncoder.encode( this );
+        return BeanJSONEncoder.BasicEncoder.encode( this, Set.of( "" ) );
     }
 
     @Override

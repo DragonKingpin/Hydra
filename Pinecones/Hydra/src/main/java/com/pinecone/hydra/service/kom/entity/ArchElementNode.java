@@ -1,16 +1,16 @@
-package com.pinecone.hydra.service.kom;
+package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 import com.pinecone.hydra.service.ArchServiceFamilyObject;
+import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 
-public abstract class ArchServiceFamilyNode extends ArchServiceFamilyObject implements ServiceFamilyNode {
+public abstract class ArchElementNode extends ArchServiceFamilyObject implements ServiceFamilyNode {
     protected long enumId;
 
-    public ArchServiceFamilyNode() {
+    public ArchElementNode() {
         super();
     }
-
 
     @Override
     public long getEnumId() {
@@ -18,7 +18,7 @@ public abstract class ArchServiceFamilyNode extends ArchServiceFamilyObject impl
     }
 
     @Override
-    public void setEnumId(long enumId) {
+    public void setEnumId( long enumId ) {
         this.enumId = enumId;
     }
 
@@ -27,34 +27,38 @@ public abstract class ArchServiceFamilyNode extends ArchServiceFamilyObject impl
         return this.guid;
     }
 
-
     @Override
-    public void setGuid(GUID guid) {
+    public void setGuid( GUID guid ) {
         this.guid = guid;
     }
 
     @Override
-    public void setScenario(String scenario) {
+    public void setName( String name ) {
+        this.name = name;
+    }
+
+    @Override
+    public void setScenario( String scenario ) {
         this.scenario = scenario;
     }
 
     @Override
-    public void setPrimaryImplLang(String primaryImplLang) {
+    public void setPrimaryImplLang( String primaryImplLang ) {
         this.primaryImplLang = primaryImplLang;
     }
 
     @Override
-    public void setExtraInformation(String extraInformation) {
+    public void setExtraInformation( String extraInformation ) {
         this.extraInformation = extraInformation;
     }
 
     @Override
-    public void setLevel(String level) {
+    public void setLevel( String level ) {
         this.level = level;
     }
 
     @Override
-    public void setDescription(String description) {
+    public void setDescription( String description ) {
         this.description = description;
     }
 

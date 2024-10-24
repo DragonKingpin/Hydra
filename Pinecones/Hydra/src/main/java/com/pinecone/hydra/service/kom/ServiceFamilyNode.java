@@ -7,7 +7,9 @@ import com.pinecone.hydra.service.ServiceFamilyObject;
 public interface ServiceFamilyNode extends ServiceFamilyObject {
     long getEnumId();
 
-    void setEnumId(long id);
+    void setEnumId( long id );
+
+    void setName( String name );
 
     GUID getGuid();
 

@@ -3,7 +3,7 @@ package com.pinecone.hydra.service.kom.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
+import com.pinecone.hydra.service.kom.entity.ArchElementNode;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericCommonMeta;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
@@ -60,7 +60,7 @@ public class ServiceNamespaceOperator extends ArchServiceOperator implements Ser
 
         //将应用元信息存入元信息表
         GUID           metadataGUID;
-        ArchServiceFamilyNode metadata = namespaceInformation.getAttributes();
+        ArchElementNode metadata = namespaceInformation.getAttributes();
         if( metadata == null ) {
             metadataGUID = guidAllocator.nextGUID72();
             metadata = new GenericCommonMeta();

@@ -5,7 +5,9 @@ import com.pinecone.framework.util.id.Identification;
 import com.pinecone.framework.util.json.hometype.BeanJSONEncoder;
 
 public abstract class ArchServiceFamilyObject implements ServiceFamilyObject {
-    protected GUID guid;
+    protected GUID   guid;
+
+    protected String name;
 
     protected String scenario;
 
@@ -28,6 +30,11 @@ public abstract class ArchServiceFamilyObject implements ServiceFamilyObject {
     @Override
     public Identification getId() {
         return this.getGuid();
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override

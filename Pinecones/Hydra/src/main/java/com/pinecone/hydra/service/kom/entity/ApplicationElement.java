@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
-import com.pinecone.hydra.service.kom.meta.GenericApplicationNodeMeta;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public interface ApplicationElement extends ServiceTreeNode, ServiceFamilyNode {

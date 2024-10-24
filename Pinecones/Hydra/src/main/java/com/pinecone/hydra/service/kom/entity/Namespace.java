@@ -2,7 +2,6 @@ package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.unit.udtt.GUIDDistributedTrieNode;
 
 public interface Namespace extends ServiceTreeNode {
@@ -30,7 +29,7 @@ public interface Namespace extends ServiceTreeNode {
     GUIDDistributedTrieNode getDistributedTreeNode();
     void setDistributedTreeNode(GUIDDistributedTrieNode distributedTreeNode);
 
-    ArchServiceFamilyNode getAttributes();
-    void setNodeCommonData(ArchServiceFamilyNode nodeAttributes);
+    ArchElementNode getAttributes();
+    void setNodeCommonData(ArchElementNode nodeAttributes);
 
 }

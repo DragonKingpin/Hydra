@@ -1,7 +1,6 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ArchServiceFamilyNode;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.service.kom.entity.GenericCommonMeta;
 import com.pinecone.hydra.service.kom.source.CommonDataManipulator;

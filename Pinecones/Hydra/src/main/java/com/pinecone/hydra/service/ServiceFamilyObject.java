@@ -10,6 +10,8 @@ public interface ServiceFamilyObject extends Pinenut  {
 
     Identification getId() ;
 
+    String getName();
+
     String getScenario();
 
     String getPrimaryImplLang();

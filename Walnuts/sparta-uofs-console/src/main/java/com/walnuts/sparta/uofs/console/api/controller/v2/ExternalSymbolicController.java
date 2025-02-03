@@ -38,4 +38,16 @@ public class ExternalSymbolicController {
         }
         return BasicResultResponse.success().toJSONString();
     }
+
+    /**
+     * 获取外部文件夹的所有内容
+     * @param path 路径
+     * @return 返回内容信息
+     */
+    @GetMapping("/listItem/externalFoldr")
+    public String ExternalFolderListItem(@RequestParam("path") String path){
+        File file = new File(path);
+        GenericExternalFolder externalFolder = new GenericExternalFolder(file);
+        return BasicResultResponse.success(externalFolder.listItem()).toJSONString();
+    }
 }

@@ -4,14 +4,21 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.account.entity.Account;
+import com.pinecone.hydra.account.entity.Credential;
 import com.pinecone.hydra.account.entity.Domain;
 import com.pinecone.hydra.account.entity.ElementNode;
 import com.pinecone.hydra.account.entity.GenericAccount;
+import com.pinecone.hydra.account.entity.GenericAuthorization;
 import com.pinecone.hydra.account.entity.GenericDomain;
 import com.pinecone.hydra.account.entity.GenericGroup;
+import com.pinecone.hydra.account.entity.GenericPrivilege;
+import com.pinecone.hydra.account.entity.GenericRole;
 import com.pinecone.hydra.account.entity.Group;
+import com.pinecone.hydra.account.entity.Role;
 import com.pinecone.hydra.account.source.AuthorizationManipulator;
 import com.pinecone.hydra.account.source.CredentialManipulator;
+import com.pinecone.hydra.account.source.PrivilegeManipulator;
+import com.pinecone.hydra.account.source.RoleManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -26,6 +33,7 @@ import com.pinecone.hydra.account.source.DomainNodeManipulator;
 import com.pinecone.hydra.account.source.GroupNodeManipulator;
 import com.pinecone.hydra.account.source.UserMasterManipulator;
 import com.pinecone.hydra.account.source.UserNodeManipulator;
+import com.pinecone.ulf.util.guid.GUID72;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;
@@ -45,6 +53,9 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     protected AuthorizationManipulator          authorizationManipulator;
 
+    protected PrivilegeManipulator              privilegeManipulator;
+    protected RoleManipulator                   roleManipulator;
+
     protected List<GUIDNameManipulator >        folderManipulators;
 
     protected List<GUIDNameManipulator >        fileManipulators;
@@ -62,6 +73,8 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
         this.domainNodeManipulator      = this.userMasterManipulator.getDomainNodeManipulator();
         this.credentialManipulator      = this.userMasterManipulator.getCredentialManipulator();
         this.authorizationManipulator   = this.userMasterManipulator.getAuthorizationManipulator();
+        this.privilegeManipulator               = this.userMasterManipulator.getPrivilegeManipulator();
+        this.roleManipulator                      = this.userMasterManipulator.getRoleManipulator();
 
         this.folderManipulators = new ArrayList<>(List.of(this.domainNodeManipulator, this.groupNodeManipulator));
         this.fileManipulators   = new ArrayList<>(List.of(this.userNodeManipulator));
@@ -167,6 +180,17 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     }
 
     @Override
+    public void insertCredential(Credential credential) {
+        this.credentialManipulator.insert( credential );
+
+    }
+
+    @Override
+    public void insertRole(Role role) {
+        this.roleManipulator.insert( role );
+    }
+
+    @Override
     public void addChildren( GUID parentGuid, GUID childrenGuid ) {
         this.treeMasterManipulator.getTrieTreeManipulator().addChild( childrenGuid, parentGuid );
     }
@@ -185,6 +209,102 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
             }
         }
         return false;
+    }
+
+    @Override
+    public List<GUID> queryAccountGuidByName(String userName) {
+        return  this.userNodeManipulator.getGuidsByName( userName );
+
+    }
+
+    @Override
+    public boolean queryAccountByGuid(GUID userGuid, String kernelCredential) {
+        Account account = this.userNodeManipulator.queryUser( userGuid );
+        return account.getKernelCredential().equals(kernelCredential);
+
+    }
+
+    @Override
+    public void insertPrivilege(GenericPrivilege privilege) {
+        this.privilegeManipulator.insert(privilege);
+    }
+
+    @Override
+    public void removePrivilege(GUID privilegeGuid) {
+        this.privilegeManipulator.remove( privilegeGuid );
+    }
+
+    @Override
+    public Object queryPrivilege(GUID72 guid72) {
+        return null;
+    }
+
+    @Override
+    public List<GenericPrivilege> queryPrivilegeByName(String name) {
+        return null;
+    }
+
+    @Override
+    public List<GenericPrivilege> queryAllPrivileges() {
+        List<GenericPrivilege> privileges = new ArrayList<>();
+        for( GenericPrivilege privilege : this.privilegeManipulator.queryAllPrivileges() ) {
+            privileges.add( privilege );
+        }
+        return privileges;
+    }
+
+    @Override
+    public void updateRole(GenericRole role) {
+
+        this.roleManipulator.updateRole(role);
+    }
+
+    @Override
+    public GUID queryUserCredentialByGuid(GUID userGuid) {
+        return this.credentialManipulator.queryCredential(userGuid).getGuid();
+    }
+
+    @Override
+    public boolean hasPermission(GUID userGuid, String requiredPrivilegeCode) {
+        List<GenericAuthorization> authorizations = this.authorizationManipulator.queryAuthorizationByUserGuid(userGuid);
+        for( GenericAuthorization authorization : authorizations ) {
+            if( authorization.getPrivilegeToken().contains( requiredPrivilegeCode ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void insertAuthorization(GenericAuthorization authorization) {
+        this.authorizationManipulator.insert( authorization );
+
+    }
+
+    @Override
+    public void removeAuthorizationByUserGuid(GUID userGuid) {
+        this.authorizationManipulator.removeAuthorizationByUserGuid( userGuid );
+    }
+
+    @Override
+    public List<GenericAccount> queryAllAccount() {
+
+        return this.userNodeManipulator.queryAllAccount();
+    }
+
+    @Override
+    public List<GenericDomain> queryAllDomain() {
+        return this.domainNodeManipulator.queryAllDomain();
+    }
+
+    @Override
+    public Group queryGroupByGroupGuid(GUID groupGuid) {
+        return this.groupNodeManipulator.queryGroup(groupGuid);
+    }
+
+    @Override
+    public String queryDomainNameByGuid(GUID domainGuid) {
+        return this.domainNodeManipulator.queryDomainNameByGuid(domainGuid);
     }
 
     protected boolean containsChild( GUIDNameManipulator manipulator, GUID parentGuid, String childName ) {

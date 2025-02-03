@@ -1,54 +1,39 @@
 package com.pinecone.hydra.account.entity;
 
-import com.pinecone.framework.util.id.GUID;
-
 import java.time.LocalDateTime;
 
-public class GenericCredential implements Credential {
-    private int enumId;
-
-    private GUID guid;
-
+public class GenericRole implements Role{
+    private int id;
     private String name;
-
-    private String credential;
-
+    private String privilegeGuids;
     private LocalDateTime createTime;
-
     private LocalDateTime updateTime;
-
     private String type;
 
-    public GenericCredential(){}
+    // 无参构造方法
+    public GenericRole() {
+        super();
+    }
 
-    public GenericCredential( GUID guid, String name, String credential, LocalDateTime createTime, LocalDateTime updateTime, String type) {
+    // 全参构造方法
+    public GenericRole(String name, String privilegeGuids, LocalDateTime createTime, LocalDateTime updateTime, String type) {
 
-        this.guid = guid;
         this.name = name;
-        this.credential = credential;
+        this.privilegeGuids = privilegeGuids;
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.type = type;
     }
 
-    @Override
-    public int getEnumId() {
-        return this.enumId;
-    }
+
 
     @Override
-    public GUID getGuid() {
-        return this.guid;
+    public int getId() {
+        return id;
     }
-
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
-
     @Override
     public String getName() {
-        return this.name;
+        return name;
     }
 
     @Override
@@ -57,18 +42,18 @@ public class GenericCredential implements Credential {
     }
 
     @Override
-    public String getCredential() {
-        return this.credential;
+    public String getPrivilegeGuids() {
+        return privilegeGuids;
     }
 
     @Override
-    public void setCredential(String credential) {
-        this.credential = credential;
+    public void setPrivilegeGuids(String privilegeGuids) {
+        this.privilegeGuids = privilegeGuids;
     }
 
     @Override
     public LocalDateTime getCreateTime() {
-        return this.createTime;
+        return createTime;
     }
 
     @Override
@@ -78,7 +63,7 @@ public class GenericCredential implements Credential {
 
     @Override
     public LocalDateTime getUpdateTime() {
-        return this.updateTime;
+        return updateTime;
     }
 
     @Override
@@ -88,7 +73,7 @@ public class GenericCredential implements Credential {
 
     @Override
     public String getType() {
-        return this.type;
+        return type;
     }
 
     @Override

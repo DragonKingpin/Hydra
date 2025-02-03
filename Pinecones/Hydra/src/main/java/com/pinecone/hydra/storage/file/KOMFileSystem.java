@@ -10,6 +10,7 @@ import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.transmit.exporter.FileExportEntity;
 import com.pinecone.hydra.storage.file.transmit.receiver.FileReceiveEntity;
+import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
@@ -143,9 +144,7 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     void move(String sourcePath, String destinationPath);
 
-    void copyTo(String sourcePath, String destinationPath);
-
-    void copy(String sourcePath, String destinationPath);
+    void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
 
     @Override
     List<FileTreeNode> fetchRoot();

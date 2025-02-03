@@ -1,9 +1,12 @@
 package com.pinecone.hydra.account.source;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.account.entity.GenericDomain;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.account.entity.Domain;
 import com.pinecone.hydra.account.entity.Account;
+
+import java.util.List;
 
 public interface DomainNodeManipulator extends GUIDNameManipulator {
     void insert(Domain domain);
@@ -11,4 +14,8 @@ public interface DomainNodeManipulator extends GUIDNameManipulator {
     void remove(GUID domainGuid);
 
     Domain queryDomain(GUID domainGuid );
+
+    List<GenericDomain> queryAllDomain();
+
+    String queryDomainNameByGuid(GUID domainGuid);
 }

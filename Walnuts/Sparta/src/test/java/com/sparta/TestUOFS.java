@@ -25,6 +25,7 @@ import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -70,7 +71,8 @@ class Steve extends Radium {
         //this.testChannelReceive( fileSystem, volumeManager );
         //this.testChannelExport( fileSystem, volumeManager );
         //this.testQuery( fileSystem );
-        this.testExternal( fileSystem );
+        //this.testExternal( fileSystem );
+        this.testCopy( fileSystem,volumeManager );
 
     }
 
@@ -84,6 +86,10 @@ class Steve extends Radium {
         fileSystem.affirmFileNode("game/我的世界/暮色森林/暮色惡魂");
         fileSystem.affirmFileNode("game/泰拉瑞亚/腐化之地/世界吞噬者");
         fileSystem.affirmFileNode("movie/生还危机/浣熊市");
+    }
+
+    private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
     }
 
     private void testExternal(KOMFileSystem fileSystem){

@@ -3,6 +3,7 @@ package com.pinecone.hydra.account.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.account.entity.Domain;
 import com.pinecone.hydra.account.entity.Account;
+import com.pinecone.hydra.account.entity.GenericDomain;
 import com.pinecone.hydra.account.source.DomainNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -28,4 +29,9 @@ public interface DomainNodeMapper extends DomainNodeManipulator {
     List<GUID > getGuidsByName(String name );
     @Select("SELECT `domin_guid` FROM hydra_account_domain_node WHERE `name` = #{name} AND domin_guid = #{guid}")
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
+
+    @Select("SELECT `id`, `domain_name` AS domainName, `domin_guid` AS guid, `name` FROM `hydra_account_domain_node`")
+    List<GenericDomain> queryAllDomain();
+    @Select("SELECT `name` AS domainName FROM `hydra_account_domain_node` WHERE `domin_guid` = #{domainGuid}")
+    String queryDomainNameByGuid(GUID domainGuid);
 }

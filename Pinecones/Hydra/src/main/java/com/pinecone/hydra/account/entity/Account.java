@@ -22,4 +22,7 @@ public interface Account extends FileElement {
 
     LocalDateTime getUpdateTime();
     void setUpdateTime( LocalDateTime updateTime );
+
+    String getRole();
+    void setRole( String role);
 }

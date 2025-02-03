@@ -7,23 +7,25 @@ import com.pinecone.hydra.account.AccountManager;
 import java.time.LocalDateTime;
 
 public class GenericAccount extends ArchElementNode implements Account {
-    protected long enumId;
+    protected long              enumId;
 
-    protected String name;
+    protected String            name;
 
-    protected GUID guid;
+    protected GUID              guid;
 
-    protected String nickName;
+    protected String            nickName;
 
-    protected String kernelCredential;
+    protected String            kernelCredential;
 
-    protected GUID credentialGuid;
+    protected GUID              credentialGuid;
 
-    protected String kernelGroupType;
+    protected String            kernelGroupType;
 
-    protected LocalDateTime createTime;
+    protected LocalDateTime     createTime;
 
-    protected LocalDateTime updateTime;
+    protected LocalDateTime     updateTime;
+
+    protected String            role;
 
     public GenericAccount(){
         super();
@@ -93,6 +95,17 @@ public class GenericAccount extends ArchElementNode implements Account {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
+
+    @Override
+    public String getRole() {
+        return this.role;
+    }
+
+    @Override
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );

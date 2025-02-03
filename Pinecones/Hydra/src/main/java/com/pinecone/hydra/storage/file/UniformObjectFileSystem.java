@@ -32,7 +32,13 @@ import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.transmit.exporter.FileExportEntity;
+import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.FileReceiveEntity;
+import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
+import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
+import com.pinecone.hydra.storage.io.TitanInputStreamChanface;
+import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
+import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -47,8 +53,14 @@ import com.pinecone.slime.map.indexable.IndexableMapQuerier;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -417,12 +429,42 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public void copyTo(String sourcePath, String destinationPath) {
+    public void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        ElementNode elementNode = this.queryElement(destinationPath);
+        this.copy(sourcePath,elementNode,volumeManager);
     }
 
-    @Override
-    public void copy(String sourcePath, String destinationPath) {
+    private void copy( String sourcePath, FileTreeNode fileTreeNode,VolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if( fileTreeNode instanceof Folder ){
+            List<TreeNode> children = this.getChildren(fileTreeNode.getGuid());
+            for(TreeNode child : children){
+                FileTreeNode childFileTreeNode = this.get(child.getGuid());
+                this.copy(sourcePath + "/" + fileTreeNode.getName(), childFileTreeNode,volumeManager);
+            }
+        }else {
+            String name = fileTreeNode.getName();
+            String[] split = name.split("\\.");
+            File tempFile = File.createTempFile(split[0], "."+split[1]);
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            TitanOutputStreamChanface outputStreamChanface = new TitanOutputStreamChanface(fileOutputStream);
+            TitanFileExportEntity64 exportEntity64 = new TitanFileExportEntity64(this, volumeManager,
+                    (FileNode) fileTreeNode, outputStreamChanface);
+            exportEntity64.export();
 
+            FileNode fileNode = this.fsNodeAllotment.newFileNode();
+            FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
+            TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
+            fileNode.setDefinitionSize( tempFile.length() );
+            fileNode.setName( tempFile.getName() );
+            String destDirPath = sourcePath + "/" + name;
+            TitanFileReceiveEntity64 receiveEntity64 = new TitanFileReceiveEntity64(this, destDirPath,
+                    fileNode, titanFileChannelKChannel, volumeManager);
+            this.receive( receiveEntity64 );
+
+            tempFile.delete();
+            fileOutputStream.close();
+            channel.close();
+        }
     }
 
     @Override

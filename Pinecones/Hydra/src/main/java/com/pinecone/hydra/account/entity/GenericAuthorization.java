@@ -23,6 +23,20 @@ public class GenericAuthorization implements Authorization{
 
     private LocalDateTime updateTime;
 
+    public GenericAuthorization(){}
+
+    public GenericAuthorization(GUID userGuid, String userName, GUID credential,
+                                String privilegeToken,
+                                LocalDateTime creationTime, LocalDateTime expirationTime) {
+        this.userGuid = userGuid;
+        this.userName = userName;
+        this.credentialGuid =credential;
+        this.privilegeToken = privilegeToken;
+
+        this.createTime = creationTime;
+        this.updateTime = expirationTime;
+    }
+
     @Override
     public int getEnumId() {
         return this.enumId;

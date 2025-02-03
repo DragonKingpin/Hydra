@@ -26,4 +26,6 @@ public interface UserNodeMapper extends UserNodeManipulator {
     List<GUID > getGuidsByName(String name );
     @Select("SELECT `guid` FROM hydra_account_user_node WHERE `user_name` = #{name} AND guid = #{guid}")
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
+    @Select("SELECT  `guid`, `user_name` AS name, `nick_name` AS nickName,  `kernel_group_type` AS kernelGroupType, `create_time` AS createTime, `update_time` AS updateTime ,`role` AS role FROM hydra_account_user_node")
+    List<GenericAccount> queryAllAccount();
 }

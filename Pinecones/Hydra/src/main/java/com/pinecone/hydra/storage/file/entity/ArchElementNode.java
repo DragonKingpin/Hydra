@@ -11,6 +11,7 @@ public abstract class ArchElementNode implements ElementNode {
     protected LocalDateTime           updateTime;
     protected String                  name;
 
+
     protected FileSystemAttributes fileSystemAttributes;
 
     @Override

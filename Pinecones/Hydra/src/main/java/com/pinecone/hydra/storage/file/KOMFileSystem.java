@@ -146,6 +146,8 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
 
+    void directCopy( String sourcePath, String destinationPath ) throws IOException;
+
     @Override
     List<FileTreeNode> fetchRoot();
 

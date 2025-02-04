@@ -23,4 +23,6 @@ public interface ExternalFolder extends ElementNode {
     File[]   listFiles();
 
     List<FileTreeNode> listItem();
+
+    void delete();
 }

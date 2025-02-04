@@ -27,6 +27,8 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     private boolean                     integrityCheckEnable;
     private boolean                     disableCluster;
 
+    private String                      path;
+
     @Override
     public boolean getIsUploadSuccessful() {
         return this.isUploadSuccessful;
@@ -269,6 +271,16 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     @Override
     public void setDisableCluster(boolean disableCluster) {
         this.disableCluster = disableCluster;
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
+    }
+
+    @Override
+    public void setPath(String path) {
+        this.path = path;
     }
 
     @Override

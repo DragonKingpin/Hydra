@@ -434,7 +434,12 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.copy(sourcePath,elementNode,volumeManager);
     }
 
-    private void copy( String sourcePath, FileTreeNode fileTreeNode,VolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    @Override
+    public void directCopy(String sourcePath, String destinationPath) throws IOException {
+        this.directFileSystemAccess.copy( sourcePath,destinationPath );
+    }
+
+    private void copy(String sourcePath, FileTreeNode fileTreeNode, VolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         if( fileTreeNode instanceof Folder ){
             List<TreeNode> children = this.getChildren(fileTreeNode.getGuid());
             for(TreeNode child : children){

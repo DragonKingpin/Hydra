@@ -62,6 +62,11 @@ public class GenericExternalFile extends ArchElementNode implements ExternalFile
     }
 
     @Override
+    public void delete() {
+        this.mNativeFile.delete();
+    }
+
+    @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );
     }

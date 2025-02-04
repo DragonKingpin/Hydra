@@ -95,4 +95,30 @@ public class GenericExternalFolder extends ArchElementNode implements ExternalFo
         }
         return fileTreeNodes;
     }
+
+    @Override
+    public void delete() {
+        try {
+            deleteDirectoryRecursively(mNativeFile.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 或者根据需要处理异常
+        }
+    }
+
+    private void deleteDirectoryRecursively(Path directory) throws IOException {
+        if (Files.exists(directory)) {
+            // Walk through the directory tree and delete all files and subdirectories
+            Files.walk(directory)
+                    .sorted((path1, path2) -> -path1.compareTo(path2)) // 反向排序以确保先删除子目录/文件
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            // 根据需要处理异常
+                        }
+                    });
+        }
+    }
 }

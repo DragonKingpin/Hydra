@@ -56,4 +56,8 @@ public interface FileNode extends ElementNode, CheckedFile {
     void setDisableCluster(boolean disableCluster);
 
     boolean isUploadSuccess();
+
+    String getPath();
+
+    void setPath( String path );
 }

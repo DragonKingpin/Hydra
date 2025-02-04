@@ -30,6 +30,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 import com.sauron.radium.Radium;
 
 import java.io.File;
@@ -89,7 +90,9 @@ class Steve extends Radium {
     }
 
     private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
+//        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
+        FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID72("14bc124-00012c-0004-f8"));
+        Debug.trace( fileNode.getPath() );
     }
 
     private void testExternal(KOMFileSystem fileSystem){

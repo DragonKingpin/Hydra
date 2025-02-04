@@ -3,16 +3,21 @@ package com.walnuts.sparta.uofs.console.api.controller.v2;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
+import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -21,6 +26,9 @@ import java.util.List;
 public class FolderController {
     @Resource
     private KOMFileSystem primaryFileSystem;
+
+    @Resource
+    private UniformVolumeManager primaryVolume;
 
     /**
      * 获取文件夹下所有内容
@@ -77,6 +85,17 @@ public class FolderController {
     public BasicResultResponse<String> removeFile( @RequestParam("fileGuid") String fileGuid ){
         this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
         return BasicResultResponse.success();
+    }
+
+    /**
+     * 文件复制接口
+     * @param sourcePath 目标路径
+     * @param destinationPath 源路径
+     */
+    @PutMapping("/copy")
+    public BasicResultResponse<String> copy( @RequestParam("sourcePath") String sourcePath, @RequestParam("destinationPath") String destinationPath ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        this.primaryFileSystem.copy( sourcePath, destinationPath, primaryVolume );
+        return BasicResultResponse.success("复制成功");
     }
 
 }

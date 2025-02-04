@@ -26,15 +26,13 @@ import com.pinecone.hydra.umct.UMCTExpressHandler;
 import com.pinecone.hydra.umct.WolfMCExpress;
 import com.sauron.radium.Radium;
 
-import javassist.ClassPool;
 
-
-class Garrison extends Radium {
-    public Garrison( String[] args, CascadeSystem parent ) {
+class Luben extends Radium {
+    public Luben( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
 
-    public Garrison( String[] args, String szName, CascadeSystem parent ){
+    public Luben( String[] args, String szName, CascadeSystem parent ){
         super( args, szName, parent );
     }
 
@@ -155,17 +153,19 @@ class Garrison extends Radium {
         producer.start();
         producer.issueInform( topic, "com.protobuf.Raccoon.scratch", "fuck you !", 2025 );
 
+
+
         Debug.sleep( 100000 );
     }
 }
 
 
-public class TestRocketClient {
+public class TestKafkaClient {
     public static void main(String[] args) throws Exception {
         Pinecone.init( (Object...cfg )->{
 
-            Garrison garrison = (Garrison) Pinecone.sys().getTaskManager().add( new Garrison( args, Pinecone.sys() ) );
-            garrison.vitalize();
+            Luben luben = (Luben) Pinecone.sys().getTaskManager().add( new Luben( args, Pinecone.sys() ) );
+            luben.vitalize();
 
             return 0;
         }, (Object[]) args );

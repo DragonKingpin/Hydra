@@ -110,7 +110,7 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
 
     @Override
     public FileTreeNode get(GUID guid) {
-        return this.getFolderWideData(guid,0);
+        return this.getFolderWideData(guid, 0);
     }
 
     @Override

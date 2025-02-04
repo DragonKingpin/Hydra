@@ -17,4 +17,6 @@ public interface ExternalFile extends ElementNode, UFile {
     String getParentPath();
 
     String getPath();
+
+    void delete();
 }

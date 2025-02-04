@@ -22,6 +22,7 @@ public class GenericFolder extends ArchElementNode implements Folder{
     private FolderMeta                  folderMeta;
     private KOMFileSystem               fileSystem;
     private FolderManipulator           folderManipulator;
+    private String                      path;
 
     public GenericFolder() {
     }
@@ -133,10 +134,10 @@ public class GenericFolder extends ArchElementNode implements Folder{
     }
 
     @Override
-    public ExternalSymbolic createExternalSymbolic( String name ) {
+    public ExternalSymbolic createExternalSymbolic( String name, String reparsedPoint ) {
         ExternalSymbolic neo = new GenericExternalSymbolic( this.fileSystem );
         neo.setName( name );
-
+        neo.setReparsedPoint( reparsedPoint );
         this.put( neo );
         return neo;
     }
@@ -203,6 +204,17 @@ public class GenericFolder extends ArchElementNode implements Folder{
     public void copyNamespaceMetaTo(GUID destinationGuid) {
 
     }
+
+    @Override
+    public String getPath() {
+        return this.path;
+    }
+
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );

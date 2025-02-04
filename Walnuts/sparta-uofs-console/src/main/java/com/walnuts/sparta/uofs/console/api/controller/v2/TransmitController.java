@@ -228,7 +228,7 @@ public class TransmitController {
      */
     @PostMapping("/upload")
     public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        ElementNode elementNode = this.primaryFileSystem.queryElement(filePath);
+            ElementNode elementNode = this.primaryFileSystem.queryElement(filePath);
             File tempFile = File.createTempFile("upload",".temp");
             file.transferTo(tempFile);
 

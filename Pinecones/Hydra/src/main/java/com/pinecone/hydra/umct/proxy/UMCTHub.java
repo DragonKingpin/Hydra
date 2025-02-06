@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint.proxy;
+package com.pinecone.hydra.umct.proxy;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 

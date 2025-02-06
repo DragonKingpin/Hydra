@@ -15,6 +15,12 @@ public interface BroadcastControlProducer extends BroadcastControlAgent {
 
     void issueInform( String topic, String szMethodAddress, Object... args ) throws IOException ;
 
+    <T> T getIface( Class<T> iface, String topic, String ns, String name );
+
+    default <T> T getIface( Class<T> iface, String topic ){
+        return this.getIface( iface, topic, "", BroadcastNode.DefaultEntityName );
+    }
+
     void close();
 
     void start() throws UMBServiceException;

@@ -2,6 +2,8 @@ package com.pinecone.hydra.umb.wolf;
 
 import java.io.IOException;
 
+import com.pinecone.hydra.umb.broadcast.proxy.GenericIfaceProxyFactory;
+import com.pinecone.hydra.umb.broadcast.proxy.IfaceProxyFactory;
 import org.apache.rocketmq.client.exception.MQClientException;
 
 import com.google.protobuf.DynamicMessage;
@@ -16,10 +18,13 @@ import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 public class WolfMCBProducer extends ArchBroadcastControlAgent implements BroadcastControlProducer {
     protected UMCBroadcastProducer          mBroadcastProducer;
 
+    protected IfaceProxyFactory             mIfaceProxyFactory;
+
     public WolfMCBProducer ( BroadcastControlNode controlNode, UMCBroadcastProducer broadcastProducer ) {
         super( controlNode );
 
         this.mBroadcastProducer = broadcastProducer;
+        this.mIfaceProxyFactory = new GenericIfaceProxyFactory( this );
     }
 
 
@@ -47,6 +52,11 @@ public class WolfMCBProducer extends ArchBroadcastControlAgent implements Broadc
     @Override
     public void issueInform( String topic, String szMethodAddress, Object... args ) throws IOException {
         this.issueInform( topic, this.queryMethodPrototype( szMethodAddress ), args );
+    }
+
+    @Override
+    public <T> T getIface( Class<T> iface, String topic, String ns, String name ) {
+        return this.mIfaceProxyFactory.createProxy( iface, topic, ns, name );
     }
 
     @Override

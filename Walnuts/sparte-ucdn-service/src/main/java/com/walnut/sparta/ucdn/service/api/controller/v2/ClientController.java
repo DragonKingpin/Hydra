@@ -12,12 +12,24 @@ import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.umb.UMBServiceException;
+import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
+import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
+import com.pinecone.hydra.umb.kafka.WolfMCKafkaClient;
+import com.pinecone.hydra.umb.wolf.WolfMCBClient;
+import com.pinecone.hydra.umct.WolfMCExpress;
+import com.walnut.sparta.ucdn.service.api.iface.v2.FileSyncDistributionController;
+import com.walnut.sparta.ucdn.service.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.service.infrastructure.constants.PolicyConstants;
 import com.walnut.sparta.ucdn.service.infrastructure.exception.IllegalPathException;
+import com.walnut.sparta.ucdn.service.umct.FileSyncDistribution;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -100,5 +112,48 @@ public class ClientController {
     }
 
 
+    @Resource
+    protected UOFSContentDelivery uofsContentDelivery;
+
+    @Resource
+    protected FileSyncDistributionController fileSyncDistributionController;
+
+    @PostConstruct
+    private void init() throws Exception {
+        String server = "localhost:9092";
+        String keySerializer = StringSerializer.class.getName();
+        String valueSerializer = StringSerializer.class.getName();
+        String topic = "testTopic";
+        String group = "testGroup";
+        String keyDeserializer = StringDeserializer.class.getName();
+        String valueDeserializer = StringDeserializer.class.getName();
+        String autoOffsetReset = "earliest";
+
+        WolfMCBClient client = new WolfMCBClient(new WolfMCKafkaClient(server), "", this.uofsContentDelivery, WolfMCExpress.class);
+
+
+        client.compile( FileSyncDistribution.class, false );
+        BroadcastControlProducer producer = client.createBroadcastControlProducer();
+        producer.start();
+
+
+        FileSyncDistribution raccoon = producer.getIface( FileSyncDistribution.class, topic );
+        raccoon.dino("long!" );
+
+
+
+        BroadcastControlConsumer consumer = client.createBroadcastControlConsumer(topic,group);
+        consumer.registerController( this.fileSyncDistributionController );
+        Thread thread = new Thread(()->{
+            try {
+                consumer.start();
+            } catch (UMBServiceException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        thread.start();
+
+
+    }
 
 }

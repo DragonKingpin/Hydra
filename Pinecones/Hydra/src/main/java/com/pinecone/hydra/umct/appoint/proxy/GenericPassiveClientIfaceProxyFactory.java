@@ -3,6 +3,7 @@ package com.pinecone.hydra.umct.appoint.proxy;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.pinecone.hydra.umct.proxy.UMCTHub;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;

@@ -72,6 +72,11 @@ public class TitanLocalStripedVolume extends ArchLogicVolume implements LocalStr
     }
 
     @Override
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) {
+        return null;
+    }
+
+    @Override
     public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
         return null;
     }

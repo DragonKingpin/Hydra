@@ -14,4 +14,5 @@ public interface RemoteFrameManipulator extends Pinenut {
     RemoteFrame getRemoteFrameByGuid(GUID guid);
     List< RemoteFrame > getRemoteFrameByFileGuid( GUID guid );
     RemoteFrame getLastFrame( GUID guid );
+    void removeFrameByFileWithId(GUID fileGuid, long segId );
 }

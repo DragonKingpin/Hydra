@@ -13,4 +13,7 @@ public interface LocalFrameManipulator extends Pinenut {
     void remove( GUID guid );
     LocalFrame getLocalFrameByGuid(GUID guid);
     List<LocalFrame> getLocalFrameByFileGuid( GUID guid );
+    LocalFrame getFrameByFileWithId( GUID fileGuid,long segId );
+    void update( LocalFrame localFrame );
+    void removeFrameByFileWithId( GUID fileGuid, long segId );
 }

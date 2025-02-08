@@ -4,5 +4,5 @@ import com.pinecone.hydra.umct.stereotype.Iface;
 
 @Iface
 public interface FileSyncDistribution {
-    void dino( String name );
+
 }

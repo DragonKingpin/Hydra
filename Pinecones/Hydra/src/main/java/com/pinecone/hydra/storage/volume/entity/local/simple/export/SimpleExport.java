@@ -11,6 +11,9 @@ import java.sql.SQLException;
 
 public interface SimpleExport extends Exporter {
     StorageIOResponse export(Chanface chanface) throws IOException, SQLException;
+
+    StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws SQLException, IOException;
+
     StorageIOResponse export(Chanface chanface,CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer ) throws IOException;
 
     StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException, SQLException;

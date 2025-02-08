@@ -8,4 +8,6 @@ import java.sql.SQLException;
 
 public interface FileExport extends Pinenut {
     void export() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+
+    void export( Number offset, Number endSize ) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException;
 }

@@ -12,6 +12,7 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
 import com.pinecone.hydra.storage.volume.source.MirroredVolumeManipulator;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -62,6 +63,11 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
 
     @Override
     public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException {
+        return null;
+    }
+
+    @Override
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return null;
     }
 

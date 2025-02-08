@@ -25,6 +25,8 @@ public interface ReceiveEntity extends Pinenut {
 
     StorageIOResponse receive(Number offset, Number endSize ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
 
+    StorageIOResponse randomReceive( Number offset, Number endSize ) throws IOException;
+
     StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer ) throws IOException, SQLException;
 
 }

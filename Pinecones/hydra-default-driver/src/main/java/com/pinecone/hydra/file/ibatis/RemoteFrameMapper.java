@@ -37,4 +37,7 @@ public interface RemoteFrameMapper extends RemoteFrameManipulator {
     };
     @Select("SELECT `id` AS emunId, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `file_guid` = #{guid} ORDER BY `seg_id` DESC LIMIT 1")
     RemoteFrame getLastFrame( GUID guid );
+
+    @Delete("DELETE FROM `hydra_uofs_files_cluster_mapping` WHERE `file_guid` = #{fileGuid} AND `seg_id` = #{segId}")
+    void removeFrameByFileWithId(GUID fileGuid, long segId );
 }

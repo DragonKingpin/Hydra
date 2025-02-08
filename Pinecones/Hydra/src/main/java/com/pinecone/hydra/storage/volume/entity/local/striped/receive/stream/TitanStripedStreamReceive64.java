@@ -118,6 +118,11 @@ public class TitanStripedStreamReceive64 implements StripedStreamReceive64{
     }
 
     @Override
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+        return null;
+    }
+
+    @Override
     public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return null;
     }

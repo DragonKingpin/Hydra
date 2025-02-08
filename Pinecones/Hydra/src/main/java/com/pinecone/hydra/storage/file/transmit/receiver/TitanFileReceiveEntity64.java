@@ -37,5 +37,11 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
         this.fileReceive.receive( volume, offset, endSize );
     }
 
-
+    @Override
+    public void randomReceive(Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        this.fileSystem.affirmFileNode( this.destDirPath );
+        GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
+        LogicVolume volume = this.volumeManager.get(volumeGuid);
+        this.fileReceive.randomReceive( volume, offset, endSize );
+    }
 }

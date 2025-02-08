@@ -48,6 +48,11 @@ public class TitanStripedChannelReceiverEntity64 extends ArchReceiveEntity imple
     }
 
     @Override
+    public StorageIOResponse randomReceive(Number offset, Number endSize) throws IOException {
+        return null;
+    }
+
+    @Override
     public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
         return null;
     }

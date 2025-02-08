@@ -591,6 +591,11 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    public void randomReceive(FileReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        entity.randomReceive( offset,endSize );
+    }
+
+    @Override
     public void export( FileExportEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
         entity.export();
     }
@@ -625,6 +630,22 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             }
         }
         return currentVolumeGuid;
+    }
+
+    @Override
+    public Frame getFrameByFileWithId(GUID fileGuid, long segId) {
+        return this.localFrameManipulator.getFrameByFileWithId( fileGuid,segId );
+    }
+
+    @Override
+    public void updateFrame(FileNode fileNode, long segId) {
+
+    }
+
+    @Override
+    public void deleteFrame(FileNode fileNode, long segId) {
+        this.remoteFrameManipulator.removeFrameByFileWithId( fileNode.getGuid(), segId );
+        this.localFrameManipulator.removeFrameByFileWithId( fileNode.getGuid(), segId );
     }
 
     private void initVolume(String path ){

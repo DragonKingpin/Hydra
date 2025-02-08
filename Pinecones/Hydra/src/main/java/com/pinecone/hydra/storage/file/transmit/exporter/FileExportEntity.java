@@ -26,4 +26,6 @@ public interface FileExportEntity extends Pinenut {
     void setKChannel( Chanface channel );
 
     void export() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+
+    void export( Number offset, Number endSize );
 }

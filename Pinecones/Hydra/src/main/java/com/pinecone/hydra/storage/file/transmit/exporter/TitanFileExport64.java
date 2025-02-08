@@ -16,6 +16,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 public class TitanFileExport64 implements FileExport64{
@@ -51,5 +52,40 @@ public class TitanFileExport64 implements FileExport64{
         }
 
         this.channel.close();
+    }
+
+    @Override
+    public void export(Number offset, Number endSize) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException {
+        TreeMap<Long, Frame> framesMap = fileNode.getFrames();
+        long startPosition = offset.longValue();
+        long endPosition = offset.longValue() + endSize.longValue();
+        long currentPosition = 0;
+
+        for( long i = 0;i < framesMap.size(); i++ ){
+            LocalFrame frame = (LocalFrame) framesMap.get(i);
+            if (startPosition < currentPosition + frame.getDefinitionSize() && endPosition > currentPosition) {
+                TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
+                titanExportStorageObject.setSize(frame.getSize());
+                titanExportStorageObject.setStorageObjectGuid(frame.getSegGuid());
+
+                String sourceName = frame.getSourceName();
+                UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
+                LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+
+                ExporterEntity exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
+
+                long startOffsetInFrame = Math.max(startPosition - currentPosition, 0);
+                long sizeToExport = Math.min(endPosition - currentPosition, frame.getDefinitionSize()) - startOffsetInFrame;
+
+                volume.export(exportEntity, startOffsetInFrame, sizeToExport);
+            }
+
+            currentPosition += frame.getDefinitionSize();
+            if (currentPosition >= endPosition){
+                break;
+            }
+        }
+
+
     }
 }

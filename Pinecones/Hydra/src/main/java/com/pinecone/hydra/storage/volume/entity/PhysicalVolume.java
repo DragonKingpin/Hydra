@@ -26,6 +26,7 @@ public interface PhysicalVolume extends Volume{
 
     StorageIOResponse receive( ReceiveEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
     StorageIOResponse receive( ReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    StorageIOResponse randomReceive( ReceiveEntity entity,Number offset, Number endSize) throws IOException;
 
     StorageIOResponse receive( ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer ) throws SQLException, IOException;
 

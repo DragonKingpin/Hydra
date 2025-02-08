@@ -18,6 +18,7 @@ public interface ExporterEntity extends Pinenut {
    void setStorageIORequest(StorageExportIORequest storageExportIORequest);
 
     StorageIOResponse export() throws IOException, SQLException;
+    StorageIOResponse export( Number offset, Number endSize ) throws IOException, SQLException;
     StorageIOResponse export(CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws IOException, SQLException;
 
     Chanface getChannel();

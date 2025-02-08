@@ -39,6 +39,15 @@ public class TitanSimpleExport64 implements SimpleExport64{
     }
 
     @Override
+    public StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws SQLException, IOException {
+        SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
+        String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(this.storageExportIORequest.getStorageObjectGuid(), sqLiteExecutor);
+        this.storageExportIORequest.setSourceName(sourceName);
+        TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
+        return exportEntity.export( offset,endSize );
+    }
+
+    @Override
     public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException, SQLException {
         return null;
     }

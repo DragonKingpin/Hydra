@@ -167,12 +167,19 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     GUID getMappingVolume(String path );
 
+    Frame getFrameByFileWithId( GUID fileGuid, long segId );
+
 
     void receive(  FileReceiveEntity entity ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
     void receive( FileReceiveEntity entity, Number offset, Number endSize )throws IOException;
+    void randomReceive( FileReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
 
     void export( FileExportEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
     void export( FileExportEntity entity, Number offset, Number endSize );
 
     FileMasterManipulator  getFileMasterManipulator();
+
+    void updateFrame( FileNode fileNode, long segId );
+
+    void deleteFrame( FileNode fileNode, long segId );
 }

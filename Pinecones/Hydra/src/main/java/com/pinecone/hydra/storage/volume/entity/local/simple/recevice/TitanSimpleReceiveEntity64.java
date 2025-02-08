@@ -37,6 +37,11 @@ public class TitanSimpleReceiveEntity64 extends ArchReceiveEntity implements Sim
     }
 
     @Override
+    public StorageIOResponse randomReceive(Number offset, Number endSize) throws IOException {
+        return this.simpleReceive.randomReceive( this.chanface, offset, endSize );
+    }
+
+    @Override
     public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
         return this.simpleReceive.receive(this.chanface, cacheBlock, buffer );
     }

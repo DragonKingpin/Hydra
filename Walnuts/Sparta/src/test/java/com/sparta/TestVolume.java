@@ -76,7 +76,7 @@ class Alice extends Radium {
         //this.testDirectExport( volumeTree );
         //Debug.trace( volumeTree.queryGUIDByPath( "逻辑卷三/逻辑卷一" ) );
         //volumeTree.get( GUIDs.GUID72( "05e44c4-00022b-0006-20" ) ).build();
-        this.testStripedInsert( volumeTree );
+        //this.testStripedInsert( volumeTree );
         //this.testSpannedInsert( volumeTree );
         //this.testStripedReceive( volumeTree );
         //this.testStripedExport( volumeTree );
@@ -84,7 +84,7 @@ class Alice extends Radium {
         //this.testSpannedReceive( volumeTree );
         //this.testSpannedExport( volumeTree );
         //this.testSimpleReceive( volumeTree );
-        //this.testSimpleExport( volumeTree );
+        this.testSimpleExport( volumeTree );
         //this.testConsumer( volumeTree );
     }
 
@@ -249,9 +249,9 @@ class Alice extends Radium {
 
     void testSimpleReceive( UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         GuidAllocator guidAllocator = volumeManager.getGuidAllocator();
-        LogicVolume volume = volumeManager.get(GUIDs.GUID72("09a94b4-0002a9-0004-d8"));
+        LogicVolume volume = volumeManager.get(GUIDs.GUID72("12146c0-0000ca-0000-8c"));
         TitanStorageReceiveIORequest titanReceiveStorageObject = new TitanStorageReceiveIORequest();
-        File file = new File("D:/井盖视频块/4月13日 (2).mp4");
+        File file = new File("C:/Users/29796/OneDrive/图片/R-C.jpg");
         titanReceiveStorageObject.setName( "视频" );
         titanReceiveStorageObject.setSize( file.length() );
         titanReceiveStorageObject.setStorageObjectGuid( guidAllocator.nextGUID() );
@@ -261,7 +261,7 @@ class Alice extends Radium {
         FileInputStream fileInputStream = new FileInputStream( file );
         TitanInputStreamChanface kChannel = new TitanInputStreamChanface( fileInputStream );
         TitanSimpleReceiveEntity64 receiveEntity = new TitanSimpleReceiveEntity64( volumeManager, titanReceiveStorageObject, kChannel, (SimpleVolume) volume);
-        volume.receive( receiveEntity );
+        volume.randomReceive( receiveEntity,0,file.length() );
     }
 
 
@@ -301,21 +301,23 @@ class Alice extends Radium {
     }
 
     void testSimpleExport( UniformVolumeManager volumeManager ) throws IOException, SQLException {
-        File file = new File("D:\\文件系统\\大文件\\我的视频.mp4");
-        File originalFile = new File( "D:/井盖视频块/4月13日 (2).mp4" );
+        File file = new File("D:\\文件系统\\大文件\\我的图片2.jpg");
+        File originalFile = new File( "C:/Users/29796/OneDrive/图片/R-C.jpg" );
 //        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 //        TitanFileChannelKChannel kChannel = new TitanFileChannelKChannel(channel);
-        LogicVolume volume = volumeManager.get(GUIDs.GUID72("09a94b4-0002a9-0004-d8"));
+        LogicVolume volume = volumeManager.get(GUIDs.GUID72("12146c0-0000ca-0000-8c"));
         TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
-        titanExportStorageObject.setSize( originalFile.length() );
-        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID72("09a99b4-00038c-0001-f0") );
-        titanExportStorageObject.setSourceName( "D:\\文件系统\\簇4\\视频_09aa0ba-0001a1-0001-68.storage" );
+        titanExportStorageObject.setSize( originalFile.length() - 1024 * 200 );
+        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID72("1567f8c-000038-0006-ac") );
+        titanExportStorageObject.setSourceName( "D:/文件系统/簇1/R-C.jpg_1567f8c-000038-0006-ac.storage" );
 
         FileOutputStream fileOutputStream = new FileOutputStream( file );
         TitanOutputStreamChanface kChannel = new TitanOutputStreamChanface( fileOutputStream );
         TitanSimpleExportEntity64 exportEntity = new TitanSimpleExportEntity64( volumeManager, titanExportStorageObject, kChannel,(SimpleVolume) volume);
-        volume.export( exportEntity );
+        //volume.export( exportEntity,0,originalFile.length() - 1024 * 200 );
+        volume.export( exportEntity,originalFile.length() - 1024 * 200, 1024 * 200 );
     }
+
 
     void testHash( UniformVolumeManager volumeManager ){
         KenVolumeFileSystem kenVolumeFileSystem = new KenVolumeFileSystem(volumeManager);

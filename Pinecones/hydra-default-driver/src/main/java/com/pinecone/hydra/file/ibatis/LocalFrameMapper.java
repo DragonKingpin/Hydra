@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,23 @@ public interface LocalFrameMapper extends LocalFrameManipulator {
     @Select("SELECT `id`, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `seg_id` AS segId, `create_time` AS createTime, `update_time` AS updateTime, `source_name` AS sourceName, `crc32`, `size` FROM `hydra_uofs_local_cluster_fat` WHERE `file_guid` = #{guid}")
     List<GenericLocalFrame> getLocalFrameByFileGuid0(GUID guid );
 
+    @Select("SELECT `id`, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `seg_id` AS segId, `create_time` AS createTime, `update_time` AS updateTime, `source_name` AS sourceName, `crc32`, `size` FROM `hydra_uofs_local_cluster_fat` WHERE `file_guid` = #{fileGuid} AND `seg_id` = #{segId}")
+    GenericLocalFrame getFrameByFileWithId0( GUID fileGuid,long segId );
+
+    @Update("UPDATE `hydra_uofs_local_cluster_fat` SET `size` = #{size} WHERE `file_guid` = #{fileGuid} AND `seg_id` = #{segId}")
+    void update( LocalFrame localFrame );
+
+    @Delete("DELETE FROM `hydra_uofs_local_cluster_fat` WHERE file_guid = #{fileGuid} AND seg_id = #{segId}")
+    void removeFrameByFileWithId( GUID fileGuid, long segId );
+
+    default GenericLocalFrame getFrameByFileWithId( GUID fileGuid,long segId ){
+        GenericLocalFrame frame = this.getFrameByFileWithId0(fileGuid, segId);
+        if( frame == null ){
+            return null;
+        }
+        frame.setLocalFrameManipulator( this );
+        return frame;
+    }
     default List<LocalFrame> getLocalFrameByFileGuid(GUID guid){
         List< LocalFrame > localFrames = new ArrayList<>();
         List<GenericLocalFrame> frames = this.getLocalFrameByFileGuid0(guid);

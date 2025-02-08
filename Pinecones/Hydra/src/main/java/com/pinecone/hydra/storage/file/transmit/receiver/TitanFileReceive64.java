@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file.transmit.receiver;
 
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
@@ -24,7 +25,10 @@ import com.pinecone.hydra.storage.volume.entity.ReceiveEntity;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
@@ -121,7 +125,102 @@ public class TitanFileReceive64 implements FileReceive64{
     }
 
     @Override
+    public void receive(LogicVolume volume, long segId) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException {
+        long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
+        FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();
+        this.mKOMFileSystem.deleteFrame( this.fileNode, segId );
+        long endSize = frameSize;
+
+        long currentPosition = (segId - 1) * frameSize;
+        if( currentPosition + endSize > fileNode.getDefinitionSize() ){
+            endSize = fileNode.getDefinitionSize() - currentPosition;
+        }
+
+        LocalFrame localFrame = allotment.newLocalFrame();
+        RemoteFrame remoteFrame = allotment.newRemoteFrame( fileNode.getGuid(),(int)segId );
+        remoteFrame.setDeviceGuid(this.mKOMFileSystem.getConfig().getLocalhostGUID());
+        remoteFrame.setSegGuid( localFrame.getSegGuid() );
+
+        StorageReceiveIORequest storageReceiveIORequest = new TitanStorageReceiveIORequest();
+        storageReceiveIORequest.setSize( fileNode.getDefinitionSize() );
+        storageReceiveIORequest.setName( fileNode.getName() );
+        storageReceiveIORequest.setStorageObjectGuid( localFrame.getSegGuid() );
+
+        StorageIOResponse storageIOResponse = null;
+
+        ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
+        storageIOResponse = volume.receive( receiveEntity, currentPosition, endSize );
+
+        UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
+        if( storageIOResponse != null ){
+            localFrame.setCrc32(String.valueOf(storageIOResponse.getCre32().getValue()));
+        }
+        uniformSourceLocator.setVolumeGuid( volume.getGuid().toString() );
+        localFrame.setSize( endSize );
+        localFrame.setSourceName( uniformSourceLocator.toJSONString() );
+        localFrame.setFileGuid( fileNode.getGuid() );
+        localFrame.setSegId( segId );
+
+        localFrame.save();
+        remoteFrame.save();
+
+        Verification verification = this.getVerification();
+        fileNode.setChecksum( verification.getChecksum() );
+        fileNode.setParityCheck( verification.getParityCheck() );
+        fileNode.setCrc32Xor( Long.toHexString(verification.getCrc32().getValue()) );
+        mKOMFileSystem.update( fileNode );
+    }
+
+    @Override
     public void receive(LogicVolume volume, Number offset, Number endSize) throws IOException {
+
+    }
+
+    @Override
+    public void randomReceive(LogicVolume volume, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
+        this.fileNode.setGuid( mKOMFileSystem.queryGUIDByPath( this.destDirPath ) );
+
+        FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();
+        long segId = offset.longValue() / frameSize + 1;
+        long startPosition = offset.longValue();
+        long endPosition = startPosition + endSize.longValue();
+        long frameEndPosition = segId * frameSize;
+        LocalFrame frame = (LocalFrame) this.mKOMFileSystem.getFrameByFileWithId(this.fileNode.getGuid(), segId);
+
+        if( frame == null ){
+            frame = allotment.newLocalFrame();
+            RemoteFrame remoteFrame = allotment.newRemoteFrame( fileNode.getGuid(),(int)segId );
+            remoteFrame.setDeviceGuid(this.mKOMFileSystem.getConfig().getLocalhostGUID());
+            remoteFrame.setSegGuid( frame.getSegGuid() );
+            remoteFrame.save();
+        }
+
+        if( endPosition <= frameEndPosition + frameSize ){
+            StorageReceiveIORequest storageReceiveIORequest = new TitanStorageReceiveIORequest();
+            storageReceiveIORequest.setSize( fileNode.getDefinitionSize() );
+            storageReceiveIORequest.setName( fileNode.getName() );
+            storageReceiveIORequest.setStorageObjectGuid( frame.getSegGuid() );
+
+            ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
+            volume.randomReceive( receiveEntity, startPosition, endSize );
+
+            UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
+            uniformSourceLocator.setVolumeGuid( volume.getGuid().toString() );
+            frame.setSize( frame.getSize() + endSize.longValue() );
+            frame.setSourceName( uniformSourceLocator.toJSONString() );
+            frame.setFileGuid( fileNode.getGuid() );
+            frame.setSegId( segId );
+
+            frame.save();
+        }
+        else {
+            long midPosition = Math.min(frameEndPosition + frameSize, endPosition);
+            this.randomReceive(volume, startPosition, midPosition - startPosition);
+            if (midPosition < endPosition) {
+                this.randomReceive(volume, midPosition, endPosition - midPosition);
+            }
+        }
 
     }
 

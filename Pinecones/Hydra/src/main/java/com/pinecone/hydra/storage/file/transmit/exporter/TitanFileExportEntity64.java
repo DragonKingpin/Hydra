@@ -22,5 +22,8 @@ public class TitanFileExportEntity64 extends ArchFileExporterEntity  implements 
         this.fileExport.export();
     }
 
+    @Override
+    public void export(Number offset, Number endSize) {
 
+    }
 }

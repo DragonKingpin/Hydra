@@ -6,8 +6,4 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FileSyncDistributionImpl implements FileSyncDistribution {
-    @Override
-    public void dino( String name ) {
-        Debug.greenf( "I am a cute dino " + name );
-    }
 }

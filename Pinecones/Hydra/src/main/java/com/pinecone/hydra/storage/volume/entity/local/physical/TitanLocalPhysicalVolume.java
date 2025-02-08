@@ -109,6 +109,11 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
     }
 
     @Override
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
+        return entity.randomReceive( offset,endSize );
+    }
+
+    @Override
     public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
         return entity.receive( cacheBlock, buffer );
     }

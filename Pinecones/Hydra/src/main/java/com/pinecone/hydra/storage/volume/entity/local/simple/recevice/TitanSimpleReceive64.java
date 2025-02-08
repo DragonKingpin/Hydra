@@ -46,6 +46,14 @@ public class TitanSimpleReceive64 implements SimpleReceive64{
     }
 
     @Override
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+        List<GUID> guids = simpleVolume.listPhysicalVolume();
+        PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(guids.get(0));
+        TitanDirectReceiveEntity64 receiveEntity = new TitanDirectReceiveEntity64( this.volumeManager, this.storageReceiveIORequest, chanface, physicalVolume.getMountPoint().getMountPoint() );
+        return physicalVolume.randomReceive( receiveEntity, offset, endSize );
+    }
+
+    @Override
     public StorageIOResponse receive(Chanface chanface,CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
         List<GUID> guids = simpleVolume.listPhysicalVolume();
         PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(guids.get(0));

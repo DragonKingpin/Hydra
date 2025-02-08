@@ -28,4 +28,6 @@ public interface FileReceiveEntity extends Pinenut {
 
     void receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
     void receive( Number offset, Number endSize )throws IOException;
+
+    void randomReceive( Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
 }

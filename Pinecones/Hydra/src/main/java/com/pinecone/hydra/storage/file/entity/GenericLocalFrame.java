@@ -83,7 +83,12 @@ public class GenericLocalFrame extends ArchFrame implements LocalFrame {
 
     @Override
     public void save() {
-        this.localFrameManipulator.insert(this);
+        LocalFrame frame = this.localFrameManipulator.getFrameByFileWithId(this.getFileGuid(), this.getSegId());
+        if( frame == null ){
+            this.localFrameManipulator.insert(this);
+        }else {
+            this.localFrameManipulator.update( this );
+        }
     }
 
     @Override

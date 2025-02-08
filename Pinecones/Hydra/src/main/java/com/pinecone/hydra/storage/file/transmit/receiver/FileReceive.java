@@ -9,5 +9,7 @@ import java.sql.SQLException;
 
 public interface FileReceive extends Pinenut {
     void receive(LogicVolume volume) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void receive( LogicVolume volume, long segId ) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException;
     void receive(LogicVolume volume, Number offset, Number endSize ) throws IOException;
+    void randomReceive( LogicVolume volume, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
 }

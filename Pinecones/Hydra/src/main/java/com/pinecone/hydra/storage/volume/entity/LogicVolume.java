@@ -45,11 +45,12 @@ public interface LogicVolume extends Volume, TreeNode {
 
     StorageIOResponse receive( ReceiveEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
     StorageIOResponse receive( ReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    StorageIOResponse randomReceive( ReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
     StorageIOResponse receive( ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer ) throws SQLException, IOException;
 
     StorageIOResponse export( ExporterEntity entity ) throws SQLException, IOException;
     //敬请期待
-    StorageIOResponse export( ExporterEntity entity, Number offset, Number endSize );
+    StorageIOResponse export( ExporterEntity entity, Number offset, Number endSize ) throws SQLException, IOException;
     StorageIOResponse export( ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer ) throws SQLException, IOException;
 
     StorageIOResponse export( ExporterEntity entity, boolean accessRandom ) throws SQLException, IOException;

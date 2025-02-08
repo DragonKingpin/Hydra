@@ -33,6 +33,11 @@ public class TitanStripedStreamReceiveEntity64 extends ArchReceiveEntity impleme
     }
 
     @Override
+    public StorageIOResponse randomReceive(Number offset, Number endSize) throws IOException {
+        return null;
+    }
+
+    @Override
     public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
         return null;
     }

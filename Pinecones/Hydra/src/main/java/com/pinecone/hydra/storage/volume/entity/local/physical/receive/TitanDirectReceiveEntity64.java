@@ -41,6 +41,11 @@ public class TitanDirectReceiveEntity64 extends ArchReceiveEntity implements Dir
     }
 
     @Override
+    public StorageIOResponse randomReceive(Number offset, Number endSize) throws IOException {
+        return this.directReceive.randomReceive( this.chanface, offset,endSize );
+    }
+
+    @Override
     public String getDestDirPath() {
         return this.destDirPath;
     }

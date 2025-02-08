@@ -9,4 +9,6 @@ import java.io.IOException;
 
 public interface DirectReceive extends Receiver {
     StorageIOResponse receive(Chanface chanface,CacheBlock cacheBlock, byte[] buffer ) throws IOException;
+
+    StorageIOResponse randomReceive( Chanface chanface, Number offset, Number endSize) throws IOException;
 }

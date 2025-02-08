@@ -75,6 +75,7 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
     public LocalFrame newLocalFrame(){
         GenericLocalFrame frame = new GenericLocalFrame(fileMasterManipulator.getLocalFrameManipulator());
         frame.setSegGuid( guidAllocator.nextGUID() );
+        frame.setLocalFrameManipulator( this.fileMasterManipulator.getLocalFrameManipulator() );
         return frame;
     }
     @Override

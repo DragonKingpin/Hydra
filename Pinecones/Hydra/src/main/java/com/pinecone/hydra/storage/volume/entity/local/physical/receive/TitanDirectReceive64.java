@@ -52,6 +52,45 @@ public class TitanDirectReceive64 implements DirectReceive64{
     }
 
     @Override
+    public StorageIOResponse randomReceive(Chanface chanface,Number offset, Number endSize) throws IOException {
+        long startPosition = offset.longValue();
+        long endPosition = startPosition + endSize.longValue();
+
+        TitanStorageIOResponse titanMiddleStorageObject = new TitanStorageIOResponse();
+        titanMiddleStorageObject.setObjectGuid(storageReceiveIORequest.getStorageObjectGuid());
+
+        URI uri;
+        try {
+            uri = new URI(this.destDirPath);
+        } catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
+
+        Path path = Paths.get(uri);
+        String sourceName = this.storageNaming.naming(
+                this.storageReceiveIORequest.getName(), this.storageReceiveIORequest.getStorageObjectGuid().toString()
+        );
+        path = path.resolve(sourceName);
+
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        try (FileChannel chunkChannel = FileChannel.open(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
+            while (startPosition < endPosition && chanface.read(buffer) != -1) {
+                buffer.flip();
+
+                chunkChannel.position(startPosition);
+                int write = chunkChannel.write(buffer);
+                startPosition += write;
+
+                buffer.clear();
+            }
+        }
+
+        titanMiddleStorageObject.setSourceName(path.toString());
+
+        return titanMiddleStorageObject;
+    }
+
+    @Override
     public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         return this.receiveWithOffsetAndSize( randomAccessChanface, 0, this.storageReceiveIORequest.getSize().intValue() );
     }
@@ -105,7 +144,6 @@ public class TitanDirectReceive64 implements DirectReceive64{
     }
 
     private StorageIOResponse receiveWithOffsetAndSize(Chanface chanface,long offset, int size) throws IOException {
-        //Debug.trace("缓存的是"+offset+"到"+(offset + size));
 
         int parityCheck = 0;
         long checksum = 0;

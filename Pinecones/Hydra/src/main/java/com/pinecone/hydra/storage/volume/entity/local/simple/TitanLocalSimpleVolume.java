@@ -77,6 +77,13 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
     }
 
     @Override
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        StorageIOResponse response = entity.randomReceive( offset,endSize );
+        this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        return response;
+    }
+
+    @Override
     public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
         StorageIOResponse response = entity.receive(cacheBlock, buffer);
         this.saveMate( response, entity.getReceiveStorageObject().getName() );
@@ -90,8 +97,8 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, Number offset, Number endSize) {
-        return null;
+    public StorageIOResponse export(ExporterEntity entity, Number offset, Number endSize) throws SQLException, IOException {
+        return entity.export( offset,endSize );
     }
 
     @Override

@@ -11,6 +11,8 @@ import java.io.IOException;
 public interface DirectExport extends Exporter {
     StorageIOResponse export(Chanface chanface) throws IOException;
 
+    StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws IOException;
+
     StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException;
 
     StorageIOResponse export( CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer);

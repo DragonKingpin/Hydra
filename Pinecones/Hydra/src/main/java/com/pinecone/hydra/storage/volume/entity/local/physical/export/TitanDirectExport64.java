@@ -64,6 +64,42 @@ public class TitanDirectExport64 implements DirectExport64{
     }
 
     @Override
+    public StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws IOException {
+        String sourceName = this.storageExportIORequest.getSourceName();
+        long size = endSize.longValue();
+        TitanStorageIOResponse titanMiddleStorageObject = new TitanStorageIOResponse();
+
+        long parityCheck = 0;
+        long checksum = 0;
+        File file = new File(sourceName);
+
+        try (FileChannel frameChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ)) {
+            long actualSize = Math.min(size, frameChannel.size() - offset.longValue());
+            ByteBuffer buffer = ByteBuffer.allocate((int) actualSize);
+
+            frameChannel.read(buffer, offset.longValue());
+            buffer.flip();
+            CRC32 crc = new CRC32();
+            while (buffer.hasRemaining()) {
+                byte b = buffer.get();
+                parityCheck += Bytes.calculateParity(b);
+                checksum += b & 0xFF;
+                crc.update(b);
+            }
+
+            buffer.rewind();
+            chanface.write(buffer);
+            buffer.clear();
+
+            titanMiddleStorageObject.setChecksum(checksum);
+            titanMiddleStorageObject.setCrc32(crc );
+            titanMiddleStorageObject.setParityCheck(parityCheck);
+        }
+
+        return titanMiddleStorageObject;
+    }
+
+    @Override
     public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException {
         return null;
     }

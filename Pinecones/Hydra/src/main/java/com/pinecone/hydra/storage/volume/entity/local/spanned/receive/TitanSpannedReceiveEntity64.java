@@ -33,6 +33,11 @@ public class TitanSpannedReceiveEntity64 extends ArchReceiveEntity implements Sp
     }
 
     @Override
+    public StorageIOResponse randomReceive(Number offset, Number endSize) throws IOException {
+        return this.spannedReceive.randomReceive( this.channel,offset,endSize );
+    }
+
+    @Override
     public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
         return null;
     }

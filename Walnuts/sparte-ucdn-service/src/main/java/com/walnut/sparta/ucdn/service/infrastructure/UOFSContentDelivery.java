@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.service.infrastructure;
 
 import com.pinecone.framework.system.CascadeSystem;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 
 public class UOFSContentDelivery extends Radium implements FSContentDeliveryService {
     protected SpartaUCDNService spartaUCDNService;

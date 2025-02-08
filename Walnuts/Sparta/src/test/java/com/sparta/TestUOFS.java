@@ -14,7 +14,6 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
-import com.pinecone.hydra.storage.file.UOFSCacheComponentor;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.builder.ComponentUOFSBuilder;
 import com.pinecone.hydra.storage.file.builder.UOFSBuilder;
@@ -31,7 +30,7 @@ import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,11 +69,10 @@ class Steve extends Radium {
         //this.testUpload(fileSystem);
         //this.testDelete( fileSystem );
         //this.testChannelReceive( fileSystem, volumeManager );
-        this.testChannelExport( fileSystem, volumeManager );
+        //this.testChannelExport( fileSystem, volumeManager );
         //this.testQuery( fileSystem );
         //this.testExternal( fileSystem );
-        //this.testCopy( fileSystem,volumeManager );
-        //this.testRandomSimpleReceive( fileSystem,volumeManager );
+        this.testCopy( fileSystem,volumeManager );
 
     }
 
@@ -103,8 +101,9 @@ class Steve extends Radium {
 //        externalSymbolic.setGuid( fileSystem.getGuidAllocator().nextGUID() );
 //        directFileSystemAccess.insertExternalSymbolic( externalSymbolic );
 
-//        ElementNode e = fileSystem.queryElement( "我的文件" );
-//        e.evinceFolder().createExternalSymbolic( "external" );
+        ElementNode e = fileSystem.queryElement( "red" );
+        //e.evinceFolder().createExternalSymbolic( "external" );
+
 
 
 //        ExternalFile externalFile = (GenericExternalFile)directFileSystemAccess.queryElement("我的文件/external/《智育》概要设计.docx");
@@ -135,27 +134,12 @@ class Steve extends Radium {
     }
 
     private void testChannelExport( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        FileNode fileNode = (FileNode) fileSystem.get(fileSystem.queryGUIDByPath("我的视频/R-C16.jpg"));
-        File file = new File("D:/文件系统/大文件/我的图片.jpg");
+        FileNode fileNode = (FileNode) fileSystem.get(fileSystem.queryGUIDByPath("D:/井盖视频块/我的视频.mp4"));
+        File file = new File("D:\\文件系统\\大文件\\我的视频.mp4");
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
         TitanFileChannelChanface kChannel = new TitanFileChannelChanface( channel );
         TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64( fileSystem, volumeManager, fileNode, kChannel );
         fileSystem.export( exportEntity );
-    }
-
-    private void testRandomSimpleReceive( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        FSNodeAllotment fsNodeAllotment = fileSystem.getFSNodeAllotment();
-        File file = new File("D:/文件系统/大文件/我的图片2.jpg");
-        File file1 = new File("D:/文件系统/大文件/我的图片1.jpg");
-        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( file.length() );
-        fileNode.setName( file1.getName() );
-        String destDirPath = "我的视频/R-C16.jpg";
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64( fileSystem, destDirPath, fileNode,titanFileChannelKChannel,volumeManager );
-        fileSystem.randomReceive( receiveEntity,file1.length(),file.length() );
-        //fileSystem.randomReceive( receiveEntity,1024, file.length() - 1024 );
     }
 
 }

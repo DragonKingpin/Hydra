@@ -1,6 +1,6 @@
 package com.sauron.shadow.heists.PubChem;
 
-import com.sauron.radium.heistron.*;
+import com.sauron.heist.heistron.*;
 import org.jsoup.nodes.Document;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;

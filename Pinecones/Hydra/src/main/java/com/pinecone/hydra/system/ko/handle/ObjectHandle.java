@@ -1,4 +1,7 @@
 package com.pinecone.hydra.system.ko.handle;
 
-public interface ObjectHandle extends KHandle {
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+
+public interface ObjectHandle extends TreeNode {
+
 }

@@ -1,9 +1,9 @@
 package com.sauron.shadow.heists.DownloadCNet;
 
 import com.pinecone.framework.util.config.JSONConfig;
-import com.sauron.radium.heistron.Crew;
-import com.sauron.radium.heistron.HTTPIndexHeist;
-import com.sauron.radium.heistron.Heistotron;
+import com.sauron.heist.heistron.Crew;
+import com.sauron.heist.heistron.HTTPIndexHeist;
+import com.sauron.heist.heistron.Heistotron;
 import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONException;
 import com.pinecone.framework.util.mysql.MySQLExecutor;

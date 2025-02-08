@@ -16,7 +16,7 @@
     "Middleware"    : {
       "RDBs": {
         "Configs": {
-          "Engine": "com.sauron.radium.ally.rdb.GenericIbatisClient",
+          "Engine": "com.pinecone.radium.ally.rdb.GenericIbatisClient",
           "Enable": true,
           "JDBC": {
             "Driver"   : "com.mysql.cj.jdbc.Driver",
@@ -183,7 +183,7 @@
 
       // Servgram-Classes scanning package-scopes
       "ServgramScopes": [
-        "com.sauron.radium.heistron"
+        "com.sauron.heist.heistron"
       ],
 
       "Transactions": [

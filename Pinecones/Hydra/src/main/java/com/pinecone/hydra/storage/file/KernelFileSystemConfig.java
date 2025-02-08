@@ -12,12 +12,8 @@ public class KernelFileSystemConfig extends ArchKernelObjectConfig implements Fi
     protected GUID   mLocalhostGUID         = StorageConstants.LocalhostGUID;
     protected Number TinyFileStripSizing    = VolumeConstants.TinyFileStripSizing;
     protected String DefaultVolumePath      = StorageConstants.DefaultVolumePath;
-    protected long    DefaultExpiryTime      = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
-    protected String RedisHost              = FileConstants.REDIS_HOST;
-    protected int    RedisPort              = FileConstants.REDIS_PORT;
+    protected long   DefaultExpiryTime      = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
     protected int    RedisTimeOut           = FileConstants.REDIS_TIME_OUT;
-    protected String RedisPassword          = FileConstants.REDIS_PASSWORD;
-    protected int    RedisDatabase          = FileConstants.REDIS_DATABASE;
 
 
     @Override
@@ -49,27 +45,7 @@ public class KernelFileSystemConfig extends ArchKernelObjectConfig implements Fi
     }
 
     @Override
-    public String getRedisHost() {
-        return this.RedisHost;
-    }
-
-    @Override
-    public int getRedisPort() {
-        return this.RedisPort;
-    }
-
-    @Override
     public int getRedisTimeOut() {
         return this.RedisTimeOut;
-    }
-
-    @Override
-    public String getRedisPassword() {
-        return this.RedisPassword;
-    }
-
-    @Override
-    public int getRedisDatabase() {
-        return this.RedisDatabase;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "Engine"            : "com.sauron.radium.messagron.Messagron",
+  "Engine"            : "com.pinecone.radium.messagron.Messagron",
   "Enable"            : true,
   "ExpressFactory"    : "com.pinecone.framework.util.lang.GenericDynamicFactory",
 

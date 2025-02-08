@@ -12,7 +12,7 @@ import com.pinecone.hydra.service.kom.marshaling.ServicesJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 
 
 class Jesse extends Radium {

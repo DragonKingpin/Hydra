@@ -2,7 +2,7 @@ package com.sauron.shadow;
 
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 
 
 public class Shadow extends Radium {

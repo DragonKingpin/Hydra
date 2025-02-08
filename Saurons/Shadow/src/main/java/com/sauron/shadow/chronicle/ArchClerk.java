@@ -3,8 +3,8 @@ package com.sauron.shadow.chronicle;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.JSONGet;
 import com.pinecone.hydra.auto.Instructation;
-import com.sauron.radium.heistron.HTTPCrew;
-import com.sauron.radium.heistron.HTTPHeist;
+import com.sauron.heist.heistron.HTTPCrew;
+import com.sauron.heist.heistron.HTTPHeist;
 
 public abstract class ArchClerk extends HTTPCrew implements Clerk {
     protected Instructation       mAffinityPrimeDirective;

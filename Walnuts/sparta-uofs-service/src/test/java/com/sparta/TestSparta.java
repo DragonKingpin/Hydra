@@ -13,7 +13,7 @@ import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 
 import com.walnuts.sparta.uofs.service.Sparta;
 import com.walnuts.sparta.uofs.service.SpartaBoot;

@@ -54,7 +54,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sauron.radium</groupId>
+            <groupId>com.pinecone.radium</groupId>
             <artifactId>radium</artifactId>
             <version>2.1.0</version>
             <scope>test</scope>

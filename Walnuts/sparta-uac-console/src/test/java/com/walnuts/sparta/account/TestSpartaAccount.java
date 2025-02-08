@@ -9,7 +9,7 @@ import com.pinecone.hydra.account.UniformAccountManager;
 import com.pinecone.hydra.account.ibatis.hydranium.UserMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;

@@ -24,8 +24,7 @@ public class GenericExternalFile extends ArchElementNode implements ExternalFile
         this.mNativeFile = file;
         this.name = file.getName();
         long lastModified = file.lastModified();
-        this.updateTime = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
+        this.updateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
         this.physicalSize = file.getTotalSpace();
         this.path = file.getPath();
     }

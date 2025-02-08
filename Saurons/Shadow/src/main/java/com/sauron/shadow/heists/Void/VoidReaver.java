@@ -1,6 +1,6 @@
 package com.sauron.shadow.heists.Void;
 
-import com.sauron.radium.heistron.*;
+import com.sauron.heist.heistron.*;
 
 import java.io.IOException;
 

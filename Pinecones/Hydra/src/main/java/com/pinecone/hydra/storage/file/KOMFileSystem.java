@@ -123,10 +123,6 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     Object querySelector                  ( String szSelector );
 
-    void copyFileNodeTo( GUID sourceGuid, GUID destinationGuid );
-
-    void copyFolderTo( GUID sourceGuid, GUID destinationGuid );
-
     ElementNode queryElement(String path);
 
     @Override
@@ -159,7 +155,6 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     TreeMap<Long, Frame> getFrameByFileGuid(GUID guid);
 
-    void upload( FileNode file, String destDirPath );
     Frame getLastFrame( GUID guid );
 
     void setFolderVolumeMapping(GUID folderGuid, GUID volumeGuid );

@@ -2,7 +2,7 @@ package com.sauron.shadow.chronicle;
 
 import com.pinecone.hydra.auto.ArchSuggestation;
 import com.pinecone.hydra.auto.ContinueException;
-import com.sauron.radium.heistron.orchestration.Instructations;
+import com.sauron.heist.heistron.orchestration.Instructations;
 
 public class AffinitySuggestation extends ArchSuggestation {
     protected Clerk mClerk;

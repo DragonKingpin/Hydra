@@ -4,6 +4,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
 import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccess;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
@@ -444,7 +445,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             List<TreeNode> children = this.getChildren(fileTreeNode.getGuid());
             for(TreeNode child : children){
                 FileTreeNode childFileTreeNode = this.get(child.getGuid());
-                this.copy(sourcePath + "/" + fileTreeNode.getName(), childFileTreeNode,volumeManager);
+                this.copy(sourcePath + StorageConstants.PathSeparator + fileTreeNode.getName(), childFileTreeNode,volumeManager);
             }
         }else {
             String name = fileTreeNode.getName();
@@ -510,10 +511,6 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         return null;
     }
 
-    @Override
-    public void copyFileNodeTo(GUID sourceGuid, GUID destinationGuid) {
-
-    }
 
     @Override
     public Frame getLastFrame(GUID guid) {
@@ -526,25 +523,6 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         }
         return null;
     }
-
-    @Override
-    public void copyFolderTo(GUID sourceGuid, GUID destinationGuid) {
-
-    }
-
-    @Override
-    public void upload( FileNode file, String destDirPath ) {
-        if ( file.getIsUploadSuccessful() ){
-            //this.upload0(file,destDirPath,0);
-        }
-        else {
-            TreeMap<Long, Frame> frames = file.getFrames();
-            Map.Entry<Long, Frame> longFrameEntry = frames.lastEntry();
-            long segId = longFrameEntry.getValue().getSegId();
-            //this.upload0(file, destDirPath, segId);
-        }
-    }
-
 
     private String getNodeName(ImperialTreeNode node ){
         UOI type = node.getType();

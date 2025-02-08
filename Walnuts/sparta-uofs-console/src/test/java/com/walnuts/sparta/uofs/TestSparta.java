@@ -16,7 +16,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.sauron.radium.Radium;
+import com.pinecone.radium.Radium;
 import com.walnuts.sparta.uofs.console.Sparta;
 import com.walnuts.sparta.uofs.console.SpartaBoot;
 import org.springframework.context.ApplicationContextInitializer;

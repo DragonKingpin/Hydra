@@ -18,13 +18,6 @@ public interface FileSystemConfig extends KernelObjectConfig {
 
     long getExpiryTime();
 
-    String getRedisHost();
-
-    int getRedisPort();
-
     int getRedisTimeOut();
 
-    String getRedisPassword();
-
-    int getRedisDatabase();
 }

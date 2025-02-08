@@ -1,5 +1,6 @@
 package com.pinecone.radium.system;
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.name.Namespace;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class SystemDaemon extends ArchSystemCascadeComponent implements Saunut, HyComponent {
+public class SystemDaemon extends ArchSystemCascadeComponent implements Pinenut, HyComponent {
     protected long                     mnSurveillanceTime;
     protected JSONObject               mDaemonConfig;
     protected PeriodicAutomatron       mAutomatron;

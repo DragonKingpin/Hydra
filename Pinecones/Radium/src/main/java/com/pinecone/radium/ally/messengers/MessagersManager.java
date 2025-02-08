@@ -24,14 +24,13 @@ import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
 import com.pinecone.radium.system.MiddlewareManager;
 import com.pinecone.radium.system.RadiumSystem;
-import com.pinecone.radium.system.Saunut;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
-public class MessagersManager extends ArchSystemAutoAssembleComponent implements Saunut, HyComponent {
+public class MessagersManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
     @JSONGet( "Messagers" )
     protected JSONConfig                           mjoMessagersConf        ;
 

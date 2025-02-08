@@ -77,6 +77,12 @@
             <artifactId>springram</artifactId>
             <version>2.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sauron.core</groupId>
+            <artifactId>sauron-core</artifactId>
+            <version>1.2.7</version>
+            <scope>compile</scope>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.walnut.sparta</groupId>-->
             <!--<artifactId>sparta</artifactId>-->

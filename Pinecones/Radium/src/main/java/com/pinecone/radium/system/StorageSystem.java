@@ -1,5 +1,6 @@
 package com.pinecone.radium.system;
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.json.homotype.JSONGet;
 import com.pinecone.framework.util.lang.DynamicFactory;
@@ -23,7 +24,7 @@ import java.io.IOException;
 import java.util.Map;
 
 
-public class StorageSystem extends ArchSystemCascadeComponent implements Saunut, HyComponent {
+public class StorageSystem extends ArchSystemCascadeComponent implements Pinenut, HyComponent {
     protected JSONObject                         mjoProtoConfig;
 
     @JSONGet( "PathScope.Reinterpret" )

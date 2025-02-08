@@ -1,6 +1,7 @@
 package com.pinecone.radium.ally.rdb;
 
 import com.pinecone.framework.system.ProvokeHandleException;
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.JSONGet;
@@ -12,12 +13,11 @@ import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.slime.source.rdb.RDBClient;
 import com.pinecone.radium.system.MiddlewareManager;
 import com.pinecone.radium.system.RadiumSystem;
-import com.pinecone.radium.system.Saunut;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class RDBManager extends ArchSystemAutoAssembleComponent implements Saunut, HyComponent {
+public class RDBManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
     @JSONGet( "RDBs" )
     protected JSONObject                           mjoRDBsConf             ;
 

@@ -20,6 +20,7 @@ import com.pinecone.Pinecone;
 import com.pinecone.radium.system.ConfigScope;
 import com.pinecone.radium.system.Hierarchy;
 import com.pinecone.radium.system.MiddlewareManager;
+import com.pinecone.radium.system.RadiumConfigScope;
 import com.pinecone.radium.system.RadiumSystem;
 import com.pinecone.radium.system.ServersScope;
 import com.pinecone.radium.system.StorageSystem;
@@ -35,14 +36,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
- *  Bean Nuts Hazelnut Sauron Radium
+ *  Bean Nuts Pinecone Hydra Radium
  *  Author: Harold.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
- *  Radium Spider for PB-Level Automatic Crawler
- *
- *  *****************************************************************************************
- *  DragonKing.me of Harold
+ *  Radiative Hydra
+ *  DragonKing.cn of Harold
  */
 public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra Radium";
@@ -93,7 +92,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected void prepare_system_skeleton() {
         this.infoLifecycle( "Skeleton Initialization", LogStatuses.StatusStart );
         this.mTracerScope            = new GenericTracerScope( this );
-        this.mPrimaryConfigScope     = new ConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
+        this.mPrimaryConfigScope     = new RadiumConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
         this.mMiddlewareManager      = new MiddlewareManager( this );
         this.mServersScope           = new ServersScope( this );
         this.mStorageSystem          = new StorageSystem( this );
@@ -158,24 +157,12 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     @Override
     protected void traceWelcomeInfo() {
         this.pout().print( "---------------------------------------------------------------\n" );
-        this.pout().print( "\u001B[31m\uD83D\uDE08 Bean Sauron Engine, Project.`Manhattan, the Grand Design` \uD83D\uDE08 \u001B[0m\n" );
-        this.pout().print( "\u001B[34mHydra Kingdom Radium Framework \u001B[0m\n" );
-        this.pout().print( "\u001B[32mCthulhu Data-Platform of Bean Nuts Digital IDC \u001B[0m\n" );
+        this.pout().print( "\u001B[31mBean Nuts Pinecone Ursus for Java\u001B[0m\n" );
+        this.pout().print( "\u001B[31mHydra Kingdom Framework (Radium, Radiative Hydra) \u001B[0m\n" );
         this.pout().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31mDragon King\u001B[0m\n" );
-        this.pout().print( "---------------------------------------------------------------\n" );
-        this.pout().print( "Greeting! My name is Sauron, I insight omniscience.\n" );
-        this.pout().print( "Salve! Nomen Sauron est, omnia perspicio.\n" );
-        this.pout().print( "----------------------Kernel Information-----------------------\n" );
-        this.pout().print( "PineconeVer  : Bean Nuts Pinecone Ursus " + Pinecone.VERSION + "\n" );
-        this.pout().print( "PineconeAlly : Bean Nuts Acorn Hydra\n" );
-        this.pout().print( "PineconeAlly : Bean Nuts Walnut Ulfhedinn (Pinecone Framework Edition)\n"   );
-        this.pout().print( "PineconeAlly : Bean Nuts Walnut Sparta\n" );
-        this.pout().print( "PineconeAlly : Bean Nuts Acorn Summer (Pinecone Framework Edition)\n" );
-        this.pout().print( "PineconeAlly : Bean Nuts Hazelnut Slime\n"   );
-        this.pout().print( "PineconeAlly : Bean Nuts Hazelnut Hydra Radium\n"   );
-        this.pout().print( "PineconeAlly : Bean Nuts Acorn Summer Springron (org.springframework.boot 2.4.1)\n"   );
+        this.pout().print( "\u001B[32mWebsit: https://www.dragonking.cn/ \u001B[0m\n" );
 
         this.traceSubsystemWelcomeInfo();
         this.prepare_system_log4j_logger();

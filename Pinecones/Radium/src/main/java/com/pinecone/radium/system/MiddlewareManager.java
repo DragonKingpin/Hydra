@@ -1,5 +1,6 @@
 package com.pinecone.radium.system;
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.ArchSystemAutoAssembleComponent;
@@ -8,7 +9,7 @@ import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.radium.ally.rdb.RDBManager;
 import com.pinecone.radium.ally.messengers.MessagersManager;
 
-public class MiddlewareManager extends ArchSystemAutoAssembleComponent implements Saunut, HyComponent {
+public class MiddlewareManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
     protected JSONConfig           mjoMiddlewareConf         ;
 
     protected RDBManager mRDBManager;

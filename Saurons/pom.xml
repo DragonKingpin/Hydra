@@ -15,6 +15,7 @@
     <version>1.2.7</version>
 
     <modules>
+        <module>sauron-core</module>
         <module>saurye</module>
         <module>heistotron</module>
         <module>shadow</module>

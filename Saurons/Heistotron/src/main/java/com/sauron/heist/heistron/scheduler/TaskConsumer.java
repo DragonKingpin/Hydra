@@ -1,6 +1,6 @@
 package com.sauron.heist.heistron.scheduler;
 
-import com.pinecone.radium.system.Saunut;
+import com.sauron.system.Saunut;
 
 public interface TaskConsumer extends Saunut {
     void consume();

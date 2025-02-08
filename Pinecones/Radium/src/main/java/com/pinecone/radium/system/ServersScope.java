@@ -1,5 +1,6 @@
 package com.pinecone.radium.system;
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.framework.util.config.JSONConfig;
@@ -14,7 +15,7 @@ import com.pinecone.radium.util.ConfigHelper;
 import java.io.IOException;
 import java.util.Map;
 
-public class ServersScope extends ArchServersCenter implements Saunut {
+public class ServersScope extends ArchServersCenter implements Pinenut {
     protected DirectObjectInjector mServerInjector;
 
     public ServersScope( Namespace name, Hydrarum system, HyComponent parent ) {

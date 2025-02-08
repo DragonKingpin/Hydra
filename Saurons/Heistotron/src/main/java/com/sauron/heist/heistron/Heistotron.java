@@ -21,6 +21,16 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *  Bean Nuts Hazelnut Sauron Heistotron
+ *  Author: Harold.E / JH.W (DragonKing)
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  *****************************************************************************************
+ *  Heistotron Spider for PB-Level Automatic Crawler
+ *
+ *  *****************************************************************************************
+ *  DragonKing.cn of Harold
+ */
 @Gram( "Heist" )
 public class Heistotron extends ArchServgramium implements Heistgram {
     protected boolean              mbEnableCmdCall    = true;

@@ -6,4 +6,8 @@ public interface ClientConnectArguments extends MCConnectionArguments {
     int getParallelChannels();
 
     void setParallelChannels( int parallelChannels );
+
+    boolean isAutoReconnect();
+
+    void setAutoReconnect( boolean autoReconnect );
 }

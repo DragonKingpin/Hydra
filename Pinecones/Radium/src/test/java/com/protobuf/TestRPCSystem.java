@@ -263,6 +263,8 @@ class Jeff extends JesusChrist {
 
         Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
 
+//        Debug.sleep( 3500 );
+//        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5201 ) );
 
         //Debug.greenf( wolf.invokeInform(digest, "fuck you", 2024 ) );
 

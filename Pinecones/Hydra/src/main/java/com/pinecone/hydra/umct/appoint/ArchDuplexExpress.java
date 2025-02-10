@@ -22,6 +22,7 @@ import com.pinecone.hydra.umc.wolfmc.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 import com.pinecone.hydra.umc.wolfmc.WolfMCStandardConstants;
 import com.pinecone.hydra.umc.wolfmc.server.RecipientNettyChannelControlBlock;
+import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.MessageExpress;
 import com.pinecone.hydra.umct.ServiceInternalException;
@@ -139,9 +140,9 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     }
 
 
-    static void reconnect( ChannelControlBlock block ) throws IOException {
+    static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
         if( block.isShutdown() ) {
-            block.getChannel().reconnect();
+            block.getChannel().reconnect( mils );
             ( (UlfMessageNode)block.getParentMessageNode() ).getChannelPool().setIdleChannel( block );
         }
     }
@@ -151,7 +152,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        HuskyDuplexExpress.reconnect( block );
+        HuskyDuplexExpress.reconnect( block, pool.getMajorWaitTimeout() );
         return block;
     }
 

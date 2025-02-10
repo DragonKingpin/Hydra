@@ -13,6 +13,8 @@ public interface UMCChannel extends Pinenut {
 
     void           reconnect() throws IOException;
 
+    void           reconnect( long mils ) throws IOException;
+
     Object         getNativeHandle();
 
     ChannelStatus  getChannelStatus();

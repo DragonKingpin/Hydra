@@ -70,7 +70,7 @@ public class MessengerNettyChannelControlBlock extends ArchChannelControlBlock i
             if( msg == null ) { // Close channel, preventing server sent messages late which could disrupted the sync deque.
                 try{
                     this.getChannel().close();
-                    ArchAsyncMessenger.reconnect( this );
+                    ArchAsyncMessenger.reconnect( this, nWaitTime );
                 }
                 catch ( ProvokeHandleException e ) {
                     if( e.getCause() instanceof IOException ) {

@@ -123,6 +123,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         return this;
     }
 
+    @Override
     public ClientConnectArguments         getConnectionArguments() {
         return this.mConnectionArguments;
     }
@@ -319,28 +320,31 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
                     @Override
                     public void channelInactive( ChannelHandlerContext ctx ) throws Exception {
-                        if( WolfMCClient.this.getChannelPool().isAllChannelsTerminated() ) {
+                        if ( !WolfMCClient.this.getConnectionArguments().isAutoReconnect() ) {
+                            if( WolfMCClient.this.getChannelPool().isAllChannelsTerminated() ) {
+                                try{
+                                    Debug.warn( "All channels has been terminated, client terminating." );
+
+                                    WolfMCClient.this.close();
+                                }
+                                catch ( ProvokeHandleException e ) {
+                                    WolfMCClient.this.kill(); // Those should never happened, just unconditional shutdown.
+                                }
+
+                                return;
+                            }
+
+                            MessengerNettyChannelControlBlock ccb = (MessengerNettyChannelControlBlock)ctx.channel().attr(
+                                    AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
+                            ).get();
+                            WolfMCClient.this.getChannelPool().deactivate( ccb );
+                            WolfMCClient.this.getMajorIOLock().lock();
                             try{
-                                Debug.warn( "All channels has been terminated, client terminating." );
-                                WolfMCClient.this.close();
+                                WolfMCClient.this.getTaskManager().erase( ccb );
                             }
-                            catch ( ProvokeHandleException e ) {
-                                WolfMCClient.this.kill(); // Those should never happened, just unconditional shutdown.
+                            finally {
+                                WolfMCClient.this.getMajorIOLock().unlock();
                             }
-
-                            return;
-                        }
-
-                        MessengerNettyChannelControlBlock ccb = (MessengerNettyChannelControlBlock)ctx.channel().attr(
-                                AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
-                        ).get();
-                        WolfMCClient.this.getChannelPool().deactivate( ccb );
-                        WolfMCClient.this.getMajorIOLock().lock();
-                        try{
-                            WolfMCClient.this.getTaskManager().erase( ccb );
-                        }
-                        finally {
-                            WolfMCClient.this.getMajorIOLock().unlock();
                         }
                     }
 

@@ -121,6 +121,6 @@ public abstract class ArchUMCChannel implements NettyUMCChannel {
 
     @Override
     public boolean           isShutdown() {
-        return this.getChannelStatus().isTerminated();
+        return this.getChannelStatus().isTerminated() || !this.getNativeHandle().isActive();
     }
 }

@@ -1,13 +1,21 @@
 package com.pinecone.hydra.umc.wolfmc;
 
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.AttributeKey;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class UlfChannel extends ArchUMCChannel {
     protected EventLoopGroup             mExecutorGroup      ;
@@ -42,17 +50,67 @@ public class UlfChannel extends ArchUMCChannel {
 
 
     @Override
-    public void              reconnect() throws IOException {
+    public void              reconnect( long mils ) throws IOException {
         if( this.isShutdown() ) {
-            this.toConnect( this.getAddress() );
+            ChannelFuture future = this.toConnect( this.getAddress() ).getLastChannelFuture();
+            CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete( ChannelFuture channelFuture ) throws Exception {
+                    try {
+                        completableFuture.complete( null );
+                    }
+                    catch (Exception e) {
+                        completableFuture.completeExceptionally( e );
+                    }
+                }
+            });
+
+            try {
+                if ( mils != -1 ) {
+                   future.get( mils, TimeUnit.MILLISECONDS );
+                }
+                else {
+                    future.get();
+                }
+            }
+            catch ( InterruptedException e ) {
+                Thread.currentThread().interrupt();
+                throw new IOException( e );
+            }
+            catch ( TimeoutException | ExecutionException e ) {
+                throw new IOException( e.getCause() );
+            }
+
+
+            try{
+                ( (Slf4jTraceable) this.getParentMessageNode() ).getLogger().info(
+                        "[ChannelReconnect] <id:`{}`, Addr: `{}`>", this.getNativeHandle().id(), this.getAddress()
+                );
+            }
+            catch ( ClassCastException ignore ) {
+                // Ignore them.
+            }
         }
+    }
+
+    @Override
+    public void              reconnect() throws IOException {
+        this.reconnect( -1 );
     }
 
     public ArchUMCChannel    toConnect( SocketAddress address ){
         this.mAddress           = address;
         this.mLastChannelFuture = this.getBootstrap().connect( address );
-        this.mChannel           = this.getLastChannelFuture().channel();
+
+        Channel channel         = this.getLastChannelFuture().channel();
+        if ( this.mChannel != null ) { // Reconnect
+            Object ccb = this.mChannel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY ) ).get();
+            channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY ) ).set( ccb );
+        }
+        this.mChannel           = channel;
         this.mChannelID         = this.mChannel.id();
+
         return this;
     }
 

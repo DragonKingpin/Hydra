@@ -112,7 +112,7 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
     }
 
     public boolean           isShutdown() {
-        return this.getChannel().isShutdown() || !this.getChannel().getNativeHandle().isActive();
+        return this.getChannel().isShutdown();
     }
 
     public UlfChannelStatus  getChannelStatus() {

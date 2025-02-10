@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.volume.entity.local.striped.export.channel;
 
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchExportEntity;
 import com.pinecone.hydra.storage.StorageExportIORequest;
@@ -33,17 +34,17 @@ public class TitanStripedChannelExportEntity64 extends ArchExportEntity implemen
     }
 
     @Override
-    public StorageIOResponse export() throws IOException, SQLException {
+    public StorageIOResponse export() throws UIOException {
         return this.stripedChannelExport64.export();
     }
 
     @Override
-    public StorageIOResponse export(Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse export(Number offset, Number endSize) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse export(CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws IOException {
+    public StorageIOResponse export(CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) {
         return null;
     }
 

@@ -39,6 +39,7 @@ import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity6
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.io.TitanInputStreamChanface;
 import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -430,7 +431,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws  IOException {
         ElementNode elementNode = this.queryElement(destinationPath);
         this.copy(sourcePath,elementNode,volumeManager);
     }
@@ -440,7 +441,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.directFileSystemAccess.copy( sourcePath,destinationPath );
     }
 
-    private void copy(String sourcePath, FileTreeNode fileTreeNode, VolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void copy(String sourcePath, FileTreeNode fileTreeNode, VolumeManager volumeManager ) throws IOException {
         if( fileTreeNode instanceof Folder ){
             List<TreeNode> children = this.getChildren(fileTreeNode.getGuid());
             for(TreeNode child : children){
@@ -450,7 +451,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         }else {
             String name = fileTreeNode.getName();
             String[] split = name.split("\\.");
-            File tempFile = File.createTempFile(split[0], "."+split[1]);
+            File tempFile = File.createTempFile(split[0], "." + split[1]);
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             TitanOutputStreamChanface outputStreamChanface = new TitanOutputStreamChanface(fileOutputStream);
             TitanFileExportEntity64 exportEntity64 = new TitanFileExportEntity64(this, volumeManager,
@@ -462,7 +463,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
             fileNode.setDefinitionSize( tempFile.length() );
             fileNode.setName( tempFile.getName() );
-            String destDirPath = sourcePath + "/" + name;
+            String destDirPath = sourcePath + StorageConstants.PathSeparator + name;
             TitanFileReceiveEntity64 receiveEntity64 = new TitanFileReceiveEntity64(this, destDirPath,
                     fileNode, titanFileChannelKChannel, volumeManager);
             this.receive( receiveEntity64 );
@@ -484,7 +485,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         TreeMap< Long, Frame > frameMap = new TreeMap<>();
         List<RemoteFrame> remoteFrames = this.remoteFrameManipulator.getRemoteFrameByFileGuid(guid);
         for( RemoteFrame remoteFrame : remoteFrames ){
-            if( remoteFrame.getDeviceGuid().equals(GUIDs.GUID72("0000000-000000-0000-00")) ){
+            if( remoteFrame.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
                 LocalFrame localFrame = this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
                 frameMap.put( localFrame.getSegId(),localFrame );
             }
@@ -515,7 +516,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public Frame getLastFrame(GUID guid) {
         RemoteFrame remoteFrame = this.remoteFrameManipulator.getLastFrame(guid);
-        if ( remoteFrame.getDeviceGuid().equals( GUIDs.GUID72("0000000-000000-0000-00") ) ){
+        if ( remoteFrame.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
             return this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
         }
         else {
@@ -559,7 +560,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public void receive( FileReceiveEntity entity) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void receive( FileReceiveEntity entity) throws IOException {
         entity.receive();
     }
 
@@ -569,12 +570,12 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public void randomReceive(FileReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void randomReceive(FileReceiveEntity entity, Number offset, Number endSize) throws  IOException {
         entity.randomReceive( offset,endSize );
     }
 
     @Override
-    public void export( FileExportEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void export( FileExportEntity entity ) throws  IOException {
         entity.export();
     }
 

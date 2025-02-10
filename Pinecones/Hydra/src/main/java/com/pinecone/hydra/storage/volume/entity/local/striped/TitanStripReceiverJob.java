@@ -73,10 +73,8 @@ public class TitanStripReceiverJob implements StripChannelReceiverJob{
 //                TitanSimpleReceiveEntity64 receiveEntity = new TitanSimpleReceiveEntity64( this.volumeManager, this.object, this.fileChannel, (SimpleVolume) volume);
                 ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(this.volume.getClass(), this.volumeManager, this.object, this.chanface, volume);
                 this.storageIOResponse = this.volume.receive( receiveEntity, currentPosition, bufferSize );
-            } catch (IOException | SQLException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
 

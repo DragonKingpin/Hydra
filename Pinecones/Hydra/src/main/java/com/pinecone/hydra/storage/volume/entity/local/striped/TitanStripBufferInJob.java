@@ -143,10 +143,8 @@ public class TitanStripBufferInJob implements StripBufferInJob {
                     this.intoWritingStatus();
 
                 }
-                catch ( IOException | SQLException e ) {
+                catch ( IOException e ) {
                     throw new VolumeJobCompromiseException( e );
-                } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
                 }
             }
             else {

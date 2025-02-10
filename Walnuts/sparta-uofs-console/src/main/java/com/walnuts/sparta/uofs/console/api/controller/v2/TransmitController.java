@@ -19,6 +19,7 @@ import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
@@ -75,7 +76,7 @@ public class TransmitController {
      * @throws SQLException
      */
     @PostMapping("/channel/update")
-    public  BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public  BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException {
         MultipartFile object = dto.getObject();
         File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
         object.transferTo( file );
@@ -102,7 +103,7 @@ public class TransmitController {
      * @throws SQLException
      */
     @PostMapping("/channel/download")
-    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException {
         File file = new File( dto.getTargetPath());
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
         TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
@@ -114,7 +115,7 @@ public class TransmitController {
     }
 
     @GetMapping("/download/guid")
-    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] guids = parameterMap.get("guid");
         GUID storageObjectGuid = null;
@@ -136,7 +137,7 @@ public class TransmitController {
      * 使用文件路径下载文件
      */
     @GetMapping("/download/path")
-    public void getFileByPath(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void getFileByPath(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] paths = parameterMap.get("path");
         String path = null;
@@ -183,7 +184,7 @@ public class TransmitController {
      * @return 返回操作结果
      */
     @PostMapping("/CDNUpload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
         if( site == null ){
@@ -227,7 +228,7 @@ public class TransmitController {
      * @return
      */
     @PostMapping("/upload")
-    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException {
             ElementNode elementNode = this.primaryFileSystem.queryElement(filePath);
             File tempFile = File.createTempFile("upload",".temp");
             file.transferTo(tempFile);

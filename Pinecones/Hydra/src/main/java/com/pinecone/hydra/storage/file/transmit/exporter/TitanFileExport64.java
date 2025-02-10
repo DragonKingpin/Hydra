@@ -7,6 +7,7 @@ import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.file.entity.LocalFrame;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.UnifiedTransmitConstructor;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ExporterEntity;
@@ -35,7 +36,7 @@ public class TitanFileExport64 implements FileExport64{
         this.constructor = new UnifiedTransmitConstructor();
     }
     @Override
-    public void export() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void export() throws IOException {
         // 获取文件所有的簇
         TreeMap<Long, Frame> framesMap = fileNode.getFrames();
         for (long i = 0; i < framesMap.size(); i++) {
@@ -47,7 +48,8 @@ public class TitanFileExport64 implements FileExport64{
             UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
             LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
             //volume.channelExport( titanExportStorageObject, this.channel );
-            ExporterEntity exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
+            ExporterEntity exportEntity = null;
+            exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
             volume.export( exportEntity );
         }
 
@@ -55,7 +57,21 @@ public class TitanFileExport64 implements FileExport64{
     }
 
     @Override
-    public void export(Number offset, Number endSize) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException {
+    public void export(Frame frame) throws IOException {
+        LocalFrame localFrame = (LocalFrame) frame;
+        TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
+        titanExportStorageObject.setSize( localFrame.getSize() );
+        titanExportStorageObject.setStorageObjectGuid( localFrame.getSegGuid() );
+        String sourceName = localFrame.getSourceName();
+        UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
+        LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+        ExporterEntity exportEntity = null;
+        exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
+        volume.export( exportEntity );
+    }
+
+    @Override
+    public void export(Number offset, Number endSize) throws  IOException {
         TreeMap<Long, Frame> framesMap = fileNode.getFrames();
         long startPosition = offset.longValue();
         long endPosition = offset.longValue() + endSize.longValue();
@@ -72,7 +88,8 @@ public class TitanFileExport64 implements FileExport64{
                 UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
                 LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
 
-                ExporterEntity exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
+                ExporterEntity exportEntity = null;
+                exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
 
                 long startOffsetInFrame = Math.max(startPosition - currentPosition, 0);
                 long sizeToExport = Math.min(endPosition - currentPosition, frame.getDefinitionSize()) - startOffsetInFrame;

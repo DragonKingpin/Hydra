@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 
@@ -22,7 +23,7 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
 
 
     @Override
-    public void receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void receive() throws IOException {
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);
@@ -38,7 +39,7 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
     }
 
     @Override
-    public void randomReceive(Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void randomReceive(Number offset, Number endSize) throws  IOException {
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);

@@ -7,6 +7,7 @@ import com.pinecone.framework.util.sqlite.SQLiteHost;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
@@ -45,36 +46,45 @@ public class TitanStripedChannelReceiver64 implements StripedChannelReceiver64{
     }
 
     @Override
-    public StorageIOResponse channelReceive() throws IOException, SQLException {
+    public StorageIOResponse channelReceive() throws UIOException {
         Hydrarum hydrarum = this.volumeManager.getHydrarum();
         MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
         hydrarum.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
-        MappedExecutor sqLiteExecutor = this.getExecutor();
+        try {
+            MappedExecutor sqLiteExecutor = this.getExecutor();
 
-        int index = 0;
-        for( LogicVolume volume : volumes ){
-            TitanStripReceiverJob receiverJob = new TitanStripReceiverJob(masterVolumeGram, this.entity, this.fileChannel, volumes.size(), index, volume, sqLiteExecutor, 0, this.entity.getReceiveStorageObject().getSize() );
-            LocalStripedTaskThread taskThread = new LocalStripedTaskThread(  this.stripedVolume.getName() + index, masterVolumeGram, receiverJob );
-            masterVolumeGram.getTaskManager().add( taskThread );
-            taskThread.start();
+            int index = 0;
+            for( LogicVolume volume : volumes ){
+                TitanStripReceiverJob receiverJob = new TitanStripReceiverJob(masterVolumeGram, this.entity, this.fileChannel, volumes.size(), index, volume, sqLiteExecutor, 0, this.entity.getReceiveStorageObject().getSize() );
+                LocalStripedTaskThread taskThread = new LocalStripedTaskThread(  this.stripedVolume.getName() + index, masterVolumeGram, receiverJob );
+                masterVolumeGram.getTaskManager().add( taskThread );
+                taskThread.start();
 
-            index ++;
+                index ++;
+            }
+            this.mSqLiteHost.close();
+        } catch (SQLException e) {
+            throw new UIOException(e);
         }
-        this.mSqLiteHost.close();
         this.waitForTaskCompletion( masterVolumeGram );
         return null;
     }
 
     @Override
-    public StorageIOResponse channelReceive(Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse channelReceive(Number offset, Number endSize) throws UIOException {
         Hydrarum hydrarum = this.volumeManager.getHydrarum();
         MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
         hydrarum.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
-        MappedExecutor sqLiteExecutor = this.getExecutor();
+        MappedExecutor sqLiteExecutor = null;
+        try {
+            sqLiteExecutor = this.getExecutor();
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
 
         int index = 0;
         for( LogicVolume volume : volumes ){
@@ -108,37 +118,37 @@ public class TitanStripedChannelReceiver64 implements StripedChannelReceiver64{
     }
 
 //    @Override
-//    public StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+//    public StorageIOResponse receive() throws UIOException {
 //        return null;
 //    }
 //
 //    @Override
-//    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+//    public StorageIOResponse receive(Number offset, Number endSize) throws UIOException {
 //        return null;
 //    }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws UIOException {
         return null;
     }
 }

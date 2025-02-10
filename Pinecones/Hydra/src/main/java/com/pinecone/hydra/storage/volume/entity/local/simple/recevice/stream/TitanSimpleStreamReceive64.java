@@ -5,6 +5,7 @@ import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
@@ -41,21 +42,21 @@ public class TitanSimpleStreamReceive64 implements SimpleStreamReceiver64{
 
 
     @Override
-    public StorageIOResponse streamReceive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse streamReceive()  {
 //        TitanDirectStreamReceiveEntity64 titanDirectStreamReceiveEntity64 = new TitanDirectStreamReceiveEntity64( this.volumeManager, this.storageReceiveIORequest, this.stream, this.physicalVolume.getMountPoint().getMountPoint() );
 //        return this.physicalVolume.receive( titanDirectStreamReceiveEntity64 );
         return null;
     }
 
     @Override
-    public StorageIOResponse streamReceive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse streamReceive(Number offset, Number endSize)  {
 //        TitanDirectStreamReceiveEntity64 titanDirectStreamReceiveEntity64 = new TitanDirectStreamReceiveEntity64( this.volumeManager, this.storageReceiveIORequest, this.stream, this.physicalVolume.getMountPoint().getMountPoint() );
 //        return this.physicalVolume.receive( titanDirectStreamReceiveEntity64, offset, endSize );
         return null;
     }
 
     @Override
-    public StorageIOResponse streamReceive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
+    public StorageIOResponse streamReceive(CacheBlock cacheBlock, byte[] buffer) {
 //        TitanDirectStreamReceiveEntity64 titanDirectStreamReceiveEntity64 = new TitanDirectStreamReceiveEntity64( this.volumeManager, this.storageReceiveIORequest, this.stream, this.physicalVolume.getMountPoint().getMountPoint() );
 //        return this.physicalVolume.receive( titanDirectStreamReceiveEntity64, cacheBlock, buffer );
         return null;
@@ -64,27 +65,27 @@ public class TitanSimpleStreamReceive64 implements SimpleStreamReceiver64{
 
 
     @Override
-    public StorageIOResponse receive(Chanface chanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface) throws IOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws IOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException{
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException {
         return null;
     }
 }

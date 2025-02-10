@@ -5,6 +5,7 @@ import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.framework.util.sqlite.SQLiteHost;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
@@ -61,12 +62,12 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
 
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity) throws IOException {
         return entity.receive();
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
         return entity.receive( offset, endSize );
     }
 
@@ -76,12 +77,12 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity) throws IOException {
         return entity.export();
     }
 
@@ -91,12 +92,12 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws UIOException {
         return entity.export( cacheBlock, offset, endSize, buffer );
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws UIOException {
         return null;
     }
 
@@ -106,7 +107,7 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws UIOException {
         return null;
     }
 

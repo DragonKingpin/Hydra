@@ -17,6 +17,7 @@ import com.pinecone.hydra.storage.file.entity.LocalFrame;
 import com.pinecone.hydra.storage.file.entity.RemoteFrame;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.UnifiedTransmitConstructor;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
@@ -62,7 +63,7 @@ public class TitanFileReceive64 implements FileReceive64{
     }
 
     @Override
-    public void receive( LogicVolume volume ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void receive( LogicVolume volume ) throws IOException {
         long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
         this.fileNode.setGuid( mKOMFileSystem.queryGUIDByPath( this.destDirPath ) );
 
@@ -92,7 +93,8 @@ public class TitanFileReceive64 implements FileReceive64{
             storageReceiveIORequest.setStorageObjectGuid( localFrame.getSegGuid() );
 
             //storageIOResponse = volume.channelReceive(storageReceiveIORequest, kChannel, currentPosition, endSize);
-            ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
+            ReceiveEntity receiveEntity = null;
+            receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
             storageIOResponse = volume.receive( receiveEntity, currentPosition, endSize );
 
             UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
@@ -125,7 +127,7 @@ public class TitanFileReceive64 implements FileReceive64{
     }
 
     @Override
-    public void receive(LogicVolume volume, long segId) throws InvocationTargetException, InstantiationException, IllegalAccessException, SQLException, IOException {
+    public void receive(LogicVolume volume, long segId) throws  IOException {
         long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
         FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();
         this.mKOMFileSystem.deleteFrame( this.fileNode, segId );
@@ -148,7 +150,8 @@ public class TitanFileReceive64 implements FileReceive64{
 
         StorageIOResponse storageIOResponse = null;
 
-        ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
+        ReceiveEntity receiveEntity = null;
+        receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
         storageIOResponse = volume.receive( receiveEntity, currentPosition, endSize );
 
         UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
@@ -177,7 +180,7 @@ public class TitanFileReceive64 implements FileReceive64{
     }
 
     @Override
-    public void randomReceive(LogicVolume volume, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void randomReceive(LogicVolume volume, Number offset, Number endSize) throws  IOException {
         long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
         this.fileNode.setGuid( mKOMFileSystem.queryGUIDByPath( this.destDirPath ) );
 
@@ -202,7 +205,8 @@ public class TitanFileReceive64 implements FileReceive64{
             storageReceiveIORequest.setName( fileNode.getName() );
             storageReceiveIORequest.setStorageObjectGuid( frame.getSegGuid() );
 
-            ReceiveEntity receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
+            ReceiveEntity receiveEntity = null;
+            receiveEntity = this.constructor.getReceiveEntity(volume.getClass(), this.volumeManager, storageReceiveIORequest, this.chanface, volume);
             volume.randomReceive( receiveEntity, startPosition, endSize );
 
             UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
@@ -224,7 +228,7 @@ public class TitanFileReceive64 implements FileReceive64{
 
     }
 
-    Verification getVerification() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    Verification getVerification() throws IOException {
         File tempFile = File.createTempFile("temp",".temp");
         FileNode fileNode = (FileNode)this.mKOMFileSystem.get(this.mKOMFileSystem.queryGUIDByPath(this.destDirPath));
         FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);

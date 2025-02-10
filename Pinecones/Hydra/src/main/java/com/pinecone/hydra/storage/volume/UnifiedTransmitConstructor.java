@@ -42,7 +42,7 @@ public class UnifiedTransmitConstructor implements IUnifiedTransmitConstructor{
     }
 
     @Override
-    public ReceiveEntity getReceiveEntity(Class<? extends LogicVolume> volumeClass, Object... params) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public ReceiveEntity getReceiveEntity(Class<? extends LogicVolume> volumeClass, Object... params) {
         Class<? extends ReceiveEntity> receiveEntityClass = receiveMap.get(volumeClass);
         if( receiveEntityClass == null ){
             throw new IllegalArgumentException( "Class not found." );
@@ -50,18 +50,26 @@ public class UnifiedTransmitConstructor implements IUnifiedTransmitConstructor{
 
         Constructor<? extends ReceiveEntity> receiveConstructor = this.findReceiveConstructor(receiveEntityClass, params);
 
-        return receiveConstructor.newInstance( params );
+        try {
+            return receiveConstructor.newInstance( params );
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public ExporterEntity getExportEntity(Class<? extends LogicVolume> volumeClass, Object... params) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public ExporterEntity getExportEntity(Class<? extends LogicVolume> volumeClass, Object... params) {
         Class<? extends ExporterEntity> exportEntityClass = exportMap.get(volumeClass);
         if( exportEntityClass == null ){
             throw new IllegalArgumentException( "Class not found." );
         }
 
         Constructor<? extends ExporterEntity> exportConstructor = this.findExportConstructor(exportEntityClass, params);
-        return exportConstructor.newInstance( params );
+        try {
+            return exportConstructor.newInstance( params );
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

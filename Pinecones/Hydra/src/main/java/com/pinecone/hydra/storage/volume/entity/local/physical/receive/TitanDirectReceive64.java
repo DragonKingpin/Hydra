@@ -8,6 +8,7 @@ import com.pinecone.hydra.storage.StorageNaming;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
 import com.pinecone.hydra.storage.TitanStorageIOResponse;
 import com.pinecone.hydra.storage.TitanStorageNaming;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
 
@@ -91,12 +92,12 @@ public class TitanDirectReceive64 implements DirectReceive64{
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException {
         return this.receiveWithOffsetAndSize( randomAccessChanface, 0, this.storageReceiveIORequest.getSize().intValue() );
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException {
         return this.receiveWithOffsetAndSize( randomAccessChanface,offset.intValue(),endSize.intValue() );
     }
 

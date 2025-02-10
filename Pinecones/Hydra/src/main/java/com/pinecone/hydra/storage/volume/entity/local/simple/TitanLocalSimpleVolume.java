@@ -6,6 +6,7 @@ import com.pinecone.framework.util.rdb.MappedExecutor;
 import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.framework.util.sqlite.SQLiteHost;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
@@ -63,51 +64,67 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
 
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity) throws IOException {
         StorageIOResponse response = entity.receive();
-        this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        try {
+            this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
         return response ;
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws IOException{
         StorageIOResponse response = entity.receive( offset, endSize );
-        this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        try {
+            this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
         return response;
     }
 
     @Override
-    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
         StorageIOResponse response = entity.randomReceive( offset,endSize );
-        this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        try {
+            this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
         return response;
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws IOException {
         StorageIOResponse response = entity.receive(cacheBlock, buffer);
-        this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        try {
+            this.saveMate( response, entity.getReceiveStorageObject().getName() );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
         return response;
     }
 
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity) throws IOException {
         return entity.export();
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, Number offset, Number endSize) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, Number offset, Number endSize) throws IOException {
         return entity.export( offset,endSize );
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws UIOException {
         return entity.export( cacheBlock, offset, endSize, buffer );
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws UIOException {
         return null;
     }
 
@@ -117,7 +134,7 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws UIOException {
         return null;
     }
 

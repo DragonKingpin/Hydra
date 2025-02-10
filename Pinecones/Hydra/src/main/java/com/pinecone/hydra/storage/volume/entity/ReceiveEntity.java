@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
 
@@ -21,12 +22,12 @@ public interface ReceiveEntity extends Pinenut {
     Chanface getKChannel();
     void setKChannel( Chanface channel);
 
-    StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    StorageIOResponse receive() throws IOException;
 
-    StorageIOResponse receive(Number offset, Number endSize ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    StorageIOResponse receive(Number offset, Number endSize ) throws IOException;
 
     StorageIOResponse randomReceive( Number offset, Number endSize ) throws IOException;
 
-    StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer ) throws IOException, SQLException;
+    StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer ) throws IOException;
 
 }

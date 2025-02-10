@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -43,20 +44,20 @@ public interface LogicVolume extends Volume, TreeNode {
     void setVolumeTree( VolumeManager volumeManager);
 
 
-    StorageIOResponse receive( ReceiveEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
-    StorageIOResponse receive( ReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
-    StorageIOResponse randomReceive( ReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
-    StorageIOResponse receive( ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer ) throws SQLException, IOException;
+    StorageIOResponse receive( ReceiveEntity entity ) throws IOException;
+    StorageIOResponse receive( ReceiveEntity entity, Number offset, Number endSize ) throws IOException;
+    StorageIOResponse randomReceive( ReceiveEntity entity, Number offset, Number endSize ) throws IOException;
+    StorageIOResponse receive( ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer ) throws IOException;
 
-    StorageIOResponse export( ExporterEntity entity ) throws SQLException, IOException;
+    StorageIOResponse export( ExporterEntity entity ) throws IOException;
     //敬请期待
-    StorageIOResponse export( ExporterEntity entity, Number offset, Number endSize ) throws SQLException, IOException;
-    StorageIOResponse export( ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer ) throws SQLException, IOException;
+    StorageIOResponse export( ExporterEntity entity, Number offset, Number endSize ) throws IOException;
+    StorageIOResponse export( ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer ) throws UIOException;
 
-    StorageIOResponse export( ExporterEntity entity, boolean accessRandom ) throws SQLException, IOException;
+    StorageIOResponse export( ExporterEntity entity, boolean accessRandom ) throws UIOException;
     //敬请期待
     StorageIOResponse export( ExporterEntity entity, Number offset, Number endSize, boolean accessRandom );
-    StorageIOResponse export( ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom ) throws SQLException, IOException;
+    StorageIOResponse export( ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom ) throws UIOException;
 
 
     boolean existStorageObject( GUID storageObject ) throws SQLException;

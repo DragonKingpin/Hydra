@@ -23,6 +23,7 @@ import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -88,7 +89,7 @@ class Steve extends Radium {
         fileSystem.affirmFileNode("movie/生还危机/浣熊市");
     }
 
-    private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) {
 //        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
         FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID72("14bc124-00012c-0004-f8"));
         Debug.trace( fileNode.getPath() );
@@ -119,7 +120,7 @@ class Steve extends Radium {
         fileSystem.remove( "movie" );
     }
 
-    private void testChannelReceive( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void testChannelReceive( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException {
         //LogicVolume volume = volumeManager.get(GUIDs.GUID72( "09d62c0-00037e-0006-c8" ));
         FSNodeAllotment fsNodeAllotment = fileSystem.getFSNodeAllotment();
         File file = new File("D:/井盖视频块/我的视频.mp4");
@@ -133,7 +134,7 @@ class Steve extends Radium {
         fileSystem.receive( receiveEntity );
     }
 
-    private void testChannelExport( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private void testChannelExport( KOMFileSystem fileSystem, UniformVolumeManager volumeManager ) throws IOException {
         FileNode fileNode = (FileNode) fileSystem.get(fileSystem.queryGUIDByPath("D:/井盖视频块/我的视频.mp4"));
         File file = new File("D:\\文件系统\\大文件\\我的视频.mp4");
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);

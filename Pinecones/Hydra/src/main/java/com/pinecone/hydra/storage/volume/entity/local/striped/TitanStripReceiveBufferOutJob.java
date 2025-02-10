@@ -110,8 +110,7 @@ public class TitanStripReceiveBufferOutJob implements StripReceiveBufferOutJob{
                         bufferInThread.getBlockerLatch().release();
                     }
                 }
-            } catch (SQLException | IOException | InterruptedException | InvocationTargetException |
-                     InstantiationException | IllegalAccessException e) {
+            } catch (SQLException | IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 

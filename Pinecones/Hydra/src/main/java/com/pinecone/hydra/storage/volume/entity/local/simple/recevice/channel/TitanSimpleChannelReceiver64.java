@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
@@ -30,7 +31,7 @@ public class TitanSimpleChannelReceiver64   implements SimpleChannelReceiver64{
         this.storageReceiveIORequest = entity.getReceiveStorageObject();
     }
     @Override
-    public StorageIOResponse channelReceive() throws IOException, SQLException {
+    public StorageIOResponse channelReceive() throws UIOException {
         List<GUID> guids = simpleVolume.listPhysicalVolume();
         PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(guids.get(0));
 
@@ -45,37 +46,37 @@ public class TitanSimpleChannelReceiver64   implements SimpleChannelReceiver64{
     }
 
 //    @Override
-//    public StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+//    public StorageIOResponse receive() throws UIOException {
 //        return null;
 //    }
 //
 //    @Override
-//    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+//    public StorageIOResponse receive(Number offset, Number endSize) throws UIOException {
 //        return null;
 //    }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface) throws IOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Chanface chanface, Number offset, Number endSize) throws IOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException{
         return null;
     }
 }

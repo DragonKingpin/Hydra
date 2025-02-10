@@ -4,6 +4,7 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.StorageExportIORequest;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
@@ -38,22 +39,27 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
     }
 
     @Override
-    public StorageIOResponse export() throws IOException, SQLException {
+    public StorageIOResponse export() throws UIOException {
         //初始化参数
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
         int jobCount = volumes.size();
 
         int StripResidentCacheAllotRatio = volumeManager.getConfig().getStripResidentCacheAllotRatio();
-        SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
+        MasterVolumeGram masterVolumeGram = null;
+        try {
+            SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
 
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
+            Hydrarum hydrarum = this.volumeManager.getHydrarum();
+            masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
 
-        // 创建文件写入线程
-         createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
+            // 创建文件写入线程
+            createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
 
-        // 处理每个卷的线程
-        createAndStartVolumeThreads(volumes, sqLiteExecutor,  masterVolumeGram );
+            // 处理每个卷的线程
+            createAndStartVolumeThreads(volumes, sqLiteExecutor,  masterVolumeGram );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
 
         // 同步等待任务完成并处理异常
         this.waitForTaskCompletion(masterVolumeGram);
@@ -62,22 +68,27 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
     }
 
     @Override
-    public StorageIOResponse export(Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse export(Number offset, Number endSize) throws UIOException {
         //初始化参数
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
         int jobCount = volumes.size();
 
         int StripResidentCacheAllotRatio = volumeManager.getConfig().getStripResidentCacheAllotRatio();
-        SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
+        MasterVolumeGram masterVolumeGram = null;
+        try {
+            SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
 
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
+            Hydrarum hydrarum = this.volumeManager.getHydrarum();
+            masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
 
-        // 创建文件写入线程
-        createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
+            // 创建文件写入线程
+            createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
 
-        // 处理每个卷的线程
-        createAndStartVolumeThreads(volumes, sqLiteExecutor,  masterVolumeGram );
+            // 处理每个卷的线程
+            createAndStartVolumeThreads(volumes, sqLiteExecutor,  masterVolumeGram );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
 
         // 同步等待任务完成并处理异常
         this.waitForTaskCompletion(masterVolumeGram);

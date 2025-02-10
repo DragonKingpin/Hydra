@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.volume.entity.local.simple.recevice.stream;
 
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchReceiveEntity;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
@@ -27,12 +28,12 @@ public class TitanSimpleStreamReceiveEntity64 extends ArchReceiveEntity implemen
     }
 
     @Override
-    public StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive() throws UIOException {
         return this.streamReceiver.streamReceive();
     }
 
     @Override
-    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Number offset, Number endSize) throws UIOException {
         return this.streamReceiver.streamReceive( offset, endSize );
     }
 
@@ -42,7 +43,7 @@ public class TitanSimpleStreamReceiveEntity64 extends ArchReceiveEntity implemen
     }
 
     @Override
-    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
+    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws UIOException {
         return this.streamReceiver.streamReceive( cacheBlock, buffer );
     }
 

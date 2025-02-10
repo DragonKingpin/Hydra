@@ -93,7 +93,7 @@ public class FolderController {
      * @param destinationPath 源路径
      */
     @PutMapping("/copy")
-    public BasicResultResponse<String> copy( @RequestParam("sourcePath") String sourcePath, @RequestParam("destinationPath") String destinationPath ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> copy( @RequestParam("sourcePath") String sourcePath, @RequestParam("destinationPath") String destinationPath ) throws IOException {
         this.primaryFileSystem.copy( sourcePath, destinationPath, primaryVolume );
         return BasicResultResponse.success("复制成功");
     }

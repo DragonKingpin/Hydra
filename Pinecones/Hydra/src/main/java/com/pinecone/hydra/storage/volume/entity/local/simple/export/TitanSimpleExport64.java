@@ -5,6 +5,7 @@ import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageExportIORequest;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
 import com.pinecone.hydra.storage.volume.entity.local.physical.export.TitanDirectExportEntity64;
@@ -30,30 +31,38 @@ public class TitanSimpleExport64 implements SimpleExport64{
         this.kenVolumeFileSystem = new KenVolumeFileSystem( this.volumeManager );
     }
     @Override
-    public StorageIOResponse export(Chanface chanface) throws IOException, SQLException {
-        SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
-        String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(this.storageExportIORequest.getStorageObjectGuid(), sqLiteExecutor);
-        this.storageExportIORequest.setSourceName(sourceName);
-        TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
-        return exportEntity.export();
+    public StorageIOResponse export(Chanface chanface) throws IOException {
+        try {
+            SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
+            String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(this.storageExportIORequest.getStorageObjectGuid(), sqLiteExecutor);
+            this.storageExportIORequest.setSourceName(sourceName);
+            TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
+            return exportEntity.export();
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
     }
 
     @Override
-    public StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws SQLException, IOException {
-        SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
-        String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(this.storageExportIORequest.getStorageObjectGuid(), sqLiteExecutor);
-        this.storageExportIORequest.setSourceName(sourceName);
-        TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
-        return exportEntity.export( offset,endSize );
+    public StorageIOResponse export(Chanface chanface, Number offset, Number endSize) throws IOException {
+        try {
+            SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
+            String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(this.storageExportIORequest.getStorageObjectGuid(), sqLiteExecutor);
+            this.storageExportIORequest.setSourceName(sourceName);
+            TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
+            return exportEntity.export( offset,endSize );
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
     }
 
     @Override
-    public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException, SQLException {
+    public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse export(Chanface chanface,CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws IOException {
+    public StorageIOResponse export(Chanface chanface,CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws UIOException {
         TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
         return exportEntity.export( cacheBlock, offset, endSize, buffer );
     }

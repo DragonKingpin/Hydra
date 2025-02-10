@@ -8,7 +8,7 @@ import com.pinecone.hydra.storage.volume.entity.ReceiveEntity;
 import java.lang.reflect.InvocationTargetException;
 
 public interface IUnifiedTransmitConstructor extends Pinenut {
-    ReceiveEntity getReceiveEntity(Class< ? extends LogicVolume> volumeClass, Object... params) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+    ReceiveEntity getReceiveEntity(Class< ? extends LogicVolume> volumeClass, Object... params);
 
-    ExporterEntity getExportEntity( Class< ? extends LogicVolume > volumeClass, Object... params ) throws InvocationTargetException, InstantiationException, IllegalAccessException;
+    ExporterEntity getExportEntity( Class< ? extends LogicVolume > volumeClass, Object... params );
 }

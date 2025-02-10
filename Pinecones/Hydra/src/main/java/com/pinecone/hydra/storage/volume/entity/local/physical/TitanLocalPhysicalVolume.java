@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchVolume;
 import com.pinecone.hydra.storage.StorageExportIORequest;
@@ -62,7 +63,7 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
 
 
     @Override
-    public StorageIOResponse channelReceive(VolumeManager volumeManager, StorageReceiveIORequest storageReceiveIORequest, Chanface channel) throws IOException, SQLException {
+    public StorageIOResponse channelReceive(VolumeManager volumeManager, StorageReceiveIORequest storageReceiveIORequest, Chanface channel) throws UIOException {
 //        TitanDirectChannelReceiveEntity64 titanDirectChannelReceiveEntity64 = new TitanDirectChannelReceiveEntity64(volumeManager, storageReceiveIORequest, this.mountPoint.getMountPoint(), channel);
 //        StorageIOResponse storageIOResponse = titanDirectChannelReceiveEntity64.receive();
 //        storageIOResponse.setBottomGuid( this.guid );
@@ -99,12 +100,12 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity) throws IOException {
         return entity.receive();
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
         return entity.receive( offset, endSize );
     }
 
@@ -114,12 +115,12 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws IOException {
         return entity.receive( cacheBlock, buffer );
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity) throws IOException {
         return entity.export();
     }
 

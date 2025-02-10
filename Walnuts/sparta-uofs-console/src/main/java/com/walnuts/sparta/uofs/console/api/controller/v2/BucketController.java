@@ -8,6 +8,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
@@ -99,7 +100,7 @@ public class BucketController {
      * @return 操作结果
      */
     @GetMapping("/{bucketName}/{objectName}")
-    public BasicResultResponse<String> getObject(@PathVariable String bucketName, @PathVariable String objectName, @RequestBody String targetPath) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> getObject(@PathVariable String bucketName, @PathVariable String objectName, @RequestBody String targetPath) throws IOException {
         FileNode fileNode = (FileNode) this.primaryFileSystem.get(this.primaryFileSystem.queryGUIDByPath(bucketName + "/" + objectName));
         File file = new File(targetPath);
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);

@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.volume.entity.local.striped.receive.channnel;
 
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchReceiveEntity;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
@@ -38,12 +39,12 @@ public class TitanStripedChannelReceiverEntity64 extends ArchReceiveEntity imple
     }
 
     @Override
-    public StorageIOResponse receive() throws IOException, SQLException {
+    public StorageIOResponse receive() throws UIOException {
         return this.stripedChannelReceiver64.channelReceive();
     }
 
     @Override
-    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse receive(Number offset, Number endSize) throws UIOException {
         return this.stripedChannelReceiver64.channelReceive( offset, endSize );
     }
 
@@ -53,7 +54,7 @@ public class TitanStripedChannelReceiverEntity64 extends ArchReceiveEntity imple
     }
 
     @Override
-    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
+    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws UIOException {
         return null;
     }
 }

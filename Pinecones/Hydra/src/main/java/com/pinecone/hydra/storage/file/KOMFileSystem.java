@@ -10,6 +10,7 @@ import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.transmit.exporter.FileExportEntity;
 import com.pinecone.hydra.storage.file.transmit.receiver.FileReceiveEntity;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
@@ -140,7 +141,7 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     void move(String sourcePath, String destinationPath);
 
-    void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws IOException;
 
     void directCopy( String sourcePath, String destinationPath ) throws IOException;
 
@@ -165,11 +166,11 @@ public interface KOMFileSystem extends ReparseKOMTree {
     Frame getFrameByFileWithId( GUID fileGuid, long segId );
 
 
-    void receive(  FileReceiveEntity entity ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void receive(  FileReceiveEntity entity ) throws IOException;
     void receive( FileReceiveEntity entity, Number offset, Number endSize )throws IOException;
-    void randomReceive( FileReceiveEntity entity, Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void randomReceive( FileReceiveEntity entity, Number offset, Number endSize ) throws  IOException;
 
-    void export( FileExportEntity entity ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void export( FileExportEntity entity ) throws IOException;
     void export( FileExportEntity entity, Number offset, Number endSize );
 
     FileMasterManipulator  getFileMasterManipulator();

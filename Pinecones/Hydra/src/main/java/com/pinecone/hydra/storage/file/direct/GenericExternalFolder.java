@@ -8,8 +8,10 @@ import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -108,17 +110,19 @@ public class GenericExternalFolder extends ArchElementNode implements ExternalFo
 
     private void deleteDirectoryRecursively(Path directory) throws IOException {
         if (Files.exists(directory)) {
-            // Walk through the directory tree and delete all files and subdirectories
-            Files.walk(directory)
-                    .sorted((path1, path2) -> -path1.compareTo(path2)) // 反向排序以确保先删除子目录/文件
-                    .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            // 根据需要处理异常
-                        }
-                    });
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
     }
 }

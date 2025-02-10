@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 
 import java.io.IOException;
@@ -26,8 +27,8 @@ public interface FileReceiveEntity extends Pinenut {
     VolumeManager getVolumeManager();
     void setVolumeManager( VolumeManager volumeManager );
 
-    void receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void receive() throws IOException;
     void receive( Number offset, Number endSize )throws IOException;
 
-    void randomReceive( Number offset, Number endSize ) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException;
+    void randomReceive( Number offset, Number endSize ) throws  IOException;
 }

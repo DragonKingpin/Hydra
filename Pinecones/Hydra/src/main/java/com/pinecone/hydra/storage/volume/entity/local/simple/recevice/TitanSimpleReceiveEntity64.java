@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.simple.recevice;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchReceiveEntity;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
@@ -27,12 +28,12 @@ public class TitanSimpleReceiveEntity64 extends ArchReceiveEntity implements Sim
     }
 
     @Override
-    public StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive() throws IOException {
         return this.simpleReceive.receive(this.chanface);
     }
 
     @Override
-    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Number offset, Number endSize) throws IOException{
         return this.simpleReceive.receive(this.chanface, offset, endSize );
     }
 
@@ -42,7 +43,7 @@ public class TitanSimpleReceiveEntity64 extends ArchReceiveEntity implements Sim
     }
 
     @Override
-    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
+    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException {
         return this.simpleReceive.receive(this.chanface, cacheBlock, buffer );
     }
 

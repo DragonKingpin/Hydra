@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageExportIORequest;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
@@ -36,35 +37,41 @@ public class TitanSpannedExport64 implements SpannedExport64{
         this.kenVolumeFileSystem        = new KenVolumeFileSystem( this.volumeManager );
     }
     @Override
-    public StorageIOResponse export(Chanface chanface) throws IOException, SQLException {
+    public StorageIOResponse export(Chanface chanface) throws UIOException {
         //先查找冲突表中是否存在该文件
-        List<LogicVolume> volumes = this.spannedVolume.queryChildren();
-        GUID physicsVolumeGuid = this.kenVolumeFileSystem.getKVFSPhysicsVolume(this.spannedVolume.getGuid());
-        PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(physicsVolumeGuid);
-        SQLiteExecutor sqLiteExecutor = this.getSQLiteExecutor(physicalVolume);
-        GUID targetGuid = this.kenVolumeFileSystem.getSpanLinkedVolumeTableTargetGuid(sqLiteExecutor, this.storageExportIORequest.getStorageObjectGuid());
-        if ( targetGuid == null ){
-            int idx = this.kenVolumeFileSystem.hashStorageObjectID(this.storageExportIORequest.getStorageObjectGuid(), volumes.size());
-            GUID tableTargetGuid = this.kenVolumeFileSystem.getSpannedIndexTableTargetGuid(sqLiteExecutor, idx);
-            String source = this.getSource(tableTargetGuid, this.storageExportIORequest.getStorageObjectGuid());
-            this.storageExportIORequest.setSourceName( source );
-            SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(tableTargetGuid);
-            List<GUID> guids = simpleVolume.listPhysicalVolume();
-            PhysicalVolume volume = this.volumeManager.getPhysicalVolume(guids.get(0));
-            TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
-            return  volume.export( exportEntity );
-        }
-        else {
-            SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(targetGuid);
-            List<GUID> guids = simpleVolume.listPhysicalVolume();
-            PhysicalVolume volume = this.volumeManager.getPhysicalVolume(guids.get(0));
-            TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
-            return volume.export( exportEntity );
+        try {
+            List<LogicVolume> volumes = this.spannedVolume.queryChildren();
+            GUID physicsVolumeGuid = this.kenVolumeFileSystem.getKVFSPhysicsVolume(this.spannedVolume.getGuid());
+            PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(physicsVolumeGuid);
+            SQLiteExecutor sqLiteExecutor = this.getSQLiteExecutor(physicalVolume);
+            GUID targetGuid = this.kenVolumeFileSystem.getSpanLinkedVolumeTableTargetGuid(sqLiteExecutor, this.storageExportIORequest.getStorageObjectGuid());
+            if ( targetGuid == null ){
+                int idx = this.kenVolumeFileSystem.hashStorageObjectID(this.storageExportIORequest.getStorageObjectGuid(), volumes.size());
+                GUID tableTargetGuid = this.kenVolumeFileSystem.getSpannedIndexTableTargetGuid(sqLiteExecutor, idx);
+                String source = this.getSource(tableTargetGuid, this.storageExportIORequest.getStorageObjectGuid());
+                this.storageExportIORequest.setSourceName( source );
+                SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(tableTargetGuid);
+                List<GUID> guids = simpleVolume.listPhysicalVolume();
+                PhysicalVolume volume = this.volumeManager.getPhysicalVolume(guids.get(0));
+                TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
+                return  volume.export( exportEntity );
+            }
+            else {
+                SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(targetGuid);
+                List<GUID> guids = simpleVolume.listPhysicalVolume();
+                PhysicalVolume volume = this.volumeManager.getPhysicalVolume(guids.get(0));
+                TitanDirectExportEntity64 exportEntity = new TitanDirectExportEntity64( this.volumeManager, this.storageExportIORequest, chanface );
+                return volume.export( exportEntity );
+            }
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws IOException, SQLException {
+    public StorageIOResponse export(RandomAccessChanface randomAccessChanface) throws UIOException {
         return null;
     }
 

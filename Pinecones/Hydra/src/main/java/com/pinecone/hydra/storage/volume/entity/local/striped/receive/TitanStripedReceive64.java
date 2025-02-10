@@ -7,6 +7,7 @@ import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
@@ -56,7 +57,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
         }
     }
     @Override
-    public StorageIOResponse receive(Chanface chanface) throws IOException, SQLException {
+    public StorageIOResponse receive(Chanface chanface) throws UIOException {
         Hydrarum hydrarum = this.volumeManager.getHydrarum();
         MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
         hydrarum.getTaskManager().add( masterVolumeGram );
@@ -81,7 +82,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
     }
 
     @Override
-    public StorageIOResponse receive(Chanface chanface,Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse receive(Chanface chanface,Number offset, Number endSize) throws UIOException {
         Hydrarum hydrarum = this.volumeManager.getHydrarum();
         MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
         hydrarum.getTaskManager().add( masterVolumeGram );
@@ -107,17 +108,22 @@ public class TitanStripedReceive64 implements StripedReceive64{
     }
 
     @Override
-    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) throws IOException {
+    public StorageIOResponse randomReceive(Chanface chanface, Number offset, Number endSize) {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws UIOException {
         Hydrarum hydrarum = this.volumeManager.getHydrarum();
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
         MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum, volumes.size(), 1, this.volumeManager.getConfig().getDefaultStripSize().intValue() );
         hydrarum.getTaskManager().add( masterVolumeGram );
-        MappedExecutor executor = this.getExecutor();
+        MappedExecutor executor = null;
+        try {
+            executor = this.getExecutor();
+        } catch (SQLException e) {
+            throw new UIOException(e);
+        }
 
         TitanStripReceiveBufferOutJob bufferOutJob = new TitanStripReceiveBufferOutJob( masterVolumeGram, this.volumeManager, randomAccessChanface, this.storageReceiveIORequest, executor );
         LocalStripedTaskThread taskThread = new LocalStripedTaskThread( "bufferOut",masterVolumeGram, bufferOutJob );
@@ -144,7 +150,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
     }
 
     @Override
-    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(RandomAccessChanface randomAccessChanface, Number offset, Number endSize) throws UIOException {
         return null;
     }
 

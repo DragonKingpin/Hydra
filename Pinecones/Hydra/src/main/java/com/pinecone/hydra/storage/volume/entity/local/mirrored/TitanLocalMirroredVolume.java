@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.mirrored;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchLogicVolume;
 import com.pinecone.hydra.storage.volume.entity.ExporterEntity;
@@ -57,27 +58,27 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
 
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws SQLException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity) throws UIOException {
         return null;
     }
 
@@ -87,12 +88,12 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws UIOException {
         return null;
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, boolean accessRandom) throws UIOException {
         return null;
     }
 
@@ -102,7 +103,7 @@ public class TitanLocalMirroredVolume extends ArchLogicVolume implements LocalMi
     }
 
     @Override
-    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws SQLException, IOException {
+    public StorageIOResponse export(ExporterEntity entity, CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer, boolean accessRandom) throws UIOException {
         return null;
     }
 

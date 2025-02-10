@@ -61,7 +61,7 @@ public class ClientController {
     }
 
     @GetMapping("/**")
-    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException,IllegalPathException {
+    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException,IllegalPathException {
         String servletPath = request.getServletPath();
         String[] pathPart = servletPath.split(PolicyConstants.FORWARD_SLASH);
 
@@ -138,7 +138,6 @@ public class ClientController {
 
 
         FileSyncDistribution raccoon = producer.getIface( FileSyncDistribution.class, topic );
-        raccoon.dino("long!" );
 
 
 
@@ -152,7 +151,6 @@ public class ClientController {
             }
         });
         thread.start();
-
 
     }
 

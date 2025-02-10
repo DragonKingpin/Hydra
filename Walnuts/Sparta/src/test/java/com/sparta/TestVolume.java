@@ -9,6 +9,7 @@ import com.pinecone.hydra.storage.io.TitanInputStreamChanface;
 import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.UnifiedTransmitConstructor;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ExporterEntity;
@@ -40,6 +41,7 @@ import com.pinecone.radium.Radium;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -209,7 +211,7 @@ class Alice extends Radium {
         spannedVolume.build();
     }
 
-    void testStripedReceive( UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    void testStripedReceive( UniformVolumeManager volumeManager ) throws IOException {
         GuidAllocator guidAllocator = volumeManager.getGuidAllocator();
         LogicVolume volume = volumeManager.get(volumeManager.queryGUIDByPath("条带卷"));
         TitanStorageReceiveIORequest titanReceiveStorageObject = new TitanStorageReceiveIORequest();
@@ -231,7 +233,7 @@ class Alice extends Radium {
         //StorageIOResponse storageIOResponse = volume.channelReceive(titanReceiveStorageObject, titanKChannel);
     }
 
-    void testSpannedReceive( UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    void testSpannedReceive( UniformVolumeManager volumeManager ) throws IOException {
         GuidAllocator guidAllocator = volumeManager.getGuidAllocator();
         LogicVolume volume = volumeManager.get(volumeManager.queryGUIDByPath("跨区卷"));
         TitanStorageReceiveIORequest titanReceiveStorageObject = new TitanStorageReceiveIORequest();
@@ -247,7 +249,7 @@ class Alice extends Radium {
         volume.receive( receiveEntity );
     }
 
-    void testSimpleReceive( UniformVolumeManager volumeManager ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    void testSimpleReceive( UniformVolumeManager volumeManager ) throws IOException {
         GuidAllocator guidAllocator = volumeManager.getGuidAllocator();
         LogicVolume volume = volumeManager.get(GUIDs.GUID72("12146c0-0000ca-0000-8c"));
         TitanStorageReceiveIORequest titanReceiveStorageObject = new TitanStorageReceiveIORequest();
@@ -285,7 +287,7 @@ class Alice extends Radium {
         volume.export( entity );
     }
 
-    void testSpannedExport( UniformVolumeManager volumeManager ) throws IOException, SQLException {
+    void testSpannedExport( UniformVolumeManager volumeManager ) throws IOException {
         File file = new File("D:\\文件系统\\大文件\\我的视频.mp4");
         File originalFile = new File( "D:/井盖视频块/我的视频.mp4" );
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
@@ -300,7 +302,7 @@ class Alice extends Radium {
         volume.export( exportEntity );
     }
 
-    void testSimpleExport( UniformVolumeManager volumeManager ) throws IOException, SQLException {
+    void testSimpleExport( UniformVolumeManager volumeManager ) throws IOException {
         File file = new File("D:\\文件系统\\大文件\\我的图片2.jpg");
         File originalFile = new File( "C:/Users/29796/OneDrive/图片/R-C.jpg" );
 //        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
@@ -331,7 +333,7 @@ class Alice extends Radium {
         Debug.trace( kenVolumeFileSystem.hashStorageObjectID( GUIDs.GUID72( "0860ff4-0003ac-0000-cc" ), 2 ) );
     }
 
-    void testConsumer( UniformVolumeManager volumeManager ) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    void testConsumer( UniformVolumeManager volumeManager )  {
         LogicVolume volume = volumeManager.get(volumeManager.queryGUIDByPath("条带卷"));
         UnifiedTransmitConstructor unifiedTransmitConstructor = new UnifiedTransmitConstructor();
         Debug.trace( volume.getClass() );

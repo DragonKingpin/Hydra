@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.physical.export;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageExportIORequest;
 import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchExportEntity;
 import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
@@ -19,17 +20,17 @@ public class TitanDirectExportEntity64 extends ArchExportEntity implements Direc
     }
 
     @Override
-    public StorageIOResponse export() throws IOException, SQLException {
+    public StorageIOResponse export() throws IOException {
         return this.directExport.export(this.channel);
     }
 
     @Override
-    public StorageIOResponse export(Number offset, Number endSize) throws IOException, SQLException {
+    public StorageIOResponse export(Number offset, Number endSize) throws IOException {
         return this.directExport.export( this.channel,offset,endSize );
     }
 
     @Override
-    public StorageIOResponse export(CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws IOException {
+    public StorageIOResponse export(CacheBlock cacheBlock, Number offset, Number endSize, byte[] buffer) throws UIOException {
         return this.directExport.export(cacheBlock, offset, endSize, buffer);
     }
 }

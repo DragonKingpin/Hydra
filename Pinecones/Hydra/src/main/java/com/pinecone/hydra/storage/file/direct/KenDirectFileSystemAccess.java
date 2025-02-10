@@ -4,6 +4,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.name.path.PathResolver;
+import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
@@ -79,9 +80,9 @@ public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
 
         ExternalSymbolic externalSymbolic = this.externalSymbolicManipulator.getSymbolicByGuid(guid);
         String externalPath = this.fileSystem.getPath(externalSymbolic.getGuid());
-        String remainingPath = path.substring(externalPath.length()).replaceFirst("^/", "");
+        String remainingPath = path.substring(externalPath.length()).replaceFirst(StorageConstants.PathSeparator, "");
 
-        String realFilePath = externalSymbolic.getReparsedPoint()+ "/" + remainingPath;
+        String realFilePath = externalSymbolic.getReparsedPoint()+ StorageConstants.PathSeparator + remainingPath;
         File file = new File(realFilePath);
         if( file.isDirectory() ){
             return new GenericExternalFolder(file);

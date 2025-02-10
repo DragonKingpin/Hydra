@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.spanned.receive;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.ArchReceiveEntity;
 import com.pinecone.hydra.storage.volume.entity.SpannedVolume;
@@ -23,12 +24,12 @@ public class TitanSpannedReceiveEntity64 extends ArchReceiveEntity implements Sp
     }
 
     @Override
-    public StorageIOResponse receive() throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive() throws IOException {
         return this.spannedReceive.receive(this.channel);
     }
 
     @Override
-    public StorageIOResponse receive(Number offset, Number endSize) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public StorageIOResponse receive(Number offset, Number endSize) throws IOException {
         return this.spannedReceive.receive(this.channel, offset, endSize );
     }
 
@@ -38,7 +39,7 @@ public class TitanSpannedReceiveEntity64 extends ArchReceiveEntity implements Sp
     }
 
     @Override
-    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws IOException, SQLException {
+    public StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer) throws UIOException {
         return null;
     }
 

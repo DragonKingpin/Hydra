@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class TitanInputStreamChanface implements Chanface {
     protected InputStream          stream;

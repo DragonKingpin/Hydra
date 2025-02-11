@@ -11,6 +11,8 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class KafkaClient implements KClient {
     protected Map<BroadcastProducer, Object> producerRegister;
@@ -23,15 +25,18 @@ public class KafkaClient implements KClient {
 
     protected long          nodeId;
 
+    protected ExecutorService pollConsumerThreadPool;
+
     protected ResultBytesConverter<Object > resultBytesConverter;
 
     public KafkaClient( long nodeId, KConfig config ) {
-        this.kafkaConfig          = config;
+        this.kafkaConfig             = config;
 
-        this.producerRegister     = new ConcurrentHashMap<>();
-        this.consumerRegister     = new ConcurrentHashMap<>();
-        this.nodeId               = nodeId;
-        this.resultBytesConverter = new GenericResultBytesConverter<>();
+        this.producerRegister        = new ConcurrentHashMap<>();
+        this.consumerRegister        = new ConcurrentHashMap<>();
+        this.nodeId                  = nodeId;
+        this.resultBytesConverter    = new GenericResultBytesConverter<>();
+        this.pollConsumerThreadPool  = Executors.newCachedThreadPool();
     }
 
     public KafkaClient( long nodeId, String server ) {
@@ -54,6 +59,8 @@ public class KafkaClient implements KClient {
 
         this.consumerRegister.clear();
         this.producerRegister.clear();
+
+        this.pollConsumerThreadPool.shutdown();
     }
 
     @Override
@@ -132,5 +139,9 @@ public class KafkaClient implements KClient {
     @Override
     public ExtraHeadCoder getExtraHeadCoder() {
         return null;
+    }
+
+    protected ExecutorService getPollConsumerThreadPool() {
+        return this.pollConsumerThreadPool;
     }
 }

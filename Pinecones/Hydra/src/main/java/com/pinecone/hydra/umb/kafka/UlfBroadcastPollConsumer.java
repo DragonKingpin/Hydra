@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umb.kafka;
 
+import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.UlfPackageMessageHandler;
 import com.pinecone.hydra.umb.broadcast.PollResult;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K, V > {
@@ -45,6 +48,10 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
 
     protected ResultBytesConverter<V > resultBytesConverter;
 
+    protected ExecutorService pollConsumerThreadPool;
+
+    protected Thread privatePollConsumerThread;
+
     public UlfBroadcastPollConsumer( KClient kafkaClient, String topic, String group, Properties properties, ResultBytesConverter<V > resultBytesConverter ){
         this.kafkaClient              = kafkaClient;
         this.properties               = properties;
@@ -52,6 +59,14 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
         this.group                    = group;
         this.pollConsumerCloseSignal  = new AtomicBoolean( false );
         this.resultBytesConverter     = resultBytesConverter;
+
+
+        try {
+            this.pollConsumerThreadPool = ((KafkaClient)this.getKafkaClient()).getPollConsumerThreadPool();
+        }
+        catch ( ClassCastException ignore ) {
+            // Ignore them.
+        }
     }
 
     @SuppressWarnings( "unchecked" )
@@ -71,6 +86,10 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
             this.wrappedConsumer.close();
             this.kafkaClient.deregister( this );
             this.wrappedConsumer = null;
+
+            if ( this.pollConsumerThreadPool != null ) {
+                this.pollConsumerCloseSignal.compareAndSet( false, true );
+            }
         }
     }
 
@@ -106,22 +125,40 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
         return pollResults;
     }
 
-    protected KafkaConsumer<K, V > newBytesConsumer( UlfPackageMessageHandler handler ) throws Exception {
+    protected KafkaConsumer<K, V > newBytesConsumer( UlfPackageMessageHandler handler ) {
         KafkaConsumer<K, V > kafkaConsumer = new KafkaConsumer<>(this.properties);
         kafkaConsumer.subscribe(Collections.singletonList( this.topic ) );
 
         long pollMills = this.kafkaClient.getKafkaConfig().getDefaultPollHandleMillis();
-        while ( true ) {
-            ConsumerRecords<K, V > records = kafkaConsumer.poll( Duration.ofMillis( pollMills ) );
-            for ( ConsumerRecord<K, V > record : records ) {
-                handler.onSuccessfulMsgReceived(
-                        this.resultBytesConverter.convert(record.value()), new Object[] {record.key(), record.headers()}
-                );
-            }
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                while ( true ) {
+                    ConsumerRecords<K, V > records = kafkaConsumer.poll( Duration.ofMillis( pollMills ) );
+                    for ( ConsumerRecord<K, V > record : records ) {
+                        try {
+                            handler.onSuccessfulMsgReceived(
+                                    UlfBroadcastPollConsumer.this.resultBytesConverter.convert(record.value()), new Object[] {record.key(), record.headers()}
+                            );
+                        }
+                        catch ( Exception e ) {
+                            throw new IrrationalProvokedException( e );
+                        }
+                    }
 
-            if ( this.pollConsumerCloseSignal.get() ) {
-                break;
+                    if ( UlfBroadcastPollConsumer.this.pollConsumerCloseSignal.get() ) {
+                        break;
+                    }
+                }
             }
+        };
+
+        if ( this.pollConsumerThreadPool != null ) {
+            this.pollConsumerThreadPool.execute( runnable );
+        }
+        else {
+            this.privatePollConsumerThread = new Thread(runnable);
+            this.privatePollConsumerThread.start();
         }
 
         return kafkaConsumer;

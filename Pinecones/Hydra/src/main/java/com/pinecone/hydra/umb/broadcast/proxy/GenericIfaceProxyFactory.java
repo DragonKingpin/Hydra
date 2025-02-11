@@ -3,6 +3,7 @@ package com.pinecone.hydra.umb.broadcast.proxy;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
+import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.proxy.UMCTHub;
 import com.pinecone.hydra.umct.husky.compiler.ClassDigest;
 import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
@@ -35,20 +36,17 @@ public class GenericIfaceProxyFactory implements IfaceProxyFactory {
             e.setInterfaces( new Class[]{iface} );
 
             e.setCallback(new MethodInterceptor() {
-                private DynamicMethodPrototype methodPrototype;
-
                 @Override
-                public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                    if ( this.methodPrototype == null ) {
-                        String methodName = IfaceUtils.getIfaceMethodName( method );
-                        this.methodPrototype = (DynamicMethodPrototype) producer.queryMethodDigest(
-                                classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
-                        );
-                    }
+                public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable {
+                    String methodName = IfaceUtils.getIfaceMethodName( method );
+                    MethodPrototype methodPrototype = (DynamicMethodPrototype) producer.queryMethodDigest(
+                            classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
+                    );
+
                     producer.issueInform(
                             topic, ns,
                             name,
-                            this.methodPrototype,
+                            methodPrototype,
                             args
                     );
                     return null;

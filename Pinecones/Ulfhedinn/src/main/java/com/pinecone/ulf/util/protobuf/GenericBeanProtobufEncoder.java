@@ -221,7 +221,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                             .setType( fieldType )
                                             .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
                                 }
-                                else if( elemRetType.isArray() ) {
+                                else if( elemRetType.isArray() && !byte[].class.isAssignableFrom( elemRetType ) ) {
                                     fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
                                             .setName( key )
                                             .setNumber( fieldNumber )
@@ -372,8 +372,18 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                     }
                                 }
                                 else if ( value.getClass().isArray() ) {
-                                    for ( Object item : (Object[]) value ) {
-                                        messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                    Class<?> componentType = value.getClass().getComponentType();
+                                    if ( componentType.isPrimitive() ) {
+                                        int length = Array.getLength( value );
+                                        for ( int i = 0; i < length; ++i ) {
+                                            Object element = Array.get( value, i );
+                                            messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue(element, fieldDescriptor.getType()) );
+                                        }
+                                    }
+                                    else {
+                                        for ( Object item : (Object[]) value ) {
+                                            messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                        }
                                     }
                                 }
                                 else {

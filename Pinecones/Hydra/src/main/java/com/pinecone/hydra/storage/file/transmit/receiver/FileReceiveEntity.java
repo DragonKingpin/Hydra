@@ -29,6 +29,7 @@ public interface FileReceiveEntity extends Pinenut {
 
     void receive() throws IOException;
     void receive( Number offset, Number endSize )throws IOException;
+    void receive( long segId ) throws IOException;
 
     void randomReceive( Number offset, Number endSize ) throws  IOException;
 }

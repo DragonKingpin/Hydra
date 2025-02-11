@@ -3,6 +3,16 @@ package com.protobuf;
 public class Rabbit {
     public String name;
 
+    public byte[] bytes;
+
+    public byte[] getBytes() {
+        return this.bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
+
     public String getName() {
         return this.name;
     }

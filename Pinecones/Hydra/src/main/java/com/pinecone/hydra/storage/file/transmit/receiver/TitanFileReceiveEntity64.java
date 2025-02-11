@@ -39,6 +39,14 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
     }
 
     @Override
+    public void receive(long segId) throws IOException {
+        this.fileSystem.affirmFileNode( this.destDirPath );
+        GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
+        LogicVolume volume = this.volumeManager.get(volumeGuid);
+        this.fileReceive.receive( volume,segId );
+    }
+
+    @Override
     public void randomReceive(Number offset, Number endSize) throws  IOException {
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);

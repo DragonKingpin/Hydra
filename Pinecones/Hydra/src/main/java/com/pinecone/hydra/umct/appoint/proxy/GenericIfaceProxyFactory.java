@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umct.appoint.proxy;
 
+import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.proxy.UMCTHub;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
@@ -35,17 +36,13 @@ public class GenericIfaceProxyFactory implements IfaceProxyFactory {
             e.setInterfaces( new Class[]{iface} );
 
             e.setCallback(new MethodInterceptor() {
-                private DynamicMethodPrototype methodPrototype;
-
                 @Override
-                public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                    if ( this.methodPrototype == null ) {
-                        String methodName = IfaceUtils.getIfaceMethodName( method );
-                        this.methodPrototype = (DynamicMethodPrototype) client.queryMethodDigest(
-                                classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
-                        );
-                    }
-                    return client.invokeInform( this.methodPrototype, args );
+                public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable {
+                    String methodName = IfaceUtils.getIfaceMethodName( method );
+                    MethodPrototype methodPrototype = (DynamicMethodPrototype) client.queryMethodDigest(
+                            classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
+                    );
+                    return client.invokeInform( methodPrototype, args );
                 }
             });
             return e;

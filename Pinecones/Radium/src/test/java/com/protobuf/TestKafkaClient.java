@@ -32,6 +32,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 class Luben extends Radium {
@@ -192,7 +193,14 @@ class Luben extends Radium {
         producer.issueInform( topic, "com.protobuf.Raccoon.scratch", "fuck you !", 2025 );
 
         Raccoon raccoon = producer.getIface( Raccoon.class, topic );
-        raccoon.scratch("haha, I am XiaoMing", 5202 );
+        //raccoon.scratch("haha, I am XiaoMing", 5202 );
+
+//        Rabbit rabbit = new Rabbit();
+//        rabbit.name = "rabbit";
+//        rabbit.bytes = new byte[999*1024];
+//        Arrays.fill(rabbit.bytes, (byte)43);
+//        Debug.bluef( raccoon.scratchA( "DP you!", 741741, rabbit ) );
+
 
         BroadcastControlConsumer consumer = client.createBroadcastControlConsumer(topic,group);
         RaccoonController controller  = new RaccoonController();

@@ -3,6 +3,7 @@ package com.pinecone.hydra.umct.appoint.proxy;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.proxy.UMCTHub;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
@@ -31,17 +32,13 @@ public class GenericPassiveClientIfaceProxyFactory implements PassiveClientIface
             e.setInterfaces( new Class[]{iface} );
 
             e.setCallback(new MethodInterceptor() {
-                private DynamicMethodPrototype methodPrototype;
-
                 @Override
                 public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable {
-                    if ( this.methodPrototype == null ) {
-                        String methodName = IfaceUtils.getIfaceMethodName( method );
-                        this.methodPrototype = (DynamicMethodPrototype) server.queryMethodDigest(
-                                classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
-                        );
-                    }
-                    return server.invokeInform( clientId, this.methodPrototype, args );
+                    String methodName = IfaceUtils.getIfaceMethodName( method );
+                    MethodPrototype methodPrototype = (DynamicMethodPrototype) server.queryMethodDigest(
+                            classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
+                    );
+                    return server.invokeInform( clientId, methodPrototype, args );
                 }
             });
             return e;

@@ -1,4 +1,4 @@
-package com.walnut.sparta.ucdn.console.domain.engine.impl;
+package com.walnut.sparta.ucdn.console.domain.ufm;
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
@@ -13,11 +13,7 @@ import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.domain.CentralControlUnit;
-import com.walnut.sparta.ucdn.console.domain.engine.FileDistributionEngine;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
-import com.walnut.sparta.ucdn.console.infrastructure.entity.UFMDClusterFrame;
-import com.walnut.sparta.ucdn.console.infrastructure.entity.UFMDClusterDO;
 import com.walnut.sparta.ucdn.console.umc.FileDistribution;
 import com.walnut.sparta.ucdn.console.umc.FileDistributionController;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,13 +28,13 @@ import java.nio.file.StandardOpenOption;
 import java.util.TreeMap;
 
 @Component
-public class UCDNFileMultiDistribution implements FileDistributionEngine {
+public class UCDNFileMultiDistribution implements FileMultDistribution {
 
     @Resource
     private KOMFileSystem                   primaryFileSystem;
 
     @Resource
-    private CentralControlUnit centralControlUnit;
+    private SessionPhaser sessionPhaser;
 
     @Resource
     private UniformVolumeManager            primaryVolume;
@@ -62,7 +58,7 @@ public class UCDNFileMultiDistribution implements FileDistributionEngine {
 
     @Override
     public void fileDistribution(FileNode fileNode, String topic) throws IOException, InterruptedException {
-        this.centralControlUnit.register( fileNode.getGuid(), new Object() );
+        this.sessionPhaser.registerDistributionLock( fileNode.getGuid(), new Object() );
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         FileDistribution fileDistribution = this.producer.getIface(FileDistribution.class, topic);
         String path = this.primaryFileSystem.getPath(fileNode.getGuid());
@@ -71,13 +67,15 @@ public class UCDNFileMultiDistribution implements FileDistributionEngine {
 
         TreeMap<Long, Frame> frames = fileNode.getFrames();
         int distributionFrameNum = 0;
+        this.sessionPhaser.registerDistributionSynchronize( fileNode.getGuid(),0L );
 
         for( long i = 0; i < frames.size(); i++ ){
             LocalFrame frame = ( LocalFrame ) frames.get( i );
             UFMDClusterDO UFMDClusterDO = new UFMDClusterDO( path, i, frame.getSize(),frame.getCrc32(),frame.getSourceName() );
             fileDistribution.setFrameMeta(UFMDClusterDO);
             //this.producer.issueInform( topic, "com.walnut.sparta.ucdn.console.umc.FileDistribution.setFrameMeta",frameVO );
-            File tempFile = File.createTempFile( frame.getSegGuid().toString(), ".temp" );
+            File tempFile = new File( UCDNConstants.FrameTempFilePath + frame.getSegGuid() + ".temp" );
+            tempFile.createNewFile();
             FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
             TitanFileChannelChanface kChannel = new TitanFileChannelChanface( channel );
             FileNode newFileNode = fsNodeAllotment.newFileNode();
@@ -100,8 +98,8 @@ public class UCDNFileMultiDistribution implements FileDistributionEngine {
             distributionFrameNum++;
 
             if( distributionFrameNum == 10 ){
-                synchronized( this.centralControlUnit.getLock( fileNode.getGuid() ) ){
-                    this.centralControlUnit.getLock( fileNode.getGuid() ).wait();
+                synchronized( this.sessionPhaser.getDistributionLock( fileNode.getGuid() ) ){
+                    this.sessionPhaser.getDistributionLock( fileNode.getGuid() ).wait();
                 }
                 distributionFrameNum = 0;
             }

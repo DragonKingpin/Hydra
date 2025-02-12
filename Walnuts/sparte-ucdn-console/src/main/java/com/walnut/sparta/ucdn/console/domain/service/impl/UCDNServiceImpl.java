@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity6
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.UMBServiceException;
-import com.walnut.sparta.ucdn.console.domain.engine.FileDistributionEngine;
+import com.walnut.sparta.ucdn.console.domain.ufm.FileMultDistribution;
 import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class UCDNServiceImpl implements UCDNService {
     private UniformVolumeManager primaryVolume;
 
     @Resource
-    private FileDistributionEngine fileDistributionEngine;
+    private FileMultDistribution fileMultDistribution;
 
     @Override
     public void upload(String path, File file, String topic) throws IOException, InterruptedException {
@@ -41,20 +41,20 @@ public class UCDNServiceImpl implements UCDNService {
         this.primaryFileSystem.receive( receiveEntity );
 
         if( !topic.isBlank() ){
-            this.fileDistributionEngine.fileDistribution( fileNode, topic );
+            this.fileMultDistribution.fileDistribution( fileNode, topic );
         }
 
     }
 
     @Override
     public void test() throws UMBServiceException {
-        this.fileDistributionEngine.test();
+        this.fileMultDistribution.test();
     }
 
     @Override
     public void testDistribution(String path, String topic) throws IOException, InterruptedException {
         FileNode fileNode = (FileNode)this.primaryFileSystem.queryElement(path);
 
-        this.fileDistributionEngine.fileDistribution( fileNode, topic );
+        this.fileMultDistribution.fileDistribution( fileNode, topic );
     }
 }

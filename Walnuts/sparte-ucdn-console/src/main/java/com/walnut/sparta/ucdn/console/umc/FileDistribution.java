@@ -1,8 +1,8 @@
 package com.walnut.sparta.ucdn.console.umc;
 
 import com.pinecone.hydra.umct.stereotype.Iface;
-import com.walnut.sparta.ucdn.console.infrastructure.entity.UFMDClusterFrame;
-import com.walnut.sparta.ucdn.console.infrastructure.entity.UFMDClusterDO;
+import com.walnut.sparta.ucdn.console.domain.ufm.UFMDClusterFrame;
+import com.walnut.sparta.ucdn.console.domain.ufm.UFMDClusterDO;
 
 @Iface
 public interface FileDistribution {

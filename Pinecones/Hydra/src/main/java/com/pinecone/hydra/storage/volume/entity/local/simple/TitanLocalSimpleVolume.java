@@ -1,5 +1,6 @@
 package com.pinecone.hydra.storage.volume.entity.local.simple;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.rdb.MappedExecutor;
@@ -162,7 +163,6 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
         if( !kenVolumeFileSystem.existStorageObject( this.mappedExecutor, storageIOResponse.getObjectGuid() ) ){
             this.kenVolumeFileSystem.insertSimpleTargetMappingSoloRecord( storageIOResponse.getObjectGuid(), storageObjectName, storageIOResponse.getSourceName(), this.mappedExecutor );
         }
-
     }
 
     @Override

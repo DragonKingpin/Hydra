@@ -8,7 +8,7 @@ import com.pinecone.hydra.umct.WolfMCExpress;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.FileDistribution;
-import com.walnut.sparta.ucdn.console.umc.RocketOperation;
+import com.walnut.sparta.ucdn.console.umc.DistributionSynchronize;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,7 +29,7 @@ public class BeanConfig {
     @Bean( name = "rocketFileServiceClient")
     public UlfBroadcastControlNode rocketFileServiceClient(){
         UlfBroadcastControlNode client = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", this.uofsContentDelivery, WolfMCExpress.class);
-        client.compile( RocketOperation.class,false );
+        client.compile( DistributionSynchronize.class,false );
         return client;
     }
 }

@@ -5,4 +5,6 @@ public final class FileConstants {
 
     public static final int REDIS_TIME_OUT = 2000;
 
+    public static final String StorageVersionSignature = "Generic";
+
 }

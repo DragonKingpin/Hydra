@@ -36,7 +36,7 @@ public class FileSyncDistributionImpl implements FileSyncDistribution {
     private UniformVolumeManager primaryVolume;
 
     @Resource
-    UlfKafkaClient ulfKafkaClient1;
+    UlfKafkaClient ulfKafkaClient;
 
     @Override
     public void fileDistribution(FileNode fileNode, String topic, String server,long startSegId, long endSegId)   {

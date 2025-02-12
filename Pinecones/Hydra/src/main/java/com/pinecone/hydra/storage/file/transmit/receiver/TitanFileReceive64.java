@@ -130,15 +130,15 @@ public class TitanFileReceive64 implements FileReceive64{
     public void receive(LogicVolume volume, long segId) throws  IOException {
         long frameSize = this.mKOMFileSystem.getConfig().getFrameSize().longValue();
         FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();
-        this.mKOMFileSystem.deleteFrame( this.fileNode, segId );
+        //this.mKOMFileSystem.deleteFrame( this.fileNode, segId );
+        LocalFrame localFrame = (LocalFrame)this.mKOMFileSystem.getFrameByFileWithId(this.fileNode.getGuid(), segId);
         long endSize = frameSize;
 
-        long currentPosition = (segId - 1) * frameSize;
+        long currentPosition = 0;
         if( currentPosition + endSize > fileNode.getDefinitionSize() ){
             endSize = fileNode.getDefinitionSize() - currentPosition;
         }
 
-        LocalFrame localFrame = allotment.newLocalFrame();
         RemoteFrame remoteFrame = allotment.newRemoteFrame( fileNode.getGuid(),(int)segId );
         remoteFrame.setDeviceGuid(this.mKOMFileSystem.getConfig().getLocalhostGUID());
         remoteFrame.setSegGuid( localFrame.getSegGuid() );
@@ -167,11 +167,11 @@ public class TitanFileReceive64 implements FileReceive64{
         localFrame.save();
         remoteFrame.save();
 
-        Verification verification = this.getVerification();
-        fileNode.setChecksum( verification.getChecksum() );
-        fileNode.setParityCheck( verification.getParityCheck() );
-        fileNode.setCrc32Xor( Long.toHexString(verification.getCrc32().getValue()) );
-        mKOMFileSystem.update( fileNode );
+//        Verification verification = this.getVerification();
+//        fileNode.setChecksum( verification.getChecksum() );
+//        fileNode.setParityCheck( verification.getParityCheck() );
+//        fileNode.setCrc32Xor( Long.toHexString(verification.getCrc32().getValue()) );
+//        mKOMFileSystem.update( fileNode );
     }
 
     @Override

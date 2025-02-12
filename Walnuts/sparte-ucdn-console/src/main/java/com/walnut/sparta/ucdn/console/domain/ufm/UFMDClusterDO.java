@@ -1,4 +1,4 @@
-package com.walnut.sparta.ucdn.console.infrastructure.entity;
+package com.walnut.sparta.ucdn.console.domain.ufm;
 
 public class UFMDClusterDO {
     private String filePath;

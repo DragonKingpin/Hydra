@@ -21,6 +21,8 @@ public interface ChannelPool extends Pinenut {
 
     boolean isAllChannelsTerminated();
 
+    void remove ( ChannelControlBlock ccb );
+
     void deactivate ( ChannelControlBlock ccb );
 
     ChannelPool setIdleChannel( ChannelControlBlock block );

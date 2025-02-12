@@ -5,9 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.FairChannelPool;
+import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.msg.MultiClientChannelRegistry;
 import com.pinecone.hydra.umc.wolfmc.UlfIOLoadBalanceStrategy;
 import com.pinecone.hydra.umc.wolfmc.UlfIdleFirstBalanceStrategy;
@@ -31,6 +33,22 @@ public class GenericMultiClientChannelRegistry<CID > implements MultiClientChann
             return new ProactiveParallelFairChannelPool<>( LoadBalanceStrategy );
         } );
         pool.add( controlBlock );
+    }
+
+    @Override
+    public void deregister( CID id, ChannelControlBlock controlBlock ) {
+        FairChannelPool pool = this.mClientChannelRegistry.computeIfPresent( id, (k, v)->{
+            v.remove( controlBlock );
+            if ( v.isEmpty() ) {
+                MessageNode messageNode = controlBlock.getParentMessageNode();
+                if ( messageNode instanceof Slf4jTraceable) {
+                    ((Slf4jTraceable) messageNode).getLogger().info( "Client `{}` is detached.", id );
+                }
+                return null;
+            }
+
+            return v;
+        } );
     }
 
     @Override

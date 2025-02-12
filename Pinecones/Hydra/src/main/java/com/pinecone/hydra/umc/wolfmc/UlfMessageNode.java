@@ -7,4 +7,8 @@ public interface UlfMessageNode extends CascadeMessageNode {
     ChannelPool          getChannelPool();
 
     void                 close();
+
+    UlfMessageNode       registerChannelInactiveHandler(ChannelInactiveHandler handler ) throws IllegalStateException;
+
+    UlfMessageNode       deregisterChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException;
 }

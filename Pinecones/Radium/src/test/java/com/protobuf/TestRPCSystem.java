@@ -230,8 +230,10 @@ class Jeff extends JesusChrist {
 
         Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratch", "fuck you", 2025 ) );
 
+        //Debug.sleep( 3000 );
+
         Raccoon raccoon = wolf.getIface( 2048, Raccoon.class );
-        Debug.greenf( raccoon.scratch( "fuck you", 2025 ) );
+        Debug.greenf( raccoon.scratch( "fuck you", 202510 ) );
 
 
         this.getTaskManager().add( wolf );
@@ -262,7 +264,7 @@ class Jeff extends JesusChrist {
         rabbit.bytes = new byte[] { 1,2,3 };
         Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratchA", "DP you!", 5202123, rabbit ) );
 
-        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
+        //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
 
 //        Debug.sleep( 3500 );
 //        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5201 ) );

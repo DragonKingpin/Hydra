@@ -3,10 +3,13 @@ package com.pinecone.hydra.umc.wolfmc.client;
 import java.io.IOException;
 
 import com.pinecone.hydra.umc.msg.UMCMessage;
+import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 
 public interface UlfClient extends UlfMessageNode {
+
+    ClientConnectArguments getConnectionArguments();
 
     UMCMessage sendSyncMsg( UMCMessage request ) throws IOException;
 

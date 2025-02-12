@@ -77,6 +77,7 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
 
 
     // [1, 2] -> [1, 2, 3]
+    @Override
     public ProactiveParallelFairChannelPool pushBack( ChannelControlBlock channel ) {
         ID id = this.warpKey( channel.getChannel().getChannelID() );
         this.mChannelMapQueue.put( id, channel );
@@ -281,6 +282,18 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
     @Override
     public Queue getMajorQueue() {
         return this.mChannelMapQueue.toQueue();
+    }
+
+    @Override
+    public void remove( ChannelControlBlock ccb ) {
+        this.mPoolIOLock.writeLock().lock();
+        try {
+            ID id = this.warpKey( ccb.getChannel().getChannelID() );
+            this.onlyRemove( id );
+        }
+        finally {
+            this.mPoolIOLock.writeLock().unlock();
+        }
     }
 
     @Override

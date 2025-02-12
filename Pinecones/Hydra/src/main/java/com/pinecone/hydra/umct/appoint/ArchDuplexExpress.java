@@ -157,6 +157,11 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     }
 
     @Override
+    public void afterChannelInactive( ChannelControlBlock controlBlock ) {
+        this.mMultiClientChannelRegistry.deregister( controlBlock.getChannel().getIdentityID(), controlBlock );
+    }
+
+    @Override
     public ChannelPool getPoolByClientId( long clientId ) {
         return this.mMultiClientChannelRegistry.getPool( clientId );
     }

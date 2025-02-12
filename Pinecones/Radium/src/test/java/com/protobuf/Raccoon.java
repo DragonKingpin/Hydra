@@ -11,6 +11,9 @@ public interface Raccoon {
     String scratch( String target, int time );
 
     @Iface
+//    default String scratchA( String target, int time, byte[] bs ) {
+//        return null;
+//    }
     default String scratchA( String target, int time, Rabbit rabbit ) {
         return null;
     }

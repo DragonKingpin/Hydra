@@ -106,6 +106,19 @@ public class PassiveRegisterChannelPool<ID > extends ArchChannelPool implements 
         return this.mChannelMapPool;
     }
 
+
+    @Override
+    public void remove(ChannelControlBlock ccb) {
+        this.mPoolIOLock.writeLock().lock();
+        try {
+            ID id = this.warpKey( ccb.getChannel().getChannelID() );
+            this.onlyRemove( id );
+        }
+        finally {
+            this.mPoolIOLock.writeLock().unlock();
+        }
+    }
+
     @Override
     public void deactivate( ChannelControlBlock ccb ) {
         this.mPoolIOLock.writeLock().lock();

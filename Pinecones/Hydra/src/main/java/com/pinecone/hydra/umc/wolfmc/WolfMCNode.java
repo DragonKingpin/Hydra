@@ -13,20 +13,25 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
 import com.pinecone.hydra.umc.msg.handler.GenericErrorMessageAudit;
+import com.pinecone.hydra.umc.wolfmc.client.UlfClient;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 
 public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessageNode {
-    protected ExtraHeadCoder        mExtraHeadCoder     ;
-    protected final ReentrantLock   mMajorIOLock        = new ReentrantLock();
-    protected ErrorMessageAudit     mErrorMessageAudit  ;
-    protected UlfMessageNode        mParentNode         ;
-    protected Namespace             mNodeNamespace      ;
-    protected long                  mnMessageNodeId     ;
+    protected ExtraHeadCoder               mExtraHeadCoder     ;
+    protected final ReentrantLock          mMajorIOLock        = new ReentrantLock();
+    protected ErrorMessageAudit            mErrorMessageAudit  ;
+    protected UlfMessageNode               mParentNode         ;
+    protected Namespace                    mNodeNamespace      ;
+    protected long                         mnMessageNodeId     ;
+
+    protected List<ChannelInactiveHandler> mChannelInactiveHandlers  = new ArrayList<>();
 
     public WolfMCNode( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
         super( szName, parentProcess, joConf );
@@ -41,6 +46,25 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
     public WolfMCNode( long nodeId, String szName, Hydrarum system, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
+
+    @Override
+    public UlfMessageNode registerChannelInactiveHandler(ChannelInactiveHandler handler ) throws IllegalStateException {
+        if ( !this.isShutdown() ) {
+            throw new IllegalStateException( "Service is already running." );
+        }
+        this.mChannelInactiveHandlers.add( handler );
+        return this;
+    }
+
+    @Override
+    public UlfMessageNode deregisterChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException {
+        if ( !this.isShutdown() ) {
+            throw new IllegalStateException( "Service is already running." );
+        }
+        this.mChannelInactiveHandlers.remove( handler );
+        return this;
+    }
+
 
     @Override
     public CascadeNodus parent() {

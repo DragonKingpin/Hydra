@@ -15,11 +15,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.AttributeKey;
+
+import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umc.msg.MessageNodus;
 import com.pinecone.hydra.umc.wolfmc.AsyncUlfMedium;
+import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.ChannelUtils;
 import com.pinecone.hydra.umc.wolfmc.GenericUMCByteMessageDecoder;
 import com.pinecone.hydra.umc.wolfmc.MCSecurityAuthentication;
@@ -39,6 +41,8 @@ import java.io.IOException;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -195,7 +199,9 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
             @Override
             public void operationComplete( ChannelFuture channelFuture ) throws Exception {
                 synchronized ( WolfMCClient.this.mPrimaryThreadJoinMutex ) {
-                    WolfMCClient.this.mShutdown = !channelFuture.isSuccess();
+                    if ( WolfMCClient.this.mShutdown ) {
+                        WolfMCClient.this.mShutdown = !channelFuture.isSuccess();
+                    }
                     WolfMCClient.this.mPrimaryThreadJoinMutex.notify();
                 }
             }
@@ -320,23 +326,36 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
                     @Override
                     public void channelInactive( ChannelHandlerContext ctx ) throws Exception {
+                        MessengerNettyChannelControlBlock ccb = (MessengerNettyChannelControlBlock)ctx.channel().attr(
+                                AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
+                        ).get();
+
+                        if ( !WolfMCClient.this.mChannelInactiveHandlers.isEmpty() ) {
+                            boolean bBlocked = false;
+                            for ( ChannelInactiveHandler handler : WolfMCClient.this.mChannelInactiveHandlers ) {
+                                if ( handler.afterChannelInactive( ccb ) ) {
+                                    bBlocked = true;
+                                }
+                            }
+
+                            if ( bBlocked ) {
+                                return;
+                            }
+                        }
+
                         if ( !WolfMCClient.this.getConnectionArguments().isAutoReconnect() ) {
                             if( WolfMCClient.this.getChannelPool().isAllChannelsTerminated() ) {
                                 try{
-                                    Debug.warn( "All channels has been terminated, client terminating." );
-
+                                    WolfMCClient.this.getLogger().warn( "<AutoReconnection is disabled> All channels are terminated, client terminating." );
                                     WolfMCClient.this.close();
                                 }
                                 catch ( ProvokeHandleException e ) {
-                                    WolfMCClient.this.kill(); // Those should never happened, just unconditional shutdown.
+                                    throw new IrrationalProvokedException( e ); // Those should never have happened.
                                 }
 
                                 return;
                             }
 
-                            MessengerNettyChannelControlBlock ccb = (MessengerNettyChannelControlBlock)ctx.channel().attr(
-                                    AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
-                            ).get();
                             WolfMCClient.this.getChannelPool().deactivate( ccb );
                             WolfMCClient.this.getMajorIOLock().lock();
                             try{

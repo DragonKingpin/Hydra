@@ -6,9 +6,9 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.umc.msg.AsyncMessenger;
 import com.pinecone.hydra.umc.msg.ChannelAllocateException;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
-import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolfmc.UlfIdleFirstBalanceStrategy;
@@ -47,8 +47,8 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         return this.mSynRequestLock;
     }
 
-    protected long getSyncWaittingMils() {
-        return this.getConnectionArguments().getKeepAliveTimeout() * 1000L;
+    protected long getSyncWaitingMils() {
+        return ArchAsyncMessenger.getSyncWaitingMils( this );
     }
 
     UlfAsyncMessengerChannelControlBlock      nextSynChannelCB() throws IOException {
@@ -56,7 +56,7 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        ArchAsyncMessenger.reconnect( block, this.getSyncWaittingMils() );
+        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMils() );
         return block;
     }
 
@@ -65,7 +65,7 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        ArchAsyncMessenger.reconnect( block, this.getSyncWaittingMils() );
+        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMils() );
         return block;
     }
 
@@ -91,11 +91,20 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         cb.sendAsynMsg( request, bNoneBuffered );
     }
 
-    static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
+    protected static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
         if( block.isShutdown() ) {
             block.getChannel().reconnect( mils );
             ( (UlfMessageNode)block.getParentMessageNode() ).getChannelPool().setIdleChannel( block );
         }
+    }
+
+    protected static long getSyncWaitingMils( Messenger messenger ) {
+        return messenger.getConnectionArguments().getKeepAliveTimeout() * 1000L;
+    }
+
+    public static void reconnect( ChannelControlBlock block, Messenger messenger ) throws IOException {
+        long mils = ArchAsyncMessenger.getSyncWaitingMils( messenger );
+        ArchAsyncMessenger.reconnect( block, mils );
     }
 
 }

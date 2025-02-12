@@ -6,10 +6,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.DynamicMessage;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolfmc.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
@@ -27,6 +30,7 @@ import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
+
 
 public class WolvesAppointServer extends WolfAppointServer implements DuplexAppointServer {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
@@ -55,6 +59,15 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
     protected void initSelf( UlfServer messenger ) {
         this.initUlfServerEventHandlers( messenger );
         this.mPassiveClientIfaceProxyFactory = new GenericPassiveClientIfaceProxyFactory( this );
+
+        this.mRecipient.registerChannelInactiveHandler(new ChannelInactiveHandler() {
+            @Override
+            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+                DuplexExpress express = (DuplexExpress) WolvesAppointServer.this.mRouteDispatcher.getUMCTExpress();
+                express.afterChannelInactive( ccb );
+                return false;
+            }
+        });
     }
 
     protected WolvesAppointServer( UlfServer messenger, RouteDispatcher dispatcher ){

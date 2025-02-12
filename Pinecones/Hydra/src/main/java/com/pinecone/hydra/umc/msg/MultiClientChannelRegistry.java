@@ -11,6 +11,8 @@ public interface MultiClientChannelRegistry<CID > extends Pinenut {
 
     void register( CID id, ChannelControlBlock controlBlock );
 
+    void deregister( CID id, ChannelControlBlock controlBlock );
+
     void deregister( CID id );
 
     ChannelPool getPool( CID id );

@@ -2,6 +2,8 @@ package com.pinecone.hydra.umct.husky;
 
 public final class HuskyCTPConstants {
 
+    public static final String HCTP_DUP_PASSIVE_CHANNEL_KEY      = "HCTPPassiveChannel";
+
     public static final long HCTP_DUP_CONTROL_MASK               = 0xFFBEA000L;
 
     public static final long HCTP_DUP_CONTROL_REGISTER           = HCTP_DUP_CONTROL_MASK ^ 0x00000001L;

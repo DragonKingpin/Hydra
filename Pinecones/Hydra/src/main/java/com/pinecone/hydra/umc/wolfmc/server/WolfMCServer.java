@@ -23,6 +23,7 @@ import com.pinecone.hydra.umc.msg.MessageNodus;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolfmc.AsyncUlfMedium;
+import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.ChannelUtils;
 import com.pinecone.hydra.umc.wolfmc.GenericUMCByteMessageDecoder;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
@@ -39,6 +40,7 @@ import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
+import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -286,6 +288,19 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                                 AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
                         ).get();
 
+                        if ( !WolfMCServer.this.mChannelInactiveHandlers.isEmpty() ) {
+                            boolean bBlocked = false;
+                            for ( ChannelInactiveHandler handler : WolfMCServer.this.mChannelInactiveHandlers ) {
+                                if ( handler.afterChannelInactive( ccb ) ) {
+                                    bBlocked = true;
+                                }
+                            }
+
+                            if ( bBlocked ) {
+                                return;
+                            }
+                        }
+
                         WolfMCServer.this.mChannelPool.deactivate( ccb );
                         WolfMCServer.this.getMajorIOLock().lock();
                         try{
@@ -324,7 +339,9 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             @Override
             public void operationComplete( ChannelFuture channelFuture ) throws Exception {
                 synchronized ( WolfMCServer.this.mPrimaryThreadJoinMutex ) {
-                    WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
+                    if ( WolfMCServer.this.mShutdown ) {
+                        WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
+                    }
                     WolfMCServer.this.mPrimaryThreadJoinMutex.notify();
                 }
             }

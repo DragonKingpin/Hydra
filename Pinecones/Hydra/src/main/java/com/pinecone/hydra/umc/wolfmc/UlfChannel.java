@@ -99,6 +99,13 @@ public class UlfChannel extends ArchUMCChannel {
         this.reconnect( -1 );
     }
 
+    public static void copyChannelAttr( Channel leg, Channel neo, String key ) {
+        Object val = leg.attr( AttributeKey.valueOf( key ) ).get();
+        if ( val != null ) {
+            neo.attr( AttributeKey.valueOf( key ) ).set( val );
+        }
+    }
+
     public ArchUMCChannel    toConnect( SocketAddress address ){
         this.mAddress           = address;
         this.mLastChannelFuture = this.getBootstrap().connect( address );
@@ -107,6 +114,7 @@ public class UlfChannel extends ArchUMCChannel {
         if ( this.mChannel != null ) { // Reconnect
             Object ccb = this.mChannel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY ) ).get();
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY ) ).set( ccb );
+            WolfMCStandardConstants.copyChannelStandardAttrs( this.mChannel, channel );
         }
         this.mChannel           = channel;
         this.mChannelID         = this.mChannel.id();

@@ -28,12 +28,14 @@ public class DistributionSynchronizeController {
     public void distributionCallBack( String path ){
         Debug.trace("回调");
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
-        this.sessionPhaser.incrementDistributionSynchronize( elementNode.getGuid() );
+        this.sessionPhaser.incrementConsumerCount( elementNode.getGuid() );
 
-        if( this.sessionPhaser.getDistributionSynchronize( elementNode.getGuid() ) == 1 ){
-            Object lock = this.sessionPhaser.getDistributionLock(elementNode.getGuid());
-            lock.notify();
-            this.sessionPhaser.resetDistributionSynchronize( elementNode.getGuid() );
+        if( this.sessionPhaser.getConsumerCount( elementNode.getGuid() ) == 1 ){
+            Object lock = this.sessionPhaser.getFileLock(elementNode.getGuid());
+            synchronized ( lock ){
+                lock.notify();
+            }
+            this.sessionPhaser.resetConsumerCount( elementNode.getGuid() );
         }
     }
 }

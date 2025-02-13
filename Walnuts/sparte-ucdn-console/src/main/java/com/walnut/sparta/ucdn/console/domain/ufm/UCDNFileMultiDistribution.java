@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.TreeMap;
 
 @Component
@@ -58,7 +59,7 @@ public class UCDNFileMultiDistribution implements FileMultDistribution {
 
     @Override
     public void fileDistribution(FileNode fileNode, String topic) throws IOException, InterruptedException {
-        this.sessionPhaser.registerDistributionLock( fileNode.getGuid(), new Object() );
+        this.sessionPhaser.registerFileLock( fileNode.getGuid(), new Object() );
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         FileDistribution fileDistribution = this.producer.getIface(FileDistribution.class, topic);
         String path = this.primaryFileSystem.getPath(fileNode.getGuid());
@@ -67,7 +68,7 @@ public class UCDNFileMultiDistribution implements FileMultDistribution {
 
         TreeMap<Long, Frame> frames = fileNode.getFrames();
         int distributionFrameNum = 0;
-        this.sessionPhaser.registerDistributionSynchronize( fileNode.getGuid(),0L );
+        this.sessionPhaser.registerConsumerCount( fileNode.getGuid(),0L );
 
         for( long i = 0; i < frames.size(); i++ ){
             LocalFrame frame = ( LocalFrame ) frames.get( i );
@@ -86,20 +87,23 @@ public class UCDNFileMultiDistribution implements FileMultDistribution {
 
             FileInputStream fileInputStream = new FileInputStream(tempFile);
             byte[] buffer = new byte[ 512 * 1024 ];
+            int bytesRead;
 
-            while( fileInputStream.read( buffer )!=-1 ){
-                fileDistribution.saveFrameContent( new UFMDClusterFrame( buffer, path, i ) );
+            while( ( bytesRead = fileInputStream.read( buffer ) )!=-1 ){
+                byte[] validData = Arrays.copyOfRange(buffer, 0, bytesRead);
+                fileDistribution.saveFrameContent( new UFMDClusterFrame( validData, path, i ) );
                 //this.producer.issueInform( topic, "com.walnut.sparta.ucdn.console.umc.FileDistribution.saveFrameContent",new UFMDClusterFrame(buffer,path,i));
             }
 
+            fileInputStream.close();
             tempFile.delete();
 
             //fileDistribution.frameEnd( path, i );
             distributionFrameNum++;
 
             if( distributionFrameNum == 10 ){
-                synchronized( this.sessionPhaser.getDistributionLock( fileNode.getGuid() ) ){
-                    this.sessionPhaser.getDistributionLock( fileNode.getGuid() ).wait();
+                synchronized( this.sessionPhaser.getFileLock( fileNode.getGuid() ) ){
+                    this.sessionPhaser.getFileLock( fileNode.getGuid() ).wait();
                 }
                 distributionFrameNum = 0;
             }

@@ -3,24 +3,24 @@ package com.walnut.sparta.ucdn.console.domain.ufm;
 import com.pinecone.framework.util.id.GUID;
 
 public interface SessionPhaser {
-    void registerDistributionLock(GUID guid, Object object );
+    void registerFileLock(GUID guid, Object object );
 
-    Object getDistributionLock(GUID guid );
+    Object getFileLock(GUID guid );
 
-    void registerDistributionClusterCount( GUID guid, long count );
+    void registerClusterCount(GUID guid, long count );
 
-    long getDistributionClusterCount( GUID guid );
+    long getClusterCount(GUID guid );
 
-    void incrementDistributionClusterCount( GUID guid );
+    void incrementClusterCount(GUID guid );
 
-    void resetDistributionClusterCount( GUID guid );
+    void resetClusterCount(GUID guid );
 
-    void registerDistributionSynchronize( GUID guid, Long count );
+    void registerConsumerCount(GUID guid, Long count );
 
-    long getDistributionSynchronize( GUID guid );
+    long getConsumerCount(GUID guid );
 
-    void incrementDistributionSynchronize( GUID guid );
+    void incrementConsumerCount(GUID guid );
 
-    void resetDistributionSynchronize( GUID guid );
+    void resetConsumerCount(GUID guid );
 
 }

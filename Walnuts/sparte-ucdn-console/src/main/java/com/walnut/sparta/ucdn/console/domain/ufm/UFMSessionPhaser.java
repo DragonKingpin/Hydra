@@ -25,54 +25,54 @@ public class UFMSessionPhaser implements SessionPhaser {
 
 
     @Override
-    public void registerDistributionLock( GUID guid, Object object ) {
+    public void registerFileLock(GUID guid, Object object ) {
         this.fileLocksMap.put( guid, object );
     }
 
     @Override
-    public Object getDistributionLock( GUID guid ) {
+    public Object getFileLock(GUID guid ) {
         return this.fileLocksMap.get( guid );
     }
 
     @Override
-    public void registerDistributionClusterCount( GUID guid, long count ) {
+    public void registerClusterCount(GUID guid, long count ) {
         this.clusterComplatedPhaserMap.put( guid,count );
     }
 
     @Override
-    public long getDistributionClusterCount(GUID guid) {
+    public long getClusterCount(GUID guid) {
         return this.clusterComplatedPhaserMap.get( guid );
     }
 
     @Override
-    public void incrementDistributionClusterCount(GUID guid) {
+    public void incrementClusterCount(GUID guid) {
         Long l = this.clusterComplatedPhaserMap.get(guid);
         this.clusterComplatedPhaserMap.put( guid, l+1 );
     }
 
     @Override
-    public void resetDistributionClusterCount(GUID guid) {
+    public void resetClusterCount(GUID guid) {
         this.clusterComplatedPhaserMap.put( guid, 0L );
     }
 
     @Override
-    public void registerDistributionSynchronize(GUID guid, Long count) {
+    public void registerConsumerCount(GUID guid, Long count) {
         this.consumerComplatedPhaserMap.put( guid, count );
     }
 
     @Override
-    public long getDistributionSynchronize(GUID guid) {
+    public long getConsumerCount(GUID guid) {
         return this.consumerComplatedPhaserMap.get( guid );
     }
 
     @Override
-    public void incrementDistributionSynchronize(GUID guid) {
+    public void incrementConsumerCount(GUID guid) {
         Long l = this.consumerComplatedPhaserMap.get(guid);
         this.consumerComplatedPhaserMap.put( guid, l+1 );
     }
 
     @Override
-    public void resetDistributionSynchronize(GUID guid) {
+    public void resetConsumerCount(GUID guid) {
         this.consumerComplatedPhaserMap.put( guid, 0L );
     }
 }

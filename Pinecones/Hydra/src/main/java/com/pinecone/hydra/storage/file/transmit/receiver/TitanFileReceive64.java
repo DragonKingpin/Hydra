@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file.transmit.receiver;
 
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
@@ -72,6 +73,10 @@ public class TitanFileReceive64 implements FileReceive64{
         long currentPosition = 0;
         long endSize = frameSize;
 
+        long parityCheck = 0;
+        long checkSum = 0;
+        Long crc32 = null;
+
         StorageIOResponse storageIOResponse = null;
         while (true) {
             if( currentPosition >= fileNode.getDefinitionSize() ){
@@ -100,12 +105,21 @@ public class TitanFileReceive64 implements FileReceive64{
             UniformSourceLocator uniformSourceLocator = new UniformSourceLocator();
             if( storageIOResponse != null ){
                 localFrame.setCrc32(String.valueOf(storageIOResponse.getCre32().getValue()));
+                parityCheck += storageIOResponse.getParityCheck();
+                checkSum += storageIOResponse.getChecksum();
+                if( crc32 == null ){
+                    crc32 = storageIOResponse.getCre32().getValue();
+                }else {
+                    crc32 = crc32 ^ storageIOResponse.getCre32().getValue();
+                }
             }
             uniformSourceLocator.setVolumeGuid( volume.getGuid().toString() );
             localFrame.setSize( endSize );
             localFrame.setSourceName( uniformSourceLocator.toJSONString() );
             localFrame.setFileGuid( fileNode.getGuid() );
             localFrame.setSegId( segId );
+
+
 
             segId++;
             localFrame.save();
@@ -117,13 +131,16 @@ public class TitanFileReceive64 implements FileReceive64{
 
         fileNode.setPhysicalSize( currentPosition );
         fileNode.setLogicSize( currentPosition );
+        fileNode.setChecksum( checkSum );
+        fileNode.setCrc32Xor(String.valueOf(crc32));
+        fileNode.setParityCheck((int) parityCheck);
         mKOMFileSystem.update( fileNode );
 
-        Verification verification = this.getVerification();
-        fileNode.setChecksum( verification.getChecksum() );
-        fileNode.setParityCheck( verification.getParityCheck() );
-        fileNode.setCrc32Xor( Long.toHexString(verification.getCrc32().getValue()) );
-        mKOMFileSystem.update( fileNode );
+//        Verification verification = this.getVerification();
+//        fileNode.setChecksum( verification.getChecksum() );
+//        fileNode.setParityCheck( verification.getParityCheck() );
+//        fileNode.setCrc32Xor( Long.toHexString(verification.getCrc32().getValue()) );
+//        mKOMFileSystem.update( fileNode );
     }
 
     @Override
@@ -135,10 +152,11 @@ public class TitanFileReceive64 implements FileReceive64{
         long endSize = frameSize;
 
         long currentPosition = 0;
-        if( currentPosition + endSize > fileNode.getDefinitionSize() ){
-            endSize = fileNode.getDefinitionSize() - currentPosition;
+        if( currentPosition + endSize > localFrame.getSize() ){
+            endSize = localFrame.getSize() - currentPosition;
         }
 
+        Debug.trace( "更新簇的大小:"+endSize );
         RemoteFrame remoteFrame = allotment.newRemoteFrame( fileNode.getGuid(),(int)segId );
         remoteFrame.setDeviceGuid(this.mKOMFileSystem.getConfig().getLocalhostGUID());
         remoteFrame.setSegGuid( localFrame.getSegGuid() );

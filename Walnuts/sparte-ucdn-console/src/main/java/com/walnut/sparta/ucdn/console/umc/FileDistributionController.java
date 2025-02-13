@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
@@ -38,10 +37,13 @@ public class FileDistributionController {
     private UniformVolumeManager            primaryVolume;
 
     @Resource
-    SessionPhaser sessionPhaser;
+    SessionPhaser                           sessionPhaser;
 
     @Resource
     FileDistributionSynchronize             fileDistributionSynchronize;
+
+    @Resource
+    Transmit                                transmit;
 
     public FileDistributionController(){
 
@@ -53,7 +55,7 @@ public class FileDistributionController {
         FileNode fileNode = this.primaryFileSystem.affirmFileNode( path );
         fileNode.setDefinitionSize( definitionSize );
         this.primaryFileSystem.update( fileNode );
-        this.sessionPhaser.registerDistributionClusterCount( fileNode.getGuid(),0 );
+        this.sessionPhaser.registerClusterCount( fileNode.getGuid(),0 );
     }
 
     @AddressMapping("setFrameMeta")
@@ -77,16 +79,11 @@ public class FileDistributionController {
         Debug.trace("写入文件内容");
         ElementNode elementNode = this.primaryFileSystem.queryElement(ufmdClusterFrame.getPath());
         Frame frame = this.primaryFileSystem.getFrameByFileWithId(elementNode.getGuid(), ufmdClusterFrame.getSegId());
-        File tempFile = new File(UCDNConstants.TempFilePath + frame.getSegGuid() + ".temp");
-        tempFile.createNewFile();
-        try (FileOutputStream fos = new FileOutputStream(tempFile,true)) {
-            fos.write(ufmdClusterFrame.getBytes());
-        }  catch (IOException e) {
-            throw e;
-        }finally {
-            if( frame.getSize() == tempFile.length() ){
-                this.frameEnd( ufmdClusterFrame.getPath(), ufmdClusterFrame.getSegId() );
-            }
+        String path = UCDNConstants.TempFilePath + frame.getSegGuid() + ".temp";
+
+        File file = transmit.bytesToFile(path, ufmdClusterFrame.getBytes());
+        if( frame.getSize() == file.length() ){
+            this.frameEnd( ufmdClusterFrame.getPath(), ufmdClusterFrame.getSegId() );
         }
     }
 
@@ -105,10 +102,10 @@ public class FileDistributionController {
         TitanFileReceiveEntity64 receiveEntity64 = new TitanFileReceiveEntity64(this.primaryFileSystem, path, fileNode, chanface, this.primaryVolume);
         receiveEntity64.receive( segId );
         tempFile.delete();
-        this.sessionPhaser.incrementDistributionClusterCount( fileNode.getGuid() );
-        Debug.trace("目前已完成簇数量：" + this.sessionPhaser.getDistributionClusterCount( fileNode.getGuid() ));
-        if( this.sessionPhaser.getDistributionClusterCount( fileNode.getGuid() ) == 10 ){
-            this.sessionPhaser.resetDistributionClusterCount( fileNode.getGuid() );
+        this.sessionPhaser.incrementClusterCount( fileNode.getGuid() );
+        Debug.trace("目前已完成簇数量：" + this.sessionPhaser.getClusterCount( fileNode.getGuid() ));
+        if( this.sessionPhaser.getClusterCount( fileNode.getGuid() ) == 10 ){
+            this.sessionPhaser.resetClusterCount( fileNode.getGuid() );
             this.fileDistributionSynchronize.distributionCallBack( path );
         }
     }

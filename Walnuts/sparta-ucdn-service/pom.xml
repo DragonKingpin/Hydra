@@ -66,18 +66,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sauron.radium</groupId>
-            <artifactId>radium</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.pinecone.hydra.driver.default</groupId>
-            <artifactId>hydra-default-driver</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.pinecone.radium</groupId>
             <artifactId>radium</artifactId>
             <version>2.1.0</version>

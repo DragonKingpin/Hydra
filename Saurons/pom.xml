@@ -16,8 +16,8 @@
 
     <modules>
         <module>sauron-core</module>
-        <module>saurye</module>
         <module>heistotron</module>
+        <module>saurye</module>
         <module>shadow</module>
     </modules>
 

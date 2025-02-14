@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import com.pinecone.hydra.express.Deliver;
 import com.pinecone.hydra.umct.MessageDeliver;

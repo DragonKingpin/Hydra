@@ -6,7 +6,7 @@ import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
-import com.pinecone.hydra.umct.appoint.AsynMsgHandler;
+import com.pinecone.hydra.uma.AsynMsgHandler;
 
 public interface DuplexExpress extends UMCTExpress {
 

@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;

@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma.wolf;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -6,6 +6,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.DynamicMessage;
+import com.pinecone.hydra.uma.AsynMsgHandler;
+import com.pinecone.hydra.uma.AsynReturnHandler;
+import com.pinecone.hydra.uma.DuplexAppointServer;
+import com.pinecone.hydra.uma.HuskyDuplexExpress;
+import com.pinecone.hydra.uma.proxy.GenericPassiveClientIfaceProxyFactory;
+import com.pinecone.hydra.uma.proxy.PassiveClientIfaceProxyFactory;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
@@ -21,8 +27,6 @@ import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.IlleagalResponseException;
 import com.pinecone.hydra.umct.UMCTExpress;
-import com.pinecone.hydra.umct.appoint.proxy.GenericPassiveClientIfaceProxyFactory;
-import com.pinecone.hydra.umct.appoint.proxy.PassiveClientIfaceProxyFactory;
 import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
 import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
@@ -31,7 +35,13 @@ import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 
-
+/**
+ *  Pinecone Ursus For Java WolfAppointServer [ Ulfhedinn Wolf Duplex RPC Server ]
+ *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
+ *  Author: Harold.E / JH.W (DragonKing)
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  *****************************************************************************************
+ */
 public class WolvesAppointServer extends WolfAppointServer implements DuplexAppointServer {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {

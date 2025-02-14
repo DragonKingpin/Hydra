@@ -54,12 +54,10 @@ import java.util.concurrent.TimeUnit;
  *  *****************************************************************************************
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
  *  Uniform Message Control Protocol (UMC)
- *    UMC is a simple TCP/IP based binary transmit protocol, using to directly transfer the key-val liked messages based on JSON.
- *    It refers from the HTTP, supported PUT/POST method, a simple replacement of HTTP for transfer cluster control messages.
+ *    UMC is a simple TCP/IP-based binary transmission protocol.
+ *    It supports methods similar to PUT/POST (HTTP), which are designed to fulfill uniform message control.
  *
  *  Uniform Message Control Protocol for WolfMC Service [Client/Server] (Ulf UMC)
- *  Uniform Message Control Protocol for RabbitMQ Client (Rabbit UMC)
- *  etc.
  *  *****************************************************************************************
  */
 public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {

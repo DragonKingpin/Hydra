@@ -1,10 +1,9 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import java.io.IOException;
 
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umct.IlleagalResponseException;
-import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 
 public interface AppointClient extends AppointNode {

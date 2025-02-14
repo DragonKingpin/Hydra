@@ -1,7 +1,7 @@
-package com.pinecone.hydra.umct.appoint.proxy;
+package com.pinecone.hydra.uma.proxy;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.umct.appoint.DuplexAppointServer;
+import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umct.husky.compiler.ClassDigest;
 
 public interface PassiveClientIfaceProxyFactory extends Pinenut {

@@ -45,7 +45,7 @@ import javassist.ClassPool;
  *  Author: Harold.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
- *  Uniform Message Control Transmit Protocol - Broadcast [UMC-T-B]
+ *  Uniform Message Control Transmission Protocol - Broadcast [UMC-T-B]
  *  统一消息广播传输控制传输协议
  *  **********************************************************
  */

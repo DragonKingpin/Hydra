@@ -27,7 +27,7 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
  *  Author: Harold.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
- *  Uniform Message Control Transmit Protocol - Broadcast Package [UMC-T-BP]
+ *  Uniform Message Control Transmission Protocol - Broadcast Package [UMC-T-BP]
  *  统一消息广播控制传输协议-小包分协议
  *  For: Simplified Message Small-Package [最小压缩邮政小包]
  *  **********************************************************

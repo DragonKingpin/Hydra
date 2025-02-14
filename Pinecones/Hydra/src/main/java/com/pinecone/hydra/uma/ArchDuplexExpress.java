@@ -1,9 +1,10 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import java.io.IOException;
 
 import org.slf4j.Logger;
 
+import com.pinecone.hydra.uma.pool.GenericMultiClientChannelRegistry;
 import com.pinecone.hydra.express.Package;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.umc.msg.ChannelAllocateException;
@@ -22,13 +23,11 @@ import com.pinecone.hydra.umc.wolfmc.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 import com.pinecone.hydra.umc.wolfmc.WolfMCStandardConstants;
 import com.pinecone.hydra.umc.wolfmc.server.RecipientNettyChannelControlBlock;
-import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.MessageExpress;
 import com.pinecone.hydra.umct.ServiceInternalException;
 import com.pinecone.hydra.umct.UMCConnection;
 import com.pinecone.hydra.umct.UlfConnection;
-import com.pinecone.hydra.umct.appoint.pool.GenericMultiClientChannelRegistry;
 import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
 
 import io.netty.channel.Channel;
@@ -152,7 +151,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        HuskyDuplexExpress.reconnect( block, pool.getMajorWaitTimeout() );
+        reconnect( block, pool.getMajorWaitTimeout() );
         return block;
     }
 

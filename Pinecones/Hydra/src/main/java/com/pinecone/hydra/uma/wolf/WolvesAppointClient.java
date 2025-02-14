@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma.wolf;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -8,6 +8,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 import com.pinecone.framework.unit.LinkedTreeMap;
+import com.pinecone.hydra.uma.AppointServer;
+import com.pinecone.hydra.uma.DuplexAppointClient;
+import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
@@ -41,6 +44,13 @@ import io.netty.channel.ChannelId;
 import io.netty.util.AttributeKey;
 import javassist.ClassPool;
 
+/**
+ *  Pinecone Ursus For Java WolvesAppointClient [ Ulfhedinn Wolf Duplex RPC Client ]
+ *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
+ *  Author: Harold.E / JH.W (DragonKing)
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  *****************************************************************************************
+ */
 public class WolvesAppointClient extends WolfAppointClient implements DuplexAppointClient {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {

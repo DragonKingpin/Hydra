@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint.pool;
+package com.pinecone.hydra.uma.pool;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

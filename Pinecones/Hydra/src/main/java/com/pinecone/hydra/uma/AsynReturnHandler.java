@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.umc.msg.UMCMessage;

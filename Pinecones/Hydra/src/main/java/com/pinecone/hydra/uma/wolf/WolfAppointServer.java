@@ -1,45 +1,34 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma.wolf;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
 import com.pinecone.hydra.express.Deliver;
 import com.pinecone.hydra.servgram.Servgramium;
+import com.pinecone.hydra.uma.AppointServer;
+import com.pinecone.hydra.uma.ArchAppointNode;
 import com.pinecone.hydra.umc.wolfmc.server.UlfServer;
 import com.pinecone.hydra.umct.MessageDeliver;
 import com.pinecone.hydra.umct.MessageExpress;
-import com.pinecone.hydra.umct.MessageHandler;
 import com.pinecone.hydra.umct.MessageJunction;
-import com.pinecone.hydra.umct.ProtoletMsgDeliver;
-import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.UMCTExpress;
 import com.pinecone.hydra.umct.WolfMCExpress;
-import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcherFabricator;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
-import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
-import com.pinecone.hydra.umct.mapping.InspectException;
-import com.pinecone.hydra.umct.mapping.MappingDigest;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
-import com.pinecone.hydra.umct.husky.compiler.IfaceMappingDigest;
 import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
-import com.pinecone.hydra.umct.husky.compiler.MethodDigest;
-import com.pinecone.hydra.umct.stereotype.IfaceUtils;
-import com.pinecone.ulf.util.protobuf.GenericFieldProtobufDecoder;
 
-import javassist.ClassPool;
-import javassist.NotFoundException;
-
+/**
+ *  Pinecone Ursus For Java WolfAppointServer [ Ulfhedinn Wolf RPC Server ]
+ *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
+ *  Author: Harold.E / JH.W (DragonKing)
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
+ *  *****************************************************************************************
+ */
 public class WolfAppointServer extends ArchAppointNode implements AppointServer {
     protected UlfServer                     mRecipient;
     protected RouteDispatcher               mRouteDispatcher;
@@ -74,7 +63,7 @@ public class WolfAppointServer extends ArchAppointNode implements AppointServer 
 
         try{
             Constructor<?> constructor = expressType.getConstructor( String.class, MessageJunction.class, Logger.class );
-            UMCTExpress express = (UMCTExpress) constructor.newInstance( AppointServer.DefaultEntityName, this, this.getLogger() );
+            UMCTExpress express = (UMCTExpress) constructor.newInstance(DefaultEntityName, this, this.getLogger() );
 
             this.applyExpress( express );
             HuskyRouteDispatcherFabricator.afterConstructed( (HuskyRouteDispatcher)this.mRouteDispatcher, express );

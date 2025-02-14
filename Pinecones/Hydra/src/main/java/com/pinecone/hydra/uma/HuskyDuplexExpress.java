@@ -1,4 +1,4 @@
-package com.pinecone.hydra.umct.appoint;
+package com.pinecone.hydra.uma;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

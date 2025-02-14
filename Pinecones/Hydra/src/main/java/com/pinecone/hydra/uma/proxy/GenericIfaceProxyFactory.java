@@ -1,7 +1,4 @@
-package com.pinecone.hydra.umct.appoint.proxy;
-
-import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
+package com.pinecone.hydra.uma.proxy;
 
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.proxy.UMCTHub;
@@ -9,36 +6,43 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.pinecone.framework.util.name.Namespace;
-import com.pinecone.hydra.umct.appoint.DuplexAppointServer;
+import com.pinecone.hydra.uma.AppointClient;
 import com.pinecone.hydra.umct.husky.compiler.ClassDigest;
 import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
 import com.pinecone.hydra.umct.stereotype.IfaceUtils;
 
-public class GenericPassiveClientIfaceProxyFactory implements PassiveClientIfaceProxyFactory {
+public class GenericIfaceProxyFactory implements IfaceProxyFactory {
     protected final ConcurrentHashMap<Class<?>, Enhancer> mEnhancerCache = new ConcurrentHashMap<>();
 
-    protected DuplexAppointServer mServer;
+    protected AppointClient mClient;
 
-    public GenericPassiveClientIfaceProxyFactory( DuplexAppointServer server ) {
-        this.mServer = server;
+    public GenericIfaceProxyFactory( AppointClient client ) {
+        this.mClient = client;
     }
 
     @Override
-    public <T> T createProxy( long clientId, DuplexAppointServer server, ClassDigest classDigest, Class<T> iface ) {
+    public <T> T createProxy( AppointClient client, ClassDigest classDigest, Class<T> iface ) {
+//        if (!iface.isInterface()) {
+//            throw new IllegalArgumentException("The provided class must be an interface.");
+//        }
+
         Enhancer enhancer = this.mEnhancerCache.computeIfAbsent(iface, clazz -> {
             Enhancer e = new Enhancer();
-            e.setSuperclass( UMCTHub.class );
+            e.setSuperclass(UMCTHub.class);
             e.setInterfaces( new Class[]{iface} );
 
             e.setCallback(new MethodInterceptor() {
                 @Override
                 public Object intercept( Object obj, Method method, Object[] args, MethodProxy proxy ) throws Throwable {
                     String methodName = IfaceUtils.getIfaceMethodName( method );
-                    MethodPrototype methodPrototype = (DynamicMethodPrototype) server.queryMethodDigest(
+                    MethodPrototype methodPrototype = (DynamicMethodPrototype) client.queryMethodDigest(
                             classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + methodName
                     );
-                    return server.invokeInform( clientId, methodPrototype, args );
+                    return client.invokeInform( methodPrototype, args );
                 }
             });
             return e;
@@ -48,15 +52,15 @@ public class GenericPassiveClientIfaceProxyFactory implements PassiveClientIface
     }
 
     @Override
-    public <T> T createProxy( long clientId, DuplexAppointServer server, Class<T> iface ) {
-        ClassDigest classDigest = server.queryClassDigest( iface.getName() );
+    public <T> T createProxy( AppointClient client, Class<T> iface ) {
+        ClassDigest classDigest = client.queryClassDigest( iface.getName() );
 
-        return this.createProxy( clientId, server, classDigest, iface );
+        return this.createProxy( client, classDigest, iface );
     }
 
     @Override
-    public <T> T createProxy( long clientId, Class<T> iface ) {
-        return this.createProxy( clientId, this.mServer, iface );
+    public <T> T createProxy( Class<T> iface ) {
+        return this.createProxy( this.mClient, iface );
     }
 
 }

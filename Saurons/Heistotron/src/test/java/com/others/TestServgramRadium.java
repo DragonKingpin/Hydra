@@ -51,7 +51,7 @@ public class TestServgramRadium {
         GenericPreloadClassInspector inspector = new GenericPreloadClassInspector( ClassPool.getDefault() );
 
 
-        String className = "com.sauron.heist.heistron.Heistron";
+        String className = "com.sauron.heist.heistron.Heistotron";
         Debug.trace( inspector.isImplementedDirectly( className, Heistgram.class ) );
         Debug.trace( inspector.isImplemented( className, com.pinecone.hydra.servgram.Servgram.class ) );
 

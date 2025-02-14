@@ -11,11 +11,11 @@ public class UlfInformMessage extends ArchInformMessage {
         super(head);
     }
 
-    public UlfInformMessage( Map<String,Object > joExHead, long controlBits ) {
+    public UlfInformMessage( Map<String,Object > joExHead, int controlBits ) {
         super( joExHead, controlBits );
     }
 
-    public UlfInformMessage( Object protoExHead , long controlBits ) {
+    public UlfInformMessage( Object protoExHead , int controlBits ) {
         super( protoExHead, controlBits );
     }
 

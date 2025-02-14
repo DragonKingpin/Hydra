@@ -21,7 +21,7 @@ public interface UMCHead extends EMCHead {
 
     ExtraEncode     getExtraEncode();
 
-    long            getControlBits();
+    int             getControlBits();
 
     long            getIdentityId();
 
@@ -43,7 +43,7 @@ public interface UMCHead extends EMCHead {
 
     void setKeepAlive     ( long nKeepAlive        );
 
-    void setControlBits   ( long controlBits       );
+    void setControlBits   ( int controlBits       );
 
     void setIdentityId    ( long identityId        );
 

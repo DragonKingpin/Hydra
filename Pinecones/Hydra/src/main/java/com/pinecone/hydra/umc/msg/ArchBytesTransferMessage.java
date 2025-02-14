@@ -18,12 +18,12 @@ public abstract class ArchBytesTransferMessage extends ArchUMCMessage implements
         this( head, szStringBody.getBytes() );
     }
 
-    public ArchBytesTransferMessage( Map<String,Object > joExHead, byte[] sBytesBody, long controlBits ) {
+    public ArchBytesTransferMessage( Map<String,Object > joExHead, byte[] sBytesBody, int controlBits ) {
         super( joExHead, UMCMethod.TRANSFER, controlBits );
         this.setBody( sBytesBody );
     }
 
-    public ArchBytesTransferMessage( Map<String,Object > joExHead, String szStringBody, long controlBits ) {
+    public ArchBytesTransferMessage( Map<String,Object > joExHead, String szStringBody, int controlBits ) {
         this( joExHead, szStringBody.getBytes(), controlBits );
     }
 
@@ -37,12 +37,12 @@ public abstract class ArchBytesTransferMessage extends ArchUMCMessage implements
 
 
 
-    public ArchBytesTransferMessage( Object exHead, ExtraEncode encode, byte[] sBytesBody, long controlBits ) {
+    public ArchBytesTransferMessage( Object exHead, ExtraEncode encode, byte[] sBytesBody, int controlBits ) {
         super( exHead, encode, UMCMethod.TRANSFER, controlBits );
         this.setBody( sBytesBody );
     }
 
-    public ArchBytesTransferMessage( Object exHead, ExtraEncode encode, String szStringBody, long controlBits ) {
+    public ArchBytesTransferMessage( Object exHead, ExtraEncode encode, String szStringBody, int controlBits ) {
         this( exHead, encode, szStringBody.getBytes(), controlBits );
     }
 

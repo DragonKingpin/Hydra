@@ -17,7 +17,7 @@ public class UlfStreamTransferMessage extends ArchStreamTransferMessage {
         super( head, inStream );
     }
 
-    public UlfStreamTransferMessage( Map<String,Object > joExHead, InputStream inStream, long controlBits ) {
+    public UlfStreamTransferMessage( Map<String,Object > joExHead, InputStream inStream, int controlBits ) {
         super( joExHead, inStream, controlBits );
     }
 
@@ -25,7 +25,7 @@ public class UlfStreamTransferMessage extends ArchStreamTransferMessage {
         super( joExHead, inStream, 0 );
     }
 
-    public UlfStreamTransferMessage(Object exHead, ExtraEncode encode, InputStream inStream, long controlBits ) {
+    public UlfStreamTransferMessage(Object exHead, ExtraEncode encode, InputStream inStream, int controlBits ) {
         super( exHead, encode, inStream, controlBits );
     }
 

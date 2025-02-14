@@ -7,11 +7,11 @@ public abstract class ArchInformMessage extends ArchUMCMessage implements Inform
         super( head );
     }
 
-    public ArchInformMessage( Map<String,Object > joExHead , long controlBits ) {
+    public ArchInformMessage( Map<String,Object > joExHead , int controlBits ) {
         super( joExHead, UMCMethod.INFORM, controlBits );
     }
 
-    public ArchInformMessage( Object protoExHead, long controlBits ) {
+    public ArchInformMessage( Object protoExHead, int controlBits ) {
         super( protoExHead, UMCMethod.INFORM, controlBits );
     }
 

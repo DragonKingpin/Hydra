@@ -40,7 +40,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
     public static final HeadField FieldKeepAlive       = new HeadField( "keepAlive"       , 4, Long.BYTES    );
     public static final HeadField FieldMethod          = new HeadField( "method"          , 5, Byte.BYTES    );
     public static final HeadField FieldStatus          = new HeadField( "status"          , 6, Short.BYTES   );
-    public static final HeadField FieldControlBits     = new HeadField( "controlBits"     , 7, Long.BYTES    );
+    public static final HeadField FieldControlBits     = new HeadField( "controlBits"     , 7, Integer.BYTES );
     public static final HeadField FieldIdentityId      = new HeadField( "identityId"      , 8, Long.BYTES    );
     public static final HeadField FieldSessionId       = new HeadField( "sessionId"       , 9, Long.BYTES    );
 
@@ -293,7 +293,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
 
 
     @Override
-    public void setControlBits   ( long controlBits       ) {
+    public void setControlBits   ( int controlBits       ) {
         super.setControlBits( controlBits );
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldControlBits.index );
     }
@@ -330,7 +330,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
                 new KeyValue<>( "KeepAlive"        , this.getKeepAlive()                                             ),
                 new KeyValue<>( "Method"           , this.getMethod()                                                ),
                 new KeyValue<>( "Status"           , this.getStatus().getName()                                      ),
-                new KeyValue<>( "ControlBits"      , "0x" + Long.toUnsignedString( this.getControlBits(),16 )  ),
+                new KeyValue<>( "ControlBits"      , "0x" + Integer.toUnsignedString( this.getControlBits(),16 )  ),
                 new KeyValue<>( "IdentityId"       , this.getIdentityId()                                            ),
                 new KeyValue<>( "SessionId"        , this.getSessionId()                                             ),
                 new KeyValue<>( "ExtraHead"        , szExtraHead                                                     ),
@@ -408,8 +408,8 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
                         break;
                     }
                     case 7: { // controlBits
-                        byteBuffer.putLong( head.controlBits );
-                        nBufLength += Long.BYTES;
+                        byteBuffer.putInt( head.controlBits );
+                        nBufLength += Integer.BYTES;
                         break;
                     }
                     case 8: { // identityId
@@ -491,8 +491,8 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
                         break;
                     }
                     case 7: { // controlBits
-                        head.controlBits = ByteBuffer.wrap(buf, nReadAt, Long.BYTES).order( BinByteOrder ).getLong();
-                        nReadAt += Long.BYTES;
+                        head.controlBits = ByteBuffer.wrap(buf, nReadAt, Integer.BYTES).order( BinByteOrder ).getInt();
+                        nReadAt += Integer.BYTES;
                         break;
                     }
                     case 8: { // identityId

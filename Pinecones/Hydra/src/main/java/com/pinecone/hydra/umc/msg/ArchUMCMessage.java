@@ -15,7 +15,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
         this.mHead            = head;
     }
 
-    ArchUMCMessage( Map<String,Object > joExHead, UMCMethod method, long controlBits ) {
+    ArchUMCMessage( Map<String,Object > joExHead, UMCMethod method, int controlBits ) {
         UMCHeadV1 head = new UMCHeadV1();
         head.setControlBits( controlBits );
         head.setMethod( method );
@@ -27,7 +27,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
         this( joExHead, method, 0 );
     }
 
-    public ArchUMCMessage( Map<String,Object > joExHead, long controlBits ) {
+    public ArchUMCMessage( Map<String,Object > joExHead, int controlBits ) {
         this( joExHead, UMCMethod.INFORM, controlBits );
     }
 
@@ -37,7 +37,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
 
 
 
-    protected ArchUMCMessage( Object protoExHead, ExtraEncode encode, UMCMethod method, long controlBits ) {
+    protected ArchUMCMessage( Object protoExHead, ExtraEncode encode, UMCMethod method, int controlBits ) {
         UMCHeadV1 head = new UMCHeadV1();
         head.setControlBits( controlBits );
         head.setMethod( method );
@@ -46,7 +46,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
         this.mHead = head;
     }
 
-    protected ArchUMCMessage( Object protoExHead, UMCMethod method, long controlBits ) {
+    protected ArchUMCMessage( Object protoExHead, UMCMethod method, int controlBits ) {
         this( protoExHead, ExtraEncode.Prototype, method, controlBits );
     }
 
@@ -58,7 +58,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
         this( protoExHead, encode, method, 0 );
     }
 
-    public ArchUMCMessage( Object protoExHead, long controlBits ) {
+    public ArchUMCMessage( Object protoExHead, int controlBits ) {
         this( protoExHead, UMCMethod.INFORM, controlBits );
     }
 

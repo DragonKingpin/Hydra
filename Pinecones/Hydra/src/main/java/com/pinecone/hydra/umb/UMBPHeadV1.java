@@ -99,7 +99,7 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
 
 
     @Override
-    public void setControlBits   ( long controlBits       ) {
+    public void setControlBits   ( int controlBits       ) {
 
     }
 
@@ -229,7 +229,7 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
     }
 
     @Override
-    public long            getControlBits() {
+    public int            getControlBits() {
         return 0;
     }
 

@@ -23,20 +23,20 @@ public class UlfMBInformMessage extends ArchUMCMessage implements InformMessage 
         return head;
     }
 
-    public static UMCHead newUMCHead( Object exHead, long controlBits ) {
+    public static UMCHead newUMCHead( Object exHead, int controlBits ) {
         UMCCHeadV1 head = UlfMBInformMessage.newUMCHead( controlBits );
         head.setExtraHead( exHead );
         head.setExtraEncode( ExtraEncode.Prototype );
         return head;
     }
 
-    public static UMCHead newUMCHead( Map<String,Object > joExHead, long controlBits ) {
+    public static UMCHead newUMCHead( Map<String,Object > joExHead, int controlBits ) {
         UMCCHeadV1 head = UlfMBInformMessage.newUMCHead( controlBits );
         head.applyExHead( joExHead );
         return head;
     }
 
-    public static UMCCHeadV1 newUMCHead( long controlBits ) {
+    public static UMCCHeadV1 newUMCHead( int controlBits ) {
         UMCCHeadV1 head = new UMCCHeadV1();
         head.setControlBits( controlBits );
         return head;
@@ -57,16 +57,16 @@ public class UlfMBInformMessage extends ArchUMCMessage implements InformMessage 
     }
 
 
-    public UlfMBInformMessage( Map<String,Object > joExHead, long controlBits ) {
+    public UlfMBInformMessage( Map<String,Object > joExHead, int controlBits ) {
         this( UlfMBInformMessage.newUMCHead( joExHead, controlBits ) );
     }
 
-    public UlfMBInformMessage( Object protoExHead, long controlBits ) {
+    public UlfMBInformMessage( Object protoExHead, int controlBits ) {
         this( UlfMBInformMessage.newUMCHead( protoExHead, controlBits ) );
     }
 
 
-    public UlfMBInformMessage( long controlBits ) {
+    public UlfMBInformMessage( int controlBits ) {
         this( UlfMBInformMessage.newUMCHead( controlBits ) );
     }
 

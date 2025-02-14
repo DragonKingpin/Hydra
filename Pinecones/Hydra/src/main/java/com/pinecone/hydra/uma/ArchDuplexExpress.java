@@ -90,7 +90,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     protected boolean interceptHandlePassiveResponse( UMCConnection connection, Object[] args ) throws ServiceInternalException {
         UMCConnection uc          = this.wrap( connection );
         UMCMessage msg            = uc.getMessage();
-        long controlBits          = msg.getHead().getControlBits();
+        int controlBits           = msg.getHead().getControlBits();
 
         // Notice:
         // For duplex passive channel, it is necessary to use control-bits markers and explicitly call the `handler`, otherwise it will be intercepted by the `express`.
@@ -120,7 +120,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     protected boolean interceptPassiveChannel( UMCConnection connection, Object[] args ) {
         UMCConnection uc          = this.wrap( connection );
         UMCMessage msg            = uc.getMessage();
-        long controlBits          = msg.getHead().getControlBits();
+        int controlBits           = msg.getHead().getControlBits();
         if ( controlBits == HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER ) {
             this.registerPassiveChannel( uc, connection, args );
             return true;

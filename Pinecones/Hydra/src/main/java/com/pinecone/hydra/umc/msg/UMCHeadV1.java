@@ -16,7 +16,7 @@ import java.util.Map;
 public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     public static final String     ProtocolVersion   = "1.1";
     public static final String     ProtocolSignature = "UMC/" + UMCHeadV1.ProtocolVersion;
-    public static final int        StructBlockSize   = Integer.BYTES + Byte.BYTES + Long.BYTES + Long.BYTES + Byte.BYTES + Short.BYTES + Long.BYTES + Long.BYTES + Long.BYTES;
+    public static final int        StructBlockSize   = Integer.BYTES + Byte.BYTES + Long.BYTES + Long.BYTES + Byte.BYTES + Short.BYTES + Integer.BYTES + Long.BYTES + Long.BYTES;
     public static final int        HeadBlockSize     = UMCHeadV1.ProtocolSignature.length() + UMCHeadV1.StructBlockSize;
     public static final ByteOrder  BinByteOrder      = ByteOrder.LITTLE_ENDIAN ;// Using x86, C/C++
     public static final int        HeadFieldsSize    = 10;
@@ -31,7 +31,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     protected long                   nKeepAlive        = -1                     ; // :4 sizeof( int64 ) = 8, [-1 for forever, 0 for off, others for millis]
     protected UMCMethod              method                                     ; // :5 sizeof( UMCMethod/byte ) = 1
     protected Status                 status            = Status.OK              ; // :6 sizeof( Status/Short ) = 2
-    protected long                   controlBits       = 0                      ; // :7 sizeof( int64 ) = 8, Custom control bytes.
+    protected int                    controlBits       = 0                      ; // :7 sizeof( int32 ) = 4, Custom control bytes.
     protected long                   identityId        = 0                      ; // :8 sizeof( int64 ) = 8, Client / Node ID
     protected long                   sessionId         = 0                      ; // :9 sizeof( int64 ) = 8
 
@@ -48,7 +48,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         this( szSignature, UMCMethod.INFORM );
     }
 
-    public UMCHeadV1( String szSignature, long controlBits ) {
+    public UMCHeadV1( String szSignature, int controlBits ) {
         this( szSignature, UMCMethod.INFORM, controlBits );
     }
 
@@ -56,18 +56,18 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         this( szSignature, umcMethod, 0 );
     }
 
-    public UMCHeadV1( String szSignature, UMCMethod umcMethod, long controlBits ) {
+    public UMCHeadV1( String szSignature, UMCMethod umcMethod, int controlBits ) {
         this( szSignature, umcMethod, new LinkedTreeMap<>(), controlBits );
     }
 
-    public UMCHeadV1( String szSignature, UMCMethod umcMethod, Object ex, long controlBits ) {
+    public UMCHeadV1( String szSignature, UMCMethod umcMethod, Object ex, int controlBits ) {
         this.szSignature       = szSignature;
         this.method            = umcMethod;
         this.dyExtraHead       = ex;
         this.controlBits       = controlBits;
     }
 
-    UMCHeadV1( String szSignature, UMCMethod umcMethod, Map<String,Object > joEx, long controlBits ) {
+    UMCHeadV1( String szSignature, UMCMethod umcMethod, Map<String,Object > joEx, int controlBits ) {
         this( szSignature, umcMethod, (Object) joEx, controlBits );
     }
 
@@ -120,7 +120,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
 
 
     @Override
-    public void setControlBits   ( long controlBits       ) {
+    public void setControlBits   ( int controlBits       ) {
         this.controlBits = controlBits;
     }
 
@@ -252,7 +252,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     }
 
     @Override
-    public long            getControlBits() {
+    public int             getControlBits() {
         return this.controlBits;
     }
 
@@ -386,8 +386,8 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
 
 
 
-        byteBuffer.putLong( head.controlBits );
-        nBufLength += Long.BYTES;
+        byteBuffer.putInt( head.controlBits );
+        nBufLength += Integer.BYTES;
 
         byteBuffer.putLong( head.identityId );
         nBufLength += Long.BYTES;
@@ -445,8 +445,8 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         head.status            = Status.asValue( ByteBuffer.wrap( buf, nReadAt, Short.BYTES ).order( UMCHeadV1.BinByteOrder ).getShort() );
         nReadAt += Short.BYTES;
 
-        head.controlBits      = ByteBuffer.wrap( buf, nReadAt, Long.BYTES ).order( UMCHeadV1.BinByteOrder ).getLong();
-        nReadAt += Long.BYTES;
+        head.controlBits      = ByteBuffer.wrap( buf, nReadAt, Integer.BYTES ).order( UMCHeadV1.BinByteOrder ).getInt();
+        nReadAt += Integer.BYTES;
 
         head.identityId       = ByteBuffer.wrap( buf, nReadAt, Long.BYTES ).order( UMCHeadV1.BinByteOrder ).getLong();
         nReadAt += Long.BYTES;

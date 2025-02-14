@@ -17,7 +17,7 @@ public class ArchStreamTransferMessage extends ArchUMCMessage implements Transfe
         this.setBody( inStream );
     }
 
-    public ArchStreamTransferMessage( Map<String,Object > joExHead, InputStream inStream, long controlBits ) {
+    public ArchStreamTransferMessage( Map<String,Object > joExHead, InputStream inStream, int controlBits ) {
         super( joExHead, UMCMethod.TRANSFER, controlBits );
         this.setBody( inStream );
     }
@@ -28,7 +28,7 @@ public class ArchStreamTransferMessage extends ArchUMCMessage implements Transfe
 
 
 
-    public ArchStreamTransferMessage( Object exHead, ExtraEncode encode, InputStream inStream, long controlBits ) {
+    public ArchStreamTransferMessage( Object exHead, ExtraEncode encode, InputStream inStream, int controlBits ) {
         super( exHead, encode, UMCMethod.TRANSFER, controlBits );
         this.setBody( inStream );
     }

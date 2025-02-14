@@ -76,7 +76,7 @@ public abstract class AbstractUMCHead implements UMCHead {
                 new KeyValue<>( "KeepAlive"      , this.getKeepAlive()                                             ),
                 new KeyValue<>( "Method"         , this.getMethod()                                                ),
                 new KeyValue<>( "Status"         , this.getStatus().getName()                                      ),
-                new KeyValue<>( "ControlBits"    , "0x" + Long.toUnsignedString( this.getControlBits(),16 )  ),
+                new KeyValue<>( "ControlBits"    , "0x" + Integer.toUnsignedString( this.getControlBits(),16 )  ),
                 new KeyValue<>( "IdentityId"     , this.getIdentityId()                                            ),
                 new KeyValue<>( "SessionId"      , this.getSessionId()                                             ),
                 new KeyValue<>( "ExtraHead"      , szExtraHead                                                     ),

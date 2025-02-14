@@ -20,11 +20,11 @@ public class UlfBytesTransferMessage extends ArchBytesTransferMessage {
         this( head, szStringBody.getBytes() );
     }
 
-    public UlfBytesTransferMessage( Map<String,Object > joExHead, byte[] sBytesBody, long controlBits ) {
+    public UlfBytesTransferMessage( Map<String,Object > joExHead, byte[] sBytesBody, int controlBits ) {
         super( joExHead, sBytesBody, controlBits );
     }
 
-    public UlfBytesTransferMessage( Map<String,Object > joExHead, String szStringBody, long controlBits ) {
+    public UlfBytesTransferMessage( Map<String,Object > joExHead, String szStringBody, int controlBits ) {
         this( joExHead, szStringBody.getBytes(), controlBits );
     }
 
@@ -37,11 +37,11 @@ public class UlfBytesTransferMessage extends ArchBytesTransferMessage {
     }
 
 
-    public UlfBytesTransferMessage( Object exHead, ExtraEncode encode, byte[] sBytesBody, long controlBits ) {
+    public UlfBytesTransferMessage( Object exHead, ExtraEncode encode, byte[] sBytesBody, int controlBits ) {
         super( exHead, encode, sBytesBody, controlBits );
     }
 
-    public UlfBytesTransferMessage( Object exHead, ExtraEncode encode, String szStringBody, long controlBits ) {
+    public UlfBytesTransferMessage( Object exHead, ExtraEncode encode, String szStringBody, int controlBits ) {
         this( exHead, encode, szStringBody.getBytes(), controlBits );
     }
 

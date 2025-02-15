@@ -21,19 +21,19 @@ public interface FileNode extends ElementNode, CheckedFile {
     void copyTo    (GUID destinationGuid);
 
     FileMeta getFileMeta();
-    void setFileMeta(FileMeta fileMeta);
+    void startDistribution(FileMeta fileMeta);
     GUID getDataAffinityGuid();
 
     boolean getIsUploadSuccessful();
     void setIsUploadSuccessful( boolean isUploadSuccessful );
-    TreeMap<Long, Frame> getFrames();
+    TreeMap<Long, Cluster> getClusters();
 
     @Override
     default FileNode evinceFileNode() {
         return this;
     }
 
-    void removeFrame();
+    void removeCluster();
 
     long getPhysicalSize();
     void setPhysicalSize(long physicalSize);
@@ -44,9 +44,9 @@ public interface FileNode extends ElementNode, CheckedFile {
     long getDefinitionSize();
     void setDefinitionSize(long definitionSize);
 
-    String getCrc32Xor();
+    long getCrc32Xor();
 
-    void setCrc32Xor(String crc32Xor);
+    void setCrc32Xor( long crc32Xor );
 
     boolean getIntegrityCheckEnable();
     void setIntegrityCheckEnable(boolean integrityCheckEnable);

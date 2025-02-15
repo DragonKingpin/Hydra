@@ -12,4 +12,5 @@ public interface GroupNodeManipulator extends GUIDNameManipulator {
 
     Group queryGroup(GUID groupGuid );
 
+    void update(Group group);
 }

@@ -53,7 +53,7 @@ public class GenericIfaceProxyFactory implements IfaceProxyFactory {
 
     @Override
     public <T> T createProxy( AppointClient client, Class<T> iface ) {
-        ClassDigest classDigest = client.queryClassDigest( iface.getName() );
+        ClassDigest classDigest = client.queryClassDigest( IfaceUtils.queryIfaceClassNameAddress( iface ) );
 
         return this.createProxy( client, classDigest, iface );
     }

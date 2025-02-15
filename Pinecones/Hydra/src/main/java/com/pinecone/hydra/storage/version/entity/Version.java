@@ -18,6 +18,6 @@ public interface Version {
     boolean getEnableCrc32();
     void setEnableCrc32( boolean enableCrc32 );
 
-    String getCrc32();
-    void setCrc32( String crc32 );
+    long getCrc32();
+    void setCrc32( long crc32 );
 }

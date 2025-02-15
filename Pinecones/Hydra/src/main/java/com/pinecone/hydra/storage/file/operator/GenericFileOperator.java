@@ -134,7 +134,7 @@ public class GenericFileOperator extends ArchFileSystemOperator {
 
         FileSystemAttributes attributes = this.fileSystemAttributeManipulator.getAttributes( guid, cn );
         cn.setAttributes    ( attributes );
-        cn.setFileMeta( fileMeta );
+        cn.startDistribution( fileMeta );
         return cn;
     }
 

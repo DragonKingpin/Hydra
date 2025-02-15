@@ -49,7 +49,7 @@ public class GenericPassiveClientIfaceProxyFactory implements PassiveClientIface
 
     @Override
     public <T> T createProxy( long clientId, DuplexAppointServer server, Class<T> iface ) {
-        ClassDigest classDigest = server.queryClassDigest( iface.getName() );
+        ClassDigest classDigest = server.queryClassDigest( IfaceUtils.queryIfaceClassNameAddress( iface ) );
 
         return this.createProxy( clientId, server, classDigest, iface );
     }

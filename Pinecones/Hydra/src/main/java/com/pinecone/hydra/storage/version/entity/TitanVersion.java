@@ -13,7 +13,7 @@ public class TitanVersion implements Version{
 
     private boolean enableCrc32;
 
-    private String crc32;
+    private long crc32;
 
 
     public TitanVersion() {
@@ -70,12 +70,12 @@ public class TitanVersion implements Version{
     }
 
     @Override
-    public String getCrc32() {
+    public long getCrc32() {
         return this.crc32;
     }
 
     @Override
-    public void setCrc32(String crc32) {
+    public void setCrc32(long crc32) {
         this.crc32 = crc32;
     }
 }

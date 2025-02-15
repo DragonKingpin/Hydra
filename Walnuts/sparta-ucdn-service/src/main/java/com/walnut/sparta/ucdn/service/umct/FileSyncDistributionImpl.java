@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.Frame;
-import com.pinecone.hydra.storage.file.entity.LocalFrame;
+import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
@@ -45,9 +45,9 @@ public class FileSyncDistributionImpl implements FileSyncDistribution {
 //        client.compile(  );
 //        BroadcastControlProducer producer = client.createBroadcastControlProducer();
 //        producer.start();
-//        TreeMap<Long, Frame> frames = fileNode.getFrames();
+//        TreeMap<Long, Frame> frames = fileNode.getClusters();
 //        for( long i = startSegId; i < endSegId; i++ ){
-//            LocalFrame frame = (LocalFrame)frames.get(i);
+//            LocalCluster frame = (LocalCluster)frames.get(i);
 //            File tempFile = File.createTempFile("temp", frame.getSegGuid().toString());
 //            FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 //            TitanFileChannelChanface kChannel = new TitanFileChannelChanface( channel );

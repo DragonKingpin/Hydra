@@ -3,7 +3,7 @@ package com.walnut.sparta.ucdn.console.umc;
 //@Service
 //public class FileDistributionImpl implements FileDistribution{
 //    @Override
-//    public void setFileMeta(String path,long definitionSize) {
+//    public void startDistribution(String path,long definitionSize) {
 //        Debug.trace( path );
 //    }
 //
@@ -13,7 +13,7 @@ package com.walnut.sparta.ucdn.console.umc;
 //    }
 //
 //    @Override
-//    public void frameEnd(String path, long segId) {
+//    public void frameTerminate(String path, long segId) {
 //
 //    }
 //}

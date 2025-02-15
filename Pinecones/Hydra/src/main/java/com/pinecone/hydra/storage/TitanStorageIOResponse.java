@@ -1,8 +1,8 @@
 package com.pinecone.hydra.storage;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.FileNode;
-import com.pinecone.hydra.storage.file.entity.Frame;
 
 import java.util.zip.CRC32;
 
@@ -75,7 +75,7 @@ public class TitanStorageIOResponse implements StorageIOResponse {
     }
 
     @Override
-    public Frame toFrame() {
+    public Cluster toCluster() {
         return null;
     }
 

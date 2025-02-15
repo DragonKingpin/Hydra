@@ -8,7 +8,7 @@ import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
 public class KernelFileSystemConfig extends ArchKernelObjectConfig implements FileSystemConfig {
     protected String mszVersionSignature    = FileConstants.StorageVersionSignature;
-    protected Number mnFrameSize            = FileConstants.DefaultFrameSize;
+    protected Number mnClusterSize          = FileConstants.DefaultClusterSize;
     protected GUID   mLocalhostGUID         = StorageConstants.LocalhostGUID;
     protected Number TinyFileStripSizing    = VolumeConstants.TinyFileStripSizing;
     protected String DefaultVolumePath      = StorageConstants.DefaultVolumePath;
@@ -21,8 +21,8 @@ public class KernelFileSystemConfig extends ArchKernelObjectConfig implements Fi
         return this.mszVersionSignature;
     }
 
-    public Number getFrameSize() {
-        return this.mnFrameSize;
+    public Number getClusterSize() {
+        return this.mnClusterSize;
     }
 
     public GUID getLocalhostGUID() {

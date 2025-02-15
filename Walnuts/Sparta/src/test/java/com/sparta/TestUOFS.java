@@ -10,6 +10,7 @@ import com.pinecone.hydra.storage.file.direct.ExternalFile;
 import com.pinecone.hydra.storage.file.direct.GenericExternalFile;
 import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
+import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic;
@@ -73,7 +74,10 @@ class Steve extends Radium {
         //this.testChannelExport( fileSystem, volumeManager );
         //this.testQuery( fileSystem );
         //this.testExternal( fileSystem );
-        this.testCopy( fileSystem,volumeManager );
+        //this.testCopy( fileSystem,volumeManager );
+
+
+        this.testClusterPage( fileSystem );
 
     }
 
@@ -141,6 +145,16 @@ class Steve extends Radium {
         TitanFileChannelChanface kChannel = new TitanFileChannelChanface( channel );
         TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64( fileSystem, volumeManager, fileNode, kChannel );
         fileSystem.export( exportEntity );
+    }
+
+    private void testClusterPage( KOMFileSystem fileSystem ){
+        ClusterPage clusterPage = fileSystem.fetchClustersByFileGuid( GUIDs.GUID72( "1632d6e-0001de-0003-e4" ) );
+        long sum = clusterPage.getClusters();
+
+        for ( long i = 0; i < sum; ++i ) {
+            Debug.trace( clusterPage.getLocalCluster( i ) );
+        }
+
     }
 
 }

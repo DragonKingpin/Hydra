@@ -4,10 +4,12 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.umct.mapping.ArchMappingInspector;
 import com.pinecone.hydra.umct.mapping.ParamsDigest;
 import com.pinecone.hydra.umct.stereotype.Iface;
 
+import com.pinecone.hydra.umct.stereotype.IfaceUtils;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -48,8 +50,9 @@ public abstract class ArchIfaceInspector extends ArchMappingInspector implements
         Object annotation = method.getAnnotation( Iface.class );
         if ( annotation != null ) {
             Iface iface = (Iface) annotation;
-            if ( !iface.name().isEmpty() ) {
-                ifaceName = iface.name();
+            String name = IfaceUtils.getIfaceNameFieldVal( iface );
+            if ( StringUtils.isNoneEmpty( name ) ) {
+                ifaceName = name;
             }
         }
 

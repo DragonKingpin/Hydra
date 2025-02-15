@@ -60,7 +60,7 @@ public class GenericIfaceProxyFactory implements IfaceProxyFactory {
 
     @Override
     public <T> T createProxy( BroadcastControlProducer producer, Class<T> iface, String topic, String ns, String name ) {
-        ClassDigest classDigest = producer.queryClassDigest( iface.getName() );
+        ClassDigest classDigest = producer.queryClassDigest( IfaceUtils.queryIfaceClassNameAddress( iface ) );
 
         return this.createProxy( producer, classDigest, iface, topic, ns, name );
     }

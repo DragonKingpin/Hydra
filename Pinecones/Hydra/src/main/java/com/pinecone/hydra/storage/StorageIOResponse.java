@@ -1,8 +1,8 @@
 package com.pinecone.hydra.storage;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.FileNode;
-import com.pinecone.hydra.storage.file.entity.Frame;
 
 import java.util.zip.CRC32;
 
@@ -25,7 +25,7 @@ public interface StorageIOResponse extends StorageInstructResponse {
     String getSourceName();
     void setSourceName( String name );
 
-    Frame toFrame();
+    Cluster toCluster();
     FileNode toFileNode();
 
 }

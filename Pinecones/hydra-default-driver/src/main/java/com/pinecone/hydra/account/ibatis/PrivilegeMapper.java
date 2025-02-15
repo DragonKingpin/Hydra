@@ -17,9 +17,14 @@ public interface PrivilegeMapper extends PrivilegeManipulator {
 
     @Insert("UPDATE `hydra_account_privilege` SET `guid` = #{guid}, `name` = #{name}, `privilege_code` = #{privilegeCode}, `create_time` = #{createTime}, `update_time` = #{updateTime}, `type` = #{type}, `parent_priv_guid` = #{parentPrivGuid} WHERE `guid` = #{guid}")
     void update(GenericPrivilege privilege);
+
     @Delete("DELETE FROM `hydra_account_privilege` WHERE `guid` = #{privilegeGuid}")
     void remove(GUID privilegeGuid);
+
     @Select("SELECT * FROM `hydra_account_privilege`")
     List<GenericPrivilege> queryAllPrivileges();
+
+    @Select("SELECT id, guid, token, name, privilege_code AS 'privilegeCode', create_time AS 'createTime', update_time AS 'updateTime' ,type, parent_priv_guid AS 'parentPrivGuid' FROM `hydra_account_privilege` WHERE `guid` = #{guid}")
+    GenericPrivilege queryPrivilege(GUID guid);
 
 }

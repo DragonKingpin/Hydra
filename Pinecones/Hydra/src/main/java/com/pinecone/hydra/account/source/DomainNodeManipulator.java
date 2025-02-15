@@ -18,4 +18,6 @@ public interface DomainNodeManipulator extends GUIDNameManipulator {
     List<GenericDomain> queryAllDomain();
 
     String queryDomainNameByGuid(GUID domainGuid);
+
+    void update(Domain domain);
 }

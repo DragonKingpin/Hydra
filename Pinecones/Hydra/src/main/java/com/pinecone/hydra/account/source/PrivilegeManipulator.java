@@ -11,7 +11,9 @@ public interface PrivilegeManipulator extends Privilege {
 
     void remove( GUID privilegeGuid);
 
-     Privilege queryPrivilege( GUID privilegeGuid);
+    Privilege queryPrivilege( GUID privilegeGuid);
 
     List<GenericPrivilege> queryAllPrivileges();
+
+    void update(Privilege privilege);
 }

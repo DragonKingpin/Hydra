@@ -13,9 +13,14 @@ public interface AuthorizationManipulator extends Pinenut {
 
     void remove(GUID authorizationGuid);
 
+    void update(GUID authorizationGuid);
+
     Authorization queryCredential(GUID authorizationGuid );
 
     List<GenericAuthorization> queryAuthorizationByUserGuid(GUID userGuid);
 
     void removeAuthorizationByUserGuid(GUID userGuid);
+
+    List<GenericAuthorization> queryAllAuthorization();
+
 }

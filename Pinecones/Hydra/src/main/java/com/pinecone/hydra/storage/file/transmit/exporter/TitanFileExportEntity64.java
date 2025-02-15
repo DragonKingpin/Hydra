@@ -1,15 +1,12 @@
 package com.pinecone.hydra.storage.file.transmit.exporter;
 
-import com.pinecone.hydra.storage.file.entity.Frame;
+import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileNode;
-import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 
 public class TitanFileExportEntity64 extends ArchFileExporterEntity  implements FileExportEntity64{
     protected FileExport64      fileExport;
@@ -25,8 +22,8 @@ public class TitanFileExportEntity64 extends ArchFileExporterEntity  implements 
     }
 
     @Override
-    public void export(Frame frame) throws IOException {
-        this.fileExport.export( frame );
+    public void export(Cluster cluster) throws IOException {
+        this.fileExport.export(cluster);
     }
 
 

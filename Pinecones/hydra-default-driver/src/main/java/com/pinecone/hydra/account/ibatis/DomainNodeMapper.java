@@ -23,7 +23,13 @@ public interface DomainNodeMapper extends DomainNodeManipulator {
     void remove(GUID domainGuid);
 
     @Select("SELECT `id`, `domain_name` AS domainName, `domin_guid` AS guid, `name` FROM `hydra_account_domain_node` WHERE `domin_guid` = #{domainGuid}")
-    Domain queryDomain(GUID domainGuid );
+    GenericDomain queryDomain0(GUID domainGuid );
+
+    default GenericDomain queryDomain(GUID domainGuid ){
+        GenericDomain domain = this.queryDomain0(domainGuid);
+        domain.setDomainNodeManipulator( this );
+        return domain;
+    }
 
     @Select("SELECT `domin_guid` FROM hydra_account_domain_node WHERE `name` = #{name}")
     List<GUID > getGuidsByName(String name );
@@ -34,4 +40,7 @@ public interface DomainNodeMapper extends DomainNodeManipulator {
     List<GenericDomain> queryAllDomain();
     @Select("SELECT `name` AS domainName FROM `hydra_account_domain_node` WHERE `domin_guid` = #{domainGuid}")
     String queryDomainNameByGuid(GUID domainGuid);
+
+    @Insert("UPDATE `hydra_account_domain_node` SET `domain_name` = #{domainName}, `name` = #{name} WHERE `domin_guid` = #{guid} ")
+    void update(Domain domain);
 }

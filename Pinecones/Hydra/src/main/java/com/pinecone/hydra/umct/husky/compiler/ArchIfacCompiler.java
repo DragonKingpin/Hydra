@@ -2,6 +2,9 @@ package com.pinecone.hydra.umct.husky.compiler;
 
 import java.util.List;
 
+import com.pinecone.framework.util.StringUtils;
+import com.pinecone.hydra.umct.stereotype.Iface;
+import com.pinecone.hydra.umct.stereotype.IfaceUtils;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -96,7 +99,17 @@ public abstract class ArchIfacCompiler extends ArchIfaceInspector implements Ifa
                 return null;
             }
 
-            ClassDigest classDigest = new GenericClassDigest( className );
+            String szLogicClassName = className;
+            CtClass ctClass = this.mClassPool.get( className );
+            if ( ctClass != null ) {
+                Iface cIface     = this.getAnnotation( ctClass, Iface.class );
+                String szLogicCN = IfaceUtils.queryIfaceLogicClassName( cIface );
+                if ( szLogicCN != null ) {
+                    szLogicClassName = szLogicCN;
+                }
+            }
+
+            ClassDigest classDigest = new GenericClassDigest( szLogicClassName, className );
             for ( CtMethod ctMethod : ifaceMethods ) {
                 MethodDigest methodDigest = this.compile( classDigest, ctMethod, encoder );
                 classDigest.addMethod( methodDigest );

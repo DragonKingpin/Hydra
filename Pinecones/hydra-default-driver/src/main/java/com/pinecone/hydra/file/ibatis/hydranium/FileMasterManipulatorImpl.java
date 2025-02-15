@@ -8,8 +8,8 @@ import com.pinecone.hydra.file.ibatis.FileSystemAttributeMapper;
 import com.pinecone.hydra.file.ibatis.FolderMapper;
 import com.pinecone.hydra.file.ibatis.FolderMetaMapper;
 import com.pinecone.hydra.file.ibatis.FolderVolumeMappingMapper;
-import com.pinecone.hydra.file.ibatis.LocalFrameMapper;
-import com.pinecone.hydra.file.ibatis.RemoteFrameMapper;
+import com.pinecone.hydra.file.ibatis.LocalClusterMapper;
+import com.pinecone.hydra.file.ibatis.RemoteClusterMapper;
 import com.pinecone.hydra.file.ibatis.SymbolicMapper;
 import com.pinecone.hydra.file.ibatis.SymbolicMetaMapper;
 
@@ -21,8 +21,8 @@ import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
 import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
 import com.pinecone.hydra.storage.file.source.FolderVolumeMappingManipulator;
-import com.pinecone.hydra.storage.file.source.LocalFrameManipulator;
-import com.pinecone.hydra.storage.file.source.RemoteFrameManipulator;
+import com.pinecone.hydra.storage.file.source.LocalClusterManipulator;
+import com.pinecone.hydra.storage.file.source.RemoteClusterManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -55,12 +55,12 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     FolderMetaManipulator folderMetaManipulator;
 
     @Resource
-    @Structure( type = LocalFrameMapper.class )
-    LocalFrameManipulator localFrameManipulator;
+    @Structure( type = LocalClusterMapper.class )
+    LocalClusterManipulator localClusterManipulator;
 
     @Resource
-    @Structure( type = RemoteFrameMapper.class )
-    RemoteFrameManipulator remoteFrameManipulator;
+    @Structure( type = RemoteClusterMapper.class )
+    RemoteClusterManipulator remoteClusterManipulator;
 
     @Resource
     @Structure( type = SymbolicMapper.class )
@@ -115,13 +115,13 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     }
 
     @Override
-    public LocalFrameManipulator getLocalFrameManipulator() {
-        return this.localFrameManipulator;
+    public LocalClusterManipulator getLocalClusterManipulator() {
+        return this.localClusterManipulator;
     }
 
     @Override
-    public RemoteFrameManipulator getRemoteFrameManipulator() {
-        return this.remoteFrameManipulator;
+    public RemoteClusterManipulator getRemoteClusterManipulator() {
+        return this.remoteClusterManipulator;
     }
 
     @Override

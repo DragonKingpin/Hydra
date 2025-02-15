@@ -26,6 +26,10 @@ public interface GroupNodeMapper extends GroupNodeManipulator {
 
     @Select("SELECT `guid` FROM hydra_account_group_node WHERE `name` = #{name}")
     List<GUID > getGuidsByName(String name );
+
     @Select("SELECT `guid` FROM hydra_account_group_node WHERE `name` = #{name} AND guid = #{guid}")
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
+
+    @Insert("UPDATE `hydra_account_group_node` SET `default_privilege_policy_guid` = #{defaultPrivilegePolicyGuid}, `guid` = #{guid}, `name` = #{name} WHERE `guid` = #{guid}")
+    void update(Group group);
 }

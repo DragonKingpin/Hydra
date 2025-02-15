@@ -13,13 +13,13 @@ public interface FSNodeAllotment extends Pinenut {
      FileNode            newFileNode( String name, boolean crc32Xor, boolean integrityCheckEnable, boolean disableCluster);
 
 
-     LocalFrame          newLocalFrame();
-     LocalFrame          newLocalFrame( GUID fileGuid, int segId, String sourceName, String crc32, long size, long fileStartOffset );
-     LocalFrame          newLocalFrame( GUID fileGuid, int segId, String sourceName );
+     LocalCluster newLocalCluster();
+     LocalCluster newLocalCluster(GUID fileGuid, int segId, String sourceName, long crc32, long size, long fileStartOffset );
+     LocalCluster newLocalCluster(GUID fileGuid, int segId, String sourceName );
 
-     RemoteFrame         newRemoteFrame();
-     RemoteFrame         newRemoteFrame( GUID fileGuid, int segId, String crc32, long size );
-     RemoteFrame         newRemoteFrame( GUID fileGuid, int segId );
+     RemoteCluster newRemoteCluster();
+     RemoteCluster newRemoteCluster(GUID fileGuid, int segId, long crc32, long size );
+     RemoteCluster newRemoteCluster(GUID fileGuid, int segId );
      Symbolic            newSymbolic();
      SymbolicMeta        newSymbolicMeta();
 }

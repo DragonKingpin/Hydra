@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 
 public class TitanStorageExportIORequest implements StorageExportIORequest {
     private String sourceName;
-    private String crc32;
+    private long crc32;
     private Number size;
     private GUID   storageGuid;
 
@@ -19,12 +19,12 @@ public class TitanStorageExportIORequest implements StorageExportIORequest {
     }
 
     @Override
-    public String getCrc32() {
+    public long getCrc32() {
         return this.crc32;
     }
 
     @Override
-    public void setCrc32(String crc32) {
+    public void setCrc32(long crc32) {
         this.crc32 = crc32;
     }
 

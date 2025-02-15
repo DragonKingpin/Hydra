@@ -7,6 +7,7 @@ import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GenericFileNode extends ArchElementNode implements FileNode{
@@ -17,13 +18,13 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
 
     private KOMFileSystem               fileSystem;
     private FileManipulator             fileManipulator;
-    private TreeMap<Long, Frame>        frames = new TreeMap<>();
+    private TreeMap<Long, Cluster>      clusters = new TreeMap<>();
     private boolean                     isUploadSuccessful;
     private long                        physicalSize;
     private long                        logicSize;
 
     private long                        definitionSize;
-    private String                      crc32Xor;
+    private long                        crc32Xor;
     private boolean                     integrityCheckEnable;
     private boolean                     disableCluster;
 
@@ -41,15 +42,15 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
 
 
     @Override
-    public TreeMap<Long, Frame> getFrames() {
-        return this.fileSystem.getFrameByFileGuid( this.guid );
+    public TreeMap<Long, Cluster> getClusters() {
+        return this.fileSystem.getClustersByFileGuid( this.guid );
     }
 
 
     public GenericFileNode() {
     }
 
-    public GenericFileNode(KOMFileSystem fileSystem ) {
+    public GenericFileNode( KOMFileSystem fileSystem ) {
         this.fileSystem = fileSystem;
         GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID() );
@@ -171,7 +172,7 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     }
 
 
-    public void setFileMeta(FileMeta fileMeta) {
+    public void startDistribution(FileMeta fileMeta) {
         this.fileMeta = fileMeta;
     }
 
@@ -191,12 +192,12 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     }
 
     @Override
-    public void removeFrame() {
-        if ( this.frames == null || this.frames.isEmpty() ){
-            this.frames = this.fileSystem.getFrameByFileGuid( this.guid );
+    public void removeCluster() {
+        if ( this.clusters == null || this.clusters.isEmpty() ){
+            this.clusters = this.fileSystem.getClustersByFileGuid( this.guid );
         }
-        for (Frame frame : this.frames.values()){
-            frame.remove();
+        for ( Cluster cluster : this.clusters.values() ){
+            cluster.remove();
         }
     }
 
@@ -231,12 +232,12 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
     }
 
     @Override
-    public String getCrc32Xor() {
+    public long getCrc32Xor() {
         return this.crc32Xor;
     }
 
     @Override
-    public void setCrc32Xor(String crc32Xor) {
+    public void setCrc32Xor( long crc32Xor ) {
         this.crc32Xor = crc32Xor;
     }
 

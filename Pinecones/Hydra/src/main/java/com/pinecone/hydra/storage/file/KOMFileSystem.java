@@ -1,16 +1,17 @@
 package com.pinecone.hydra.storage.file;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.entity.Cluster;
+import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
-import com.pinecone.hydra.storage.file.entity.Frame;
+import com.pinecone.hydra.storage.file.entity.RemoteCluster;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.transmit.exporter.FileExportEntity;
 import com.pinecone.hydra.storage.file.transmit.receiver.FileReceiveEntity;
-import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
@@ -18,8 +19,6 @@ import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -154,16 +153,22 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     FSNodeAllotment getFSNodeAllotment();
 
-    TreeMap<Long, Frame> getFrameByFileGuid(GUID guid);
+    TreeMap<Long, Cluster > getClustersByFileGuid( GUID guid );
 
-    Frame getLastFrame( GUID guid );
+    List<RemoteCluster> fetchClustersPageByFileGuid( GUID fileGuid, long offset, int pageSize );
+
+    ClusterPage fetchClustersByFileGuid( GUID fileGuid, int pageSize );
+
+    ClusterPage fetchClustersByFileGuid( GUID fileGuid );
+
+    Cluster getLastCluster(GUID guid );
 
     void setFolderVolumeMapping(GUID folderGuid, GUID volumeGuid );
     GUID getMappingVolume(GUID folderGuid );
 
     GUID getMappingVolume(String path );
 
-    Frame getFrameByFileWithId( GUID fileGuid, long segId );
+    Cluster getClusterByFileWithId(GUID fileGuid, long segId );
 
 
     void receive(  FileReceiveEntity entity ) throws IOException;
@@ -175,7 +180,9 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     FileMasterManipulator  getFileMasterManipulator();
 
-    void updateFrame( FileNode fileNode, long segId );
+    void updateCluster( FileNode fileNode, long segId );
 
-    void deleteFrame( FileNode fileNode, long segId );
+    void deleteCluster( FileNode fileNode, long segId );
+
+    long countFileCluster( GUID fileGuid );
 }

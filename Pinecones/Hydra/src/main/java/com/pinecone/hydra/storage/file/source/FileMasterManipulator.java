@@ -8,8 +8,8 @@ public interface FileMasterManipulator extends KOIMasterManipulator {
     FileMetaManipulator                 getFileMetaManipulator();
     FolderManipulator                   getFolderManipulator();
     FolderMetaManipulator               getFolderMetaManipulator();
-    LocalFrameManipulator               getLocalFrameManipulator();
-    RemoteFrameManipulator              getRemoteFrameManipulator();
+    LocalClusterManipulator               getLocalClusterManipulator();
+    RemoteClusterManipulator              getRemoteClusterManipulator();
     SymbolicManipulator                 getSymbolicManipulator();
     SymbolicMetaManipulator             getSymbolicMetaManipulator();
     FolderVolumeMappingManipulator      getFolderVolumeRelationManipulator();

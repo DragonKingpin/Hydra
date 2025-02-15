@@ -15,4 +15,12 @@ public interface UserNodeManipulator extends GUIDNameManipulator {
     Account queryUser(GUID userGuid );
 
     List<GenericAccount> queryAllAccount();
+
+    GenericAccount queryAccountByName(String userName);
+
+    void update(Account account);
+
+    GenericAccount queryAccountByUserGuid(GUID userGuid);
+
+    List<GenericAccount> queryAccountsByGroup(GUID groupGuid);
 }

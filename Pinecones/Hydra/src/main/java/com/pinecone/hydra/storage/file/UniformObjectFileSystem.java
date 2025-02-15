@@ -8,16 +8,18 @@ import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
 import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccess;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
+import com.pinecone.hydra.storage.file.entity.Cluster;
+import com.pinecone.hydra.storage.file.entity.ClusterPage;
+import com.pinecone.hydra.storage.file.entity.ClusterPage64;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.GenericFSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
-import com.pinecone.hydra.storage.file.entity.Frame;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
-import com.pinecone.hydra.storage.file.entity.LocalFrame;
-import com.pinecone.hydra.storage.file.entity.RemoteFrame;
+import com.pinecone.hydra.storage.file.entity.LocalCluster;
+import com.pinecone.hydra.storage.file.entity.RemoteCluster;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.operator.GenericFileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
@@ -27,8 +29,8 @@ import com.pinecone.hydra.storage.file.source.FileMetaManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
 import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
 import com.pinecone.hydra.storage.file.source.FolderVolumeMappingManipulator;
-import com.pinecone.hydra.storage.file.source.LocalFrameManipulator;
-import com.pinecone.hydra.storage.file.source.RemoteFrameManipulator;
+import com.pinecone.hydra.storage.file.source.LocalClusterManipulator;
+import com.pinecone.hydra.storage.file.source.RemoteClusterManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
@@ -37,9 +39,7 @@ import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64
 import com.pinecone.hydra.storage.file.transmit.receiver.FileReceiveEntity;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
-import com.pinecone.hydra.storage.io.TitanInputStreamChanface;
 import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
-import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -55,18 +55,12 @@ import com.pinecone.slime.map.indexable.IndexableMapQuerier;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
@@ -90,8 +84,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     protected FileMetaManipulator                     fileMetaManipulator;
     protected FolderManipulator                       folderManipulator;
     protected FolderMetaManipulator                   folderMetaManipulator;
-    protected LocalFrameManipulator                   localFrameManipulator;
-    protected RemoteFrameManipulator                  remoteFrameManipulator;
+    protected LocalClusterManipulator                 localClusterManipulator;
+    protected RemoteClusterManipulator                remoteClusterManipulator;
     protected SymbolicManipulator                     symbolicManipulator;
     protected SymbolicMetaManipulator                 symbolicMetaManipulator;
     protected FolderVolumeMappingManipulator          folderVolumeMappingManipulator;
@@ -117,8 +111,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.fileMetaManipulator             =  this.fileMasterManipulator.getFileMetaManipulator();
         this.folderManipulator               =  this.fileMasterManipulator.getFolderManipulator();
         this.folderMetaManipulator           =  this.fileMasterManipulator.getFolderMetaManipulator();
-        this.localFrameManipulator           =  this.fileMasterManipulator.getLocalFrameManipulator();
-        this.remoteFrameManipulator          =  this.fileMasterManipulator.getRemoteFrameManipulator();
+        this.localClusterManipulator         =  this.fileMasterManipulator.getLocalClusterManipulator();
+        this.remoteClusterManipulator        =  this.fileMasterManipulator.getRemoteClusterManipulator();
         this.symbolicManipulator             =  this.fileMasterManipulator.getSymbolicManipulator();
         this.symbolicMetaManipulator         =  this.fileMasterManipulator.getSymbolicMetaManipulator();
         this.folderVolumeMappingManipulator  =  this.fileMasterManipulator.getFolderVolumeRelationManipulator();
@@ -481,13 +475,14 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
 
     @Override
-    public TreeMap<Long, Frame> getFrameByFileGuid( GUID guid ) {
-        TreeMap< Long, Frame > frameMap = new TreeMap<>();
-        List<RemoteFrame> remoteFrames = this.remoteFrameManipulator.getRemoteFrameByFileGuid(guid);
-        for( RemoteFrame remoteFrame : remoteFrames ){
-            if( remoteFrame.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
-                LocalFrame localFrame = this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
-                frameMap.put( localFrame.getSegId(),localFrame );
+    public TreeMap<Long, Cluster> getClustersByFileGuid( GUID guid ) {
+        TreeMap< Long, Cluster> frameMap = new TreeMap<>();
+
+        List<RemoteCluster> remoteClusters = this.remoteClusterManipulator.fetchRemoteClusterByFileGuid( guid );
+        for( RemoteCluster remoteCluster : remoteClusters ){
+            if( remoteCluster.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
+                LocalCluster localCluster = this.localClusterManipulator.getLocalClusterByGuid( remoteCluster.getSegGuid() );
+                frameMap.put( localCluster.getSegId(), localCluster );
             }
             else {
                 //todo 远程获取逻辑
@@ -496,6 +491,24 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
         return frameMap;
     }
+
+
+    @Override
+    public List<RemoteCluster > fetchClustersPageByFileGuid( GUID fileGuid, long offset, int pageSize ) {
+        return this.remoteClusterManipulator.fetchRemoteClusterByFileGuid( fileGuid, offset, pageSize );
+    }
+
+    @Override
+    public ClusterPage fetchClustersByFileGuid( GUID fileGuid, int pageSize ) {
+        return new ClusterPage64( this.remoteClusterManipulator, this.localClusterManipulator, fileGuid, pageSize );
+    }
+
+    @Override
+    public ClusterPage fetchClustersByFileGuid( GUID fileGuid ) {
+        return new ClusterPage64( this.remoteClusterManipulator, this.localClusterManipulator, fileGuid );
+    }
+
+
 
     @Override
     public FSNodeAllotment getFSNodeAllotment() {
@@ -514,10 +527,10 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
 
     @Override
-    public Frame getLastFrame(GUID guid) {
-        RemoteFrame remoteFrame = this.remoteFrameManipulator.getLastFrame(guid);
-        if ( remoteFrame.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
-            return this.localFrameManipulator.getLocalFrameByGuid(remoteFrame.getSegGuid());
+    public Cluster getLastCluster(GUID guid) {
+        RemoteCluster remoteCluster = this.remoteClusterManipulator.getLastCluster(guid);
+        if ( remoteCluster.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
+            return this.localClusterManipulator.getLocalClusterByGuid(remoteCluster.getSegGuid());
         }
         else {
             //todo 远端获取方法
@@ -612,19 +625,24 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public Frame getFrameByFileWithId(GUID fileGuid, long segId) {
-        return this.localFrameManipulator.getFrameByFileWithId( fileGuid,segId );
+    public Cluster getClusterByFileWithId(GUID fileGuid, long segId) {
+        return this.localClusterManipulator.getClusterByFileWithId( fileGuid,segId );
     }
 
     @Override
-    public void updateFrame(FileNode fileNode, long segId) {
+    public void updateCluster(FileNode fileNode, long segId) {
 
     }
 
     @Override
-    public void deleteFrame(FileNode fileNode, long segId) {
-        this.remoteFrameManipulator.removeFrameByFileWithId( fileNode.getGuid(), segId );
-        this.localFrameManipulator.removeFrameByFileWithId( fileNode.getGuid(), segId );
+    public void deleteCluster(FileNode fileNode, long segId) {
+        this.remoteClusterManipulator.removeClusterByFileWithId( fileNode.getGuid(), segId );
+        this.localClusterManipulator.removeClusterByFileWithId( fileNode.getGuid(), segId );
+    }
+
+    @Override
+    public long countFileCluster(GUID fileGuid) {
+        return this.remoteClusterManipulator.countFileClusters( fileGuid );
     }
 
     private void initVolume(String path ){

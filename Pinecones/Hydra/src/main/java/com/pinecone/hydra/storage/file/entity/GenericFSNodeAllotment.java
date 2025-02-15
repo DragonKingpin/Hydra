@@ -72,15 +72,15 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
 
 
     @Override
-    public LocalFrame newLocalFrame(){
-        GenericLocalFrame frame = new GenericLocalFrame(fileMasterManipulator.getLocalFrameManipulator());
+    public LocalCluster newLocalCluster(){
+        GenericLocalCluster frame = new GenericLocalCluster(fileMasterManipulator.getLocalClusterManipulator());
         frame.setSegGuid( guidAllocator.nextGUID() );
-        frame.setLocalFrameManipulator( this.fileMasterManipulator.getLocalFrameManipulator() );
+        frame.setLocalClusterManipulator( this.fileMasterManipulator.getLocalClusterManipulator() );
         return frame;
     }
     @Override
-    public LocalFrame newLocalFrame(GUID fileGuid, int segId, String sourceName, String crc32, long size, long fileStartOffset) {
-        GenericLocalFrame frame = new GenericLocalFrame(fileMasterManipulator.getLocalFrameManipulator());
+    public LocalCluster newLocalCluster(GUID fileGuid, int segId, String sourceName, long crc32, long size, long fileStartOffset) {
+        GenericLocalCluster frame = new GenericLocalCluster(fileMasterManipulator.getLocalClusterManipulator());
         frame.setSegGuid( guidAllocator.nextGUID() );
         frame.setSegId( segId );
         frame.setSourceName( sourceName );
@@ -91,8 +91,8 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
     }
 
     @Override
-    public LocalFrame newLocalFrame(GUID fileGuid, int segId, String sourceName) {
-        GenericLocalFrame frame = new GenericLocalFrame(fileMasterManipulator.getLocalFrameManipulator());
+    public LocalCluster newLocalCluster(GUID fileGuid, int segId, String sourceName) {
+        GenericLocalCluster frame = new GenericLocalCluster(fileMasterManipulator.getLocalClusterManipulator());
         frame.setFileGuid( fileGuid );
         frame.setSegId( segId );
         frame.setSourceName( sourceName );
@@ -103,14 +103,14 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
 
 
     @Override
-    public RemoteFrame newRemoteFrame(){
-        GenericRemoteFrame frame = new GenericRemoteFrame(fileMasterManipulator.getRemoteFrameManipulator());
+    public RemoteCluster newRemoteCluster(){
+        GenericRemoteCluster frame = new GenericRemoteCluster(fileMasterManipulator.getRemoteClusterManipulator());
         frame.setSegGuid( guidAllocator.nextGUID() );
         return frame;
     }
     @Override
-    public RemoteFrame newRemoteFrame(GUID fileGuid, int segId, String crc32, long size) {
-        GenericRemoteFrame frame = new GenericRemoteFrame(fileMasterManipulator.getRemoteFrameManipulator());
+    public RemoteCluster newRemoteCluster(GUID fileGuid, int segId, long crc32, long size) {
+        GenericRemoteCluster frame = new GenericRemoteCluster(fileMasterManipulator.getRemoteClusterManipulator());
         frame.setSegGuid( guidAllocator.nextGUID() );
         frame.setFileGuid( fileGuid );
         frame.setSegId( segId );
@@ -120,8 +120,8 @@ public class GenericFSNodeAllotment implements FSNodeAllotment {
     }
 
     @Override
-    public RemoteFrame newRemoteFrame(GUID fileGuid, int segId) {
-        GenericRemoteFrame frame = new GenericRemoteFrame(fileMasterManipulator.getRemoteFrameManipulator());
+    public RemoteCluster newRemoteCluster(GUID fileGuid, int segId) {
+        GenericRemoteCluster frame = new GenericRemoteCluster(fileMasterManipulator.getRemoteClusterManipulator());
         frame.setFileGuid( fileGuid );
         frame.setSegGuid( guidAllocator.nextGUID() );
         frame.setSegId( segId );

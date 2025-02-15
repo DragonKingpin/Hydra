@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public interface FileSystemConfig extends KernelObjectConfig {
     String getVersionSignature();
 
-    Number getFrameSize();
+    Number getClusterSize();
 
     GUID getLocalhostGUID();
 

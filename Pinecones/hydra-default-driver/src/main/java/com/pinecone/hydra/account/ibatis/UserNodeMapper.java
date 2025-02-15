@@ -22,10 +22,22 @@ public interface UserNodeMapper extends UserNodeManipulator {
 
     @Select("SELECT `id`, `guid`, `user_name` AS name, `nick_name` AS nickName, `kernel_credential` AS kernelCredential, `credential_guid` AS credentialGuid, `kernel_group_type` AS kernelGroupType, `create_time` AS createTime, `update_time` AS updateTime FROM hydra_account_user_node WHERE `guid` = #{userGuid}")
     GenericAccount queryUser(GUID userGuid );
+
     @Select("SELECT `guid` FROM hydra_account_user_node WHERE `user_name` = #{name}")
     List<GUID > getGuidsByName(String name );
+
     @Select("SELECT `guid` FROM hydra_account_user_node WHERE `user_name` = #{name} AND guid = #{guid}")
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
+
     @Select("SELECT  `guid`, `user_name` AS name, `nick_name` AS nickName,  `kernel_group_type` AS kernelGroupType, `create_time` AS createTime, `update_time` AS updateTime ,`role` AS role FROM hydra_account_user_node")
     List<GenericAccount> queryAllAccount();
+
+    @Select("SELECT  `guid`, `user_name` AS name, `nick_name` AS nickName,  `kernel_group_type` AS kernelGroupType, `create_time` AS createTime, `update_time` AS updateTime ,`role` AS role FROM hydra_account_user_node WHERE `user_name` = #{userName}")
+    GenericAccount queryAccountByName(String userName);
+
+    @Select("UPDATE `hydra_account_user_node` SET `user_name` = #{name}, `nick_name` = #{nickName}, `kernel_group_type` = #{kernelGroupType}, `update_time` = #{updateTime}, `role` = #{role} WHERE `guid` = #{guid}")
+    void update(GenericAccount account);
+
+    @Select("SELECT  `guid`, `user_name` AS name, `nick_name` AS nickName,  `kernel_group_type` AS kernelGroupType, `create_time` AS createTime, `update_time` AS updateTime ,`role`,`credential_guid` AS credentialGuid FROM hydra_account_user_node WHERE `guid` = #{userGuid}")
+    GenericAccount queryAccountByUserGuid(GUID userGuid);
 }

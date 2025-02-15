@@ -1,6 +1,8 @@
 package com.walnuts.sparta.uofs.console.api.controller.v2;
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
+import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;

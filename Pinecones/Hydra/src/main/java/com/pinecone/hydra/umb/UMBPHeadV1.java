@@ -10,6 +10,7 @@ import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.framework.util.Bytes;
 import com.pinecone.framework.util.ReflectionUtils;
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.msg.AbstractUMCHead;
 import com.pinecone.hydra.umc.msg.ArchUMCProtocol;
@@ -72,27 +73,32 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
 
 
     @Override
-    protected void setSignature            ( String signature       ) {
+    protected void setSignature            ( String signature                         ) {
         this.szSignature = signature;
     }
 
     @Override
-    protected void setBodyLength           ( long length            ) {
+    protected void setBodyLength           ( long length                              ) {
 
     }
 
     @Override
-    public void setKeepAlive     ( long nKeepAlive        ) {
+    public void setKeepAlive               ( int nKeepAliveMills                      ) {
 
     }
 
     @Override
-    protected void setMethod               ( UMCMethod umcMethod    ) {
+    public void setKeepAlive               ( int nKeepAlive, CompactTimeUnit timeUnit ) {
 
     }
 
     @Override
-    protected void setExtraEncode          ( ExtraEncode encode     ) {
+    protected void setMethod               ( UMCMethod umcMethod                      ) {
+
+    }
+
+    @Override
+    protected void setExtraEncode          ( ExtraEncode encode                       ) {
         this.extraEncode = encode;
     }
 
@@ -211,6 +217,11 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
     @Override
     public long            getKeepAlive() {
         return -1L;
+    }
+
+    @Override
+    public int             getCompactKeepAlive() {
+        return -1;
     }
 
     @Override

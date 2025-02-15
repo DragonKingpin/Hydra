@@ -9,6 +9,7 @@ import java.util.Map;
 import com.pinecone.framework.unit.BitSet64;
 import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
 import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.JSONString;
@@ -37,7 +38,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
     public static final HeadField FieldExtraHeadLength = new HeadField( "extraHeadLength" , 1, Integer.BYTES );
     public static final HeadField FieldExtraEncode     = new HeadField( "extraEncode"     , 2, Byte.BYTES    );
     public static final HeadField FieldBodyLength      = new HeadField( "bodyLength"      , 3, Long.BYTES    );
-    public static final HeadField FieldKeepAlive       = new HeadField( "keepAlive"       , 4, Long.BYTES    );
+    public static final HeadField FieldKeepAlive       = new HeadField( "keepAlive"       , 4, Integer.BYTES );
     public static final HeadField FieldMethod          = new HeadField( "method"          , 5, Byte.BYTES    );
     public static final HeadField FieldStatus          = new HeadField( "status"          , 6, Short.BYTES   );
     public static final HeadField FieldControlBits     = new HeadField( "controlBits"     , 7, Integer.BYTES );
@@ -267,25 +268,31 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
 
 
     @Override
-    public void setBodyLength              ( long length            ) {
+    public void setBodyLength              ( long length                              ) {
         super.setBodyLength( length );
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldBodyLength.index );
     }
 
     @Override
-    public void setKeepAlive               ( long nKeepAlive        ) {
-        super.setKeepAlive( nKeepAlive );
+    public void setKeepAlive               ( int nKeepAliveMills                      ) {
+        super.setKeepAlive( nKeepAliveMills );
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldKeepAlive.index );
     }
 
     @Override
-    protected void setMethod               ( UMCMethod umcMethod    ) {
+    public void setKeepAlive               ( int nKeepAlive, CompactTimeUnit timeUnit ) {
+        super.setKeepAlive( nKeepAlive, timeUnit );
+        this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldKeepAlive.index );
+    }
+
+    @Override
+    protected void setMethod               ( UMCMethod umcMethod                      ) {
         super.setMethod( umcMethod );
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldMethod.index );
     }
 
     @Override
-    public void setStatus                  ( Status status          ) {
+    public void setStatus                  ( Status status                            ) {
         super.setStatus( status );
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldStatus.index );
     }
@@ -393,8 +400,8 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
                         break;
                     }
                     case 4: { // nKeepAlive
-                        byteBuffer.putLong( head.nKeepAlive );
-                        nBufLength += Long.BYTES;
+                        byteBuffer.putInt( head.nKeepAlive );
+                        nBufLength += Integer.BYTES;
                         break;
                     }
                     case 5: { // method
@@ -476,8 +483,8 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
                         break;
                     }
                     case 4: { // nKeepAlive
-                        head.nKeepAlive = ByteBuffer.wrap(buf, nReadAt, Long.BYTES).order( BinByteOrder ).getLong();
-                        nReadAt += Long.BYTES;
+                        head.nKeepAlive = ByteBuffer.wrap(buf, nReadAt, Integer.BYTES).order( BinByteOrder ).getInt();
+                        nReadAt += Integer.BYTES;
                         break;
                     }
                     case 5: { // method

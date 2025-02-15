@@ -4,6 +4,9 @@ import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.framework.util.Bytes;
 import com.pinecone.framework.util.ReflectionUtils;
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit32;
+import com.pinecone.framework.util.datetime.compact.CompactTimestamp32;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
@@ -16,7 +19,7 @@ import java.util.Map;
 public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     public static final String     ProtocolVersion   = "1.1";
     public static final String     ProtocolSignature = "UMC/" + UMCHeadV1.ProtocolVersion;
-    public static final int        StructBlockSize   = Integer.BYTES + Byte.BYTES + Long.BYTES + Long.BYTES + Byte.BYTES + Short.BYTES + Integer.BYTES + Long.BYTES + Long.BYTES;
+    public static final int        StructBlockSize   = Integer.BYTES + Byte.BYTES + Long.BYTES + Integer.BYTES + Byte.BYTES + Short.BYTES + Integer.BYTES + Long.BYTES + Long.BYTES;
     public static final int        HeadBlockSize     = UMCHeadV1.ProtocolSignature.length() + UMCHeadV1.StructBlockSize;
     public static final ByteOrder  BinByteOrder      = ByteOrder.LITTLE_ENDIAN ;// Using x86, C/C++
     public static final int        HeadFieldsSize    = 10;
@@ -28,7 +31,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     protected ExtraEncode            extraEncode       = ExtraEncode.Undefined  ; // :2 sizeof( ExtraEncode/byte ) = 1
 
     protected long                   nBodyLength       = 0                      ; // :3 sizeof( int64 ) = 8
-    protected long                   nKeepAlive        = -1                     ; // :4 sizeof( int64 ) = 8, [-1 for forever, 0 for off, others for millis]
+    protected int                    nKeepAlive        = -1                     ; // :4 sizeof( int32 ) = 4, CompactTimestamp32, [-1 for forever, 0 for off, others for millis(default, or seconds/hours/etc).]
     protected UMCMethod              method                                     ; // :5 sizeof( UMCMethod/byte ) = 1
     protected Status                 status            = Status.OK              ; // :6 sizeof( Status/Short ) = 2
     protected int                    controlBits       = 0                      ; // :7 sizeof( int32 ) = 4, Custom control bytes.
@@ -90,22 +93,27 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
 
 
     @Override
-    protected void setSignature            ( String signature       ) {
+    protected void setSignature            ( String signature                         ) {
         this.szSignature = signature;
     }
 
     @Override
-    protected void setBodyLength           ( long length            ) {
+    protected void setBodyLength           ( long length                              ) {
         this.nBodyLength = length;
     }
 
     @Override
-    public void setKeepAlive               ( long nKeepAlive        ) {
-        this.nKeepAlive = nKeepAlive;
+    public void setKeepAlive               ( int nKeepAliveMills                      ) {
+        this.nKeepAlive = nKeepAliveMills;
     }
 
     @Override
-    protected void setMethod               ( UMCMethod umcMethod    ) {
+    public void setKeepAlive               ( int nKeepAlive, CompactTimeUnit timeUnit ) {
+        this.nKeepAlive = CompactTimestamp32.encode( nKeepAlive, (CompactTimeUnit32) timeUnit );
+    }
+
+    @Override
+    protected void setMethod               ( UMCMethod umcMethod                      ) {
         this.method = umcMethod;
         if ( this.method == UMCMethod.INFORM ) {
             this.nBodyLength = 0;
@@ -113,7 +121,7 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
     }
 
     @Override
-    protected void setExtraEncode          ( ExtraEncode encode     ) {
+    protected void setExtraEncode          ( ExtraEncode encode                       ) {
         this.extraEncode = encode;
     }
 
@@ -233,6 +241,11 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
 
     @Override
     public long            getKeepAlive() {
+        return CompactTimestamp32.toMilliseconds( this.nKeepAlive );
+    }
+
+    @Override
+    public int             getCompactKeepAlive() {
         return this.nKeepAlive;
     }
 
@@ -375,8 +388,8 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         byteBuffer.putLong( head.nBodyLength );
         nBufLength += Long.BYTES;
 
-        byteBuffer.putLong( head.nKeepAlive );
-        nBufLength += Long.BYTES;
+        byteBuffer.putInt( head.nKeepAlive );
+        nBufLength += Integer.BYTES;
 
         byteBuffer.put( head.method.getByteValue() );
         nBufLength += Byte.BYTES;
@@ -436,8 +449,8 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         head.nBodyLength       = ByteBuffer.wrap( buf, nReadAt, Long.BYTES ).order( UMCHeadV1.BinByteOrder ).getLong();
         nReadAt += Long.BYTES;
 
-        head.nKeepAlive       = ByteBuffer.wrap( buf, nReadAt, Long.BYTES ).order( UMCHeadV1.BinByteOrder ).getLong();
-        nReadAt += Long.BYTES;
+        head.nKeepAlive       = ByteBuffer.wrap( buf, nReadAt, Integer.BYTES ).order( UMCHeadV1.BinByteOrder ).getInt();
+        nReadAt += Integer.BYTES;
 
         head.method            = UMCMethod.values()[ buf[nReadAt] ];
         nReadAt += Byte.BYTES;

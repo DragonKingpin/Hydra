@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 public interface UMCHead extends EMCHead {
@@ -14,6 +15,8 @@ public interface UMCHead extends EMCHead {
     long            getBodyLength();
 
     long            getKeepAlive();
+
+    int             getCompactKeepAlive();
 
     long            getSessionId();
 
@@ -39,15 +42,17 @@ public interface UMCHead extends EMCHead {
 
 
 
-    void setStatus        ( Status status          );
+    void setStatus        ( Status status                             );
 
-    void setKeepAlive     ( long nKeepAlive        );
+    void setKeepAlive     ( int nKeepAliveMills                       );
 
-    void setControlBits   ( int controlBits       );
+    void setKeepAlive     ( int nKeepAlive, CompactTimeUnit timeUnit  );
 
-    void setIdentityId    ( long identityId        );
+    void setControlBits   ( int controlBits                           );
 
-    void setSessionId     ( long sessionId         );
+    void setIdentityId    ( long identityId                           );
+
+    void setSessionId     ( long sessionId                            );
 
 
 

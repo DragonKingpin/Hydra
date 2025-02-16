@@ -2,36 +2,40 @@ package com.pinecone.hydra.umc.msg;
 
 import com.pinecone.hydra.umc.io.IOCounter;
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 
 import java.io.IOException;
 import java.util.Map;
 
 public interface ChannelControlBlock extends Pinenut {
-    Map<String, Object >   getAttributes();
+    UMCChannel                 getChannel();
 
-    UMCChannel             getChannel();
+    IOCounter                  getIOCounter();
 
-    IOCounter              getIOCounter();
+    boolean                    getInSyncMode();
 
-    boolean                getInSyncMode();
+    UMCTransmit                getTransmit();
 
-    UMCTransmit            getTransmit();
+    UMCReceiver                getReceiver();
 
-    UMCReceiver            getReceiver();
-
-    default MessageNode    getParentMessageNode(){
+    default MessageNode        getParentMessageNode(){
         return this.getChannel().getParentMessageNode();
     }
 
-    void                   sendMsg( UMCMessage message, boolean bNoneBuffered ) throws IOException;
+    void                       sendMsg( UMCMessage message, boolean bNoneBuffered ) throws IOException;
 
-    void                   release();
+    void                       release();
 
-    void                   close();
+    void                       close();
 
-    default boolean        isShutdown(){
+    default boolean            isShutdown(){
         return this.getChannel().isShutdown();
     }
 
-    ChannelStatus          getChannelStatus();
+    ChannelStatus              getChannelStatus();
+
+
+    void                       pushMsgHandle ( UlfAsyncMsgHandleAdapter msgHandle );
+
+    UlfAsyncMsgHandleAdapter   pollMsgHandle ( long nWaitMillis ) throws InterruptedException;
 }

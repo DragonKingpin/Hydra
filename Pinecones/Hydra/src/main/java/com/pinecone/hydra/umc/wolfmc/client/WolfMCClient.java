@@ -20,8 +20,10 @@ import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.UMCServiceException;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolfmc.AsyncUlfMedium;
-import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.ChannelUtils;
 import com.pinecone.hydra.umc.wolfmc.GenericUMCByteMessageDecoder;
 import com.pinecone.hydra.umc.wolfmc.MCSecurityAuthentication;
@@ -31,6 +33,7 @@ import com.pinecone.hydra.umc.wolfmc.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolfmc.UlfMCReceiver;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 import com.pinecone.hydra.umc.wolfmc.UnsetUlfAsyncMsgHandleAdapter;
+import com.pinecone.hydra.umc.wolfmc.WolfMCInitializationException;
 import com.pinecone.hydra.umc.wolfmc.WolfMCStandardConstants;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.Medium;
@@ -68,6 +71,8 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     protected MCSecurityAuthentication             mSecurityAuthentication; //TODO
 
     protected UlfAsyncMsgHandleAdapter             mPrimeAsyncMessageHandler = new UnsetUlfAsyncMsgHandleAdapter( this ); // For all channels.
+
+    protected List<ChannelEventHandler>            mChannelConnectedHandlers = new ArrayList<>();
 
     public WolfMCClient( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ){
         super( nodeId, szName, parentProcess, parent, joConf, extraHeadCoder );
@@ -111,6 +116,20 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
 
     @Override
+    public UlfClient                      registerChannelConnectedHandler( ChannelEventHandler handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
+        this.mChannelConnectedHandlers.add( handler );
+        return this;
+    }
+
+    @Override
+    public UlfClient                      deregisterChannelConnectedHandler( ChannelEventHandler handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
+        this.mChannelConnectedHandlers.remove( handler );
+        return this;
+    }
+
+    @Override
     public WolfMCClient                   apply( Map<String, Object>  joConf ) {
         super.apply( joConf );
         this.mConnectionArguments = new ClientConnectionArguments( this.getSectionConf() );
@@ -128,6 +147,11 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     @Override
     public ClientConnectArguments         getConnectionArguments() {
         return this.mConnectionArguments;
+    }
+
+    @Override
+    public ClientConnectArguments         getMessageNodeConfig() {
+        return this.getConnectionArguments();
     }
 
     public EventLoopGroup                 getEventLoopGroup() {
@@ -181,7 +205,13 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         }
     }
 
-    protected MessengerNettyChannelControlBlock syncSpawnSoloChannel() throws IOException {
+    protected void                        notifyChannelConnected( ChannelControlBlock block ) {
+        for( ChannelEventHandler h : this.mChannelConnectedHandlers ) {
+            h.afterEventTriggered( block );
+        }
+    }
+
+    protected MessengerNettyChannelControlBlock syncSpawnSoloChannel() throws IOException, UMCServiceException {
         MessengerNettyChannelControlBlock ccb = null;
         ccb                                   = new MessengerNettyChannelControlBlock( this );
         ChannelFuture future                  = ccb.getChannel().toConnect(
@@ -216,13 +246,15 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
             }
             catch ( InterruptedException e ) {
                 Thread.currentThread().interrupt();
+                throw new WolfMCInitializationException( e );
             }
         }
 
+        this.notifyChannelConnected( ccb );
         return ccb;
     }
 
-    protected void                        syncSpawnChannels() throws IOException {
+    protected void                        syncSpawnChannels() throws IOException, UMCServiceException {
         int n = this.getConnectionArguments().getParallelChannels();
 
         for ( int i = 0; i < n; i++ ) {
@@ -232,11 +264,20 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     protected void                        invokeChannelOwnedOnError( ChannelHandlerContext ctx, Throwable cause ) {
-        UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter)ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).get();
-        if( handle == null ) {
-            handle = WolfMCClient.this.mPrimeAsyncMessageHandler;
+        try {
+            UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter)ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).get();
+            if( handle == null ) {
+                ChannelControlBlock ccb = (ChannelControlBlock)ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY ) ).get();
+                handle = ccb.pollMsgHandle( ArchAsyncMessenger.getSyncWaitingMillis( this ) );
+                if( handle == null ) {
+                    handle = WolfMCClient.this.mPrimeAsyncMessageHandler;
+                }
+            }
+            handle.onError( ctx, cause );
         }
-        handle.onError( ctx, cause );
+        catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     protected void                        handleArrivedMessage( UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
@@ -248,7 +289,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         }
     }
 
-    protected void                        initNettySubsystem() throws IOException {
+    protected void                        initNettySubsystem() throws IOException, UMCServiceException {
         this.mExecutorGroup = new NioEventLoopGroup();
         this.mBootstrap     = new Bootstrap();
         Bootstrap bootstrap = this.mBootstrap;
@@ -289,31 +330,38 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
                                 AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
                         ).get();
 
-                        //Debug.trace( channelControlBlock.getChannel().getChannelID() );
-                        if( channelControlBlock.getChannelStatus() == UlfChannelStatus.FORCE_SYNCHRONIZED ){
-                            channelControlBlock.getSyncRetMsgQueue().add( message );
-                            //WolfMCClient.this.mSyncRetMsgQueue.add( message );
-                        }
-                        else {
-                            UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter)ctx.channel().attr(
-                                    AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY )
-                            ).get();
-                            if( handle != null ) {
-                                WolfMCClient.this.handleArrivedMessage( handle, medium, channelControlBlock, message, ctx, msg );
 
-                                // Preserving binding-status for exclusive handler-binding channel.
-                                Object dyAsynExclusiveHandle = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASY_EXCLUSIVE_HANDLE_KEY ) ).get();
-                                if ( dyAsynExclusiveHandle == null || !(Boolean) dyAsynExclusiveHandle ){
-                                    ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( null ); // For another channel to reset, likes ajax.
-                                }
+                        if ( !WolfMCClient.this.tryInvokeOrInterceptArrivedData( medium, channelControlBlock, message, ctx, msg ) ) {
+                            //Debug.trace( channelControlBlock.getChannel().getChannelID() );
+                            if( channelControlBlock.getChannelStatus() == UlfChannelStatus.FORCE_SYNCHRONIZED ){
+                                channelControlBlock.getSyncRetMsgQueue().add( message );
+                                //WolfMCClient.this.mSyncRetMsgQueue.add( message );
                             }
                             else {
-                                WolfMCClient.this.handleArrivedMessage( WolfMCClient.this.mPrimeAsyncMessageHandler, medium, channelControlBlock, message, ctx, msg );
-                            }
+                                UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter)ctx.channel().attr(
+                                        AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY )
+                                ).get();
+                                if ( handle == null ) {
+                                    handle = channelControlBlock.pollMsgHandle( WolfMCClient.this.getSyncWaitingMillis() ); // Try pipeline.
+                                }
 
-                            Object dyExternalChannel = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).get();
-                            if ( dyExternalChannel == null || !(Boolean) dyExternalChannel ){
-                                WolfMCClient.this.getChannelPool().setIdleChannel( channelControlBlock );
+                                if( handle != null ) {
+                                    WolfMCClient.this.handleArrivedMessage( handle, medium, channelControlBlock, message, ctx, msg );
+
+                                    // Preserving binding-status for exclusive handler-binding channel.
+                                    Object dyAsynExclusiveHandle = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASY_EXCLUSIVE_HANDLE_KEY ) ).get();
+                                    if ( dyAsynExclusiveHandle == null || !(Boolean) dyAsynExclusiveHandle ){
+                                        ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( null ); // For another channel to reset, likes ajax.
+                                    }
+                                }
+                                else {
+                                    WolfMCClient.this.handleArrivedMessage( WolfMCClient.this.mPrimeAsyncMessageHandler, medium, channelControlBlock, message, ctx, msg );
+                                }
+
+                                Object dyExternalChannel = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).get();
+                                if ( dyExternalChannel == null || !(Boolean) dyExternalChannel ){
+                                    WolfMCClient.this.getChannelPool().setIdleChannel( channelControlBlock );
+                                }
                             }
                         }
 
@@ -382,7 +430,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         this.infoLifecycle( "Wolf<\uD83D\uDC3A>::initNettySubsystem", "Successfully" );
     }
 
-    public void                           connect() throws IOException {
+    public void                           connect() throws IOException, UMCServiceException {
         this.mStateMutex.lock();
 
         try{
@@ -401,12 +449,13 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
             }
             catch ( InterruptedException e ) {
                 Thread.currentThread().interrupt();
+                throw new WolfMCInitializationException( e );
             }
         }
     }
 
     @Override
-    public void                           execute() throws IOException {
+    public void                           execute() throws UMCServiceException {
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override
@@ -430,7 +479,13 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         primaryThread.start();
 
         this.joinOuterThread();
-        this.redirectIOException2ParentThread( lastException[0] );
+
+        try {
+            this.redirectException2ParentThread( lastException[0] );
+        }
+        catch ( IOException e ) {
+            throw new WolfMCInitializationException( e );
+        }
     }
 
     @Override
@@ -440,7 +495,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public UMCMessage                     sendSyncMsg( UMCMessage request, boolean bNoneBuffered ) throws IOException {
-        return this.sendSyncMsg( request, bNoneBuffered, this.getConnectionArguments().getKeepAliveTimeout() * 1000L );
+        return this.sendSyncMsg( request, bNoneBuffered, this.getConnectionArguments().getSyncWaitingMillis() );
     }
 
     @Override

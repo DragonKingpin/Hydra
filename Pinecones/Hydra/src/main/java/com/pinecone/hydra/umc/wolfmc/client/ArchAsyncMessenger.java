@@ -47,8 +47,8 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         return this.mSynRequestLock;
     }
 
-    protected long getSyncWaitingMils() {
-        return ArchAsyncMessenger.getSyncWaitingMils( this );
+    protected long getSyncWaitingMillis() {
+        return ArchAsyncMessenger.getSyncWaitingMillis( this );
     }
 
     UlfAsyncMessengerChannelControlBlock      nextSynChannelCB() throws IOException {
@@ -56,7 +56,7 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMils() );
+        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMillis() );
         return block;
     }
 
@@ -65,7 +65,7 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         if( block == null ) {
             throw new ChannelAllocateException( "Channel allocate failed." );
         }
-        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMils() );
+        ArchAsyncMessenger.reconnect( block, this.getSyncWaitingMillis() );
         return block;
     }
 
@@ -87,7 +87,13 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
     @Override
     public void sendAsynMsg( UMCMessage request, boolean bNoneBuffered, UlfAsyncMsgHandleAdapter handler ) throws IOException {
         UlfAsyncMessengerChannelControlBlock cb = this.nextAsyChannelCB();
-        cb.getChannel().getNativeHandle().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );
+        if ( handler != null ) {
+            // If the handler is null, do not set it; otherwise, it will disrupt the subsequent handler-setting pipeline.
+            // Additionally, if there is no-response request, it will not affect the later pipeline.
+            // 如果 handler 为 null 不要设置, 否则破坏后面的设置流水线，且无响应的请求不会影响后面的流水线.
+            cb.pushMsgHandle( handler );
+            //cb.getChannel().getNativeHandle().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );
+        }
         cb.sendAsynMsg( request, bNoneBuffered );
     }
 
@@ -98,12 +104,12 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         }
     }
 
-    protected static long getSyncWaitingMils( Messenger messenger ) {
-        return messenger.getConnectionArguments().getKeepAliveTimeout() * 1000L;
+    protected static long getSyncWaitingMillis( Messenger messenger ) {
+        return messenger.getConnectionArguments().getSyncWaitingMillis();
     }
 
     public static void reconnect( ChannelControlBlock block, Messenger messenger ) throws IOException {
-        long mils = ArchAsyncMessenger.getSyncWaitingMils( messenger );
+        long mils = ArchAsyncMessenger.getSyncWaitingMillis( messenger );
         ArchAsyncMessenger.reconnect( block, mils );
     }
 

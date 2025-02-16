@@ -20,7 +20,7 @@ import com.pinecone.hydra.umc.wolfmc.UlfChannel;
 import com.pinecone.hydra.umc.wolfmc.UlfInstructMessage;
 import com.pinecone.hydra.umc.wolfmc.WolfMCStandardConstants;
 import com.pinecone.hydra.umc.wolfmc.client.ArchAsyncMessenger;
-import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolfmc.client.UlfClient;
 import com.pinecone.hydra.umct.DuplexExpress;
@@ -62,16 +62,17 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
     protected Map<ChannelId, ChannelControlBlock > mInstructedChannels;  // Standby controlled channels, waiting for server to instruct.
     protected RouteDispatcher                      mRouteDispatcher;
 
-
-    protected void initSelf() {
+    protected void registerChannelInactiveHandler () {
         this.mMessenger.registerChannelInactiveHandler(new ChannelInactiveHandler() {
             @Override
             public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb );
+
                 UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
                 Channel channel = cb.getChannel().getNativeHandle();
                 Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
                 if ( ob != null && (Boolean)ob ) {
-                    WolvesAppointClient.this.getLogger().info( "Passive controlled channel ({}), has been detached.", channel.id() );
+                    WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}), has detached.", channel.id() );
                     UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
                     if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
                         try {
@@ -83,10 +84,10 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
                             instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
                             cb.sendAsynMsg( instructMessage, true );
 
-                            WolvesAppointClient.this.getLogger().info( "Passive controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+                            WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
                         }
                         catch ( IOException e ) {
-                            WolvesAppointClient.this.getLogger().error( "Passive controlled channel ({}), try to reconnect has been failed.", channel.id(), e );
+                            WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
                             throw new ChannelHandleException( e.getCause() );
                         }
                     }
@@ -98,6 +99,10 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
                 return false;
             }
         });
+    }
+
+    private void initSelf() {
+        this.registerChannelInactiveHandler();
     }
 
     protected WolvesAppointClient( UlfClient messenger, RouteDispatcher dispatcher ) {
@@ -181,7 +186,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             ChannelControlBlock ccb = kv.getValue();
             UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
             Channel channel = cb.getChannel().getNativeHandle();
-            channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );
+            channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );  // Exclusive handler.
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASY_EXCLUSIVE_HANDLE_KEY ) ).set( true );
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).set( true );
             channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).set( true );

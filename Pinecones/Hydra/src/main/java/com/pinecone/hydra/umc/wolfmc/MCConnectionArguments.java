@@ -1,11 +1,11 @@
 package com.pinecone.hydra.umc.wolfmc;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 
-public interface MCConnectionArguments extends Pinenut {
+public interface MCConnectionArguments extends MsgNodeConfig {
     String getHost();
 
-    void setHost(String host);
+    void setHost( String host );
 
     short getPort();
 
@@ -18,4 +18,17 @@ public interface MCConnectionArguments extends Pinenut {
     int getSocketTimeout();
 
     void setSocketTimeout( int socketTimeout );
+
+    boolean isEnableHeartbeat() ;
+
+    void setHeartbeatState( boolean enable ) ;
+
+    long getHeartbeatInterval();
+
+    void setHeartbeatInterval( long heartbeatIntervalMills );
+
+    @Override
+    default long getSyncWaitingMillis() {
+        return this.getKeepAliveTimeout() * 1000L;
+    }
 }

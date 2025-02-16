@@ -9,5 +9,7 @@ import com.pinecone.hydra.umct.UMCTExpressHandler;
 public interface UlfServer extends UlfMessageNode, Recipient {
     WolfMCNode apply( UMCTExpressHandler handler );
 
-    void addDataArrivedEventHandlers( ChannelEventHandler handler );
+    UlfServer registerDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException;
+
+    UlfServer deregisterDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException;
 }

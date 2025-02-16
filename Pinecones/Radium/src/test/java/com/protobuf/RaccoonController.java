@@ -26,6 +26,7 @@ public class RaccoonController {
 
     @AddressMapping( "scratchV" )
     public void scratchV( String target, int time ) {
+        Debug.bluef( "Raccoon invoked V" + target + time  );
         //return "Raccoon Scratch " + target + time;
     }
 }

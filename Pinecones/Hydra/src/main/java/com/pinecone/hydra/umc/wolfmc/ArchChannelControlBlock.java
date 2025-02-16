@@ -9,6 +9,9 @@ import com.pinecone.framework.system.executum.ArchThreadum;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 public abstract class ArchChannelControlBlock extends ArchThreadum implements NettyChannelControlBlock {
@@ -24,7 +27,7 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
     protected UlfMCTransmit          mTransmit;
     protected UlfMCReceiver          mReceiver;
 
-    protected Map<String, Object >   mAttributesMap = new TreeMap<>();
+    protected BlockingDeque<UlfAsyncMsgHandleAdapter > mAsyncMsgHandleQueue = new LinkedBlockingDeque<>();
 
     protected ArchChannelControlBlock( MessageNode parentNode, UlfChannel channel, boolean bForceSyncMode ) {
         super( null, parentNode );
@@ -32,12 +35,6 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
         this.mbForceSyncMode   = bForceSyncMode;
         this.mbInSyncMode      = bForceSyncMode;
         this.mMessageNode      = parentNode;
-    }
-
-
-    @Override
-    public Map<String, Object >        getAttributes(){
-        return this.mAttributesMap;
     }
 
     @Override
@@ -123,5 +120,17 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
     public void              kill() {
         this.close();
         this.release();
+    }
+
+
+
+    @Override
+    public void                     pushMsgHandle ( UlfAsyncMsgHandleAdapter msgHandle ) {
+        this.mAsyncMsgHandleQueue.add( msgHandle );
+    }
+
+    @Override
+    public UlfAsyncMsgHandleAdapter pollMsgHandle ( long nWaitMillis ) throws InterruptedException {
+        return this.mAsyncMsgHandleQueue.poll( nWaitMillis, TimeUnit.MICROSECONDS );
     }
 }

@@ -21,9 +21,10 @@ import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.msg.MessageNodus;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
+import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolfmc.AsyncUlfMedium;
-import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.ChannelUtils;
 import com.pinecone.hydra.umc.wolfmc.GenericUMCByteMessageDecoder;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
@@ -31,6 +32,7 @@ import com.pinecone.hydra.umc.wolfmc.UlfIdleFirstBalanceStrategy;
 import com.pinecone.hydra.umc.wolfmc.UlfMCReceiver;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 import com.pinecone.hydra.umc.wolfmc.UnsetUlfAsyncMsgHandleAdapter;
+import com.pinecone.hydra.umc.wolfmc.WolfMCInitializationException;
 import com.pinecone.hydra.umc.wolfmc.WolfMCNode;
 import com.pinecone.hydra.umc.wolfmc.WolfMCStandardConstants;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
@@ -40,7 +42,6 @@ import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
-import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -157,9 +158,19 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     @Override
-    public void addDataArrivedEventHandlers( ChannelEventHandler handler ) {
+    public UlfServer registerDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
         this.mDataArrivedEventHandlers.add( handler );
+        return this;
     }
+
+    @Override
+    public UlfServer deregisterDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
+        this.mDataArrivedEventHandlers.remove( handler );
+        return this;
+    }
+
 
     protected void notifyDataArrivedEventHandlers( RecipientChannelControlBlock block ) {
         for( ChannelEventHandler h : this.mDataArrivedEventHandlers ) {
@@ -221,7 +232,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
 
-    protected void initNettySubsystem() throws IOException {
+    protected void initNettySubsystem() throws IOException, UMCServiceException {
         this.mMasterEventGroup    = new NioEventLoopGroup();
         this.mWorkersEventGroup   = new NioEventLoopGroup();
         this.mBootstrap           = new ServerBootstrap();
@@ -269,11 +280,13 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                         ).get();
                         ChannelUtils.setChannelIdentityID( channelControlBlock.getChannel(), message.getHead().getIdentityId() );
 
-                        WolfMCServer.this.handleArrivedMessage(
-                                WolfMCServer.this.mRecipientMsgHandler, medium, channelControlBlock, message, ctx, msg
-                        );
+                        if ( !WolfMCServer.this.tryInvokeOrInterceptArrivedData( medium, channelControlBlock, message, ctx, msg ) ) {
+                            WolfMCServer.this.handleArrivedMessage(
+                                    WolfMCServer.this.mRecipientMsgHandler, medium, channelControlBlock, message, ctx, msg
+                            );
 
-                        WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock );
+                            WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock );
+                        }
 
                         medium.release();
                         medium = new AsyncUlfMedium( ctx, null, WolfMCServer.this );
@@ -354,7 +367,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             }
             catch ( InterruptedException e ) {
                 Thread.currentThread().interrupt();
-                throw new ProvokeHandleException( e );
+                throw new WolfMCInitializationException( e );
             }
         }
 
@@ -366,12 +379,17 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         }*/
     }
 
-    public void serve() throws IOException {
+    public void serve() throws UMCServiceException {
         this.mStateMutex.lock();
 
         try{
             if( this.isShutdown() ) {
-                this.initNettySubsystem(); // Exception thrown and truncating next detach-mutex-release, redirecting to primary thread.
+                try {
+                    this.initNettySubsystem(); // Exception thrown and truncating next detach-mutex-release, redirecting to primary thread.
+                }
+                catch ( IOException e ) {
+                    throw new WolfMCInitializationException( e );
+                }
             }
         }
         finally {
@@ -390,7 +408,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     @Override
-    public void execute() throws IOException {
+    public void execute() throws UMCServiceException {
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override
@@ -417,15 +435,27 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         if( !this.isShutdown() ) {
             this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Successfully" );
         }
-        this.redirectIOException2ParentThread( lastException[0] );
+
+        try {
+            this.redirectException2ParentThread( lastException[0] );
+        }
+        catch ( IOException e ) {
+            throw new WolfMCInitializationException( e );
+        }
     }
 
     protected Lock getSynRequestLock() {
         return this.mSynRequestLock;
     }
 
+    @Override
     public ServerConnectArguments getConnectionArguments() {
         return this.mConnectionArguments;
+    }
+
+    @Override
+    public ServerConnectArguments getMessageNodeConfig() {
+        return this.getConnectionArguments();
     }
 
     @Override

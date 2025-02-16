@@ -12,9 +12,11 @@ import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.FairChannelPool;
 import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.MessageNodus;
 import com.pinecone.hydra.umc.msg.MultiClientChannelRegistry;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.UMCChannel;
+import com.pinecone.hydra.umc.msg.UMCConstants;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.UMCReceiver;
 import com.pinecone.hydra.umc.msg.UMCTransmit;
@@ -100,14 +102,36 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
             RecipientChannelControlBlock cb = (RecipientChannelControlBlock)args[ 0 ];
             Channel channel = (Channel)cb.getChannel().getNativeHandle();
 
-            UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter) channel.attr(
-                    AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY )
-            ).get();
-
-            try{
-                handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
+            long nWaitMillis;
+            MessageNodus nodus = connection.getMessageSource().getMessageNode();
+            if ( nodus != null ) {
+                nWaitMillis = nodus.getMessageNodeConfig().getSyncWaitingMillis();
             }
-            catch ( Exception e ) {
+            else {
+                nWaitMillis = UMCConstants.DefaultSyncWaitingMillis;
+            }
+
+            try {
+                UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter) channel.attr(
+                        AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY )
+                ).get();
+                if ( handle == null ) {
+                    handle = cb.pollMsgHandle( nWaitMillis );
+                }
+                if ( handle == null ) {
+                    throw new ServiceInternalException( "Undefined MsgHandle." );
+                }
+
+
+
+                try {
+                    handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
+                }
+                catch ( Exception e ) {
+                    throw new ServiceInternalException( e );
+                }
+            }
+            catch ( InterruptedException e ) {
                 throw new ServiceInternalException( e );
             }
 
@@ -175,7 +199,10 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
 
             FairChannelPool fp = (FairChannelPool) pool;
             RecipientNettyChannelControlBlock cb = this.nextAsyChannelCB( fp );
-            cb.getChannel().getNativeHandle().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );
+            if ( handler != null ) {
+                cb.pushMsgHandle( handler );
+                //cb.getChannel().getNativeHandle().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );
+            }
             cb.getChannel().setChannelStatus( UlfChannelStatus.WAITING_PASSIVE_SEND );
             cb.getTransmit().sendMsg( request, bNoneBuffered );
             cb.getChannel().setChannelStatus( UlfChannelStatus.WAITING_PASSIVE_RECEIVE );

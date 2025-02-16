@@ -4,7 +4,7 @@ public interface SyncFairChannelPool extends FairChannelPool {
     ChannelControlBlock nextSyncChannel( long nMillisTimeout, boolean bEager ) ;
 
     default ChannelControlBlock nextSyncChannel( long nMillisTimeout ) {
-        return this.nextSyncChannel( nMillisTimeout, true );
+        return this.nextSyncChannel( nMillisTimeout, false );
     }
 
     default ChannelControlBlock nextSyncChannel() {

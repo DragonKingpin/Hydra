@@ -15,10 +15,9 @@ import com.pinecone.hydra.uma.proxy.PassiveClientIfaceProxyFactory;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
-import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
-import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolfmc.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
@@ -34,6 +33,8 @@ import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  *  Pinecone Ursus For Java WolfAppointServer [ Ulfhedinn Wolf Duplex RPC Server ]
@@ -52,10 +53,10 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
 
     protected PassiveClientIfaceProxyFactory mPassiveClientIfaceProxyFactory;
 
-    protected void initUlfServerEventHandlers( UlfServer messenger ) {
-        messenger.addDataArrivedEventHandlers(new ChannelEventHandler() {
+    protected void initUlfServerEventHandlers( UlfServer server ) {
+        server.registerDataArrivedEventHandlers(new ChannelEventHandler() {
             @Override
-            public void afterEventTriggered( RecipientChannelControlBlock block ) {
+            public void afterEventTriggered( ChannelControlBlock block ) {
                 if ( block.getChannel().getChannelStatus() == UlfChannelStatus.WAITING_PASSIVE_RECEIVE ) {
                     ChannelPool pool = WolvesAppointServer.this.getUMCTExpress().getPoolByClientId( block.getChannel().getIdentityID() );
                     if ( pool != null ) {
@@ -66,13 +67,15 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
         });
     }
 
-    protected void initSelf( UlfServer messenger ) {
-        this.initUlfServerEventHandlers( messenger );
+    private void initSelf( UlfServer server ) {
+        this.initUlfServerEventHandlers( server );
         this.mPassiveClientIfaceProxyFactory = new GenericPassiveClientIfaceProxyFactory( this );
 
         this.mRecipient.registerChannelInactiveHandler(new ChannelInactiveHandler() {
             @Override
             public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb );
+
                 DuplexExpress express = (DuplexExpress) WolvesAppointServer.this.mRouteDispatcher.getUMCTExpress();
                 express.afterChannelInactive( ccb );
                 return false;
@@ -80,32 +83,32 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
         });
     }
 
-    protected WolvesAppointServer( UlfServer messenger, RouteDispatcher dispatcher ){
-        super( messenger, dispatcher );
-        this.initSelf( messenger );
+    protected WolvesAppointServer( UlfServer server, RouteDispatcher dispatcher ){
+        super( server, dispatcher );
+        this.initSelf( server );
     }
 
-    public WolvesAppointServer( UlfServer messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
+    public WolvesAppointServer( UlfServer server, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
     }
 
-    public WolvesAppointServer( UlfServer messenger, CompilerEncoder encoder, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( encoder, express, messenger.getTaskManager().getClassLoader() ) );
+    public WolvesAppointServer( UlfServer server, CompilerEncoder encoder, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( encoder, express, server.getTaskManager().getClassLoader() ) );
         this.apply( express );
     }
 
-    public WolvesAppointServer( UlfServer messenger, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( express, messenger.getTaskManager().getClassLoader() ) );
+    public WolvesAppointServer( UlfServer server, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( express, server.getTaskManager().getClassLoader() ) );
         this.apply( express );
     }
 
-    public WolvesAppointServer( UlfServer messenger, Class<?> expressType ){
-        super( messenger, WolvesAppointServer.checkExpressType( expressType ) );
-        this.initSelf( messenger );
+    public WolvesAppointServer( UlfServer server, Class<?> expressType ){
+        super( server, WolvesAppointServer.checkExpressType( expressType ) );
+        this.initSelf( server );
     }
 
-    public WolvesAppointServer( UlfServer messenger ){
-        this( messenger, HuskyDuplexExpress.class );
+    public WolvesAppointServer( UlfServer server ){
+        this( server, HuskyDuplexExpress.class );
     }
 
 
@@ -202,7 +205,7 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
         try {
             if ( nWaitTimeMil == -1 ) {
                 if ( this.getMessageNode() instanceof WolfMCServer) {
-                    nWaitTimeMil = ((WolfMCServer) this.getMessageNode()).getConnectionArguments().getKeepAliveTimeout() * 1000L;
+                    nWaitTimeMil = ((WolfMCServer) this.getMessageNode()).getConnectionArguments().getSyncWaitingMillis();
                 }
             }
 

@@ -18,6 +18,7 @@ import com.pinecone.hydra.umb.broadcast.UMCBroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastNode;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
+import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
 import com.pinecone.hydra.umct.MessageJunction;
@@ -116,8 +117,10 @@ public class WolfMCBClient extends ArchServgramium implements UlfBroadcastContro
         this.mUMCBroadcastNode.setErrorMessageAudit( audit );
     }
 
-
-
+    @Override
+    public MsgNodeConfig getMessageNodeConfig() {
+        return this.mUMCBroadcastNode.getMessageNodeConfig();
+    }
 
     @Override
     public void applyPMCTContextMachinery( PMCTContextMachinery mPMCTContextMachinery ) {

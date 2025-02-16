@@ -3,7 +3,7 @@ package com.pinecone.hydra.umc.wolfmc.client;
 import java.io.IOException;
 
 import com.pinecone.hydra.umc.msg.UMCMessage;
-import com.pinecone.hydra.umc.wolfmc.ChannelInactiveHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolfmc.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolfmc.UlfMessageNode;
 
@@ -18,5 +18,9 @@ public interface UlfClient extends UlfMessageNode {
     void       sendAsynMsg( UMCMessage request ) throws IOException ;
 
     void       sendAsynMsg( UMCMessage request, UlfAsyncMsgHandleAdapter handler ) throws IOException;
+
+    UlfClient  registerChannelConnectedHandler  ( ChannelEventHandler handler ) throws IllegalStateException ;
+
+    UlfClient  deregisterChannelConnectedHandler( ChannelEventHandler handler ) throws IllegalStateException ;
 
 }

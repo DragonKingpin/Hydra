@@ -20,4 +20,6 @@ public interface MessageNodus extends Pinenut {
     ErrorMessageAudit    getErrorMessageAudit();
 
     void                 setErrorMessageAudit( ErrorMessageAudit audit );
+
+    MsgNodeConfig        getMessageNodeConfig();
 }

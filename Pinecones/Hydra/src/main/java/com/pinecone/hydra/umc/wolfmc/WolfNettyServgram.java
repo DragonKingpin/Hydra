@@ -8,6 +8,8 @@ import com.pinecone.hydra.servgram.ArchServgramium;
 import com.pinecone.framework.system.RedirectRuntimeException;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.umc.msg.UMCException;
+import com.pinecone.hydra.umc.msg.UMCServiceException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -82,12 +84,18 @@ public abstract class WolfNettyServgram extends ArchServgramium {
         }
     }
 
-    protected void redirectIOException2ParentThread( Exception previousException ) throws IOException {
+    protected void redirectException2ParentThread( Exception previousException ) throws IOException, UMCServiceException {
         if( previousException instanceof RuntimeException ) {
             throw new RedirectRuntimeException( previousException );
         }
-        else if( previousException instanceof IOException) {
-            throw new IOException( previousException.getMessage(), previousException );
+        else if( previousException instanceof IOException ) {
+            throw (IOException) previousException;
+        }
+        else if( previousException instanceof UMCServiceException ) {
+            throw (UMCServiceException) previousException;
+        }
+        else if( previousException instanceof UMCException ) {
+            throw new UMCServiceException( previousException );
         }
         else if( previousException != null ){
             throw new IrrationalProvokedException( previousException ); // This should never be happened.

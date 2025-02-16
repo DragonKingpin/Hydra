@@ -69,17 +69,17 @@ public abstract class AbstractUMCHead implements UMCHead {
         String szExtraHead = this.jsonifyExtraHead();
 
         return JSONEncoder.stringifyMapFormat( new KeyValue[]{
-                new KeyValue<>( "Signature"      , this.getSignature()                                             ),
-                new KeyValue<>( "ExtraHeadLength", this.getExtraHeadLength()                                       ),
-                new KeyValue<>( "ExtraEncode"    , this.getExtraEncode().getName()                                 ),
-                new KeyValue<>( "BodyLength"     , this.getBodyLength()                                            ),
-                new KeyValue<>( "KeepAlive"      , this.getKeepAlive()                                             ),
-                new KeyValue<>( "Method"         , this.getMethod()                                                ),
-                new KeyValue<>( "Status"         , this.getStatus().getName()                                      ),
-                new KeyValue<>( "ControlBits"    , "0x" + Integer.toUnsignedString( this.getControlBits(),16 )  ),
-                new KeyValue<>( "IdentityId"     , this.getIdentityId()                                            ),
-                new KeyValue<>( "SessionId"      , this.getSessionId()                                             ),
-                new KeyValue<>( "ExtraHead"      , szExtraHead                                                     ),
+                new KeyValue<>( "Signature"      , this.getSignature()                                               ),
+                new KeyValue<>( "ExtraHeadLength", this.getExtraHeadLength()                                         ),
+                new KeyValue<>( "ExtraEncode"    , this.getExtraEncode().getName()                                   ),
+                new KeyValue<>( "BodyLength"     , this.getBodyLength()                                              ),
+                new KeyValue<>( "KeepAlive"      , this.getKeepAlive()                                               ),
+                new KeyValue<>( "Method"         , this.getMethod()                                                  ),
+                new KeyValue<>( "Status"         , this.getStatus().getName()                                        ),
+                new KeyValue<>( "ControlBits"    , "0x" + Integer.toUnsignedString( this.getControlBits(),16 ) ),
+                new KeyValue<>( "IdentityId"     , this.getIdentityId()                                              ),
+                new KeyValue<>( "SessionId"      , this.getSessionId()                                               ),
+                new KeyValue<>( "ExtraHead"      , szExtraHead                                                       ),
         } );
     }
 }

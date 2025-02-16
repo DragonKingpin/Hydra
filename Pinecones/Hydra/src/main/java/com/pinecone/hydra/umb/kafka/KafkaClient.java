@@ -6,6 +6,7 @@ import com.pinecone.hydra.umb.broadcast.UNT;
 import com.pinecone.hydra.umb.broadcast.converter.GenericResultBytesConverter;
 import com.pinecone.hydra.umb.broadcast.converter.ResultBytesConverter;
 import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 import java.util.Map;
@@ -124,6 +125,11 @@ public class KafkaClient implements KClient {
     @Override
     public KConfig getKafkaConfig() {
         return this.kafkaConfig;
+    }
+
+    @Override
+    public KConfig getMessageNodeConfig() {
+        return this.getKafkaConfig();
     }
 
     @Override

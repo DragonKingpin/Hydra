@@ -105,11 +105,17 @@ public abstract class ArchUMCMessage implements UMCMessage {
 
     @Override
     public String      toJSONString() {
+        String szControlBits = "0x" + Integer.toUnsignedString( this.getHead().getControlBits(),16 );
+
         return JSONEncoder.stringifyMapFormat( new KeyValue[]{
-                new KeyValue<>( "Head"           , this.getHead().getExtraHead()                           ),
-                new KeyValue<>( "Method"         , this.getHead().getMethod()                              ),
-                new KeyValue<>( "BodyLength"     , this.getHead().getBodyLength()                          ),
-                new KeyValue<>( "Status"         , this.getHead().getStatus()                              )
+                new KeyValue<>( "ExtraHeadLength", this.getHead().getExtraHeadLength()    ),
+                new KeyValue<>( "Head"           , this.getHead().getExtraHead()          ),
+                new KeyValue<>( "Method"         , this.getHead().getMethod()             ),
+                new KeyValue<>( "BodyLength"     , this.getHead().getBodyLength()         ),
+                new KeyValue<>( "ControlBits"    , szControlBits                          ),
+                new KeyValue<>( "IdentityId"     , this.getHead().getIdentityId()         ),
+                new KeyValue<>( "SessionId"      , this.getHead().getSessionId()          ),
+                new KeyValue<>( "Status"         , this.getHead().getStatus()             )
         } );
     }
 

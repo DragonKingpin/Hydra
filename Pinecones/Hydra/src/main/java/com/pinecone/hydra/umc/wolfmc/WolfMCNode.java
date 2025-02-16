@@ -8,12 +8,17 @@ import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ExtraEncode;
+import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.UMCMessage;
+import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
 import com.pinecone.hydra.umc.msg.handler.GenericErrorMessageAudit;
-import com.pinecone.hydra.umc.wolfmc.client.UlfClient;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
 
 import java.lang.reflect.InvocationTargetException;
@@ -22,24 +27,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.netty.channel.ChannelHandlerContext;
+
 
 public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessageNode {
-    protected ExtraHeadCoder               mExtraHeadCoder     ;
-    protected final ReentrantLock          mMajorIOLock        = new ReentrantLock();
-    protected ErrorMessageAudit            mErrorMessageAudit  ;
-    protected UlfMessageNode               mParentNode         ;
-    protected Namespace                    mNodeNamespace      ;
-    protected long                         mnMessageNodeId     ;
+    protected ExtraHeadCoder               mExtraHeadCoder          ;
+    protected final ReentrantLock          mMajorIOLock             = new ReentrantLock();
+    protected ErrorMessageAudit            mErrorMessageAudit       ;
+    protected UlfMessageNode               mParentNode              ;
+    protected Namespace                    mNodeNamespace           ;
+    protected long                         mnMessageNodeId          ;
 
-    protected List<ChannelInactiveHandler> mChannelInactiveHandlers  = new ArrayList<>();
+    protected List<ChannelInactiveHandler> mChannelInactiveHandlers ;
+    protected List<ChannelDataInterceptor> mArrivedDataInterceptors ;
 
     public WolfMCNode( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
         super( szName, parentProcess, joConf );
 
-        this.mExtraHeadCoder    = extraHeadCoder;
-        this.mErrorMessageAudit = new GenericErrorMessageAudit( this );
-        this.mParentNode        = parent;
-        this.mnMessageNodeId    = nodeId;
+        this.mExtraHeadCoder           = extraHeadCoder;
+        this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
+        this.mParentNode               = parent;
+        this.mnMessageNodeId           = nodeId;
+        this.mChannelInactiveHandlers  = new ArrayList<>();
+        this.mArrivedDataInterceptors  = new ArrayList<>();
         this.setTargetingName( szName );
     }
 
@@ -47,23 +57,50 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
 
-    @Override
-    public UlfMessageNode registerChannelInactiveHandler(ChannelInactiveHandler handler ) throws IllegalStateException {
+    protected void checkDeRegisterHandlerStatus() throws IllegalStateException  {
         if ( !this.isShutdown() ) {
             throw new IllegalStateException( "Service is already running." );
         }
+    }
+
+    @Override
+    public UlfMessageNode registerChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
         this.mChannelInactiveHandlers.add( handler );
         return this;
     }
 
     @Override
     public UlfMessageNode deregisterChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException {
-        if ( !this.isShutdown() ) {
-            throw new IllegalStateException( "Service is already running." );
-        }
+        this.checkDeRegisterHandlerStatus();
         this.mChannelInactiveHandlers.remove( handler );
         return this;
     }
+
+    @Override
+    public UlfMessageNode registerArrivedDataInterceptor( ChannelDataInterceptor handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
+        this.mArrivedDataInterceptors.add( handler );
+        return this;
+    }
+
+    @Override
+    public UlfMessageNode deregisterArrivedDataInterceptor( ChannelDataInterceptor handler ) throws IllegalStateException {
+        this.checkDeRegisterHandlerStatus();
+        this.mArrivedDataInterceptors.remove( handler );
+        return this;
+    }
+
+    protected boolean tryInvokeOrInterceptArrivedData( Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws ChannelHandleException {
+        for( ChannelDataInterceptor h : this.mArrivedDataInterceptors ) {
+            if ( h.interceptAfterDataArrived( medium, block, msg, ctx, rawMsg ) ){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
 
     @Override

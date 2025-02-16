@@ -4,6 +4,7 @@ import com.pinecone.hydra.umb.broadcast.BroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
 import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -52,6 +53,11 @@ public class RocketMQClient implements RocketClient {
     @Override
     public RocketConfig getRocketConfig() {
         return this.mRocketConfig;
+    }
+
+    @Override
+    public RocketConfig getMessageNodeConfig() {
+        return this.getRocketConfig();
     }
 
     @Override

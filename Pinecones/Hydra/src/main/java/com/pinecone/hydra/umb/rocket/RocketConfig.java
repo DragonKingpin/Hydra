@@ -1,8 +1,8 @@
 package com.pinecone.hydra.umb.rocket;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 
-public interface RocketConfig extends Pinenut {
+public interface RocketConfig extends MsgNodeConfig {
     String getNameServerAddr();
 
     String getGroupName();
@@ -12,4 +12,9 @@ public interface RocketConfig extends Pinenut {
     int getSendMsgTimeout();
 
     int getRetryTimesWhenSendFailed();
+
+    @Override
+    default long getSyncWaitingMillis() {
+        return this.getSendMsgTimeout();
+    }
 }

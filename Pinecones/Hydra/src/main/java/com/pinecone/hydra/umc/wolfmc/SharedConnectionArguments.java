@@ -8,6 +8,8 @@ public abstract class SharedConnectionArguments implements MCConnectionArguments
     protected short          mnPort;
     protected int            mnKeepAliveTimeout;
     protected int            mnSocketTimeout;
+    protected boolean        mbEnableHeartbeat;
+    protected long           mnHeartbeatInterval;
 
 
     public SharedConnectionArguments( JSONObject args ) {
@@ -15,6 +17,8 @@ public abstract class SharedConnectionArguments implements MCConnectionArguments
         this.mnPort              = (short) args.optInt( "port", -1 );
         this.mnKeepAliveTimeout  = args.optInt( "KeepAliveTimeout" );
         this.mnSocketTimeout     = args.optInt( "SocketTimeout", 800 );
+        this.mbEnableHeartbeat   = args.optBoolean( "EnableHeartbeat", false );
+        this.mnHeartbeatInterval = args.optLong( "HeartbeatInterval", 10000 ); // 10s
     }
 
     public SharedConnectionArguments( ArchAsyncMessenger args ) {
@@ -59,5 +63,25 @@ public abstract class SharedConnectionArguments implements MCConnectionArguments
     @Override
     public void setSocketTimeout( int socketTimeout ) {
         this.mnSocketTimeout = socketTimeout;
+    }
+
+    @Override
+    public boolean isEnableHeartbeat() {
+        return this.mbEnableHeartbeat;
+    }
+
+    @Override
+    public void setHeartbeatState( boolean enable ) {
+        this.mbEnableHeartbeat = enable;
+    }
+
+    @Override
+    public void setHeartbeatInterval( long heartbeatIntervalMills ) {
+        this.mnHeartbeatInterval = heartbeatIntervalMills;
+    }
+
+    @Override
+    public long getHeartbeatInterval() {
+        return this.mnHeartbeatInterval;
     }
 }

@@ -1,26 +1,38 @@
 package com.pinecone.hydra.uma.wolf;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.slf4j.Logger;
 
+import com.pinecone.framework.system.ProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.express.Deliver;
 import com.pinecone.hydra.servgram.Servgramium;
 import com.pinecone.hydra.uma.AppointServer;
 import com.pinecone.hydra.uma.ArchAppointNode;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.UMCMessage;
+import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
+import com.pinecone.hydra.umc.vita.HeartbeatControl;
+import com.pinecone.hydra.umc.vita.HeartbeatFeedbackor;
 import com.pinecone.hydra.umc.wolfmc.server.UlfServer;
 import com.pinecone.hydra.umct.MessageDeliver;
 import com.pinecone.hydra.umct.MessageExpress;
 import com.pinecone.hydra.umct.MessageJunction;
 import com.pinecone.hydra.umct.UMCTExpress;
 import com.pinecone.hydra.umct.WolfMCExpress;
+import com.pinecone.hydra.umct.husky.heartbeat.HuskyHeartbeatFeedbackor;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcherFabricator;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
 import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  *  Pinecone Ursus For Java WolfAppointServer [ Ulfhedinn Wolf RPC Server ]
@@ -32,34 +44,58 @@ import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
 public class WolfAppointServer extends ArchAppointNode implements AppointServer {
     protected UlfServer                     mRecipient;
     protected RouteDispatcher               mRouteDispatcher;
+    protected HeartbeatFeedbackor           mHeartbeatFeedbackor;
 
     protected void applyExpress( UMCTExpress express ) {
         this.mRecipient.apply( express );
     }
 
-    protected WolfAppointServer( UlfServer messenger, RouteDispatcher dispatcher ){
-        super( (Servgramium) messenger, dispatcher.getContextMachinery() );
-        this.mRecipient       = messenger;
-        this.mRouteDispatcher = dispatcher;
+    protected void initUlfServerHeartbeatInterceptors( UlfServer server ) {
+        server.registerArrivedDataInterceptor(new ChannelDataInterceptor() {
+            @Override
+            public boolean interceptAfterDataArrived( Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) {
+                Debug.trace( msg );
+                try {
+                    return WolfAppointServer.this.mHeartbeatFeedbackor.interceptHeartbeat( block, msg );
+                }
+                catch ( IOException e ) {
+                    throw new ProvokeHandleException( e );
+                }
+            }
+        });
     }
 
-    public WolfAppointServer( UlfServer messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
+    private void initSelf( UlfServer server ) {
+        this.initUlfServerHeartbeatInterceptors( server );
+    }
+
+
+    protected WolfAppointServer( UlfServer server, RouteDispatcher dispatcher ){
+        super( (Servgramium) server, dispatcher.getContextMachinery() );
+        this.mRecipient           = server;
+        this.mRouteDispatcher     = dispatcher;
+        this.mHeartbeatFeedbackor = new HuskyHeartbeatFeedbackor();
+
+        this.initSelf( server );
+    }
+
+    public WolfAppointServer( UlfServer server, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
         this.apply( express );
     }
 
-    public WolfAppointServer( UlfServer messenger, CompilerEncoder encoder, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( encoder, express, messenger.getTaskManager().getClassLoader() ) );
+    public WolfAppointServer( UlfServer server, CompilerEncoder encoder, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( encoder, express, server.getTaskManager().getClassLoader() ) );
         this.apply( express );
     }
 
-    public WolfAppointServer( UlfServer messenger, UMCTExpress express ){
-        this( messenger, new HuskyRouteDispatcher( express, messenger.getTaskManager().getClassLoader() ) );
+    public WolfAppointServer( UlfServer server, UMCTExpress express ){
+        this( server, new HuskyRouteDispatcher( express, server.getTaskManager().getClassLoader() ) );
         this.apply( express );
     }
 
-    public WolfAppointServer( UlfServer messenger, Class<?> expressType ){
-        this( messenger, new HuskyRouteDispatcher( messenger.getTaskManager().getClassLoader(), true ) );
+    public WolfAppointServer( UlfServer server, Class<?> expressType ){
+        this( server, new HuskyRouteDispatcher( server.getTaskManager().getClassLoader(), true ) );
 
         try{
             Constructor<?> constructor = expressType.getConstructor( String.class, MessageJunction.class, Logger.class );
@@ -73,8 +109,8 @@ public class WolfAppointServer extends ArchAppointNode implements AppointServer 
         }
     }
 
-    public WolfAppointServer( UlfServer messenger ){
-        this( messenger, WolfMCExpress.class );
+    public WolfAppointServer( UlfServer server ){
+        this( server, WolfMCExpress.class );
     }
 
 

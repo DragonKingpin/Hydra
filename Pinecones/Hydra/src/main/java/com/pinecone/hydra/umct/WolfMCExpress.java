@@ -79,7 +79,7 @@ public class WolfMCExpress extends ArchMsgExpress implements UMCTExpress {
     @Override
     public void onError( Object ctx, Throwable cause ) {
         if( cause instanceof Exception ) {
-            this.getLogger().error( "Express error, " + cause.getMessage(), cause );
+            this.getLogger().error( "Express error, {}, {}" , cause.getMessage(), cause.toString(), cause );
         }
         else {
             throw new ProvokeHandleException( cause );

@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.DynamicMessage;
+import com.pinecone.framework.system.ProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.uma.AppointClient;
 import com.pinecone.hydra.uma.ArchAppointNode;
 import com.pinecone.hydra.uma.AsynMsgHandler;
@@ -13,8 +15,14 @@ import com.pinecone.hydra.uma.AsynReturnHandler;
 import com.pinecone.hydra.uma.proxy.GenericIfaceProxyFactory;
 import com.pinecone.hydra.uma.proxy.IfaceProxyFactory;
 import com.pinecone.hydra.servgram.Servgramium;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
+import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.vita.HeartbeatControl;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
+import com.pinecone.hydra.umc.wolfmc.client.ClientConnectArguments;
 import com.pinecone.hydra.umc.wolfmc.client.UlfClient;
 import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
 import com.pinecone.hydra.umct.IlleagalResponseException;
@@ -22,11 +30,13 @@ import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
 import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
+import com.pinecone.hydra.umct.husky.heartbeat.HuskyHeartbeatControl;
 import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
 import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.ulf.util.protobuf.GenericFieldProtobufDecoder;
 
+import io.netty.channel.ChannelHandlerContext;
 import javassist.ClassPool;
 
 /**
@@ -39,19 +49,57 @@ import javassist.ClassPool;
 public class WolfAppointClient extends ArchAppointNode implements AppointClient {
     protected UlfClient              mMessenger;
 
-    protected IfaceProxyFactory mIfaceProxyFactory;
+    protected IfaceProxyFactory      mIfaceProxyFactory;
+
+    protected HeartbeatControl       mHeartbeatControl;
+
+    protected void registerChannelConnectedHandler () {
+        ClientConnectArguments arguments = WolfAppointClient.this.getMessageNode().getConnectionArguments();
+        this.mMessenger.registerChannelConnectedHandler(new ChannelEventHandler() {
+            @Override
+            public void afterEventTriggered( ChannelControlBlock block ) {
+                if ( arguments.isEnableHeartbeat() ) {
+                    WolfAppointClient.this.mHeartbeatControl.registerChannel( block, arguments.getHeartbeatInterval() );
+                }
+            }
+        });
+    }
+
+    protected void initUlfClientHeartbeatInterceptors( UlfClient client ) {
+        client.registerArrivedDataInterceptor(new ChannelDataInterceptor() {
+            @Override
+            public boolean interceptAfterDataArrived( Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) {
+                try {
+                    return WolfAppointClient.this.mHeartbeatControl.interceptFeedback( block, msg );
+                }
+                catch ( IOException e ) {
+                    throw new ProvokeHandleException( e );
+                }
+            }
+        });
+    }
+
+    private void initSelf( UlfClient messenger ) {
+        this.mMessenger            = messenger;
+        this.mIfaceProxyFactory    = new GenericIfaceProxyFactory( this );
+
+        ClientConnectArguments arguments = WolfAppointClient.this.getMessageNode().getConnectionArguments();
+        if ( arguments.isEnableHeartbeat() ) {
+            this.mHeartbeatControl = new HuskyHeartbeatControl( arguments.getHeartbeatInterval() );
+            this.registerChannelConnectedHandler();
+            this.initUlfClientHeartbeatInterceptors( messenger );
+        }
+    }
 
     protected WolfAppointClient( UlfClient messenger, boolean delay ){
         super( (Servgramium) messenger );
-        this.mMessenger          = messenger;
-        this.mIfaceProxyFactory  = new GenericIfaceProxyFactory( this );
+        this.initSelf( messenger );
     }
 
     public WolfAppointClient( UlfClient messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector ){
         this( messenger, true );
         this.mPMCTContextMachinery = new HuskyContextMachinery( compiler, controllerInspector, new GenericFieldProtobufDecoder() );
-        this.mMessenger          = messenger;
-        this.mIfaceProxyFactory  = new GenericIfaceProxyFactory( this );
+        this.initSelf( messenger );
     }
 
     public WolfAppointClient( UlfClient messenger, CompilerEncoder encoder ){
@@ -156,7 +204,7 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
         try {
             if ( nWaitTimeMil == -1 ) {
                 if ( this.mMessenger instanceof WolfMCClient ) {
-                    nWaitTimeMil = ((WolfMCClient) this.mMessenger).getConnectionArguments().getKeepAliveTimeout() * 1000L;
+                    nWaitTimeMil = ((WolfMCClient) this.mMessenger).getConnectionArguments().getSyncWaitingMillis();
                 }
             }
 

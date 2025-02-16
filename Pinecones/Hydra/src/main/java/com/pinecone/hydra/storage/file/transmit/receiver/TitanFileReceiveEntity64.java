@@ -1,5 +1,6 @@
 package com.pinecone.hydra.storage.file.transmit.receiver;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -27,6 +28,13 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);
+        if ( !volume.checkCapacity( this.file.getDefinitionSize() ) ){
+            this.fileSystem.remove( this.fileSystem.queryGUIDByPath( destDirPath ) );
+            Debug.trace("容量不足");
+            return;
+        }
+        volume.deductCapacity( this.file.getDefinitionSize() );
+
         this.fileReceive.receive( volume );
     }
 

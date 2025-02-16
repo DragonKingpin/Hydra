@@ -86,6 +86,7 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
 
     @Override
     public void update(TreeNode treeNode) {
+        SimpleVolume simpleVolume = (SimpleVolume) treeNode;
 
     }
 

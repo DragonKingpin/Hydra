@@ -23,6 +23,9 @@ public interface StripedVolumeMapper extends StripedVolumeManipulator, PrimeLogi
     @Delete("DELETE FROM `hydra_uofs_volumes` where `guid` = #{guid}")
     void remove( GUID guid );
 
+    @Update("UPDATE `hydra_uofs_volumes` SET `create_time` = #{createTime}, `name` = #{name}, `used_size` = #{usedSize} WHERE `guid` = #{guid}")
+    void update( StripedVolume stripedVolume );
+
     @Override
     default TitanLocalStripedVolume getStripedVolume(GUID guid){
         TitanLocalStripedVolume stripedVolume0 = this.getStripedVolume0( guid );

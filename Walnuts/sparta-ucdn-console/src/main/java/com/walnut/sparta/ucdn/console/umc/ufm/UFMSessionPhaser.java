@@ -3,27 +3,31 @@ package com.walnut.sparta.ucdn.console.umc.ufm;
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 
+import java.io.FileOutputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 //@Component
 public class UFMSessionPhaser implements SessionPhaser {
-    private ConcurrentMap<Long, UFMTransaction > sessionTransactions;
+    private ConcurrentMap<Long, UFMTransaction >    sessionTransactions;
 
     // File.Guid => Lock
-    private ConcurrentMap<GUID, Object> fileLocksMap;
+    private ConcurrentMap<GUID, Object>             fileLocksMap;
 
     // File.Guid => Cluster.count (N)
-    private ConcurrentMap<GUID, Long>   clusterComplatedPhaserMap;
+    private ConcurrentMap<GUID, Long>               clusterComplatedPhaserMap;
 
     // File.Guid => Consumer.count (N)
-    private ConcurrentMap<GUID, Long>   consumerComplatedPhaserMap;
+    private ConcurrentMap<GUID, Long>               consumerComplatedPhaserMap;
+
+    private ConcurrentMap<GUID, FileOutputStream>   clusterOutputStreamMap;
 
     public UFMSessionPhaser() {
         this.sessionTransactions          = new ConcurrentHashMap<>();
         this.fileLocksMap                 = new ConcurrentHashMap<>();
         this.clusterComplatedPhaserMap    = new ConcurrentHashMap<>();
         this.consumerComplatedPhaserMap   = new ConcurrentHashMap<>();
+        this.clusterOutputStreamMap       = new ConcurrentHashMap<>();
     }
 
 
@@ -35,6 +39,21 @@ public class UFMSessionPhaser implements SessionPhaser {
     @Override
     public Object getFileLock( GUID guid ) {
         return this.fileLocksMap.get( guid );
+    }
+
+    @Override
+    public void removeFileLock(GUID guid) {
+        this.fileLocksMap.remove( guid );
+    }
+
+    @Override
+    public void removeClusterCount(GUID guid) {
+        this.clusterComplatedPhaserMap.remove( guid );
+    }
+
+    @Override
+    public void removeConsumerCount(GUID guid) {
+        this.consumerComplatedPhaserMap.remove( guid );
     }
 
     @Override
@@ -77,5 +96,35 @@ public class UFMSessionPhaser implements SessionPhaser {
     @Override
     public void resetConsumerCount( GUID guid ) {
         this.consumerComplatedPhaserMap.put( guid, 0L );
+    }
+
+    @Override
+    public void registerSessionTransaction(Long sessionId, UFMTransaction ufmTransaction) {
+        this.sessionTransactions.put( sessionId, ufmTransaction );
+    }
+
+    @Override
+    public UFMTransaction getSessionTransaction(Long sessionId) {
+        return this.sessionTransactions.get( sessionId );
+    }
+
+    @Override
+    public void removeSessionTransaction(Long sessionId) {
+        this.sessionTransactions.remove( sessionId );
+    }
+
+    @Override
+    public void registerClusterOutputStream(GUID guid, FileOutputStream fileOutputStream) {
+        this.clusterOutputStreamMap.put( guid, fileOutputStream );
+    }
+
+    @Override
+    public FileOutputStream getClusterOutputStream(GUID guid) {
+        return this.clusterOutputStreamMap.get( guid );
+    }
+
+    @Override
+    public void removeClusterOutputStream(GUID guid) {
+        this.clusterOutputStreamMap.remove( guid );
     }
 }

@@ -39,7 +39,10 @@ public class GenericRemoteCluster extends ArchCluster implements RemoteCluster {
 
     @Override
     public void save() {
-        this.frameManipulator.insert(this);
+        RemoteCluster cluster = this.frameManipulator.getClusterByFileWithId(this.getFileGuid(), this.getSegId());
+        if( cluster == null ){
+            this.frameManipulator.insert(this);
+        }
     }
     @Override
     public void remove() {

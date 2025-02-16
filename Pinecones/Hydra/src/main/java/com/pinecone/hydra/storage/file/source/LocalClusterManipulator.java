@@ -11,6 +11,7 @@ public interface LocalClusterManipulator extends Pinenut {
     LocalCluster getLocalCluster(GUID guid, ElementNode element);
     void insert( LocalCluster localCluster );
     void remove( GUID guid );
+    void removeClustersByFile( GUID fileGuid );
     LocalCluster getLocalClusterByGuid(GUID guid);
     List<LocalCluster> getLocalClusterByFileGuid(GUID guid );
     LocalCluster getClusterByFileWithId(GUID fileGuid, long segId );

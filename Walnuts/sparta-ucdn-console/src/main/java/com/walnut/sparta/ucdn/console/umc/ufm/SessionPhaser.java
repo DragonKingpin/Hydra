@@ -1,15 +1,22 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
+
+import java.io.FileOutputStream;
 
 public interface SessionPhaser {
     void registerFileLock(GUID guid, Object object );
 
     Object getFileLock(GUID guid );
 
+    void removeFileLock( GUID guid );
+
     void registerClusterCount(GUID guid, long count );
 
     long getClusterCount(GUID guid );
+
+    void removeClusterCount( GUID guid );
 
     void incrementClusterCount(GUID guid );
 
@@ -19,8 +26,21 @@ public interface SessionPhaser {
 
     long getConsumerCount(GUID guid );
 
+    void removeConsumerCount( GUID guid );
+
     void incrementConsumerCount(GUID guid );
 
     void resetConsumerCount(GUID guid );
 
+    void registerSessionTransaction(Long sessionId, UFMTransaction ufmTransaction);
+
+    UFMTransaction getSessionTransaction( Long sessionId );
+
+    void removeSessionTransaction( Long sessionId );
+
+    void registerClusterOutputStream(GUID guid, FileOutputStream fileOutputStream);
+
+    FileOutputStream getClusterOutputStream( GUID guid );
+
+    void removeClusterOutputStream( GUID guid );
 }

@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -22,6 +23,8 @@ public interface FolderMapper extends FolderManipulator {
     void insert( Folder folder );
     @Delete("DELETE FROM `hydra_uofs_folders` WHERE `guid` = #{guid}")
     void remove( GUID guid );
+    @Update("UPDATE `hydra_uofs_folders` SET update_time = #{updateTime}, name = #{name} WHERE guid = #{guid}")
+    void update( Folder folder );
     @Select("SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name` FROM `hydra_uofs_folders` WHERE `guid` = #{guid}")
     GenericFolder getFolderByGuid(GUID guid);
     @Select("SELECT `guid` FROM `hydra_uofs_folders` WHERE `name` = #{name}")

@@ -54,7 +54,7 @@ public class WolfAppointServer extends ArchAppointNode implements AppointServer 
         server.registerArrivedDataInterceptor(new ChannelDataInterceptor() {
             @Override
             public boolean interceptAfterDataArrived( Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) {
-                Debug.trace( msg );
+                //Debug.trace( msg );
                 try {
                     return WolfAppointServer.this.mHeartbeatFeedbackor.interceptHeartbeat( block, msg );
                 }

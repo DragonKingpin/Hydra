@@ -24,6 +24,8 @@ public interface RemoteClusterMapper extends RemoteClusterManipulator {
     void insert( RemoteCluster remoteCluster );
     @Delete("DELETE FROM `hydra_uofs_files_cluster_mapping` WHERE `seg_guid` = #{guid}")
     void remove( GUID guid );
+    @Delete("DELETE FROM `hydra_uofs_files_cluster_mapping` WHERE file_guid = #{fileGuid}")
+    void removeClustersByFile( GUID fileGuid );
     @Select("SELECT `id` AS enumID, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `seg_guid` = #{guid}")
     RemoteCluster fetchRemoteClustersByFileGuid(GUID guid);
     @Select("SELECT `id`, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `file_guid` = #{guid}")
@@ -74,5 +76,18 @@ public interface RemoteClusterMapper extends RemoteClusterManipulator {
 
     @Select("SELECT COUNT(*) FROM `hydra_uofs_files_cluster_mapping` WHERE file_guid = #{fileGuid}")
     long countFileClusters( @Param("fileGuid") GUID fileGuid );
+
+    default RemoteCluster getClusterByFileWithId( GUID fileGuid, long segId ){
+        GenericRemoteCluster cluster = this.getClusterByFileWithId0(fileGuid, segId);
+        if( cluster == null ) {
+            return null;
+        }
+
+        cluster.setRemoteClusterManipulator( this );
+        return cluster;
+    }
+
+    @Select("SELECT `id` AS emunId, `file_guid` AS fileGuid, `seg_guid` AS segGuid, `device_guid` AS deviceGuid, `seg_id` AS segId, `crc32`, `size` FROM `hydra_uofs_files_cluster_mapping` WHERE `file_guid` = #{fileGuid} AND `seg_id` = #{segId}")
+    GenericRemoteCluster getClusterByFileWithId0( GUID fileGuid, long segId );
 
 }

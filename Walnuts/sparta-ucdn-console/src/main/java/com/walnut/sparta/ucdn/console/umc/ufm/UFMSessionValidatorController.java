@@ -7,9 +7,11 @@ import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 @Controller
 @AddressMapping( "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator." )
 //@Service
@@ -34,7 +36,7 @@ public class UFMSessionValidatorController {
 
     @AddressMapping("stageClusterGroupComplete")
     public void stageClusterGroupComplete( String path ){
-        Debug.trace("回调");
+        log.info("回调");
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
         this.sessionPhaser.incrementConsumerCount( elementNode.getGuid() );
 

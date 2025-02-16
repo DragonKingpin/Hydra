@@ -240,6 +240,13 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    public void remove( GUID guid ){
+        super.remove( guid );
+        this.remoteClusterManipulator.remove( guid );
+        this.localClusterManipulator.remove( guid );
+    }
+
+    @Override
     public List<TreeNode> getAllTreeNode() {
         List<GUID> nameSpaceNodes = this.fileManipulator.dumpGuid();
         List<GUID> confNodes      = this.folderManipulator.dumpGuid();
@@ -643,6 +650,15 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public long countFileCluster(GUID fileGuid) {
         return this.remoteClusterManipulator.countFileClusters( fileGuid );
+    }
+
+    @Override
+    public void renameFile(String filePath, String newFileName) {
+        ElementNode elementNode = this.queryElement(filePath);
+        elementNode.setName( newFileName );
+
+        TreeNodeOperator operator = this.operatorFactory.getOperator(elementNode.getMetaType());
+        operator.update( elementNode );
     }
 
     private void initVolume(String path ){

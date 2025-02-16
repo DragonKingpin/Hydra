@@ -23,6 +23,9 @@ public interface SimpleVolumeMapper extends SimpleVolumeManipulator, PrimeLogicV
     @Delete("DELETE FROM `hydra_uofs_volumes` where `guid` = #{guid}")
     void remove( GUID guid );
 
+    @Update("UPDATE `hydra_uofs_volumes` SET `create_time` = #{createTime}, `name` = #{name}, `used_size` = #{usedSize} WHERE `guid` = #{guid}")
+    void update( SimpleVolume simpleVolume );
+
     @Override
     default TitanLocalSimpleVolume getSimpleVolume(GUID guid){
         TitanLocalSimpleVolume simpleVolume0 = this.getSimpleVolume0( guid );

@@ -14,6 +14,8 @@ public interface FolderManipulator extends GUIDNameManipulator {
 
     void remove( GUID guid );
 
+    void update( Folder folder );
+
     Folder getFolderByGuid(GUID guid);
 
     List<GUID > getGuidsByName(String name );

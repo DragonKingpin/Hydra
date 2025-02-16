@@ -22,5 +22,4 @@ public interface ElementNode extends FileTreeNode {
     void setAttributes( FileSystemAttributes attributes );
 
     KOMFileSystem parentFileSystem();
-
 }

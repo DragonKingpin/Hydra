@@ -148,7 +148,7 @@ public class TitanFileReceive64 implements FileReceive64{
             endSize = localCluster.getSize() - currentPosition;
         }
 
-        Debug.trace( "更新簇的大小:"+endSize );
+        //Debug.trace( "更新簇的大小:"+endSize );
         RemoteCluster remoteCluster = allotment.newRemoteCluster( this.fileNode.getGuid(),(int)segId );
         remoteCluster.setDeviceGuid(this.mKOMFileSystem.getConfig().getLocalhostGUID());
         remoteCluster.setSegGuid( localCluster.getSegGuid() );

@@ -23,6 +23,9 @@ public interface SpannedVolumeMapper extends SpannedVolumeManipulator, PrimeLogi
     @Delete("DELETE FROM `hydra_uofs_volumes` where `guid` = #{guid}")
     void remove( GUID guid );
 
+    @Update("UPDATE `hydra_uofs_volumes` SET `create_time` = #{createTime}, `name` = #{name}, `used_size` = #{usedSize} WHERE `guid` = #{guid}")
+    void update( SpannedVolume spannedVolume );
+
     @Override
     default TitanLocalSpannedVolume getSpannedVolume(GUID guid){
         TitanLocalSpannedVolume spannedVolume0 = this.getSpannedVolume0( guid );

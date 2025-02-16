@@ -178,6 +178,17 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
+    public void update(LogicVolume logicVolume) {
+        TreeNodeOperator operator = this.getOperatorByGuid(logicVolume.getGuid());
+        operator.update( logicVolume );
+    }
+
+    @Override
+    public void updatePhysical(PhysicalVolume physicalVolume) {
+        this.physicalVolumeManipulator.update( physicalVolume );
+    }
+
+    @Override
     public TreeNode get(GUID guid, int depth) {
         return null;
     }

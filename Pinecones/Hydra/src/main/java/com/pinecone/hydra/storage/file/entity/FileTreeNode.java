@@ -14,4 +14,6 @@ public interface FileTreeNode extends TreeNode {
     default Symbolic evinceSymbolic() {
         return null;
     }
+
+
 }

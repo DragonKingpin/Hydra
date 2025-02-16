@@ -111,6 +111,7 @@ public class GenericFileOperator extends ArchFileSystemOperator {
 
     @Override
     public void update(TreeNode treeNode) {
+        this.imperialTree.removeCachePath(treeNode.getGuid());
         this.fileManipulator.update( (FileNode) treeNode );
     }
 

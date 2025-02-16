@@ -108,4 +108,15 @@ public abstract class ArchVolume implements Volume{
     public void setKenVolumeFileSystem() {
         this.kenVolumeFileSystem = new KenVolumeFileSystem( this.volumeManager );
     }
+
+    @Override
+    public void deductCapacity(long deductCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() + deductCapacity );
+    }
+
+    @Override
+    public boolean checkCapacity(long size) {
+        long freeSpace = this.volumeCapacity.getDefinitionCapacity() - this.volumeCapacity.getUsedSize();
+        return freeSpace > size;
+    }
 }

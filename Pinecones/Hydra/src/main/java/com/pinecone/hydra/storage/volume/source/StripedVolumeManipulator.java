@@ -11,6 +11,8 @@ import java.util.List;
 public interface StripedVolumeManipulator extends LogicVolumeManipulator {
     void insert( StripedVolume stripedVolume );
     void remove( GUID guid );
+
+    void update( StripedVolume stripedVolume );
     StripedVolume getStripedVolume(GUID guid);
     void extendLogicalVolume( GUID logicGuid, GUID physicalGuid );
     List<GUID> listPhysicalVolume(GUID logicGuid );

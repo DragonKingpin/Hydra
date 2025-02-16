@@ -12,4 +12,6 @@ public class UCDNConstants {
     public static  String TempFilePath = "D:/文件系统/temp/";
 
     public static  String FrameTempFilePath = "D:/文件系统/frameTemp/";
+
+    public static  long expireTimeMillis = 7200000;
 }

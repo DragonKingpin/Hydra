@@ -1,5 +1,6 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ClusterPage64;
@@ -63,7 +64,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
         this.client = masterWarehouse.getKafkaClient();
         this.producer = client.createBroadcastControlProducer();
         this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-        consumer.registerController( new UCdnFMDController( masterWarehouse ) );
+        this.consumer.registerController( new UCdnFMDController( masterWarehouse ) );
         this.consumer.start();
         this.producer.start();
     }
@@ -87,7 +88,6 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
         long fileClusterNum = clusterPage.getClusters();
 
-        TreeMap<Long, Cluster> frames = fileNode.getClusters();
         int distributionFrameNum = 0;
         this.sessionPhaser.registerConsumerCount( fileNode.getGuid(),0L );
 
@@ -112,14 +112,41 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             exportEntity.export( frame );
 
             FileInputStream fileInputStream = new FileInputStream(tempFile);
-            byte[] buffer = new byte[ 512 * 1024 ];
+            int bufferSize = 950 * 1024;
+            byte[] buffer = new byte[ bufferSize ];
             int bytesRead;
 
             while( ( bytesRead = fileInputStream.read( buffer ) )!=-1 ) {
-                byte[] validData = Arrays.copyOfRange(buffer, 0, bytesRead);
-                fileDistribution.transmitClusterFrame( head.setRequestId( ++requestId ), new UFMDClusterFrame( validData, path, i ) );
+                if ( bytesRead < bufferSize ) {
+                    byte[] validData = Arrays.copyOfRange(buffer, 0, bytesRead);
+                    buffer = validData;
+                }
+
+                fileDistribution.transmitClusterFrame( head.setRequestId( ++requestId ), new UFMDClusterFrame( buffer, path, i, fileClusterNum ) );
                 //this.producer.issueInform( topic, "com.walnut.sparta.ucdn.console.umc.FileDistribution.transmitClusterFrame",new UFMDClusterFrame(buffer,path,i));
             }
+//            int bufferSize = 2 * 1024 * 1024; // 2MB
+//            byte[] buffer = new byte[bufferSize];
+//            int bytesRead;
+//            int chunkSize = 512 * 1024; // 每次处理 512KB 的数据
+//
+//            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+//                int chunksToProcess = (bytesRead + chunkSize - 1) / chunkSize; // 计算需要拆分的块数
+//
+//                for ( int j = 0; j < chunksToProcess; ++j ) {
+//                    // 计算当前块的起始和结束位置
+//                    int start = j * chunkSize;
+//                    int end = Math.min(start + chunkSize, bytesRead);
+//
+//                    byte[] chunkData = Arrays.copyOfRange( buffer, start, end ); // 拆分出当前块
+//
+//                    // 发送当前块的数据
+//                    fileDistribution.transmitClusterFrame(
+//                            head.setRequestId(++requestId),
+//                            new UFMDClusterFrame(chunkData, path, j, fileClusterNum)
+//                    );
+//                }
+//            }
 
             fileInputStream.close();
             tempFile.delete();

@@ -6,11 +6,14 @@ import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
+import com.walnuts.sparta.uofs.console.domain.dto.UpdateFileNameDTO;
 import com.walnuts.sparta.uofs.console.rpc.thrift.AccountClient;
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -63,5 +66,16 @@ public class FileController {
     @GetMapping("/queryByPath")
     public String queryNodeByPath(@RequestParam("path") String path) throws TException {
         return this.accountClient.queryNodeByPath(path);
+    }
+
+    /**
+     * 重命名接口
+     * @param dto 重命名数据
+     * @return
+     */
+    @PostMapping("/updateFileName")
+    public BasicResultResponse<String> updateFileName(@RequestBody UpdateFileNameDTO dto){
+        this.primaryFileSystem.renameFile( dto.getFilePath(), dto.getNewFileName() );
+        return BasicResultResponse.success();
     }
 }

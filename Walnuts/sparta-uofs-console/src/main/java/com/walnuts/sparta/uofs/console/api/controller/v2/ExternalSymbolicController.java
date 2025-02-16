@@ -7,7 +7,9 @@ import com.pinecone.hydra.storage.file.direct.ExternalFolder;
 import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
+import com.pinecone.hydra.storage.file.entity.Folder;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
+import com.walnuts.sparta.uofs.console.domain.dto.CreateExternalDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.CreateExternalSymbolicDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -113,6 +115,11 @@ public class ExternalSymbolicController {
         return BasicResultResponse.success();
     }
 
+    /**
+     * 删除外部文件
+     * @param path 文件路径
+     * @return 返回操作结果
+     */
     @DeleteMapping("/remove")
     public BasicResultResponse<String> remove( @RequestParam("path") String path ){
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
@@ -123,6 +130,20 @@ public class ExternalSymbolicController {
             ExternalFile externalFile = (ExternalFile) elementNode;
             externalFile.delete();
         }
+        return BasicResultResponse.success();
+    }
+
+    /**
+     * 创建外接文件
+     * @param dto 创建外接文件信息
+     * @return 返回操作结果
+     */
+    @PostMapping("/createExternalFile")
+    public BasicResultResponse<String> createExternalFile(@RequestBody CreateExternalDTO dto){
+        ElementNode elementNode = this.primaryFileSystem.queryElement(dto.getFolderPath());
+
+        Folder folder = elementNode.evinceFolder();
+        folder.createExternalSymbolic( dto.getExternalSymbolicName(), dto.getReparsedPoint());
         return BasicResultResponse.success();
     }
 }

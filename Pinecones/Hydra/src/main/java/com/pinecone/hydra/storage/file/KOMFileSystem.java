@@ -185,4 +185,6 @@ public interface KOMFileSystem extends ReparseKOMTree {
     void deleteCluster( FileNode fileNode, long segId );
 
     long countFileCluster( GUID fileGuid );
+
+    void renameFile( String filePath, String newFileName );
 }

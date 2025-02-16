@@ -10,6 +10,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,4 +65,7 @@ public interface PhysicalVolumeMapper extends PhysicalVolumeManipulator {
 
     @Select("SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`,  `type`, `ext_config` AS extConfig FROM hydra_uofs_volumes WHERE type = 'PhysicalVolume'")
     List<TitanLocalPhysicalVolume> queryAllPhysicalVolumes0();
+
+    @Update("UPDATE `hydra_uofs_volumes` SET `create_time` = #{createTime}, `name` = #{name}, `used_size` = #{usedSize} WHERE `guid` = #{guid}")
+    void update( PhysicalVolume physicalVolume );
 }

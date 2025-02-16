@@ -12,6 +12,7 @@ public interface RemoteClusterManipulator extends Pinenut {
     RemoteCluster getRemoteCluster(GUID guid, ElementNode element);
     void insert( RemoteCluster remoteCluster );
     void remove( GUID guid );
+    void removeClustersByFile( GUID fileGuid );
     RemoteCluster fetchRemoteClustersByFileGuid(GUID guid);
     List<RemoteCluster> fetchRemoteClusterByFileGuid( GUID guid );
 
@@ -23,4 +24,6 @@ public interface RemoteClusterManipulator extends Pinenut {
     void removeClusterByFileWithId(GUID fileGuid, long segId );
 
     long countFileClusters( GUID fileGuid );
+
+    RemoteCluster getClusterByFileWithId( GUID fileGuid, long segId );
 }

@@ -16,4 +16,5 @@ public interface PhysicalVolumeManipulator extends Pinenut {
     PhysicalVolume getSmallestCapacityPhysicalVolume();
     GUID getParent( GUID guid );
     List<Volume> queryAllPhysicalVolumes();
+    void update( PhysicalVolume physicalVolume );
 }

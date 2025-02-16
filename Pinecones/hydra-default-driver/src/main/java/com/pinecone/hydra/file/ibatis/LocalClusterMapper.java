@@ -23,7 +23,8 @@ public interface LocalClusterMapper extends LocalClusterManipulator {
     void insert( LocalCluster localCluster );
     @Delete("DELETE FROM `hydra_uofs_local_cluster_fat` WHERE `seg_guid` = #{guid}")
     void remove( GUID guid );
-
+    @Delete("DELETE FROM `hydra_uofs_local_cluster_fat` WHERE `file_guid` = #{fileGuid}")
+    void removeClustersByFile( GUID fileGuid );
     default GenericLocalCluster getLocalClusterByGuid(GUID guid){
         GenericLocalCluster localCluster = this.getLocalClusterByGuid0(guid);
         if ( localCluster == null ) return null;

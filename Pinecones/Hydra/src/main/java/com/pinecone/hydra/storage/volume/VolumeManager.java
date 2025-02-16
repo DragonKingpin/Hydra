@@ -19,6 +19,10 @@ public interface VolumeManager extends KOMInstrument {
     @Override
     LogicVolume get( GUID guid );
 
+    void update( LogicVolume logicVolume );
+
+    void updatePhysical( PhysicalVolume physicalVolume );
+
     @Override
     VolumeConfig getConfig();
 

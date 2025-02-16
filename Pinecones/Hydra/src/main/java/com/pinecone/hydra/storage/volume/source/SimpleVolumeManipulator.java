@@ -11,6 +11,8 @@ public interface SimpleVolumeManipulator extends LogicVolumeManipulator {
 
     void remove( GUID guid );
 
+    void update( SimpleVolume simpleVolume );
+
     SimpleVolume getSimpleVolume(GUID guid);
 
     void extendLogicalVolume( GUID logicGuid, GUID physicalGuid );

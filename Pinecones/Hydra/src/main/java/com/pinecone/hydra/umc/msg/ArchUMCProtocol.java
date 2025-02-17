@@ -27,19 +27,19 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
  *  **********************************************************
  */
 public abstract class ArchUMCProtocol implements UMCProtocol {
-    protected int           mnFrameSize    = 4096;
+    protected int              mnFrameSize     = 4096;
 
-    protected String        mszVersion     = UMCHeadV1.ProtocolVersion;
+    protected String           mszVersion      = UMCHeadV1.ProtocolVersion;
 
-    protected String        mszSignature   = UMCHeadV1.ProtocolSignature;
+    protected String           mszSignature    = UMCHeadV1.ProtocolSignature;
 
-    protected UMCHead       mTemplateHead  ;
+    protected OutputStream     mOutputStream   ;
 
-    protected OutputStream  mOutputStream  ;
+    protected InputStream      mInputStream    ;
 
-    protected InputStream   mInputStream   ;
+    protected Medium           mMessageSource  ;
 
-    protected Medium        mMessageSource ;
+    protected ExtraHeadCoder   mExtraHeadCoder ;
 
     public ArchUMCProtocol( Medium messageSource ) {
         this.mMessageSource = messageSource;
@@ -50,10 +50,8 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
 
     @Override
     public UMCProtocol applyMessageSource( Medium medium ) {
-        this.mMessageSource = medium;
-        UMCHeadV1 head      = new UMCHeadV1( this.mszSignature );
-        head.applyExtraHeadCoder( this.getExtraHeadCoder() );
-        this.mTemplateHead          = head;
+        this.mMessageSource  = medium;
+        this.mExtraHeadCoder = this.getExtraHeadCoder();
         return this;
     }
 
@@ -72,26 +70,19 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
         return this.mszSignature;
     }
 
-    @Override
-    public UMCHead getHead() {
-        return this.mTemplateHead;
-    }
-
-    @Override
-    public void setHead( UMCHead head ) {
-        this.mTemplateHead = head;
-        this.mszSignature = head.getSignature();
+    protected UMCHeadV1 newHead() {
+        UMCHeadV1 head = new UMCHeadV1();
+        head.applyExtraHeadCoder( this.getExtraHeadCoder() );
+        return head;
     }
 
     @Override
     public void release() {
         this.mMessageSource.release();
-        this.mTemplateHead.release();
 
         this.mMessageSource   = null;
         this.mszVersion       = null;
         this.mszSignature     = null;
-        this.mTemplateHead            = null;
         this.mOutputStream    = null;
         this.mInputStream     = null;
     }

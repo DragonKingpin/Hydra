@@ -10,6 +10,7 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.pinecone.framework.lang.field.FieldEntity;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umc.msg.ExtraEncode;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
@@ -37,6 +38,9 @@ public class PrototypeDecipher implements HeaderDecipher {
     public String getServicePath( Object that ) {
         try{
             Descriptors.Descriptor des = PrototypeDecipher.getPathDescriptor( this.mszServicePathKey );
+            if ( ! ( that instanceof byte[] ) ) {
+                Debug.warnSyn( that );
+            }
             DynamicMessage ms = DynamicMessage.parseFrom( des, (byte[]) that );
             return (String) ms.getField( PrototypeDecipher.PathFieldDescriptor );
         }

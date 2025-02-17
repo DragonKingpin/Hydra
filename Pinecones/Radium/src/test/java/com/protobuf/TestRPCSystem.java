@@ -3,6 +3,7 @@ package com.protobuf;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mc.JesusChrist;
 import com.pinecone.Pinecone;
@@ -116,8 +117,8 @@ class Jeff extends JesusChrist {
 
         wolf.compile( Raccoon.class, false );
         DynamicMethodPrototype digest = (DynamicMethodPrototype)wolf.queryMethodDigest( "com.protobuf.Raccoon.scratch" );
+        Debug.sleep( 500 );
 
-        Debug.sleep( 200 );
 //        wolf.invokeInformAsyn(digest, new Object[]{"fuck you", 2024}, new AsynReturnHandler() {
 //            @Override
 //            public void onSuccessfulReturn( Object ret ) throws Exception {
@@ -130,20 +131,22 @@ class Jeff extends JesusChrist {
 //            }
 //        });
 
-        Debug.greenf( wolf.invokeInform(digest, "fuck you", 2024 ) );
+        Debug.greenf( wolf.invokeInform(digest, "a", 0 ) );
 
 
         boolean testParallel = true;
         if ( testParallel ) {
+            final AtomicInteger ai = new AtomicInteger();
+
             for ( int j = 0; j < 10; ++j ) {
                 final int id = j;
                 Thread thread = new Thread(()->{
-                    for ( int i = 0; i < 1e2; ++i ) {
+                    for ( int i = 0; i < 1e3; ++i ) {
                         try {
-                            Debug.greenfs( wolf.invokeInform(digest, "fuck you", id ) );
+                            Debug.greenfs( wolf.invokeInform(digest, "afd", id + 7700 ), ai.getAndIncrement() );
                         }
                         catch (IOException e) {
-                            throw new RuntimeException(e);
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -152,9 +155,10 @@ class Jeff extends JesusChrist {
         }
 
         for ( int i = 0; i < 1e2; ++i ) {
-            Debug.greenf( wolf.invokeInform(digest, "fuck you", 2024 ) );
+            Debug.greenf( wolf.invokeInform(digest, "afd", 7799 ) );
         }
 
+        Debug.sleep( 1000000 );
 
         this.getTaskManager().add( wolf );
         this.getTaskManager().syncWaitingTerminated();

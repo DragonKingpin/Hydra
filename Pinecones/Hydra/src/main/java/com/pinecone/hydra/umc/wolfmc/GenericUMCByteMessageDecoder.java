@@ -1,6 +1,7 @@
 package com.pinecone.hydra.umc.wolfmc;
 
 import com.pinecone.framework.util.Debug;
+import com.pinecone.hydra.umc.msg.ExtraEncode;
 import com.pinecone.hydra.umc.msg.UMCHeadV1;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import io.netty.buffer.ByteBuf;
@@ -18,7 +19,7 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
     private long           byteSum;
     private long           bodyBytes;
     private int            readAt;
-    private int            readBytes; //Each
+    private int            readBytes; // Each package
 
     public GenericUMCByteMessageDecoder( ExtraHeadCoder extraHeadCoder ) {
         this.extraHeadCoder = extraHeadCoder;
@@ -28,10 +29,47 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
         this.readBytes = 0;
     }
 
+    public static int countOccurrences(byte[] bfs, byte[] target) {
+        int count = 0;
+        for (int i = 0; i <= bfs.length - target.length; i++) {
+            boolean match = true;
+            for (int j = 0; j < target.length; j++) {
+                if (bfs[i + j] != target[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static long IC = 0;
+
     @Override
     protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object> out ) throws Exception {
+        ByteBuf bufs = in.copy();
+        byte[] bfs = new byte[ bufs.readableBytes() ];
+        bufs.readBytes( bfs );
+        int occurrences = countOccurrences(bfs, "UMC/1.1".getBytes());
+        int kf = countOccurrences(bfs, "afd".getBytes());
+        if ( kf > 0 ) {
+            IC += occurrences;
+            Debug.redfs(IC);
+        }
+
+
         while ( in.readableBytes() > 0 ) {
+            boolean bContinueRead = false;
             if ( this.byteSum == -1 ) {
+
+                // For debug reference.
+//                if ( in.readableBytes() > 100 ) {
+//                    Debug.traceSyn( in );
+//                }
+
                 int nBufSize = ArchUMCProtocol.basicHeadLength( UMCHeadV1.ProtocolSignature );
                 // Waiting for more data to arrive, and that will be enough to decode the header.
                 if ( in.readableBytes() < nBufSize ) {
@@ -41,7 +79,15 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
                 byte[] buf = new byte[ nBufSize ];
                 in.readBytes(buf);
 
+                // For debug reference.
+//                if ( buf[ 0 ] != 85 ) {
+//                    Debug.traceSyn( buf );
+//                }
+
                 UMCHead head = ArchUMCProtocol.onlyReadMsgBasicHead( buf, UMCHeadV1.ProtocolSignature, this.extraHeadCoder );
+                if ( head.getExtraEncode() == ExtraEncode.JSONString ) {
+                    Debug.warnSyn( head );
+                }
                 this.bodyBytes = head.getBodyLength();
                 this.byteSum   = nBufSize + head.getExtraHeadLength() + this.bodyBytes;
                 this.readAt    += nBufSize;
@@ -50,18 +96,34 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
                 if ( this.byteSum < 0 ) {
                     throw new IllegalArgumentException( "Invalid byteSum calculation: " + this.byteSum );
                 }
+                bContinueRead = true;
             }
 
-            int startAt = this.readAt - this.readBytes;
-            in.readerIndex( startAt );
-            this.readAt -= this.readBytes;
+            if ( bContinueRead ) {
+                int startAt = this.readAt - this.readBytes;
+                in.readerIndex( startAt );
+                this.readAt -= this.readBytes;
+            }
             if ( in.readableBytes() >= this.byteSum ) {
-                //Debug.redfs( in.readableBytes(), in.toString() );
                 this.readBytes = (int)this.byteSum;
                 ByteBuf completeMessage = in.readRetainedSlice((int) this.readBytes);
                 this.readAt += this.readBytes;
 
+
+                // For debug reference.
+//                byte[] bs = new byte[ (int) this.byteSum ];
+//                ByteBuf byteBuf = completeMessage.copy();
+//                byteBuf.readBytes(bs);
+//                byteBuf.release();
+//                if ( bs[ 0 ] != 85 ) {
+//                    Debug.traceSyn( bs, bContinueRead );
+//                }
+//                head = ArchUMCProtocol.onlyReadMsgBasicHead( bs, UMCHeadV1.ProtocolSignature, this.extraHeadCoder );
+//                Debug.warnSyn( bs, head );
+
+
                 try {
+                    Debug.bluefs( Debug.invokeCounts() );
                     ctx.fireChannelRead(completeMessage);
                 }
                 finally {

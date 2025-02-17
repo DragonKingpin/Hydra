@@ -4,27 +4,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.pinecone.framework.util.Debug;
+
 public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTransmit {
     public ArchUMCTransmit( Medium messageSource ) {
         super( messageSource );
     }
 
     @SuppressWarnings( "unchecked" )
-    protected void applyExHead( Object msg ) {
+    protected void applyExHead( UMCHeadV1 head, Object msg ) {
         if( msg instanceof Map ) {
-            this.mTemplateHead.inface().applyExHead( (Map) msg );
+            head.inface().applyExHead( (Map) msg );
         }
         else {
-            this.mTemplateHead.inface().setExtraHead( msg );
+            head.inface().setExtraHead( msg );
         }
     }
 
     @Override
     public void sendInformMsg( Object msg, Status status ) throws IOException {
-        this.applyExHead( msg );
-        this.mTemplateHead.setStatus( status );
-        this.mTemplateHead.inface().setMethod( UMCMethod.INFORM );
-        this.sendMsgHead( this.mTemplateHead );
+        UMCHeadV1 head = this.newHead();
+        this.applyExHead( head, msg );
+        head.setStatus( status );
+        head.inface().setMethod( UMCMethod.INFORM );
+        this.sendMsgHead( head );
     }
 
     @Override
@@ -38,9 +41,10 @@ public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTran
 
 
     public void sendTransferMsgHead( Object msg, boolean bFlush ) throws IOException {
-        this.applyExHead( msg );
-        this.mTemplateHead.inface().setMethod( UMCMethod.TRANSFER );
-        this.sendMsgHead( this.mTemplateHead, bFlush );
+        UMCHeadV1 head = this.newHead();
+        this.applyExHead( head, msg );
+        head.inface().setMethod( UMCMethod.TRANSFER );
+        this.sendMsgHead( head, bFlush );
     }
 
     public void sendTransferMsgContent( byte[] frame, int len ) throws IOException {
@@ -55,8 +59,9 @@ public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTran
 
     @Override
     public void sendTransferMsg( Object msg, byte[] bytes, Status status ) throws IOException {
-        this.mTemplateHead.inface().setBodyLength( bytes.length );
-        this.mTemplateHead.setStatus( status );
+        UMCHeadV1 head = this.newHead();
+        head.setBodyLength( bytes.length );
+        head.setStatus( status );
         this.sendTransferMsgHead( msg, false );
         this.onlySendPostBody( bytes );
     }
@@ -95,23 +100,28 @@ public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTran
 
     @Override
     public void sendTransferMsg( Object msg, InputStream is ) throws IOException {
-        this.mTemplateHead.inface().setBodyLength( is.available() );
+        UMCHeadV1 head = this.newHead();
+        head.setBodyLength( is.available() );
         this.sendTransferMsgHead( msg, false );
         this.onlySendPostBody( is, false );
     }
 
 
     @Override
-    public void sendMsg( UMCMessage msg, boolean bNoneBuffered ) throws IOException {
+    public synchronized void sendMsg( UMCMessage msg, boolean bNoneBuffered ) throws IOException {//Debug.redfs( Debug.invokeCounts() );
+        if ( msg.getHead().getExtraEncode() == ExtraEncode.JSONString ) {
+            Debug.warnSyn( msg );
+        }
+
         msg.getHead().setIdentityId( this.getMessageSource().getMessageNode().getMessageNodeId() );
-        this.mTemplateHead = msg.getHead();
-        this.mTemplateHead.inface().setSignature( this.mszSignature );
+        UMCHead head = msg.getHead();
+        head.inface().setSignature( this.mszSignature );
 
         if( msg.getMethod() == UMCMethod.INFORM || msg.getMethod() == UMCMethod.UNDEFINED ) {
-            this.sendMsgHead( this.mTemplateHead );
+            this.sendMsgHead( head );
         }
         else if( msg.getMethod() == UMCMethod.TRANSFER ) {
-            this.sendMsgHead( this.mTemplateHead, false );
+            this.sendMsgHead( head, false );
             Object body = msg.evinceTransferMessage().getBody();
             if( body instanceof byte[] ) {
                 byte[] bytes = (byte[])body;

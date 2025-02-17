@@ -1,9 +1,6 @@
 package com.pinecone.hydra.umb.broadcast;
 
-import java.util.Map;
-
 import com.pinecone.hydra.umc.msg.Medium;
-import com.pinecone.hydra.umc.msg.UMCHead;
 import com.pinecone.hydra.umc.msg.UMCHeadV1;
 import com.pinecone.hydra.umc.msg.UMCProtocol;
 
@@ -39,36 +36,6 @@ public class ArchUnidirectionalMCProtocol implements UMCProtocol {
     @Override
     public String getSignature() {
         return this.mszSignature;
-    }
-
-    @Override
-    public void setHead( UMCHead head ) {
-
-    }
-
-    @Override
-    public UMCHead getHead() {
-        return null;
-    }
-
-    @Override
-    public void setHead( String szKey, Object val ) {
-
-    }
-
-    @Override
-    public Object getHead( String szKey ) {
-        return null;
-    }
-
-    @Override
-    public void setExHead( Map<String, Object > jo ) {
-
-    }
-
-    @Override
-    public void setExHead( Object jo ) {
-
     }
 
     @Override

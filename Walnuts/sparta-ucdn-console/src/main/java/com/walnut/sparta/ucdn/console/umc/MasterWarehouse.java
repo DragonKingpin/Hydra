@@ -20,5 +20,7 @@ public interface MasterWarehouse extends Pinenut {
 
     UlfBroadcastControlNode getRocketClient();
 
+    UlfBroadcastControlNode getRocketEFileClient();
+
     ExternalSessionPhaser   getExternalSessionPhaser();
 }

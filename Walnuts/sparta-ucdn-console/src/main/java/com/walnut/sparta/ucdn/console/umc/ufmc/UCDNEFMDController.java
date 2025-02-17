@@ -1,7 +1,6 @@
 package com.walnut.sparta.ucdn.console.umc.ufmc;
 
-import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sparta.ucdn.console.infrastructure.EFileContent;
@@ -22,8 +21,11 @@ public class UCDNEFMDController {
 
     protected ExternalSessionPhaser     sessionPhaser;
 
-    public UCDNEFMDController(MasterWarehouse masterWarehouse){
+    protected UEFMSessionValidator      sessionValidator;
+
+    public UCDNEFMDController(MasterWarehouse masterWarehouse) throws UMBServiceException {
         this.sessionPhaser = masterWarehouse.getExternalSessionPhaser();
+        this.sessionValidator = new UEFMSessionValidator( masterWarehouse );
     }
 
     @AddressMapping("startDistribution")
@@ -48,48 +50,58 @@ public class UCDNEFMDController {
     }
 
     @AddressMapping("transmitFileContent")
-    void transmitFileContent(RequestHead head, EFileContent fileContent) throws IOException {
+    public void transmitFileContent(RequestHead head, EFileContent fileContent) throws IOException {
         long sessionId = head.getSessionId();
 
-        if ( this.assertTransmitTransaction( head ) ){
+        File file = new File(UCDNConstants.defaultStoragePath + fileContent.getFileName());
+        if ( this.assertTransmitTransaction( head, fileContent.getFileName() ) ){
             return;
         }
 
-        log.info("保存文件内容");
         FileOutputStream fileOutputStream = this.sessionPhaser.getFileOutputStream(sessionId);
 
         fileOutputStream.write( fileContent.getBytes() );
         this.sessionPhaser.getUFMCTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );
 
-
+        if( file.length() == fileContent.getFileSize() ){
+            fileOutputStream.close();
+            this.sessionPhaser.removeFileOutputStream( sessionId );
+            this.sessionPhaser.removeUFMCTransaction( sessionId );
+            this.sessionValidator.fileTransmitComplete( head );
+        }
     }
 
-    protected boolean assertTransmitTransaction( RequestHead head ){
+    protected boolean assertTransmitTransaction( RequestHead head, String fileName ){
         long sessionId = head.getSessionId();
         UFMCTransaction ufmcTransaction = this.sessionPhaser.getUFMCTransaction(sessionId);
 
         if( ufmcTransaction == null ){
             log.info("不存在的事务，直接忽略");
+            this.sessionPhaser.removeUFMCTransaction( sessionId );
             return true;
         }
 
         long currentTimeMillis = System.currentTimeMillis();
         if( currentTimeMillis - ufmcTransaction.getLastEventArrivedMills() > UCDNConstants.expireTimeMillis){
             log.info("事务过期");
-            this.sessionPhaser.removeUFMCTransaction( sessionId );
-            this.sessionPhaser.removeFileOutputStream( sessionId );
+            this.rollBack( sessionId, fileName );
             return true;
         }
 
         if( !ufmcTransaction.isStartTransmit() ){
             log.info("异常的事务流程");
-            this.sessionPhaser.removeUFMCTransaction( sessionId );
-            this.sessionPhaser.removeFileOutputStream( sessionId );
+            this.rollBack( sessionId, fileName );
             return true;
         }
 
         return false;
     }
 
+    private void rollBack( long sessionId, String fileName ){
+        this.sessionPhaser.removeUFMCTransaction( sessionId );
+        this.sessionPhaser.removeFileOutputStream( sessionId );
+        File file = new File(UCDNConstants.defaultStoragePath + fileName);
+        file.delete();
+    }
 
 }

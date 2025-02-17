@@ -1,19 +1,23 @@
 package com.pinecone.hydra.service.registry;
 
+import com.pinecone.hydra.service.ServiceControllerIfce;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 
 import java.util.Map;
 
 public class GenericServiceControlBlock implements ServiceControlBlock {
-    // Iface xxx
+    protected ServiceControllerIfce     mServiceControllerIfce;
 
-    // Object
+    protected long                      mClientId;
 
-    protected long mClientId;
+    protected ServiceElement            mServiceMetaData;
 
-    protected ServiceElement mServiceMetaData;
 
-    // ....
+    protected Map<String, Object >      mExtraMetaData;
 
-    protected Map<String, Object > mExtraMetaData;
+
+    public GenericServiceControlBlock( long clientId, ServiceElement serviceElement ){
+        this.mClientId = clientId;
+        this.mServiceMetaData = serviceElement;
+    }
 }

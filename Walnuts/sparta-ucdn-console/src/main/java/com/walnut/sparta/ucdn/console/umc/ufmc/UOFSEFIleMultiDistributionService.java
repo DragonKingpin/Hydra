@@ -26,7 +26,7 @@ public class UOFSEFIleMultiDistributionService implements ExternalFileMultiDistr
     public UOFSEFIleMultiDistributionService( MasterWarehouse masterWarehouse ) throws UMBServiceException {
         this.client = masterWarehouse.getKafkaEFileClient();
         this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
+        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
         this.consumer.registerController( new UCDNEFMDController( masterWarehouse ) );
         this.consumer.start();
         this.producer.start();
@@ -50,7 +50,7 @@ public class UOFSEFIleMultiDistributionService implements ExternalFileMultiDistr
                 byte[] validData = Arrays.copyOfRange(buffer, 0, bytesRead);
                 buffer = validData;
             }
-            distributionIface.transmitFileContent( head, new EFileContent( buffer ) );
+            distributionIface.transmitFileContent( head, new EFileContent( buffer, file.length(), file.getName() ) );
         }
     }
 }

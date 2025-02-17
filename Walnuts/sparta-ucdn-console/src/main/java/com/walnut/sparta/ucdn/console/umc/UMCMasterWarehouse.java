@@ -15,6 +15,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.umc.ufmc.EFileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufmc.ExternalSessionPhaser;
+import com.walnut.sparta.ucdn.console.umc.ufmc.ExternalSessionValidator;
 import com.walnut.sparta.ucdn.console.umc.ufmc.UFMCSessionPhaser;
 
 public class UMCMasterWarehouse implements MasterWarehouse{
@@ -29,6 +30,8 @@ public class UMCMasterWarehouse implements MasterWarehouse{
     private UlfBroadcastControlNode     rocketClient;
 
     private UlfBroadcastControlNode     kafkaEFileClient;
+
+    private UlfBroadcastControlNode     rocketEFileClient;
 
     private ExternalSessionPhaser       externalSessionPhaser;
 
@@ -45,10 +48,16 @@ public class UMCMasterWarehouse implements MasterWarehouse{
         UlfBroadcastControlNode rocket = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", uofsContentDelivery, WolfMCExpress.class);
         rocket.compile( SessionValidator.class,false );
         this.rocketClient = rocket;
+        this.rocketEFileClient = rocket;
+
+//        UlfBroadcastControlNode rocketEFileClient = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", uofsContentDelivery, WolfMCExpress.class);
+//        rocketEFileClient.compile( ExternalSessionValidator.class,false );
+//        this.rocketEFileClient = rocketEFileClient;
 
         UlfBroadcastControlNode kafkaEFileClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
         kafkaEFileClient.compile( EFileMultiDistributionIface.class,false );
         this.kafkaEFileClient = kafkaEFileClient;
+        //this.kafkaClient = kafkaEFileClient;
 
     }
 
@@ -81,6 +90,11 @@ public class UMCMasterWarehouse implements MasterWarehouse{
     @Override
     public UlfBroadcastControlNode getRocketClient() {
         return this.rocketClient;
+    }
+
+    @Override
+    public UlfBroadcastControlNode getRocketEFileClient() {
+        return this.rocketEFileClient;
     }
 
     @Override

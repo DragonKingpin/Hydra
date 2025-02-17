@@ -153,6 +153,7 @@ class Garrison extends Radium {
         producer.start();
         producer.issueInform( topic, "com.protobuf.Raccoon.scratch", "fuck you !", 2025 );
 
+
         Debug.sleep( 100000 );
     }
 }

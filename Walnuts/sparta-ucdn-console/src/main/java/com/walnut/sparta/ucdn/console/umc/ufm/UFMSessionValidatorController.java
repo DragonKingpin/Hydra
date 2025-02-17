@@ -37,6 +37,7 @@ public class UFMSessionValidatorController {
     @AddressMapping("stageClusterGroupComplete")
     public void stageClusterGroupComplete( String path ){
         log.info("回调");
+
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
         this.sessionPhaser.incrementConsumerCount( elementNode.getGuid() );
 

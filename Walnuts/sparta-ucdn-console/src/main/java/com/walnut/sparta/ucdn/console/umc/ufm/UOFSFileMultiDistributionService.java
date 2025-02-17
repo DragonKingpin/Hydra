@@ -1,5 +1,6 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
@@ -120,31 +121,38 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 //                fileDistribution.transmitClusterFrame( head, new UFMDClusterFrame( buffer, path, i, fileClusterNum ) );
 //                //this.producer.issueInform( topic, "com.walnut.sparta.ucdn.console.umc.FileDistribution.transmitClusterFrame",new UFMDClusterFrame(buffer,path,i));
 //            }
+            long l = System.currentTimeMillis();
             int bufferSize = 2 * 1024 * 1024; // 2MB
             byte[] buffer = new byte[bufferSize];
             int bytesRead;
             int chunkSize = 950 * 1024; // 每次处理 900KB 的数据
 
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                int chunksToProcess = (bytesRead + chunkSize - 1) / chunkSize; // 计算需要拆分的块数
 
-                for ( int j = 0; j < chunksToProcess; ++j ) {
-                    // 计算当前块的起始和结束位置
-                    int start = j * chunkSize;
-                    int end = Math.min(start + chunkSize, bytesRead);
+            try {
+                while ( (bytesRead = fileInputStream.read(buffer)) != -1 ) {
+                    long fff = System.currentTimeMillis();
+                    int chunksToProcess = (bytesRead + chunkSize - 1) / chunkSize; // 计算需要拆分的块数
 
-                    byte[] chunkData = Arrays.copyOfRange( buffer, start, end ); // 拆分出当前块
+                    for ( int j = 0; j < chunksToProcess; ++j ) {
+                        // 计算当前块的起始和结束位置
+                        int start = j * chunkSize;
+                        int end = Math.min(start + chunkSize, bytesRead);
 
-                    // 发送当前块的数据
-                    fileDistribution.transmitClusterFrame(
-                            head,
-                            new UFMDClusterFrame(chunkData, path, i, fileClusterNum)
-                    );
+                        byte[] chunkData = Arrays.copyOfRange( buffer, start, end ); // 拆分出当前块
+
+                        // 发送当前块的数据
+                        fileDistribution.transmitClusterFrame(
+                                head,
+                                new UFMDClusterFrame(chunkData, path, i, fileClusterNum)
+                        );
+                    }
                 }
             }
+            finally {
+                fileInputStream.close();
+                tempFile.delete();
+            }
 
-            fileInputStream.close();
-            tempFile.delete();
 
             ++distributionFrameNum;
 

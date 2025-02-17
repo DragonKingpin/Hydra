@@ -1,5 +1,6 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
@@ -101,6 +102,7 @@ public class UCDNFMDController {
 
     @AddressMapping("transmitClusterFrame")
     public void transmitClusterFrame( RequestHead head, UFMDClusterFrame ufmdClusterFrame ) throws IOException, InterruptedException {
+
         long sessionId = head.getSessionId();
         if ( this.assertTransmitTransaction ( ufmdClusterFrame.getPath(), head) ) {
             return;
@@ -148,6 +150,7 @@ public class UCDNFMDController {
                 this.sessionPhaser.getClusterLock(cluster.getSegGuid()).notify();
             }
         }
+
 
     }
 

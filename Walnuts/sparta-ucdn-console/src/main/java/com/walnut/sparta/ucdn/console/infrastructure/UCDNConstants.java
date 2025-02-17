@@ -9,6 +9,8 @@ public class UCDNConstants {
 
     public static  String UCDNFileCloudDistributeTopic = "ucdn-file-cloud-distribute-topic";
 
+    public static String UCDNEFileCloudDistributeTopic = "ucdn-external-file-cloud-distribute-topic";
+
     public static  String TempFilePath = "D:/文件系统/temp/";
 
     public static  String FrameTempFilePath = "D:/文件系统/frameTemp/";

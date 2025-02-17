@@ -1,6 +1,7 @@
 package com.protobuf;
 
 
+import java.io.IOException;
 import java.util.List;
 
 import com.mc.JesusChrist;
@@ -40,9 +41,9 @@ class Jeff extends JesusChrist {
 
     @Override
     public void vitalize () throws Exception {
-        //this.testProtoRPCServer();
+        this.testProtoRPCServer();
 
-        //this.testProtoRPCClient();
+        this.testProtoRPCClient();
 
         //this.testIfaceProxy();
 
@@ -52,7 +53,7 @@ class Jeff extends JesusChrist {
 
         //this.testClassScanner();
 
-        this.testDuplex();
+        //this.testDuplex();
 
     }
 
@@ -130,6 +131,30 @@ class Jeff extends JesusChrist {
 //        });
 
         Debug.greenf( wolf.invokeInform(digest, "fuck you", 2024 ) );
+
+
+        boolean testParallel = true;
+        if ( testParallel ) {
+            for ( int j = 0; j < 10; ++j ) {
+                final int id = j;
+                Thread thread = new Thread(()->{
+                    for ( int i = 0; i < 1e2; ++i ) {
+                        try {
+                            Debug.greenfs( wolf.invokeInform(digest, "fuck you", id ) );
+                        }
+                        catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                thread.start();
+            }
+        }
+
+        for ( int i = 0; i < 1e2; ++i ) {
+            Debug.greenf( wolf.invokeInform(digest, "fuck you", 2024 ) );
+        }
+
 
         this.getTaskManager().add( wolf );
         this.getTaskManager().syncWaitingTerminated();

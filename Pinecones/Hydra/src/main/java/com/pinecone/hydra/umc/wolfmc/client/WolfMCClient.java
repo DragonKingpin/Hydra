@@ -331,13 +331,13 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
                         ).get();
 
 
-                        if ( !WolfMCClient.this.tryInvokeOrInterceptArrivedData( medium, channelControlBlock, message, ctx, msg ) ) {
-                            //Debug.trace( channelControlBlock.getChannel().getChannelID() );
-                            if( channelControlBlock.getChannelStatus() == UlfChannelStatus.FORCE_SYNCHRONIZED ){
-                                channelControlBlock.getSyncRetMsgQueue().add( message );
-                                //WolfMCClient.this.mSyncRetMsgQueue.add( message );
-                            }
-                            else {
+                        //Debug.trace( channelControlBlock.getChannel().getChannelID() );
+                        if( channelControlBlock.getChannelStatus() == UlfChannelStatus.FORCE_SYNCHRONIZED ){
+                            channelControlBlock.getSyncRetMsgQueue().add( message );
+                            //WolfMCClient.this.mSyncRetMsgQueue.add( message );
+                        }
+                        else {
+                            if ( !WolfMCClient.this.tryInvokeOrInterceptArrivedData( medium, channelControlBlock, message, ctx, msg ) ) {
                                 UlfAsyncMsgHandleAdapter handle = (UlfAsyncMsgHandleAdapter)ctx.channel().attr(
                                         AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY )
                                 ).get();
@@ -357,11 +357,11 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
                                 else {
                                     WolfMCClient.this.handleArrivedMessage( WolfMCClient.this.mPrimeAsyncMessageHandler, medium, channelControlBlock, message, ctx, msg );
                                 }
+                            }
 
-                                Object dyExternalChannel = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).get();
-                                if ( dyExternalChannel == null || !(Boolean) dyExternalChannel ){
-                                    WolfMCClient.this.getChannelPool().setIdleChannel( channelControlBlock );
-                                }
+                            Object dyExternalChannel = ctx.channel().attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).get();
+                            if ( dyExternalChannel == null || !(Boolean) dyExternalChannel ){
+                                WolfMCClient.this.getChannelPool().setIdleChannel( channelControlBlock );
                             }
                         }
 

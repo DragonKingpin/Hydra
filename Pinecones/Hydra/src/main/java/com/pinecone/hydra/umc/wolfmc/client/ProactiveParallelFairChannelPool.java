@@ -115,7 +115,7 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
     }
 
     @Override
-    public ProactiveParallelFairChannelPool setIdleChannel( ChannelControlBlock block ) {
+    public synchronized ProactiveParallelFairChannelPool setIdleChannel( ChannelControlBlock block ) {
         this.mPoolIOLock.writeLock().lock();
         try{
             block.getChannel().setChannelStatus( UlfChannelStatus.IDLE );
@@ -143,65 +143,64 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
     protected ChannelControlBlock queryNextChannel( long nMillisTimeout, boolean bEager, boolean bSync ) {
         ChannelControlBlock nextChannel     = null;
 
-        if( this.mChannelMapQueue.isEmpty() ) {
-            return null;
+        this.mPoolIOLock.readLock().lock();
+        try {
+            if( this.mChannelMapQueue.isEmpty() ) {
+                return null;
+            }
+        }
+        finally {
+            this.mPoolIOLock.readLock().unlock();
         }
 
         long nLastTime = System.currentTimeMillis();
         while ( true ) {
-            this.mPoolIOLock.readLock().lock();
-            boolean bReadLocked = true;
-
-            try{
-                if( !this.mChannelIdleQueue.isEmpty() ) {
-                    this.mPoolIOLock.readLock().unlock();
-                    bReadLocked = false;
-
-                    // Condition1: If there has an idle, just use it.
-                    this.mPoolIOLock.writeLock().lock();
-                    try{
+            boolean bIsIdleEmpty = this.mChannelIdleQueue.isEmpty();
+            if( !bIsIdleEmpty ) {
+                // Condition1: If there has an idle, just use it.
+                this.mPoolIOLock.writeLock().lock();
+                try{
+                    bIsIdleEmpty = this.mChannelIdleQueue.isEmpty();
+                    if ( !bIsIdleEmpty ) {
                         nextChannel = this.mChannelIdleQueue.pop().getValue();
                     }
-                    finally {
-                        this.mPoolIOLock.writeLock().unlock();
-                    }
                 }
-                else {
-                    // Condition2: If there are no idles, waiting and found balance channel.
-                    // Notice: In asynchronous condition, the producer could produce over-allocated messages and dump them into the queue of one channel so that consumers will mismatch the produced messages.
-                    // Using LinkedTreeMapQueue to sift repetitive idle channel and keep the queue.
-                    try{
-                        if( bSync ) {
-                            for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
-                                ChannelControlBlock block = kv.getValue();
-                                if( this.mLoadBalanceStrategy.apply( block ).matched() || block.isShutdown() ) {
-                                    nextChannel = block;
-                                    break;
-                                }
-                            }
-                        }
-                        else {
-                            for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
-                                ChannelControlBlock block = kv.getValue();
-                                boolean bFirstStrategyMatched = this.mLoadBalanceStrategy.apply( block ).matched();
-                                if( bFirstStrategyMatched || block.getChannelStatus().isAsynAvailable() || block.isShutdown() )  {
-                                    nextChannel = block;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    finally {
-                        this.mPoolIOLock.readLock().unlock();
-                        bReadLocked = false;
-                    }
+                finally {
+                    this.mPoolIOLock.writeLock().unlock();
                 }
             }
-            finally {
-                if ( bReadLocked || this.mPoolIOLock.getReadLockCount() > 0 ) {
+
+            if ( nextChannel == null ) {
+                // Condition2: If there are no idles, waiting and found balance channel.
+                // Notice: In asynchronous condition, the producer could produce over-allocated messages and dump them into the queue of one channel so that consumers will mismatch the produced messages.
+                // Using LinkedTreeMapQueue to sift repetitive idle channel and keep the queue.
+                try {
+                    this.mPoolIOLock.readLock().lock();
+                    if( bSync ) {
+                        for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
+                            ChannelControlBlock block = kv.getValue();
+                            if( this.mLoadBalanceStrategy.apply( block ).matched() || block.isShutdown() ) {
+                                nextChannel = block;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
+                            ChannelControlBlock block = kv.getValue();
+                            boolean bFirstStrategyMatched = this.mLoadBalanceStrategy.apply( block ).matched();
+                            if( bFirstStrategyMatched || block.getChannelStatus().isAsynAvailable() || block.isShutdown() )  {
+                                nextChannel = block;
+                                break;
+                            }
+                        }
+                    }
+                }
+                finally {
                     this.mPoolIOLock.readLock().unlock();
                 }
             }
+
 
             if( nextChannel != null ) {
                 this.mPoolIOLock.writeLock().lock();
@@ -249,18 +248,30 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
 
     @Override
     public boolean isEmpty() {
-        return this.mChannelMapQueue.isEmpty();
+        this.mPoolIOLock.readLock().lock();
+        try {
+            return this.mChannelMapQueue.isEmpty();
+        }
+        finally {
+            this.mPoolIOLock.readLock().unlock();
+        }
     }
 
     @Override
     public int size() {
-        return this.mChannelMapQueue.size();
+        this.mPoolIOLock.readLock().lock();
+        try {
+            return this.mChannelMapQueue.size();
+        }
+        finally {
+            this.mPoolIOLock.readLock().unlock();
+        }
     }
 
     @Override
     public void clear() {
         this.mPoolIOLock.writeLock().lock();
-        try{
+        try {
             for( ChannelControlBlock block : this.mChannelMapQueue.values() ) {
                 block.close();
                 block.release();

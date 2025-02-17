@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umc.wolfmc;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umc.msg.UMCHeadV1;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import io.netty.buffer.ByteBuf;
@@ -16,45 +17,67 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
     private ExtraHeadCoder extraHeadCoder;
     private long           byteSum;
     private long           bodyBytes;
+    private int            readAt;
+    private int            readBytes; //Each
 
     public GenericUMCByteMessageDecoder( ExtraHeadCoder extraHeadCoder ) {
         this.extraHeadCoder = extraHeadCoder;
         this.byteSum   = -1;
         this.bodyBytes = 0;
+        this.readAt    = 0;
+        this.readBytes = 0;
     }
 
     @Override
     protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object> out ) throws Exception {
-        this.cumulation = in;
+        while ( in.readableBytes() > 0 ) {
+            if ( this.byteSum == -1 ) {
+                int nBufSize = ArchUMCProtocol.basicHeadLength( UMCHeadV1.ProtocolSignature );
+                // Waiting for more data to arrive, and that will be enough to decode the header.
+                if ( in.readableBytes() < nBufSize ) {
+                    return;
+                }
+                this.readBytes = 0;
+                byte[] buf = new byte[ nBufSize ];
+                in.readBytes(buf);
 
-        if ( this.byteSum == -1 ) {
-            int nBufSize = ArchUMCProtocol.basicHeadLength( UMCHeadV1.ProtocolSignature );
+                UMCHead head = ArchUMCProtocol.onlyReadMsgBasicHead( buf, UMCHeadV1.ProtocolSignature, this.extraHeadCoder );
+                this.bodyBytes = head.getBodyLength();
+                this.byteSum   = nBufSize + head.getExtraHeadLength() + this.bodyBytes;
+                this.readAt    += nBufSize;
+                this.readBytes += nBufSize;
 
-            // Waiting for more data to arrive, and that will be enough to decode the header.
-            if ( in.readableBytes() < nBufSize ) {
-                return;
+                if ( this.byteSum < 0 ) {
+                    throw new IllegalArgumentException( "Invalid byteSum calculation: " + this.byteSum );
+                }
             }
 
-            byte[] buf = new byte[ nBufSize ];
-            in.readBytes(buf);
+            int startAt = this.readAt - this.readBytes;
+            in.readerIndex( startAt );
+            this.readAt -= this.readBytes;
+            if ( in.readableBytes() >= this.byteSum ) {
+                //Debug.redfs( in.readableBytes(), in.toString() );
+                this.readBytes = (int)this.byteSum;
+                ByteBuf completeMessage = in.readRetainedSlice((int) this.readBytes);
+                this.readAt += this.readBytes;
 
-            UMCHead head = ArchUMCProtocol.onlyReadMsgBasicHead( buf, UMCHeadV1.ProtocolSignature, this.extraHeadCoder );
-            this.bodyBytes = head.getBodyLength();
-            this.byteSum = nBufSize + head.getExtraHeadLength() + this.bodyBytes;
+                try {
+                    ctx.fireChannelRead(completeMessage);
+                }
+                finally {
+                    completeMessage.release();
+                }
 
-            if ( this.byteSum < 0 ) {
-                throw new IllegalArgumentException( "Invalid byteSum calculation: " + this.byteSum );
+                this.byteSum   = -1;
+                this.bodyBytes = 0;
+                this.readBytes = 0;
             }
+
+            //Debug.bluef( in.readableBytes() );
         }
 
-        in.resetReaderIndex();
-
-        if ( in.readableBytes() >= this.byteSum ) {
-            ByteBuf completeMessage = in.readRetainedSlice((int) this.byteSum);
-            ctx.fireChannelRead(completeMessage);
-
-            this.byteSum   = -1;
-            this.bodyBytes = 0;
+        if ( this.byteSum == -1 ) {
+            this.readAt = 0;
         }
 
         // Waiting for more data to arrive.
@@ -64,8 +87,10 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
     }
 
     private void resetState() {
-        this.byteSum = -1;
+        this.byteSum   = -1;
         this.bodyBytes = 0;
+        this.readAt    = 0;
+        this.readBytes = 0;
     }
 
     @Override

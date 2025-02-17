@@ -70,7 +70,7 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
 
 
     @Override
-    public void              sendMsg( UMCMessage request, boolean bNoneBuffered ) throws IOException {
+    public synchronized void              sendMsg( UMCMessage request, boolean bNoneBuffered ) throws IOException {
         this.getChannel().setChannelStatus( UlfChannelStatus.WAITING_FOR_SEND );
         this.mTransmit.sendMsg( request, bNoneBuffered );
         this.getChannel().setChannelStatus( UlfChannelStatus.WAITING_FOR_RECEIVE );

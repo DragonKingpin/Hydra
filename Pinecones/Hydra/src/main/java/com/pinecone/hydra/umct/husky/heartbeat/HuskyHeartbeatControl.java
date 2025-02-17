@@ -107,7 +107,7 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
     }
 
     protected void sendHeartbeat( ChannelControlBlock ccb ) throws IOException {
-        if ( ccb.getChannelStatus().isAsynAvailable() && !ccb.isShutdown() ) {
+        if ( ccb.getChannelStatus().isIdle() && !ccb.isShutdown() ) {
             ccb.sendMsg( HeartbeatConstants.HCTP_HEART_ALIVE, true );
         }
     }

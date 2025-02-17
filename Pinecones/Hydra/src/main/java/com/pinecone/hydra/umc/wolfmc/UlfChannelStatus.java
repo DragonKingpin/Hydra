@@ -67,7 +67,10 @@ public enum UlfChannelStatus implements ChannelStatus {
 
     @Override
     public boolean isAsynAvailable() {
-        return !this.isTerminated() && this != UlfChannelStatus.FORCE_SYNCHRONIZED && ( (this.value & PassiveStatusMask) != PassiveStatusMask );
+        return !this.isTerminated() &&
+                this != UlfChannelStatus.FORCE_SYNCHRONIZED &&
+                this != UlfChannelStatus.WAITING_FOR_SEND &&
+                ( (this.value & PassiveStatusMask) != PassiveStatusMask );
     }
 
     @Override

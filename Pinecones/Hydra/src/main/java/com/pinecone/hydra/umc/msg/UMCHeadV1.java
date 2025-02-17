@@ -3,6 +3,7 @@ package com.pinecone.hydra.umc.msg;
 import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.framework.util.Bytes;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
 import com.pinecone.framework.util.datetime.compact.CompactTimeUnit32;
@@ -427,9 +428,19 @@ public class UMCHeadV1 extends AbstractUMCHead implements UMCHead {
         if ( buf.length < nBufSize ) {
             throw new StreamTerminateException( "StreamEndException:[UMCProtocol] Stream is ended." );
         }
-
+        Debug.bluefs( buf, buf.length );
         int nReadAt = szSignature.length();
         if ( !Arrays.equals( buf, 0, szSignature.length(), szSignature.getBytes(), 0, szSignature.length() )  ) {
+            Debug.redfs( buf, buf.length );
+
+            synchronized ( Debug.console() ) {
+                for( byte b : buf ) {
+                    Debug.echo( (char) b );
+                }
+                Debug.hhf();
+            }
+
+            //System.exit(0);
             throw new IOException( "[UMCProtocol] Illegal protocol signature." );
         }
 

@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 
 import java.io.FileOutputStream;
@@ -13,6 +14,8 @@ public class UFMSessionPhaser implements SessionPhaser {
 
     // File.Guid => Lock
     private ConcurrentMap<GUID, Object>             fileLocksMap;
+
+    private ConcurrentMap<GUID, ClusterLock>        ClusterLocksMap;
 
     // File.Guid => Cluster.count (N)
     private ConcurrentMap<GUID, Long>               clusterComplatedPhaserMap;
@@ -28,6 +31,7 @@ public class UFMSessionPhaser implements SessionPhaser {
         this.clusterComplatedPhaserMap    = new ConcurrentHashMap<>();
         this.consumerComplatedPhaserMap   = new ConcurrentHashMap<>();
         this.clusterOutputStreamMap       = new ConcurrentHashMap<>();
+        this.ClusterLocksMap              = new ConcurrentHashMap<>();
     }
 
 
@@ -44,6 +48,21 @@ public class UFMSessionPhaser implements SessionPhaser {
     @Override
     public void removeFileLock(GUID guid) {
         this.fileLocksMap.remove( guid );
+    }
+
+    @Override
+    public void registerClusterLock(GUID guid, ClusterLock clusterLock) {
+        this.ClusterLocksMap.put( guid, clusterLock );
+    }
+
+    @Override
+    public ClusterLock getClusterLock(GUID guid) {
+        return this.ClusterLocksMap.get( guid );
+    }
+
+    @Override
+    public void removeClusterLock(GUID guid) {
+        this.ClusterLocksMap.remove( guid );
     }
 
     @Override

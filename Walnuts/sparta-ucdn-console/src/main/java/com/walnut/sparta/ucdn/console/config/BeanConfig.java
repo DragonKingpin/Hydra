@@ -9,6 +9,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
+import com.walnut.sparta.ucdn.console.umc.ufmc.EFileMultiDistributionIface;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,6 +31,13 @@ public class BeanConfig {
     public UlfBroadcastControlNode rocketFileServiceClient(){
         UlfBroadcastControlNode client = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", this.uofsContentDelivery, WolfMCExpress.class);
         client.compile( SessionValidator.class,false );
+        return client;
+    }
+
+    @Bean( name = "kafkaEFileServiceClient" )
+    public UlfBroadcastControlNode kafkaEFileServiceClient() {
+        UlfBroadcastControlNode client = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.uofsContentDelivery, WolfMCExpress.class);
+        client.compile( EFileMultiDistributionIface.class,false );
         return client;
     }
 }

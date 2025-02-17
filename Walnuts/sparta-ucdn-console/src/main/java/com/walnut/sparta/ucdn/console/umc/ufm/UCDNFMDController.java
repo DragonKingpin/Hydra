@@ -1,7 +1,5 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
-import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
@@ -15,6 +13,7 @@ import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
+import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
@@ -31,7 +30,7 @@ import java.nio.file.StandardOpenOption;
 @Controller
 @AddressMapping( "com.pinecone.hydra.uofs.ufm.FileMultiDistributionIface." )
 //@Service
-public class UCdnFMDController {
+public class UCDNFMDController {
 
 //    @Resource
     protected KOMFileSystem                   primaryFileSystem;
@@ -46,11 +45,11 @@ public class UCdnFMDController {
     protected SessionValidator                fileSessionValidator;
 
 
-    public UCdnFMDController(){
+    public UCDNFMDController(){
 
     }
 
-    public UCdnFMDController(MasterWarehouse masterWarehouse ) throws UMBServiceException {
+    public UCDNFMDController(MasterWarehouse masterWarehouse ) throws UMBServiceException {
         this.primaryFileSystem  = masterWarehouse.getKOMFileSystem();
         this.primaryVolume      = masterWarehouse.getUniformVolumeManager();
         this.sessionPhaser      = masterWarehouse.getSessionPhaser();
@@ -101,15 +100,25 @@ public class UCdnFMDController {
     }
 
     @AddressMapping("transmitClusterFrame")
-    public void transmitClusterFrame( RequestHead head, UFMDClusterFrame ufmdClusterFrame ) throws IOException {
+    public void transmitClusterFrame( RequestHead head, UFMDClusterFrame ufmdClusterFrame ) throws IOException, InterruptedException {
         long sessionId = head.getSessionId();
         if ( this.assertTransmitTransaction ( ufmdClusterFrame.getPath(), head) ) {
             return;
         }
 
-//        log.info("写入文件内容");
         ElementNode elementNode = this.primaryFileSystem.queryElement(ufmdClusterFrame.getPath());
         Cluster cluster = this.primaryFileSystem.getClusterByFileWithId(elementNode.getGuid(), ufmdClusterFrame.getSegId());
+
+        //log.info("写入文件内容 簇ID：" + cluster.getSegGuid());
+        if( this.sessionPhaser.getClusterLock(cluster.getSegGuid()) == null ){
+            this.sessionPhaser.registerClusterLock( cluster.getSegGuid(), new ClusterLock());
+        }else {
+            synchronized (this.sessionPhaser.getClusterLock(cluster.getSegGuid())){
+                this.sessionPhaser.getClusterLock(cluster.getSegGuid()).increment();
+                this.sessionPhaser.getClusterLock(cluster.getSegGuid()).wait();
+            }
+        }
+
         FileOutputStream fos = this.sessionPhaser.getClusterOutputStream( cluster.getSegGuid() );
 
         String path = UCDNConstants.TempFilePath + cluster.getSegGuid() + ".temp";
@@ -125,7 +134,19 @@ public class UCdnFMDController {
         this.sessionPhaser.getSessionTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );
 
         if( cluster.getSize() == tempFile.length() ) {
+            this.sessionPhaser.removeClusterCount( cluster.getSegGuid() );
             this.frameTerminate( head, ufmdClusterFrame.getPath(), ufmdClusterFrame.getSegId(), ufmdClusterFrame.getTotalSegNum() );
+        }
+
+        if( this.sessionPhaser.getClusterLock(cluster.getSegGuid()) != null ){
+            if( this.sessionPhaser.getClusterLock(cluster.getSegGuid()).getWaitThreatNum().get() == 0){
+                this.sessionPhaser.removeClusterLock( cluster.getSegGuid() );
+                return;
+            }
+            synchronized ( this.sessionPhaser.getClusterLock(cluster.getSegGuid()) ){
+                this.sessionPhaser.getClusterLock( cluster.getSegGuid() ).decrement();
+                this.sessionPhaser.getClusterLock(cluster.getSegGuid()).notify();
+            }
         }
 
     }

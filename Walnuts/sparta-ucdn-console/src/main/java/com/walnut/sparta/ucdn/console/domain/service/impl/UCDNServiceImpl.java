@@ -12,6 +12,8 @@ import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.ufm.UOFSFileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.umc.UMCMasterWarehouse;
+import com.walnut.sparta.ucdn.console.umc.ufmc.ExternalFileMultiDistributionService;
+import com.walnut.sparta.ucdn.console.umc.ufmc.UOFSEFIleMultiDistributionService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +30,10 @@ public class UCDNServiceImpl implements UCDNService {
 
     @Resource
     private UniformVolumeManager primaryVolume;
+
     private FileMultiDistributionService fileMultiDistributionService;
+
+    private ExternalFileMultiDistributionService EFileMultiDistributionService;
 
     @Resource
     UOFSContentDelivery         uofsContentDelivery;
@@ -40,6 +45,7 @@ public class UCDNServiceImpl implements UCDNService {
 
         UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.primaryFileSystem, this.primaryVolume,this.uofsContentDelivery );
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( warehouse );
+        this.EFileMultiDistributionService = new UOFSEFIleMultiDistributionService( warehouse );
     }
 
     @Override
@@ -70,5 +76,11 @@ public class UCDNServiceImpl implements UCDNService {
         FileNode fileNode = (FileNode)this.primaryFileSystem.queryElement(path);
 
         this.fileMultiDistributionService.fileDistribution( fileNode, topic );
+    }
+
+    @Override
+    public void testEDdistribution( String path, String topic ) throws IOException {
+        File file = new File(path);
+        this.EFileMultiDistributionService.fileDistribution( file, topic );
     }
 }

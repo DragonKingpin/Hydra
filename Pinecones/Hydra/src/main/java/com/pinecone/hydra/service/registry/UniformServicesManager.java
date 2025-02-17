@@ -16,7 +16,6 @@ public class UniformServicesManager implements ServicesManager {
 
 
 
-
     @Override
     public GuidAllocator getGuidAllocator() {
         return null;

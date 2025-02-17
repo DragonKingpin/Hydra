@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 
 import java.io.FileOutputStream;
@@ -11,6 +12,12 @@ public interface SessionPhaser {
     Object getFileLock(GUID guid );
 
     void removeFileLock( GUID guid );
+
+    void registerClusterLock(GUID guid, ClusterLock clusterLock);
+
+    ClusterLock getClusterLock( GUID guid );
+
+    void removeClusterLock( GUID guid );
 
     void registerClusterCount(GUID guid, long count );
 

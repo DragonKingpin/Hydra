@@ -5,6 +5,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionPhaser;
+import com.walnut.sparta.ucdn.console.umc.ufmc.ExternalSessionPhaser;
 
 public interface MasterWarehouse extends Pinenut {
     SessionPhaser getSessionPhaser();
@@ -15,5 +16,9 @@ public interface MasterWarehouse extends Pinenut {
 
     UlfBroadcastControlNode getKafkaClient();
 
+    UlfBroadcastControlNode getKafkaEFileClient();
+
     UlfBroadcastControlNode getRocketClient();
+
+    ExternalSessionPhaser   getExternalSessionPhaser();
 }

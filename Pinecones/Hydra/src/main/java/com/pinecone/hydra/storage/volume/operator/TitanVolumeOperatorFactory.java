@@ -12,7 +12,7 @@ import java.util.TreeMap;
 
 public class TitanVolumeOperatorFactory implements VolumeOperatorFactory{
     protected  VolumeMasterManipulator          volumeMasterManipulator;
-    protected VolumeManager volumeManager;
+    protected VolumeManager                     volumeManager;
     protected Map<String, TreeNodeOperator>     registerer = new HashMap<>();
     protected Map<String, String >              metaTypeMap = new TreeMap<>();
 

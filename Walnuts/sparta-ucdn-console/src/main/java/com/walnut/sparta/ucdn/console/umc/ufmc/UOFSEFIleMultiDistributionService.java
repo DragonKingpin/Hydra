@@ -44,13 +44,15 @@ public class UOFSEFIleMultiDistributionService implements ExternalFileMultiDistr
         int bufferSize = 900 * 1024;
         byte[] buffer = new byte[ bufferSize ];
         int bytesRead;
+        long currentPosition = 0;
 
         while( ( bytesRead = fileInputStream.read( buffer ) )!=-1 ) {
             if ( bytesRead < bufferSize ) {
                 byte[] validData = Arrays.copyOfRange(buffer, 0, bytesRead);
                 buffer = validData;
             }
-            distributionIface.transmitFileContent( head, new EFileContent( buffer, file.length(), file.getName() ) );
+            distributionIface.transmitFileContent( head, new EFileContent( buffer, file.length(), file.getName(), currentPosition, bytesRead ) );
+            currentPosition = currentPosition + bytesRead;
         }
     }
 }

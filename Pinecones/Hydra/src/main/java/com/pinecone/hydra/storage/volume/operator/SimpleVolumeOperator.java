@@ -5,6 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
+import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
 import com.pinecone.hydra.storage.volume.entity.VolumeCapacity64;
 import com.pinecone.hydra.storage.volume.entity.local.LocalSimpleVolume;
@@ -14,6 +15,7 @@ import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -93,10 +95,17 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
 
     @Override
     public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
-        LogicVolume logicVolume = this.volumeManager.get(volumeGuid);
+        SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(volumeGuid);
         try {
-            SQLiteExecutor sqLiteExecutor = logicVolume.getSQLiteExecutor();
-
+            SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
+            String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(storageObjectGuid, sqLiteExecutor);
+            File file = new File(sourceName);
+            simpleVolume.increaseCapacity( file.length() );
+            List<GUID> guids = simpleVolume.listPhysicalVolume();
+            PhysicalVolume physicalVolume = this.volumeManager.getPhysicalVolume(guids.get(0));
+            physicalVolume.increaseCapacity( file.length() );
+            file.delete();
+            this.kenVolumeFileSystem.removeSimpleTargetMappingTab( storageObjectGuid, sqLiteExecutor );
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -9,13 +9,15 @@ import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.walnuts.sparta.uofs.console.service.FileService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
-public class FileServiceImpl {
+public class FileServiceImpl implements FileService {
 
     @Resource
     private KOMFileSystem primaryFileSystem;
@@ -23,6 +25,7 @@ public class FileServiceImpl {
     @Resource
     private UniformVolumeManager primaryVolume;
 
+    @Override
     public void remove(GUID fileGuid){
         FileTreeNode fileTreeNode = this.primaryFileSystem.get(fileGuid);
         if( fileTreeNode instanceof Folder){
@@ -37,7 +40,11 @@ public class FileServiceImpl {
             long fileClusterNum = clusterPage.getClusters();
             for( long i = 0; i < fileClusterNum; i++ ){
                 LocalCluster frame = clusterPage.getLocalCluster( i );
-
+                try {
+                    this.primaryVolume.removeStorageObject( frame );
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

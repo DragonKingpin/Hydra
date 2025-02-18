@@ -3,13 +3,14 @@ package com.walnut.sparta.ucdn.console.umc.ufmc;
 import com.walnut.sparta.ucdn.console.umc.ufmc.session.UFMCTransaction;
 
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class UFMCSessionPhaser implements ExternalSessionPhaser{
     private ConcurrentMap<Long, UFMCTransaction>     sessionTransactions;
 
-    private ConcurrentMap<Long, FileOutputStream>    fileOutputStreamMap;
+    private ConcurrentMap<Long, RandomAccessFile>    fileOutputStreamMap;
     public UFMCSessionPhaser() {
         this.sessionTransactions = new ConcurrentHashMap<>();
         this.fileOutputStreamMap = new ConcurrentHashMap<>();
@@ -31,12 +32,12 @@ public class UFMCSessionPhaser implements ExternalSessionPhaser{
     }
 
     @Override
-    public void registerFileOutputStream(Long sessionId, FileOutputStream fileOutputStream) {
-        this.fileOutputStreamMap.put( sessionId, fileOutputStream );
+    public void registerFileOutputStream(Long sessionId, RandomAccessFile randomAccessFile) {
+        this.fileOutputStreamMap.put( sessionId, randomAccessFile );
     }
 
     @Override
-    public FileOutputStream getFileOutputStream(Long sessionId) {
+    public RandomAccessFile getFileOutputStream(Long sessionId) {
         return this.fileOutputStreamMap.get( sessionId );
     }
 

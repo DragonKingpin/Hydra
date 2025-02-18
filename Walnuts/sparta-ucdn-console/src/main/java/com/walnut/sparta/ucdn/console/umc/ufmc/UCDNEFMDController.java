@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 
 @Slf4j
 @Controller
@@ -46,7 +47,7 @@ public class UCDNEFMDController {
         ufmcTransaction.finishStartTransmit();
         this.sessionPhaser.registerSessionTransaction( sessionId, ufmcTransaction );
         this.sessionPhaser.getUFMCTransaction( sessionId ).finishStartTransmit();
-        this.sessionPhaser.registerFileOutputStream( sessionId, new FileOutputStream( newFile ));
+        this.sessionPhaser.registerFileOutputStream( sessionId, new RandomAccessFile(newFile, "rw"));
     }
 
     @AddressMapping("transmitFileContent")
@@ -58,13 +59,14 @@ public class UCDNEFMDController {
             return;
         }
 
-        FileOutputStream fileOutputStream = this.sessionPhaser.getFileOutputStream(sessionId);
+        RandomAccessFile randomAccessFile = this.sessionPhaser.getFileOutputStream(sessionId);
 
-        fileOutputStream.write( fileContent.getBytes() );
+        randomAccessFile.seek( fileContent.getOffset() );
+        randomAccessFile.write( fileContent.getBytes() );
         this.sessionPhaser.getUFMCTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );
 
         if( file.length() == fileContent.getFileSize() ){
-            fileOutputStream.close();
+            randomAccessFile.close();
             this.sessionPhaser.removeFileOutputStream( sessionId );
             this.sessionPhaser.removeUFMCTransaction( sessionId );
             this.sessionValidator.fileTransmitComplete( head );

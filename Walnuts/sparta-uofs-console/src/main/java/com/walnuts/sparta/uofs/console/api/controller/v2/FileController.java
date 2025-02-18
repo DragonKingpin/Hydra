@@ -4,10 +4,12 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
+import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateFileNameDTO;
 import com.walnuts.sparta.uofs.console.rpc.thrift.AccountClient;
+import com.walnuts.sparta.uofs.console.service.FileService;
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +31,12 @@ public class FileController {
 
     @Resource
     AccountClient accountClient;
+
+    @Resource
+    private FileService fileService;
+
+    @Resource
+    private VersionManage primaryVersion;
 
     /**
      * 创建文件
@@ -59,6 +67,7 @@ public class FileController {
      */
     @DeleteMapping("/remove/file")
     public BasicResultResponse<String> removeFile( String fileGuid ){
+        this.fileService.remove( GUIDs.GUID72( fileGuid ) );
         this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
         return BasicResultResponse.success();
     }

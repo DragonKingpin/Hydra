@@ -3,6 +3,7 @@ package com.walnut.sparta.ucdn.console.umc.ufmc;
 import com.walnut.sparta.ucdn.console.umc.ufmc.session.UFMCTransaction;
 
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 
 public interface ExternalSessionPhaser {
     void registerSessionTransaction(Long sessionId, UFMCTransaction ufmcTransaction);
@@ -11,9 +12,9 @@ public interface ExternalSessionPhaser {
 
     void removeUFMCTransaction( Long sessionId );
 
-    void registerFileOutputStream(Long sessionId, FileOutputStream fileOutputStream);
+    void registerFileOutputStream(Long sessionId, RandomAccessFile randomAccessFile);
 
-    FileOutputStream getFileOutputStream( Long sessionId );
+    RandomAccessFile getFileOutputStream(Long sessionId );
 
     void removeFileOutputStream( Long sessionId );
 

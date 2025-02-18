@@ -13,7 +13,7 @@ public interface OnVolumeFileSystem extends Pinenut {
 
     void createSimpleTargetMappingTab(MappedExecutor mappedExecutor ) throws SQLException;
 
-    void removeSimpleTargetMappingTab( GUID storageObjectGuid, MappedExecutor mappedExecutor );
+    void removeSimpleTargetMappingTab( GUID storageObjectGuid, MappedExecutor mappedExecutor ) throws SQLException;
 
     void insertSimpleTargetMappingSoloRecord(GUID storageObjectGuid, String storageObjectName, String sourceName, MappedExecutor mappedExecutor ) throws SQLException;
     String getSimpleStorageObjectSourceName(GUID storageObjectGuid, MappedExecutor mappedExecutor ) throws SQLException;
@@ -33,6 +33,7 @@ public interface OnVolumeFileSystem extends Pinenut {
 
     void createStripMetaTable(MappedExecutor mappedExecutor ) throws SQLException;
     void insertStripMetaTable(MappedExecutor mappedExecutor, int code, GUID volumeGuid, GUID storageObjectGuid, String sourceName ) throws SQLException;
+    void removeStripMetaTable( GUID storageGuid, MappedExecutor mappedExecutor ) throws SQLException;
     String getStripMetaSourceName(MappedExecutor mappedExecutor, GUID volumeGuid, GUID storageObjectGuid ) throws SQLException;
     int getStripMetaCode(MappedExecutor mappedExecutor, GUID volumeGuid, GUID storageObjectGuid ) throws SQLException;
     boolean isExistStripMetaTable(MappedExecutor mappedExecutor, GUID volumeGuid, GUID storageObjectGuid ) throws SQLException;

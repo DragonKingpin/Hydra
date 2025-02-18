@@ -38,8 +38,8 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
     }
 
     @Override
-    public void removeSimpleTargetMappingTab(GUID storageObjectGuid, MappedExecutor mappedExecutor) {
-
+    public void removeSimpleTargetMappingTab(GUID storageObjectGuid, MappedExecutor mappedExecutor) throws SQLException {
+        mappedExecutor.execute("DELETE FROM `kvfs_simple_target_mapping` WHERE `storage_object_guid` = '" + storageObjectGuid + "'", false);
     }
 
     @Override
@@ -125,6 +125,11 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
     @Override
     public void insertStripMetaTable(MappedExecutor mappedExecutor, int code, GUID volumeGuid, GUID storageObjectGuid, String sourceName) throws SQLException {
         mappedExecutor.execute( "INSERT INTO `kvfs_strip_meta` ( `code`, `volume_guid`, `storage_object_guid`, `source_name` ) VALUES ( "+code+", '"+volumeGuid+"', '"+storageObjectGuid+"', '"+sourceName+"' )", false );
+    }
+
+    @Override
+    public void removeStripMetaTable(GUID storageGuid, MappedExecutor mappedExecutor) throws SQLException {
+        mappedExecutor.execute( "DELETE FROM `kvfs_strip_meta` WHERE `storage_object_guid` = " + storageGuid, false );
     }
 
     @Override

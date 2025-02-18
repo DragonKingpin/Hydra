@@ -21,6 +21,7 @@ import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.KenusDruid;
 import com.pinecone.hydra.storage.volume.kvfs.KenusPool;
 import com.pinecone.hydra.storage.volume.operator.TitanVolumeOperatorFactory;
+import com.pinecone.hydra.storage.volume.operator.VolumeOperator;
 import com.pinecone.hydra.storage.volume.source.LogicVolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.MirroredVolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.MountPointManipulator;
@@ -83,7 +84,6 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.pathResolver                  =   new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator                 =   GUIDs.newGuidAllocator();
 
-        this.operatorFactory               =   new TitanVolumeOperatorFactory( this, this.volumeMasterManipulator );
         this.volumeAllotment               =   new TitanVolumeAllotment( this,this.volumeMasterManipulator );
         this.mirroredVolumeManipulator     =   this.volumeMasterManipulator.getMirroredVolumeManipulator();
         this.mountPointManipulator         =   this.volumeMasterManipulator.getMountPointManipulator();
@@ -101,6 +101,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
                 this.pathResolver, this.imperialTree, this.primeLogicVolumeManipulator, new GUIDNameManipulator[] {}
         );
         this.kenVolumeFileSystem           = new KenVolumeFileSystem(this);
+        this.operatorFactory               =   new TitanVolumeOperatorFactory( this, this.volumeMasterManipulator );
     }
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
@@ -416,7 +417,14 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
         LogicVolume volume = this.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
 
-        SQLiteExecutor sqLiteExecutor = volume.getSQLiteExecutor();
+        VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volume.getGuid());
+        operator.removeStorageObject( volume.getGuid(), cluster.getSegGuid() );
+    }
+
+    @Override
+    public void removeStorageObject(GUID volumeGuid, GUID storageGuid) {
+        VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volumeGuid);
+        operator.removeStorageObject( volumeGuid, storageGuid );
     }
 
     private String getNodeName(ImperialTreeNode node ){

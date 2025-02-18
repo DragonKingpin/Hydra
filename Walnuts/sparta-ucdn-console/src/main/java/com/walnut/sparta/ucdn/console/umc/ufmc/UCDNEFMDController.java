@@ -97,7 +97,7 @@ public class UCDNEFMDController {
         return false;
     }
 
-    private void rollBack( long sessionId, String fileName ){
+    private void rollBack( long sessionId, String fileName ) {
         this.sessionPhaser.removeUFMCTransaction( sessionId );
         this.sessionPhaser.removeFileOutputStream( sessionId );
         File file = new File(UCDNConstants.defaultStoragePath + fileName);

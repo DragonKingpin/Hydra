@@ -6,6 +6,10 @@ import com.pinecone.hydra.storage.volume.entity.VolumeCapacity64;
 
 public interface VolumeCapacityManipulator extends Pinenut {
     void insert( VolumeCapacity64 volumeCapacity );
+
     void remove( GUID guid );
+
     VolumeCapacity64 getVolumeCapacity(GUID guid);
+
+    void update( GUID guid, long usedSize );
 }

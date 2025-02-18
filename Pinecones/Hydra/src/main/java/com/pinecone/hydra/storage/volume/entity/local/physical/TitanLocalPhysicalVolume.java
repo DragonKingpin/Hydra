@@ -57,6 +57,11 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
         return this.physicalVolumeManipulator.getParent( this.guid );
     }
 
+    @Override
+    public void applyVolumeManage(VolumeManager volumeManager) {
+        this.volumeManager = volumeManager;
+    }
+
     public void setPhysicalVolumeManipulator(PhysicalVolumeManipulator physicalVolumeManipulator ){
         this.physicalVolumeManipulator = physicalVolumeManipulator;
     }
@@ -101,21 +106,25 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
 
     @Override
     public StorageIOResponse receive(ReceiveEntity entity) throws IOException {
+        this.deductCapacity( entity.getReceiveStorageObject().getSize().longValue() );
         return entity.receive();
     }
 
     @Override
     public StorageIOResponse receive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
+        this.deductCapacity( entity.getReceiveStorageObject().getSize().longValue() );
         return entity.receive( offset, endSize );
     }
 
     @Override
     public StorageIOResponse randomReceive(ReceiveEntity entity, Number offset, Number endSize) throws IOException {
+        this.deductCapacity( entity.getReceiveStorageObject().getSize().longValue() );
         return entity.randomReceive( offset,endSize );
     }
 
     @Override
     public StorageIOResponse receive(ReceiveEntity entity, CacheBlock cacheBlock, byte[] buffer) throws IOException {
+        this.deductCapacity( entity.getReceiveStorageObject().getSize().longValue() );
         return entity.receive( cacheBlock, buffer );
     }
 
@@ -127,5 +136,23 @@ public class TitanLocalPhysicalVolume extends ArchVolume implements LocalPhysica
     @Override
     public StorageIOResponse export(ExporterEntity entity, Number offset, Number endSize) {
         return null;
+    }
+
+    @Override
+    public void deductCapacity(long deductCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() + deductCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public void increaseCapacity(long increaseCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() - increaseCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public boolean checkCapacity(long size) {
+        long freeSpace = this.volumeCapacity.getDefinitionCapacity() - this.volumeCapacity.getUsedSize();
+        return freeSpace > size;
     }
 }

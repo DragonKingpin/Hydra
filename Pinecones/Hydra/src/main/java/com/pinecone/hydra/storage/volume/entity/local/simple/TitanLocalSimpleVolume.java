@@ -196,6 +196,24 @@ public class TitanLocalSimpleVolume extends ArchLogicVolume implements LocalSimp
         return (SQLiteExecutor) this.volumeManager.getKenusPool().allot(url);
     }
 
+    @Override
+    public void deductCapacity(long deductCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() + deductCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public void increaseCapacity(long increaseCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() - increaseCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public boolean checkCapacity(long size) {
+        long freeSpace = this.volumeCapacity.getDefinitionCapacity() - this.volumeCapacity.getUsedSize();
+        return freeSpace > size;
+    }
+
     public void assembleSQLiteExecutor() throws SQLException {
         this.mappedExecutor = this.getSQLiteExecutor();
     }

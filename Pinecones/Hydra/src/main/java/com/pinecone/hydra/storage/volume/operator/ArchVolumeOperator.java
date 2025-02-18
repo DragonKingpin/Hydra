@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
+import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
@@ -19,12 +20,14 @@ public abstract class ArchVolumeOperator implements VolumeOperator{
     protected ImperialTree                  imperialTree;
     protected VolumeMasterManipulator       volumeMasterManipulator;
     protected VolumeCapacityManipulator     volumeCapacityManipulator;
+    protected KenVolumeFileSystem           kenVolumeFileSystem;
 
     public ArchVolumeOperator( VolumeMasterManipulator masterManipulator, VolumeManager volumeManager ){
         this.imperialTree =  volumeManager.getMasterTrieTree();
         this.volumeManager = volumeManager;
         this.volumeMasterManipulator   =  masterManipulator;
         this.volumeCapacityManipulator =  masterManipulator.getVolumeCapacityManipulator();
+        this.kenVolumeFileSystem       =  this.volumeManager.getKVFSystem();
     }
 
     protected ImperialTreeNode affirmPreinsertionInitialize(LogicVolume volume ){

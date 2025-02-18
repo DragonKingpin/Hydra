@@ -154,4 +154,22 @@ public class TitanLocalSpannedVolume extends ArchLogicVolume implements LocalSpa
         this.spannedVolumeManipulator.updateDefinitionCapacity( this.guid, logicVolume.getVolumeCapacity().getDefinitionCapacity() );
     }
 
+    @Override
+    public void deductCapacity(long deductCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() + deductCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public void increaseCapacity(long increaseCapacity) {
+        this.volumeCapacity.setUsedSize( this.volumeCapacity.getUsedSize() - increaseCapacity );
+        this.volumeManager.updateVolumeUsedSize( this.guid, this.volumeCapacity );
+    }
+
+    @Override
+    public boolean checkCapacity(long size) {
+        long freeSpace = this.volumeCapacity.getDefinitionCapacity() - this.volumeCapacity.getUsedSize();
+        return freeSpace > size;
+    }
+
 }

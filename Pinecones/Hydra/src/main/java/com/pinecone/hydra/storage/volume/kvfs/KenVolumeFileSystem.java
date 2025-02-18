@@ -38,6 +38,11 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
     }
 
     @Override
+    public void removeSimpleTargetMappingTab(GUID storageObjectGuid, MappedExecutor mappedExecutor) {
+
+    }
+
+    @Override
     public void insertSimpleTargetMappingSoloRecord( GUID storageObjectGuid, String storageObjectName, String sourceName, MappedExecutor mappedExecutor ) throws SQLException {
         mappedExecutor.execute( "INSERT INTO `kvfs_simple_target_mapping` ( `storage_object_guid` , `storage_object_name` , `source_name` ) VALUES ( '"+ storageObjectGuid+ "', '"+storageObjectName+"', '"+sourceName+"' )", false );
     }

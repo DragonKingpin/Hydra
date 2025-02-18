@@ -43,6 +43,12 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);
+        if ( !volume.checkCapacity( this.file.getDefinitionSize() ) ){
+            this.fileSystem.remove( this.fileSystem.queryGUIDByPath( destDirPath ) );
+            Debug.trace("容量不足");
+            return;
+        }
+        volume.deductCapacity( this.file.getDefinitionSize() );
         this.fileReceive.receive( volume, offset, endSize );
     }
 
@@ -51,6 +57,12 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);
+        if ( !volume.checkCapacity( this.file.getDefinitionSize() ) ){
+            this.fileSystem.remove( this.fileSystem.queryGUIDByPath( destDirPath ) );
+            Debug.trace("容量不足");
+            return;
+        }
+        volume.deductCapacity( this.file.getDefinitionSize() );
         this.fileReceive.receive( volume,segId );
     }
 
@@ -59,6 +71,12 @@ public class TitanFileReceiveEntity64 extends ArchFileReceiveEntity  implements 
         this.fileSystem.affirmFileNode( this.destDirPath );
         GUID volumeGuid = this.fileSystem.getMappingVolume(this.destDirPath);
         LogicVolume volume = this.volumeManager.get(volumeGuid);
+        if ( !volume.checkCapacity( this.file.getDefinitionSize() ) ){
+            this.fileSystem.remove( this.fileSystem.queryGUIDByPath( destDirPath ) );
+            Debug.trace("容量不足");
+            return;
+        }
+        volume.deductCapacity( this.file.getDefinitionSize() );
         this.fileReceive.randomReceive( volume, offset, endSize );
     }
 }

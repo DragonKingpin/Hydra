@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.volume.operator;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.SimpleVolume;
@@ -88,6 +89,17 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     public void update(TreeNode treeNode) {
         SimpleVolume simpleVolume = (SimpleVolume) treeNode;
 
+    }
+
+    @Override
+    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
+        LogicVolume logicVolume = this.volumeManager.get(volumeGuid);
+        try {
+            SQLiteExecutor sqLiteExecutor = logicVolume.getSQLiteExecutor();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

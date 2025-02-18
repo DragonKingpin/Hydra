@@ -19,6 +19,8 @@ public interface PhysicalVolume extends Volume{
 
     GUID getParent();
 
+    void applyVolumeManage( VolumeManager volumeManager );
+
     StorageIOResponse channelReceive(VolumeManager volumeManager, StorageReceiveIORequest storageReceiveIORequest, Chanface channel ) throws UIOException;
     StorageIOResponse channelReceive(VolumeManager volumeManager, StorageReceiveIORequest storageReceiveIORequest, Chanface channel, Number offset, Number endSize ) throws IOException;
 

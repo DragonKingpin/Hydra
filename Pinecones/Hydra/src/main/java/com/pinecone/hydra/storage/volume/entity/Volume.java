@@ -33,5 +33,7 @@ public interface Volume extends Pinenut {
 
     void deductCapacity( long deductCapacity );
 
+    void increaseCapacity( long increaseCapacity );
+
     boolean checkCapacity( long size );
 }

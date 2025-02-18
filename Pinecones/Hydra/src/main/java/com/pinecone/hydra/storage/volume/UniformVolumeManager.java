@@ -2,7 +2,12 @@ package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
+import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.storage.file.entity.Cluster;
+import com.pinecone.hydra.storage.file.entity.LocalCluster;
+import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.MountPoint;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
@@ -11,6 +16,8 @@ import com.pinecone.hydra.storage.volume.entity.TitanVolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.Volume;
 import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.VolumeCapacity64;
+import com.pinecone.hydra.storage.volume.entity.local.VolumeCapacity;
+import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.KenusDruid;
 import com.pinecone.hydra.storage.volume.kvfs.KenusPool;
 import com.pinecone.hydra.storage.volume.operator.TitanVolumeOperatorFactory;
@@ -38,9 +45,11 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+import com.pinecone.slime.chunk.Frame;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.framework.util.id.GuidAllocator;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +72,8 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     protected LogicVolumeManipulator            primeLogicVolumeManipulator;
 
     protected KenusPool                         kenusPool;
+
+    protected KenVolumeFileSystem               kenVolumeFileSystem;
 
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name ) {
@@ -89,6 +100,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.pathSelector                  =   new SimplePathSelector(
                 this.pathResolver, this.imperialTree, this.primeLogicVolumeManipulator, new GUIDNameManipulator[] {}
         );
+        this.kenVolumeFileSystem           = new KenVolumeFileSystem(this);
     }
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
@@ -111,6 +123,11 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     @Override
     public ImperialTree getMasterTrieTree() {
         return this.imperialTree;
+    }
+
+    @Override
+    public KenVolumeFileSystem getKVFSystem() {
+        return this.kenVolumeFileSystem;
     }
 
     @Override
@@ -184,6 +201,11 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
+    public void updateVolumeUsedSize(GUID guid, VolumeCapacity volumeCapacity) {
+        this.volumeCapacityManipulator.update( guid, volumeCapacity.getUsedSize().longValue() );
+    }
+
+    @Override
     public void updatePhysical(PhysicalVolume physicalVolume) {
         this.physicalVolumeManipulator.update( physicalVolume );
     }
@@ -226,6 +248,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
             VolumeCapacity64 volumeCapacity = this.volumeCapacityManipulator.getVolumeCapacity(guid);
             physicalVolume.setMountPoint( mountPoint );
             physicalVolume.setVolumeCapacity( volumeCapacity );
+            physicalVolume.applyVolumeManage( this );
             return physicalVolume;
 //        }
 //        finally {
@@ -383,6 +406,17 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
             volumes.add(physicalVolume);
         }
         return new ArrayList<>(volumes);
+    }
+
+    @Override
+    public void removeStorageObject( Cluster cluster ) throws SQLException {
+        LocalCluster localCluster = (LocalCluster) cluster;
+
+        String sourceName = localCluster.getSourceName();
+        UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
+        LogicVolume volume = this.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+
+        SQLiteExecutor sqLiteExecutor = volume.getSQLiteExecutor();
     }
 
     private String getNodeName(ImperialTreeNode node ){

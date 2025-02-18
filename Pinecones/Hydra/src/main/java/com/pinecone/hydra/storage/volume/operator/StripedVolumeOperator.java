@@ -86,7 +86,12 @@ public class StripedVolumeOperator extends ArchVolumeOperator  implements Volume
 
     }
 
-    private void removeNode( GUID guid ){
+    @Override
+    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
+
+    }
+
+    private void removeNode(GUID guid ){
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.stripedVolumeManipulator.remove( guid );

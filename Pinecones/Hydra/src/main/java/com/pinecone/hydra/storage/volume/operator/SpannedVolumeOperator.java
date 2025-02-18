@@ -82,6 +82,11 @@ public class SpannedVolumeOperator extends ArchVolumeOperator  implements Volume
     }
 
     @Override
+    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
+
+    }
+
+    @Override
     public void updateName(GUID guid, String name) {
 
     }

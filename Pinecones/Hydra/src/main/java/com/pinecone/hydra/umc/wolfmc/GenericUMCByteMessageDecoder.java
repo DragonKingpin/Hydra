@@ -1,7 +1,5 @@
 package com.pinecone.hydra.umc.wolfmc;
 
-import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.umc.msg.ExtraEncode;
 import com.pinecone.hydra.umc.msg.UMCHeadV1;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import io.netty.buffer.ByteBuf;
@@ -11,7 +9,6 @@ import com.pinecone.hydra.umc.msg.ArchUMCProtocol;
 import com.pinecone.hydra.umc.msg.UMCHead;
 
 import java.util.List;
-
 
 public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
     private ByteBuf        cumulation;
@@ -29,11 +26,11 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
         this.readBytes = 0;
     }
 
-    public static int countOccurrences(byte[] bfs, byte[] target) {
+    private static int countOccurrences( byte[] bfs, byte[] target ) {
         int count = 0;
-        for (int i = 0; i <= bfs.length - target.length; i++) {
+        for ( int i = 0; i <= bfs.length - target.length; ++i ) {
             boolean match = true;
-            for (int j = 0; j < target.length; j++) {
+            for ( int j = 0; j < target.length; ++j ) {
                 if (bfs[i + j] != target[j]) {
                     match = false;
                     break;
@@ -46,19 +43,17 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
         return count;
     }
 
-    private static long IC = 0;
-
     @Override
     protected void decode( ChannelHandlerContext ctx, ByteBuf in, List<Object> out ) throws Exception {
-        ByteBuf bufs = in.copy();
-        byte[] bfs = new byte[ bufs.readableBytes() ];
-        bufs.readBytes( bfs );
-        int occurrences = countOccurrences(bfs, "UMC/1.1".getBytes());
-        int kf = countOccurrences(bfs, "afd".getBytes());
-        if ( kf > 0 ) {
-            IC += occurrences;
-            Debug.redfs(IC);
-        }
+//        ByteBuf bufs = in.copy();
+//        byte[] bfs = new byte[ bufs.readableBytes() ];
+//        bufs.readBytes( bfs );
+//        int occurrences = countOccurrences(bfs, "UMC/1.1".getBytes());
+//        int kf = countOccurrences(bfs, "afd".getBytes());
+//        if ( kf > 0 ) {
+//            IC += occurrences;
+//            Debug.redfs(IC);
+//        }
 
 
         while ( in.readableBytes() > 0 ) {
@@ -85,9 +80,6 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
 //                }
 
                 UMCHead head = ArchUMCProtocol.onlyReadMsgBasicHead( buf, UMCHeadV1.ProtocolSignature, this.extraHeadCoder );
-                if ( head.getExtraEncode() == ExtraEncode.JSONString ) {
-                    Debug.warnSyn( head );
-                }
                 this.bodyBytes = head.getBodyLength();
                 this.byteSum   = nBufSize + head.getExtraHeadLength() + this.bodyBytes;
                 this.readAt    += nBufSize;
@@ -103,6 +95,7 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
                 int startAt = this.readAt - this.readBytes;
                 in.readerIndex( startAt );
                 this.readAt -= this.readBytes;
+                this.readBytes = 0;
             }
             if ( in.readableBytes() >= this.byteSum ) {
                 this.readBytes = (int)this.byteSum;
@@ -123,7 +116,7 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
 
 
                 try {
-                    Debug.bluefs( Debug.invokeCounts() );
+                    //Debug.bluefs( invokes.getAndIncrement() );
                     ctx.fireChannelRead(completeMessage);
                 }
                 finally {
@@ -134,8 +127,9 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
                 this.bodyBytes = 0;
                 this.readBytes = 0;
             }
-
-            //Debug.bluef( in.readableBytes() );
+            else {
+                return;
+            }
         }
 
         if ( this.byteSum == -1 ) {

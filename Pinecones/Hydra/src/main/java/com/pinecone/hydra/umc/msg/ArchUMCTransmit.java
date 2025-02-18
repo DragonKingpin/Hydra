@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import com.pinecone.framework.util.Debug;
-
 public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTransmit {
     public ArchUMCTransmit( Medium messageSource ) {
         super( messageSource );
@@ -108,11 +106,7 @@ public abstract class ArchUMCTransmit extends ArchUMCProtocol implements UMCTran
 
 
     @Override
-    public synchronized void sendMsg( UMCMessage msg, boolean bNoneBuffered ) throws IOException {//Debug.redfs( Debug.invokeCounts() );
-        if ( msg.getHead().getExtraEncode() == ExtraEncode.JSONString ) {
-            Debug.warnSyn( msg );
-        }
-
+    public void sendMsg( UMCMessage msg, boolean bNoneBuffered ) throws IOException {
         msg.getHead().setIdentityId( this.getMessageSource().getMessageNode().getMessageNodeId() );
         UMCHead head = msg.getHead();
         head.inface().setSignature( this.mszSignature );

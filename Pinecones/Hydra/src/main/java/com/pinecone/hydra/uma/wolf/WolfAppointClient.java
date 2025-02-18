@@ -16,16 +16,24 @@ import com.pinecone.hydra.uma.proxy.GenericIfaceProxyFactory;
 import com.pinecone.hydra.uma.proxy.IfaceProxyFactory;
 import com.pinecone.hydra.servgram.Servgramium;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.vita.HeartbeatControl;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
+import com.pinecone.hydra.umc.wolfmc.UlfInstructMessage;
+import com.pinecone.hydra.umc.wolfmc.client.ArchAsyncMessenger;
 import com.pinecone.hydra.umc.wolfmc.client.ClientConnectArguments;
+import com.pinecone.hydra.umc.wolfmc.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolfmc.client.UlfClient;
 import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
+import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.IlleagalResponseException;
+import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
 import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
 import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
@@ -36,7 +44,9 @@ import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.ulf.util.protobuf.GenericFieldProtobufDecoder;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.AttributeKey;
 import javassist.ClassPool;
 
 /**
@@ -52,6 +62,37 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
     protected IfaceProxyFactory      mIfaceProxyFactory;
 
     protected HeartbeatControl       mHeartbeatControl;
+
+    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+        UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
+        Channel channel = cb.getChannel().getNativeHandle();
+        WolfAppointClient.this.getLogger().info( "Proactive channel ({}), has detached.", channel.id() );
+        UlfClient wrappedClient = WolfAppointClient.this.getMessageNode();
+        if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
+            try {
+                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+
+                WolfAppointClient.this.getLogger().info( "Proactive Channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+            }
+            catch ( IOException e ) {
+                WolfAppointClient.this.getLogger().error( "Proactive channel ({}), attempted to reconnect but failed.", channel.id(), e );
+                throw new ChannelHandleException( e.getCause() );
+            }
+        }
+
+        return true; // Blocking next inactive sequence.
+    }
+
+    protected void registerChannelInactiveHandler () {
+        this.mMessenger.registerChannelInactiveHandler(new ChannelInactiveHandler() {
+            @Override
+            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb );
+
+                return WolfAppointClient.this.afterChannelInactive( ccb );
+            }
+        });
+    }
 
     protected void registerChannelConnectedHandler () {
         ClientConnectArguments arguments = WolfAppointClient.this.getMessageNode().getConnectionArguments();
@@ -89,6 +130,8 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
             this.registerChannelConnectedHandler();
             this.initUlfClientHeartbeatInterceptors( messenger );
         }
+
+        this.registerChannelInactiveHandler();
     }
 
     protected WolfAppointClient( UlfClient messenger, boolean delay ){

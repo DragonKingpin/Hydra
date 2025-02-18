@@ -62,47 +62,44 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
     protected Map<ChannelId, ChannelControlBlock > mInstructedChannels;  // Standby controlled channels, waiting for server to instruct.
     protected RouteDispatcher                      mRouteDispatcher;
 
-    protected void registerChannelInactiveHandler () {
-        this.mMessenger.registerChannelInactiveHandler(new ChannelInactiveHandler() {
-            @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-                this.afterEventTriggered( ccb );
 
-                UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
-                Channel channel = cb.getChannel().getNativeHandle();
-                Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
-                if ( ob != null && (Boolean)ob ) {
-                    WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}), has detached.", channel.id() );
-                    UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
-                    if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
-                        try {
-                            ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
-                            Channel newChannel = cb.getChannel().getNativeHandle();
-                            WolvesAppointClient.copyDuplexAttrs( channel, newChannel );
+    @Override
+    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+        boolean bPreReturn = super.afterChannelInactive( ccb );
 
-                            UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
-                            instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
-                            cb.sendAsynMsg( instructMessage, true );
+        UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
+        Channel channel = cb.getChannel().getNativeHandle();
+        Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
+        if ( ob != null && (Boolean)ob ) {
+            WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}), has detached.", channel.id() );
+            UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
+            if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
+                try {
+                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+                    Channel newChannel = cb.getChannel().getNativeHandle();
+                    WolvesAppointClient.copyDuplexAttrs( channel, newChannel );
 
-                            WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
-                        }
-                        catch ( IOException e ) {
-                            WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
-                            throw new ChannelHandleException( e.getCause() );
-                        }
-                    }
+                    UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
+                    instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
+                    cb.sendAsynMsg( instructMessage, true );
 
-                    DuplexExpress express = (DuplexExpress)WolvesAppointClient.this.mRouteDispatcher.getUMCTExpress();
-                    express.afterChannelInactive( cb );
-                    return true; // Blocking next inactive sequence.
+                    WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
                 }
-                return false;
+                catch ( IOException e ) {
+                    WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
+                    throw new ChannelHandleException( e.getCause() );
+                }
             }
-        });
+
+            DuplexExpress express = (DuplexExpress)WolvesAppointClient.this.mRouteDispatcher.getUMCTExpress();
+            express.afterChannelInactive( cb );
+            return true; // Blocking next inactive sequence.
+        }
+        return bPreReturn;
     }
 
     private void initSelf() {
-        this.registerChannelInactiveHandler();
+
     }
 
     protected WolvesAppointClient( UlfClient messenger, RouteDispatcher dispatcher ) {

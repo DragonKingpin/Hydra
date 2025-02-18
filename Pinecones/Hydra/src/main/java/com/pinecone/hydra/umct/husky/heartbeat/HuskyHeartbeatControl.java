@@ -107,7 +107,7 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
     }
 
     protected void sendHeartbeat( ChannelControlBlock ccb ) throws IOException {
-        if ( ccb.getChannelStatus().isIdle() && !ccb.isShutdown() ) {
+        if ( ccb.getChannelStatus().isAsynAvailable() && !ccb.isShutdown() ) {
             ccb.sendMsg( HeartbeatConstants.HCTP_HEART_ALIVE, true );
         }
     }
@@ -116,7 +116,7 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
     public boolean interceptFeedback( ChannelControlBlock block, UMCMessage msg ) throws IOException {
         int nControlBits = msg.getHead().getControlBits();
         if ( nControlBits == HeartbeatConstants.HCTP_HEART_RESPONSE_ACK ) {
-            Debug.traceSyn( msg );
+            //Debug.traceSyn( msg );
             // Do nothing. [Keep the format]
             return true;
         }

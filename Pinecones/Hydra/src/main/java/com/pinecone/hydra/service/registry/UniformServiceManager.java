@@ -26,7 +26,7 @@ public class UniformServiceManager implements ServiceManager {
     protected KernelObjectConfig      mServiceConfig;
 
 
-    protected ConcurrentMap<USII, ConcurrentHashMap<Long, ServiceInstance > > mServiceRegistry;
+    protected final ConcurrentMap<USII, ConcurrentHashMap<Long, ServiceInstance > > mServiceRegistry;
 
     public UniformServiceManager( ServicesInstrument servicesInstrument ){
         this.mServicesInstrument = servicesInstrument;
@@ -58,10 +58,15 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public void registerService( ServiceInstance instance ) {
         USII primaryKey = instance.getUSII();
-        ConcurrentHashMap<Long, ServiceInstance > ins = this.mServiceRegistry.computeIfAbsent( primaryKey, ( key )->{
-            return new ConcurrentHashMap<>();
+        Long clientId   = primaryKey.getClientId();
+
+        this.mServiceRegistry.compute( primaryKey, ( key, ins ) -> {
+            if ( ins == null ) {
+                ins = new ConcurrentHashMap<>();
+            }
+            ins.put( clientId, instance );
+            return ins;
         } );
-        ins.put( primaryKey.getClientId(), instance );
     }
 
     @Override
@@ -81,14 +86,26 @@ public class UniformServiceManager implements ServiceManager {
 
     @Override
     public Collection<ServiceInstance >  removeService( Long clientId ) {
-        ConcurrentHashMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( clientId );
-        if ( instances != null ) {
-            ServiceInstance instance = instances.remove( clientId );
-            if ( instance != null ) {
-                return List.of( instance );
+        synchronized ( this.mServiceRegistry ) {
+            ConcurrentHashMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( clientId );
+            if ( instances != null ) {
+                // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
+                // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
+                if ( instances.size() > 1 ) {
+                    ServiceInstance instance = instances.remove( clientId );
+                    if ( instance != null ) {
+                        return List.of( instance );
+                    }
+                }
+                else {
+                    ConcurrentHashMap<Long, ServiceInstance > del = this.mServiceRegistry.remove( clientId );
+                    if ( del != null ) {
+                        return del.values();
+                    }
+                }
             }
+            return null;
         }
-        return null;
     }
 
     @Override

@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
@@ -121,16 +122,17 @@ public class UCDNFMDController {
             }
         }
 
-        FileOutputStream fos = this.sessionPhaser.getClusterOutputStream( cluster.getSegGuid() );
+        RandomAccessFile fos = this.sessionPhaser.getClusterOutputStream( cluster.getSegGuid() );
 
         String path = UCDNConstants.TempFilePath + cluster.getSegGuid() + ".temp";
         File tempFile = new File( path );
 
         if( fos == null ){
-            fos =  new FileOutputStream( tempFile,true );
+            fos =  new RandomAccessFile( tempFile,"rw" );
             this.sessionPhaser.registerClusterOutputStream( cluster.getSegGuid(), fos );
         }
 
+        fos.seek(ufmdClusterFrame.getOffset() );
         fos.write( ufmdClusterFrame.getBytes() );
 
         this.sessionPhaser.getSessionTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );
@@ -186,7 +188,7 @@ public class UCDNFMDController {
             }
         }
         finally {
-            FileOutputStream outputStream = this.sessionPhaser.getClusterOutputStream(frame.getSegGuid());
+            RandomAccessFile outputStream = this.sessionPhaser.getClusterOutputStream(frame.getSegGuid());
             outputStream.close();
             this.sessionPhaser.removeClusterOutputStream( frame.getSegGuid() );
             if ( !tempFile.delete() ) {
@@ -240,7 +242,7 @@ public class UCDNFMDController {
 
         for( long i = 0; i < fileClusterNum; i++ ){
             LocalCluster frame = clusterPage.getLocalCluster( i );
-            FileOutputStream clusterOutputStream = this.sessionPhaser.getClusterOutputStream(frame.getSegGuid());
+            RandomAccessFile clusterOutputStream = this.sessionPhaser.getClusterOutputStream(frame.getSegGuid());
             clusterOutputStream.close();
             this.sessionPhaser.removeClusterOutputStream( frame.getSegGuid() );
         }

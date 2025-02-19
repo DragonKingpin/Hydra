@@ -5,6 +5,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 
 public interface SessionPhaser {
     void registerFileLock(GUID guid, Object object );
@@ -45,9 +46,9 @@ public interface SessionPhaser {
 
     void removeSessionTransaction( Long sessionId );
 
-    void registerClusterOutputStream(GUID guid, FileOutputStream fileOutputStream);
+    void registerClusterOutputStream(GUID guid, RandomAccessFile fileOutputStream);
 
-    FileOutputStream getClusterOutputStream( GUID guid );
+    RandomAccessFile getClusterOutputStream(GUID guid );
 
     void removeClusterOutputStream( GUID guid );
 }

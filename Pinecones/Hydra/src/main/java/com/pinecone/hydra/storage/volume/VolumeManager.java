@@ -62,7 +62,7 @@ public interface VolumeManager extends KOMInstrument {
 
     void removeStorageObject(Cluster cluster) throws SQLException;
 
-    void removeStorageObject( GUID volumeGuid, GUID storageGuid );
+    void removeStorageObject( GUID volumeGuid, GUID storageGuid, long size );
 
     KenVolumeFileSystem getKVFSystem();
 }

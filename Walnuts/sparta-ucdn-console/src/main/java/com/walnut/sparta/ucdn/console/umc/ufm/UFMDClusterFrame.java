@@ -9,11 +9,14 @@ public class UFMDClusterFrame {
 
     private long totalSegNum;
 
-    public UFMDClusterFrame( byte[] bytes, String path, long segId, long totalSegNum ) {
+    private long offset;
+
+    public UFMDClusterFrame( byte[] bytes, String path, long segId, long totalSegNum, long offset ) {
         this.bytes = bytes;
         this.path = path;
         this.segId = segId;
         this.totalSegNum = totalSegNum;
+        this.offset = offset;
     }
 
     public UFMDClusterFrame(){}
@@ -48,5 +51,13 @@ public class UFMDClusterFrame {
 
     public void setTotalSegNum( long totalSegNum ){
         this.totalSegNum = totalSegNum;
+    }
+
+    public long getOffset(){
+        return this.offset;
+    }
+
+    public void setOffset( long offset ){
+        this.offset = offset;
     }
 }

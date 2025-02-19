@@ -36,4 +36,7 @@ public interface FolderMapper extends FolderManipulator {
     List<GUID > dumpGuid();
     @Select("SELECT COUNT('id') FROM hydra_uofs_folders WHERE guid = #{guid}")
     boolean isFolder(GUID guid);
+
+    @Update("UPDATE hydra_uofs_folders SET name = #{newName} WHERE guid = #{fileGuid}")
+    void rename( GUID fileGuid, String newName );
 }

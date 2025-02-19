@@ -82,10 +82,10 @@ public class SpannedVolumeOperator extends ArchVolumeOperator  implements Volume
     }
 
     @Override
-    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
+    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid,long size) {
         List<TreeNode> children = this.volumeManager.getChildren(volumeGuid);
         for( TreeNode treeNode : children ){
-            this.volumeManager.removeStorageObject( treeNode.getGuid(), storageObjectGuid );
+            this.volumeManager.removeStorageObject( treeNode.getGuid(), storageObjectGuid,size );
         }
     }
 

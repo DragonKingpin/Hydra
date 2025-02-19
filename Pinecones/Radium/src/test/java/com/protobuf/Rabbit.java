@@ -5,6 +5,16 @@ public class Rabbit {
 
     public byte[] bytes;
 
+    public Monkey monkey;
+
+    public Monkey getMonkey() {
+        return this.monkey;
+    }
+
+    public void setMonkey( Monkey monkey ) {
+        this.monkey = monkey;
+    }
+
     public byte[] getBytes() {
         return this.bytes;
     }

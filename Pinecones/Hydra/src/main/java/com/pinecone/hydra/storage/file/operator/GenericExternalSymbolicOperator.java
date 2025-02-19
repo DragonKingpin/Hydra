@@ -79,6 +79,11 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator{
     }
 
     @Override
+    public void rename(GUID fileGuid, String newName) {
+
+    }
+
+    @Override
     public FileTreeNode getSelf(GUID guid) {
         return this.getFileTreeNodeWideData(guid);
     }

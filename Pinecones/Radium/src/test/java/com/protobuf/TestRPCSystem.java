@@ -291,6 +291,9 @@ class Jeff extends JesusChrist {
         Rabbit rabbit = new Rabbit();
         rabbit.name = "rabbit";
         rabbit.bytes = new byte[] { 1,2,3 };
+        Monkey monkey = new Monkey();
+        monkey.name = "monkey";
+        rabbit.setMonkey( monkey );
         Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratchA", "DP you!", 5202123, rabbit ) );
 
         //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );

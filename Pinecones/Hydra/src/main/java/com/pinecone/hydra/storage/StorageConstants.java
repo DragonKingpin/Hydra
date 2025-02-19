@@ -7,5 +7,5 @@ public final class StorageConstants {
     public static final String PathSeparator            = "/";
     public static final String StorageVersionSignature  = "Titan";
     public static final GUID             LocalhostGUID  = GUIDs.GUID72( "0000000-000000-0000-00" );
-    public static final String  DefaultVolumePath       = "12146c0-0000ca-0000-8c";
+    public static final String  DefaultVolumePath       = "121dfde-000081-0000-b0";
 }

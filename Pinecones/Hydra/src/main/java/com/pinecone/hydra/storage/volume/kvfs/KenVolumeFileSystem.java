@@ -129,7 +129,7 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
 
     @Override
     public void removeStripMetaTable(GUID storageGuid, MappedExecutor mappedExecutor) throws SQLException {
-        mappedExecutor.execute( "DELETE FROM `kvfs_strip_meta` WHERE `storage_object_guid` = " + storageGuid, false );
+        mappedExecutor.execute( "DELETE FROM `kvfs_strip_meta` WHERE `storage_object_guid` = '" + storageGuid + "'", false );
     }
 
     @Override

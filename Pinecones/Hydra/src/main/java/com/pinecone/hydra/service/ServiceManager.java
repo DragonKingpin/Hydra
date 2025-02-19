@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.entity.USII;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 
 public interface ServiceManager extends KernelObjectInstrument {
@@ -47,5 +48,7 @@ public interface ServiceManager extends KernelObjectInstrument {
     Collection<ServiceInstance >  removeService( Identification serviceId );
 
     Collection<ServiceInstance >  removeService( USII usii );
+
+    ServicesInstrument getServicesInstrument();
 
 }

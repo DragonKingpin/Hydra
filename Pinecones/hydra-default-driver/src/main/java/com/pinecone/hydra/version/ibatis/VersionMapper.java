@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @IbatisDataAccessObject
 public interface VersionMapper extends VersionManipulator {
     @Insert("INSERT INTO `hydra_uofs_version` (`version`, `target_storage_object_guid`, `file_guid`) VALUES (#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
@@ -18,4 +20,11 @@ public interface VersionMapper extends VersionManipulator {
 
     @Select("SELECT `target_storage_object_guid` FROM `hydra_uofs_version` WHERE `version` = #{version} AND file_guid = #{fileGuid}")
     GUID queryObjectGuid( @Param("version") String version, @Param("fileGuid") String fileGuid );
+
+
+    @Select("SELECT EXISTS(SELECT 1 FROM `hydra_uofs_version` WHERE `file_guid` = #{fileGuid})")
+    boolean queryIsManage(@Param("fileGuid") GUID fileGuid);
+
+    @Select("SELECT `target_storage_object_guid` FROM `hydra_uofs_version` WHERE `file_guid` = #{fileGuid}")
+    List<GUID> fetchVersions(GUID guid);
 }

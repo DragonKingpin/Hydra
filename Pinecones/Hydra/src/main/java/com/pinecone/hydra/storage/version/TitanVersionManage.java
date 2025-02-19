@@ -10,6 +10,8 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 
+import java.util.List;
+
 public class TitanVersionManage implements VersionManage{
     protected Hydrarum                 hydrarum;
 
@@ -49,7 +51,17 @@ public class TitanVersionManage implements VersionManage{
     }
 
     @Override
+    public boolean queryIsManage(GUID targetStorageObjectGuid) {
+        return this.versionManipulator.queryIsManage( targetStorageObjectGuid );
+    }
+
+    @Override
     public GUID queryObjectGuid(String version, GUID fileGuid) {
         return this.versionManipulator.queryObjectGuid( version, fileGuid );
+    }
+
+    @Override
+    public List<GUID> fetchVersions(GUID guid) {
+        return  this.versionManipulator.fetchVersions( guid );
     }
 }

@@ -182,7 +182,11 @@ public class RegimentedImperialTree implements UniImperialTree {
             this.triePathCacheManipulator.insertLongPath( guid, part1, part2 );
         }
         else {
-            this.triePathCacheManipulator.insert( guid, path );
+            GUID node = this.triePathCacheManipulator.getNode(path);
+            if( node == null ){
+                this.triePathCacheManipulator.insert( guid, path );
+            }
+
         }
     }
 

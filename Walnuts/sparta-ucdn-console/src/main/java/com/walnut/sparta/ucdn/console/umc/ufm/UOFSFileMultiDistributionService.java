@@ -126,7 +126,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             byte[] buffer = new byte[bufferSize];
             int bytesRead;
             int chunkSize = 950 * 1024; // 每次处理 900KB 的数据
-
+            long currentPosition = 0;
 
             try {
                 while ( (bytesRead = fileInputStream.read(buffer)) != -1 ) {
@@ -143,8 +143,9 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
                         // 发送当前块的数据
                         fileDistribution.transmitClusterFrame(
                                 head,
-                                new UFMDClusterFrame(chunkData, path, i, fileClusterNum)
+                                new UFMDClusterFrame(chunkData, path, i, fileClusterNum, currentPosition)
                         );
+                        currentPosition = currentPosition + (end - start);
                     }
                 }
             }

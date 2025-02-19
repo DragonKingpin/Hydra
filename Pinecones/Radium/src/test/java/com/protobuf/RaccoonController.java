@@ -19,7 +19,7 @@ public class RaccoonController {
     @AddressMapping( "scratchA" )
     public String scratchA( String target, int time, Rabbit map ) {
         Debug.bluef( "Raccoon invoked " + target + time  );
-        Debug.bluef( map.getName(), map.bytes.length, (Object) map.bytes);
+        Debug.bluef( map.getName(), map.bytes.length, (Object) map.bytes, map.getMonkey().name );
         return "Raccoon Scratch " + target + time;
     }
 

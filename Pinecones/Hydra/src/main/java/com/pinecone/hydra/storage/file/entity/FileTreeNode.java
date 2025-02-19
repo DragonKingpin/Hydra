@@ -16,4 +16,5 @@ public interface FileTreeNode extends TreeNode {
     }
 
 
+    void setName(String s);
 }

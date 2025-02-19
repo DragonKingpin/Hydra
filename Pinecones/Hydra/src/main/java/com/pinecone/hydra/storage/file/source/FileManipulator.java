@@ -21,4 +21,6 @@ public interface FileManipulator extends GUIDNameManipulator {
 
     void update( FileNode fileNode );
 
+    void rename( GUID guid, String newName );
+
 }

@@ -20,6 +20,7 @@ import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.entity.RemoteCluster;
+import com.pinecone.hydra.storage.file.operator.FileSystemOperator;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.operator.GenericFileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
@@ -657,8 +658,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         ElementNode elementNode = this.queryElement(filePath);
         elementNode.setName( newFileName );
 
-        TreeNodeOperator operator = this.operatorFactory.getOperator(elementNode.getMetaType());
-        operator.update( elementNode );
+        FileSystemOperator operator = (FileSystemOperator)this.operatorFactory.getOperator(elementNode.getMetaType());
+        operator.rename( elementNode.getGuid(), newFileName );
     }
 
     private void initVolume(String path ){

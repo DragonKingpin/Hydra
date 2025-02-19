@@ -37,4 +37,7 @@ public interface FileMapper extends FileManipulator {
 
     @Update("UPDATE hydra_uofs_files SET checksum = #{checksum}, parity_check = #{parityCheck}, physical_size = #{physicalSize}, logic_size = #{logicSize}, crc32_xor = #{crc32Xor}, definition_size = #{definitionSize} WHERE guid = #{guid}")
     void update( FileNode fileNode );
+
+    @Update("UPDATE hydra_uofs_files SET name = #{name} WHERE guid = #{guid}")
+    void rename( GUID guid,String newName );
 }

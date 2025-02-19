@@ -41,9 +41,10 @@ public class UMCMasterWarehouse implements MasterWarehouse{
         this.sessionPhaser = new UFMSessionPhaser();
         this.externalSessionPhaser = new UFMCSessionPhaser();
 
-//        UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
-//        kafka.compile( FileMultiDistributionIface.class,false );
-//        this.kafkaClient = kafka;
+        UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
+        kafka.compile( FileMultiDistributionIface.class,false );
+        this.kafkaClient = kafka;
+        this.kafkaEFileClient = kafka;
 
         UlfBroadcastControlNode rocket = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", uofsContentDelivery, WolfMCExpress.class);
         rocket.compile( SessionValidator.class,false );
@@ -53,10 +54,10 @@ public class UMCMasterWarehouse implements MasterWarehouse{
         rocketEFileClient.compile( ExternalSessionValidator.class,false );
         this.rocketEFileClient = rocketEFileClient;
 
-        UlfBroadcastControlNode kafkaEFileClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
-        kafkaEFileClient.compile( EFileMultiDistributionIface.class,false );
-        this.kafkaEFileClient = kafkaEFileClient;
-        this.kafkaClient = kafkaEFileClient;
+//        UlfBroadcastControlNode kafkaEFileClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
+//        kafkaEFileClient.compile( EFileMultiDistributionIface.class,false );
+//        this.kafkaEFileClient = kafkaEFileClient;
+//        this.kafkaClient = kafkaEFileClient;
 
     }
 

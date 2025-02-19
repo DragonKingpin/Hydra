@@ -7,6 +7,7 @@ import com.pinecone.hydra.service.ServiceManager;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 import java.util.Collection;
@@ -15,25 +16,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class UniformServiceManager implements ServiceManager {
-    protected ServicesInstrument      mServicesInstrument;
+    protected ServicesInstrument            mServicesInstrument;
 
-    protected ServiceLifecycleIface   mServiceLifecycleIface;
+    protected ServiceMetaManipulation       mServiceMetaManipulation;
 
-    protected GuidAllocator           mGuidAllocator;
+    protected DuplexAppointServer           mAppointServer;
 
-    protected ImperialTree            mImperialTree;
+    protected GuidAllocator                 mGuidAllocator;
 
-    protected KernelObjectConfig      mServiceConfig;
+    protected ImperialTree                  mImperialTree;
+
+    protected KernelObjectConfig            mServiceConfig;
 
 
     protected final ConcurrentMap<USII, ConcurrentHashMap<Long, ServiceInstance > > mServiceRegistry;
 
-    public UniformServiceManager( ServicesInstrument servicesInstrument ){
+
+    protected void initRPCSubsystem() {
+        this.mAppointServer.registerController( new ServiceLifecycleController( this ) );
+    }
+
+    public UniformServiceManager( ServicesInstrument servicesInstrument, DuplexAppointServer server ){
         this.mServicesInstrument = servicesInstrument;
         this.mGuidAllocator      = this.mServicesInstrument.getGuidAllocator();
         this.mImperialTree       = this.mServicesInstrument.getMasterTrieTree();
         this.mServiceConfig      = this.mServicesInstrument.getConfig();
         this.mServiceRegistry    = new ConcurrentHashMap<>();
+        this.mAppointServer      = server;
+
+        this.initRPCSubsystem();
     }
 
 
@@ -124,5 +135,10 @@ public class UniformServiceManager implements ServiceManager {
             return instances.values();
         }
         return null;
+    }
+
+    @Override
+    public ServicesInstrument getServicesInstrument() {
+        return this.mServicesInstrument;
     }
 }

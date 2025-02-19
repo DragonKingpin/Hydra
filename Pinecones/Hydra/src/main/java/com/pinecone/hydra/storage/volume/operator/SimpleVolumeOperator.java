@@ -94,11 +94,14 @@ public class SimpleVolumeOperator extends ArchVolumeOperator  implements VolumeO
     }
 
     @Override
-    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid) {
+    public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid,long size) {
         SimpleVolume simpleVolume = (SimpleVolume)this.volumeManager.get(volumeGuid);
         try {
             SQLiteExecutor sqLiteExecutor = simpleVolume.getSQLiteExecutor();
             String sourceName = this.kenVolumeFileSystem.getSimpleStorageObjectSourceName(storageObjectGuid, sqLiteExecutor);
+            if( sourceName == null ){
+                return;
+            }
             File file = new File(sourceName);
             simpleVolume.increaseCapacity( file.length() );
             List<GUID> guids = simpleVolume.listPhysicalVolume();

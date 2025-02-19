@@ -239,21 +239,27 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
 
                                 if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
                                     Class<?> nestedClass = method.getReturnType();
-                                    Object dyChild;
-                                    try{
-                                        method.setAccessible( true );
-                                        dyChild = method.invoke( dynamicObject );
-                                    }
-                                    catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-                                        dyChild = null;
+                                    Object dyChild = null;
+
+                                    if ( dynamicObject != null ) {
+                                        try {
+                                            method.setAccessible( true );
+                                            dyChild = method.invoke( dynamicObject );
+                                        }
+                                        catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+                                            dyChild = null;
+                                        }
                                     }
 
-                                    Descriptors.Descriptor nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
-                                    if( nestedDescriptor == null ) {
-                                        continue;
+                                    // TODO, Self Dependence.
+                                    if ( !clazz.equals( nestedClass ) ) {
+                                        Descriptors.Descriptor nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
+                                        if( nestedDescriptor == null ) {
+                                            continue;
+                                        }
+                                        fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
+                                        dependencies.add( nestedDescriptor.getFile() );
                                     }
-                                    fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
-                                    dependencies.add( nestedDescriptor.getFile() );
                                 }
 
                                 descriptorBuilder.addField( fieldBuilder );

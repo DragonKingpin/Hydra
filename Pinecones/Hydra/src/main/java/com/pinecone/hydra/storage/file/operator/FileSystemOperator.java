@@ -10,6 +10,8 @@ public interface FileSystemOperator extends TreeNodeOperator {
 
     FileTreeNode get( GUID guid, int depth );
 
+    void rename( GUID fileGuid, String newName );
+
     @Override
     FileTreeNode getSelf( GUID guid );
 }

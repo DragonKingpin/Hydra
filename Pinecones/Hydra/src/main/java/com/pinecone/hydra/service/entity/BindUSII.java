@@ -7,7 +7,7 @@ public class BindUSII implements USII {
 
     protected Identification serviceId;
 
-    public BindUSII(Long clientId, Identification serviceId ) {
+    public BindUSII( Long clientId, Identification serviceId ) {
         this.clientId  = clientId;
         this.serviceId = serviceId;
     }

@@ -110,6 +110,12 @@ public class GenericFileOperator extends ArchFileSystemOperator {
     }
 
     @Override
+    public void rename(GUID fileGuid, String newName) {
+        this.fileManipulator.rename( fileGuid, newName );
+        this.imperialTree.removeCachePath(fileGuid);
+    }
+
+    @Override
     public void update(TreeNode treeNode) {
         this.imperialTree.removeCachePath(treeNode.getGuid());
         this.fileManipulator.update( (FileNode) treeNode );
@@ -117,7 +123,6 @@ public class GenericFileOperator extends ArchFileSystemOperator {
 
     @Override
     public void updateName(GUID guid, String name) {
-
     }
 
     protected FileTreeNode getFileTreeNodeWideData(GUID guid ){

@@ -24,12 +24,12 @@ public class UOFSEFIleMultiDistributionService implements ExternalFileMultiDistr
     protected BroadcastControlConsumer  consumer;
 
     public UOFSEFIleMultiDistributionService( MasterWarehouse masterWarehouse ) throws UMBServiceException {
-        this.client   = masterWarehouse.getKafkaEFileClient();
-        this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-        this.consumer.registerController( new UCDNEFMDController( masterWarehouse ) );
-        this.consumer.start();
-        this.producer.start();
+//        this.client   = masterWarehouse.getKafkaEFileClient();
+//        this.producer = client.createBroadcastControlProducer();
+//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
+//        this.consumer.registerController( new UCDNEFMDController( masterWarehouse ) );
+//        this.consumer.start();
+//        this.producer.start();
     }
 
     @Override

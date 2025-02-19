@@ -5,6 +5,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,7 +24,7 @@ public class UFMSessionPhaser implements SessionPhaser {
     // File.Guid => Consumer.count (N)
     private ConcurrentMap<GUID, Long>               consumerComplatedPhaserMap;
 
-    private ConcurrentMap<GUID, FileOutputStream>   clusterOutputStreamMap;
+    private ConcurrentMap<GUID, RandomAccessFile>   clusterOutputStreamMap;
 
     public UFMSessionPhaser() {
         this.sessionTransactions          = new ConcurrentHashMap<>();
@@ -133,12 +134,12 @@ public class UFMSessionPhaser implements SessionPhaser {
     }
 
     @Override
-    public void registerClusterOutputStream(GUID guid, FileOutputStream fileOutputStream) {
+    public void registerClusterOutputStream(GUID guid, RandomAccessFile fileOutputStream) {
         this.clusterOutputStreamMap.put( guid, fileOutputStream );
     }
 
     @Override
-    public FileOutputStream getClusterOutputStream(GUID guid) {
+    public RandomAccessFile getClusterOutputStream(GUID guid) {
         return this.clusterOutputStreamMap.get( guid );
     }
 

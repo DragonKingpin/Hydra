@@ -7,6 +7,7 @@ import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
+import com.walnuts.sparta.uofs.console.domain.RenameDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateFileNameDTO;
 import com.walnuts.sparta.uofs.console.rpc.thrift.AccountClient;
 import com.walnuts.sparta.uofs.console.service.FileService;
@@ -69,6 +70,17 @@ public class FileController {
     public BasicResultResponse<String> removeFile( String fileGuid ){
         this.fileService.remove( GUIDs.GUID72( fileGuid ) );
         this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
+        return BasicResultResponse.success();
+    }
+
+    /**
+     * 重命名文件或文件夹
+     * @param dto 信息
+     * @return 返回操作信息
+     */
+    @PostMapping("/rename")
+    public BasicResultResponse<String> renameFile(@RequestBody RenameDTO dto){
+        this.primaryFileSystem.renameFile( dto.getPath(), dto.getNewName() );
         return BasicResultResponse.success();
     }
 

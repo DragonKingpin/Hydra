@@ -40,6 +40,7 @@ public abstract class ArchServiceFamilyMeta implements ServiceFamilyMeta {
         return this;
     }
 
+
     public GUID getGuid() {
         return this.guid;
     }

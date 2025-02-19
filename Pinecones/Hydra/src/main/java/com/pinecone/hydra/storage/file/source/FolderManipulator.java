@@ -25,4 +25,6 @@ public interface FolderManipulator extends GUIDNameManipulator {
     List<GUID > dumpGuid();
 
     boolean isFolder(GUID guid);
+
+    void rename( GUID fileGuid, String newName );
 }

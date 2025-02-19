@@ -418,13 +418,13 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         LogicVolume volume = this.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
 
         VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volume.getGuid());
-        operator.removeStorageObject( volume.getGuid(), cluster.getSegGuid() );
+        operator.removeStorageObject( volume.getGuid(), cluster.getSegGuid(), cluster.getSize() );
     }
 
     @Override
-    public void removeStorageObject(GUID volumeGuid, GUID storageGuid) {
+    public void removeStorageObject(GUID volumeGuid, GUID storageGuid, long size) {
         VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volumeGuid);
-        operator.removeStorageObject( volumeGuid, storageGuid );
+        operator.removeStorageObject( volumeGuid, storageGuid, size );
     }
 
     private String getNodeName(ImperialTreeNode node ){

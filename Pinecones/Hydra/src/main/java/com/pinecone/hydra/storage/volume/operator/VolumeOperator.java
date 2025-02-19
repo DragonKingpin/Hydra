@@ -4,6 +4,6 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
 public interface VolumeOperator extends TreeNodeOperator {
-    void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid);
+    void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid,long size);
 
 }

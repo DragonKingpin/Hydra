@@ -11,6 +11,7 @@
     <modules>
         <module>pinecones</module>
         <module>saurons</module>
+        <module>sparta</module>
         <module>walnuts</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->

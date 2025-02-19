@@ -9,15 +9,20 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.walnuts</groupId>
-    <artifactId>walnuts</artifactId>
+    <groupId>com.walnuts.sparta</groupId>
+    <artifactId>sparta</artifactId>
     <packaging>pom</packaging>
     <version>2.5.1</version>
 
     <modules>
-        <module>sailor-stream-distribute-sdk</module>
+        <module>sparta-core-console</module>
+        <module>sparta-uofs-service</module>
+        <module>sparta-uofs-console</module>
+        <module>sparta-uac-console</module>
+        <module>sparta-api-uac</module>
+        <module>sparta-ucdn-service</module>
+        <module>sparta-ucdn-console</module>
     </modules>
-
 
 
 </project>

@@ -1,6 +1,8 @@
 package com.pinecone.hydra.service.registry.dto;
 
-public class RegisterServiceDTO {
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public class RegisterServiceDTO implements Pinenut {
 
     protected Long clientId;
 

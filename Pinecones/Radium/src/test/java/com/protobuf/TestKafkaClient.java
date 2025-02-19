@@ -174,7 +174,7 @@ class Luben extends Radium {
         Debug.sleep( 100000 );
     }
     public void testWolfMCTBKafka() throws IOException {
-        String server = "localhost:9092";
+        String server = "b-serverkingpin:9092";
         String keySerializer = StringSerializer.class.getName();
         String valueSerializer = StringSerializer.class.getName();
         String topic = "testTopic";
@@ -190,7 +190,10 @@ class Luben extends Radium {
 
 
         producer.start();
-        producer.issueInform( topic, "com.protobuf.Raccoon.scratch", "fuck you !", 2025 );
+        for ( int i = 0; i < 1e4; i++ ) {
+            producer.issueInform( topic, "com.protobuf.Raccoon.scratch", "fuck you !", 2025 );
+        }
+
 
         Raccoon raccoon = producer.getIface( Raccoon.class, topic );
         //raccoon.scratch("haha, I am XiaoMing", 5202 );

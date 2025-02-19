@@ -3,7 +3,6 @@ package com.pinecone.hydra.storage.volume;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
-import com.pinecone.framework.util.sqlite.SQLiteExecutor;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
@@ -18,8 +17,8 @@ import com.pinecone.hydra.storage.volume.entity.VolumeAllotment;
 import com.pinecone.hydra.storage.volume.entity.VolumeCapacity64;
 import com.pinecone.hydra.storage.volume.entity.local.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
-import com.pinecone.hydra.storage.volume.kvfs.KenusDruid;
 import com.pinecone.hydra.storage.volume.kvfs.KenusPool;
+import com.pinecone.hydra.storage.volume.kvfs.ExecutorPool;
 import com.pinecone.hydra.storage.volume.operator.TitanVolumeOperatorFactory;
 import com.pinecone.hydra.storage.volume.operator.VolumeOperator;
 import com.pinecone.hydra.storage.volume.source.LogicVolumeManipulator;
@@ -46,7 +45,6 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
-import com.pinecone.slime.chunk.Frame;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.framework.util.id.GuidAllocator;
 
@@ -72,7 +70,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
     protected LogicVolumeManipulator            primeLogicVolumeManipulator;
 
-    protected KenusPool                         kenusPool;
+    protected ExecutorPool                      kenusPool;
 
     protected KenVolumeFileSystem               kenVolumeFileSystem;
 
@@ -96,7 +94,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.sqliteVolumeManipulator       =   this.volumeMasterManipulator.getSQLiteVolumeManipulator();
         this.primeLogicVolumeManipulator   =   this.volumeMasterManipulator.getPrimeLogicVolumeManipulator();
 
-        this.kenusPool                     =   new KenusDruid();
+        this.kenusPool                     =   new KenusPool();
         this.pathSelector                  =   new SimplePathSelector(
                 this.pathResolver, this.imperialTree, this.primeLogicVolumeManipulator, new GUIDNameManipulator[] {}
         );
@@ -346,7 +344,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
-    public KenusPool getKenusPool() {
+    public ExecutorPool getKenusPool() {
         return this.kenusPool;
     }
 

@@ -42,9 +42,9 @@ class Jeff extends JesusChrist {
 
     @Override
     public void vitalize () throws Exception {
-        this.testProtoRPCServer();
+        //this.testProtoRPCServer();
 
-        this.testProtoRPCClient();
+        //this.testProtoRPCClient();
 
         //this.testIfaceProxy();
 
@@ -54,7 +54,7 @@ class Jeff extends JesusChrist {
 
         //this.testClassScanner();
 
-        //this.testDuplex();
+        this.testDuplex();
 
     }
 

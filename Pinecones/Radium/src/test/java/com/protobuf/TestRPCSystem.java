@@ -42,9 +42,9 @@ class Jeff extends JesusChrist {
 
     @Override
     public void vitalize () throws Exception {
-        //this.testProtoRPCServer();
+        this.testProtoRPCServer();
 
-        //this.testProtoRPCClient();
+        this.testProtoRPCClient();
 
         //this.testIfaceProxy();
 
@@ -54,7 +54,7 @@ class Jeff extends JesusChrist {
 
         //this.testClassScanner();
 
-        this.testDuplex();
+        //this.testDuplex();
 
     }
 
@@ -143,7 +143,7 @@ class Jeff extends JesusChrist {
                 Thread thread = new Thread(()->{
                     for ( int i = 0; i < 1e3; ++i ) {
                         try {
-                            Debug.greenfs( wolf.invokeInform(digest, "afd", id ), ai.getAndIncrement() );
+                            Debug.greenfs( wolf.invokeInform(digest, "afd", id + 7700 ), ai.getAndIncrement() );
                         }
                         catch (IOException e) {
                             e.printStackTrace();
@@ -155,7 +155,7 @@ class Jeff extends JesusChrist {
         }
 
         for ( int i = 0; i < 1e2; ++i ) {
-            Debug.greenf( wolf.invokeInform(digest, "afd", 77 ) );
+            Debug.greenf( wolf.invokeInform(digest, "afd", 7799 ) );
         }
 
         Debug.sleep( 1000000 );

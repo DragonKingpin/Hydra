@@ -115,7 +115,7 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
     }
 
     @Override
-    public synchronized ProactiveParallelFairChannelPool setIdleChannel( ChannelControlBlock block ) {
+    public ProactiveParallelFairChannelPool setIdleChannel( ChannelControlBlock block ) {
         this.mPoolIOLock.writeLock().lock();
         try{
             block.getChannel().setChannelStatus( UlfChannelStatus.IDLE );

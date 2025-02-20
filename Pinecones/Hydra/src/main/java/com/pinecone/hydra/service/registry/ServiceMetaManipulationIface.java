@@ -6,11 +6,12 @@ import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.umct.stereotype.Iface;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Iface
 public interface ServiceMetaManipulationIface {
-    Collection<ServiceInstance> queryServiceInstanceByClientId(Long clientId );
+    ArrayList<ServiceInstance > queryServiceInstanceByClientId(Long clientId );
 
     Collection<ServiceInstance > queryServiceInstanceByServiceId( Identification serviceId );
 

@@ -47,7 +47,7 @@ import java.util.Map;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
 @RestController
-@RequestMapping( "/api/v2/cdn/transmit" )
+@RequestMapping( "/api/v2/ucdn/transmit" )
 @CrossOrigin
 public class TransmitController {
     @Resource

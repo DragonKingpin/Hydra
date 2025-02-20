@@ -5,6 +5,8 @@ import com.pinecone.framework.util.id.GUID;
 public class TitanVersion implements Version{
     private long enumId;
 
+    private GUID guid;
+
     private String version;
 
     private GUID targetStorageObjectGuid;
@@ -27,6 +29,16 @@ public class TitanVersion implements Version{
     @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
+    }
+
+    @Override
+    public GUID getGuid() {
+        return this.guid;
+    }
+
+    @Override
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
     @Override

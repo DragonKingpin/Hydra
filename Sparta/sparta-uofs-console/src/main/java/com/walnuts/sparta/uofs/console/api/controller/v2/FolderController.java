@@ -43,6 +43,10 @@ public class FolderController {
     }
 
 
+    public String listItemByPath( @RequestParam String folderPath ){
+        return null;
+    }
+
 
     /**
      * 创建文件夹

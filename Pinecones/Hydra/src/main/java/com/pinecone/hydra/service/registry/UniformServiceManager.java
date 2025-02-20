@@ -10,6 +10,7 @@ import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,8 +18,6 @@ import java.util.concurrent.ConcurrentMap;
 
 public class UniformServiceManager implements ServiceManager {
     protected ServicesInstrument            mServicesInstrument;
-
-    protected ServiceMetaManipulation       mServiceMetaManipulation;
 
     protected DuplexAppointServer           mAppointServer;
 
@@ -34,6 +33,7 @@ public class UniformServiceManager implements ServiceManager {
 
     protected void initRPCSubsystem() {
         this.mAppointServer.registerController( new ServiceLifecycleController( this ) );
+        this.mAppointServer.registerController( new ServiceMetaController( this ) );
     }
 
     public UniformServiceManager( ServicesInstrument servicesInstrument, DuplexAppointServer server ){
@@ -81,8 +81,14 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public Collection<ServiceInstance > queryServiceInstance( Long clientId ) {
-        return this.mServiceRegistry.get( clientId ).values();
+    public ArrayList<ServiceInstance > queryServiceInstance(Long clientId ) {
+        ArrayList<ServiceInstance> serviceInstances = new ArrayList<>();
+        for( USII usii : this.mServiceRegistry.keySet() ){
+            if( usii.getClientId().equals( clientId ) ){
+                serviceInstances.addAll( this.mServiceRegistry.get( usii ).values() );
+            }
+        }
+        return serviceInstances;
     }
 
     @Override

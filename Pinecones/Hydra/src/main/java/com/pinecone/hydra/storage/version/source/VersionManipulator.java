@@ -2,11 +2,12 @@ package com.pinecone.hydra.storage.version.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.version.entity.Version;
 
 import java.util.List;
 
 public interface VersionManipulator extends Pinenut {
-    void insertObjectVersion(String version, GUID targetStorageObjectGuid, GUID fileGuid);
+    void insertObjectVersion(Version version);
 
     void removeObjectVersion( String version, GUID fileGuid );
 

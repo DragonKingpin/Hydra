@@ -4,11 +4,13 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -21,6 +23,8 @@ import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
+
+import java.util.Collection;
 
 class Brian extends Radium {
     public Brian( String[] args, CascadeSystem parent ) {
@@ -56,17 +60,22 @@ class Brian extends Radium {
         );
         wolf.execute();
         wolf.compile( ServiceLifecycleIface.class, false );
+        wolf.compile( ServiceMetaManipulationIface.class, false );
         this.testServiceRegister( wolf );
     }
 
     public void testServiceRegister( DuplexAppointClient client ) {
         ServiceLifecycleIface iface = client.getIface( ServiceLifecycleIface.class );
+        ServiceMetaManipulationIface metaIface = client.getIface(ServiceMetaManipulationIface.class);
 
         RegisterServiceDTO serviceDTO = new RegisterServiceDTO();
         serviceDTO.setServiceId( "1769872-0002d2-0003-cc" );
         serviceDTO.setClientId( 1234L );
 
         iface.registerService( serviceDTO );
+
+        Collection<ServiceInstance> serviceInstances = metaIface.queryServiceInstanceByClientId(1234L);
+        Debug.trace( serviceInstances );
     }
 
 }

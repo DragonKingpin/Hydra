@@ -1,6 +1,7 @@
 package com.pinecone.hydra.version.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.version.entity.Version;
 import com.pinecone.hydra.storage.version.source.VersionManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -12,14 +13,14 @@ import java.util.List;
 
 @IbatisDataAccessObject
 public interface VersionMapper extends VersionManipulator {
-    @Insert("INSERT INTO `hydra_uofs_version` (`version`, `target_storage_object_guid`, `file_guid`) VALUES (#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
-    void insertObjectVersion(@Param("version") String version, @Param("targetStorageObjectGuid") GUID target_storage_object_guid, @Param("fileGuid") String fileGuid);
+    @Insert("INSERT INTO `hydra_uofs_version` ( `version_guid`, `version`, `target_storage_object_guid`, `file_guid`) VALUES (#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
+    void insertObjectVersion(Version version);
 
     @Delete("DELETE FROM `hydra_uofs_version` WHERE `version` = #{version} AND `file_guid` = #{fileGuid}")
-    void removeObjectVersion( @Param("version") String version, @Param("fileGuid") String fileGuid );
+    void removeObjectVersion( String version, GUID fileGuid );
 
     @Select("SELECT `target_storage_object_guid` FROM `hydra_uofs_version` WHERE `version` = #{version} AND file_guid = #{fileGuid}")
-    GUID queryObjectGuid( @Param("version") String version, @Param("fileGuid") String fileGuid );
+    GUID queryObjectGuid( String version, GUID fileGuid );
 
 
     @Select("SELECT EXISTS(SELECT 1 FROM `hydra_uofs_version` WHERE `file_guid` = #{fileGuid})")

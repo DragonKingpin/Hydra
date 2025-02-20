@@ -6,6 +6,9 @@ public interface Version {
     long getEnumId();
     void setEnumId( long enumId );
 
+    GUID getGuid();
+    void setGuid( GUID guid );
+
     String getVersion();
     void setVersion( String version );
 

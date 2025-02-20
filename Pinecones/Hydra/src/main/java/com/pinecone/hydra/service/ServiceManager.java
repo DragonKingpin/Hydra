@@ -1,5 +1,6 @@
 package com.pinecone.hydra.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.pinecone.framework.util.id.Identification;
@@ -12,7 +13,7 @@ public interface ServiceManager extends KernelObjectInstrument {
     void registerService( ServiceInstance instance );
 
 
-    Collection<ServiceInstance >  queryServiceInstance( Long clientId );
+    ArrayList<ServiceInstance > queryServiceInstance(Long clientId );
 
     Collection<ServiceInstance >  queryServiceInstance( Identification serviceId );
 

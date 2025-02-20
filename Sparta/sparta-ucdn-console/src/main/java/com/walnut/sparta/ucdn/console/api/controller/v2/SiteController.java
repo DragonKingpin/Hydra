@@ -20,7 +20,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping( "/api/v2/cdn/site" )
+@RequestMapping( "/api/v2/ucdn/site" )
 @CrossOrigin
 public class SiteController implements Pinenut {
     @Resource

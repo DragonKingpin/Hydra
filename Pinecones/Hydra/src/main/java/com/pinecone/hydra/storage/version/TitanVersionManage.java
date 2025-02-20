@@ -42,7 +42,7 @@ public class TitanVersionManage implements VersionManage{
 
     @Override
     public void insert(TitanVersion version) {
-        this.versionManipulator.insertObjectVersion( version.getVersion(), version.getTargetStorageObjectGuid(), version.getFileGuid());
+        this.versionManipulator.insertObjectVersion( version);
     }
 
     @Override

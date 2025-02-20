@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 @Controller
@@ -23,7 +24,7 @@ public class ServiceMetaController {
     }
 
     @AddressMapping("queryServiceInstanceByClientId")
-    public Collection<ServiceInstance> queryServiceInstanceByClientId(Long clientId ) {
+    public ArrayList<ServiceInstance> queryServiceInstanceByClientId(Long clientId ) {
         return this.mServiceManager.queryServiceInstance( clientId );
     }
 

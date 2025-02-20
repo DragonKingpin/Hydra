@@ -23,7 +23,7 @@ import java.io.IOException;
 
 @RestController
 @CrossOrigin
-@RequestMapping( "/api/v2/ucdn/transmit" )
+@RequestMapping( "/api/v2/ucdn/client" )
 public class ClientController {
     @Resource
     protected UCDNService       service;

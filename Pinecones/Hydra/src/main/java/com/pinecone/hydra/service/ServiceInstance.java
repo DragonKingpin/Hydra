@@ -10,4 +10,6 @@ public interface ServiceInstance extends Pinenut {
     USII getUSII();
 
     Object getProcessObject();
+
+    Service getService();
 }

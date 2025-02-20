@@ -12,6 +12,8 @@ public class BindUSII implements USII {
         this.serviceId = serviceId;
     }
 
+    public BindUSII(){}
+
     @Override
     public Long getClientId() {
         return this.clientId;

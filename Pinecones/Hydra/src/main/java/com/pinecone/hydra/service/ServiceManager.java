@@ -6,6 +6,7 @@ import java.util.Collection;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.registry.WolfServiceInstance;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 
 public interface ServiceManager extends KernelObjectInstrument {
@@ -15,9 +16,10 @@ public interface ServiceManager extends KernelObjectInstrument {
 
     ArrayList<ServiceInstance > queryServiceInstance(Long clientId );
 
-    Collection<ServiceInstance >  queryServiceInstance( Identification serviceId );
+    ArrayList<ServiceInstance >  queryServiceInstance( Identification serviceId );
 
-    Collection<ServiceInstance >  queryServiceInstance( USII usii );
+    //Collection<ServiceInstance >  queryServiceInstance( USII usii );
+    WolfServiceInstance queryServiceInstance(USII usii );
 
     default ServiceInstance queryFirstInstance( Long clientId ) {
         Collection<ServiceInstance > instances = this.queryServiceInstance( clientId );
@@ -35,12 +37,15 @@ public interface ServiceManager extends KernelObjectInstrument {
         return null;
     }
 
+//    default ServiceInstance queryFirstInstance( USII usii ) {
+//        Collection<ServiceInstance > instances = this.queryServiceInstance( usii );
+//        if ( !instances.isEmpty() ) {
+//            return instances.iterator().next();
+//        }
+//        return null;
+//    }
     default ServiceInstance queryFirstInstance( USII usii ) {
-        Collection<ServiceInstance > instances = this.queryServiceInstance( usii );
-        if ( !instances.isEmpty() ) {
-            return instances.iterator().next();
-        }
-        return null;
+        return this.queryServiceInstance(usii);
     }
 
 
@@ -48,7 +53,9 @@ public interface ServiceManager extends KernelObjectInstrument {
 
     Collection<ServiceInstance >  removeService( Identification serviceId );
 
-    Collection<ServiceInstance >  removeService( USII usii );
+    //Collection<ServiceInstance >  removeService( USII usii );
+
+    ServiceInstance removeService( USII usii );
 
     ServicesInstrument getServicesInstrument();
 

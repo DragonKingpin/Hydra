@@ -32,4 +32,9 @@ public class WolfServiceInstance implements Servicium {
     public Processum getProcessObject() {
         return null;
     }
+
+    @Override
+    public Service getService() {
+        return this.mService;
+    }
 }

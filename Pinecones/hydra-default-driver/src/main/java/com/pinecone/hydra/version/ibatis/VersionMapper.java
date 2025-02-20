@@ -13,7 +13,7 @@ import java.util.List;
 
 @IbatisDataAccessObject
 public interface VersionMapper extends VersionManipulator {
-    @Insert("INSERT INTO `hydra_uofs_version` ( `version_guid`, `version`, `target_storage_object_guid`, `file_guid`) VALUES (#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
+    @Insert("INSERT INTO `hydra_uofs_version` ( `version_guid`, `version`, `target_storage_object_guid`, `file_guid`) VALUES (#{guid},#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
     void insertObjectVersion(Version version);
 
     @Delete("DELETE FROM `hydra_uofs_version` WHERE `version` = #{version} AND `file_guid` = #{fileGuid}")

@@ -1,8 +1,10 @@
 package com.pinecone.hydra.service.registry;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.ServiceManager;
+import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.umct.AddressMapping;
@@ -25,16 +27,18 @@ public class ServiceMetaController {
 
     @AddressMapping("queryServiceInstanceByClientId")
     public ArrayList<ServiceInstance> queryServiceInstanceByClientId(Long clientId ) {
-        return this.mServiceManager.queryServiceInstance( clientId );
+        ArrayList<ServiceInstance> serviceInstances = this.mServiceManager.queryServiceInstance(clientId);
+        Debug.trace( serviceInstances );
+        return serviceInstances;
     }
 
     @AddressMapping("queryServiceInstanceByServiceId")
-    public Collection<ServiceInstance > queryServiceInstanceByServiceId( Identification serviceId ) {
+    public ArrayList<ServiceInstance > queryServiceInstanceByServiceId( Identification serviceId ) {
         return this.mServiceManager.queryServiceInstance( serviceId );
     }
 
     @AddressMapping("queryServiceInstanceByUSII")
-    public Collection<ServiceInstance > queryServiceInstanceByUSII( USII usii ){
+    public WolfServiceInstance queryServiceInstanceByUSII( BindUSII usii ){
         return this.mServiceManager.queryServiceInstance( usii );
     }
 

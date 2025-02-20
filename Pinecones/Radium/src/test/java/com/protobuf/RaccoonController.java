@@ -4,6 +4,8 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 
+import java.util.List;
+
 @Controller
 //@AddressMapping( {"/fox", "/vulpis"} )
 @AddressMapping( "com.protobuf.Raccoon." )
@@ -28,5 +30,11 @@ public class RaccoonController {
     public void scratchV( String target, int time ) {
         Debug.bluef( "Raccoon invoked V" + target + time  );
         //return "Raccoon Scratch " + target + time;
+    }
+
+    @AddressMapping( "scratchC" )
+    public String[] scratchC(String target, int time, String[] list ) {
+        Debug.bluef( "Raccoon invoked C" + target + time  );
+        return list;
     }
 }

@@ -1,5 +1,6 @@
 package com.protobuf;
 
+import java.util.List;
 import java.util.Map;
 
 import com.pinecone.hydra.umct.bind.ArgParam;
@@ -21,6 +22,10 @@ public interface Raccoon {
     @Iface
     default void scratchV( String target, int time ) {
 
+    }
+
+    default String[] scratchC( String target, int time, String[] more ) {
+        return more;
     }
 
 //    @Iface( name = "scratchF1" )

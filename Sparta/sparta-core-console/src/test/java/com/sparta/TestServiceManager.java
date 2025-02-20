@@ -24,6 +24,7 @@ import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 class Brian extends Radium {
@@ -74,8 +75,8 @@ class Brian extends Radium {
 
         iface.registerService( serviceDTO );
 
-        Collection<ServiceInstance> serviceInstances = metaIface.queryServiceInstanceByClientId(1234L);
-        Debug.trace( serviceInstances );
+        ServiceInstance serviceInstance = metaIface.queryServiceInstanceByUSII(new BindUSII(1234L, GUIDs.GUID72("1769872-0002d2-0003-cc")));
+        Debug.trace( serviceInstance );
     }
 
 }

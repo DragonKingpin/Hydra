@@ -5,18 +5,20 @@ import com.pinecone.hydra.umc.msg.IdleFirstBalanceStrategy;
 
 public class UlfIdleFirstBalanceStrategy extends IdleFirstBalanceStrategy implements UlfIOLoadBalanceStrategy {
     public UlfIdleFirstBalanceStrategy() {
-        this(null);
+        super();
     }
 
-    public UlfIdleFirstBalanceStrategy( ChannelControlBlock channel ) {
-        this.apply( channel );
+    @Override
+    public boolean match( ChannelControlBlock ccb ) {
+        return ccb.getChannelStatus().isIdle();
     }
 
-    public UlfIdleFirstBalanceStrategy apply( ChannelControlBlock channel ) {
-        this.mChannelCB = channel;
-        return this;
+    @Override
+    public boolean matched( Object condition ) {
+        return this.match( (ChannelControlBlock) condition );
     }
 
+    @Override
     public UlfIdleFirstBalanceStrategy clone() {
         return (UlfIdleFirstBalanceStrategy)super.clone();
     }

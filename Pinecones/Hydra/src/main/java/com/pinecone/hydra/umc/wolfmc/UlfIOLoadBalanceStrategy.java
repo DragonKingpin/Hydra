@@ -4,7 +4,9 @@ import com.pinecone.hydra.umc.io.IOLoadBalanceStrategy;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 
 public interface UlfIOLoadBalanceStrategy extends IOLoadBalanceStrategy {
-    UlfIOLoadBalanceStrategy apply( ChannelControlBlock channel ) ;
+
+    boolean match( ChannelControlBlock ccb );
 
     UlfIOLoadBalanceStrategy clone();
+
 }

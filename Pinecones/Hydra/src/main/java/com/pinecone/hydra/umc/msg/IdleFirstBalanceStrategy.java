@@ -3,31 +3,24 @@ package com.pinecone.hydra.umc.msg;
 import com.pinecone.hydra.umc.io.IOLoadBalanceStrategy;
 
 public class IdleFirstBalanceStrategy implements IOLoadBalanceStrategy {
-    protected ChannelControlBlock mChannelCB;
-
     public IdleFirstBalanceStrategy() {
-        this(null);
+
     }
 
-    public IdleFirstBalanceStrategy( ChannelControlBlock channel ) {
-        this.apply( channel );
+    @Override
+    public boolean matched( Object condition ) {
+        ChannelControlBlock ccb = (ChannelControlBlock) condition;
+        return ccb.getChannelStatus().isIdle();
     }
 
-    public IdleFirstBalanceStrategy apply( ChannelControlBlock channel ) {
-        this.mChannelCB = channel;
-        return this;
+    @Override
+    public boolean readPriorityMatched( Object condition ) {
+        return this.matched( condition );
     }
 
-    public boolean matched() {
-        return this.mChannelCB.getChannelStatus().isIdle();
-    }
-
-    public boolean readPriorityMatched() {
-        return this.matched();
-    }
-
-    public boolean writePriorityMatched() {
-        return this.matched();
+    @Override
+    public boolean writePriorityMatched( Object condition ) {
+        return this.matched( condition );
     }
 
     public IdleFirstBalanceStrategy clone() {

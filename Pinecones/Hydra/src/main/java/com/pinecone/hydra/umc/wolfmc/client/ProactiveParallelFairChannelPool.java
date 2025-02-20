@@ -28,6 +28,8 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
 
     protected LinkedTreeMap<ID, ChannelControlBlock >  mChannelIdleQueue;
 
+    protected final Object             mPullQueryLock     = new Object();
+
 
     public ProactiveParallelFairChannelPool( UlfIOLoadBalanceStrategy strategy ) {
         this.mLoadBalanceStrategy  = strategy;
@@ -179,7 +181,7 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
                     if( bSync ) {
                         for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
                             ChannelControlBlock block = kv.getValue();
-                            if( this.mLoadBalanceStrategy.apply( block ).matched() || block.isShutdown() ) {
+                            if( this.mLoadBalanceStrategy.matched( block ) || block.isShutdown() ) {
                                 nextChannel = block;
                                 break;
                             }
@@ -188,7 +190,7 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
                     else {
                         for ( Map.Entry<ID, ChannelControlBlock> kv : this.mChannelMapQueue.entrySet() ) {
                             ChannelControlBlock block = kv.getValue();
-                            boolean bFirstStrategyMatched = this.mLoadBalanceStrategy.apply( block ).matched();
+                            boolean bFirstStrategyMatched = this.mLoadBalanceStrategy.matched( block );
                             if( bFirstStrategyMatched || block.getChannelStatus().isAsynAvailable() || block.isShutdown() )  {
                                 nextChannel = block;
                                 break;
@@ -217,9 +219,10 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
 
             if( !bEager ) {
                 try{
-                    Thread.sleep( 10 );
+                    this.mPullQueryLock.wait( 10 );
                 }
                 catch ( InterruptedException e ) {
+                    // Just return null.
                     break;
                 }
             }

@@ -24,7 +24,8 @@ public interface Raccoon {
 
     }
 
-    default String[] scratchC( String target, int time, String[] more ) {
+    @Iface
+    default Rabbit[] scratchC( String target, int time, Rabbit[] more ) {
         return more;
     }
 

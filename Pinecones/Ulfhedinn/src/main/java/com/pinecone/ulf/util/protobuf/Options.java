@@ -8,7 +8,12 @@ public class Options implements Pinenut {
     public static final FileDescriptorFormater DefaultFileDescriptorFormater = new FileDescriptorFormater() {
         @Override
         public String format( Class<?> type ) {
-            return type.getName().replace( '.', '_' );
+            String neo = type.getName().replace( '.', '_' );
+            if( neo.startsWith( "[" ) ) {
+                neo = neo.replace( "[", "" );
+                neo += "_ARRAY";
+            }
+            return neo.replaceAll( "[^a-zA-Z0-9_]", "_" );
         }
     };
 

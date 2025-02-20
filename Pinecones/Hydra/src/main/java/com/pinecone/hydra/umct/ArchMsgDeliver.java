@@ -4,6 +4,7 @@ import com.pinecone.framework.unit.trie.TrieMap;
 import com.pinecone.framework.unit.trie.TrieSegmentor;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
 
+import com.pinecone.framework.util.Bytes;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.express.Package;
 import com.pinecone.hydra.umc.msg.Status;
@@ -109,7 +110,7 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
             }
 
             if( this.sift( that ) ) {
-                connection.getTransmit().sendInformMsg( null, Status.IllegalMessage );
+                connection.getTransmit().sendInformMsg( Bytes.Empty, Status.IllegalMessage );
                 return;
             }
 

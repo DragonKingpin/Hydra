@@ -1,8 +1,11 @@
 package com.pinecone.ulf.util.protobuf;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +15,19 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.stereotype.JavaBeans;
 import com.pinecone.framework.unit.Units;
+import com.pinecone.framework.util.Debug;
 
 public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
     @Override
     public <T> T decode( Class<T> clazz, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String> exceptedKeys, Options options ) {
         if( PrimitiveWrapper.isSupportedPrimitive( clazz ) ) {
             return clazz.cast( dynamicMessage.getField( descriptor.findFieldByName( PrimitiveWrapper.FieldName ) ) );
+        }
+        else if( RepeatedWrapper.isSupportedRepeated( clazz ) ) {
+            Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName( RepeatedWrapper.FieldName );
+            Object val = dynamicMessage.getField( fieldDescriptor );
+            Object ret = this.decodeRepeated( val, fieldDescriptor, options, clazz );
+            return clazz.cast( ret );
         }
         else if( Map.class.isAssignableFrom( clazz ) ) {
             if( clazz.isInterface() && Map.class.isAssignableFrom( clazz ) ) {
@@ -127,12 +137,11 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
 
 
                         if ( fieldDescriptor.isRepeated() ) {
-                            List<Object> decodedValues = new ArrayList<>();
-                            List<?> values = (List<?>) value;
-                            for ( Object item : values ) {
-                                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                            Class<?>[] pars = setter.getParameterTypes();
+                            if( pars.length > 0 ) {
+                                Class<?> nestedType = pars[ 0 ];
+                                setter.invoke( bean, this.decodeRepeated( value, fieldDescriptor, options, nestedType ) );
                             }
-                            setter.invoke( bean, decodedValues );
                         }
                         else if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
                             Descriptors.Descriptor nestedDescriptor = fieldDescriptor.getMessageType();
@@ -237,5 +246,36 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                 throw new IllegalArgumentException( "Unsupported field type: " + fieldDescriptor.getType() );
             }
         }
+    }
+
+    protected Object decodeRepeated( Object value, Descriptors.FieldDescriptor fieldDescriptor, Options options, Class<?> type ) {
+        if ( type.isArray() ) {
+            List<?> values = (List<?>) value;
+            Object[] ret = (Object[]) Array.newInstance( type.getComponentType(), values.size() );
+            int i = 0;
+            for ( Object item : values ) {
+                ret[ i ] = this.decodeFieldValue( fieldDescriptor, item, options );
+                ++i;
+            }
+            return ret;
+        }
+        else if ( Collection.class.isAssignableFrom( type ) ) {
+            List<?> values = (List<?>) value;
+            List<Object> decodedValues = new ArrayList<>();
+            for ( Object item : values ) {
+                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+            }
+            return values;
+        }
+        else if ( Set.class.isAssignableFrom( type ) ) {
+            List<?> values = (List<?>) value;
+            Set<Object> decodedValues = new HashSet<>();
+            for ( Object item : values ) {
+                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+            }
+            return values;
+        }
+
+        return null;
     }
 }

@@ -6,10 +6,9 @@ import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.umc.msg.Status;
 import com.pinecone.hydra.umc.msg.UMCMessage;
-import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
 import com.pinecone.hydra.umct.UMCConnection;
+import com.pinecone.hydra.umct.husky.HuskyServiceErrorMessages;
 
 public interface HeaderDecipher extends Pinenut {
     Object eval( Object that, @Nullable Object descriptor, String key );
@@ -33,11 +32,11 @@ public interface HeaderDecipher extends Pinenut {
     String getServicePath( Object that );
 
     default void sendIllegalMessage( UMCConnection connection ) throws IOException {
-        connection.getTransmit().sendInformMsg( null, Status.IllegalMessage );
+        connection.getTransmit().sendMsg( HuskyServiceErrorMessages.HCTP_ILLEGAL_MESSAGE );
     }
 
     default void sendInternalError( UMCConnection connection ) throws IOException {
-        connection.getTransmit().sendInformMsg( null, Status.InternalError );
+        connection.getTransmit().sendMsg( HuskyServiceErrorMessages.HCTP_INTERNAL_ERROR );
     }
 
     UMCMessage assembleReturnMsg( Object that, Object descriptor ) ;

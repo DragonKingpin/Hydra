@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 
+import com.pinecone.framework.util.Bytes;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.Status;
 import com.pinecone.hydra.umc.msg.UMCMessage;
@@ -11,6 +12,7 @@ import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.hydra.umc.msg.UMCReceiver;
 import com.pinecone.hydra.umc.msg.UMCTransmit;
 import com.pinecone.hydra.umc.wolfmc.UlfInformMessage;
+import com.pinecone.hydra.umct.husky.HuskyServiceErrorMessages;
 
 /**
  *  Pinecone Ursus For Java Hydra Ulfar, Wolf Express
@@ -65,7 +67,7 @@ public class WolfMCExpress extends ArchMsgExpress implements UMCTExpress {
         }
 
         if( c == this.mDeliverPool.size() ) {
-            connection.getTransmit().sendInformMsg( null, Status.MappingNotFound );
+            connection.getTransmit().sendMsg( HuskyServiceErrorMessages.HCTP_MAPPING_NOT_FOUND );
         }
 
         connection.release();

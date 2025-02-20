@@ -29,7 +29,20 @@ public interface BeanProtobufEncoder extends Pinenut {
         if( primitiveDesc != null ) {
             return primitiveDesc;
         }
+        Descriptors.Descriptor repeatedDesc = this.transformRepeated( clazz );
+        if( repeatedDesc != null ) {
+            return repeatedDesc;
+        }
+
         return this.transform( clazz, dynamicObject, exceptedKeys, Options.DefaultOptions );
+    }
+
+    default Descriptors.Descriptor transformRepeated( Class<?> clazz ) {
+        if( RepeatedWrapper.isSupportedRepeated( clazz ) ) { // TODO Collection
+            return RepeatedWrapper.transform( clazz, clazz.getComponentType() );
+        }
+
+        return null;
     }
 
     default Descriptors.Descriptor transformPrimitive( Class<?> clazz ) {

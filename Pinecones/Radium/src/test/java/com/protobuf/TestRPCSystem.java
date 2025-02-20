@@ -258,14 +258,22 @@ class Jeff extends JesusChrist {
 
 
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratch", "fuck you", 2025 ) );
-        String[] args = new String[] { "abc", "efg" };
+        //String[] args = new String[] { "abc", "efg" };
+
+        Rabbit rabbit = new Rabbit();
+        rabbit.name = "rabbit";
+        rabbit.bytes = new byte[] { 1,2,3 };
+        Monkey monkey = new Monkey();
+        monkey.name = "monkey";
+        rabbit.setMonkey( monkey );
+        Rabbit[] args = new Rabbit[] { rabbit };
         Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025,args ) );
 
 
         //Debug.sleep( 3000 );
 
-        Raccoon raccoon = wolf.getIface( 2048, Raccoon.class );
-        Debug.greenf( raccoon.scratch( "fuck you", 202510 ) );
+        //Raccoon raccoon = wolf.getIface( 2048, Raccoon.class );
+        //Debug.greenf( raccoon.scratch( "fuck you", 202510 ) );
 
 
         this.getTaskManager().add( wolf );
@@ -297,7 +305,7 @@ class Jeff extends JesusChrist {
         Monkey monkey = new Monkey();
         monkey.name = "monkey";
         rabbit.setMonkey( monkey );
-        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratchA", "DP you!", 5202123, rabbit ) );
+        //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratchA", "DP you!", 5202123, rabbit ) );
 
         //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
 

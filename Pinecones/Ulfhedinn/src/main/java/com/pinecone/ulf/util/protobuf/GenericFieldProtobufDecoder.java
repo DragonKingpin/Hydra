@@ -101,12 +101,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     FieldEntity entity = entities[ i ];
 
                     if ( fieldDescriptor.isRepeated() ) {
-                        List<Object> decodedValues = new ArrayList<>();
-                        List<?> values = (List<?>) value;
-                        for ( Object item : values ) {
-                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
-                        }
-
+                        Object decodedValues = this.decodeRepeated( value, fieldDescriptor, options, entity.getType() );
                         entity.setValue( decodedValues );
                     }
                     else if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {

@@ -34,7 +34,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     if ( fieldDescriptor.isRepeated() ) {
@@ -95,7 +95,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     FieldEntity entity = entities[ i ];

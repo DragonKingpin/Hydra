@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.pinecone.framework.lang.field.DataStructureEntity;
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.hydra.umc.msg.UMCMethod;
 
 public interface MappingDigest extends Pinenut {
@@ -22,7 +23,18 @@ public interface MappingDigest extends Pinenut {
 
     Method getMappedMethod();
 
+
     Class<?> getReturnType();
+
+    String getReturnGenericTypeLabel();
+
+    default String[] getReturnGenericTypeNames() {
+        return ReflectionUtils.extractGenericClassNames( this.getReturnGenericTypeLabel() );
+    }
+
+    void applyReturnGenericTypeLabel( String genericTypeLabel );
+
+
 
     List<ParamsDigest> getParamsDigests();
 

@@ -173,6 +173,7 @@ class Luben extends Radium {
 
         Debug.sleep( 100000 );
     }
+
     public void testWolfMCTBKafka() throws IOException {
         String server = "b-serverkingpin:9092";
         String keySerializer = StringSerializer.class.getName();

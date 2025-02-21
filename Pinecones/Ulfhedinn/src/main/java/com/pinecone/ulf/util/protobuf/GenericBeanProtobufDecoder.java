@@ -56,7 +56,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     if ( fieldDescriptor.isRepeated() ) {
@@ -89,6 +89,9 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
         if ( descriptor == null || dynamicMessage == null ) {
             return null;
         }
+        else if ( BeanProtobufDecoder.isNullMessage( dynamicMessage, descriptor ) ) {
+            return null;
+        }
 
         try {
             if ( targetClass == null ) {
@@ -110,7 +113,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     try {
@@ -153,7 +156,18 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                                     nestedBean = this.decodeMap( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                                 }
                                 else {
-                                    nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                                    if ( descriptor.equals( nestedDescriptor ) ) {
+                                        DynamicMessage dyVal =(DynamicMessage) value;
+                                        if ( BeanProtobufDecoder.isNullMessage( dyVal, nestedDescriptor ) ) {
+                                            nestedBean = null;
+                                        }
+                                        else {
+                                            nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                                        }
+                                    }
+                                    else {
+                                        nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                                    }
                                 }
 
                                 setter.invoke( bean, nestedBean );

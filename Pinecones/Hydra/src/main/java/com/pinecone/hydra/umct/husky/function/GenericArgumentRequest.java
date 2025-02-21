@@ -83,8 +83,18 @@ public class GenericArgumentRequest extends ArchRequestPackage implements Argume
     }
 
     @Override
+    public void setField( int index, String key, Object val, String genericLabel ) {
+        this.mDataStructureEntity.setDataField( index, key, val, genericLabel );
+    }
+
+    @Override
     public void setField( int index, String key, Class<?> type ) {
         this.mDataStructureEntity.setDataField( index, key, type );
+    }
+
+    @Override
+    public void setField( int index, String key, Class<?> type, String genericLabel ) {
+        this.mDataStructureEntity.setDataField( index, key, type, genericLabel );
     }
 
     @Override
@@ -120,7 +130,7 @@ public class GenericArgumentRequest extends ArchRequestPackage implements Argume
         FieldEntity[] ins = new FieldEntity[ proto.length ];
         for ( int i = 1; i < proto.length; ++i ) {
             FieldEntity entity = proto[ i ];
-            ins[ i ] = new GenericFieldEntity( entity.getName(), null, entity.getType(), entity.getComponentGenericTypeLabel() );
+            ins[ i ] = new GenericFieldEntity( entity.getName(), null, entity.getType(), entity.getGenericTypeLabel() );
         }
         ins[ 0 ] = proto[ 0 ];
 

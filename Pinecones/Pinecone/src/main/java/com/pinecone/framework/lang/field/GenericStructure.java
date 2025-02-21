@@ -181,6 +181,11 @@ public class GenericStructure implements DataStructureEntity {
 
     @Override
     public void setDataField( int index, String key, Object val ) {
+        this.setDataField( index, key, val, null );
+    }
+
+    @Override
+    public void setDataField( int index, String key, Object val, String genericLabel ) {
         FieldEntity legacy = this.getDataField( index );
         FieldEntity neo    = null;
         if( legacy != null ) {
@@ -189,7 +194,13 @@ public class GenericStructure implements DataStructureEntity {
                 return;
             }
         }
-        neo = new GenericFieldEntity( key, val );
+
+        if ( genericLabel == null ) {
+            neo = new GenericFieldEntity( key, val );
+        }
+        else {
+            neo = new GenericFieldEntity( key, val, val.getClass(), genericLabel );
+        }
         this.setDataField( index, neo );
     }
 
@@ -201,6 +212,11 @@ public class GenericStructure implements DataStructureEntity {
     @Override
     public void setDataField( int index, String key, Class<?> type ) {
         this.setDataField( index, new GenericFieldEntity( key, type ) );
+    }
+
+    @Override
+    public void setDataField( int index, String key, Class<?> type, String genericLabel ) {
+        this.setDataField( index, new GenericFieldEntity( key, null, type, genericLabel ) );
     }
 
     @Override

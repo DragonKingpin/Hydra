@@ -8,9 +8,11 @@ import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.lang.field.FieldEntity;
 
 public interface FieldProtobufDecoder extends BeanProtobufDecoder {
+
     Map.Entry<String, Object>[] decodeEntries( Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
 
     void decodeEntries( FieldEntity[] entities, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
 
     Object[] decodeValues( FieldEntity[] entities, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
+
 }

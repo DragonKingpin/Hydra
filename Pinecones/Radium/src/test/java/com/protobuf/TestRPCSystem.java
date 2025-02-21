@@ -238,7 +238,7 @@ class Jeff extends JesusChrist {
         this.testDuplexClient();
 
 
-        Debug.sleep( 300 );
+        Debug.sleep( 100 );
 
         ClassDigest digest = wolf.compile( Raccoon.class, false );
 
@@ -267,9 +267,16 @@ class Jeff extends JesusChrist {
         Monkey monkey = new Monkey();
         monkey.name = "monkey";
         rabbit.setMonkey( monkey );
-        //Rabbit[] args = new Rabbit[] { rabbit };
-        List<Rabbit> args = List.of(rabbit);
-        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchList", "fuck you", 2025, args ) );
+        rabbit.setMonkeys( new Monkey[] { monkey, monkey } );
+
+        Rabbit sub = new Rabbit();
+        sub.setName( "haha" );
+        rabbit.setSub( sub );
+
+        Rabbit[] args = new Rabbit[] { rabbit };
+        //List<Rabbit> args = List.of(rabbit);
+        //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchA", "fuck you", 2025, rabbit ) );
+        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025, args ) );
 
 
         //Debug.sleep( 3000 );

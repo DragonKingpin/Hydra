@@ -15,9 +15,17 @@ public class GenericIfaceMappingDigest extends GenericMappingDigest implements I
     protected Descriptors.Descriptor        mReturnDescriptor;
 
     public GenericIfaceMappingDigest(
-            String[] szAddresses, Class<?>[] parameters, Class<?> returnType, Class<?> classType, Method method, List<ParamsDigest> paramsDigests, UMCMethod[] interceptMethods, CompilerEncoder encoder
+            String[] szAddresses,
+            Class<?>[] parameters, String[] parametersGenericLabels,
+            Class<?> returnType, String szReturnGenericTypeLabel,
+            Class<?> classType, Method method, List<ParamsDigest> paramsDigests, UMCMethod[] interceptMethods, CompilerEncoder encoder
     ) {
-        super( szAddresses, parameters, returnType, classType, method, paramsDigests, interceptMethods );
+        super(
+                szAddresses,
+                parameters, parametersGenericLabels,
+                returnType, szReturnGenericTypeLabel,
+                classType, method, paramsDigests, interceptMethods
+        );
 
         this.encode( encoder );
     }

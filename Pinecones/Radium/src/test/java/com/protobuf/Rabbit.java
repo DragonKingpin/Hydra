@@ -10,12 +10,32 @@ public class Rabbit {
 
     public Monkey monkey;
 
+    public Monkey[] monkeys;
+
+    public Rabbit sub;
+
+    public Rabbit getSub() {
+        return this.sub;
+    }
+
+    public void setSub( Rabbit sub ) {
+        this.sub = sub;
+    }
+
     public Monkey getMonkey() {
         return this.monkey;
     }
 
+    public Monkey[] getMonkeys() {
+        return this.monkeys;
+    }
+
     public void setMonkey( Monkey monkey ) {
         this.monkey = monkey;
+    }
+
+    public void setMonkeys( Monkey[] monkeys ) {
+        this.monkeys = monkeys;
     }
 
     public byte[] getBytes() {

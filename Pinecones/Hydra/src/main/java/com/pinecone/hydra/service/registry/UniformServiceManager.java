@@ -43,7 +43,6 @@ public class UniformServiceManager implements ServiceManager {
         this.mGuidAllocator      = this.mServicesInstrument.getGuidAllocator();
         this.mImperialTree       = this.mServicesInstrument.getMasterTrieTree();
         this.mServiceConfig      = this.mServicesInstrument.getConfig();
-        //this.mServiceRegistry    = new ConcurrentHashMap<>();
         this.mAppointServer      = server;
         this.mServiceRegistry    = new ConcurrentHashMap<>();
         this.mInstanceRegistry   = new ConcurrentHashMap<>();
@@ -100,107 +99,64 @@ public class UniformServiceManager implements ServiceManager {
         } );
     }
 
-//    @Override
-//    public Collection<ServiceInstance > queryServiceInstance(Long clientId ) {
-//        ArrayList<ServiceInstance> serviceInstances = new ArrayList<>();
-//        for( USII usii : this.mServiceRegistry.keySet() ){
-//            if( usii.getClientId().equals( clientId ) ){
-//                serviceInstances.addAll( this.mServiceRegistry.get( usii ).values() );
-//            }
-//        }
-//        return serviceInstances;
-//    }
-
-    // 可能不能准确获取到想要的值
     @Override
-    public ArrayList<ServiceInstance > queryServiceInstance(Long clientId ) {
-        ArrayList<ServiceInstance> serviceInstances = new ArrayList<>();
-        for( Long id : this.mInstanceRegistry.keySet() ){
-            if( id.equals( clientId ) ){
-                serviceInstances.add( this.mInstanceRegistry.get( id ) );
-            }
-        }
-        return serviceInstances;
+    public Collection<ServiceInstance > queryServiceInstance( Long clientId ) {
+        return List.of( this.mInstanceRegistry.get( clientId ) );
     }
 
     @Override
-    public ArrayList<ServiceInstance >  queryServiceInstance( Identification serviceId ) {
-        return (ArrayList<ServiceInstance>) this.mServiceRegistry.get( serviceId ).values();
+    public Collection<ServiceInstance >  queryServiceInstance( Identification serviceId ) {
+        return this.mServiceRegistry.get( serviceId ).values();
     }
-
-//    @Override
-//    public Collection<ServiceInstance >  queryServiceInstance( USII usii ) {
-//        return this.mServiceRegistry.get( usii ).values();
-//    }
-
 
     @Override
-    public WolfServiceInstance queryServiceInstance(USII usii) {
-        ConcurrentMap<Long, ServiceInstance> concurrentMap = this.mServiceRegistry.get(usii.getServiceId());
-        return (WolfServiceInstance) concurrentMap.get( usii.getClientId() );
+    public Collection<ServiceInstance >  queryServiceInstance( USII usii ) {
+        return this.mServiceRegistry.get( usii.getServiceId() ).values();
     }
 
-    // 该方法无法准确删除想要指定的服务，有风险
     @Override
     public Collection<ServiceInstance >  removeService( Long clientId ) {
         synchronized ( this.mServiceRegistry ) {
-//            ConcurrentHashMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( clientId );
-//            if ( instances != null ) {
-//                // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
-//                // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
-//                if ( instances.size() > 1 ) {
-//                    ServiceInstance instance = instances.remove( clientId );
-//                    if ( instance != null ) {
-//                        return List.of( instance );
-//                    }
-//                }
-//                else {
-//                    ConcurrentHashMap<Long, ServiceInstance > del = this.mServiceRegistry.remove( clientId );
-//                    if ( del != null ) {
-//                        return del.values();
-//                    }
-//                }
-//            }
+            ServiceInstance eliminated = this.mInstanceRegistry.remove( clientId );
+            // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
+            // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
+            if ( eliminated != null ) {
+                ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( eliminated.getId() );
+                if ( instances != null ) {
+                    if ( instances.size() > 1 ) {
+                        ServiceInstance instance = instances.remove( clientId );
+                        if ( instance != null ) {
+                            return List.of( instance );
+                        }
+                    }
+                    else {
+                        ConcurrentMap<Long, ServiceInstance > del = this.mServiceRegistry.remove( eliminated.getId() );
+                        if ( del != null ) {
+                            return del.values();
+                        }
+                    }
+                }
+            }
             return null;
-
         }
     }
 
-//    @Override
-//    public Collection<ServiceInstance >  removeService( Identification serviceId ) {
-//        ConcurrentHashMap<Long, ServiceInstance > instances = this.mServiceRegistry.remove( serviceId );
-//        if ( instances != null ) {
-//            return instances.values();
-//        }
-//        return null;
-//    }
-
     @Override
     public Collection<ServiceInstance >  removeService( Identification serviceId ) {
-        ConcurrentHashMap<Long, ServiceInstance > instances = (ConcurrentHashMap<Long, ServiceInstance>) this.mServiceRegistry.remove( serviceId );
-        for( Long clientId : instances.keySet() ){
-            this.mInstanceRegistry.remove( clientId );
-        }
-
+        ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.remove( serviceId );
         if ( instances != null ) {
             return instances.values();
         }
         return null;
     }
 
-//    @Override
-//    public Collection<ServiceInstance >  removeService( USII usii ) {
-//        ConcurrentHashMap<Long, ServiceInstance > instances = this.mServiceRegistry.remove( usii );
-//        if ( instances != null ) {
-//            return instances.values();
-//        }
-//        return null;
-//    }
     @Override
-    public ServiceInstance  removeService( USII usii ) {
-        ConcurrentMap<Long, ServiceInstance> concurrentMap = this.mServiceRegistry.get(usii.getServiceId());
-        this.mInstanceRegistry.remove( usii.getClientId(), concurrentMap.get( usii.getClientId() ) );
-        return this.mServiceRegistry.get(usii.getServiceId()).remove(usii.getClientId());
+    public Collection<ServiceInstance >  removeService( USII usii ) {
+        ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.remove( usii );
+        if ( instances != null ) {
+            return instances.values();
+        }
+        return null;
     }
 
     @Override

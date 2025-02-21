@@ -20,6 +20,8 @@ public class GenericMappingDigest implements MappingDigest {
 
     protected Class<?>                mClassType;
 
+    protected String                  mszReturnGenericTypeLabel;
+
     protected Method                  mMappedMethod;
 
     protected List<ParamsDigest>      mParamsDigests;
@@ -29,14 +31,18 @@ public class GenericMappingDigest implements MappingDigest {
     }
 
     public GenericMappingDigest(
-            String[] szAddresses, Class<?>[] parameters, Class<?> returnType, Class<?> classType, Method method, List<ParamsDigest> paramsDigests, UMCMethod[] interceptMethods
+            String[] szAddresses,
+            Class<?>[] parameters, String[] parametersGenericLabels,
+            Class<?> returnType, String szReturnGenericTypeLabel,
+            Class<?> classType, Method method, List<ParamsDigest> paramsDigests, UMCMethod[] interceptMethods
     ) {
-        this.mszAddresses        = szAddresses;
-        this.mReturnType         = returnType;
-        this.mParamsDigests      = paramsDigests;
-        this.mClassType          = classType;
-        this.mMappedMethod       = method;
-        this.mInterceptMethods   = interceptMethods;
+        this.mszAddresses               = szAddresses;
+        this.mReturnType                = returnType;
+        this.mszReturnGenericTypeLabel  = szReturnGenericTypeLabel;
+        this.mParamsDigests             = paramsDigests;
+        this.mClassType                 = classType;
+        this.mMappedMethod              = method;
+        this.mInterceptMethods          = interceptMethods;
 
         if( parameters == null || parameters.length == 0 ) {
             this.mArgumentTemplate   = null;
@@ -51,7 +57,7 @@ public class GenericMappingDigest implements MappingDigest {
                 // Using anonymous address. In fact, there is pointless for this argument template, which the address is for Iface only.
             }
 
-            this.mArgumentTemplate   = MethodTemplates.from( null, szDominatedAddress, parameters );
+            this.mArgumentTemplate   = MethodTemplates.from( null, szDominatedAddress, parameters, parametersGenericLabels );
         }
     }
 
@@ -93,6 +99,16 @@ public class GenericMappingDigest implements MappingDigest {
     @Override
     public Class<?> getReturnType() {
         return this.mReturnType;
+    }
+
+    @Override
+    public String getReturnGenericTypeLabel() {
+        return this.mszReturnGenericTypeLabel;
+    }
+
+    @Override
+    public void applyReturnGenericTypeLabel( String genericTypeLabel ) {
+        this.mszReturnGenericTypeLabel = genericTypeLabel;
     }
 
     @Override

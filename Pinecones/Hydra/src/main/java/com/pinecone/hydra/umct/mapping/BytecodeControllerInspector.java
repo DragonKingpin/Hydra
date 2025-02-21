@@ -99,13 +99,18 @@ public class BytecodeControllerInspector extends ArchMappingInspector implements
                 List<ParamsDigest> paramsDigests = this.inspectArgParams( null, method );
                 Class<? >[] parameters = this.getParameters( method );
 
+                String[] parameterTypes = BytecodeControllerInspector.evalGenericParameterTypes( method );
+                String   returnGType    = BytecodeControllerInspector.evalGenericReturnType( method );
+
                 Class<? > auth         = this.reinterpretClass( className );
                 Method mappedMethod    = auth.getMethod( method.getName(), parameters );
                 UMCMethod[] intMethods = methodMapping.method();
                 MappingDigest digest   = new GenericMappingDigest(
                         fullAddresses.isEmpty() ? methodLevelMappings : fullAddresses.toArray( new String[ 0 ] ),
                         parameters,
+                        parameterTypes,
                         this.reinterpretClass( method.getReturnType().getName() ),
+                        returnGType,
                         auth,
                         mappedMethod,
                         paramsDigests,

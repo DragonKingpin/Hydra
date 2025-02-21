@@ -9,11 +9,13 @@ import com.pinecone.hydra.umct.stereotype.Iface;
 
 @Iface
 public interface ServiceLifecycleIface extends Pinenut {
+
     void registerService( RegisterServiceDTO serviceDTO );
 
-    void removeServiceByClientId(Long clientId );
+    void deregisterServiceByClientId( Long clientId );
 
-    void removeServiceByServiceId(Identification serviceId );
+    void deregisterServiceByServiceId( Identification serviceId );
 
-    void removeServiceByUSII(USII usii);
+    void deregisterServiceByUSII( USII usii);
+
 }

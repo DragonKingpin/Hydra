@@ -37,18 +37,18 @@ public class ServiceLifecycleController {
         this.mServiceManager.registerService( serviceInstance );
     }
 
-    @AddressMapping("removeServiceByClientId")
-    public void removeServiceByClientId( Long clientId ){
+    @AddressMapping("deregisterServiceByClientId")
+    public void deregisterServiceByClientId( Long clientId ){
         this.mServiceManager.removeService( clientId );
     }
 
-    @AddressMapping("removeServiceByServiceId")
-    public void removeServiceByServiceId( Identification serviceId ){
+    @AddressMapping("deregisterServiceByServiceId")
+    public void deregisterServiceByServiceId( Identification serviceId ){
         this.mServiceManager.removeService( serviceId );
     }
 
-    @AddressMapping("removeServiceByUSII")
-    public void removeServiceByUSII( USII usii ){
+    @AddressMapping("deregisterServiceByUSII")
+    public void deregisterServiceByUSII( USII usii ){
         this.mServiceManager.removeService( usii );
     }
 }

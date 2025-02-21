@@ -206,6 +206,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                 DescriptorProtos.FieldDescriptorProto.Type fieldType = this.reinterpret( elemRetType );
 
                                 DescriptorProtos.FieldDescriptorProto.Builder fieldBuilder;
+                                Class<?> dependenceComponentType = null;
                                 if( Collection.class.isAssignableFrom( elemRetType ) ) {
                                     Type gt = method.getGenericReturnType();
                                     String[] genericTypeNames = ReflectionUtils.extractGenericClassNames( gt.getTypeName() );
@@ -230,17 +231,14 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                 }
                                 else if( elemRetType.isArray() && !byte[].class.isAssignableFrom( elemRetType ) ) {
                                     Class<?> componentType = elemRetType.getComponentType();
-                                    DescriptorProtos.FieldDescriptorProto.Type cType = this.reinterpret( componentType );
+                                    fieldType = this.reinterpret( componentType );
+                                    dependenceComponentType = componentType;
 
                                     fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
                                             .setName( key )
                                             .setNumber( fieldNumber )
                                             .setType( this.reinterpret( componentType ) )
                                             .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
-
-                                    if ( cType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
-
-                                    }
                                 }
                                 else {
                                     fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
@@ -265,14 +263,23 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                         }
                                     }
 
-                                    // TODO, Self Dependence.
                                     if ( !clazz.equals( nestedClass ) ) {
-                                        Descriptors.Descriptor nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
+                                        Descriptors.Descriptor nestedDescriptor;
+                                        if ( dependenceComponentType != null ) {
+                                            // Array / List can`t uses dynamic object.
+                                            nestedDescriptor = this.transform0( dependenceComponentType, szEntityName + "_" + key, null, exceptedKeys, options );
+                                        }
+                                        else {
+                                            nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
+                                        }
                                         if( nestedDescriptor == null ) {
                                             continue;
                                         }
                                         fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
                                         dependencies.add( nestedDescriptor.getFile() );
+                                    }
+                                    else {
+                                        fieldBuilder.setTypeName( szEntityName );
                                     }
                                 }
 

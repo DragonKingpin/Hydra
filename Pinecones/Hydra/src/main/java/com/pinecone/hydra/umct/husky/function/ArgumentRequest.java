@@ -17,7 +17,11 @@ public interface ArgumentRequest extends RequestPackage {
 
     void setField( int index, String key, Object val ) ;
 
+    void setField( int index, String key, Object val, String genericLabel );
+
     void setField( int index, String key, Class<?> type ) ;
+
+    void setField( int index, String key, Class<?> type, String genericLabel );
 
     void setField( int index, Object val ) ;
 

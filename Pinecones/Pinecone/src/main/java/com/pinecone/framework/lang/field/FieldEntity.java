@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.ReflectionUtils;
 
 public interface FieldEntity extends Pinenut {
     String getName();
@@ -12,12 +13,16 @@ public interface FieldEntity extends Pinenut {
 
     Object getValue();
 
-    String getComponentGenericTypeLabel();
+    String getGenericTypeLabel();
 
-    void applyComponentGenericTypeName( String componentGenericTypeName );
+    default String[] getGenericTypeNames() {
+        return ReflectionUtils.extractGenericClassNames( this.getGenericTypeLabel() );
+    }
 
-    default boolean hasDeclaredComponentGenericType() {
-        return this.getComponentGenericTypeLabel() != null;
+    void applyGenericTypeLabel( String genericTypeLabel );
+
+    default boolean hasDeclaredGenericType() {
+        return this.getGenericTypeLabel() != null && this.getGenericTypeLabel().contains( "<" ) && this.getGenericTypeLabel().contains( ">" );
     }
 
     void setValue( Object value );

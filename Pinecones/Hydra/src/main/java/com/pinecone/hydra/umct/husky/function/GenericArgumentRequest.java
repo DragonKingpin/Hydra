@@ -120,7 +120,7 @@ public class GenericArgumentRequest extends ArchRequestPackage implements Argume
         FieldEntity[] ins = new FieldEntity[ proto.length ];
         for ( int i = 1; i < proto.length; ++i ) {
             FieldEntity entity = proto[ i ];
-            ins[ i ] = new GenericFieldEntity( entity.getName(), null, entity.getType() );
+            ins[ i ] = new GenericFieldEntity( entity.getName(), null, entity.getType(), entity.getComponentGenericTypeLabel() );
         }
         ins[ 0 ] = proto[ 0 ];
 

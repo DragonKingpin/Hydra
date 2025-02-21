@@ -41,7 +41,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                         List<?> values = (List<?>) value;
                         List<Object> decodedValues = new ArrayList<>();
                         for ( Object item : values ) {
-                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
                         }
 
                         result[ i ] = new KeyValue<>( fieldName, decodedValues );
@@ -51,7 +51,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                         result[ i ] = new KeyValue<>( fieldName, this.decodeMap( LinkedHashMap.class, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options ) );
                     }
                     else {
-                        result[ i ] = new KeyValue<>( fieldName, this.decodeFieldValue( fieldDescriptor, value, options ) );
+                        result[ i ] = new KeyValue<>( fieldName, this.decodeFieldValue( fieldDescriptor, value, value.getClass(), options ) );
                     }
                 }
 
@@ -121,7 +121,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                         entity.setValue( nestedBean );
                     }
                     else {
-                        entity.setValue( this.decodeFieldValue( fieldDescriptor, value, options ) );
+                        entity.setValue( this.decodeFieldValue( fieldDescriptor, value, entity.getType(), options ) );
                     }
 
                     if( bEvalValue ) {

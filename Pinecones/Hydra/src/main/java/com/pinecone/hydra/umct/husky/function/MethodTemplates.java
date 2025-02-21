@@ -3,6 +3,7 @@ package com.pinecone.hydra.umct.husky.function;
 import com.pinecone.framework.lang.field.DataStructureEntity;
 import com.pinecone.framework.lang.field.FieldEntity;
 import com.pinecone.framework.lang.field.GenericStructure;
+import com.pinecone.ulf.util.protobuf.WolfProtobufConstants;
 
 public final class MethodTemplates {
     public static DataStructureEntity from( DataStructureEntity tpl, String szInterceptedPath, Class<? >[] parameters ) {
@@ -42,7 +43,7 @@ public final class MethodTemplates {
         String szNormalName = parameter.getName();
         if( szNormalName.startsWith( "[" ) ) {
             szNormalName = szNormalName.replace( "[", "" );
-            szNormalName += "_ARRAY";
+            szNormalName += WolfProtobufConstants.ArrayTransformedName;
         }
         tpl.setDataField( i,
                 szNormalName.replaceAll( "[^a-zA-Z0-9_]", "_" ) + "_" + i,

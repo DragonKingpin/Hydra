@@ -29,6 +29,16 @@ public interface Raccoon {
         return more;
     }
 
+    @Iface
+    default String[] scratchS( String target, int time, String[] more ) {
+        return more;
+    }
+
+    @Iface
+    default List<Rabbit> scratchList( String target, int time, List<Rabbit> more ) {
+        return more;
+    }
+
 //    @Iface( name = "scratchF1" )
 //    default String scratch( String target, long[] times ) {
 //        return null;

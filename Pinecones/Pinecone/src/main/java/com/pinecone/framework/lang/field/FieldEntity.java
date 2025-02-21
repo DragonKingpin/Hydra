@@ -12,6 +12,14 @@ public interface FieldEntity extends Pinenut {
 
     Object getValue();
 
+    String getComponentGenericTypeLabel();
+
+    void applyComponentGenericTypeName( String componentGenericTypeName );
+
+    default boolean hasDeclaredComponentGenericType() {
+        return this.getComponentGenericTypeLabel() != null;
+    }
+
     void setValue( Object value );
 
     static FieldEntity[] typeFrom( Map map ) {

@@ -1,5 +1,8 @@
 package com.protobuf;
 
+import com.pinecone.framework.util.json.homotype.GenericBeanJSONEncoder;
+import com.pinecone.framework.util.json.homotype.JSONInjector;
+
 public class Rabbit {
     public String name;
 
@@ -29,5 +32,14 @@ public class Rabbit {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String toJSONString() {
+        return GenericBeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSONString();
     }
 }

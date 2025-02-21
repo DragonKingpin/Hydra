@@ -63,7 +63,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                         List<?> values = (List<?>) value;
                         List<Object> decodedValues = new ArrayList<>();
                         for ( Object item : values ) {
-                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
                         }
                         result.put( fieldName, decodedValues );
                     }
@@ -72,7 +72,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                         result.put( fieldName, this.decodeMap( clazz, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options ) );
                     }
                     else {
-                        result.put( fieldName, this.decodeFieldValue( fieldDescriptor, value, options ) );
+                        result.put( fieldName, this.decodeFieldValue( fieldDescriptor, value, value.getClass(), options ) );
                     }
                 }
             }
@@ -160,7 +160,14 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                             }
                         }
                         else {
-                            setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, options ) );
+                            Class<?>[] pars = setter.getParameterTypes();
+                            if( pars.length > 0 ) {
+                                Class<?> nestedType = pars[ 0 ];
+                                setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, nestedType, options ) );
+                            }
+                            else {
+                                setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, value.getClass(), options ) );
+                            }
                         }
                     }
                     catch ( IllegalAccessException | InvocationTargetException | IllegalArgumentException ignore ) {
@@ -177,7 +184,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
         }
     }
 
-    protected Object decodeFieldValue( Descriptors.FieldDescriptor fieldDescriptor, Object value, Options options ) {
+    protected Object decodeFieldValue( Descriptors.FieldDescriptor fieldDescriptor, Object value, Class<?> valueType, Options options ) {
         switch ( fieldDescriptor.getType() ) {
             case BOOL: {
                 return value;
@@ -205,6 +212,10 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                 return value instanceof com.google.protobuf.ByteString
                         ? ((com.google.protobuf.ByteString) value).toByteArray()
                         : value;
+            }
+            case MESSAGE: {
+                Descriptors.Descriptor nestedDescriptor = fieldDescriptor.getMessageType();
+                return this.decode( valueType, nestedDescriptor, (DynamicMessage) value, null, options );
             }
             default: {
                 return value;
@@ -251,10 +262,11 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
     protected Object decodeRepeated( Object value, Descriptors.FieldDescriptor fieldDescriptor, Options options, Class<?> type ) {
         if ( type.isArray() ) {
             List<?> values = (List<?>) value;
+            Class<?> componentType = type.getComponentType();
             Object[] ret = (Object[]) Array.newInstance( type.getComponentType(), values.size() );
             int i = 0;
             for ( Object item : values ) {
-                ret[ i ] = this.decodeFieldValue( fieldDescriptor, item, options );
+                ret[ i ] = this.decodeFieldValue( fieldDescriptor, item, componentType, options );
                 ++i;
             }
             return ret;
@@ -263,17 +275,17 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
             List<?> values = (List<?>) value;
             List<Object> decodedValues = new ArrayList<>();
             for ( Object item : values ) {
-                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
             }
-            return values;
+            return decodedValues;
         }
         else if ( Set.class.isAssignableFrom( type ) ) {
             List<?> values = (List<?>) value;
             Set<Object> decodedValues = new HashSet<>();
             for ( Object item : values ) {
-                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
             }
-            return values;
+            return decodedValues;
         }
 
         return null;

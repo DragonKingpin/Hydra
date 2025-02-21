@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.google.protobuf.Descriptors;
 import com.pinecone.framework.lang.field.DataStructureEntity;
+import com.pinecone.framework.unit.Units;
 import com.pinecone.ulf.util.protobuf.FieldProtobufEncoder;
 import com.pinecone.ulf.util.protobuf.GenericFieldProtobufEncoder;
 import com.pinecone.ulf.util.protobuf.Options;
@@ -22,7 +23,7 @@ public class GenericCompilerEncoder implements CompilerEncoder {
     }
 
     public GenericCompilerEncoder( String szEntityExtend ) {
-        this( new GenericFieldProtobufEncoder(), Options.DefaultOptions, Set.of(), szEntityExtend );
+        this( new GenericFieldProtobufEncoder(), Options.DefaultOptions, Units.emptySet(), szEntityExtend );
     }
 
     @Override

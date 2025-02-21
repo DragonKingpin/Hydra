@@ -49,6 +49,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
             elemType = value.getClass();
         }
 
+        Class<?> dependenceComponentType = null;
         if( Collection.class.isAssignableFrom( elemType ) ) {
             if ( value != null ) {
                 Collection co = (Collection) value;
@@ -67,12 +68,13 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                     .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
         }
         else if( elemType.isArray() ) {
-            fieldType = this.reinterpret( elemType.getComponentType() );
+            dependenceComponentType = elemType.getComponentType();
+            fieldType = this.reinterpret( dependenceComponentType );
 
             fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
                     .setName( key )
                     .setNumber( fieldNumber )
-                    .setType( this.reinterpret( elemType.getComponentType() ) )
+                    .setType( this.reinterpret( dependenceComponentType ) )
                     .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
         }
         else {
@@ -83,7 +85,14 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
         }
 
         if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
-            Descriptors.Descriptor nestedDescriptor = this.transform0( valType, thisKey, value, exceptedKeys, options );
+            Descriptors.Descriptor nestedDescriptor;
+            if ( dependenceComponentType != null ) {
+                nestedDescriptor = this.transform0( dependenceComponentType, thisKey, value, exceptedKeys, options );
+            }
+            else {
+                nestedDescriptor = this.transform0( valType, thisKey, value, exceptedKeys, options );
+            }
+
             if ( nestedDescriptor != null ) {
                 fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
                 dependencies.add( nestedDescriptor.getFile() );
@@ -220,11 +229,18 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                             .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
                                 }
                                 else if( elemRetType.isArray() && !byte[].class.isAssignableFrom( elemRetType ) ) {
+                                    Class<?> componentType = elemRetType.getComponentType();
+                                    DescriptorProtos.FieldDescriptorProto.Type cType = this.reinterpret( componentType );
+
                                     fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
                                             .setName( key )
                                             .setNumber( fieldNumber )
-                                            .setType( this.reinterpret( elemRetType.getComponentType() ) )
+                                            .setType( this.reinterpret( componentType ) )
                                             .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
+
+                                    if ( cType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
+
+                                    }
                                 }
                                 else {
                                     fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
@@ -388,8 +404,17 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                         }
                                     }
                                     else {
-                                        for ( Object item : (Object[]) value ) {
-                                            messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                        if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
+                                            Descriptors.Descriptor componentDesc = fieldDescriptor.getMessageType();
+                                            for ( Object item : (Object[]) value ) {
+                                                DynamicMessage dynamicMessage = this.encode( componentDesc, item, exceptedKeys, options );
+                                                messageBuilder.addRepeatedField( fieldDescriptor, dynamicMessage );
+                                            }
+                                        }
+                                        else {
+                                            for ( Object item : (Object[]) value ) {
+                                                messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                            }
                                         }
                                     }
                                 }
@@ -477,9 +502,8 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
             else if ( value.getClass().isArray() ) {
                 for ( int i = 0; i < Array.getLength( value ); i++ ) {
                     if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
-                        Descriptors.Descriptor desc = fieldDescriptor.getMessageType();
-                        Descriptors.Descriptor de = this.transform( Array.get( value, i ), exceptedKeys, options );
-                        DynamicMessage dynamicMessage = this.encode( de, Array.get( value, i ), exceptedKeys, options );
+                        Descriptors.Descriptor componentDesc = fieldDescriptor.getMessageType();
+                        DynamicMessage dynamicMessage = this.encode( componentDesc, Array.get( value, i ), exceptedKeys, options );
                         values.add( dynamicMessage );
                     }
                     else {

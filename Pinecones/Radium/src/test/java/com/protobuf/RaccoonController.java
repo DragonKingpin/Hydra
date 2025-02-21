@@ -37,4 +37,16 @@ public class RaccoonController {
         Debug.bluef( "Raccoon invoked C" + target + time  );
         return list;
     }
+
+    @AddressMapping( "scratchS" )
+    public String[] scratchC(String target, int time, String[] list ) {
+        Debug.bluef( "Raccoon invoked S" + target + time  );
+        return list;
+    }
+
+    @AddressMapping( "scratchList" )
+    public List<Rabbit> scratchList(String target, int time, List<Rabbit> list ) {
+        Debug.bluef( "Raccoon invoked S" + target + time  );
+        return list;
+    }
 }

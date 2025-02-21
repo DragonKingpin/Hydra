@@ -11,7 +11,7 @@ public class Options implements Pinenut {
             String neo = type.getName().replace( '.', '_' );
             if( neo.startsWith( "[" ) ) {
                 neo = neo.replace( "[", "" );
-                neo += "_ARRAY";
+                neo += WolfProtobufConstants.ArrayTransformedName;
             }
             return neo.replaceAll( "[^a-zA-Z0-9_]", "_" );
         }

@@ -11,9 +11,36 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
+@SuppressWarnings("unchecked")
 public final class Units {
+    public final static List EmptyList             = List.of();
+
+    public final static Collection EmptyCollection = Units.EmptyList;
+
+    public final static Set EmptySet               = Set.of();
+
+    public final static Map EmptyMap               = Map.of();
+
+    public static <E> Collection<E> emptyCollection() {
+        return Units.EmptyCollection;
+    }
+
+    public static <E> List<E> emptyList() {
+        return Units.EmptyList;
+    }
+
+    public static <E> Set<E> emptySet() {
+        return Units.EmptySet;
+    }
+
+    public static <K, V> Map<K, V> emptyMap() {
+        return Units.EmptyMap;
+    }
+
+
     public static <T> Collection<T> spawnExtendParent( Collection<T > parent ) {
         return Units.spawnExtendParent( parent, ArrayList.class );
     }

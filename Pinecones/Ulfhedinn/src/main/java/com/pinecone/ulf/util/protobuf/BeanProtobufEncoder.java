@@ -39,7 +39,7 @@ public interface BeanProtobufEncoder extends Pinenut {
 
     default Descriptors.Descriptor transformRepeated( Class<?> clazz ) {
         if( RepeatedWrapper.isSupportedRepeated( clazz ) ) { // TODO Collection
-            return RepeatedWrapper.transform( clazz, clazz.getComponentType() );
+            return RepeatedWrapper.transform( clazz, clazz.getComponentType(), this );
         }
 
         return null;

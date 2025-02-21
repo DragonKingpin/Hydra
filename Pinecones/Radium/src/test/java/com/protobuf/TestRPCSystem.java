@@ -258,7 +258,8 @@ class Jeff extends JesusChrist {
 
 
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratch", "fuck you", 2025 ) );
-        //String[] args = new String[] { "abc", "efg" };
+        String[] ss = new String[] { "abc", "efg" };
+        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchS", "fuck you", 2025, ss ) );
 
         Rabbit rabbit = new Rabbit();
         rabbit.name = "rabbit";
@@ -266,8 +267,9 @@ class Jeff extends JesusChrist {
         Monkey monkey = new Monkey();
         monkey.name = "monkey";
         rabbit.setMonkey( monkey );
-        Rabbit[] args = new Rabbit[] { rabbit };
-        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025,args ) );
+        //Rabbit[] args = new Rabbit[] { rabbit };
+        List<Rabbit> args = List.of(rabbit);
+        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchList", "fuck you", 2025, args ) );
 
 
         //Debug.sleep( 3000 );

@@ -12,7 +12,7 @@ import com.pinecone.radium.ally.messengers.MessagersManager;
 public class MiddlewareManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
     protected JSONConfig           mjoMiddlewareConf         ;
 
-    protected RDBManager mRDBManager;
+    protected RDBManager           mRDBManager;
 
     protected MessagersManager     mMessagersManager;
 

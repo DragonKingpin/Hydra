@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.pinecone.hydra.driver.default</groupId>
-            <artifactId>hydra-default-driver</artifactId>
+            <artifactId>hydra-kom-default-driver</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
@@ -60,8 +60,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.hydra</groupId>
-            <artifactId>hydra</artifactId>
+            <groupId>com.pinecone.hydra.runtime</groupId>
+            <artifactId>hydra-framework-runtime</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

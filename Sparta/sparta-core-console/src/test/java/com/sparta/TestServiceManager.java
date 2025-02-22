@@ -6,7 +6,6 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.BindUSII;
-import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
@@ -23,9 +22,6 @@ import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 class Brian extends Radium {
     public Brian( String[] args, CascadeSystem parent ) {
@@ -75,8 +71,8 @@ class Brian extends Radium {
 
         iface.registerService( serviceDTO );
 
-        ServiceInstance serviceInstance = metaIface.queryServiceInstanceByUSII(new BindUSII(1234L, GUIDs.GUID72("1769872-0002d2-0003-cc")));
-        Debug.trace( serviceInstance );
+        //ServiceInstance serviceInstance = metaIface.queryServiceInstanceByUSII(new BindUSII(1234L, GUIDs.GUID72("1769872-0002d2-0003-cc")));
+        //Debug.trace( serviceInstance );
     }
 
 }

@@ -1,7 +1,6 @@
 package com.walnuts.sparta.uofs.console.rpc.thrift;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.thrift.client.GenericMultiplexedThriftClient;
 import com.walnuts.sparta.account.rpc.thrift.AccountIface;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;

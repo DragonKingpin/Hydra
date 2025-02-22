@@ -18,7 +18,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
 import com.pinecone.radium.Radium;
 import com.walnut.sparta.ucdn.service.SpartaBoot;
-import com.walnut.sparta.ucdn.service.UCDNBoot;
+
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;

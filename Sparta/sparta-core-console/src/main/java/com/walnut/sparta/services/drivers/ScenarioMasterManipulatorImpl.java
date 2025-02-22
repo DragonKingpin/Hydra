@@ -8,7 +8,6 @@ import com.pinecone.hydra.scenario.source.ScenarioMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 @Component
 public class ScenarioMasterManipulatorImpl implements ScenarioMasterManipulator {
     //@Resource

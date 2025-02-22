@@ -1,0 +1,10 @@
+package com.pinecone.hydra.storage.volume.entity.local.striped.receive.channnel;
+
+import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.io.UIOException;
+import com.pinecone.hydra.storage.volume.entity.local.striped.receive.StripedReceiver;
+
+public interface StripedChannelReceiver extends StripedReceiver {
+    StorageIOResponse channelReceive( ) throws UIOException;
+    StorageIOResponse channelReceive(Number offset, Number endSize) throws UIOException;
+}

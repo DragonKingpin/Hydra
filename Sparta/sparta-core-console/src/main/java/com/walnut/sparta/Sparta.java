@@ -4,7 +4,6 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.summer.spring.Springron;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 import java.nio.file.Path;

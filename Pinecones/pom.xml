@@ -17,16 +17,12 @@
     <modules>
         <module>pinecone</module>
         <module>ulfhedinn</module>
-        <module>hydra</module>
         <module>radium</module>
         <module>slime</module>
         <module>jelly</module>
         <module>summer</module>
         <module>springram</module>
-        <module>hydra-default-driver</module>
         <module>ulf-lib-construction</module>
-        <module>hydra-lib-thrift-sdk</module>
-        <module>hydra-lib-uofs-cache</module>
     </modules>
 
     <dependencies>

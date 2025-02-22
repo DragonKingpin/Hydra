@@ -16,7 +16,6 @@ import com.pinecone.hydra.umb.rabbit.RabbitMQClient;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.io.Tracerson;
 import com.pinecone.framework.util.json.homotype.DirectObjectInjector;
-import com.pinecone.Pinecone;
 import com.pinecone.radium.system.ConfigScope;
 import com.pinecone.radium.system.Hierarchy;
 import com.pinecone.radium.system.MiddlewareManager;

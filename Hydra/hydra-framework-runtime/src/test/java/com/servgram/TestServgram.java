@@ -40,7 +40,7 @@ public class TestServgram {
     }
 
     public static void testIterator() throws Exception {
-        //NamespaceIterator iterator = new DirectoryClassIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Pinecones/Hydra/target/classes/com/pinecone/hydra/umc/wolfmc", "com.pinecone.hydra.umc.wolfmc" );
+        //NamespaceIterator iterator = new DirectoryClassIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Pinecones/Hydra/target/classes/com/pinecone/hydra/umc/wolf", "com.pinecone.hydra.umc.wolf" );
         //NamespaceIterator iterator = new DirectoryPackageIterator( "/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Pinecones/Hydra/target/classes/com/pinecone/hydra/umc", "com.pinecone.hydra.umc" );
         NamespaceIterator iterator = new JarClassIterator( "jar:file:/C:/Users/undefined/.m2/repository/mysql/mysql-connector-java/8.0.23/mysql-connector-java-8.0.23.jar!/com/mysql/jdbc" );
         //NamespaceIterator iterator = new JarClassIterator( "jar:file:/E:/MyFiles/CodeScript/Project/Hazelnut/Sauron/Saurons/Saurons/Shadow/target/shadow-1.2.7.jar!/BOOT-INF/lib/radium-2.1.0.jar!/com/sauron/radium/heistron" );

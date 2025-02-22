@@ -17,8 +17,17 @@
     <modules>
         <module>hydra-architecture</module>
         <module>hydra-framework-runtime</module>
+        <module>hydra-message-control</module>
+        <module>hydra-message-broadcast</module>
+        <module>hydra-framework-service</module>
+        <module>hydra-framework-device</module>
+        <module>hydra-framework-config</module>
+        <module>hydra-framework-storage</module>
+
         <module>hydra-kom-default-driver</module>
         <module>hydra-lib-thrift-sdk</module>
         <module>hydra-lib-uofs-cache</module>
+
+        <module>radium</module>
     </modules>
 </project>

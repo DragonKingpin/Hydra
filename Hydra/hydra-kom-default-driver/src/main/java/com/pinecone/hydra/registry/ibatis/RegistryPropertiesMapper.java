@@ -12,6 +12,8 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -30,6 +32,9 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
     void remove( GUID guid, String key );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
+    @Results({
+            @Result(column = "enumId", property = "enumId", javaType = Long.class)
+    })
     List<Map > getProperties0( GUID guid );
 
     @Override
@@ -39,7 +44,7 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
 
         for( Map raw : raws ) {
             Property property = new GenericProperty( parent );
-            property.setEnumId( (long) raw.get( "enumId" ) );
+            property.setEnumId( ( (Number) raw.get( "enumId" ) ).longValue() );
             property.setGuid  ( GUIDs.GUID72( (String) raw.get( "guid" ) )  );
             property.setType  ( (String) raw.get( "type" )  );
             property.setKey   ( (String) raw.get( "key" )   );

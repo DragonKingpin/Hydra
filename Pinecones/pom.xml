@@ -17,7 +17,6 @@
     <modules>
         <module>pinecone</module>
         <module>ulfhedinn</module>
-        <module>radium</module>
         <module>slime</module>
         <module>jelly</module>
         <module>summer</module>

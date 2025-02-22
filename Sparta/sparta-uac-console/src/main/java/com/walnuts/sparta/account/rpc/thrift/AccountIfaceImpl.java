@@ -3,7 +3,7 @@ package com.walnuts.sparta.account.rpc.thrift;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.account.AccountManager;
 import com.walnuts.sparta.account.api.response.BasicResultResponse;
-import com.walnuts.sparta.account.rpc.thrift.AccountIface;
+
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;
 

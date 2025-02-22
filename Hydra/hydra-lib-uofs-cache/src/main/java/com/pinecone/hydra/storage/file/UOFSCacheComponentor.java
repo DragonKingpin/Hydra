@@ -3,7 +3,6 @@ package com.pinecone.hydra.storage.file;
 import com.pinecone.hydra.storage.file.builder.Feature;
 import com.pinecone.hydra.storage.file.builder.UOFSComponentor;
 import com.pinecone.hydra.storage.file.cache.FileSystemCacheConfig;
-import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.redis.GenericRedisMasterManipulator;
 import com.pinecone.slime.map.indexable.IndexableMapQuerier;
 import com.pinecone.slime.source.indexable.GenericIndexableTargetScopeMeta;

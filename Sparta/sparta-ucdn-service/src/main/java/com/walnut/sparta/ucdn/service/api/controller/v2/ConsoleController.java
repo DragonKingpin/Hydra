@@ -26,10 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping( "/api/v2/ucdn/console" )

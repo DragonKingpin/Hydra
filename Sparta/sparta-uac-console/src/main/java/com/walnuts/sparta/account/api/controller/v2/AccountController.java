@@ -1,10 +1,21 @@
 package com.walnuts.sparta.account.api.controller.v2;
 
 
-import com.alibaba.fastjson.JSON;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.account.AccountManager;
-import com.pinecone.hydra.account.entity.*;
+import com.pinecone.hydra.account.entity.ACNodeAllotment;
+import com.pinecone.hydra.account.entity.Account;
+import com.pinecone.hydra.account.entity.Domain;
+import com.pinecone.hydra.account.entity.GenericAccount;
+import com.pinecone.hydra.account.entity.GenericAuthorization;
+import com.pinecone.hydra.account.entity.GenericCredential;
+import com.pinecone.hydra.account.entity.GenericDomain;
+import com.pinecone.hydra.account.entity.GenericGroup;
+import com.pinecone.hydra.account.entity.GenericPrivilege;
+import com.pinecone.hydra.account.entity.GenericRole;
+import com.pinecone.hydra.account.entity.Group;
+import com.pinecone.hydra.account.entity.Privilege;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.account.api.response.BasicResultResponse;
@@ -24,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping( "/api/v2/account" )
@@ -46,6 +58,7 @@ public class AccountController {
         this.primaryAccount.put(domain);
         return BasicResultResponse.success();
     }
+
     @PutMapping("/update/domain")
     @RequiresAuthentication
     public BasicResultResponse<Boolean> updateDomain(
@@ -69,6 +82,7 @@ public class AccountController {
         this.primaryAccount.remove( GUIDs.GUID72(domainGuid) );
         return BasicResultResponse.success();
     }
+
     @PutMapping("/create/group")
     @RequiresAuthentication
     public BasicResultResponse<String> createGroup( @RequestParam("parentGuid") String parentGuid, @RequestParam("groupName") String groupName ){
@@ -90,6 +104,7 @@ public class AccountController {
         }
         return BasicResultResponse.error("Group is not empty");
     }
+
     @PutMapping("/update/group")
     @RequiresAuthentication
     public BasicResultResponse<Boolean> updateGroup(
@@ -105,6 +120,7 @@ public class AccountController {
             return BasicResultResponse.error("Group not found");
         }
     }
+
     @GetMapping("/query/users/byGroup")
     @RequiresAuthentication
     public String queryUsersByGroup(@RequestParam("groupGuid") String groupGuid) {
@@ -117,12 +133,14 @@ public class AccountController {
         }
         return BasicResultResponse.success(accounts).toJSONString();
     }
+
     @GetMapping("/query/path")
     @RequiresAuthentication
     public String queryNodeByPath( @RequestParam("path") String path ){
         GUID guid = this.primaryAccount.queryGUIDByPath(path);
         return BasicResultResponse.success(this.primaryAccount.get(guid)).toJSONString();
     }
+
     @PutMapping("/create/account")
     @RequiresAuthentication
     public String createAccount(
@@ -183,6 +201,7 @@ public class AccountController {
         }
         return BasicResultResponse.error("Account already exists").toJSONString();
     }
+
     @PutMapping("/update/account")
     @RequiresAuthentication
     public BasicResultResponse<String> updateAccount(
@@ -209,11 +228,10 @@ public class AccountController {
         }
         return BasicResultResponse.success();
     }
+
     @DeleteMapping("/remove/account")
     @RequiresAuthentication
-    public BasicResultResponse<Boolean> removeAccount(
-            @RequestParam("userGuid") String userGuid)
-    {
+    public BasicResultResponse<Boolean> removeAccount( @RequestParam("userGuid") String userGuid ) {
         Account account=this.primaryAccount.queryAccountByUserGuid(GUIDs.GUID72(userGuid));
         List<GenericAuthorization> authorizations = this.primaryAccount.queryAuthorizationByUserGuid(account.getGuid());
         for (GenericAuthorization authorization : authorizations) {
@@ -222,10 +240,9 @@ public class AccountController {
         this.primaryAccount.remove(account.getGuid());
         return BasicResultResponse.success(true);
     }
+
     @PutMapping("/login")
-    public String login(
-            @RequestParam("userName") String userName,
-            @RequestParam("kernelCredential") String kernelCredential) {
+    public String login( @RequestParam("userName") String userName, @RequestParam("kernelCredential") String kernelCredential ) {
         // 查询用户 GUID
         List<GUID> userGuidList = this.primaryAccount.queryAccountGuidByName(userName);
         if (userGuidList == null || userGuidList.isEmpty()) {
@@ -260,10 +277,10 @@ public class AccountController {
 
         return BasicResultResponse.success(userLoginVo).toJSONString();
     }
+
     @GetMapping("/query/allAccount")
     @RequiresAuthentication
-    public BasicResultResponse<String> queryAllAccount()
-    {
+    public BasicResultResponse<String> queryAllAccount() {
         List<GenericAccount> accounts = this.primaryAccount.queryAllAccount();
         return BasicResultResponse.success(accounts.toString());
     }
@@ -272,9 +289,7 @@ public class AccountController {
 
     @PutMapping("/query/Authorization/ByUserName")
     @RequiresAuthentication
-    public String queryAuthorizationByUserName(
-            @RequestParam("userName") String userName)
-    {
+    public String queryAuthorizationByUserName( @RequestParam("userName") String userName ) {
         List<GUID> userGuidList =this.primaryAccount.queryAccountGuidByName(userName);
         if (userGuidList.isEmpty()) {
             return BasicResultResponse.error("Account not found").toJSONString();
@@ -283,13 +298,14 @@ public class AccountController {
         List<GenericAuthorization> authorizations = this.primaryAccount.queryAuthorizationByUserGuid(userGuid);
         return BasicResultResponse.success(authorizations).toJSONString();
     }
+
     @GetMapping("/query/domain")
     @RequiresAuthentication
-    public BasicResultResponse<String> queryDomain()
-    {
+    public BasicResultResponse<String> queryDomain() {
         List<GenericDomain> domains = this.primaryAccount.queryAllDomain();
         return BasicResultResponse.success(domains.toString());
     }
+
     @GetMapping("/query/account")
     @RequiresAuthentication
     public BasicResultResponse<String> queryAccount(
@@ -306,6 +322,7 @@ public class AccountController {
         BeanUtils.copyProperties(account,accountLoginVo);
         return BasicResultResponse.success(accountLoginVo.toJSONString());
     }
+
     @GetMapping("/query/domain/groups")
     @RequiresAuthentication
     public BasicResultResponse<String> queryDomainGroups(
@@ -324,11 +341,12 @@ public class AccountController {
                     groups.add(groupInfo);
                 }
             }
-            return BasicResultResponse.success(JSON.toJSONString(groups));
+            return BasicResultResponse.success(JSON.stringify(groups));
         } catch (Exception e) {
             return BasicResultResponse.error("Failed to query groups: " + e.getMessage());
         }
     }
+
     @GetMapping("/query/group")
     @RequiresAuthentication
     public BasicResultResponse<String> queryDomainGroup(

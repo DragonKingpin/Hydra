@@ -19,8 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.pinecone.hydra.runtime</groupId>
-            <artifactId>hydra-framework-runtime</artifactId>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-framework-storage</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

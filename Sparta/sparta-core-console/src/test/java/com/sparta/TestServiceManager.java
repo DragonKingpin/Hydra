@@ -4,8 +4,6 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
-import com.pinecone.hydra.service.ServiceInstance;
-import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
@@ -17,11 +15,10 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
-import com.pinecone.hydra.umc.wolfmc.client.WolfMCClient;
-import com.pinecone.hydra.umc.wolfmc.server.WolfMCServer;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
+import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.ulf.util.guid.GUIDs;
 
 class Brian extends Radium {
     public Brian( String[] args, CascadeSystem parent ) {

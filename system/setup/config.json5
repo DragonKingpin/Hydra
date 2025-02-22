@@ -120,11 +120,11 @@
             "username"            : "undefined",     // TODO, UMCs
             "password"            : "",  // TODO, UMCs
             "SocketTimeout"       : 800,
-            "KeepAliveTimeout"    : 3600,
+            "KeepAliveTimeout"    : 3, //3600,
             "MaximumConnections"  : 1e6,
             "ExtraHeadCoder"      : "com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder",
             "DefaultExtraEncode"  : "JSONString", // JSONString / Binary
-            "Engine"              : "com.pinecone.hydra.umc.wolfmc.server.WolfMCServer",
+            "Engine"              : "com.pinecone.hydra.umc.wolf.server.WolfMCServer",
             "MessageHandler"      : "WolfMCExpress",
             "IsRecipient"         : true,
             "Enable"              : false
@@ -134,12 +134,15 @@
             "host"                   : "localhost",
             "port"                   : 5777,
             "SocketTimeout"          : 800,
-            "KeepAliveTimeout"       : 3600, // 0 to close keep-alive
+            "KeepAliveTimeout"       : 3600, //3600, // 0 to close keep-alive
             "ParallelChannels"       : 5,
             "ExtraHeadCoder"         : "com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder",
             "DefaultExtraEncode"     : "JSONString", // JSONString / Binary
-            "Engine"                 : "com.pinecone.hydra.umc.wolfmc.client.WolfMCClient",
+            "Engine"                 : "com.pinecone.hydra.umc.wolf.client.WolfMCClient",
             "MessageHandler"         : "WolfMCExpress",
+            "AutoReconnect"          : true,
+            "EnableHeartbeat"        : false,
+            "HeartbeatInterval"      : 2000,
             "Enable"                 : true
           }
         }

@@ -1,6 +1,5 @@
 package com.walnut.sparta.ucdn.console.umc.ufm;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
@@ -22,7 +21,6 @@ import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;

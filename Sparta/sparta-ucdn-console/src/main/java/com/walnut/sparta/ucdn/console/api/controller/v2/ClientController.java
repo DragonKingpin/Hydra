@@ -1,13 +1,9 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
-import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
-import com.walnut.sparta.ucdn.console.domain.service.impl.UCDNServiceImpl;
-import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
-import com.walnut.sparta.ucdn.console.umc.UMCMasterWarehouse;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;

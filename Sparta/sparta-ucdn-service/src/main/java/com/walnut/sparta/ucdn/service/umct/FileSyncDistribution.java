@@ -4,7 +4,6 @@ import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.umct.stereotype.Iface;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 @Iface
 public interface FileSyncDistribution {

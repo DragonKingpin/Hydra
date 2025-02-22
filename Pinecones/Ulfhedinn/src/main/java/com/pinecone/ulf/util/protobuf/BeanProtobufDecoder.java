@@ -18,19 +18,13 @@ public interface BeanProtobufDecoder extends Pinenut {
 
     <T > T decodeBean( Class<T> clazz, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
 
-    <T > T decode( Class<T> clazz, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
+    <T > T decode( Class<T> clazz, String genericLabel, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options );
+
+    default <T > T decode( Class<T> clazz, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String > exceptedKeys, Options options ) {
+        return this.decode( clazz, null, descriptor, dynamicMessage, exceptedKeys, options );
+    }
 
     static boolean isNullMessage( DynamicMessage dynamicMessage, Descriptors.Descriptor descriptor ) {
         return dynamicMessage.getAllFields().isEmpty() && !descriptor.getFields().isEmpty();
-    }
-
-    static Object evalValue( DynamicMessage dynamicMessage, Descriptors.FieldDescriptor fieldDescriptor ) {
-        if ( !fieldDescriptor.isRepeated() ) {
-            boolean bHasField = dynamicMessage.hasField( fieldDescriptor );
-            if ( !bHasField ) {
-                return null;
-            }
-        }
-        return dynamicMessage.getField( fieldDescriptor );
     }
 }

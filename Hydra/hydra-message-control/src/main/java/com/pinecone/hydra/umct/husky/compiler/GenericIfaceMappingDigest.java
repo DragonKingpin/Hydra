@@ -31,13 +31,14 @@ public class GenericIfaceMappingDigest extends GenericMappingDigest implements I
     }
 
     public GenericIfaceMappingDigest( MappingDigest mappingDigest, CompilerEncoder encoder ) {
-        this.mszAddresses       = mappingDigest.getAddresses();
-        this.mInterceptMethods  = mappingDigest.getInterceptMethods();
-        this.mArgumentTemplate  = mappingDigest.getArgumentTemplate();
-        this.mReturnType        = mappingDigest.getReturnType();
-        this.mClassType         = mappingDigest.getClassType();
-        this.mMappedMethod      = mappingDigest.getMappedMethod();
-        this.mParamsDigests     = mappingDigest.getParamsDigests();
+        this.mszAddresses               = mappingDigest.getAddresses();
+        this.mInterceptMethods          = mappingDigest.getInterceptMethods();
+        this.mArgumentTemplate          = mappingDigest.getArgumentTemplate();
+        this.mReturnType                = mappingDigest.getReturnType();
+        this.mClassType                 = mappingDigest.getClassType();
+        this.mMappedMethod              = mappingDigest.getMappedMethod();
+        this.mParamsDigests             = mappingDigest.getParamsDigests();
+        this.mszReturnGenericTypeLabel  = mappingDigest.getReturnGenericTypeLabel();
 
         this.encode( encoder );
     }
@@ -48,7 +49,7 @@ public class GenericIfaceMappingDigest extends GenericMappingDigest implements I
         }
 
         if( this.mReturnType != null && !this.mReturnType.equals( void.class ) ) {
-            this.mReturnDescriptor    = encoder.getEncoder().transform( this.mReturnType, null, encoder.getExceptedKeys() );
+            this.mReturnDescriptor    = encoder.getEncoder().transform( this.mReturnType, this.getReturnGenericTypeLabel(),null, encoder.getExceptedKeys() );
         }
     }
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.pinecone.framework.lang.field.DataStructureEntity;
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.ReflectionUtils;
 
 public interface MethodDigest extends Pinenut {
 
@@ -18,6 +19,18 @@ public interface MethodDigest extends Pinenut {
     DataStructureEntity getArgumentTemplate();
 
     Class<?> getReturnType();
+
+    String getGenericReturnTypeLabel();
+
+    default String[] getGenericReturnTypeNames() {
+        return ReflectionUtils.extractGenericClassNames( this.getGenericReturnTypeLabel() );
+    }
+
+    void applyGenericReturnTypeLabel( String genericTypeLabel );
+
+    default boolean hasDeclaredGenericReturnType() {
+        return this.getGenericReturnTypeLabel() != null && this.getGenericReturnTypeLabel().contains( "<" ) && this.getGenericReturnTypeLabel().contains( ">" );
+    }
 
     List<IfaceParamsDigest> getParamsDigests();
 

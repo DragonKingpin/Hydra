@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,18 +14,17 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.stereotype.JavaBeans;
 import com.pinecone.framework.unit.Units;
-import com.pinecone.framework.util.Debug;
 
 public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
     @Override
-    public <T> T decode( Class<T> clazz, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String> exceptedKeys, Options options ) {
+    public <T> T decode( Class<T> clazz, String genericLabel, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String> exceptedKeys, Options options ) {
         if( PrimitiveWrapper.isSupportedPrimitive( clazz ) ) {
             return clazz.cast( dynamicMessage.getField( descriptor.findFieldByName( PrimitiveWrapper.FieldName ) ) );
         }
         else if( RepeatedWrapper.isSupportedRepeated( clazz ) ) {
             Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName( RepeatedWrapper.FieldName );
             Object val = dynamicMessage.getField( fieldDescriptor );
-            Object ret = this.decodeRepeated( val, fieldDescriptor, options, clazz );
+            Object ret = this.decodeRepeated( val, fieldDescriptor, options, clazz, genericLabel );
             return clazz.cast( ret );
         }
         else if( Map.class.isAssignableFrom( clazz ) ) {
@@ -45,7 +43,13 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
             return null;
         }
 
-        Map<String, Object> result = Units.newInstance( clazz );
+        Map<String, Object> result;
+        if( clazz.isInterface() && Map.class.isAssignableFrom( clazz ) ) {
+            result = Units.newInstance( options.getDefaultMapType() );
+        }
+        else {
+            result = Units.newInstance( clazz );
+        }
 
         for ( Descriptors.FieldDescriptor fieldDescriptor : descriptor.getFields() ) {
             try {
@@ -56,7 +60,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                     continue;
                 }
 
-                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     if ( fieldDescriptor.isRepeated() ) {
@@ -100,7 +104,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
 
             Object bean;
             if( targetClass.isInterface() && Map.class.isAssignableFrom( targetClass ) ) {
-                bean = options.getDefaultMapType();
+                bean = Units.newInstance( options.getDefaultMapType() );
             }
             else {
                 bean = targetClass.getDeclaredConstructor().newInstance();
@@ -113,7 +117,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                     continue;
                 }
 
-                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     try {
@@ -143,7 +147,8 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                             Class<?>[] pars = setter.getParameterTypes();
                             if( pars.length > 0 ) {
                                 Class<?> nestedType = pars[ 0 ];
-                                setter.invoke( bean, this.decodeRepeated( value, fieldDescriptor, options, nestedType ) );
+                                String szGType = ProtobufUtils.evalSetterGenericLabel( setter );
+                                setter.invoke( bean, this.decodeRepeated( value, fieldDescriptor, options, nestedType, szGType ) );
                             }
                         }
                         else if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
@@ -152,6 +157,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                             if( pars.length > 0 ) {
                                 Object nestedBean;
                                 Class<?> nestedType = pars[ 0 ];
+                                String szGType = ProtobufUtils.evalSetterGenericLabel( setter );
                                 if( nestedType.equals( Map.class ) ) {
                                     nestedBean = this.decodeMap( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                                 }
@@ -162,11 +168,11 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                                             nestedBean = null;
                                         }
                                         else {
-                                            nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                                            nestedBean = this.decode( nestedType, szGType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                                         }
                                     }
                                     else {
-                                        nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                                        nestedBean = this.decode( nestedType, szGType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                                     }
                                 }
 
@@ -177,10 +183,8 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                             Class<?>[] pars = setter.getParameterTypes();
                             if( pars.length > 0 ) {
                                 Class<?> nestedType = pars[ 0 ];
-                                setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, nestedType, options ) );
-                            }
-                            else {
-                                setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, value.getClass(), options ) );
+                                String szGType = ProtobufUtils.evalSetterGenericLabel( setter );
+                                setter.invoke( bean, this.decodeFieldValue( fieldDescriptor, value, nestedType, szGType, options ) );
                             }
                         }
                     }
@@ -198,7 +202,7 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
         }
     }
 
-    protected Object decodeFieldValue( Descriptors.FieldDescriptor fieldDescriptor, Object value, Class<?> valueType, Options options ) {
+    protected Object decodeFieldValue( Descriptors.FieldDescriptor fieldDescriptor, Object value, Class<?> valueType, String genericLabel, Options options ) {
         switch ( fieldDescriptor.getType() ) {
             case BOOL: {
                 return value;
@@ -229,12 +233,16 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
             }
             case MESSAGE: {
                 Descriptors.Descriptor nestedDescriptor = fieldDescriptor.getMessageType();
-                return this.decode( valueType, nestedDescriptor, (DynamicMessage) value, null, options );
+                return this.decode( valueType, genericLabel, nestedDescriptor, (DynamicMessage) value, null, options );
             }
             default: {
                 return value;
             }
         }
+    }
+
+    protected Object decodeFieldValue( Descriptors.FieldDescriptor fieldDescriptor, Object value, Class<?> valueType, Options options ) {
+        return this.decodeFieldValue( fieldDescriptor, value, valueType, null, options );
     }
 
     protected Class<?> decodeType( Descriptors.FieldDescriptor fieldDescriptor ) {
@@ -273,7 +281,21 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
         }
     }
 
-    protected Object decodeRepeated( Object value, Descriptors.FieldDescriptor fieldDescriptor, Options options, Class<?> type ) {
+    protected void setCollectionRepeated( Collection<?> values, Collection<Object> decodedValues, String genericTypeLabel, Descriptors.FieldDescriptor fieldDescriptor, Options options ) {
+        if ( genericTypeLabel == null ) {
+            throw new IllegalArgumentException( "Unable to decode `genericTypeLabel` with null." );
+        }
+        Class<?> componentType = ProtobufUtils.loadSingleGenericType( this.getClass(), genericTypeLabel );
+        if ( componentType == null ) {
+            throw new IllegalArgumentException( "Unable to decode `genericTypeLabel` " + genericTypeLabel + "." );
+        }
+
+        for ( Object item : values ) {
+            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, componentType, options ) );
+        }
+    }
+
+    protected Object decodeRepeated( Object value, Descriptors.FieldDescriptor fieldDescriptor, Options options, Class<?> type, String genericTypeLabel ) {
         if ( type.isArray() ) {
             List<?> values = (List<?>) value;
             Class<?> componentType = type.getComponentType();
@@ -288,17 +310,17 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
         else if ( Collection.class.isAssignableFrom( type ) ) {
             List<?> values = (List<?>) value;
             List<Object> decodedValues = new ArrayList<>();
-            for ( Object item : values ) {
-                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
-            }
+
+            this.setCollectionRepeated( values, decodedValues, genericTypeLabel, fieldDescriptor, options );
+
             return decodedValues;
         }
         else if ( Set.class.isAssignableFrom( type ) ) {
             List<?> values = (List<?>) value;
             Set<Object> decodedValues = new HashSet<>();
-            for ( Object item : values ) {
-                decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
-            }
+
+            this.setCollectionRepeated( values, decodedValues, genericTypeLabel, fieldDescriptor, options );
+
             return decodedValues;
         }
 

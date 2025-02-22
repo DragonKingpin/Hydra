@@ -160,6 +160,11 @@ public class HuskyRouteDispatcher implements RouteDispatcher {
                 }
 
                 @Override
+                public String getReturnGenericLabel() {
+                    return digest.getGenericReturnTypeLabel();
+                }
+
+                @Override
                 public Object getArgumentsDescriptor() {
                     return digest.getArgumentsDescriptor();
                 }
@@ -261,6 +266,11 @@ public class HuskyRouteDispatcher implements RouteDispatcher {
                         @Override
                         public Object getReturnDescriptor() {
                             return imd.getReturnDescriptor();
+                        }
+
+                        @Override
+                        public String getReturnGenericLabel() {
+                            return imd.getReturnGenericTypeLabel();
                         }
 
                         @Override

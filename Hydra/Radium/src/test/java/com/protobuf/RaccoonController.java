@@ -1,5 +1,7 @@
 package com.protobuf;
 
+import java.util.List;
+
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
@@ -42,9 +44,9 @@ public class RaccoonController {
         return list;
     }
 
-//    @AddressMapping( "scratchList" )
-//    public List<Rabbit> scratchList(String target, int time, List<Rabbit> list ) {
-//        Debug.bluef( "Raccoon invoked S" + target + time  );
-//        return list;
-//    }
+    @AddressMapping( "scratchList" )
+    public List<Rabbit> scratchList(String target, int time, List<Rabbit> list ) {
+        Debug.bluef( "Raccoon invoked S" + target + time  );
+        return list;
+    }
 }

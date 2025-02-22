@@ -26,6 +26,11 @@ public class UlfMessageHandler implements MessageHandler {
     }
 
     @Override
+    public String getReturnGenericLabel() {
+        return null;
+    }
+
+    @Override
     public Object getArgumentsDescriptor() {
         return null;
     }

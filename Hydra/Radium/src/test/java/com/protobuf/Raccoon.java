@@ -1,5 +1,7 @@
 package com.protobuf;
 
+import java.util.List;
+
 import com.pinecone.hydra.umct.stereotype.Iface;
 
 //@Iface
@@ -30,10 +32,10 @@ public interface Raccoon {
         return more;
     }
 
-//    @Iface
-//    default List<Rabbit> scratchList( String target, int time, List<Rabbit> more ) {
-//        return more;
-//    }
+    @Iface
+    default List<Rabbit> scratchList( String target, int time, List<Rabbit> more ) {
+        return more;
+    }
 
 //    @Iface( name = "scratchF1" )
 //    default String scratch( String target, long[] times ) {

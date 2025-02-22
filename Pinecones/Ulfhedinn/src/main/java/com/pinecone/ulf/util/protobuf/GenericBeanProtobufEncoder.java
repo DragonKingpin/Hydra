@@ -30,8 +30,9 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
         return this.transform( dynamicObject.getClass(), dynamicObject, exceptedKeys, options );
     }
 
+
     protected DescriptorProtos.FieldDescriptorProto.Builder transformEntry(
-            String key, Object value, Class<?> valType, int fieldNumber, List<Descriptors.FileDescriptor> dependencies,
+            String key, Object value, Class<?> valType, String componentGLabel,int fieldNumber, List<Descriptors.FileDescriptor> dependencies,
             Set<String> exceptedKeys, Options options, String thisKey
     ) {
         if ( valType == null ) {
@@ -58,6 +59,19 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                 }
                 else {
                     fieldType = this.reinterpret( co.iterator().next().getClass() );
+                }
+            }
+            else {
+                if ( componentGLabel == null ) {
+                    throw new IllegalArgumentException( "None valued argument can`t be transformed." );
+                }
+
+                dependenceComponentType = ProtobufUtils.loadSingleGenericType( this.getClass(), componentGLabel );
+                if ( dependenceComponentType != null ) {
+                    fieldType = this.reinterpret( dependenceComponentType );
+                }
+                else {
+                    throw new IllegalArgumentException( "None valued argument (" + componentGLabel + ") can`t be transformed." );
                 }
             }
 
@@ -122,7 +136,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                 }
 
                 DescriptorProtos.FieldDescriptorProto.Builder fieldBuilder = this.transformEntry(
-                        key, entry.getValue(), null, fieldNumber, dependencies, exceptedKeys, options, szEntityName + "_" + key
+                        key, entry.getValue(), null, null, fieldNumber, dependencies, exceptedKeys, options, szEntityName + "_" + key
                 );
 
                 descriptorBuilder.addField( fieldBuilder );
@@ -214,8 +228,9 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                         String genericTypeName = genericTypeNames[ 0 ];
 
                                         if( !genericTypeName.equals( "?" ) && !genericTypeName.equals( Object.class.getSimpleName() ) ) {
-                                            try{
-                                                fieldType = this.reinterpret(  this.getClass().getClassLoader().loadClass( genericTypeName ) );
+                                            try {
+                                                dependenceComponentType = this.getClass().getClassLoader().loadClass( genericTypeName );
+                                                fieldType = this.reinterpret( dependenceComponentType );
                                             }
                                             catch ( ClassNotFoundException e ) {
                                                 continue;
@@ -397,8 +412,28 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                         if ( value != null ) {
                             if ( fieldDescriptor.isRepeated() ) {
                                 if ( value instanceof Collection<?> ) {
-                                    for ( Object item : (Collection<?>) value ) {
-                                        messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                    Collection<?> collection = (Collection<?>) value;
+                                    if ( !collection.isEmpty() ) {
+                                        Class<?> componentType = collection.iterator().next().getClass();
+                                        if ( componentType.isPrimitive() ) {
+                                            for ( Object item : (Collection<?>) value ) {
+                                                messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                            }
+                                        }
+                                        else {
+                                            if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
+                                                Descriptors.Descriptor componentDesc = fieldDescriptor.getMessageType();
+                                                for ( Object item : collection ) {
+                                                    DynamicMessage dynamicMessage = this.encode( componentDesc, item, exceptedKeys, options );
+                                                    messageBuilder.addRepeatedField( fieldDescriptor, dynamicMessage );
+                                                }
+                                            }
+                                            else {
+                                                for ( Object item : collection ) {
+                                                    messageBuilder.addRepeatedField( fieldDescriptor, this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 else if ( value.getClass().isArray() ) {
@@ -481,6 +516,16 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
         }
     }
 
+    protected Object encodeRepeatedValue ( Descriptors.FieldDescriptor fieldDescriptor, Object val, Set<String> exceptedKeys, Options options ) {
+        if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
+            Descriptors.Descriptor componentDesc = fieldDescriptor.getMessageType();
+            return this.encode( componentDesc, val, exceptedKeys, options );
+        }
+        else {
+            return this.reinterpretFieldValue( val, fieldDescriptor.getType() );
+        }
+    }
+
     public void encodeEntry( Descriptors.Descriptor descriptor, String key, Object value, DynamicMessage.Builder messageBuilder, Set<String> exceptedKeys, Options options ) {
         if ( exceptedKeys != null && exceptedKeys.contains( key ) ) {
             return;
@@ -493,7 +538,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
 
         if ( value == null ) {
             if ( fieldDescriptor.isRepeated() ) {
-                messageBuilder.setField( fieldDescriptor, new ArrayList<>() );
+                messageBuilder.setField( fieldDescriptor, List.of() );
             }
             else {
                 messageBuilder.clearField( fieldDescriptor );
@@ -503,19 +548,12 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
             List<Object> values = new ArrayList<>();
             if ( value instanceof Collection ) {
                 for ( Object item : (Collection<?>) value ) {
-                    values.add( this.reinterpretFieldValue( item, fieldDescriptor.getType() ) );
+                    values.add( this.encodeRepeatedValue( fieldDescriptor, item, exceptedKeys, options ) );
                 }
             }
             else if ( value.getClass().isArray() ) {
                 for ( int i = 0; i < Array.getLength( value ); i++ ) {
-                    if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
-                        Descriptors.Descriptor componentDesc = fieldDescriptor.getMessageType();
-                        DynamicMessage dynamicMessage = this.encode( componentDesc, Array.get( value, i ), exceptedKeys, options );
-                        values.add( dynamicMessage );
-                    }
-                    else {
-                        values.add( this.reinterpretFieldValue( Array.get( value, i ), fieldDescriptor.getType() ) );
-                    }
+                    values.add( this.encodeRepeatedValue( fieldDescriptor, Array.get( value, i ), exceptedKeys, options ) );
                 }
             }
             messageBuilder.setField( fieldDescriptor, values );

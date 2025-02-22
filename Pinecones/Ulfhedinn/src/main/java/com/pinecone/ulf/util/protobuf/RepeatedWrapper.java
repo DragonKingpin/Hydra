@@ -83,7 +83,7 @@ public class RepeatedWrapper<T> implements Pinenut {
 
             Descriptors.FileDescriptor[] objectDep = new Descriptors.FileDescriptor[0];
             if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
-                Descriptors.Descriptor nestedDescriptor = encoder.transform( componentType, null, Units.emptySet() );
+                Descriptors.Descriptor nestedDescriptor = encoder.transform( componentType, null,null, Units.emptySet() );
 
                 if ( nestedDescriptor != null ) {
                     fieldBuilder.setTypeName( nestedDescriptor.getFullName() );

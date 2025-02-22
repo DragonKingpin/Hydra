@@ -172,7 +172,7 @@ public abstract class ArchAppointNode extends ArchServgramium implements Appoint
             DynamicMessage rm = DynamicMessage.parseFrom( retDes, raw );
             FieldProtobufDecoder decoder = this.mPMCTContextMachinery.getFieldProtobufDecoder();
             return decoder.decode(
-                    digest.getReturnType(), retDes, rm, this.getCompilerEncoder().getExceptedKeys(), this.getCompilerEncoder().getOptions()
+                    digest.getReturnType(), digest.getGenericReturnTypeLabel(), retDes, rm, this.getCompilerEncoder().getExceptedKeys(), this.getCompilerEncoder().getOptions()
             );
         }
         catch ( InvalidProtocolBufferException e ) {

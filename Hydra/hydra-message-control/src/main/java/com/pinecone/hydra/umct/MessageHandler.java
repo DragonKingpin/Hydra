@@ -19,6 +19,8 @@ public interface MessageHandler extends Function {
 
     Object getReturnDescriptor();
 
+    String getReturnGenericLabel();
+
     Object getArgumentsDescriptor();
 
     FieldEntity[] getArgumentTemplate();

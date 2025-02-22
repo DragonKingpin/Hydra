@@ -45,14 +45,16 @@ public abstract class ArchIfacCompiler extends ArchIfaceInspector implements Ifa
             }
 
             MethodDigest ret;
+            String[] parameterTypes = ArchIfacCompiler.evalGenericParameterTypes( method );
+            String   returnGType    = ArchIfacCompiler.evalGenericReturnType( method );
             if( encoder != null ) {
                 ret = new DynamicMethodPrototype(
-                        classDigest, this.getIfaceMethodName( method ), method.getName(), parameters, returnType, encoder, null
+                        classDigest, this.getIfaceMethodName( method ), method.getName(), parameters, parameterTypes, returnType, returnGType, encoder, null
                 );
             }
             else {
                 ret = new GenericMethodDigest(
-                        classDigest, this.getIfaceMethodName( method ), method.getName(), parameters, returnType, null
+                        classDigest, this.getIfaceMethodName( method ), method.getName(), parameters, parameterTypes, returnType, returnGType, null
                 );
             }
 

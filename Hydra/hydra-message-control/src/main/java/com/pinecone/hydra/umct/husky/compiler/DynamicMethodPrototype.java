@@ -14,15 +14,20 @@ public class DynamicMethodPrototype extends GenericMethodDigest implements Metho
 
     protected Descriptors.Descriptor        mReturnDescriptor;
 
-    public DynamicMethodPrototype( ClassDigest classDigest, String szName, String szRawName, Class<?>[] parameters, Class<?> returnType, CompilerEncoder encoder, List<IfaceParamsDigest> ifaceParamsDigests) {
-        super( classDigest, szName, szRawName, parameters, returnType, ifaceParamsDigests);
+    public DynamicMethodPrototype(
+            ClassDigest classDigest, String szName, String szRawName,
+            Class<?>[] parameters, String[] parametersGenericLabels,
+            Class<?> returnType, String genericRLabel,
+            CompilerEncoder encoder, List<IfaceParamsDigest> ifaceParamsDigests
+    ) {
+        super( classDigest, szName, szRawName, parameters, parametersGenericLabels, returnType, genericRLabel, ifaceParamsDigests );
 
         if( this.mArgumentTemplate != null ) {
             this.mArgumentsDescriptor = encoder.transform( this.mArgumentTemplate );
         }
 
         if( this.mReturnType != null && !this.mReturnType.equals( void.class ) ) {
-            this.mReturnDescriptor    = encoder.getEncoder().transform( this.mReturnType, null, encoder.getExceptedKeys() );
+            this.mReturnDescriptor    = encoder.getEncoder().transform( this.mReturnType, this.getGenericReturnTypeLabel(), null, encoder.getExceptedKeys() );
         }
     }
 

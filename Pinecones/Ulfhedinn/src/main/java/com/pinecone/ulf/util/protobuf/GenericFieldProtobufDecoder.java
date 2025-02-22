@@ -34,7 +34,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     if ( fieldDescriptor.isRepeated() ) {
@@ -95,13 +95,13 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = BeanProtobufDecoder.evalValue( dynamicMessage, fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     FieldEntity entity = entities[ i ];
 
                     if ( fieldDescriptor.isRepeated() ) {
-                        Object decodedValues = this.decodeRepeated( value, fieldDescriptor, options, entity.getType() );
+                        Object decodedValues = this.decodeRepeated( value, fieldDescriptor, options, entity.getType(), entity.getGenericTypeLabel() );
                         entity.setValue( decodedValues );
                     }
                     else if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
@@ -115,7 +115,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                             nestedBean = this.decodeMap( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                         }
                         else {
-                            nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                            nestedBean = this.decode( nestedType, entity.getGenericTypeLabel(), nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                         }
 
                         entity.setValue( nestedBean );

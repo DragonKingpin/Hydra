@@ -20,25 +20,49 @@ public class GenericMethodDigest implements MethodDigest {
 
     protected Class<?>                mReturnType;
 
+    protected String                  mszGenericReturnTypeLabel;
+
     protected List<IfaceParamsDigest> mIfaceParamsDigests;
 
-    public GenericMethodDigest( ClassDigest classDigest, String szName, String szRawName, Class<?>[] parameters, Class<?> returnType, List<IfaceParamsDigest> ifaceParamsDigests) {
-        this.mClassDigest        = classDigest;
-        this.mszName             = szName;
-        this.mszRawName          = szRawName;
-        this.mReturnType         = returnType;
-        this.mIfaceParamsDigests = ifaceParamsDigests;
+    public GenericMethodDigest(
+            ClassDigest classDigest, String szName, String szRawName,
+            Class<?>[] parameters, String[] parametersGenericLabels,
+            Class<?> returnType, String genericRLabel,
+            List<IfaceParamsDigest> ifaceParamsDigests
+    ) {
+        this.mClassDigest               = classDigest;
+        this.mszName                    = szName;
+        this.mszRawName                 = szRawName;
+        this.mReturnType                = returnType;
+        this.mIfaceParamsDigests        = ifaceParamsDigests;
+        this.mszGenericReturnTypeLabel  = genericRLabel;
 
         if( parameters == null || parameters.length == 0 ) {
             this.mArgumentTemplate   = null;
         }
         else {
-            this.mArgumentTemplate   = MethodTemplates.from( null,classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + szName, parameters );
+            this.mArgumentTemplate   = MethodTemplates.from( null,classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + szName, parameters, parametersGenericLabels );
         }
     }
 
-    public GenericMethodDigest( ClassDigest classDigest, String szName, Class<?>[] parameters, Class<?> returnType, List<IfaceParamsDigest> ifaceParamsDigests) {
-        this( classDigest, szName, szName, parameters, returnType, ifaceParamsDigests);
+    public GenericMethodDigest(
+            ClassDigest classDigest, String szName,
+            Class<?>[] parameters, String[] parametersGenericLabels,
+            Class<?> returnType, String genericRLabel,
+            List<IfaceParamsDigest> ifaceParamsDigests
+    ) {
+        this( classDigest, szName, szName, parameters, parametersGenericLabels, returnType, genericRLabel, ifaceParamsDigests );
+    }
+
+
+    @Override
+    public String getGenericReturnTypeLabel() {
+        return this.mszGenericReturnTypeLabel;
+    }
+
+    @Override
+    public void applyGenericReturnTypeLabel( String genericTypeLabel ) {
+        this.mszGenericReturnTypeLabel = genericTypeLabel;
     }
 
     @Override

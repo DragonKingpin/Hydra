@@ -64,8 +64,6 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
     @Override
     protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-        boolean bPreReturn = super.afterChannelInactive( ccb );
-
         UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
         Channel channel = cb.getChannel().getNativeHandle();
         Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
@@ -94,7 +92,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             express.afterChannelInactive( cb );
             return true; // Blocking next inactive sequence.
         }
-        return bPreReturn;
+        return super.afterChannelInactive( ccb );
     }
 
     private void initSelf() {

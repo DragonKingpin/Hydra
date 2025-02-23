@@ -1,22 +1,22 @@
 package com.pinecone.radium.system;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.ArchSystemAutoAssembleComponent;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrarum;
-import com.pinecone.radium.ally.rdb.RDBManager;
+import com.pinecone.hydra.ware.WareManager;
 import com.pinecone.radium.ally.messengers.MessagersManager;
+import com.pinecone.radium.ally.rdb.RDBManager;
 
-public class MiddlewareManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
-    protected JSONConfig           mjoMiddlewareConf         ;
+public class KnittedMiddlewareDirector extends ArchSystemAutoAssembleComponent implements InterWareDirector {
+    protected JSONConfig       mjoMiddlewareConf         ;
 
-    protected RDBManager           mRDBManager;
+    protected RDBManager       mRDBManager;
 
-    protected MessagersManager     mMessagersManager;
+    protected MessagersManager mMessagersManager;
 
-    public MiddlewareManager( Namespace name, Hydrarum system, HyComponent parent ) {
+    public KnittedMiddlewareDirector( Namespace name, Hydrarum system, HyComponent parent ) {
         super( name, system, system.getComponentManager(), parent );
 
         this.mjoMiddlewareConf = (JSONConfig) system.getSystemConfig().getChild( "Middleware" );
@@ -30,11 +30,11 @@ public class MiddlewareManager extends ArchSystemAutoAssembleComponent implement
         this.infoLifecycleInitializationDone();
     }
 
-    public MiddlewareManager( Hydrarum system, HyComponent parent ) {
+    public KnittedMiddlewareDirector( Hydrarum system, HyComponent parent ) {
         this( null, system, parent );
     }
 
-    public MiddlewareManager( Hydrarum system ) {
+    public KnittedMiddlewareDirector( Hydrarum system ) {
         this( system, null );
     }
 
@@ -43,15 +43,24 @@ public class MiddlewareManager extends ArchSystemAutoAssembleComponent implement
         return ( RadiumSystem ) super.getSystem();
     }
 
+    @Override
     public JSONConfig getMiddlewareConfig() {
         return this.mjoMiddlewareConf;
     }
 
+    @Override
+    public WareManager getManager( String name ) {
+        return null;
+    }
+
+    @Override
     public RDBManager getRDBManager() {
         return this.mRDBManager;
     }
 
+    @Override
     public MessagersManager getMessagersManager() {
         return this.mMessagersManager;
     }
 }
+

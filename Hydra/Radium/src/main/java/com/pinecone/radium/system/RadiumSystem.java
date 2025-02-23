@@ -6,7 +6,7 @@ import com.pinecone.hydra.system.minister.KernelMicroSystemCabinet;
 import com.pinecone.hydra.system.types.HydraKingdom;
 
 public interface RadiumSystem extends HydraKingdom, PrimarySystem {
-    MiddlewareManager getMiddlewareManager();
+    InterWareDirector getMiddlewareDirector();
 
     SystemDaemon getSystemDaemon();
 

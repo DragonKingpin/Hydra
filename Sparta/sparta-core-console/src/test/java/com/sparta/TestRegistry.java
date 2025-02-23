@@ -27,7 +27,7 @@ class StanMarsh extends Radium {
     @Override
     public void vitalize () throws Exception {
         KOIMappingDriver koiMappingDriver = new RegistryMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );

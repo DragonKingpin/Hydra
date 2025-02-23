@@ -46,16 +46,16 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initSubsystem() {
         this.koiMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
         this.koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
         this.koiBucketMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
         this.koiVersionMappingDriver = new VersionMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
 
 

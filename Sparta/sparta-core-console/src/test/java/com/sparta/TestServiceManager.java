@@ -32,7 +32,7 @@ class Brian extends Radium {
     @Override
     public void vitalize () throws Exception {
         KOIMappingDriver koiMappingDriver = new ServiceMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
         UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
@@ -50,7 +50,7 @@ class Brian extends Radium {
 
 
         DuplexAppointClient wolf = new WolvesAppointClient(
-                new WolfMCClient( 2048, "", this, this.getMiddlewareManager().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) )
+                new WolfMCClient( 2048, "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) )
         );
         wolf.execute();
         wolf.compile( ServiceLifecycleIface.class, false );

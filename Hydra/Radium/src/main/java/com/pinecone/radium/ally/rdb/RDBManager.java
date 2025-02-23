@@ -11,7 +11,7 @@ import com.pinecone.hydra.system.ArchSystemAutoAssembleComponent;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.slime.source.rdb.RDBClient;
-import com.pinecone.radium.system.MiddlewareManager;
+import com.pinecone.radium.system.InterWareDirector;
 import com.pinecone.radium.system.RadiumSystem;
 
 import java.util.Collection;
@@ -43,7 +43,7 @@ public class RDBManager extends ArchSystemAutoAssembleComponent implements Pinen
         super( name, parent.getSystem(), parent.getSystem().getComponentManager(), parent );
         Hydrarum system = parent.getSystem();
 
-        MiddlewareManager parentManager = (MiddlewareManager) parent;
+        InterWareDirector parentManager = (InterWareDirector) parent;
 
         this.getSystem().getPrimaryConfigScope().autoInject( RDBManager.class, parentManager.getMiddlewareConfig() , this );
 

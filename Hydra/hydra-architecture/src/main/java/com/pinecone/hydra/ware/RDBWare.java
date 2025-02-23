@@ -1,4 +1,4 @@
 package com.pinecone.hydra.ware;
 
-public interface RDBWare extends DataWare {
+public interface RDBWare extends Ware {
 }

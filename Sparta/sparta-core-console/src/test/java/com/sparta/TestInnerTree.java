@@ -46,7 +46,7 @@ class LadyGaga extends Radium {
 
     private void testTask(){
         KOIMappingDriver koiMappingDriver = new TaskMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         DistributedTaskMetaTree distributedScenarioMetaTree = new GenericDistributedTaskMetaTree(koiMappingDriver);
         Debug.trace( distributedScenarioMetaTree.get(GUIDs.GUID72("1f4eda64-00023c-0002-e8")));
@@ -54,7 +54,7 @@ class LadyGaga extends Radium {
 
     private void testService(){
         KOIMappingDriver koiMappingDriver = new ServiceMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         UniformServicesInstrument distributedScopeServiceTree = new UniformServicesInstrument(koiMappingDriver);
 
@@ -64,7 +64,7 @@ class LadyGaga extends Radium {
 
     private void testScenario(){
         KOIMappingDriver koiMappingDriver = new ScenarioMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         DistributedScenarioMetaTree distributedScenarioMetaTree = new GenericDistributedScenarioMetaTree(koiMappingDriver);
 //        GenericNamespaceNode genericNamespaceNode = new GenericNamespaceNode();

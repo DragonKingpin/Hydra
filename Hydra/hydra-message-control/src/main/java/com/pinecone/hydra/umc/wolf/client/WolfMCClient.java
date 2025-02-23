@@ -289,6 +289,31 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         }
     }
 
+    protected void                        shutdownIfAllChannelDetached ( MessengerNettyChannelControlBlock ccb ) {
+        if ( !WolfMCClient.this.getConnectionArguments().isAutoReconnect() ) {
+            if( WolfMCClient.this.getChannelPool().isAllChannelsTerminated() ) {
+                try{
+                    WolfMCClient.this.getLogger().warn( "<AutoReconnection is disabled> All channels are terminated, client terminating." );
+                    WolfMCClient.this.close();
+                }
+                catch ( ProvokeHandleException e ) {
+                    throw new IrrationalProvokedException( e ); // Those should never have happened.
+                }
+
+                return;
+            }
+
+            WolfMCClient.this.getChannelPool().deactivate( ccb );
+            WolfMCClient.this.getMajorIOLock().lock();
+            try{
+                WolfMCClient.this.getTaskManager().erase( ccb );
+            }
+            finally {
+                WolfMCClient.this.getMajorIOLock().unlock();
+            }
+        }
+    }
+
     protected void                        initNettySubsystem() throws IOException, UMCServiceException {
         this.mExecutorGroup = new NioEventLoopGroup();
         this.mBootstrap     = new Bootstrap();
@@ -385,32 +410,12 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
                             }
 
                             if ( bBlocked ) {
+                                WolfMCClient.this.shutdownIfAllChannelDetached( ccb );
                                 return;
                             }
                         }
 
-                        if ( !WolfMCClient.this.getConnectionArguments().isAutoReconnect() ) {
-                            if( WolfMCClient.this.getChannelPool().isAllChannelsTerminated() ) {
-                                try{
-                                    WolfMCClient.this.getLogger().warn( "<AutoReconnection is disabled> All channels are terminated, client terminating." );
-                                    WolfMCClient.this.close();
-                                }
-                                catch ( ProvokeHandleException e ) {
-                                    throw new IrrationalProvokedException( e ); // Those should never have happened.
-                                }
-
-                                return;
-                            }
-
-                            WolfMCClient.this.getChannelPool().deactivate( ccb );
-                            WolfMCClient.this.getMajorIOLock().lock();
-                            try{
-                                WolfMCClient.this.getTaskManager().erase( ccb );
-                            }
-                            finally {
-                                WolfMCClient.this.getMajorIOLock().unlock();
-                            }
-                        }
+                        WolfMCClient.this.shutdownIfAllChannelDetached( ccb );
                     }
 
                     @Override

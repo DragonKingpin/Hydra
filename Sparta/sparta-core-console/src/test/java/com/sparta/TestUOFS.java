@@ -43,10 +43,10 @@ class Steve extends Radium {
     @Override
     public void vitalize () throws Exception {
         KOIMappingDriver koiMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         KOIMappingDriver koiVolumeMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
 

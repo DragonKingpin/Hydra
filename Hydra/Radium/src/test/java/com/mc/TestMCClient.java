@@ -43,7 +43,7 @@ class Jesus extends JesusChrist {
                 "  }\n" +
                 "}" ) );
 
-        WolfMCClient wolf = new WolfMCClient( "", this, this.getMiddlewareManager().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
+        WolfMCClient wolf = new WolfMCClient( "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
         wolf.apply( new WolfMCExpress( servtron ) ).execute();
         JSONObject jsonObject = new JSONMaptron(
                 "{Messagelet:'ServiceCenter', 'do': 'queryHeistConfTPL', 'heist': 'NeteaseMusic', 'instance': 'RavageAlbums'}"

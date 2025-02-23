@@ -22,7 +22,7 @@ import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.WolfMCNode;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
-import com.pinecone.radium.system.MiddlewareManager;
+import com.pinecone.radium.system.InterWareDirector;
 import com.pinecone.radium.system.RadiumSystem;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
     public MessagersManager( Namespace name, HyComponent parent ) {
         super( name, parent.getSystem(), parent.getSystem().getComponentManager(), parent );
 
-        MiddlewareManager parentManager = (MiddlewareManager) parent;
+        InterWareDirector parentManager = (InterWareDirector) parent;
 
         this.getSystem().getPrimaryConfigScope().autoInject( MessagersManager.class, parentManager.getMiddlewareConfig() , this );
 

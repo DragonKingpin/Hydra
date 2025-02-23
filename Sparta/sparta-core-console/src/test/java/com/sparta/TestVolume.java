@@ -58,10 +58,10 @@ class Alice extends Radium {
     @Override
     public void vitalize () throws Exception {
         KOIMappingDriver koiMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         KOIMappingDriver koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
         KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );

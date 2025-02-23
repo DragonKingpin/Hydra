@@ -112,7 +112,7 @@ class Jeff extends JesusChrist {
     }
 
     private void testProtoRPCClient() throws Exception {
-        WolfAppointClient wolf = new WolfAppointClient( new WolfMCClient( 2048, "", this, this.getMiddlewareManager().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) ) );
+        WolfAppointClient wolf = new WolfAppointClient( new WolfMCClient( 2048, "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) ) );
         wolf.execute();
 
         wolf.compile( Raccoon.class, false );
@@ -167,7 +167,7 @@ class Jeff extends JesusChrist {
     }
 
     protected void testIfaceProxy() throws Exception {
-        WolfAppointClient wolf = new WolfAppointClient( new WolfMCClient( "", this, this.getMiddlewareManager().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) ) );
+        WolfAppointClient wolf = new WolfAppointClient( new WolfMCClient( "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) ) );
         wolf.execute();
 
         wolf.compile( Raccoon.class, false );
@@ -301,7 +301,7 @@ class Jeff extends JesusChrist {
 
     private void testDuplexClient() throws Exception {
         WolvesAppointClient wolf = new WolvesAppointClient(
-                new WolfMCClient( 2048, "", this, this.getMiddlewareManager().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) )
+                new WolfMCClient( 2048, "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) )
         );
         wolf.execute();
 

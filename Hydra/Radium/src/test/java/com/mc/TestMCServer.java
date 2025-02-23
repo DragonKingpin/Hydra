@@ -47,7 +47,7 @@ class Christ extends JesusChrist {
     }
 
     public void testSystemServer() throws Exception {
-//        WolfMCServer wolf   = (WolfMCServer)this.getMiddlewareManager().getMessagersManager().getMessageNodeByName( "WolfKing" );
+//        WolfMCServer wolf   = (WolfMCServer)this.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( "WolfKing" );
 //        wolf.execute();
 //
 //        this.getTaskManager().add( wolf );

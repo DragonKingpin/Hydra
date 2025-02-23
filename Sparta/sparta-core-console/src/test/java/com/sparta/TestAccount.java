@@ -24,7 +24,7 @@ class Geralt extends Radium {
     @Override
     public void vitalize() throws Exception {
         KOIMappingDriver koiMappingDriver = new UserMappingDriver(
-                this, (IbatisClient) this.getMiddlewareManager().getRDBManager().getRDBClientByName("MySQLKingHydranium"), this.getDispenserCenter()
+                this, (IbatisClient) this.getMiddlewareDirector().getRDBManager().getRDBClientByName("MySQLKingHydranium"), this.getDispenserCenter()
         );
 
         UniformAccountManager uniformAccountManager = new UniformAccountManager( koiMappingDriver );

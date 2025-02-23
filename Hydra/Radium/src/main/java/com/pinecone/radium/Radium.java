@@ -18,7 +18,8 @@ import com.pinecone.framework.util.io.Tracerson;
 import com.pinecone.framework.util.json.homotype.DirectObjectInjector;
 import com.pinecone.radium.system.ConfigScope;
 import com.pinecone.radium.system.Hierarchy;
-import com.pinecone.radium.system.MiddlewareManager;
+import com.pinecone.radium.system.InterWareDirector;
+import com.pinecone.radium.system.KnittedMiddlewareDirector;
 import com.pinecone.radium.system.RadiumConfigScope;
 import com.pinecone.radium.system.RadiumSystem;
 import com.pinecone.radium.system.ServersScope;
@@ -69,7 +70,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     protected Slf4jTracerScope                     mTracerScope              ;
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
-    protected MiddlewareManager                    mMiddlewareManager        ;
+    protected InterWareDirector                    mMiddlewareDirector       ;
     protected ResourceDispenserCenter              mDispenserCenter          ;
 
     protected void prepare_system_log4j_logger() {
@@ -92,14 +93,14 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
         this.infoLifecycle( "Skeleton Initialization", LogStatuses.StatusStart );
         this.mTracerScope            = new GenericTracerScope( this );
         this.mPrimaryConfigScope     = new RadiumConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
-        this.mMiddlewareManager      = new MiddlewareManager( this );
+        this.mMiddlewareDirector      = new KnittedMiddlewareDirector( this );
         this.mServersScope           = new ServersScope( this );
         this.mStorageSystem          = new StorageSystem( this );
         this.mSystemPrimaryDaemon    = new SystemDaemon( this );
         this.mDispenserCenter        = new GenericResourceDispenserCenter( this );
 
 
-        this.getComponentManager().addComponent( this.mMiddlewareManager    );
+        this.getComponentManager().addComponent( this.mMiddlewareDirector    );
         this.getComponentManager().addComponent( this.mPrimaryConfigScope   );
         this.getComponentManager().addComponent( this.mServersScope         );
         this.getComponentManager().addComponent( this.mStorageSystem        );
@@ -284,8 +285,8 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     }
 
     @Override
-    public MiddlewareManager getMiddlewareManager() {
-        return this.mMiddlewareManager;
+    public InterWareDirector getMiddlewareDirector() {
+        return this.mMiddlewareDirector;
     }
 
     public ServgramOrchestrator getServgramOrchestrator() {
@@ -319,7 +320,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
 
 
     void testBunny() throws Exception {
-        RabbitMQClient bunny = new RabbitMQClient( this, this.getMiddlewareManager().getMiddlewareConfig().optJSONObject( "Messengers" ).optJSONObject( "RabbitMQKingpin" ) );
+        RabbitMQClient bunny = new RabbitMQClient( this, this.getMiddlewareDirector().getMiddlewareConfig().optJSONObject( "Messengers" ).optJSONObject( "RabbitMQKingpin" ) );
         bunny.toListen();
 
         Debug.echo( bunny );

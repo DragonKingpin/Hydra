@@ -55,7 +55,7 @@ public class ChronicleHeist extends HTTPHeist implements Chronicle {
         if( this.isSlave() ) {
             this.mPeriodicHeistKernel     = new ChroniclePeriodicHeistKernel( this );
             this.getSystem().getPrimaryConfigScope().autoInject( ChronicleHeist.class, this.getConfig(), this );
-            this.mPrimaryDataIbatisClient = (IbatisClient) this.getSystem().getMiddlewareManager().getRDBManager().getRDBClientByName( this.mszPrimaryRDBName );
+            this.mPrimaryDataIbatisClient = (IbatisClient) this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszPrimaryRDBName );
             this.mPrimarySharedSqlSession = this.mPrimaryDataIbatisClient.openSession( true );
             this.prepareChildrenConfig();
             this.prepareScopeDAOManipulator();

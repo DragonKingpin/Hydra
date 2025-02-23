@@ -20,7 +20,7 @@ class Ken extends Radium {
     @Override
     public void vitalize () throws Exception {
         KOIMappingDriver koiMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
         TitanBucketInstrument bucketInstrument = new TitanBucketInstrument( koiMappingDriver );

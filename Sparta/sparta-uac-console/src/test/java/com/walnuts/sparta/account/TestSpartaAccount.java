@@ -41,7 +41,7 @@ class JesusChrist extends Radium {
 
 
         KOIMappingDriver koiAccountMappingDriver = new UserMappingDriver(
-                sparta, (IbatisClient)this.getMiddlewareManager().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
         AccountManager     accountManager = new UniformAccountManager( koiAccountMappingDriver );

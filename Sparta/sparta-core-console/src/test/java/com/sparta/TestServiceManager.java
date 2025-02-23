@@ -4,12 +4,15 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.service.ServiceInstance;
+import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
+import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
@@ -19,6 +22,10 @@ import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.guid.GUIDs;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class Brian extends Radium {
     public Brian( String[] args, CascadeSystem parent ) {
@@ -56,6 +63,7 @@ class Brian extends Radium {
         wolf.compile( ServiceLifecycleIface.class, false );
         wolf.compile( ServiceMetaManipulationIface.class, false );
         this.testServiceRegister( wolf );
+
     }
 
     public void testServiceRegister( DuplexAppointClient client ) {
@@ -68,8 +76,8 @@ class Brian extends Radium {
 
         iface.registerService( serviceDTO );
 
-        //ServiceInstance serviceInstance = metaIface.queryServiceInstanceByUSII(new BindUSII(1234L, GUIDs.GUID72("1769872-0002d2-0003-cc")));
-        //Debug.trace( serviceInstance );
+        List<ServiceMetaDTO> serviceMetaDTOS = metaIface.fetchServiceInsMetaByServiceId( "1769872-0002d2-0003-cc" );
+        Debug.trace( serviceMetaDTOS );
     }
 
 }

@@ -11,14 +11,32 @@ public interface ServiceManager extends KernelObjectInstrument {
 
     void registerService( ServiceInstance instance );
 
-    Collection<ServiceInstance >  queryServiceInstance( Long clientId );
+    Collection<ServiceInstance >  fetchServiceInstance( Long clientId );
 
-    Collection<ServiceInstance >  queryServiceInstance( Identification serviceId );
+    Collection<ServiceInstance >  fetchServiceInstance( Identification serviceId );
 
-    Collection<ServiceInstance >  queryServiceInstance( USII usii );
+    Collection<ServiceInstance >  fetchServiceInstance( USII usii );
+
+
+
+    ServiceInstance queryServiceInstance( Long clientId );
+
+    ServiceInstance queryServiceInstance( USII usii );
+
+
+
+    boolean hasOwnedService( Identification serviceId );
+
+    boolean hasOwnedService( USII usii );
+
+    boolean hasOwnedServiceInstance( Long clientId );
+
+    boolean hasOwnedServiceClient( Long clientId );
+
+
 
     default ServiceInstance queryFirstInstance( Long clientId ) {
-        Collection<ServiceInstance > instances = this.queryServiceInstance( clientId );
+        Collection<ServiceInstance > instances = this.fetchServiceInstance( clientId );
         if ( !instances.isEmpty() ) {
             return instances.iterator().next();
         }
@@ -26,7 +44,7 @@ public interface ServiceManager extends KernelObjectInstrument {
     }
 
     default ServiceInstance queryFirstInstance( Identification serviceId ) {
-        Collection<ServiceInstance > instances = this.queryServiceInstance( serviceId );
+        Collection<ServiceInstance > instances = this.fetchServiceInstance( serviceId );
         if ( !instances.isEmpty() ) {
             return instances.iterator().next();
         }
@@ -34,7 +52,7 @@ public interface ServiceManager extends KernelObjectInstrument {
     }
 
     default ServiceInstance queryFirstInstance( USII usii ) {
-        Collection<ServiceInstance > instances = this.queryServiceInstance( usii );
+        Collection<ServiceInstance > instances = this.fetchServiceInstance( usii );
         if ( !instances.isEmpty() ) {
             return instances.iterator().next();
         }

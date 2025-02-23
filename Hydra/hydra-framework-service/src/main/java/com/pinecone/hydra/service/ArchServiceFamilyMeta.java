@@ -19,6 +19,11 @@ public abstract class ArchServiceFamilyMeta implements ServiceFamilyMeta {
 
     protected String extraInformation;
 
+    protected String szElementaryConfig;
+
+    protected Map<String, Object > elementaryConfig;
+
+
     protected String level;
 
     protected String description;

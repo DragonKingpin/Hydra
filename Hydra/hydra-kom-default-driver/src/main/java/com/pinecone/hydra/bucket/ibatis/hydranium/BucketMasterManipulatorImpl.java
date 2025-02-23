@@ -3,9 +3,11 @@ package com.pinecone.hydra.bucket.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.bucket.ibatis.BucketMapping;
 import com.pinecone.hydra.bucket.ibatis.SiteMapping;
+import com.pinecone.hydra.bucket.ibatis.SiteNodeMapper;
 import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.bucket.source.BucketMasterManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
+import com.pinecone.hydra.storage.bucket.source.SiteNodeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,10 @@ public class BucketMasterManipulatorImpl implements BucketMasterManipulator {
     @Structure( type = SiteMapping.class )
     SiteManipulator siteManipulator;
 
+    @Resource
+    @Structure( type = SiteNodeMapper.class )
+    SiteNodeManipulator siteNodeManipulator;
+
     public BucketMasterManipulatorImpl() {
 
     }
@@ -38,6 +44,11 @@ public class BucketMasterManipulatorImpl implements BucketMasterManipulator {
     @Override
     public SiteManipulator getSiteManipulator() {
         return this.siteManipulator;
+    }
+
+    @Override
+    public SiteNodeManipulator getSiteNodeManipulator() {
+        return this.siteNodeManipulator;
     }
 
     @Override

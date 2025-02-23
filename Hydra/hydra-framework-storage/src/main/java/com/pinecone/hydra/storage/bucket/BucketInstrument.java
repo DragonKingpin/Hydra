@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.entity.Bucket;
 import com.pinecone.hydra.storage.bucket.entity.Site;
+import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 
 import java.util.List;
@@ -30,4 +31,14 @@ public interface BucketInstrument extends Pinenut {
     Site querySite( GUID siteGuid );
 
     List<Site> listSite();
+
+    GUID createSiteNode( SiteNode siteNode );
+
+    void removeSiteNode( GUID siteNodeGuid );
+
+    SiteNode querySiteNode( GUID siteNodeGuid );
+
+    List<SiteNode> querySiteNodeBySiteGuid( GUID siteGuid );
+
+    void updateSiteNode( SiteNode siteNode );
 }

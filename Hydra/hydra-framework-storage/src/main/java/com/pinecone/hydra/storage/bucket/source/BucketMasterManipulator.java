@@ -6,4 +6,6 @@ public interface BucketMasterManipulator extends KOIMasterManipulator {
     BucketManipulator getBucketManipulator();
 
     SiteManipulator   getSiteManipulator();
+
+    SiteNodeManipulator getSiteNodeManipulator();
 }

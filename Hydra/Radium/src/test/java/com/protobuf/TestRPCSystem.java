@@ -12,6 +12,10 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
+import com.pinecone.hydra.umc.msg.ChannelPool;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
@@ -228,7 +232,20 @@ class Jeff extends JesusChrist {
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
 
+
         WolvesAppointServer wolf = new WolvesAppointServer(wolfKing, HuskyDuplexExpress.class);
+
+        wolfKing.registerChannelInactiveHandler(new ChannelInactiveHandler() {
+            @Override
+            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+                Debug.bluefs( ccb.getChannel().getChannelID(), ccb.getChannel().getIdentityID() );
+                ChannelPool pool = wolf.getUMCTExpress().getPoolByClientId( ccb.getChannel().getIdentityID() );
+                if ( pool != null ) {
+                    Debug.redfs( pool.isEmpty() );
+                }
+                return false;
+            }
+        });
 
         RaccoonController controller  = new RaccoonController();
 

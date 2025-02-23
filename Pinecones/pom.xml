@@ -22,6 +22,7 @@
         <module>summer</module>
         <module>springram</module>
         <module>ulf-lib-construction</module>
+        <module>ulf-lib-oltp-rdb</module>
     </modules>
 
     <dependencies>

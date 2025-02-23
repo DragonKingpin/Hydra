@@ -1,10 +1,10 @@
 package com.pinecone.framework.system.architecture;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.system.regime.arch.Manager;
 
 import java.util.Collection;
 
-public interface ComponentManager extends Pinenut {
+public interface ComponentManager extends Manager {
     void addComponent                ( Component component ) ;
 
     void detachComponent             ( Component component ) ;

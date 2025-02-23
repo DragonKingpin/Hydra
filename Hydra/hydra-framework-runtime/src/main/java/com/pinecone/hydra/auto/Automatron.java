@@ -1,8 +1,9 @@
 package com.pinecone.hydra.auto;
 
 import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.system.regime.Automatus;
 
-public interface Automatron extends Processum {
+public interface Automatron extends Processum, Automatus {
     void start();
 
     void join() throws InterruptedException;

@@ -39,7 +39,7 @@ public class RaccoonController {
     }
 
     @AddressMapping( "scratchS" )
-    public String[] scratchC(String target, int time, String[] list ) {
+    public String[] scratchS(String target, int time, String[] list ) {
         Debug.bluef( "Raccoon invoked S" + target + time  );
         return list;
     }

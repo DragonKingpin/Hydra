@@ -1,6 +1,6 @@
 package com.sauron.heist.heistron;
 
-import com.pinecone.hydra.servgram.Orchestrator;
+import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.Servgramlet;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
@@ -72,7 +72,7 @@ public interface Heistum extends Saunut, Servgramlet {
 
 
     String ConfigChildrenKey      = "Children";
-    String ConfigOrchestrationKey = Orchestrator.ConfigOrchestrationKey;
+    String ConfigOrchestrationKey = AutoOrchestrator.ConfigOrchestrationKey;
 
     String StatusStart            = "Start";
     String StatusDone             = "Done";

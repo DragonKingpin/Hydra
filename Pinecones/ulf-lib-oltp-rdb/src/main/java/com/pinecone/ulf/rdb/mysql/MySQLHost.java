@@ -1,0 +1,88 @@
+package com.pinecone.ulf.rdb.mysql;
+
+import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.rdb.RDBHost;
+
+import java.sql.*;
+
+public class MySQLHost implements RDBHost {
+    protected String      mszLocation;
+
+    protected String      mszUsername;
+
+    protected String      mszPassword;
+
+    protected String      mszCharset;
+
+    protected String      mszDriver;
+
+    protected Connection  mGlobalConnection;
+
+
+    public MySQLHost( String dbLocation, String dbUsername, String dbPassword ) throws SQLException {
+        this( dbLocation, dbUsername, dbPassword, "UTF-8" );
+    }
+
+    public MySQLHost( String dbLocation, String dbUsername, String dbPassword, String dbCharset ) throws SQLException {
+        this( dbLocation, dbUsername, dbPassword, dbCharset, "com.mysql.jdbc.Driver" );
+    }
+
+    public MySQLHost( String dbLocation, String dbUsername, String dbPassword, String dbCharset, String driver ) throws SQLException {
+        this.mszLocation = dbLocation ;
+        this.mszUsername = dbUsername ;
+        this.mszPassword = dbPassword ;
+        this.mszCharset  = dbCharset  ;
+        this.mszDriver   = driver     ;
+        this.connect();
+    }
+
+    @Override
+    public boolean isClosed() {
+        if( this.mGlobalConnection == null ) {
+            return true;
+        }
+
+        try {
+            return this.mGlobalConnection.isClosed();
+        }
+        catch ( SQLException e ) {
+            Debug.cerr( e );
+            return false;
+        }
+    }
+
+    @Override
+    public void connect() throws SQLException {
+        try{
+            Class.forName( this.mszDriver );
+        }
+        catch ( ClassNotFoundException e ){
+            throw new SQLException( "JDBC Driver is not found.", "CLASS_NOT_FOUND", e );
+        }
+
+        this.mGlobalConnection = DriverManager.getConnection("jdbc:mysql://" + this.mszLocation + "?characterEncoding="+ this.mszCharset +"&useSSL=false",this.mszUsername,this.mszPassword);
+    }
+
+    @Override
+    public void close() throws SQLException {
+        if( this.mGlobalConnection != null ) {
+            this.mGlobalConnection.close();
+        }
+    }
+
+    @Override
+    public Connection getConnection() {
+        return this.mGlobalConnection;
+    }
+
+    @Override
+    public Statement  createStatement() throws SQLException {
+        if( this.isClosed() ){
+            this.connect();
+        }
+
+        return this.mGlobalConnection.createStatement();
+    }
+
+
+}

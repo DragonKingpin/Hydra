@@ -1,12 +1,13 @@
 package com.pinecone.framework.system.executum;
 
+import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.system.prototype.Summoner;
 
 import java.util.Map;
 
-public interface TaskManager extends Pinenut, Summoner {
+public interface TaskManager extends Pinenut, Summoner, Manager {
     Processum     getParentProcessum();
 
     RuntimeSystem getSystem();

@@ -26,10 +26,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="pinecone" />
-    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.23" level="project" />
-    <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.32.3.3" level="project" />
-    <orderEntry type="library" name="Maven: commons-fileupload:commons-fileupload:1.3.1" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.4.1" level="project" />
@@ -63,6 +59,7 @@
     <orderEntry type="module" module-name="hydra-architecture" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />
     <orderEntry type="module" module-name="slime" />
+    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.23" level="project" />
     <orderEntry type="module" module-name="ulfhedinn" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />

@@ -69,6 +69,11 @@
             <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.pinecone.ulf</groupId>
+            <artifactId>ulf-lib-oltp-rdb</artifactId>
+            <version>1.2.1</version>
+        </dependency>
 
         <dependency>
             <groupId>com.sauron.core</groupId>

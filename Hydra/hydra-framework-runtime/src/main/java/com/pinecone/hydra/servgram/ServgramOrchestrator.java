@@ -4,7 +4,7 @@ import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.ulf.util.lang.MultiScopeFactory;
 import org.slf4j.Logger;
 
-public interface ServgramOrchestrator extends Orchestrator {
+public interface ServgramOrchestrator extends AutoOrchestrator {
     PatriarchalConfig getSectionConfig();
 
     PatriarchalConfig getOrchestrationConfig();

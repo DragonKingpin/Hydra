@@ -1,8 +1,8 @@
 package com.pinecone.hydra.storage.volume.kvfs;
 
 import com.pinecone.framework.util.rdb.MappedExecutor;
-import com.pinecone.framework.util.sqlite.SQLiteExecutor;
-import com.pinecone.framework.util.sqlite.SQLiteHost;
+import com.pinecone.ulf.rdb.sqlite.SQLiteExecutor;
+import com.pinecone.ulf.rdb.sqlite.SQLiteHost;
 
 import java.sql.SQLException;
 import java.util.Map;

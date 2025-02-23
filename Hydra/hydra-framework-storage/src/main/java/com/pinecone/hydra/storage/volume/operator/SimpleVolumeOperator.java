@@ -2,7 +2,7 @@ package com.pinecone.hydra.storage.volume.operator;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.sqlite.SQLiteExecutor;
+import com.pinecone.ulf.rdb.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;

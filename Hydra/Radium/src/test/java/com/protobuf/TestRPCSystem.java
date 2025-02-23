@@ -154,9 +154,11 @@ class Jeff extends JesusChrist {
             }
         }
 
+        //long s = System.currentTimeMillis();
         for ( int i = 0; i < 1e2; ++i ) {
-            Debug.greenf( wolf.invokeInform(digest, "afd", 7799 ) );
+            Debug.greenf( wolf.invokeInform(digest, "afd", i ) );
         }
+        //Debug.redfs( System.currentTimeMillis() - s );
 
         Debug.sleep( 1000000 );
 
@@ -259,7 +261,7 @@ class Jeff extends JesusChrist {
 
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratch", "fuck you", 2025 ) );
         String[] ss = new String[] { "abc", "efg" };
-        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchS", "fuck you", 2025, ss ) );
+        //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchS", "fuck you", 2025, ss ) );
 
         Rabbit rabbit = new Rabbit();
         rabbit.name = "rabbit";
@@ -273,10 +275,15 @@ class Jeff extends JesusChrist {
         sub.setName( "haha" );
         rabbit.setSub( sub );
 
-        Rabbit[] args = new Rabbit[] { rabbit };
-        //List<Rabbit> args = List.of(rabbit);
+        //Rabbit[] args = new Rabbit[] { rabbit };
+        List<Rabbit> args = List.of(rabbit);
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchA", "fuck you", 2025, rabbit ) );
-        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025, args ) );
+
+        //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025, args ) );
+
+        Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchList", "fuck you", 2025, args ) );
+
+
 
 
         //Debug.sleep( 3000 );

@@ -142,7 +142,6 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                         }
 
 
-
                         if ( fieldDescriptor.isRepeated() ) {
                             Class<?>[] pars = setter.getParameterTypes();
                             if( pars.length > 0 ) {
@@ -307,17 +306,17 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
             }
             return ret;
         }
-        else if ( Collection.class.isAssignableFrom( type ) ) {
+        else if ( Set.class.isAssignableFrom( type ) ) {
             List<?> values = (List<?>) value;
-            List<Object> decodedValues = new ArrayList<>();
+            Set<Object> decodedValues = new HashSet<>();
 
             this.setCollectionRepeated( values, decodedValues, genericTypeLabel, fieldDescriptor, options );
 
             return decodedValues;
         }
-        else if ( Set.class.isAssignableFrom( type ) ) {
+        else if ( Collection.class.isAssignableFrom( type ) ) {
             List<?> values = (List<?>) value;
-            Set<Object> decodedValues = new HashSet<>();
+            List<Object> decodedValues = new ArrayList<>();
 
             this.setCollectionRepeated( values, decodedValues, genericTypeLabel, fieldDescriptor, options );
 

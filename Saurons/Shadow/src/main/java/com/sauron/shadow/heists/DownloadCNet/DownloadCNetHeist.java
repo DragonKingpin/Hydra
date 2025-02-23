@@ -6,8 +6,8 @@ import com.sauron.heist.heistron.HTTPIndexHeist;
 import com.sauron.heist.heistron.Heistotron;
 import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONException;
-import com.pinecone.framework.util.mysql.MySQLExecutor;
-import com.pinecone.framework.util.mysql.MySQLHost;
+import com.pinecone.ulf.rdb.mysql.MySQLExecutor;
+import com.pinecone.ulf.rdb.mysql.MySQLHost;
 
 import java.sql.SQLException;
 

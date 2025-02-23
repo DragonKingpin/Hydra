@@ -55,6 +55,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.pinecone.ulf</groupId>
+            <artifactId>ulf-lib-oltp-rdb</artifactId>
+            <version>1.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.pinecone.slime</groupId>
             <artifactId>slime</artifactId>
             <version>2.1.0</version>

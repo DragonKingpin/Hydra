@@ -15,7 +15,7 @@ import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.servgram.GramTransaction;
 import com.pinecone.hydra.servgram.OrchestrateInterruptException;
-import com.pinecone.hydra.servgram.Orchestrator;
+import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
 import com.pinecone.radium.util.ConfigHelper;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
@@ -119,7 +119,7 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
     }
 
     protected Hierarchy queryHeistHierarchy() {
-        JSONConfig joOrchestration = this.getConfig().getChild( Orchestrator.ConfigOrchestrationKey );
+        JSONConfig joOrchestration = this.getConfig().getChild( AutoOrchestrator.ConfigOrchestrationKey );
         if( joOrchestration != null ) {
             JSONArray transaction = joOrchestration.optJSONArray( GramTransaction.ConfigTransactionsListKey );
             if( transaction != null && !transaction.isEmpty() ) {

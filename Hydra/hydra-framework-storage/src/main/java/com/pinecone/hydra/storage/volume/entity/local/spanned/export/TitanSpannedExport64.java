@@ -1,7 +1,7 @@
 package com.pinecone.hydra.storage.volume.entity.local.spanned.export;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.sqlite.SQLiteExecutor;
+import com.pinecone.ulf.rdb.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageExportIORequest;

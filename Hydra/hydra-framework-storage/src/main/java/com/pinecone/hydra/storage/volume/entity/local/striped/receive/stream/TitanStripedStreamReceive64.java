@@ -3,7 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.striped.receive.stream;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.rdb.MappedExecutor;
-import com.pinecone.framework.util.sqlite.SQLiteHost;
+import com.pinecone.ulf.rdb.sqlite.SQLiteHost;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
 import com.pinecone.hydra.storage.StorageIOResponse;

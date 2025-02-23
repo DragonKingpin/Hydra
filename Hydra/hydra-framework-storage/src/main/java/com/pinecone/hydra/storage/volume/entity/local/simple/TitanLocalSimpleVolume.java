@@ -3,7 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.simple;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.rdb.MappedExecutor;
-import com.pinecone.framework.util.sqlite.SQLiteExecutor;
+import com.pinecone.ulf.rdb.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.StorageIOResponse;
 import com.pinecone.hydra.storage.io.UIOException;
 import com.pinecone.hydra.storage.volume.VolumeConfig;

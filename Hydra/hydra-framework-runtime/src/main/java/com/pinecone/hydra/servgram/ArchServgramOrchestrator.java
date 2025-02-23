@@ -1,6 +1,9 @@
 package com.pinecone.hydra.servgram;
 
-import com.pinecone.framework.system.*;
+
+import com.pinecone.framework.system.GenericMasterTaskManager;
+import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.Pinecore;
 import com.pinecone.framework.system.executum.Executum;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.config.PatriarchalConfig;
@@ -31,8 +34,8 @@ public abstract class ArchServgramOrchestrator extends GenericMasterTaskManager 
 
         this.mSectionConfig            = sectionConfig;
         this.logger                    = LoggerFactory.getLogger( String.format( "Tracer<%s>", this.className() ) );
-        this.mOrchestrationConfig      = this.mSectionConfig.getChild( Orchestrator.ConfigOrchestrationKey );
-        this.mServgramScopesConf       = (List)((JSONObject) this.mOrchestrationConfig).get( Orchestrator.ConfigServgramScopesKey );
+        this.mOrchestrationConfig      = this.mSectionConfig.getChild( AutoOrchestrator.ConfigOrchestrationKey );
+        this.mServgramScopesConf       = (List)((JSONObject) this.mOrchestrationConfig).get( AutoOrchestrator.ConfigServgramScopesKey );
         this.mNotifyLock               = new ReentrantLock();
 
         this.prepareFactory( factory );

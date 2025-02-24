@@ -300,6 +300,8 @@ class Jeff extends JesusChrist {
 
         Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchList", "fuck you", 2025, args ) );
 
+        //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchPrime", "fuck you", 12025 ) );
+
 
 
 

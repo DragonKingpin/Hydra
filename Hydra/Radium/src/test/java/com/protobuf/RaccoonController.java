@@ -49,4 +49,10 @@ public class RaccoonController {
         Debug.bluef( "Raccoon invoked S" + target + time  );
         return list;
     }
+
+    @AddressMapping( "scratchPrime" )
+    public boolean scratchPrime( String target, int time ) {
+        Debug.bluef( "Raccoon invoked Prime" + target + time  );
+        return time != 0;
+    }
 }

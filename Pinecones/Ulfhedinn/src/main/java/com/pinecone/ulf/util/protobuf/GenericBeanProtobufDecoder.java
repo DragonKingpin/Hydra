@@ -16,10 +16,12 @@ import com.pinecone.framework.system.stereotype.JavaBeans;
 import com.pinecone.framework.unit.Units;
 
 public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
+
     @Override
+    @SuppressWarnings( "unchecked" )
     public <T> T decode( Class<T> clazz, String genericLabel, Descriptors.Descriptor descriptor, DynamicMessage dynamicMessage, Set<String> exceptedKeys, Options options ) {
         if( PrimitiveWrapper.isSupportedPrimitive( clazz ) ) {
-            return clazz.cast( dynamicMessage.getField( descriptor.findFieldByName( PrimitiveWrapper.FieldName ) ) );
+            return (T) dynamicMessage.getField( descriptor.findFieldByName( PrimitiveWrapper.FieldName ) );
         }
         else if( RepeatedWrapper.isSupportedRepeated( clazz ) ) {
             Descriptors.FieldDescriptor fieldDescriptor = descriptor.findFieldByName( RepeatedWrapper.FieldName );

@@ -8,6 +8,8 @@ import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.util.List;
+
 public interface ServicesInstrument extends ReparseKOMTree {
 
     ServiceConfig KernelServiceConfig = new KernelServiceConfig();
@@ -23,5 +25,7 @@ public interface ServicesInstrument extends ReparseKOMTree {
     boolean            containsChild     ( GUID parentGuid, String childName );
 
     void               update            ( TreeNode treeNode );
+
+    List<ServiceElement> fetchAllService();
 
 }

@@ -2,6 +2,7 @@ package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -11,6 +12,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -39,4 +41,13 @@ public interface ServiceNodeMapper extends ServiceNodeManipulator {
     @Override
     @Select( "SELECT `guid` FROM `hydra_service_service_nodes` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
+
+
+    default List<ServiceElement> fetchAllService(){
+        List<GenericServiceElement> serviceElements = this.fetchAllService0();
+        return new ArrayList<>(serviceElements);
+    }
+
+    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_service_nodes` ")
+    List<GenericServiceElement> fetchAllService0();
 }

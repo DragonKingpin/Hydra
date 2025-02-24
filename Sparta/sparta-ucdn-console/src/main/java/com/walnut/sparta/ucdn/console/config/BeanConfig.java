@@ -1,15 +1,20 @@
 package com.walnut.sparta.ucdn.console.config;
 
+import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.umb.kafka.WolfMCKafkaClient;
 import com.pinecone.hydra.umb.rocket.WolfMCRocketClient;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.hydra.umb.wolf.WolfMCBClient;
+import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umct.WolfMCExpress;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
 import com.walnut.sparta.ucdn.console.umc.ssfm.EFileMultiDistributionIface;
+import com.walnut.sparta.ucdn.console.umc.wolf.UCDNWolfRPCManage;
+import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +23,13 @@ import javax.annotation.Resource;
 @Configuration
 public class BeanConfig {
     @Resource
-    UOFSContentDelivery uofsContentDelivery;
+    private UOFSContentDelivery uofsContentDelivery;
+
+    @Resource
+    private ServicesInstrument primaryService;
+
+    @Resource
+    private DuplexAppointClient wolfClient;
 
     @Bean( name = "kafkaFileServiceClient")
     public UlfBroadcastControlNode kafkaFileServiceClient(){
@@ -39,5 +50,10 @@ public class BeanConfig {
         UlfBroadcastControlNode client = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.uofsContentDelivery, WolfMCExpress.class);
         client.compile( EFileMultiDistributionIface.class,false );
         return client;
+    }
+
+    @Bean
+    public WolfRPCManage wolfRPCManage() throws Exception {
+        return new UCDNWolfRPCManage( this.primaryService, this.uofsContentDelivery, this.wolfClient );
     }
 }

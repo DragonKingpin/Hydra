@@ -2,6 +2,7 @@ package com.pinecone.hydra.service.kom.source;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ServiceNodeManipulator extends GUIDNameManipulator {
 
     @Override
     List<GUID> getGuidsByNameID(String name, GUID guid);
+
+    List<ServiceElement> fetchAllService();
 }

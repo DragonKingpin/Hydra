@@ -31,8 +31,8 @@ class Jesse extends Radium {
         );
 
         UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
-        //this.testInsert( servicesTree );
-        this.testGet( servicesTree );
+        this.testInsert( servicesTree );
+        //this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 

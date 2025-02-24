@@ -235,5 +235,8 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
         return null;
     }
 
-
+    @Override
+    public List<ServiceElement> fetchAllService() {
+        return this.serviceNodeManipulator.fetchAllService();
+    }
 }

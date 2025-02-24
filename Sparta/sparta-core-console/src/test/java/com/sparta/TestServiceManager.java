@@ -70,14 +70,24 @@ class Brian extends Radium {
         ServiceLifecycleIface iface = client.getIface( ServiceLifecycleIface.class );
         ServiceMetaManipulationIface metaIface = client.getIface(ServiceMetaManipulationIface.class);
 
-        RegisterServiceDTO serviceDTO = new RegisterServiceDTO();
-        serviceDTO.setServiceId( "1769872-0002d2-0003-cc" );
-        serviceDTO.setClientId( 1234L );
+        RegisterServiceDTO serviceDTO1 = new RegisterServiceDTO();
+        serviceDTO1.setServiceId( "1769872-0002d2-0003-cc" );
+        serviceDTO1.setClientId( 1234L );
 
-        iface.registerService( serviceDTO );
+        RegisterServiceDTO serviceDTO2 = new RegisterServiceDTO();
+        serviceDTO2.setServiceId( "181e9e6-000395-0000-94" );
+        serviceDTO2.setClientId(1235L);
+
+        iface.registerService( serviceDTO1 );
+        iface.registerService( serviceDTO2 );
 
         List<ServiceMetaDTO> serviceMetaDTOS = metaIface.fetchServiceInsMetaByServiceId( "1769872-0002d2-0003-cc" );
         Debug.trace( serviceMetaDTOS );
+
+        iface.deregisterServiceByServiceId( "181e9e6-000395-0000-94" );
+//
+        Debug.trace(iface.hasOwnedServiceByServiceId( "181e9e6-000395-0000-94" ));
+
     }
 
 }

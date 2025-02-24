@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.registry;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceManager;
+import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
@@ -15,6 +16,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 @Controller
 @AddressMapping("com.pinecone.hydra.service.registry.ServiceLifecycleIface.")
 public class ServiceLifecycleController {
+
     private ServiceManager      mServiceManager;
 
     private ServicesInstrument  mServicesInstrument;
@@ -43,12 +45,32 @@ public class ServiceLifecycleController {
     }
 
     @AddressMapping("deregisterServiceByServiceId")
-    public void deregisterServiceByServiceId( Identification serviceId ){
-        this.mServiceManager.removeService( serviceId );
+    public void deregisterServiceByServiceId( String serviceId ){
+        this.mServiceManager.removeService( GUIDs.GUID72( serviceId ) );
     }
 
     @AddressMapping("deregisterServiceByUSII")
-    public void deregisterServiceByUSII( USII usii ){
+    public void deregisterServiceByUSII( BindUSII usii ){
         this.mServiceManager.removeService( usii );
+    }
+
+    @AddressMapping("hasOwnedServiceByUSII")
+    public boolean hasOwnedServiceByUSII( BindUSII usii ){
+        return this.mServiceManager.hasOwnedService( usii );
+    }
+
+    @AddressMapping("hasOwnedServiceByServiceId")
+    public boolean hasOwnedServiceByServiceId( String serviceId ){
+        return this.mServiceManager.hasOwnedService( GUIDs.GUID72( serviceId ) );
+    }
+
+    @AddressMapping("hasOwnedServiceInstance")
+    public boolean hasOwnedServiceInstance( Long clientId ){
+        return this.mServiceManager.hasOwnedServiceInstance( clientId );
+    }
+
+    @AddressMapping("hasOwnedServiceClient")
+    public boolean hasOwnedServiceClient( Long clientId ){
+        return this.mServiceManager.hasOwnedServiceClient( clientId );
     }
 }

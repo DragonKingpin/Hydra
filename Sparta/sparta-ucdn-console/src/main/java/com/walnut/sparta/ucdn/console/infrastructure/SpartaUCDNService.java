@@ -5,6 +5,9 @@ import com.pinecone.framework.system.functions.Executor;
 import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
+import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
+import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.UniformServicesInstrument;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
@@ -12,6 +15,9 @@ import com.pinecone.hydra.storage.version.TitanVersionManage;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.uma.DuplexAppointClient;
+import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.radium.Radium;
@@ -34,6 +40,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected KOIMappingDriver koiVersionMappingDriver;
 
+    protected KOIMappingDriver koiServiceMappingDriver;
+
 
     protected KOMFileSystem fileSystem;
 
@@ -42,6 +50,10 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     protected TitanBucketInstrument bucketInstrument;
 
     protected TitanVersionManage versionManage;
+
+    protected ServicesInstrument servicesInstrument;
+
+    protected DuplexAppointClient wolfClient;
 
 
     protected void initSubsystem() {
@@ -57,13 +69,19 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         this.koiVersionMappingDriver = new VersionMappingDriver(
                 this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
-
+        this.koiServiceMappingDriver = new ServiceMappingDriver(
+                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+        );
+        this.wolfClient = new WolvesAppointClient(
+                new WolfMCClient( 2048, "", this.getSystem(), this.getSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) )
+        );
 
 
         this.fileSystem = new UniformObjectFileSystem( this.koiFileMappingDriver );
         this.volumeTree = new UniformVolumeManager( this.koiMappingDriver );
         this.bucketInstrument = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage = new TitanVersionManage( this.koiVersionMappingDriver );
+        this.servicesInstrument = new UniformServicesInstrument( koiServiceMappingDriver );
 
 
         this.setPrimarySources( SpartaBoot.class );
@@ -79,6 +97,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
                         genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
+                        genericApplicationContext.registerBean("primaryService", ServicesInstrument.class, () ->  servicesInstrument);
+                        genericApplicationContext.registerBean("wolfClient", DuplexAppointClient.class, () ->  wolfClient);
 
                         genericApplicationContext.registerBean("uofsContentDelivery", UOFSContentDelivery.class, () -> (UOFSContentDelivery) SpartaUCDNService.this.getSystem());
                     }

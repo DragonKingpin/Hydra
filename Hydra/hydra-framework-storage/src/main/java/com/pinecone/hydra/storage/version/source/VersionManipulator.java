@@ -16,4 +16,6 @@ public interface VersionManipulator extends Pinenut {
     boolean queryIsManage(GUID fileGuid);
 
     List<GUID> fetchVersions(GUID guid);
+
+    GUID getVersionFileByGuid(GUID fileGuid);
 }

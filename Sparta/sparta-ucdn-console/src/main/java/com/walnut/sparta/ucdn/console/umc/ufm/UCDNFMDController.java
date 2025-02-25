@@ -58,6 +58,9 @@ public class UCDNFMDController {
 
     @AddressMapping("startDistribution")
     public void setFileMate( RequestHead head, String path, long definitionSize ) {
+//        if( UCDNConstants.serviceLevel.equals("master") ){
+//            return;
+//        }
         if( this.sessionPhaser.getSessionTransaction( head.getSessionId() ) != null ){
             log.info("异常存在的事务");
             this.sessionPhaser.removeSessionTransaction( head.getSessionId() );
@@ -79,6 +82,9 @@ public class UCDNFMDController {
 
     @AddressMapping("setFrameMeta")
     public void setFrameMeta( RequestHead head, UFMDClusterDO frameMeta ) throws IOException {
+//        if( UCDNConstants.serviceLevel.equals("master") ){
+//            return;
+//        }
         long sessionId = head.getSessionId();
         if ( this.assertTransmitTransaction ( frameMeta.getFilePath(), head) ) {
             return;
@@ -101,7 +107,9 @@ public class UCDNFMDController {
 
     @AddressMapping("transmitClusterFrame")
     public void transmitClusterFrame( RequestHead head, UFMDClusterFrame ufmdClusterFrame ) throws IOException, InterruptedException {
-
+//        if( UCDNConstants.serviceLevel.equals("master") ){
+//            return;
+//        }
         long sessionId = head.getSessionId();
         if ( this.assertTransmitTransaction ( ufmdClusterFrame.getPath(), head) ) {
             return;
@@ -151,12 +159,14 @@ public class UCDNFMDController {
             }
         }
 
-
     }
 
     //todo 添加写完后向主节点发送完成指令
     @AddressMapping("frameTerminate")
     public void frameTerminate( RequestHead head, String path, long segId, long totalSegNum ) throws IOException {
+//        if( UCDNConstants.serviceLevel.equals("master") ){
+//            return;
+//        }
         long sessionId = head.getSessionId();
         if ( this.assertTransmitTransaction ( path, head) ) {
             return;
@@ -200,6 +210,7 @@ public class UCDNFMDController {
                 this.sessionPhaser.removeFileLock( fileNode.getGuid() );
                 this.sessionPhaser.removeConsumerCount( fileNode.getGuid() );
                 this.sessionPhaser.removeSessionTransaction( sessionId );
+                this.fileSessionValidator.fileTransmitComplete( path );
             }
             else {
                 this.sessionPhaser.getSessionTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );

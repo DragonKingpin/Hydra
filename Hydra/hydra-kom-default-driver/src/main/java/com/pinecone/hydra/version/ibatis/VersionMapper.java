@@ -28,4 +28,7 @@ public interface VersionMapper extends VersionManipulator {
 
     @Select("SELECT `target_storage_object_guid` FROM `hydra_uofs_version` WHERE `file_guid` = #{fileGuid}")
     List<GUID> fetchVersions(GUID guid);
+
+    @Select("SELECT `file_guid` FROM `hydra_uofs_version` WHERE target_storage_object_guid = #{fileGuid}")
+    GUID getVersionFileByGuid(GUID fileGuid);
 }

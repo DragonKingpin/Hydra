@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.bucket.source.BucketMasterManipulator;
+import com.pinecone.hydra.storage.bucket.source.FileSyncManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteNodeManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -29,6 +30,8 @@ public class TitanBucketInstrument implements BucketInstrument {
 
     protected SiteNodeManipulator       siteNodeManipulator;
 
+    protected FileSyncManipulator       fileSyncManipulator;
+
     protected GuidAllocator             guidAllocator;
 
     public TitanBucketInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
@@ -39,6 +42,7 @@ public class TitanBucketInstrument implements BucketInstrument {
         this.bucketManipulator      = this.masterManipulator.getBucketManipulator();
         this.siteManipulator        = this.masterManipulator.getSiteManipulator();
         this.siteNodeManipulator    = this.masterManipulator.getSiteNodeManipulator();
+        this.fileSyncManipulator    = this.masterManipulator.getFileSyncManipulator();
     }
 
     public TitanBucketInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
@@ -143,4 +147,10 @@ public class TitanBucketInstrument implements BucketInstrument {
     public void updateSiteNode(SiteNode siteNode) {
         this.siteNodeManipulator.update( siteNode );
     }
+
+    @Override
+    public void createSyncState(GUID fileGuid, int state) {
+        this.fileSyncManipulator.insert( fileGuid,state,null );
+    }
+
 }

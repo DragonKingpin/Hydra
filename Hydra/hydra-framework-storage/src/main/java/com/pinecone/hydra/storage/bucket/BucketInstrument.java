@@ -41,4 +41,7 @@ public interface BucketInstrument extends Pinenut {
     List<SiteNode> querySiteNodeBySiteGuid( GUID siteGuid );
 
     void updateSiteNode( SiteNode siteNode );
+
+    void createSyncState( GUID fileGuid, int state );
+
 }

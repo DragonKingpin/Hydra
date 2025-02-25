@@ -12,6 +12,11 @@ public class RegisterServiceDTO implements Pinenut {
 
     }
 
+    public RegisterServiceDTO(Long clientId, String serviceId) {
+        this.clientId = clientId;
+        this.serviceId = serviceId;
+    }
+
     public Long getClientId() {
         return this.clientId;
     }

@@ -16,4 +16,6 @@ public interface VersionManage extends Pinenut {
     boolean queryIsManage(GUID targetStorageObjectGuid);
 
     List<GUID> fetchVersions(GUID guid);
+
+    GUID getVersionFileByGuid( GUID fileGuid );
 }

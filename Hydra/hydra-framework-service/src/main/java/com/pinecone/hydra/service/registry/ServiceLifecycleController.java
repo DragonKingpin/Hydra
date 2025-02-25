@@ -73,4 +73,9 @@ public class ServiceLifecycleController {
     public boolean hasOwnedServiceClient( Long clientId ){
         return this.mServiceManager.hasOwnedServiceClient( clientId );
     }
+
+    @AddressMapping("liveServiceNum")
+    public Integer liveServiceNum(String s){
+        return this.mServiceManager.liveServiceNum();
+    }
 }

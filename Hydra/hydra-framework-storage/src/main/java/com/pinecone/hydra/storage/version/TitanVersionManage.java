@@ -64,4 +64,9 @@ public class TitanVersionManage implements VersionManage{
     public List<GUID> fetchVersions(GUID guid) {
         return  this.versionManipulator.fetchVersions( guid );
     }
+
+    @Override
+    public GUID getVersionFileByGuid(GUID fileGuid) {
+        return this.versionManipulator.getVersionFileByGuid( fileGuid );
+    }
 }

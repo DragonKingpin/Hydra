@@ -43,14 +43,6 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
     protected BroadcastControlConsumer      consumer;
 
 
-//    public UCDNFileMultiDistribution(@Qualifier("kafkaFileServiceClient") UlfBroadcastControlNode client, FileDistributionController fileDistributionController ) throws UMBServiceException {
-//        this.producer = client.createBroadcastControlProducer();
-//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-//        consumer.registerController( fileDistributionController );
-//        this.consumer.start();
-//        this.producer.start();
-//        this.client = client;
-//    }
 
     public UOFSFileMultiDistributionService(MasterWarehouse masterWarehouse) throws UMBServiceException {
         this.primaryFileSystem = masterWarehouse.getKOMFileSystem();

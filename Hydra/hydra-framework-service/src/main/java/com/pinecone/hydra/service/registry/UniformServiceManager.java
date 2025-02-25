@@ -250,4 +250,9 @@ public class UniformServiceManager implements ServiceManager {
     public ServicesInstrument getServicesInstrument() {
         return this.mServicesInstrument;
     }
+
+    @Override
+    public int liveServiceNum() {
+        return this.mServiceRegistry.size();
+    }
 }

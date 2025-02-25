@@ -21,14 +21,6 @@ public class UFMSessionValidator implements SessionValidator {
 
     protected BroadcastControlConsumer consumer;
 
-//    public UCDNFileDistributionSynchronize(@Qualifier("rocketFileServiceClient") UlfBroadcastControlNode client, DistributionSynchronizeController distributionSynchronizeController ) throws UMBServiceException {
-//        this.producer = client.createBroadcastControlProducer();
-//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic);
-//        this.consumer.registerController( distributionSynchronizeController );
-//        this.consumer.start();
-//        this.producer.start();
-//        this.client = client;
-//    }
 
     public UFMSessionValidator( MasterWarehouse masterWarehouse ) throws UMBServiceException {
         this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
@@ -51,6 +43,13 @@ public class UFMSessionValidator implements SessionValidator {
     public void stageFileTransmitComplete( String path ) throws IOException {
         this.producer.issueInform(
                 UCDNConstants.UCDNFileCloudDistributeTopic, "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.stageFileTransmitComplete", path
+        );
+    }
+
+    @Override
+    public void fileTransmitComplete(String path) throws IOException {
+        this.producer.issueInform(
+                UCDNConstants.UCDNFileCloudDistributeTopic, "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.fileTransmitComplete", path
         );
     }
 }

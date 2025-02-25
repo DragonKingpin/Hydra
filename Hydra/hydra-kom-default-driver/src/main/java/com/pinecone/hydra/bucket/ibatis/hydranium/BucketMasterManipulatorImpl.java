@@ -2,10 +2,12 @@ package com.pinecone.hydra.bucket.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.bucket.ibatis.BucketMapping;
+import com.pinecone.hydra.bucket.ibatis.FileSyncMapper;
 import com.pinecone.hydra.bucket.ibatis.SiteMapping;
 import com.pinecone.hydra.bucket.ibatis.SiteNodeMapper;
 import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.bucket.source.BucketMasterManipulator;
+import com.pinecone.hydra.storage.bucket.source.FileSyncManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteNodeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -29,6 +31,10 @@ public class BucketMasterManipulatorImpl implements BucketMasterManipulator {
     @Structure( type = SiteNodeMapper.class )
     SiteNodeManipulator siteNodeManipulator;
 
+    @Resource
+    @Structure( type = FileSyncMapper.class )
+    FileSyncManipulator fileSyncManipulator;
+
     public BucketMasterManipulatorImpl() {
 
     }
@@ -49,6 +55,11 @@ public class BucketMasterManipulatorImpl implements BucketMasterManipulator {
     @Override
     public SiteNodeManipulator getSiteNodeManipulator() {
         return this.siteNodeManipulator;
+    }
+
+    @Override
+    public FileSyncManipulator getFileSyncManipulator() {
+        return this.fileSyncManipulator;
     }
 
     @Override

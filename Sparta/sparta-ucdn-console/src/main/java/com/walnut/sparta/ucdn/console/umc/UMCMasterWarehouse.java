@@ -1,12 +1,15 @@
 package com.walnut.sparta.ucdn.console.umc;
 
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.kafka.WolfMCKafkaClient;
 import com.pinecone.hydra.umb.rocket.WolfMCRocketClient;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.hydra.umb.wolf.WolfMCBClient;
 import com.pinecone.hydra.umct.WolfMCExpress;
+import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionPhaser;
@@ -34,11 +37,17 @@ public class UMCMasterWarehouse implements MasterWarehouse{
 
     private ExternalSessionPhaser       externalSessionPhaser;
 
-    public UMCMasterWarehouse(KOMFileSystem fileSystem, UniformVolumeManager primaryVolume, UOFSContentDelivery uofsContentDelivery){
+    private VersionManage               versionManage;
+
+    private TransactionManage           transactionManage;
+
+    public UMCMasterWarehouse(KOMFileSystem fileSystem, UniformVolumeManager primaryVolume, UOFSContentDelivery uofsContentDelivery, VersionManage versionManage, TransactionManage transactionManage){
         this.primaryFileSystem = fileSystem;
         this.primaryVolume = primaryVolume;
         this.sessionPhaser = new UFMSessionPhaser();
         this.externalSessionPhaser = new UFMCSessionPhaser();
+        this.versionManage = versionManage;
+        this.transactionManage = transactionManage;
 
         UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
         kafka.compile( FileMultiDistributionIface.class,false );
@@ -99,5 +108,15 @@ public class UMCMasterWarehouse implements MasterWarehouse{
     @Override
     public ExternalSessionPhaser getExternalSessionPhaser() {
         return this.externalSessionPhaser;
+    }
+
+    @Override
+    public VersionManage getVersionManage() {
+        return this.versionManage;
+    }
+
+    @Override
+    public TransactionManage getTransactionManage() {
+        return this.transactionManage;
     }
 }

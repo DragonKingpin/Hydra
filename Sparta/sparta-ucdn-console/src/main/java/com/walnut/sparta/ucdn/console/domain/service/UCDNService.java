@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.domain.service;
 
 import com.pinecone.hydra.umb.UMBServiceException;
+import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,4 +12,6 @@ public interface UCDNService {
     void testDistribution( String path, String topic ) throws IOException, InterruptedException;
 
     void testEDdistribution( String path, String topic ) throws IOException;
+
+    void syncFile( SyncFileDTO dto ) throws IOException, InterruptedException;
 }

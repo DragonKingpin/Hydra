@@ -20,12 +20,15 @@ import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.DownloadObjectByChannelDTO;
+import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateObjectByChannelDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,6 +64,9 @@ public class TransmitController {
 
     @Resource
     private VersionManage primaryVersion;
+
+    @Resource
+    private UCDNService ucdnService;
 
     /**
      * 使用channel上传对象
@@ -202,6 +208,11 @@ public class TransmitController {
             // 处理输入流
             return "File stream processed.";
         }
+    }
+
+    @PostMapping("/syncFile")
+    public void syncFile(@RequestBody SyncFileDTO dto) throws IOException, InterruptedException {
+        this.ucdnService.syncFile( dto );
     }
 
     private Chanface getKChannel(File file ) throws IOException {

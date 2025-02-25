@@ -235,17 +235,17 @@ class Jeff extends JesusChrist {
 
         WolvesAppointServer wolf = new WolvesAppointServer(wolfKing, HuskyDuplexExpress.class);
 
-        wolfKing.registerChannelInactiveHandler(new ChannelInactiveHandler() {
-            @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-                Debug.bluefs( ccb.getChannel().getChannelID(), ccb.getChannel().getIdentityID() );
-                ChannelPool pool = wolf.getUMCTExpress().getPoolByClientId( ccb.getChannel().getIdentityID() );
-                if ( pool != null ) {
-                    Debug.redfs( pool.isEmpty() );
-                }
-                return false;
-            }
-        });
+//        wolfKing.registerChannelInactiveHandler(new ChannelInactiveHandler() {
+//            @Override
+//            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+//                Debug.bluefs( ccb.getChannel().getChannelID(), ccb.getChannel().getIdentityID() );
+//                ChannelPool pool = wolf.getUMCTExpress().getPoolByClientId( ccb.getChannel().getIdentityID() );
+//                if ( pool != null ) {
+//                    Debug.redfs( pool.isEmpty() );
+//                }
+//                return false;
+//            }
+//        });
 
         RaccoonController controller  = new RaccoonController();
 
@@ -299,6 +299,7 @@ class Jeff extends JesusChrist {
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchC", "fuck you", 2025, args ) );
 
         Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchList", "fuck you", 2025, args ) );
+        //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchVoid" ) );
 
         //Debug.greenf( wolf.invokeInform( 2048, "com.protobuf.Raccoon.scratchPrime", "fuck you", 12025 ) );
 

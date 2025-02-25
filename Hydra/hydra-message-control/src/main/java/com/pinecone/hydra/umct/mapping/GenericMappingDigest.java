@@ -4,8 +4,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.pinecone.framework.lang.field.DataStructureEntity;
+import com.pinecone.framework.lang.field.GenericStructure;
 import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.json.JSONEncoder;
+import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.umc.msg.UMCMethod;
 import com.pinecone.hydra.umct.husky.function.MethodTemplates;
 
@@ -44,19 +46,20 @@ public class GenericMappingDigest implements MappingDigest {
         this.mMappedMethod              = method;
         this.mInterceptMethods          = interceptMethods;
 
-        if( parameters == null || parameters.length == 0 ) {
-            this.mArgumentTemplate   = null;
+
+        String szDominatedAddress;
+        if ( szAddresses.length > 0 ) {
+            szDominatedAddress = szAddresses[0];
         }
         else {
-            String szDominatedAddress;
-            if ( szAddresses.length > 0 ) {
-                szDominatedAddress = szAddresses[0];
-            }
-            else {
-                szDominatedAddress = "";
-                // Using anonymous address. In fact, there is pointless for this argument template, which the address is for Iface only.
-            }
+            szDominatedAddress = "";
+            // Using anonymous address. In fact, there is pointless for this argument template, which the address is for Iface only.
+        }
 
+        if( parameters == null || parameters.length == 0 ) {
+            this.mArgumentTemplate   = new GenericStructure( szDominatedAddress, 0 );
+        }
+        else {
             this.mArgumentTemplate   = MethodTemplates.from( null, szDominatedAddress, parameters, parametersGenericLabels );
         }
     }

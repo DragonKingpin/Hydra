@@ -3,6 +3,7 @@ package com.pinecone.hydra.umct.husky.compiler;
 import java.util.List;
 
 import com.pinecone.framework.lang.field.DataStructureEntity;
+import com.pinecone.framework.lang.field.GenericStructure;
 import com.pinecone.framework.unit.KeyValue;
 import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.name.Namespace;
@@ -37,11 +38,12 @@ public class GenericMethodDigest implements MethodDigest {
         this.mIfaceParamsDigests        = ifaceParamsDigests;
         this.mszGenericReturnTypeLabel  = genericRLabel;
 
+        String szInterceptedPath = classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + szName;
         if( parameters == null || parameters.length == 0 ) {
-            this.mArgumentTemplate   = null;
+            this.mArgumentTemplate   = new GenericStructure( szInterceptedPath, 0 );
         }
         else {
-            this.mArgumentTemplate   = MethodTemplates.from( null,classDigest.getClassName() + Namespace.DEFAULT_SEPARATOR + szName, parameters, parametersGenericLabels );
+            this.mArgumentTemplate   = MethodTemplates.from( null, szInterceptedPath, parameters, parametersGenericLabels );
         }
     }
 

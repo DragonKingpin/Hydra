@@ -55,4 +55,10 @@ public class RaccoonController {
         Debug.bluef( "Raccoon invoked Prime" + target + time  );
         return time != 0;
     }
+
+
+    @AddressMapping( "scratchVoid" )
+    public void scratchVoid() {
+        Debug.bluef( "Raccoon invoked Void" );
+    }
 }

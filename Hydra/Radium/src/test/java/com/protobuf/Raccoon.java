@@ -40,6 +40,11 @@ public interface Raccoon {
     @Iface
     default boolean scratchPrime( String target, int time ) { return time != 0; }
 
+    @Iface
+    default void scratchVoid() {
+
+    }
+
 //    @Iface( name = "scratchF1" )
 //    default String scratch( String target, long[] times ) {
 //        return null;

@@ -17,13 +17,12 @@
     <modules>
         <module>pinecone</module>
         <module>ulfhedinn</module>
-        <module>hydra</module>
         <module>slime</module>
         <module>jelly</module>
         <module>summer</module>
         <module>springram</module>
-        <module>hydra-default-driver</module>
         <module>ulf-lib-construction</module>
+        <module>ulf-lib-oltp-rdb</module>
     </modules>
 
     <dependencies>

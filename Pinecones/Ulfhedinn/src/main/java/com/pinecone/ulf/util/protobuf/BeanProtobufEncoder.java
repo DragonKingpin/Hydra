@@ -25,11 +25,37 @@ public interface BeanProtobufEncoder extends Pinenut {
     Descriptors.Descriptor transform( Class<?> clazz, Object dynamicObject, Set<String > exceptedKeys, Options options );
 
     default Descriptors.Descriptor transform( Class<?> clazz, Object dynamicObject, Set<String > exceptedKeys ) {
+        return this.transform( clazz, null, dynamicObject, exceptedKeys );
+    }
+
+    default Descriptors.Descriptor transform( Class<?> clazz, String componentGenericLabel, Object dynamicObject, Set<String > exceptedKeys ) {
         Descriptors.Descriptor primitiveDesc = this.transformPrimitive( clazz );
         if( primitiveDesc != null ) {
             return primitiveDesc;
         }
+        Descriptors.Descriptor repeatedDesc = this.transformRepeated( clazz, componentGenericLabel );
+        if( repeatedDesc != null ) {
+            return repeatedDesc;
+        }
+
         return this.transform( clazz, dynamicObject, exceptedKeys, Options.DefaultOptions );
+    }
+
+    default Descriptors.Descriptor transformRepeated( Class<?> clazz, String componentGenericLabel ) {
+        if( RepeatedWrapper.isSupportedRepeated( clazz ) ) {
+            if ( clazz.isArray() ) {
+                return RepeatedWrapper.transform( clazz, clazz.getComponentType(), this );
+            }
+            else {
+                Class<?> dependenceComponentType = ProtobufUtils.loadSingleGenericType( this.getClass(), componentGenericLabel );
+                if ( dependenceComponentType == null ) {
+                    throw new IllegalArgumentException( "None valued argument (" + componentGenericLabel + ") can`t be transformed." );
+                }
+                return RepeatedWrapper.transform( clazz, dependenceComponentType, this );
+            }
+        }
+
+        return null;
     }
 
     default Descriptors.Descriptor transformPrimitive( Class<?> clazz ) {
@@ -48,4 +74,5 @@ public interface BeanProtobufEncoder extends Pinenut {
     DynamicMessage encodeBean( Descriptors.Descriptor descriptor, Object dynamicObject, Set<String > exceptedKeys, Options options );
 
     DynamicMessage encode( Descriptors.Descriptor descriptor, Map dynamicObject, Set<String > exceptedKeys, Options options );
+
 }

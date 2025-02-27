@@ -8,12 +8,19 @@ public class GenericFieldEntity implements FieldEntity {
 
     protected Class<?> mType;
 
+    protected String mszGenericTypeLabel;
+
     protected Object mValue;
 
+    public GenericFieldEntity( String szName, Object value, Class<?> type, String genericTypeLabel ) {
+        this.mszName                     = szName;
+        this.mType                       = type;
+        this.mValue                      = value;
+        this.mszGenericTypeLabel = genericTypeLabel;
+    }
+
     public GenericFieldEntity( String szName, Object value, Class<?> type ) {
-        this.mszName = szName;
-        this.mType   = type;
-        this.mValue  = value;
+        this( szName, value, type, null );
     }
 
     public GenericFieldEntity( String szName, Object value ) {
@@ -32,6 +39,16 @@ public class GenericFieldEntity implements FieldEntity {
     @Override
     public Class<?> getType() {
         return this.mType;
+    }
+
+    @Override
+    public String getGenericTypeLabel() {
+        return this.mszGenericTypeLabel;
+    }
+
+    @Override
+    public void applyGenericTypeLabel( String genericTypeLabel ) {
+        this.mszGenericTypeLabel = genericTypeLabel;
     }
 
     @Override

@@ -18,10 +18,11 @@
 //        "url": "jdbc:mysql://localhost:3306/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
 //        "username": "root",
 //        "password": "123456",
-        "url": "jdbc:mysql://b-serverkingpin:33062/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+        "url": "jdbc:mysql://b-serverkingpin:33062/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&autoReconnect=true",
         "username": "root",
         "password": "",
-        "driver-class-name": "com.mysql.cj.jdbc.Driver"
+        "driver-class-name": "com.mysql.cj.jdbc.Driver",
+
     },
     "mybatis":{
       "mapper-locations": "classpath:mapper/*.xml"

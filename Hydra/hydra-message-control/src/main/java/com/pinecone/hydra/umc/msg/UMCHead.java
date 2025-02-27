@@ -1,0 +1,88 @@
+package com.pinecone.hydra.umc.msg;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Map;
+
+import com.pinecone.framework.util.datetime.compact.CompactTimeUnit;
+import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
+
+public interface UMCHead extends EMCHead {
+    ExtraHeadCoder getExtraHeadCoder();
+
+    UMCMethod       getMethod();
+
+    long            getBodyLength();
+
+    long            getKeepAlive();
+
+    int             getCompactKeepAlive();
+
+    long            getSessionId();
+
+    Status          getStatus();
+
+    ExtraEncode     getExtraEncode();
+
+    int             getControlBits();
+
+    long            getIdentityId();
+
+    byte[]          getExtraHeadBytes();
+
+    Map<String, Object > evalMapExtraHead() ;
+
+    Map<String, Object > getMapExtraHead() ;
+
+    Object getExtraHead();
+
+    Object getExHeaderVal( String key );
+
+    void putExHeaderVal( String key, Object val ) throws IllegalArgumentException;
+
+
+
+    void setStatus        ( Status status                             );
+
+    void setKeepAlive     ( int nKeepAliveMills                       );
+
+    void setKeepAlive     ( int nKeepAlive, CompactTimeUnit timeUnit  );
+
+    void setControlBits   ( int controlBits                           );
+
+    void setIdentityId    ( long identityId                           );
+
+    void setSessionId     ( long sessionId                            );
+
+
+
+
+    void release();
+
+    default AbstractUMCHead inface() {
+        return (AbstractUMCHead) this;
+    }
+
+
+
+
+    class EncodePair {
+        public final ByteBuffer byteBuffer;
+        public final int        bufLength;
+
+        public EncodePair( ByteBuffer byteBuffer, int bufLength ) {
+            this.byteBuffer = byteBuffer;
+            this.bufLength  = bufLength;
+        }
+
+        public byte[] getBytes() {
+            return Arrays.copyOfRange( this.byteBuffer.array(), 0, this.bufLength );
+        }
+    }
+
+    EncodePair bytesEncode( ExtraHeadCoder extraHeadCoder ) ;
+
+    default EncodePair bytesEncode() {
+        return this.bytesEncode( this.getExtraHeadCoder() );
+    }
+}

@@ -2,7 +2,7 @@ package com.sauron.shadow.chronicle;
 
 import com.pinecone.framework.system.homotype.StereotypicInjector;
 import com.pinecone.framework.util.json.JSONObject;
-import com.sauron.radium.heistron.chronic.Raider;
+import com.sauron.heist.heistron.chronic.Raider;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

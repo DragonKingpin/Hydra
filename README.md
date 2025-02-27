@@ -265,7 +265,7 @@ TODO
 
       // Servgram-Classes scanning package-scopes
       "ServgramScopes": [
-        "com.sauron.radium.heistron"
+        "com.sauron.heist.heistron"
       ],
 
       "Transactions": [

@@ -34,14 +34,14 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     if ( fieldDescriptor.isRepeated() ) {
                         List<?> values = (List<?>) value;
                         List<Object> decodedValues = new ArrayList<>();
                         for ( Object item : values ) {
-                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
+                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, item.getClass(), options ) );
                         }
 
                         result[ i ] = new KeyValue<>( fieldName, decodedValues );
@@ -51,7 +51,7 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                         result[ i ] = new KeyValue<>( fieldName, this.decodeMap( LinkedHashMap.class, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options ) );
                     }
                     else {
-                        result[ i ] = new KeyValue<>( fieldName, this.decodeFieldValue( fieldDescriptor, value, options ) );
+                        result[ i ] = new KeyValue<>( fieldName, this.decodeFieldValue( fieldDescriptor, value, value.getClass(), options ) );
                     }
                 }
 
@@ -95,35 +95,33 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                     continue;
                 }
 
-                Object value = dynamicMessage.getField( fieldDescriptor );
+                Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
                     FieldEntity entity = entities[ i ];
 
                     if ( fieldDescriptor.isRepeated() ) {
-                        List<Object> decodedValues = new ArrayList<>();
-                        List<?> values = (List<?>) value;
-                        for ( Object item : values ) {
-                            decodedValues.add( this.decodeFieldValue( fieldDescriptor, item, options ) );
-                        }
-
+                        Object decodedValues = this.decodeRepeated( value, fieldDescriptor, options, entity.getType(), entity.getGenericTypeLabel() );
                         entity.setValue( decodedValues );
                     }
                     else if ( fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.MESSAGE ) {
                         Descriptors.Descriptor nestedDescriptor = fieldDescriptor.getMessageType();
                         Object nestedBean;
                         Class<?> nestedType = entity.getType();
-                        if( Map.class.equals( nestedType ) ) {
+                        if( Map.class.isAssignableFrom( nestedType ) ) {
+                            if( nestedType.isInterface() && Map.class.isAssignableFrom( nestedType ) ) {
+                                nestedType = options.getDefaultMapType();
+                            }
                             nestedBean = this.decodeMap( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                         }
                         else {
-                            nestedBean = this.decode( nestedType, nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
+                            nestedBean = this.decode( nestedType, entity.getGenericTypeLabel(), nestedDescriptor, (DynamicMessage) value, exceptedKeys, options );
                         }
 
                         entity.setValue( nestedBean );
                     }
                     else {
-                        entity.setValue( this.decodeFieldValue( fieldDescriptor, value, options ) );
+                        entity.setValue( this.decodeFieldValue( fieldDescriptor, value, entity.getType(), options ) );
                     }
 
                     if( bEvalValue ) {

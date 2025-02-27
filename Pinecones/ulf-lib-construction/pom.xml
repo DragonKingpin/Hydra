@@ -9,8 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.pinecone.ulf</groupId>
     <artifactId>ulf-lib-construction</artifactId>
     <version>1.2.1</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>

@@ -15,10 +15,10 @@
     <version>2.5.1</version>
 
     <modules>
-        <module>sparta</module>
-        <module>sparta-console</module>
-        <module>sparta-uofs-service</module>
+        <module>sailor-stream-distribute-sdk</module>
+        <module>redstone-core</module>
     </modules>
+
 
 
 </project>

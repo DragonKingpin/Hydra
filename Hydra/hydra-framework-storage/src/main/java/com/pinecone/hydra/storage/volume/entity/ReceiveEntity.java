@@ -1,0 +1,30 @@
+package com.pinecone.hydra.storage.volume.entity;
+
+import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.storage.io.Chanface;
+import com.pinecone.hydra.storage.StorageIOResponse;
+import com.pinecone.hydra.storage.StorageReceiveIORequest;
+import com.pinecone.hydra.storage.volume.VolumeManager;
+import com.pinecone.hydra.storage.volume.entity.local.striped.CacheBlock;
+
+import java.io.IOException;
+
+public interface ReceiveEntity extends Pinenut {
+    VolumeManager getVolumeManager();
+    void setVolumeManager(VolumeManager volumeManager);
+
+    StorageReceiveIORequest getReceiveStorageObject();
+    void setReceiveStorageObject( StorageReceiveIORequest storageReceiveIORequest);
+
+    Chanface getKChannel();
+    void setKChannel( Chanface channel);
+
+    StorageIOResponse receive() throws IOException;
+
+    StorageIOResponse receive(Number offset, Number endSize ) throws IOException;
+
+    StorageIOResponse randomReceive( Number offset, Number endSize ) throws IOException;
+
+    StorageIOResponse receive(CacheBlock cacheBlock, byte[] buffer ) throws IOException;
+
+}

@@ -1,8 +1,8 @@
 package com.sauron.shadow.heists.DownloadCNet;
 
-import com.sauron.radium.heistron.HTTPIndexHeist;
-import com.sauron.radium.heistron.MegaDOMIndexCrew;
-import com.sauron.radium.heistron.Reaver;
+import com.sauron.heist.heistron.HTTPIndexHeist;
+import com.sauron.heist.heistron.MegaDOMIndexCrew;
+import com.sauron.heist.heistron.Reaver;
 import org.jsoup.nodes.Element;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;

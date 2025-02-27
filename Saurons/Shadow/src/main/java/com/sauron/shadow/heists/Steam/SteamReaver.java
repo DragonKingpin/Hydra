@@ -1,6 +1,6 @@
 package com.sauron.shadow.heists.Steam;
 
-import com.sauron.radium.heistron.*;
+import com.sauron.heist.heistron.*;
 import org.jsoup.select.Elements;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;

@@ -1,6 +1,6 @@
 package com.sauron.shadow.heists.DeviantArt;
 
-import com.sauron.radium.heistron.*;
+import com.sauron.heist.heistron.*;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.io.FileUtils;
 import com.pinecone.framework.util.json.JSONObject;

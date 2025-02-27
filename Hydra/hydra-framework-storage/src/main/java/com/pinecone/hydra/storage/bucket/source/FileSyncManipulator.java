@@ -9,4 +9,6 @@ public interface FileSyncManipulator extends Pinenut {
     void remove( GUID fileGuid );
 
     void updateState( GUID fileGuid, int state );
+
+    Integer queryState( GUID fileGuid );
 }

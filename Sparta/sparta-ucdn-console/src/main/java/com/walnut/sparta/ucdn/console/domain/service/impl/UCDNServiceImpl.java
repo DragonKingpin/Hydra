@@ -14,6 +14,7 @@ import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.walnut.sparta.ucdn.console.domain.service.WebSocketService;
 import com.walnut.sparta.ucdn.console.infrastructure.SyncTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
@@ -65,12 +66,15 @@ public class UCDNServiceImpl implements UCDNService {
     @Resource
     private TransactionManage                           transactionManage;
 
+    @Resource
+    private WebSocketService                            webSocketService;
+
     @PostConstruct
     private void init() throws UMBServiceException {
 //        this.primaryVolume          = masterWarehouse.getUniformVolumeManager();
 //        this.primaryFileSystem      = masterWarehouse.getKOMFileSystem();
 
-        UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.primaryFileSystem, this.primaryVolume,this.uofsContentDelivery, this.primaryVersion, this.transactionManage );
+        UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.primaryFileSystem, this.primaryVolume,this.uofsContentDelivery, this.primaryVersion, this.transactionManage, this.webSocketService );
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( warehouse );
         this.EFileMultiDistributionService = new SailorSSFMDistributionService( warehouse );
     }

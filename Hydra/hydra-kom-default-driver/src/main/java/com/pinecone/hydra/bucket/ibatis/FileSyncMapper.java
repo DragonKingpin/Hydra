@@ -21,5 +21,5 @@ public interface FileSyncMapper extends FileSyncManipulator {
     void updateState(@Param("fileGuid") GUID fileGuid, @Param("state") int state );
 
     @Select("SELECT `state` FROM `hydra_ucdn_sync_status` WHERE `file_guid` = #{fileGuid}")
-    void queryState( @Param("fileGuid") GUID fileGuid, @Param("state") int state );
+    Integer queryState( @Param("fileGuid") GUID fileGuid );
 }

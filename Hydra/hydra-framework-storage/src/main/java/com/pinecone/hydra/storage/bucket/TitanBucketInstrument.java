@@ -153,4 +153,8 @@ public class TitanBucketInstrument implements BucketInstrument {
         this.fileSyncManipulator.insert( fileGuid,state,null );
     }
 
+    @Override
+    public Integer getSyncState(GUID fileGuid) {
+        return this.fileSyncManipulator.queryState( fileGuid );
+    }
 }

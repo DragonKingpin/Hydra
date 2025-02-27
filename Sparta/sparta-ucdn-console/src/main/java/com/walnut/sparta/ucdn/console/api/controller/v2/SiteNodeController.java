@@ -2,7 +2,6 @@ package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
@@ -10,13 +9,12 @@ import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.GenericSiteNode;
 import com.pinecone.hydra.storage.bucket.entity.SiteNode;
-import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SiteNodeDTO;
+import com.walnut.sparta.ucdn.console.infrastructure.vo.SiteNodeVO;
 import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,6 +45,7 @@ public class SiteNodeController {
     @GetMapping("/query/siteNode/siteGuid")
     public String querySiteNodeBySiteGuid(@RequestParam("siteGuid") String siteGuid){
         ServiceLifecycleIface lifecycleIFace = this.wolfRPCManage.getLifecycleIFace();
+        ArrayList<SiteNodeVO> siteNodeVOS = new ArrayList<>();
         List<SiteNode> siteNodes = this.bucketInstrument.querySiteNodeBySiteGuid(GUIDs.GUID72( siteGuid ));
         for( SiteNode siteNode : siteNodes ){
             if( lifecycleIFace.hasOwnedServiceByServiceId( siteNode.getRelatedService().toString() ) ){
@@ -53,8 +53,11 @@ public class SiteNodeController {
             }else {
                 siteNode.setState( 0 );
             }
+            SiteNodeVO siteNodeVO = new SiteNodeVO(siteNode);
+            siteNodeVO.setRelatedServicePath( this.primaryService.getPath( siteNode.getRelatedService() ) );
+            siteNodeVOS.add( siteNodeVO );
         }
-        return BasicResultResponse.success(siteNodes).toJSONString();
+        return BasicResultResponse.success(siteNodeVOS).toJSONString();
     }
 
     @DeleteMapping("/remove/siteNodeGuid")

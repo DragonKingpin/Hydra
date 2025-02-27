@@ -4,4 +4,6 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 
 public interface VersionMasterManipulator extends KOIMasterManipulator {
     VersionManipulator getVersionManipulator();
+
+    VersionMappingManipulator getVersionMappingManipulator();
 }

@@ -2,6 +2,7 @@ package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.framework.util.id.GUID;
 
+import javax.websocket.Session;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,6 +25,11 @@ public class SyncTransactionManage implements TransactionManage{
     }
 
     @Override
+    public void removeTransactions(GUID fileGuid) {
+        this.transactionMap.remove( fileGuid );
+    }
+
+    @Override
     public boolean checkTransactionOver(GUID fileGuid) {
         ConcurrentMap<GUID, SyncTransaction> transactions = this.getTransactions(fileGuid);
         for( SyncTransaction syncTransaction : transactions.values() ){
@@ -33,4 +39,5 @@ public class SyncTransactionManage implements TransactionManage{
         }
         return true;
     }
+
 }

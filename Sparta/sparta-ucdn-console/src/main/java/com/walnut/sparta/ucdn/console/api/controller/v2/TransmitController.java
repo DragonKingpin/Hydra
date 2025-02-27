@@ -173,7 +173,7 @@ public class TransmitController {
         titanVersion.setVersion( version );
         titanVersion.setFileGuid( node.getGuid() );
         titanVersion.setTargetStorageObjectGuid( storageObject.getGuid() );
-        titanVersion.setGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
+        titanVersion.setVersionGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
 
         this.primaryVersion.insert( titanVersion );
 

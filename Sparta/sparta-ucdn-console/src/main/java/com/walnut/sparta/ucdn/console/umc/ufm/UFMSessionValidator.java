@@ -47,9 +47,9 @@ public class UFMSessionValidator implements SessionValidator {
     }
 
     @Override
-    public void fileTransmitComplete(String path) throws IOException {
+    public void fileTransmitComplete(String path, String serviceId) throws IOException {
         this.producer.issueInform(
-                UCDNConstants.UCDNFileCloudDistributeTopic, "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.fileTransmitComplete", path
+                UCDNConstants.UCDNFileCloudDistributeTopic, "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.fileTransmitComplete", path,serviceId
         );
     }
 }

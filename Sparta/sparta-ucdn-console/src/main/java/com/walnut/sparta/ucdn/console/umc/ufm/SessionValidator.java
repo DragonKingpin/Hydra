@@ -12,6 +12,6 @@ public interface SessionValidator extends Pinenut {
 
     void stageFileTransmitComplete( String path ) throws IOException;
 
-    void fileTransmitComplete( String path ) throws IOException;
+    void fileTransmitComplete( String path, String serviceId ) throws IOException;
 
 }

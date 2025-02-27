@@ -31,8 +31,8 @@ class Jesse extends Radium {
         );
 
         UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
-        this.testInsert( servicesTree );
-        //this.testGet( servicesTree );
+        //this.testInsert( servicesTree );
+        this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 
@@ -86,15 +86,15 @@ class Jesse extends Radium {
 
 
 
-        ServicesJSONDecoder decoder = new ServicesJSONDecoder( servicesInstrument );
-        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
-
-        Debug.fmp( 2, servicesInstrument.queryElement( "root" ).toJSONObject() );
-
+//        ServicesJSONDecoder decoder = new ServicesJSONDecoder( servicesInstrument );
+//        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
+//
+//        Debug.fmp( 2, servicesInstrument.queryElement( "root" ).toJSONObject() );
+        Debug.trace(servicesInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
     private void testDelete( ServicesInstrument servicesInstrument){
-        servicesInstrument.remove( GUIDs.GUID72("039338c-0003cc-0001-70") );
+        servicesInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
     }
 }
 public class TestServiceTree {

@@ -210,7 +210,7 @@ public class UCDNFMDController {
                 this.sessionPhaser.removeFileLock( fileNode.getGuid() );
                 this.sessionPhaser.removeConsumerCount( fileNode.getGuid() );
                 this.sessionPhaser.removeSessionTransaction( sessionId );
-                this.fileSessionValidator.fileTransmitComplete( path );
+                this.fileSessionValidator.fileTransmitComplete( path, UCDNConstants.serviceId );
             }
             else {
                 this.sessionPhaser.getSessionTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );

@@ -60,4 +60,8 @@ public interface Folder extends ElementNode {
 
     void setPath( String path );
 
+    Integer getSyncState();
+
+    void setSyncState( Integer syncState );
+
 }

@@ -1,4 +1,4 @@
-package com.walnuts.sparta.uofs.console.domain;
+package com.walnuts.sparta.uofs.console.domain.dto;
 
 public class RenameDTO {
     private String path;

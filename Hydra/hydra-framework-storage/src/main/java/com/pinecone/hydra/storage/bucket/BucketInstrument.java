@@ -44,4 +44,6 @@ public interface BucketInstrument extends Pinenut {
 
     void createSyncState( GUID fileGuid, int state );
 
+    Integer getSyncState( GUID fileGuid );
+
 }

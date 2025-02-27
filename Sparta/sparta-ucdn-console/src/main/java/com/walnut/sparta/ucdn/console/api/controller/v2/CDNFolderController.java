@@ -2,6 +2,7 @@ package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
@@ -26,6 +27,8 @@ public class CDNFolderController {
     private KOMFileSystem primaryFileSystem;
     @Resource
     private VersionManage versionManage;
+    @Resource
+    private BucketInstrument bucketInstrument;
 
     /**
      * 获取文件夹下所有内容
@@ -48,6 +51,8 @@ public class CDNFolderController {
                     fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
                 }
                 fileTreeNode.setName(fileTreeNode.getName()+'.'+fileExtension);
+                fileTreeNode.evinceFolder().setSyncState( this.bucketInstrument.getSyncState( fileTreeNode.getGuid() ) );
+
             }
         }
         return  BasicResultResponse.success(fileTreeNodes).toJSONString() ;

@@ -1,13 +1,11 @@
 package com.walnuts.sparta.uofs.console.api.controller.v2;
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
-import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
-import com.walnuts.sparta.uofs.console.domain.RenameDTO;
+import com.walnuts.sparta.uofs.console.domain.dto.RenameDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateFileNameDTO;
 import com.walnuts.sparta.uofs.console.rpc.thrift.AccountClient;
 import com.walnuts.sparta.uofs.console.service.FileService;
@@ -24,14 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping( "/api/v2/uofs/bucket" )
+@RequestMapping( "/api/v2/uofs/file" )
 @CrossOrigin
 public class FileController {
     @Resource
     private KOMFileSystem primaryFileSystem;
 
     @Resource
-    AccountClient accountClient;
+    private AccountClient accountClient;
 
     @Resource
     private FileService fileService;

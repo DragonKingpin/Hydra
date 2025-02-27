@@ -9,6 +9,7 @@ import com.pinecone.hydra.umb.rocket.WolfMCRocketClient;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.hydra.umb.wolf.WolfMCBClient;
 import com.pinecone.hydra.umct.WolfMCExpress;
+import com.walnut.sparta.ucdn.console.domain.service.WebSocketService;
 import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
@@ -41,13 +42,17 @@ public class UMCMasterWarehouse implements MasterWarehouse{
 
     private TransactionManage           transactionManage;
 
-    public UMCMasterWarehouse(KOMFileSystem fileSystem, UniformVolumeManager primaryVolume, UOFSContentDelivery uofsContentDelivery, VersionManage versionManage, TransactionManage transactionManage){
+    private WebSocketService            webSocketService;
+
+    public UMCMasterWarehouse(KOMFileSystem fileSystem, UniformVolumeManager primaryVolume, UOFSContentDelivery uofsContentDelivery,
+                              VersionManage versionManage, TransactionManage transactionManage,WebSocketService webSocketService){
         this.primaryFileSystem = fileSystem;
         this.primaryVolume = primaryVolume;
         this.sessionPhaser = new UFMSessionPhaser();
         this.externalSessionPhaser = new UFMCSessionPhaser();
         this.versionManage = versionManage;
         this.transactionManage = transactionManage;
+        this.webSocketService = webSocketService;
 
         UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
         kafka.compile( FileMultiDistributionIface.class,false );
@@ -118,5 +123,10 @@ public class UMCMasterWarehouse implements MasterWarehouse{
     @Override
     public TransactionManage getTransactionManage() {
         return this.transactionManage;
+    }
+
+    @Override
+    public WebSocketService getWebSocketService() {
+        return this.webSocketService;
     }
 }

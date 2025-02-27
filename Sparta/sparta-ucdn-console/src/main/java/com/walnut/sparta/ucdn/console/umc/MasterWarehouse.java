@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
+import com.walnut.sparta.ucdn.console.domain.service.WebSocketService;
 import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionPhaser;
 import com.walnut.sparta.ucdn.console.umc.ssfm.ExternalSessionPhaser;
@@ -30,4 +31,6 @@ public interface MasterWarehouse extends Pinenut {
     VersionManage           getVersionManage();
 
     TransactionManage       getTransactionManage();
+
+    WebSocketService        getWebSocketService();
 }

@@ -77,6 +77,11 @@ public abstract class ArchService implements Service {
     }
 
     @Override
+    public Map<String, Object> getMetaDataScope() {
+        return this.mMetaDataScope;
+    }
+
+    @Override
     public String toString() {
         return this.toJSONString();
     }

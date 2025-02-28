@@ -51,7 +51,13 @@ public class CDNFolderController {
                     fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
                 }
                 fileTreeNode.setName(fileTreeNode.getName()+'.'+fileExtension);
-                fileTreeNode.evinceFolder().setSyncState( this.bucketInstrument.getSyncState( fileTreeNode.getGuid() ) );
+                Integer syncState = this.bucketInstrument.getSyncState(fileTreeNode.getGuid());
+                if( syncState == null ){
+                    fileTreeNode.evinceFolder().setSyncState( 0 );
+                }else {
+                    fileTreeNode.evinceFolder().setSyncState( 1 );
+                }
+
 
             }
         }

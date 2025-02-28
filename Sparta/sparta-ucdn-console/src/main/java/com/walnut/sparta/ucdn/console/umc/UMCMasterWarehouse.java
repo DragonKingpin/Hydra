@@ -11,15 +11,13 @@ import com.pinecone.hydra.umb.wolf.WolfMCBClient;
 import com.pinecone.hydra.umct.WolfMCExpress;
 import com.walnut.sparta.ucdn.console.domain.service.WebSocketService;
 import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
+import com.walnut.sparta.ucdn.console.umc.ssfm.*;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionPhaser;
 import com.walnut.sparta.ucdn.console.umc.ufm.UFMSessionPhaser;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
-import com.walnut.sparta.ucdn.console.umc.ssfm.ExternalSessionPhaser;
-import com.walnut.sparta.ucdn.console.umc.ssfm.ExternalSessionValidator;
-import com.walnut.sparta.ucdn.console.umc.ssfm.UFMCSessionPhaser;
 
 public class UMCMasterWarehouse implements MasterWarehouse{
     private SessionPhaser               sessionPhaser;
@@ -54,10 +52,9 @@ public class UMCMasterWarehouse implements MasterWarehouse{
         this.transactionManage = transactionManage;
         this.webSocketService = webSocketService;
 
-        UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
-        kafka.compile( FileMultiDistributionIface.class,false );
-        this.kafkaClient = kafka;
-        this.kafkaEFileClient = kafka;
+//        UlfBroadcastControlNode kafka = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
+//        kafka.compile( FileMultiDistributionIface.class,false );
+//        this.kafkaClient = kafka;
 
         UlfBroadcastControlNode rocket = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceGroup), "", uofsContentDelivery, WolfMCExpress.class);
         rocket.compile( SessionValidator.class,false );
@@ -67,10 +64,11 @@ public class UMCMasterWarehouse implements MasterWarehouse{
         rocketEFileClient.compile( ExternalSessionValidator.class,false );
         this.rocketEFileClient = rocketEFileClient;
 
-//        UlfBroadcastControlNode kafkaEFileClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
-//        kafkaEFileClient.compile( EFileMultiDistributionIface.class,false );
-//        this.kafkaEFileClient = kafkaEFileClient;
-//        this.kafkaClient = kafkaEFileClient;
+        UlfBroadcastControlNode kafkaEFileClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", uofsContentDelivery, WolfMCExpress.class);
+        kafkaEFileClient.compile( EFileMultiDistributionIface.class,false );
+        //kafkaEFileClient.compile( JarDistributionIface.class,false );
+        this.kafkaEFileClient = kafkaEFileClient;
+        this.kafkaClient = kafkaEFileClient;
 
     }
 

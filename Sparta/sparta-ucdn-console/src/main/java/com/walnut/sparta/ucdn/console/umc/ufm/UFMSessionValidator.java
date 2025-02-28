@@ -23,13 +23,13 @@ public class UFMSessionValidator implements SessionValidator {
 
 
     public UFMSessionValidator( MasterWarehouse masterWarehouse ) throws UMBServiceException {
-        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
-        this.client = masterWarehouse.getRocketClient();
-        this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic);
-        this.consumer.registerController( new UFMSessionValidatorController( masterWarehouse ) );
-        this.consumer.start();
-        this.producer.start();
+//        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
+//        this.client = masterWarehouse.getRocketClient();
+//        this.producer = client.createBroadcastControlProducer();
+//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic);
+//        this.consumer.registerController( new UFMSessionValidatorController( masterWarehouse ) );
+//        this.consumer.start();
+//        this.producer.start();
     }
 
     @Override

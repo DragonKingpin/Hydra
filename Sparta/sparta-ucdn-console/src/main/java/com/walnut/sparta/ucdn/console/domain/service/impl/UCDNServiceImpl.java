@@ -99,7 +99,7 @@ public class UCDNServiceImpl implements UCDNService {
 
     @Override
     public void test() throws UMBServiceException {
-        this.fileMultiDistributionService.test();
+        this.EFileMultiDistributionService.test();
     }
 
     @Override
@@ -113,6 +113,11 @@ public class UCDNServiceImpl implements UCDNService {
     public void testEDdistribution( String path, String topic ) throws IOException {
         File file = new File(path);
         this.EFileMultiDistributionService.fileDistribution( file, topic );
+    }
+    @Override
+    public void testEDdistributionJar( String path, String topic ) throws IOException {
+        File file = new File(path);
+        this.EFileMultiDistributionService.fileDistributionJar( file, topic );
     }
 
     @Override

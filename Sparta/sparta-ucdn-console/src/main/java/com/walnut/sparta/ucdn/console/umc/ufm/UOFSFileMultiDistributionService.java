@@ -45,15 +45,15 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
 
     public UOFSFileMultiDistributionService(MasterWarehouse masterWarehouse) throws UMBServiceException {
-        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
-        this.primaryVolume = masterWarehouse.getUniformVolumeManager();
-        this.sessionPhaser = masterWarehouse.getSessionPhaser();
-        this.client = masterWarehouse.getKafkaClient();
-        this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-        this.consumer.registerController( new UCDNFMDController( masterWarehouse ) );
-        this.consumer.start();
-        this.producer.start();
+//        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
+//        this.primaryVolume = masterWarehouse.getUniformVolumeManager();
+//        this.sessionPhaser = masterWarehouse.getSessionPhaser();
+//        this.client = masterWarehouse.getKafkaClient();
+//        this.producer = client.createBroadcastControlProducer();
+//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
+//        this.consumer.registerController( new UCDNFMDController( masterWarehouse ) );
+//        this.consumer.start();
+//        this.producer.start();
     }
 
 

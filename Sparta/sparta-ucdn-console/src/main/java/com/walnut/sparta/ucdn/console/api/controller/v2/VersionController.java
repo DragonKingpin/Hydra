@@ -22,43 +22,4 @@ import javax.annotation.Resource;
 @RequestMapping( "/api/v2/ucdn/version" )
 @CrossOrigin
 public class VersionController {
-    @Resource
-    private VersionManage versionManage;
-
-    @PutMapping("/create/VersionMapping")
-    public BasicResultResponse<String> createVersionMapping(@RequestParam("fileGuid") String fileGuid,
-                                                            @RequestParam("enableVersionGuid") String enableVersionGuid
-    ) {
-        TitanVersion titanVersion = this.versionManage.queryByTargetStorageObjectGuid(GUIDs.GUID72(enableVersionGuid));
-        TitanVersionMapping versionMapping = new TitanVersionMapping();
-        versionMapping.setFileGuid(GUIDs.GUID72(fileGuid));
-        versionMapping.setEnableVersionGuid(GUIDs.GUID72(enableVersionGuid));
-        versionMapping.setVersionGuid((titanVersion.getVersionGuid()));
-        if (!this.versionManage.isExistEnableVersionMapping(versionMapping.getEnableVersionGuid())){
-            this.versionManage.insertVesionMapping(versionMapping);
-        }
-        else
-            this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
-    }
-    @GetMapping("/query/VersionMapping")
-    public String queryVersionMapping(@RequestParam("fileGuid") String fileGuid) {
-        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID72(fileGuid));
-        TitanVersion version =new TitanVersion();
-        if (versionMapping != null){
-            version=this.versionManage.queryByTargetStorageObjectGuid(versionMapping.getEnableVersionGuid());
-        }
-        return BasicResultResponse.success(version).toJSONString();
-    }
-    @PutMapping("/update/VersionMapping")
-    public BasicResultResponse<String> updateVersionMapping(
-            @RequestParam("fileGuid") String fileGuid,
-            @RequestParam("enableVersionGuid") String enableVersionGuid) {
-        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID72(fileGuid));
-        versionMapping.setEnableVersionGuid(GUIDs.GUID72(enableVersionGuid));
-        this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
-    }
-
-
 }

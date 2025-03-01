@@ -7,7 +7,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.RenameDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateFileNameDTO;
-import com.walnuts.sparta.uofs.console.rpc.thrift.AccountClient;
+import com.walnuts.sparta.uofs.console.rpc.thrift.client.AccountClient;
 import com.walnuts.sparta.uofs.console.service.FileService;
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.CrossOrigin;

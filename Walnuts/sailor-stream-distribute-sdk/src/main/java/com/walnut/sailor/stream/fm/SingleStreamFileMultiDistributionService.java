@@ -11,9 +11,9 @@ import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 
 public interface SingleStreamFileMultiDistributionService extends Pinenut {
 
-    void distributeFile( File file, String topic, String destinedDirectory ) throws IOException;
+    void distributeFile( File file, String directionRouteToken ) throws IOException;
 
-    void distributeFile( String szFileName, String originalDirectory, String topic, String destinedDirectory ) throws IOException;
+    void distributeFile( String szFileName, String originalDirectory, String directionRouteToken ) throws IOException;
 
     boolean hasStarted();
 
@@ -23,10 +23,16 @@ public interface SingleStreamFileMultiDistributionService extends Pinenut {
 
     SFMConfig getConfig();
 
-    UlfBroadcastControlNode getControlClient() ;
+    UlfBroadcastControlNode getTransmitClient() ;
 
-    BroadcastControlConsumer getControlConsumer() ;
+    BroadcastControlConsumer getTransmitConsumer() ;
 
-    BroadcastControlProducer getControlProducer() ;
+    BroadcastControlProducer getTransmitProducer() ;
+
+    String queryDestinedDirectoryByToken( String token );
+
+    void registerDirectionRoute( String token, String directoryPath );
+
+    void deregisterDirectionRoute( String token );
 
 }

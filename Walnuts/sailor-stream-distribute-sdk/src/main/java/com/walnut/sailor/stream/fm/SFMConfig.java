@@ -6,6 +6,8 @@ public interface SFMConfig extends Pinenut {
 
     int getFileFrameSize();
 
+    long getSessionExpiredTimeMillis();
+
     String getFileCloudDistributeTransmitTopic();
 
     String getStorageDirectory();

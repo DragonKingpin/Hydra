@@ -6,7 +6,7 @@ import com.walnut.sailor.stream.fm.protocol.RequestHead;
 
 @Iface("com.pinecone.hydra.uofs.ufm.EFileMultiDistributionIface")
 public interface FileMultiDistributionIface extends Pinenut {
-    void startDistribution( RequestHead head, String fileName );
+    void startDistribution( RequestHead head, String fileName, String directionRouteToken );
 
     void transmitFileContent( RequestHead head, SFMFileFrame fileContent );
 

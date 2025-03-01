@@ -7,42 +7,73 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class SFMSessionPhaser implements SessionPhaser {
-    private ConcurrentMap<Long, SFMTransaction>    sessionTransactions;
-
-    private ConcurrentMap<Long, RandomAccessFile>  fileOutputStreamMap;
+    private ConcurrentMap<Long, PhaseHandler>    sessionHandlers;
 
     public SFMSessionPhaser() {
-        this.sessionTransactions = new ConcurrentHashMap<>();
-        this.fileOutputStreamMap = new ConcurrentHashMap<>();
+        this.sessionHandlers = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void registerSessionTransaction( Long sessionId, SFMTransaction SFMTransaction) {
-        this.sessionTransactions.put( sessionId, SFMTransaction);
+    public void registerSessionTransaction( Long sessionId, SFMTransaction transaction ) {
+        PhaseHandler handler = this.sessionHandlers.computeIfAbsent( sessionId, (k)->{
+            return new PhaseHandler();
+        } );
+        handler.sfmTransaction = transaction;
+    }
+
+    @Override
+    public void registerDestinationDirectory( Long sessionId, String destinationDirectory ) {
+        PhaseHandler handler = this.sessionHandlers.computeIfAbsent( sessionId, (k)->{
+            return new PhaseHandler();
+        } );
+        handler.destinationDirectory = destinationDirectory;
     }
 
     @Override
     public SFMTransaction getSFMTransaction( Long sessionId ) {
-        return this.sessionTransactions.get( sessionId );
+        PhaseHandler handler = this.sessionHandlers.get( sessionId );
+        if ( handler != null ) {
+            return handler.sfmTransaction;
+        }
+        return null;
     }
 
     @Override
-    public void removeSFMTransaction( Long sessionId ) {
-        this.sessionTransactions.remove( sessionId );
+    public String getDestinationDirectory( Long sessionId ) {
+        PhaseHandler handler = this.sessionHandlers.get( sessionId );
+        if ( handler != null ) {
+            return handler.destinationDirectory;
+        }
+        return null;
     }
 
     @Override
-    public void registerFileOutputStream( Long sessionId, RandomAccessFile randomAccessFile ) {
-        this.fileOutputStreamMap.put( sessionId, randomAccessFile );
+    public void removeSession( Long sessionId ) {
+        this.sessionHandlers.remove( sessionId );
     }
 
     @Override
-    public RandomAccessFile getFileOutputStream( Long sessionId ) {
-        return this.fileOutputStreamMap.get( sessionId );
+    public void registerFileHandler( Long sessionId, RandomAccessFile randomAccessFile ) {
+        PhaseHandler handler = this.sessionHandlers.computeIfAbsent( sessionId, (k)->{
+            return new PhaseHandler();
+        } );
+        handler.fileHandler = randomAccessFile;
     }
 
     @Override
-    public void removeFileOutputStream( Long sessionId ) {
-        this.fileOutputStreamMap.remove( sessionId );
+    public RandomAccessFile getFileHandler( Long sessionId ) {
+        PhaseHandler handler = this.sessionHandlers.get( sessionId );
+        if ( handler != null ) {
+            return handler.fileHandler;
+        }
+        return null;
+    }
+
+    public static class PhaseHandler {
+        public SFMTransaction    sfmTransaction;
+
+        public RandomAccessFile  fileHandler;
+
+        public String            destinationDirectory;
     }
 }

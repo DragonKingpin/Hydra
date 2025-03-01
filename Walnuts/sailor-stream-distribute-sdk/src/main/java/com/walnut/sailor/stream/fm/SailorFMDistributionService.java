@@ -9,63 +9,83 @@ import com.walnut.sailor.stream.fm.protocol.RequestHead;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SailorFMDistributionService implements SingleStreamFileMultiDistributionService {
 
-    protected UlfBroadcastControlNode  controlClient;
+    protected UlfBroadcastControlNode       transmitClient;
 
-    protected BroadcastControlProducer controlProducer;
+    protected BroadcastControlProducer      transmitProducer;
 
-    protected BroadcastControlConsumer controlConsumer;
+    protected BroadcastControlConsumer      transmitConsumer;
 
-    protected SFMConfig                config;
+    protected SFMConfig                     config;
+
+    protected Map<String, String >          directionRoute;
 
     public SailorFMDistributionService( UlfBroadcastControlNode client, SFMConfig config ) {
-        this.controlClient = client;
-        this.config        = config;
+        this.transmitClient  = client;
+        this.config          = config;
+        this.directionRoute  = new ConcurrentHashMap<>();
     }
 
 
     @Override
-    public UlfBroadcastControlNode getControlClient() {
-        return this.controlClient;
+    public UlfBroadcastControlNode getTransmitClient() {
+        return this.transmitClient;
     }
 
     @Override
-    public BroadcastControlConsumer getControlConsumer() {
-        return this.controlConsumer;
+    public BroadcastControlConsumer getTransmitConsumer() {
+        return this.transmitConsumer;
     }
 
     @Override
-    public BroadcastControlProducer getControlProducer() {
-        return this.controlProducer;
+    public BroadcastControlProducer getTransmitProducer() {
+        return this.transmitProducer;
     }
 
+    @Override
+    public String queryDestinedDirectoryByToken( String token ) {
+        return this.directionRoute.get( token );
+    }
+
+    @Override
+    public void registerDirectionRoute( String token, String directoryPath ) {
+        this.directionRoute.put( token, directoryPath );
+    }
+
+    @Override
+    public void deregisterDirectionRoute( String token ) {
+        this.directionRoute.remove( token );
+    }
 
     @Override
     public boolean hasStarted() {
-        return this.controlProducer != null;
+        return this.transmitProducer != null;
     }
 
     @Override
     public void start() throws UMBServiceException {
-        if ( this.controlProducer == null ) {
-            this.controlProducer = this.controlClient.createBroadcastControlProducer();
-            this.controlConsumer = this.controlClient.createBroadcastControlConsumer( this.config.getFileCloudDistributeTransmitTopic(), this.config.getFileServiceTransmitGroup() );
-            this.controlConsumer.registerController( new SFMDistributionController( this ) );
-            this.controlConsumer.start();
-            this.controlProducer.start();
+        if ( !this.hasStarted() ) {
+            this.transmitProducer = this.transmitClient.createBroadcastControlProducer();
+            this.transmitConsumer = this.transmitClient.createBroadcastControlConsumer( this.config.getFileCloudDistributeTransmitTopic(), this.config.getFileServiceTransmitGroup() );
+            this.transmitConsumer.registerController( new SFMDistributionController( this ) );
+            this.transmitConsumer.start();
+            this.transmitProducer.start();
         }
     }
 
     @Override
     public void shutdown() {
-        if ( this.controlProducer != null ) {
-            this.controlConsumer.close();
-            this.controlProducer.close();
-            this.controlConsumer = null;
-            this.controlProducer = null;
+        if ( this.hasStarted() ) {
+            this.transmitConsumer.close();
+            this.transmitProducer.close();
+            this.transmitConsumer = null;
+            this.transmitProducer = null;
         }
     }
 
@@ -75,14 +95,14 @@ public class SailorFMDistributionService implements SingleStreamFileMultiDistrib
     }
 
     @Override
-    public void distributeFile( File file, String topic, String destinedDirectory ) throws IOException {
-        FileMultiDistributionIface distributionIface = this.controlProducer.getIface( FileMultiDistributionIface.class, topic );
+    public void distributeFile( File file, String directionRouteToken ) throws IOException {
+        FileMultiDistributionIface distributionIface = this.transmitProducer.getIface( FileMultiDistributionIface.class, this.config.getFileCloudDistributeTransmitTopic() );
         RequestHead head = RequestHead.newRequest().setSessionId(System.currentTimeMillis());
-        distributionIface.startDistribution( head, file.getName() );
+        distributionIface.startDistribution( head, file.getName(), directionRouteToken );
 
         try ( FileInputStream fileInputStream = new FileInputStream(file) ) {
-            int bufferSize = 900 * 1024;
-            byte[] buffer = new byte[bufferSize];
+            int bufferSize = this.config.getFileFrameSize() * 1024;
+            byte[] buffer  = new byte[ bufferSize ];
             int bytesRead;
             long currentPosition = 0;
 
@@ -95,8 +115,11 @@ public class SailorFMDistributionService implements SingleStreamFileMultiDistrib
     }
 
     @Override
-    public void distributeFile( String szFileName, String originalDirectory, String topic, String destinedDirectory ) throws IOException {
+    public void distributeFile( String szFileName, String originalDirectory, String directionRouteToken ) throws IOException {
+        Path targetPath = Path.of( originalDirectory, szFileName );
+        File file = new File( targetPath.toString() );
 
+        this.distributeFile( file, directionRouteToken );
     }
 
     /*@Override

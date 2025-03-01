@@ -12,7 +12,7 @@ public class SFMSessionValidator implements SessionValidator {
     protected SingleStreamFileMultiDistributionService distributionService;
 
     public SFMSessionValidator( SingleStreamFileMultiDistributionService service ) {
-        this.producer            = service.getControlProducer();
+        this.producer            = service.getTransmitProducer();
         this.distributionService = service;
         this.sessionValidator    = this.producer.getIface( SessionValidator.class, this.distributionService.getConfig().getFileCloudDistributeTransmitTopic() );
     }

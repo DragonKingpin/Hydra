@@ -14,22 +14,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileSynchronizedEventListener implements UFMEventListener {
-    private Logger logger;
-    private VersionManage versionManage;
+    private Logger                             logger;
 
-    private ClusterFileTransactionManager transactionManager;
+    private VersionManage                      versionManage;
+
+    private ClusterFileTransactionManager      transactionManager;
 
     private UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier;
 
-    private BucketInstrument  bucketInstrument;
+    private BucketInstrument                   bucketInstrument;
 
-    public FileSynchronizedEventListener(VersionManage versionManage, ClusterFileTransactionManager transactionManager,
-                                         UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier, BucketInstrument bucketInstrument) {
-        this.logger   = LoggerFactory.getLogger( this.getClass() );
-        this.versionManage = versionManage;
-        this.transactionManager = transactionManager;
-        this.transactionSynchronizedNotifier = transactionSynchronizedNotifier;
-        this.bucketInstrument = bucketInstrument;
+    public FileSynchronizedEventListener(
+            VersionManage versionManage, ClusterFileTransactionManager transactionManager,
+            UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier, BucketInstrument bucketInstrument
+    ) {
+        this.logger                             = LoggerFactory.getLogger( this.getClass() );
+        this.versionManage                      = versionManage;
+        this.transactionManager                 = transactionManager;
+        this.transactionSynchronizedNotifier    = transactionSynchronizedNotifier;
+        this.bucketInstrument                   = bucketInstrument;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class FileSynchronizedEventListener implements UFMEventListener {
         SyncFinishedVO finishedVO = new SyncFinishedVO(path, serviceId, 1);
         session.getBasicRemote().sendText(finishedVO.toJSONString());
         if( this.transactionManager.checkTransactionFinished( versionFileGuid ) ){
-            logger.info("文件{} 同步事务已完毕", versionFileGuid);
+            this.logger.info( "File {} synchronized done.", versionFileGuid );
             this.bucketInstrument.createSyncState( versionFileGuid, 1 );
             session.close();
             this.transactionManager.removeTransactions( versionFileGuid );

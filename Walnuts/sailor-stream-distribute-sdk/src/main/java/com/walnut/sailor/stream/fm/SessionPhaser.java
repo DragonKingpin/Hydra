@@ -7,16 +7,18 @@ import java.io.RandomAccessFile;
 
 public interface SessionPhaser extends Pinenut {
 
-    void registerSessionTransaction( Long sessionId, SFMTransaction SFMTransaction);
+    void registerSessionTransaction( Long sessionId, SFMTransaction SFMTransaction );
 
     SFMTransaction getSFMTransaction( Long sessionId );
 
-    void removeSFMTransaction( Long sessionId );
+    void registerDestinationDirectory( Long sessionId, String destinationDirectory );
 
-    void registerFileOutputStream( Long sessionId, RandomAccessFile randomAccessFile );
+    String getDestinationDirectory( Long sessionId );
 
-    RandomAccessFile getFileOutputStream( Long sessionId );
+    void removeSession( Long sessionId );
 
-    void removeFileOutputStream( Long sessionId );
+    void registerFileHandler( Long sessionId, RandomAccessFile randomAccessFile );
+
+    RandomAccessFile getFileHandler( Long sessionId );
 
 }

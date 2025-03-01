@@ -3,6 +3,7 @@ package com.walnut.sparta.ucdn.console.infrastructure;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.functions.Executor;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
@@ -99,13 +100,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                 this.servicesInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
         );
 
-        this.clusterFileSynchronizationConfig = new UCFMConfig( new JSONMaptron( "{ \"fileFrameSize\": " + (950 * 1024) +
-                ", \"batchTransmitMemberThreshold\": 1" +
-                ", \"fileCloudDistributeTransmitTopic\": \"ucdn-file-cloud-distribute-topic\"" +
-                ", \"fileCloudDistributeEventTopic\": \"ucdn-file-cloud-distribute-event-topic\"" +
-                ", \"fileServiceTransmitGroup\": \"UCDNFileServiceTransmitGroup\"" +
-                ", \"temporaryFileExtends\": \".temp\"" +
-                ", \"majorTemporaryClusterFileDirectory\": \"D:/文件系统/temp\" }" ) );
+        JSONConfig selfConfig = (JSONConfig) this.getConfig();
+        this.clusterFileSynchronizationConfig = new UCFMConfig( selfConfig.queryJSONObject( "service.ClusterFileSynchronizationConfig" ) );
     }
 
     protected void startGlobalMiddlewares() throws ComponentInitializationException {

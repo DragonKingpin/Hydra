@@ -62,20 +62,19 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     @Resource
     private VersionManage                               primaryVersion;
 
-    @Resource
-    private UFMTransactionSynchronizedNotifier          synchronizedNotifier;
-
     private ClusterFileTransactionManager               clusterFileTransactionManager;
 
     @Resource
-    private UFMTransactionSynchronizedNotifier                 ufmTransactionSynchronizedNotifier;
+    private UFMTransactionSynchronizedNotifier          ufmTransactionSynchronizedNotifier;
 
 
     @PostConstruct
     private void init() throws UMBServiceException {
         this.clusterFileTransactionManager = new ClusterFileSyncTransactionManager();
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.uofsContentDelivery.getSpartaUCDNService() );
-        this.fileMultiDistributionService.registerFileTransmitCompleteEventListener( new FileSynchronizedEventListener( this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.bucketInstrument ) );
+        this.fileMultiDistributionService.registerFileTransmitCompleteEventListener( new FileSynchronizedEventListener(
+                this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.bucketInstrument )
+        );
         this.fileMultiDistributionService.start();
     }
 
@@ -106,8 +105,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
 
     @Override
     public void clusterFileSync( ClusterFileSyncDTO dto ) throws IOException, InterruptedException {
-        Debug.greenf(12222);
-        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(dto.getFileGuid()));
+        Folder folder = this.primaryFileSystem.getFolder( GUIDs.GUID72(dto.getFileGuid()) );
         List<GUID> guids = this.primaryVersion.fetchVersions(folder.getGuid());
         ServiceLifecycleIface lifecycleIface = this.ucdnServiceManager.getLifecycleIface();
         int serviceNum = lifecycleIface.countRegisteredService();
@@ -119,7 +117,6 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
         }
 
         this.clusterFileTransactionManager.register( folder.getGuid(), map );
-        Debug.greenf(1);
         for( GUID guid : guids ){
             FileNode fileNode = this.primaryFileSystem.getFileNode(guid);
             this.fileMultiDistributionService.fileDistribution( fileNode, UCDNConstants.UCDNFileCloudDistributeTransmitTopic);

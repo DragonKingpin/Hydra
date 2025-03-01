@@ -33,6 +33,16 @@
   },
 
   "service": {
-    "LocalUploadTemporaryWorkingDirectory": "D:/文件系统/temp"
+    "LocalUploadTemporaryWorkingDirectory": "D:/文件系统/temp",
+
+    "ClusterFileSynchronizationConfig": {
+      "fileFrameSize": 972800,
+      "batchTransmitMemberThreshold": 1,
+      "fileCloudDistributeTransmitTopic": "ucdn-file-cloud-distribute-transmit-topic",
+      "fileCloudDistributeEventTopic": "ucdn-file-cloud-distribute-event-topic",
+      "fileServiceTransmitGroup": "UCDNFileServiceTransmitGroup",
+      "temporaryFileExtends": ".temp",
+      "majorTemporaryClusterFileDirectory": "D:/文件系统/temp",
+    }
   }
 }

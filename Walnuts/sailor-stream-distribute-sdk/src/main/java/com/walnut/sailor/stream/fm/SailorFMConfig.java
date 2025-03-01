@@ -5,6 +5,8 @@ public class SailorFMConfig implements SFMConfig {
 
     protected int      mnFileFrameSize;
 
+    protected long     mnSessionExpiredTimeMillis;
+
     protected String   mszFileCloudDistributeTransmitTopic;
 
     protected String   mszFileServiceTransmitGroup;
@@ -13,6 +15,11 @@ public class SailorFMConfig implements SFMConfig {
     @Override
     public int getFileFrameSize() {
         return this.mnFileFrameSize;
+    }
+
+    @Override
+    public long getSessionExpiredTimeMillis() {
+        return this.mnSessionExpiredTimeMillis;
     }
 
     @Override

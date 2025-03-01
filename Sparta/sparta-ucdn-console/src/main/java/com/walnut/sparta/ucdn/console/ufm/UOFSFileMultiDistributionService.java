@@ -186,7 +186,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             int bufferSize = 2 * 1024 * 1024; // 2MB
             byte[] buffer = new byte[bufferSize];
             int bytesRead;
-            int chunkSize = this.config.getFileFrameSize() * 1024;
+            int chunkSize = this.config.getFileFrameSize();
             long currentPosition = 0;
 
             try {

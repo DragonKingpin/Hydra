@@ -9,6 +9,8 @@ public class UCFMConfig implements UFMConfig {
 
     protected int      mnBatchTransmitMemberThreshold;
 
+    protected long     mnSessionExpiredTimeMillis;
+
     protected String   mszFileCloudDistributeTransmitTopic;
 
     protected String   mszFileCloudDistributeEventTopic;
@@ -20,8 +22,9 @@ public class UCFMConfig implements UFMConfig {
     protected String   mszMajorTemporaryClusterFileDirectory;
 
     public UCFMConfig ( Map<String, Object > configMap ) {
-        this.mnFileFrameSize = (int)configMap.get("fileFrameSize");
-        this.mnBatchTransmitMemberThreshold = (int)configMap.get("batchTransmitMemberThreshold");
+        this.mnFileFrameSize = ( (Number)configMap.get("fileFrameSize") ).intValue();
+        this.mnBatchTransmitMemberThreshold = ( (Number)configMap.get("batchTransmitMemberThreshold") ).intValue();
+        this.mnSessionExpiredTimeMillis = ( (Number)configMap.get("sessionExpiredTimeMillis") ).longValue();
         this.mszFileCloudDistributeTransmitTopic = (String) configMap.get("fileCloudDistributeTransmitTopic");
         this.mszFileCloudDistributeEventTopic = (String) configMap.get("fileCloudDistributeEventTopic");
         this.mszFileServiceTransmitGroup = (String) configMap.get("fileServiceTransmitGroup");
@@ -42,6 +45,11 @@ public class UCFMConfig implements UFMConfig {
     @Override
     public String getFileCloudDistributeEventTopic() {
         return this.mszFileCloudDistributeEventTopic;
+    }
+
+    @Override
+    public long getSessionExpiredTimeMillis() {
+        return this.mnSessionExpiredTimeMillis;
     }
 
     @Override

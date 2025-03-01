@@ -20,6 +20,8 @@ public interface UFMConfig extends Pinenut {
 
     Path formatTemporaryPath( String segName );
 
+    long getSessionExpiredTimeMillis();
+
     int getBatchTransmitMemberThreshold();
 
 }

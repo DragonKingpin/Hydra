@@ -30,4 +30,6 @@ public interface FileMultiDistributionService extends Pinenut {
     void start() throws UMBServiceException ;
 
     void shutdown();
+
+    UFMConfig getConfig();
 }

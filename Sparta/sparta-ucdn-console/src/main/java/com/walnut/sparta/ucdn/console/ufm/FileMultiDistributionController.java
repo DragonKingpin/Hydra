@@ -226,7 +226,7 @@ public class FileMultiDistributionController implements Pinenut {
             return true;
         }
         long currentTimeMillis = System.currentTimeMillis();
-        if( currentTimeMillis - transaction.getLastEventArrivedMills() > UCDNConstants.expireTimeMillis ){
+        if( currentTimeMillis - transaction.getLastEventArrivedMills() > this.config.getSessionExpiredTimeMillis() ){
             this.logger.warn( "[Warning] UCDNService `assertTransmitTransaction` session has expired. <Pass>" );
             this.sessionPhaser.removeSessionTransaction( sessionId );
             this.transmitRollBack( filePath, sessionId );

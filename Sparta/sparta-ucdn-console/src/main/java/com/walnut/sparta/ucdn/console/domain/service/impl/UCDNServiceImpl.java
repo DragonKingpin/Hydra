@@ -19,7 +19,6 @@ import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNSyncTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
-import com.walnut.sparta.ucdn.console.rpc.thrift.client.UOFSClient;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.ufm.UOFSFileMultiDistributionService;
@@ -70,8 +69,6 @@ public class UCDNServiceImpl implements UCDNService {
     @Resource
     private WebSocketService                            webSocketService;
 
-    @Resource
-    private UOFSClient                                   uofsClient;
 
 
     @PostConstruct
@@ -104,7 +101,7 @@ public class UCDNServiceImpl implements UCDNService {
 
     @Override
     public void test() throws UMBServiceException, TException {
-        uofsClient.test( "哈哈哈" );
+
     }
 
     @Override

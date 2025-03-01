@@ -4,13 +4,17 @@ import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
+import com.walnut.sailor.stream.fm.event.SFMEventSubscriber;
 import com.walnut.sailor.stream.fm.protocol.RequestHead;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,12 +30,40 @@ public class SailorFMDistributionService implements SingleStreamFileMultiDistrib
 
     protected Map<String, String >          directionRoute;
 
+    protected List<SFMEventSubscriber>      fileTransmitCompleteEventSubscribers;
+
     public SailorFMDistributionService( UlfBroadcastControlNode client, SFMConfig config ) {
         this.transmitClient  = client;
         this.config          = config;
         this.directionRoute  = new ConcurrentHashMap<>();
+
+        this.fileTransmitCompleteEventSubscribers = new ArrayList<>();
     }
 
+    @Override
+    public SingleStreamFileMultiDistributionService registerFileTransmitCompleteEventSubscriber( SFMEventSubscriber subscriber ) {
+        if ( this.hasStarted() ) {
+            throw new IllegalStateException( "FileMultiDistributionService has already started." );
+        }
+
+        this.fileTransmitCompleteEventSubscribers.add( subscriber );
+        return this;
+    }
+
+    @Override
+    public SingleStreamFileMultiDistributionService deregisterFileTransmitCompleteEventSubscriber( SFMEventSubscriber subscriber ) {
+        if ( this.hasStarted() ) {
+            throw new IllegalStateException( "FileMultiDistributionService has already started." );
+        }
+
+        this.fileTransmitCompleteEventSubscribers.remove( subscriber );
+        return this;
+    }
+
+    @Override
+    public Collection<SFMEventSubscriber> fetchFileTransmitCompleteEventSubscribers() {
+        return this.fileTransmitCompleteEventSubscribers;
+    }
 
     @Override
     public UlfBroadcastControlNode getTransmitClient() {
@@ -73,6 +105,8 @@ public class SailorFMDistributionService implements SingleStreamFileMultiDistrib
         if ( !this.hasStarted() ) {
             this.transmitProducer = this.transmitClient.createBroadcastControlProducer();
             this.transmitConsumer = this.transmitClient.createBroadcastControlConsumer( this.config.getFileCloudDistributeTransmitTopic(), this.config.getFileServiceTransmitGroup() );
+            this.transmitProducer.compile( FileMultiDistributionIface.class,false );
+            this.transmitProducer.compile( SessionValidator.class, false );
             this.transmitConsumer.registerController( new SFMDistributionController( this ) );
             this.transmitConsumer.start();
             this.transmitProducer.start();
@@ -100,15 +134,16 @@ public class SailorFMDistributionService implements SingleStreamFileMultiDistrib
         RequestHead head = RequestHead.newRequest().setSessionId(System.currentTimeMillis());
         distributionIface.startDistribution( head, file.getName(), directionRouteToken );
 
+        long fileSize = file.length();
         try ( FileInputStream fileInputStream = new FileInputStream(file) ) {
-            int bufferSize = this.config.getFileFrameSize() * 1024;
+            int bufferSize = this.config.getFileFrameSize();
             byte[] buffer  = new byte[ bufferSize ];
             int bytesRead;
             long currentPosition = 0;
 
             while ( (bytesRead = fileInputStream.read(buffer)) != -1 ) {
                 byte[] dataChunk = bytesRead == bufferSize ? buffer : Arrays.copyOf(buffer, bytesRead);
-                distributionIface.transmitFileContent(head, new SFMFileFrame( dataChunk, file.length(), file.getName(), currentPosition, bytesRead) );
+                distributionIface.transmitFileContent(head, new SFMFileFrame( dataChunk, fileSize, file.getName(), currentPosition, bytesRead) );
                 currentPosition += bytesRead;
             }
         }

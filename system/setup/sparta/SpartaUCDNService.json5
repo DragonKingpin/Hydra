@@ -38,6 +38,7 @@
     "ClusterFileSynchronizationConfig": {
       "fileFrameSize": 972800,
       "batchTransmitMemberThreshold": 1,
+      "sessionExpiredTimeMillis": 7200000,
       "fileCloudDistributeTransmitTopic": "ucdn-file-cloud-distribute-transmit-topic",
       "fileCloudDistributeEventTopic": "ucdn-file-cloud-distribute-event-topic",
       "fileServiceTransmitGroup": "UCDNFileServiceTransmitGroup",

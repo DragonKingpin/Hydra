@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class ArchMsgDeliver implements MessageDeliver {
     protected String                                      mszName;
     protected MessageExpress                              mExpress;
@@ -24,6 +27,7 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
     protected TrieMap<String, MessageHandler>             mRoutingTable;
     protected HeaderDecipher                              mHeaderDecipher;
     protected String                                      mszServicePathKey;
+    protected Logger                                      mLogger;
 
     public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey ) {
         this.mszName           = szName;
@@ -31,6 +35,7 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
         this.mJunction         = this.mExpress.getJunction();
         this.mHeaderDecipher   = headerDecipher;
         this.mszServicePathKey = szServicePathKey;
+        this.mLogger           = LoggerFactory.getLogger( this.getClass() );
         this.mRoutingTable     = new UniTrieMaptron<>(HashMap::new, new TrieSegmentor() {
             @Override
             public String[] segments( String szPathKey ) {
@@ -134,12 +139,13 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
                     args = this.mHeaderDecipher.evals( exHead, controller.getArgumentsDescriptor(), keys, controller.getArgumentTemplate() );
                 }
 
-                try{
+                try {
                     Object ret = controller.invoke( args );
                     UMCMessage response = this.mHeaderDecipher.assembleReturnMsg( ret, controller.getReturnDescriptor() );
                     connection.getTransmit().sendMsg( this.processResponse( request, response ) );
                 }
                 catch ( Exception e ) {
+                    this.mLogger.warn( "MessageDeliver has handled an invocation exception, what => ", e );
                     this.mHeaderDecipher.sendInternalError( connection );
                 }
             }

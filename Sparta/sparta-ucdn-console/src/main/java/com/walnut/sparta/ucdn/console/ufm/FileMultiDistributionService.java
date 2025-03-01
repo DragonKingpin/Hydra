@@ -5,7 +5,7 @@ import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
-import com.walnut.sparta.ucdn.console.ufm.event.UFMEventListener;
+import com.walnut.sparta.ucdn.console.ufm.event.UFMEventSubscriber;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,11 +19,11 @@ public interface FileMultiDistributionService extends Pinenut {
 
     BroadcastControlProducer getTransmitProducer();
 
-    FileMultiDistributionService registerFileTransmitCompleteEventListener( UFMEventListener listener ) ;
+    FileMultiDistributionService registerFileTransmitCompleteEventSubscriber( UFMEventSubscriber subscriber ) ;
 
-    FileMultiDistributionService deregisterFileTransmitCompleteEventListener( UFMEventListener listener ) ;
+    FileMultiDistributionService deregisterFileTransmitCompleteEventSubscriber( UFMEventSubscriber subscriber ) ;
 
-    Collection<UFMEventListener> fetchFileTransmitCompleteEventListeners();
+    Collection<UFMEventSubscriber> fetchFileTransmitCompleteEventSubscribers();
 
     boolean hasStarted();
 

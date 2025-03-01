@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
+import com.walnut.sailor.stream.fm.event.SFMEventSubscriber;
 import com.walnut.sailor.stream.fm.protocol.RequestHead;
 import com.walnut.sailor.stream.fm.session.SFMTransaction;
 
@@ -11,12 +12,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
-@AddressMapping( "com.pinecone.hydra.uofs.ufm.EFileMultiDistributionIface." )
+@AddressMapping( "com.walnut.sailor.stream.fm.FileMultiDistributionIface." )
 public class SFMDistributionController implements Pinenut {
 
     protected Logger              logger;
@@ -37,7 +39,7 @@ public class SFMDistributionController implements Pinenut {
         this.sessionValidator    = new SFMSessionValidator( service );
     }
 
-    protected Path formatFilePath( long sessionId, String fileName, String directionRouteToken ) {
+    protected String queryDirectoryPath( String directionRouteToken ) {
         String directoryPath = this.config.getStorageDirectory();
         if ( StringUtils.isNoneEmpty( directionRouteToken ) ) {
             String sz = this.distributionService.queryDestinedDirectoryByToken( directionRouteToken );
@@ -45,6 +47,12 @@ public class SFMDistributionController implements Pinenut {
                 directoryPath = sz;
             }
         }
+
+        return directoryPath;
+    }
+
+    protected Path formatFilePath( long sessionId, String fileName, String directionRouteToken ) {
+        String directoryPath = this.queryDirectoryPath( directionRouteToken );
         this.sessionPhaser.registerDestinationDirectory( sessionId, directoryPath );
         return Path.of( directoryPath, fileName );
     }
@@ -71,8 +79,11 @@ public class SFMDistributionController implements Pinenut {
 
         Path desPath = this.formatFilePath( sessionId, fileName, directionRouteToken );
         File newFile = new File( desPath.toString() );
-        if ( !newFile.createNewFile() ) {
-            throw new IOException( "Creating file compromised, what :" + desPath );
+        if( newFile.length() != 0 ){
+            if ( !newFile.delete() ) {
+                throw new IOException( "Purging file has compromised, what => " + fileName );
+            }
+            this.logger.info( "The destination file (" + fileName + ") exists, and has been successfully eliminated. " );
         }
 
         SFMTransaction SFMTransaction = new SFMTransaction();
@@ -80,7 +91,7 @@ public class SFMDistributionController implements Pinenut {
         SFMTransaction.finishStartTransmit();
         this.sessionPhaser.registerSessionTransaction( sessionId, SFMTransaction);
         this.sessionPhaser.getSFMTransaction( sessionId ).finishStartTransmit();
-        this.sessionPhaser.registerFileHandler( sessionId, new RandomAccessFile(newFile, "rw"));
+        this.sessionPhaser.registerFileHandler( sessionId, new RandomAccessFile(newFile, "rw") );
 
         this.logger.info( "SFMService invoked `startDistribution`. <Done>" );
     }
@@ -95,22 +106,34 @@ public class SFMDistributionController implements Pinenut {
         this.logger.info( "SFMService invoked `transmitFileContent`. <Start>" );
 
         long sessionId = head.getSessionId();
-        String fileName = fileFrame.getFileName();
-        Path desPath = this.formatFilePath( sessionId, fileName );
-        File file = new File( desPath.toString() );
+        String fileName  = fileFrame.getFileName();
+        Path desPath     = this.formatFilePath( sessionId, fileName );
+        String szDesPath = desPath.toString();
+        File file = new File( szDesPath );
         RandomAccessFile randomAccessFile = this.sessionPhaser.getFileHandler(sessionId);
 
         randomAccessFile.seek( fileFrame.getOffset() );
         randomAccessFile.write( fileFrame.getBytes() );
         this.sessionPhaser.getSFMTransaction( sessionId ).setLastEventArrivedMills( System.currentTimeMillis() );
 
+        String desDirectory = this.sessionPhaser.getDestinationDirectory( sessionId );
         if( file.length() == fileFrame.getFileSize() ){
             randomAccessFile.close();
             this.sessionPhaser.removeSession( sessionId );
             this.sessionValidator.fileTransmitComplete( head );
+
+            this.notifyFileTransmitCompleteEventSubscribers( sessionId, szDesPath, fileName, desDirectory );
         }
 
         this.logger.info( "SFMService invoked `transmitFileContent`. <Done>" );
+    }
+
+    protected void notifyFileTransmitCompleteEventSubscribers( long sessionId, String szDesPath, String fileName, String desDirectory ) {
+
+        Collection<SFMEventSubscriber> subscribers = this.distributionService.fetchFileTransmitCompleteEventSubscribers();
+        for ( SFMEventSubscriber subscriber : subscribers ) {
+            subscriber.afterEventTriggered( szDesPath, fileName, desDirectory );
+        }
     }
 
     protected boolean assertTransmitTransaction( RequestHead head, String fileName ) {
@@ -140,16 +163,16 @@ public class SFMDistributionController implements Pinenut {
     }
 
     protected void rollBack( long sessionId, String fileName ) {
-        this.logger.warn( "[Warning] SFMService `transmitRollBack`. <Start>" );
+        this.logger.warn( "[Warning] SFMService `rollBack`. <Start>" );
 
         Path desPath = this.formatFilePath( sessionId, fileName );
         File file = new File( desPath.toString() );
         if ( !file.delete() ) {
-            throw new IllegalStateException( "Purging file compromised, what :" + fileName );
+            throw new IllegalStateException( "Purging file has compromised, what :" + fileName );
         }
         this.sessionPhaser.removeSession( sessionId );
 
-        this.logger.warn( "[Warning] SFMService `transmitRollBack`. <Done>" );
+        this.logger.warn( "[Warning] SFMService `rollBack`. <Done>" );
     }
 
 }

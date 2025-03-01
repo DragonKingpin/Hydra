@@ -14,7 +14,7 @@ import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
-import com.walnut.sparta.ucdn.console.ufm.event.UFMEventListener;
+import com.walnut.sparta.ucdn.console.ufm.event.UFMEventSubscriber;
 import com.walnut.sparta.ucdn.console.ufm.protocol.RequestHead;
 
 import java.io.File;
@@ -41,7 +41,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
     protected BroadcastControlConsumer            transmitConsumer;
 
-    protected List<UFMEventListener>              fileTransmitCompleteEventListeners;
+    protected List<UFMEventSubscriber>            fileTransmitCompleteEventSubscribers;
 
     protected SessionValidator                    fileSessionValidator;
 
@@ -58,26 +58,26 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
         this.config                 = ucdnService.getClusterFileSynchronizationConfig();
         this.fileSessionValidator   = new UFMSessionValidator( this );
 
-        this.fileTransmitCompleteEventListeners = new ArrayList<>();
+        this.fileTransmitCompleteEventSubscribers = new ArrayList<>();
     }
 
     @Override
-    public FileMultiDistributionService registerFileTransmitCompleteEventListener( UFMEventListener listener ) {
+    public FileMultiDistributionService registerFileTransmitCompleteEventSubscriber( UFMEventSubscriber subscriber ) {
         if ( this.hasStarted() ) {
             throw new IllegalStateException( "FileMultiDistributionService has already started." );
         }
 
-        this.fileTransmitCompleteEventListeners.add( listener );
+        this.fileTransmitCompleteEventSubscribers.add( subscriber );
         return this;
     }
 
     @Override
-    public FileMultiDistributionService deregisterFileTransmitCompleteEventListener( UFMEventListener listener ) {
+    public FileMultiDistributionService deregisterFileTransmitCompleteEventSubscriber( UFMEventSubscriber subscriber ) {
         if ( this.hasStarted() ) {
             throw new IllegalStateException( "FileMultiDistributionService has already started." );
         }
 
-        this.fileTransmitCompleteEventListeners.remove( listener );
+        this.fileTransmitCompleteEventSubscribers.remove( subscriber );
         return this;
     }
 
@@ -122,8 +122,8 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
     }
 
     @Override
-    public Collection<UFMEventListener > fetchFileTransmitCompleteEventListeners() {
-        return this.fileTransmitCompleteEventListeners;
+    public Collection<UFMEventSubscriber> fetchFileTransmitCompleteEventSubscribers() {
+        return this.fileTransmitCompleteEventSubscribers;
     }
 
     @Override

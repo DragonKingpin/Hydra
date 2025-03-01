@@ -6,7 +6,7 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
-import com.walnut.sparta.ucdn.console.ufm.event.UFMEventListener;
+import com.walnut.sparta.ucdn.console.ufm.event.UFMEventSubscriber;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class UFMSessionValidatorController implements Pinenut {
 
     @AddressMapping( "stageClusterGroupComplete" )
     public void stageClusterGroupComplete( String path ){
-        this.logger.info("回调");
+        this.logger.info( "UFMService invoked stageClusterGroupComplete." );
 
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
         this.sessionPhaser.incrementConsumerCount( elementNode.getGuid() );
@@ -58,9 +58,9 @@ public class UFMSessionValidatorController implements Pinenut {
         FileNode fileNode = (FileNode)this.primaryFileSystem.queryElement(path);
         //GUID versionFileGuid = this.versionManage.getVersionFileByGuid(fileNode.getGuid());
 
-        Collection<UFMEventListener> listeners = this.distributionService.fetchFileTransmitCompleteEventListeners();
-        for ( UFMEventListener listener : listeners ) {
-            listener.afterEventTriggered( path, serviceId, fileNode );
+        Collection<UFMEventSubscriber> subscribers = this.distributionService.fetchFileTransmitCompleteEventSubscribers();
+        for ( UFMEventSubscriber subscriber : subscribers ) {
+            subscriber.afterEventTriggered( path, serviceId, fileNode );
         }
     }
 }

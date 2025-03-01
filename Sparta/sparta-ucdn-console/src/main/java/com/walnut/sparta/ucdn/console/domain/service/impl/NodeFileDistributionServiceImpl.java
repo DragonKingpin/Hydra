@@ -17,7 +17,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileSyncTransaction;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileSyncTransactionManager;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileTransactionManager;
-import com.walnut.sparta.ucdn.console.domain.service.cluster.FileSynchronizedEventListener;
+import com.walnut.sparta.ucdn.console.domain.service.cluster.FileSynchronizedEventSubscriber;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.UFMTransactionSynchronizedNotifier;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.MultiClusterFileSyncTransaction;
@@ -72,7 +72,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     private void init() throws UMBServiceException {
         this.clusterFileTransactionManager = new ClusterFileSyncTransactionManager();
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.uofsContentDelivery.getSpartaUCDNService() );
-        this.fileMultiDistributionService.registerFileTransmitCompleteEventListener( new FileSynchronizedEventListener(
+        this.fileMultiDistributionService.registerFileTransmitCompleteEventSubscriber( new FileSynchronizedEventSubscriber(
                 this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.bucketInstrument )
         );
         this.fileMultiDistributionService.start();

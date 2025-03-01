@@ -1,5 +1,7 @@
 package com.walnut.sailor.stream.fm;
 
+import java.util.Map;
+
 public class SailorFMConfig implements SFMConfig {
     protected String   mszStorageDirectory;
 
@@ -11,6 +13,13 @@ public class SailorFMConfig implements SFMConfig {
 
     protected String   mszFileServiceTransmitGroup;
 
+    public SailorFMConfig ( Map<String, Object > configMap ) {
+        this.mnFileFrameSize                     = ( (Number)configMap.get("fileFrameSize") ).intValue();
+        this.mnSessionExpiredTimeMillis          = ( (Number)configMap.get("sessionExpiredTimeMillis") ).longValue();
+        this.mszFileCloudDistributeTransmitTopic = (String) configMap.get("fileCloudDistributeTransmitTopic");
+        this.mszFileServiceTransmitGroup         = (String) configMap.get("fileServiceTransmitGroup");
+        this.mszStorageDirectory                 = (String) configMap.get("storageDirectory");
+    }
 
     @Override
     public int getFileFrameSize() {

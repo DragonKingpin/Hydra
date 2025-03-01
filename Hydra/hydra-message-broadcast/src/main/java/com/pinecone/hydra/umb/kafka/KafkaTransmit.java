@@ -9,38 +9,49 @@ import com.pinecone.hydra.umc.msg.UMCTransmit;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class KafkaTransmit extends ArchUnidirectionalMCProtocol implements UMCTransmit {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    public KafkaTransmit(Medium messageSource){
+public class KafkaTransmit extends ArchUnidirectionalMCProtocol implements UMCTransmit {
+    protected Logger logger = LoggerFactory.getLogger( this.getClass() );
+
+    public KafkaTransmit( Medium messageSource ){
         super(messageSource);
     }
+
     @Override
-    public void sendInformMsg(Object msg) throws IOException {
+    public void sendInformMsg( Object msg ) throws IOException {
 
     }
 
     @Override
-    public void sendInformMsg(Object msg, Status status) throws IOException {
+    public void sendInformMsg( Object msg, Status status ) throws IOException {
+        if ( status != Status.OK ) {
+            this.logger.warn( "IllegalTransmitResponse for broadcast message nodes. what => {}, {}", msg, status );
+        }
+    }
+
+    @Override
+    public void sendTransferMsg( Object msg, byte[] bytes ) throws IOException {
 
     }
 
     @Override
-    public void sendTransferMsg(Object msg, byte[] bytes) throws IOException {
+    public void sendTransferMsg( Object msg, byte[] bytes, Status status ) throws IOException {
+        if ( status != Status.OK ) {
+            this.logger.warn( "IllegalTransmitResponse for broadcast message nodes. what => {}, {}", msg, status );
+        }
+    }
+
+    @Override
+    public void sendTransferMsg( Object msg, InputStream is ) throws IOException {
 
     }
 
     @Override
-    public void sendTransferMsg(Object msg, byte[] bytes, Status status) throws IOException {
-
-    }
-
-    @Override
-    public void sendTransferMsg(Object msg, InputStream is) throws IOException {
-
-    }
-
-    @Override
-    public void sendMsg(UMCMessage msg, boolean bNoneBuffered) throws IOException {
-
+    public void sendMsg( UMCMessage msg, boolean bNoneBuffered ) throws IOException {
+        if ( msg.getHead().getStatus() != Status.OK ) {
+            this.logger.warn( "IllegalTransmitResponse for broadcast message nodes. what => {}", msg );
+        }
     }
 }

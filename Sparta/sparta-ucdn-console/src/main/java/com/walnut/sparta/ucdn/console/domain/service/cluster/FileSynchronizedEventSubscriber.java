@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
 import javax.websocket.Session;
 
+import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SyncFinishedVO;
-import com.walnut.sparta.ucdn.console.ufm.event.UFMEventListener;
+import com.walnut.sparta.ucdn.console.ufm.event.UFMEventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileSynchronizedEventListener implements UFMEventListener {
+public class FileSynchronizedEventSubscriber implements UFMEventSubscriber {
     private Logger                             logger;
 
     private VersionManage                      versionManage;
@@ -24,7 +25,7 @@ public class FileSynchronizedEventListener implements UFMEventListener {
 
     private BucketInstrument                   bucketInstrument;
 
-    public FileSynchronizedEventListener(
+    public FileSynchronizedEventSubscriber(
             VersionManage versionManage, ClusterFileTransactionManager transactionManager,
             UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier, BucketInstrument bucketInstrument
     ) {
@@ -36,19 +37,24 @@ public class FileSynchronizedEventListener implements UFMEventListener {
     }
 
     @Override
-    public void afterEventTriggered( String path, String serviceId, FileNode fileNode ) throws IOException {
-        GUID versionFileGuid = this.versionManage.getVersionFileByGuid(fileNode.getGuid());
-        ConcurrentMap<GUID, ClusterFileSyncTransaction> map = this.transactionManager.getTransactions(versionFileGuid);
-        ClusterFileSyncTransaction clusterFileSyncTransaction = map.get(fileNode.getGuid());
-        clusterFileSyncTransaction.decreaseRemainingCount();
-        Session session = this.transactionSynchronizedNotifier.getSession();
-        SyncFinishedVO finishedVO = new SyncFinishedVO(path, serviceId, 1);
-        session.getBasicRemote().sendText(finishedVO.toJSONString());
-        if( this.transactionManager.checkTransactionFinished( versionFileGuid ) ){
-            this.logger.info( "File {} synchronized done.", versionFileGuid );
-            this.bucketInstrument.createSyncState( versionFileGuid, 1 );
-            session.close();
-            this.transactionManager.removeTransactions( versionFileGuid );
+    public void afterEventTriggered( String path, String serviceId, FileNode fileNode ) {
+        try {
+            GUID versionFileGuid = this.versionManage.getVersionFileByGuid(fileNode.getGuid());
+            ConcurrentMap<GUID, ClusterFileSyncTransaction> map = this.transactionManager.getTransactions(versionFileGuid);
+            ClusterFileSyncTransaction clusterFileSyncTransaction = map.get(fileNode.getGuid());
+            clusterFileSyncTransaction.decreaseRemainingCount();
+            Session session = this.transactionSynchronizedNotifier.getSession();
+            SyncFinishedVO finishedVO = new SyncFinishedVO(path, serviceId, 1);
+            session.getBasicRemote().sendText(finishedVO.toJSONString());
+            if( this.transactionManager.checkTransactionFinished( versionFileGuid ) ){
+                this.logger.info( "File {} synchronized done.", versionFileGuid );
+                this.bucketInstrument.createSyncState( versionFileGuid, 1 );
+                session.close();
+                this.transactionManager.removeTransactions( versionFileGuid );
+            }
+        }
+        catch ( IOException e ) {
+            throw new ProvokeHandleException( e );
         }
     }
 }

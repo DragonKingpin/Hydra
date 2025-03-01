@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
-@AddressMapping( "com.walnut.sparta.ucdn.console.umc.ufmc.ExternalSessionValidator." )
+@AddressMapping( "com.walnut.sailor.stream.fm.SessionValidator." )
 public class SFMSessionValidatorController implements Pinenut {
     protected Logger logger;
 
@@ -19,6 +19,6 @@ public class SFMSessionValidatorController implements Pinenut {
 
     @AddressMapping( "fileTransmitComplete" )
     public void fileTransmitComplete( RequestHead head ){
-        this.logger.info( "分发完成 sessionId：" + head.getSessionId() );
+        this.logger.info( "FileTransmitComplete sessionId：" + head.getSessionId() );
     }
 }

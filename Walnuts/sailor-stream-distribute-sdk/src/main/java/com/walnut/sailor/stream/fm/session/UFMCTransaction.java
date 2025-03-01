@@ -1,8 +1,10 @@
-package com.walnut.sparta.ucdn.console.umc.ssfm.session;
+package com.walnut.sailor.stream.fm.session;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class UFMCTransaction {
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public class UFMCTransaction implements Pinenut {
     protected AtomicBoolean startTransmit;
 
     protected AtomicBoolean transmitFileContent;

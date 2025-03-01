@@ -13,25 +13,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class RocketMQClient implements RocketClient {
-    protected Map<BroadcastProducer, Object> producerRegister;
+    protected Map<BroadcastProducer, Object> mProducerRegister;
 
-    protected Map<BroadcastConsumer, Object> consumerRegister;
+    protected Map<BroadcastConsumer, Object> mConsumerRegister;
+
+    protected RocketConfig                   mRocketConfig;
+
+    protected long                           mnNodeId;
 
     private static final Object PRESENT = new Object();
-
-    protected RocketConfig     mRocketConfig;
-
-    protected long             mnNodeId;
 
 
     public RocketMQClient( long nodeId, String nameSrvAddr, String groupName ) {
         this.mRocketConfig = new RocketMQConfig(
-                nameSrvAddr, groupName, 4096, 8000, 2
+                nameSrvAddr, groupName, RocketConstants.DefaultMaxMessageSize, RocketConstants.DefaultSendMsgTimeout, RocketConstants.DefaultRetryTimesWhenSendFailed
         );
 
-        this.producerRegister = new ConcurrentHashMap<>();
-        this.consumerRegister = new ConcurrentHashMap<>();
-        this.mnNodeId         = nodeId;
+        this.mProducerRegister = new ConcurrentHashMap<>();
+        this.mConsumerRegister = new ConcurrentHashMap<>();
+        this.mnNodeId          = nodeId;
     }
 
     public RocketMQClient( String nameSrvAddr, String groupName ) {
@@ -61,37 +61,37 @@ public class RocketMQClient implements RocketClient {
 
     @Override
     public void close() {
-        for( Map.Entry<BroadcastConsumer, Object> kv : this.consumerRegister.entrySet() ) {
+        for( Map.Entry<BroadcastConsumer, Object> kv : this.mConsumerRegister.entrySet() ) {
             kv.getKey().close();
         }
 
-        for( Map.Entry<BroadcastProducer, Object> kv : this.producerRegister.entrySet() ) {
+        for( Map.Entry<BroadcastProducer, Object> kv : this.mProducerRegister.entrySet() ) {
             kv.getKey().close();
         }
 
-        this.consumerRegister.clear();
-        this.producerRegister.clear();
+        this.mConsumerRegister.clear();
+        this.mProducerRegister.clear();
     }
 
 
     @Override
     public void register( BroadcastProducer producer ) {
-        this.producerRegister.put( producer, PRESENT );
+        this.mProducerRegister.put( producer, PRESENT );
     }
 
     @Override
     public void register( BroadcastConsumer consumer ) {
-        this.consumerRegister.put( consumer, PRESENT );
+        this.mConsumerRegister.put( consumer, PRESENT );
     }
 
     @Override
     public void deregister( BroadcastProducer producer ) {
-        this.producerRegister.remove( producer );
+        this.mProducerRegister.remove( producer );
     }
 
     @Override
     public void deregister( BroadcastConsumer consumer ) {
-        this.consumerRegister.remove( consumer );
+        this.mConsumerRegister.remove( consumer );
     }
 
 

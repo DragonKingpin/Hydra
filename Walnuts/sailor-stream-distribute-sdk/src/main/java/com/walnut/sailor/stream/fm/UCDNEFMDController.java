@@ -1,13 +1,13 @@
-package com.walnut.sparta.ucdn.console.umc.ssfm;
+package com.walnut.sailor.stream.fm;
 
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
-import com.walnut.sparta.ucdn.console.infrastructure.EFileContent;
+import com.walnut.sailor.stream.fm.protocol.RequestHead;
+import com.walnut.sailor.stream.fm.session.UFMCTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
-import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
-import com.walnut.sparta.ucdn.console.umc.ssfm.session.UFMCTransaction;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -19,11 +19,11 @@ import java.io.RandomAccessFile;
 @AddressMapping( "com.pinecone.hydra.uofs.ufm.EFileMultiDistributionIface." )
 public class UCDNEFMDController {
 
-    protected ExternalSessionPhaser     sessionPhaser;
+    protected SessionPhaser sessionPhaser;
 
     protected UEFMSessionValidator      sessionValidator;
 
-    public UCDNEFMDController(MasterWarehouse masterWarehouse) throws UMBServiceException {
+    public UCDNEFMDController( MasterWarehouse masterWarehouse ) throws UMBServiceException {
         this.sessionPhaser = masterWarehouse.getExternalSessionPhaser();
         this.sessionValidator = new UEFMSessionValidator( masterWarehouse );
     }

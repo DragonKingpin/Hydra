@@ -1,14 +1,14 @@
-package com.walnut.sparta.ucdn.console.umc.ssfm;
+package com.walnut.sailor.stream.fm;
 
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
+import com.walnut.sailor.stream.fm.protocol.RequestHead;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
-import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
 
-public class UEFMSessionValidator implements ExternalSessionValidator{
+public class UEFMSessionValidator implements SessionValidator {
     protected UlfBroadcastControlNode client;
 
     protected BroadcastControlProducer producer;
@@ -25,8 +25,8 @@ public class UEFMSessionValidator implements ExternalSessionValidator{
     }
 
     @Override
-    public void fileTransmitComplete(RequestHead head) {
-        ExternalSessionValidator sessionValidator = this.producer.getIface(ExternalSessionValidator.class, UCDNConstants.UCDNEFileCloudDistributeTopic);
+    public void fileTransmitComplete( RequestHead head ) {
+        SessionValidator sessionValidator = this.producer.getIface(SessionValidator.class, UCDNConstants.UCDNEFileCloudDistributeTopic);
         sessionValidator.fileTransmitComplete( head );
     }
 }

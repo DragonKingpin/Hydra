@@ -1,30 +1,27 @@
-package com.walnut.sparta.ucdn.console.umc.ssfm;
+package com.walnut.sailor.stream.fm;
 
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
-import com.walnut.sparta.ucdn.console.infrastructure.EFileContent;
-import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
-import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
-import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
+import com.walnut.sailor.stream.fm.protocol.RequestHead;
 
-import java.io.*;
-import java.nio.file.Files;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+
 
 public class SailorSSFMDistributionService implements SingleStreamFileMultiDistributionService {
 
     protected UlfBroadcastControlNode client;
-    protected BroadcastControlProducer producer;
-    protected BroadcastControlConsumer consumer;
-    private Process currentJarProcess;
-    private File currentJarFile;
-    private static final String BACKUP_DIR = "G:/文件系统/测试文件";
-    private static final String BACKUP_SUFFIX = "_backup.jar";
 
-    public SailorSSFMDistributionService(MasterWarehouse masterWarehouse) throws UMBServiceException {
+    protected BroadcastControlProducer producer;
+
+    protected BroadcastControlConsumer consumer;
+
+    public SailorSSFMDistributionService( MasterWarehouse masterWarehouse ) throws UMBServiceException {
 //        this.client = masterWarehouse.getKafkaEFileClient();
 //        this.producer = client.createBroadcastControlProducer();
 //        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
@@ -34,12 +31,12 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
     }
 
     @Override
-    public void fileDistribution(File file, String topic) throws IOException {
+    public void fileDistribution( File file, String topic ) throws IOException {
         EFileMultiDistributionIface distributionIface = this.producer.getIface(EFileMultiDistributionIface.class, topic);
         RequestHead head = RequestHead.newRequest().setSessionId(System.currentTimeMillis());
         distributionIface.startDistribution(head, file.getName());
 
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+        try ( FileInputStream fileInputStream = new FileInputStream(file) ) {
             int bufferSize = 900 * 1024;
             byte[] buffer = new byte[bufferSize];
             int bytesRead;
@@ -53,11 +50,8 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
         }
     }
 
-    @Override
-    public void test() {
-    }
 
-    @Override
+    /*@Override
     public void fileDistributionJar(File file, String topic) throws IOException {
         if (isJarFile(file)) {
             stopCurrentJarProcess();
@@ -81,7 +75,7 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
         File backupFile = new File(backupDir, baseName + BACKUP_SUFFIX);
 
         // 覆盖
-        try (InputStream in = new FileInputStream(jarFile);
+        try ( InputStream in = new FileInputStream(jarFile);
              OutputStream out = new FileOutputStream(backupFile, false)) {
             byte[] buffer = new byte[1024 * 1024];
             int bytesRead;
@@ -148,5 +142,5 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
         } catch (IOException e) {
             System.err.println("输出读取错误: " + e.getMessage());
         }
-    }
+    }*/
 }

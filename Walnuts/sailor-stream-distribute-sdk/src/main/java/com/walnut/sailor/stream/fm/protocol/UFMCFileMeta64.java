@@ -1,6 +1,8 @@
-package com.walnut.sparta.ucdn.console.umc.ssfm.protocol;
+package com.walnut.sailor.stream.fm.protocol;
 
-public class UFMCFileMeta64 {
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public class UFMCFileMeta64 implements Pinenut {
     protected String sourceName;
 
     public UFMCFileMeta64(){}

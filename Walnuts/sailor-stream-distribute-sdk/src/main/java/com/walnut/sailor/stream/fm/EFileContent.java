@@ -1,4 +1,4 @@
-package com.walnut.sparta.ucdn.console.infrastructure;
+package com.walnut.sailor.stream.fm;
 
 public class EFileContent {
     private byte[] bytes;

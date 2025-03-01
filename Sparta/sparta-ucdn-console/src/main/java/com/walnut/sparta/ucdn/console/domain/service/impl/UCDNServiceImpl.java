@@ -24,8 +24,6 @@ import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.ufm.UOFSFileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.umc.UMCMasterWarehouse;
-import com.walnut.sparta.ucdn.console.umc.ssfm.SingleStreamFileMultiDistributionService;
-import com.walnut.sparta.ucdn.console.umc.ssfm.SailorSSFMDistributionService;
 import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
@@ -49,10 +47,8 @@ public class UCDNServiceImpl implements UCDNService {
 
     private FileMultiDistributionService                fileMultiDistributionService;
 
-    private SingleStreamFileMultiDistributionService    EFileMultiDistributionService;
-
     @Resource
-    UOFSContentDelivery                                 uofsContentDelivery;
+    private UOFSContentDelivery                                 uofsContentDelivery;
 
     @Resource
     private BucketInstrument                            bucketInstrument;
@@ -78,7 +74,6 @@ public class UCDNServiceImpl implements UCDNService {
 
         UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.primaryFileSystem, this.primaryVolume,this.uofsContentDelivery, this.primaryVersion, this.transactionManage, this.webSocketService );
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( warehouse );
-        this.EFileMultiDistributionService = new SailorSSFMDistributionService( warehouse );
     }
 
     @Override
@@ -109,17 +104,6 @@ public class UCDNServiceImpl implements UCDNService {
         FileNode fileNode = (FileNode)this.primaryFileSystem.queryElement(path);
 
         this.fileMultiDistributionService.fileDistribution( fileNode, topic );
-    }
-
-    @Override
-    public void testEDdistribution( String path, String topic ) throws IOException {
-        File file = new File(path);
-        this.EFileMultiDistributionService.fileDistribution( file, topic );
-    }
-    @Override
-    public void testEDdistributionJar( String path, String topic ) throws IOException {
-        File file = new File(path);
-        this.EFileMultiDistributionService.fileDistributionJar( file, topic );
     }
 
     @Override

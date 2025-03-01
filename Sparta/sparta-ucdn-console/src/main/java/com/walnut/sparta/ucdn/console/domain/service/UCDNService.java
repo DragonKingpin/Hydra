@@ -9,12 +9,10 @@ import java.io.IOException;
 
 public interface UCDNService {
     void upload( String path, File file, String topic ) throws IOException, InterruptedException;
+
     void test() throws UMBServiceException, TException;
+
     void testDistribution( String path, String topic ) throws IOException, InterruptedException;
-
-    void testEDdistribution( String path, String topic ) throws IOException;
-
-    void testEDdistributionJar( String path, String topic ) throws IOException;
 
     void syncFile( SyncFileDTO dto ) throws IOException, InterruptedException;
 }

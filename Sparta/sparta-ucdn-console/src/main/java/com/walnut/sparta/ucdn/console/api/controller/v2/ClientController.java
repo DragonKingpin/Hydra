@@ -32,9 +32,15 @@ public class ClientController {
     @PostMapping("/upload")
     public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file,@RequestParam("topic") String topic ) throws IOException, InterruptedException {
         File tempFile = File.createTempFile("upload",".temp");
+        if( !tempFile.exists() ){
+            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+        }
         file.transferTo(tempFile);
 
         this.service.upload( filePath,tempFile,topic );
+        if( !tempFile.delete() ){
+            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
+        }
         return BasicResultResponse.success();
     }
 

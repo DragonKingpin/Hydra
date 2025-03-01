@@ -55,21 +55,21 @@ public class UFMSessionValidator implements SessionValidator {
     @Override
     public void stageClusterGroupComplete( String path ) throws IOException {
         this.eventProducer.issueInform(
-                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.stageClusterGroupComplete", path
+                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.ufm.SessionValidator.stageClusterGroupComplete", path
         );
     }
 
     @Override
     public void stageFileTransmitComplete( String path ) throws IOException {
         this.eventProducer.issueInform(
-                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.stageFileTransmitComplete", path
+                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.ufm.SessionValidator.stageFileTransmitComplete", path
         );
     }
 
     @Override
     public void fileTransmitComplete( String path, String serviceId ) throws IOException {
         this.eventProducer.issueInform(
-                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator.fileTransmitComplete", path,serviceId
+                this.config.getFileCloudDistributeEventTopic(), "com.walnut.sparta.ucdn.console.ufm.SessionValidator.fileTransmitComplete", path,serviceId
         );
     }
 }

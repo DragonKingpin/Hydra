@@ -1,5 +1,6 @@
 package com.walnut.sparta.ucdn.console.domain.service.impl;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
@@ -14,6 +15,7 @@ import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileSyncTransaction;
+import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileSyncTransactionManager;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileTransactionManager;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.FileSynchronizedEventListener;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.UFMTransactionSynchronizedNotifier;
@@ -55,7 +57,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     private BucketInstrument                            bucketInstrument;
 
     @Resource
-    private UCDNServiceManager                          UCDNServiceManager;
+    private UCDNServiceManager                          ucdnServiceManager;
 
     @Resource
     private VersionManage                               primaryVersion;
@@ -63,15 +65,18 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     @Resource
     private UFMTransactionSynchronizedNotifier          synchronizedNotifier;
 
-    @Resource
     private ClusterFileTransactionManager               clusterFileTransactionManager;
+
+    @Resource
+    private UFMTransactionSynchronizedNotifier                 ufmTransactionSynchronizedNotifier;
 
 
     @PostConstruct
     private void init() throws UMBServiceException {
+        this.clusterFileTransactionManager = new ClusterFileSyncTransactionManager();
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.uofsContentDelivery.getSpartaUCDNService() );
-        this.fileMultiDistributionService.registerFileTransmitCompleteEventListener( new FileSynchronizedEventListener() );
-        this.transactionManager           = this.fileMultiDistributionService.get
+        this.fileMultiDistributionService.registerFileTransmitCompleteEventListener( new FileSynchronizedEventListener( this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.bucketInstrument ) );
+        this.fileMultiDistributionService.start();
     }
 
     @Override
@@ -101,9 +106,10 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
 
     @Override
     public void clusterFileSync( ClusterFileSyncDTO dto ) throws IOException, InterruptedException {
+        Debug.greenf(12222);
         Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(dto.getFileGuid()));
         List<GUID> guids = this.primaryVersion.fetchVersions(folder.getGuid());
-        ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
+        ServiceLifecycleIface lifecycleIface = this.ucdnServiceManager.getLifecycleIface();
         int serviceNum = lifecycleIface.countRegisteredService();
 
         ConcurrentHashMap<GUID, ClusterFileSyncTransaction> map = new ConcurrentHashMap<>();
@@ -113,11 +119,10 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
         }
 
         this.clusterFileTransactionManager.register( folder.getGuid(), map );
-
+        Debug.greenf(1);
         for( GUID guid : guids ){
             FileNode fileNode = this.primaryFileSystem.getFileNode(guid);
             this.fileMultiDistributionService.fileDistribution( fileNode, UCDNConstants.UCDNFileCloudDistributeTransmitTopic);
         }
-        this.bucketInstrument.createSyncState( folder.getGuid(), 1 );
     }
 }

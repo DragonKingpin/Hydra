@@ -57,7 +57,7 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
 
-    protected void checkDeRegisterHandlerStatus() throws IllegalStateException  {
+    protected void checkDeregisterHandlerStatus() throws IllegalStateException  {
         if ( !this.isShutdown() ) {
             throw new IllegalStateException( "Service is already running." );
         }
@@ -65,28 +65,28 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
 
     @Override
     public UlfMessageNode registerChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mChannelInactiveHandlers.add( handler );
         return this;
     }
 
     @Override
     public UlfMessageNode deregisterChannelInactiveHandler( ChannelInactiveHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mChannelInactiveHandlers.remove( handler );
         return this;
     }
 
     @Override
     public UlfMessageNode registerArrivedDataInterceptor( ChannelDataInterceptor handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mArrivedDataInterceptors.add( handler );
         return this;
     }
 
     @Override
     public UlfMessageNode deregisterArrivedDataInterceptor( ChannelDataInterceptor handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mArrivedDataInterceptors.remove( handler );
         return this;
     }

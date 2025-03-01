@@ -2,6 +2,7 @@ package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.functions.Executor;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
@@ -86,7 +87,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver );
         this.bucketInstrument   = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage      = new TitanVersionManage( this.koiVersionMappingDriver );
-        this.servicesInstrument = new UniformServicesInstrument( koiServiceMappingDriver );
+        this.servicesInstrument = new UniformServicesInstrument( this.koiServiceMappingDriver );
     }
 
     protected void initMessageWares() throws ComponentInitializationException {
@@ -94,7 +95,28 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     protected void initModules() throws ComponentInitializationException {
-        this.clusterFileSynchronizationConfig = new UCFMConfig( new JSONMaptron( "{  }" ) );
+        this.serviceManager = new UniformServiceManager(
+                this.servicesInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
+        );
+
+        this.clusterFileSynchronizationConfig = new UCFMConfig( new JSONMaptron( "{ \"fileFrameSize\": " + (950 * 1024) +
+                ", \"batchTransmitMemberThreshold\": 1" +
+                ", \"fileCloudDistributeTransmitTopic\": \"ucdn-file-cloud-distribute-topic\"" +
+                ", \"fileCloudDistributeEventTopic\": \"ucdn-file-cloud-distribute-event-topic\"" +
+                ", \"fileServiceTransmitGroup\": \"UCDNFileServiceTransmitGroup\"" +
+                ", \"temporaryFileExtends\": \".temp\"" +
+                ", \"majorTemporaryClusterFileDirectory\": \"D:/文件系统/temp\" }" ) );
+    }
+
+    protected void startGlobalMiddlewares() throws ComponentInitializationException {
+        try {
+            this.getPrimaryMessageMiddlewareDirector().getWolfKingAppointServer().execute();
+            Debug.sleep( 500 );
+            this.getPrimaryMessageMiddlewareDirector().getWolfAppointClient().execute();
+        }
+        catch ( Exception e ) {
+            throw new ComponentInitializationException( e );
+        }
     }
 
     protected void initSpringBeanFactorySubsystem() throws ComponentInitializationException {
@@ -124,6 +146,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         this.initKOMSubsystem();
         this.initMessageWares();
         this.initModules();
+        this.startGlobalMiddlewares();
         this.initSpringBeanFactorySubsystem();
     }
 

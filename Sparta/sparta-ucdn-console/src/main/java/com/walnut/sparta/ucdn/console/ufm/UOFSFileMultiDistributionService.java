@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -40,19 +41,24 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
     protected BroadcastControlConsumer            transmitConsumer;
 
-    protected List<UFMEventListener>             fileTransmitCompleteEventListeners;
+    protected List<UFMEventListener>              fileTransmitCompleteEventListeners;
+
+    protected SessionValidator                    fileSessionValidator;
 
     protected UCDNService                         ucdnService;
 
     protected UFMConfig                           config;
 
     public UOFSFileMultiDistributionService( UCDNService ucdnService ) {
-        this.ucdnService        = ucdnService;
-        this.primaryFileSystem  = ucdnService.getKOMFileSystem();
-        this.primaryVolume      = ucdnService.getUniformVolumeManager();
-        this.sessionPhaser      = new UFMSessionPhaser();
-        this.transmitClient     = ucdnService.getPrimaryMessageMiddlewareDirector().getPrimaryKafkaClient();
-        this.config             = ucdnService.getClusterFileSynchronizationConfig();
+        this.ucdnService            = ucdnService;
+        this.primaryFileSystem      = ucdnService.getKOMFileSystem();
+        this.primaryVolume          = ucdnService.getUniformVolumeManager();
+        this.sessionPhaser          = new UFMSessionPhaser();
+        this.transmitClient         = ucdnService.getPrimaryMessageMiddlewareDirector().getPrimaryKafkaClient();
+        this.config                 = ucdnService.getClusterFileSynchronizationConfig();
+        this.fileSessionValidator   = new UFMSessionValidator( this );
+
+        this.fileTransmitCompleteEventListeners = new ArrayList<>();
     }
 
     @Override
@@ -89,6 +95,10 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             this.transmitConsumer.registerController( new FileMultiDistributionController( this ) );
             this.transmitConsumer.start();
             this.transmitProducer.start();
+
+            if ( !this.fileSessionValidator.hasStarted() ) {
+                this.fileSessionValidator.start();
+            }
         }
     }
 
@@ -99,6 +109,10 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             this.transmitProducer.close();
             this.transmitConsumer = null;
             this.transmitProducer = null;
+
+            if ( this.fileSessionValidator.hasStarted() ) {
+                this.fileSessionValidator.shutdown();
+            }
         }
     }
 
@@ -141,6 +155,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
             Path tempFilePath     = this.config.formatTemporaryPath( frame.getSegGuid().toString() );
             String szTempFilePath = tempFilePath.toString();
             File tempFile = new File( szTempFilePath );
+
             if ( !tempFile.createNewFile() ){
                 throw new IOException( "Creating file compromised, what :" + szTempFilePath );
             }
@@ -194,6 +209,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
                     }
                 }
 
+                fileInputStream.close();
                 if ( !tempFile.delete() ){
                     throw new IOException( "Purging temporary file compromised, what :" + szTempFilePath );
                 }

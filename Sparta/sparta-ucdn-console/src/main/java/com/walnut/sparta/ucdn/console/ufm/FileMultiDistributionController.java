@@ -11,6 +11,7 @@ import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
@@ -43,12 +44,12 @@ public class FileMultiDistributionController implements Pinenut {
 
     protected UFMConfig                       config;
 
-    public FileMultiDistributionController( UOFSFileMultiDistributionService distributionService ) {
+    public FileMultiDistributionController( UOFSFileMultiDistributionService distributionService ) throws UMBServiceException {
         this.logger                 = LoggerFactory.getLogger( this.getClass() );
         this.primaryFileSystem      = distributionService.primaryFileSystem;
         this.primaryVolume          = distributionService.primaryVolume;
         this.sessionPhaser          = distributionService.sessionPhaser;
-        this.fileSessionValidator   = new UFMSessionValidator( distributionService );
+        this.fileSessionValidator   = distributionService.fileSessionValidator;
         this.config                 = distributionService.config;
     }
 
@@ -175,7 +176,7 @@ public class FileMultiDistributionController implements Pinenut {
         String szTemporaryPath = temporaryPath.toString();
         File          tempFile = new File( szTemporaryPath );
         try {
-            if ( !tempFile.createNewFile() ){
+            if ( !tempFile.exists() ){
                 throw new IOException( "Creating file compromised, what :" + szTemporaryPath );
             }
 

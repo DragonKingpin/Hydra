@@ -41,9 +41,9 @@ public class BeanConfig {
     }
 
     @Bean
-    public UCDNServiceManager wolfRPCManage() throws Exception {
-        UCDNCentralServiceManager wolfRPCManage = new UCDNCentralServiceManager(this.uofsContentDelivery);
-        wolfRPCManage.getLifecycleIface().registerService( new RegisterServiceDTO( UCDNConstants.clientId, UCDNConstants.serviceId ));
-        return wolfRPCManage;
+    public UCDNServiceManager ucdnServiceManager() throws Exception {
+        UCDNCentralServiceManager ucdnServiceManager = new UCDNCentralServiceManager(this.uofsContentDelivery);
+        ucdnServiceManager.getLifecycleIface().registerService( new RegisterServiceDTO( UCDNConstants.clientId, UCDNConstants.serviceId ));
+        return ucdnServiceManager;
     }
 }

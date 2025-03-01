@@ -117,14 +117,14 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public UlfClient                      registerChannelConnectedHandler( ChannelEventHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mChannelConnectedHandlers.add( handler );
         return this;
     }
 
     @Override
     public UlfClient                      deregisterChannelConnectedHandler( ChannelEventHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mChannelConnectedHandlers.remove( handler );
         return this;
     }

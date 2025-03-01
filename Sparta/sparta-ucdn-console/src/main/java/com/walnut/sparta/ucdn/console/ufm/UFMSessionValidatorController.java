@@ -11,10 +11,11 @@ import com.walnut.sparta.ucdn.console.ufm.event.UFMEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 
 @Controller
-@AddressMapping( "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator." )
+@AddressMapping( "com.walnut.sparta.ucdn.console.ufm.SessionValidator." )
 public class UFMSessionValidatorController implements Pinenut {
     private Logger                        logger;
 
@@ -53,7 +54,7 @@ public class UFMSessionValidatorController implements Pinenut {
     }
 
     @AddressMapping( "fileTransmitComplete" )
-    public void fileTransmitComplete( String path, String serviceId ) {
+    public void fileTransmitComplete( String path, String serviceId ) throws IOException {
         FileNode fileNode = (FileNode)this.primaryFileSystem.queryElement(path);
         //GUID versionFileGuid = this.versionManage.getVersionFileByGuid(fileNode.getGuid());
 

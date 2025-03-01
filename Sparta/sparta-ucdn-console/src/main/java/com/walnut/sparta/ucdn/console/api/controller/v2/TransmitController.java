@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.Site;
@@ -25,6 +26,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.DownloadObjectByChannelDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateObjectByChannelDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -67,6 +70,14 @@ public class TransmitController {
     @Resource
     private NodeFileDistributionService fileDistributionService;
 
+    @Value("${service.LocalUploadTemporaryWorkingDirectory}")
+    private String localUploadTemporaryWorkingDirectory;
+
+    @PostConstruct
+    void in() {
+        Debug.trace( this.localUploadTemporaryWorkingDirectory );
+    }
+
     /**
      * 使用channel上传对象
      * @param dto 上传所需数据
@@ -78,6 +89,9 @@ public class TransmitController {
     public BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         MultipartFile object = dto.getObject();
         File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
+        if( !file.exists() ){
+            throw new IOException( "Creating file compromised, what :" + file.toPath() );
+        }
 
         try {
             object.transferTo( file );
@@ -96,7 +110,7 @@ public class TransmitController {
         }
         finally {
             if ( !file.delete() ){
-
+                throw new IOException( "Purging temporary file compromised, what :" + file.toPath() );
             }
         }
 
@@ -165,6 +179,9 @@ public class TransmitController {
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
         String storageObjectPath = realFilePath + UCDNConsoleContents.VERSION_PREFIX+ UCDNConsoleContents.FORWARD_SLASH + version +UCDNConsoleContents.PERIOD+ extension;
         File tempFile = File.createTempFile("upload",".temp");
+        if( !tempFile.exists() ){
+            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+        }
         file.transferTo(tempFile);
 
         FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
@@ -184,6 +201,9 @@ public class TransmitController {
         titanVersion.setVersionGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
 
         this.primaryVersion.insert( titanVersion );
+        if( !tempFile.delete() ){
+            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
+        }
 
         return BasicResultResponse.success();
     }

@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
@@ -44,7 +45,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     private void initPrimaryAppointClientSegment() throws Exception {
         UlfClient embedRPCClient = new WolfMCClient( 2048, "PrimaryWolfMCClient", this.getSystem(), this.getSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
         this.wolfAppointClient = new WolvesAppointClient( embedRPCClient );
-        this.wolfAppointClient.execute();
+
         this.wolfAppointClient.compile( ServiceLifecycleIface.class, false );
         this.wolfAppointClient.compile( ServiceMetaManipulationIface.class, false );
     }
@@ -54,7 +55,6 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         this.wolfKingAppointServer = new WolvesAppointServer( embedRPCServer, HuskyDuplexExpress.class );
         //this.serviceManager = new UniformServiceManager( servicesInstrument, wolfServer );
-        this.wolfKingAppointServer.execute();
     }
 
     private void initPrimaryBroadcastSegment() throws Exception {
@@ -67,8 +67,8 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
 
     private void initSelf() throws ComponentInitializationException {
         try {
-            this.initPrimaryAppointClientSegment();
             this.initPrimaryAppointServerSegment();
+            this.initPrimaryAppointClientSegment();
             this.initPrimaryBroadcastSegment();
         }
         catch ( Exception e ) {

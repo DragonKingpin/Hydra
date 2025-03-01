@@ -6,8 +6,6 @@ import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sailor.stream.fm.protocol.RequestHead;
 import com.walnut.sailor.stream.fm.session.SFMTransaction;
-import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
-import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 
 import java.io.File;
 import java.io.IOException;

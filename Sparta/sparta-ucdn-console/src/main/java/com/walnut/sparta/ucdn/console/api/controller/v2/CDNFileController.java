@@ -4,8 +4,8 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
-import com.walnut.sparta.ucdn.console.domain.service.FileService;
+import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.domain.service.FileSystemService;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.RenameDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateFileNameDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,7 +27,7 @@ public class CDNFileController {
     private KOMFileSystem primaryFileSystem;
 
     @Resource
-    private FileService fileService;
+    private FileSystemService fileSystemService;
 
     @Resource
     private VersionManage primaryVersion;
@@ -37,7 +37,7 @@ public class CDNFileController {
      * @param filePath 文件路径
      * @return 返回操作状态
      */
-    @GetMapping("/creat/file")
+    @GetMapping("/create")
     public BasicResultResponse<String> createFile(@RequestParam String filePath ){
         this.primaryFileSystem.affirmFileNode( filePath );
         return BasicResultResponse.success();
@@ -59,9 +59,9 @@ public class CDNFileController {
      * @param fileGuid 文件夹或者文件guid
      * @return 返回操作结果
      */
-    @DeleteMapping("/remove/file")
+    @DeleteMapping("/remove")
     public BasicResultResponse<String> removeFile( String fileGuid ){
-        this.fileService.remove( GUIDs.GUID72( fileGuid ) );
+        this.fileSystemService.remove( GUIDs.GUID72( fileGuid ) );
         this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
         return BasicResultResponse.success();
     }

@@ -10,11 +10,10 @@ import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.GenericSiteNode;
 import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
+import com.walnut.redstone.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SiteNodeDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SiteNodeVO;
-import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
-import lombok.extern.slf4j.Slf4j;
+import com.walnut.sparta.ucdn.console.infrastructure.service.UCDNServiceManager;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping( "/api/v2/ucdn/siteNode" )
 @CrossOrigin
@@ -37,18 +35,18 @@ public class SiteNodeController {
     private BucketInstrument bucketInstrument;
 
     @Resource
-    private WolfRPCManage     wolfRPCManage;
+    private UCDNServiceManager UCDNServiceManager;
 
     @Resource
     private ServicesInstrument primaryService;
 
-    @GetMapping("/query/siteNode/siteGuid")
+    @GetMapping("/query/siteGuid")
     public String querySiteNodeBySiteGuid(@RequestParam("siteGuid") String siteGuid){
-        ServiceLifecycleIface lifecycleIFace = this.wolfRPCManage.getLifecycleIFace();
+        ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
         ArrayList<SiteNodeVO> siteNodeVOS = new ArrayList<>();
         List<SiteNode> siteNodes = this.bucketInstrument.querySiteNodeBySiteGuid(GUIDs.GUID72( siteGuid ));
         for( SiteNode siteNode : siteNodes ){
-            if( lifecycleIFace.hasOwnedServiceByServiceId( siteNode.getRelatedService().toString() ) ){
+            if( lifecycleIface.hasOwnedServiceByServiceId( siteNode.getRelatedService().toString() ) ){
                 siteNode.setState( 1 );
             }else {
                 siteNode.setState( 0 );
@@ -62,14 +60,14 @@ public class SiteNodeController {
 
     @DeleteMapping("/remove/siteNodeGuid")
     public BasicResultResponse<String> removeSiteNode( @RequestParam("siteNodeGuid") String siteNodeGuid ){
-        ServiceLifecycleIface lifecycleIFace = this.wolfRPCManage.getLifecycleIFace();
+        ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
         SiteNode siteNode = this.bucketInstrument.querySiteNode(GUIDs.GUID72(siteNodeGuid));
-        lifecycleIFace.deregisterServiceByServiceId( siteNode.getRelatedService().toString() );
+        lifecycleIface.deregisterServiceByServiceId( siteNode.getRelatedService().toString() );
         this.bucketInstrument.removeSiteNode( GUIDs.GUID72( siteNodeGuid ) );
         return BasicResultResponse.success();
     }
 
-    @PostMapping("/create/siteNode")
+    @PostMapping("/create")
     public BasicResultResponse<String> createSiteNode(@RequestBody SiteNodeDTO dto){
         GenericSiteNode siteNode = new GenericSiteNode();
         siteNode.setSiteGuid( GUIDs.GUID72( dto.getSiteGuid() ) );
@@ -79,7 +77,7 @@ public class SiteNodeController {
         return BasicResultResponse.success(guid.toString());
     }
 
-    @PostMapping("/update/siteNode")
+    @PostMapping("/update")
     public BasicResultResponse<String> updateSiteNode( @RequestBody SiteNodeDTO dto ){
         GenericSiteNode siteNode = new GenericSiteNode();
         siteNode.setNodeName( dto.getNodeName() );
@@ -99,8 +97,8 @@ public class SiteNodeController {
 
     @PostMapping("/test/registerService")
     public BasicResultResponse<String> testRegisterService( @RequestBody RegisterServiceDTO dto ){
-        this.wolfRPCManage.getLifecycleIFace().registerService( dto );
-        Debug.trace( "是否存在" + this.wolfRPCManage.getLifecycleIFace().hasOwnedServiceByServiceId( dto.getServiceId() ) );
+        this.UCDNServiceManager.getLifecycleIface().registerService( dto );
+        Debug.trace( "是否存在" + this.UCDNServiceManager.getLifecycleIface().hasOwnedServiceByServiceId( dto.getServiceId() ) );
         return BasicResultResponse.success();
     }
 }

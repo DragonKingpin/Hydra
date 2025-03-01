@@ -24,25 +24,29 @@ public class RocketMQClient implements RocketClient {
     private static final Object PRESENT = new Object();
 
 
-    public RocketMQClient( long nodeId, String nameSrvAddr, String groupName ) {
-        this.mRocketConfig = new RocketMQConfig(
-                nameSrvAddr, groupName, RocketConstants.DefaultMaxMessageSize, RocketConstants.DefaultSendMsgTimeout, RocketConstants.DefaultRetryTimesWhenSendFailed
-        );
-
+    public RocketMQClient( long nodeId, RocketConfig config ) {
+        this.mRocketConfig     = config;
         this.mProducerRegister = new ConcurrentHashMap<>();
         this.mConsumerRegister = new ConcurrentHashMap<>();
         this.mnNodeId          = nodeId;
+    }
+
+    public RocketMQClient( long nodeId, String nameSrvAddr, String groupName ) {
+        this( nodeId, new RocketMQConfig(
+                nameSrvAddr, groupName, RocketConstants.DefaultMaxMessageSize, RocketConstants.DefaultSendMsgTimeout, RocketConstants.DefaultRetryTimesWhenSendFailed
+        ) );
     }
 
     public RocketMQClient( String nameSrvAddr, String groupName ) {
         this( MessageNodus.nextLocalId(), nameSrvAddr, groupName );
     }
 
+    public RocketMQClient( long nodeId, Map<String, Object> config ){
+        this( nodeId, new RocketMQConfig( config ) );
+    }
+
     public RocketMQClient( Map<String, Object> config ){
-        this.mRocketConfig = new RocketMQConfig( config );
-        this.mProducerRegister = new ConcurrentHashMap<>();
-        this.mConsumerRegister = new ConcurrentHashMap<>();
-        this.mnNodeId          = MessageNodus.nextLocalId();
+        this( MessageNodus.nextLocalId(), config );
     }
 
 

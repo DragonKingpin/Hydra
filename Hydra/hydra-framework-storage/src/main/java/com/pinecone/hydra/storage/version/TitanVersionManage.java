@@ -15,7 +15,7 @@ import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 
 import java.util.List;
 
-public class TitanVersionManage implements VersionManage{
+public class TitanVersionManage implements VersionManage {
     protected Hydrarum                      hydrarum;
 
     protected GuidAllocator                 guidAllocator;
@@ -25,7 +25,7 @@ public class TitanVersionManage implements VersionManage{
     protected VersionManipulator            versionManipulator;
     protected VersionMappingManipulator     versionMappingManipulator;
 
-    public TitanVersionManage(Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
+    public TitanVersionManage( Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
         this.hydrarum                   = hydrarum;
         this.masterManipulator          = (VersionMasterManipulator) masterManipulator;
         this.guidAllocator              = new GenericGuidAllocator();
@@ -33,11 +33,11 @@ public class TitanVersionManage implements VersionManage{
         this.versionMappingManipulator  = this.masterManipulator.getVersionMappingManipulator();
     }
 
-    public TitanVersionManage(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
+    public TitanVersionManage( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
         this( hydrarum, masterManipulator, VersionManage.class.getSimpleName() );
     }
 
-    public TitanVersionManage(KOIMappingDriver driver ) {
+    public TitanVersionManage( KOIMappingDriver driver ) {
         this(
                 driver.getSystem(),
                 driver.getMasterManipulator()

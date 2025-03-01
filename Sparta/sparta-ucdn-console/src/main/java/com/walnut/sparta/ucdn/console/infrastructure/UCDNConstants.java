@@ -5,11 +5,11 @@ public class UCDNConstants {
 
     public static  String RocketServer = "localhost:9876";
 
-    public static  String UCDNFileServiceGroup = "UCDNFileServiceGroup";
+    public static  String UCDNFileServiceTransmitGroup = "UCDNFileServiceTransmitGroup";
 
-    public static  String UCDNFileCloudDistributeTopic = "ucdn-file-cloud-distribute-topic";
+    public static  String UCDNFileCloudDistributeTransmitTopic = "ucdn-file-cloud-distribute-topic";
 
-    public static String UCDNEFileCloudDistributeTopic = "ucdn-external-file-cloud-distribute-topic";
+    public static String UCDNEFileCloudDistributeTransmitTopic = "ucdn-external-file-cloud-distribute-topic";
 
     public static  String TempFilePath = "D:/文件系统/temp/";
 

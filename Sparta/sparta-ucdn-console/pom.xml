@@ -60,5 +60,15 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.walnut.redstone.core</groupId>
+            <artifactId>redstone-core</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.walnut.redstone.stones</groupId>
+            <artifactId>redstone-message-stones</artifactId>
+            <version>2.1.0</version>
+        </dependency>
     </dependencies>
 </project>

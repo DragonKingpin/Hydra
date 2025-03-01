@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.bucket.entity.GenericSite;
 import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.Folder;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
+import com.walnut.redstone.response.BasicResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +34,7 @@ public class SiteController implements Pinenut {
      * @param siteName 站点名
      * @return 返回操作结果
      */
-    @PutMapping("/createSite")
+    @PutMapping("/create")
     public BasicResultResponse<String> createSite(@RequestParam("siteName") String siteName){
         System.out.println(siteName);
         Folder folder = this.primaryFileSystem.affirmFolder( siteName );
@@ -51,7 +51,7 @@ public class SiteController implements Pinenut {
      * @param siteName 站点名
      * @return 操作结果
      */
-    @DeleteMapping("/deleteSite")
+    @DeleteMapping("/delete")
     public BasicResultResponse<String> removeSite( @RequestParam("siteName") String siteName ){
         this.bucketInstrument.removeSite(siteName);
 
@@ -62,7 +62,7 @@ public class SiteController implements Pinenut {
      * 获取全部站点
      * @return 返回全部站点
      */
-    @GetMapping("/listSite")
+    @GetMapping("/list")
     public String listSite(){
         List<Site> sites = this.bucketInstrument.listSite();
         return BasicResultResponse.success(sites).toJSONString();

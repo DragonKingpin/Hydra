@@ -19,11 +19,11 @@ import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
-import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
+import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.DownloadObjectByChannelDTO;
-import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
+import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateObjectByChannelDTO;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
@@ -66,7 +65,7 @@ public class TransmitController {
     private VersionManage primaryVersion;
 
     @Resource
-    private UCDNService ucdnService;
+    private NodeFileDistributionService fileDistributionService;
 
     /**
      * 使用channel上传对象
@@ -79,19 +78,28 @@ public class TransmitController {
     public BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
         MultipartFile object = dto.getObject();
         File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
-        object.transferTo( file );
-        Chanface chanface = this.getKChannel(file);
 
-        FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( file.length() );
-        fileNode.setName( file.getName() );
+        try {
+            object.transferTo( file );
+            Chanface chanface = this.getKChannel(file);
 
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64(
-                this.primaryFileSystem, dto.getDestDirPath(), fileNode, chanface, this.primaryVolume
-        );
+            FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
+            FileNode fileNode = fsNodeAllotment.newFileNode();
+            fileNode.setDefinitionSize( file.length() );
+            fileNode.setName( file.getName() );
 
-        this.primaryFileSystem.receive( receiveEntity );
+            TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64(
+                    this.primaryFileSystem, dto.getDestDirPath(), fileNode, chanface, this.primaryVolume
+            );
+
+            this.primaryFileSystem.receive( receiveEntity );
+        }
+        finally {
+            if ( !file.delete() ){
+
+            }
+        }
+
         return BasicResultResponse.success();
     }
 
@@ -141,7 +149,7 @@ public class TransmitController {
      * @param siteName 站点
      * @return 返回操作结果
      */
-    @PostMapping("/CDNUpload")
+    @PostMapping("/upload")
     public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
@@ -180,42 +188,12 @@ public class TransmitController {
         return BasicResultResponse.success();
     }
 
-    /**
-     *
-     * @param filePath 文件要上传的路径
-     * @param file 文件本体
-     * @return
-     */
-    @PostMapping("/upload")
-    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        File tempFile = File.createTempFile("upload",".temp");
-        file.transferTo(tempFile);
-        FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( tempFile.length() );
-        fileNode.setName( tempFile.getName() );
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64( this.primaryFileSystem,filePath, fileNode,titanFileChannelKChannel,this.primaryVolume );
-
-        this.primaryFileSystem.receive( receiveEntity );
-        return BasicResultResponse.success();
+    @PostMapping("/clusterFileSync")
+    public void clusterFileSync(@RequestBody ClusterFileSyncDTO dto) throws IOException, InterruptedException {
+        this.fileDistributionService.clusterFileSync( dto );
     }
 
-    @PostMapping("/stream")
-    public String handleStreamUpload(HttpServletRequest request) throws IOException {
-        try (InputStream inputStream = request.getInputStream()) {
-            // 处理输入流
-            return "File stream processed.";
-        }
-    }
-
-    @PostMapping("/syncFile")
-    public void syncFile(@RequestBody SyncFileDTO dto) throws IOException, InterruptedException {
-        this.ucdnService.syncFile( dto );
-    }
-
-    private Chanface getKChannel(File file ) throws IOException {
+    private Chanface getKChannel( File file ) throws IOException {
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         return new TitanFileChannelChanface( channel );
     }

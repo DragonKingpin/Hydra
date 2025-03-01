@@ -29,11 +29,17 @@ public class WolfMCRocketClient extends RocketMQClient implements UlfRocketClien
 
     protected ErrorMessageAudit        mErrorMessageAudit;
 
-    public WolfMCRocketClient( long nodeId, String nameSrvAddr, String groupName, ExtraHeadCoder extraHeadCoder ) {
-        super( nodeId, nameSrvAddr, groupName );
+    public WolfMCRocketClient( long nodeId, RocketConfig config, ExtraHeadCoder extraHeadCoder ) {
+        super( nodeId, config );
 
         this.mExtraHeadCoder           = extraHeadCoder;
         this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
+    }
+
+    public WolfMCRocketClient( long nodeId, String nameSrvAddr, String groupName, ExtraHeadCoder extraHeadCoder ) {
+        this( nodeId, new RocketMQConfig(
+                nameSrvAddr, groupName, RocketConstants.DefaultMaxMessageSize, RocketConstants.DefaultSendMsgTimeout, RocketConstants.DefaultRetryTimesWhenSendFailed
+        ), extraHeadCoder );
     }
 
     public WolfMCRocketClient( String nameSrvAddr, String groupName, ExtraHeadCoder extraHeadCoder ) {
@@ -44,10 +50,12 @@ public class WolfMCRocketClient extends RocketMQClient implements UlfRocketClien
         this( MessageNodus.nextLocalId(), nameSrvAddr, groupName, new GenericExtraHeadCoder() );
     }
 
-    public WolfMCRocketClient(Map<String, Object> config, ExtraHeadCoder extraHeadCoder){
-        super( config );
-        this.mExtraHeadCoder           = extraHeadCoder;
-        this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
+    public WolfMCRocketClient( long nodeId, Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
+        this( nodeId, new RocketMQConfig( config ), extraHeadCoder );
+    }
+
+    public WolfMCRocketClient( Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
+        this( MessageNodus.nextLocalId(), config, extraHeadCoder );
     }
 
 

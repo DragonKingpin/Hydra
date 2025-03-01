@@ -8,7 +8,7 @@ import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
+import com.walnut.redstone.response.BasicResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +25,10 @@ import java.util.List;
 public class CDNFolderController {
     @Resource
     private KOMFileSystem primaryFileSystem;
+
     @Resource
     private VersionManage versionManage;
+
     @Resource
     private BucketInstrument bucketInstrument;
 
@@ -39,8 +41,8 @@ public class CDNFolderController {
     public String listItem(@RequestParam String folderGuid ){
         Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(folderGuid));
         List<FileTreeNode> fileTreeNodes = folder.listItem();
-        for (FileTreeNode fileTreeNode : fileTreeNodes) {
-            if (versionManage.queryIsManage(fileTreeNode.getGuid())){
+        for ( FileTreeNode fileTreeNode : fileTreeNodes ) {
+            if ( this.versionManage.queryIsManage(fileTreeNode.getGuid()) ){
                 List<GUID> versions = versionManage.fetchVersions(fileTreeNode.getGuid());
                 GUID firstVersion = versions.get(0);
                 FileTreeNode firstVersionFileTreeNode = this.primaryFileSystem.get(firstVersion);
@@ -54,11 +56,10 @@ public class CDNFolderController {
                 Integer syncState = this.bucketInstrument.getSyncState(fileTreeNode.getGuid());
                 if( syncState == null ){
                     fileTreeNode.evinceFolder().setSyncState( 0 );
-                }else {
+                }
+                else {
                     fileTreeNode.evinceFolder().setSyncState( 1 );
                 }
-
-
             }
         }
         return  BasicResultResponse.success(fileTreeNodes).toJSONString() ;
@@ -69,9 +70,8 @@ public class CDNFolderController {
      * @param destDirPath 文件夹路径
      * @return 返回操作状态
      */
-    @GetMapping("/creat/folder")
+    @GetMapping("/create")
     public BasicResultResponse<String> createFolder( @RequestParam("destDirPath") String destDirPath ){
-        System.out.println(destDirPath);
         this.primaryFileSystem.affirmFolder( destDirPath );
         return BasicResultResponse.success();
     }

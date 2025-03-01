@@ -48,7 +48,7 @@ public class KafkaClient implements KClient {
     }
 
     public KafkaClient( Map<String, Object> config ){
-        this( MessageNodus.nextLocalId(), new KafkaConfig(config) );
+        this( MessageNodus.nextLocalId(), new KafkaConfig( config ) );
     }
 
     @Override

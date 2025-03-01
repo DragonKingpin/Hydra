@@ -1,8 +1,8 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 import com.pinecone.hydra.umb.UMBServiceException;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
-import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
+import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 
 import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,7 +22,7 @@ import java.io.IOException;
 @RequestMapping( "/api/v2/ucdn/client" )
 public class ClientController {
     @Resource
-    protected UCDNService       service;
+    protected NodeFileDistributionService service;
     /**
      *
      * @param filePath 文件要上传的路径
@@ -36,11 +36,6 @@ public class ClientController {
 
         this.service.upload( filePath,tempFile,topic );
         return BasicResultResponse.success();
-    }
-
-    @GetMapping("/test")
-    public void test() throws UMBServiceException, TException {
-        this.service.test();
     }
 
     @GetMapping("/testDistribution")

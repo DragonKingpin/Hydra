@@ -16,27 +16,29 @@ public class WolfMCKafkaClient extends KafkaClient implements UlfKafkaClient{
 
     protected ErrorMessageAudit mErrorMessageAudit;
 
-    public WolfMCKafkaClient( long nodeId, String nameSrvAddr, ExtraHeadCoder extraHeadCoder ){
-        super( nodeId,nameSrvAddr );
+    public WolfMCKafkaClient( long nodeId, KafkaConfig config, ExtraHeadCoder extraHeadCoder ) {
+        super( nodeId, config );
 
         this.mExtraHeadCoder           = extraHeadCoder;
         this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
     }
 
-    public WolfMCKafkaClient( String nameSrvAddr, ExtraHeadCoder extraHeadCoder ){
-        this( MessageNodus.nextLocalId(), nameSrvAddr, extraHeadCoder );
+    public WolfMCKafkaClient( long nodeId, String nameSrvAddr, ExtraHeadCoder extraHeadCoder ) {
+        this( nodeId, new KafkaConfig( nameSrvAddr ), extraHeadCoder );
     }
 
-    public WolfMCKafkaClient( String nameSrvAddr ){
-        this( MessageNodus.nextLocalId(), nameSrvAddr, new GenericExtraHeadCoder());
+    public WolfMCKafkaClient( String nameSrvAddr ) {
+        this( MessageNodus.nextLocalId(), nameSrvAddr, new GenericExtraHeadCoder() );
+    }
 
+    public WolfMCKafkaClient( long nodeId, Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
+        this( nodeId, new KafkaConfig( config ), extraHeadCoder );
     }
 
     public WolfMCKafkaClient( Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
-        super( config );
-        this.mExtraHeadCoder           = extraHeadCoder;
-        this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
+        this( MessageNodus.nextLocalId(), config, extraHeadCoder );
     }
+
 
     @Override
     public ErrorMessageAudit getErrorMessageAudit() {

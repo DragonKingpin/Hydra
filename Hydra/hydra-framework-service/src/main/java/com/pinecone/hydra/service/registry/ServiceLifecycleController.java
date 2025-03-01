@@ -74,8 +74,8 @@ public class ServiceLifecycleController {
         return this.mServiceManager.hasOwnedServiceClient( clientId );
     }
 
-    @AddressMapping("liveServiceNum")
-    public Integer liveServiceNum(String s){
-        return this.mServiceManager.liveServiceNum();
+    @AddressMapping("countRegisteredService")
+    public Integer countRegisteredService(){
+        return this.mServiceManager.countRegisteredService();
     }
 }

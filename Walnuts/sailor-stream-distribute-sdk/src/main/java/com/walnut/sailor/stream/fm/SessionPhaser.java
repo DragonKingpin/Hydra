@@ -1,17 +1,17 @@
 package com.walnut.sailor.stream.fm;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.walnut.sailor.stream.fm.session.UFMCTransaction;
+import com.walnut.sailor.stream.fm.session.SFMTransaction;
 
 import java.io.RandomAccessFile;
 
 public interface SessionPhaser extends Pinenut {
 
-    void registerSessionTransaction( Long sessionId, UFMCTransaction ufmcTransaction);
+    void registerSessionTransaction( Long sessionId, SFMTransaction SFMTransaction);
 
-    UFMCTransaction getUFMCTransaction( Long sessionId );
+    SFMTransaction getSFMTransaction( Long sessionId );
 
-    void removeUFMCTransaction( Long sessionId );
+    void removeSFMTransaction( Long sessionId );
 
     void registerFileOutputStream( Long sessionId, RandomAccessFile randomAccessFile );
 

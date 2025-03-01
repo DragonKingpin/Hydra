@@ -47,6 +47,10 @@ public class KafkaClient implements KClient {
         this( MessageNodus.nextLocalId(), server );
     }
 
+    public KafkaClient( Map<String, Object> config ){
+        this( MessageNodus.nextLocalId(), new KafkaConfig(config) );
+    }
+
     @Override
     public void close() {
         for( Map.Entry<BroadcastConsumer, Object> kv : this.consumerRegister.entrySet() ) {

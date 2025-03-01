@@ -14,11 +14,14 @@ import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sparta.ucdn.console.infrastructure.ClusterLock;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
 import com.walnut.sparta.ucdn.console.umc.ufm.session.UFMTransaction;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,22 +29,21 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
-@Slf4j
 @Controller
 @AddressMapping( "com.pinecone.hydra.uofs.ufm.FileMultiDistributionIface." )
 //@Service
 public class UCDNFMDController {
+    private Logger                            logger;
 
-//    @Resource
     protected KOMFileSystem                   primaryFileSystem;
 
-//    @Resource
+
     protected UniformVolumeManager            primaryVolume;
 
-//    @Resource
+
     protected SessionPhaser                   sessionPhaser;
 
-//    @Resource
+
     protected SessionValidator                fileSessionValidator;
 
 
@@ -49,11 +51,12 @@ public class UCDNFMDController {
 
     }
 
-    public UCDNFMDController(MasterWarehouse masterWarehouse ) throws UMBServiceException {
-        this.primaryFileSystem  = masterWarehouse.getKOMFileSystem();
-        this.primaryVolume      = masterWarehouse.getUniformVolumeManager();
+    public UCDNFMDController(MasterWarehouse masterWarehouse, UCDNService ucdnService) throws UMBServiceException {
+        this.logger             = LoggerFactory.getLogger( this.getClass() );
+        this.primaryFileSystem  = ucdnService.getKOMFileSystem();
+        this.primaryVolume      = ucdnService.getUniformVolumeManager();
         this.sessionPhaser      = masterWarehouse.getSessionPhaser();
-        this.fileSessionValidator = new UFMSessionValidator( masterWarehouse );
+        this.fileSessionValidator = new UFMSessionValidator(masterWarehouse, ucdnService );
     }
 
     @AddressMapping("startDistribution")
@@ -62,12 +65,12 @@ public class UCDNFMDController {
 //            return;
 //        }
         if( this.sessionPhaser.getSessionTransaction( head.getSessionId() ) != null ){
-            log.info("异常存在的事务");
+            logger.info("异常存在的事务");
             this.sessionPhaser.removeSessionTransaction( head.getSessionId() );
             return;
         }
 
-        log.info( "开始" );
+        logger.info( "开始" );
         long sessionId = head.getSessionId();
         FileNode fileNode = this.primaryFileSystem.affirmFileNode( path );
         fileNode.setDefinitionSize( definitionSize );
@@ -90,7 +93,7 @@ public class UCDNFMDController {
             return;
         }
 
-        log.info("保存簇信息");
+        logger.info("保存簇信息");
         FSNodeAllotment allotment = this.primaryFileSystem.getFSNodeAllotment();
         String filePath = frameMeta.getFilePath();
         ElementNode elementNode = this.primaryFileSystem.queryElement(filePath);
@@ -118,7 +121,7 @@ public class UCDNFMDController {
         ElementNode elementNode = this.primaryFileSystem.queryElement(ufmdClusterFrame.getPath());
         Cluster cluster = this.primaryFileSystem.getClusterByFileWithId(elementNode.getGuid(), ufmdClusterFrame.getSegId());
 
-        //log.info("写入文件内容 簇ID：" + cluster.getSegGuid());
+        //logger.info("写入文件内容 簇ID：" + cluster.getSegGuid());
         if( this.sessionPhaser.getClusterLock(cluster.getSegGuid()) == null ){
             this.sessionPhaser.registerClusterLock( cluster.getSegGuid(), new ClusterLock());
         }else {
@@ -172,7 +175,7 @@ public class UCDNFMDController {
             return;
         }
 
-        log.info("结束");
+        logger.info("结束");
         FileNode fileNode = (FileNode) this.primaryFileSystem.queryElement(path);
         LocalCluster frame = (LocalCluster)this.primaryFileSystem.getClusterByFileWithId(fileNode.getGuid(), segId);
         File tempFile = new File(UCDNConstants.TempFilePath + frame.getSegGuid() + ".temp");
@@ -189,7 +192,7 @@ public class UCDNFMDController {
 
 
             this.sessionPhaser.incrementClusterCount( fileNode.getGuid() );
-            log.info("目前已完成簇数量：" + this.sessionPhaser.getClusterCount( fileNode.getGuid() ));
+            logger.info("目前已完成簇数量：" + this.sessionPhaser.getClusterCount( fileNode.getGuid() ));
             if( this.sessionPhaser.getClusterCount( fileNode.getGuid() ) == 10 ){
                 this.sessionPhaser.resetClusterCount( fileNode.getGuid() );
                 this.fileSessionValidator.stageClusterGroupComplete( path );
@@ -222,18 +225,18 @@ public class UCDNFMDController {
         long sessionId = head.getSessionId();
         UFMTransaction transaction = this.sessionPhaser.getSessionTransaction(sessionId);
         if( transaction == null ){
-            log.info( "不存在的事务，直接忽略" );
+            logger.info( "不存在的事务，直接忽略" );
             return true;
         }
         long currentTimeMillis = System.currentTimeMillis();
         if( currentTimeMillis - transaction.getLastEventArrivedMills() > UCDNConstants.expireTimeMillis ){
-            log.info( "事务过期" );
+            logger.info( "事务过期" );
             this.sessionPhaser.removeSessionTransaction( sessionId );
             this.transmitRollBack( filePath, sessionId );
             return true;
         }
         if( !transaction.isStartTransmit() ){
-            log.info( "异常的事务流程" );
+            logger.info( "异常的事务流程" );
             this.sessionPhaser.removeSessionTransaction( sessionId );
             this.transmitRollBack( filePath, sessionId );
             return true;
@@ -242,7 +245,7 @@ public class UCDNFMDController {
     }
 
     private void transmitRollBack( String filePath, long sessionId ) throws IOException {
-        log.info("事务异常开始回滚");
+        logger.info("事务异常开始回滚");
         FileNode fileNode = (FileNode) this.primaryFileSystem.queryElement(filePath);
 
         ClusterPage clusterPage = this.primaryFileSystem.fetchClustersByFileGuid( fileNode.getGuid() );

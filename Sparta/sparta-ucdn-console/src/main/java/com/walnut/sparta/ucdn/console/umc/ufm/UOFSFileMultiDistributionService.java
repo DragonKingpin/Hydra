@@ -14,6 +14,7 @@ import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 import com.walnut.sparta.ucdn.console.umc.ufm.protocol.RequestHead;
 
@@ -26,14 +27,10 @@ import java.util.Arrays;
 
 //@Component
 public class UOFSFileMultiDistributionService implements FileMultiDistributionService {
-
-//    @Resource
     private KOMFileSystem                   primaryFileSystem;
 
-//    @Resource
     private SessionPhaser                   sessionPhaser;
 
-//    @Resource
     private UniformVolumeManager            primaryVolume;
 
     protected UlfBroadcastControlNode       client;
@@ -44,16 +41,16 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
 
 
-    public UOFSFileMultiDistributionService(MasterWarehouse masterWarehouse) throws UMBServiceException {
-//        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
-//        this.primaryVolume = masterWarehouse.getUniformVolumeManager();
-//        this.sessionPhaser = masterWarehouse.getSessionPhaser();
-//        this.client = masterWarehouse.getKafkaClient();
-//        this.producer = client.createBroadcastControlProducer();
-//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-//        this.consumer.registerController( new UCDNFMDController( masterWarehouse ) );
-//        this.consumer.start();
-//        this.producer.start();
+    public UOFSFileMultiDistributionService(MasterWarehouse masterWarehouse, UCDNService ucdnService) throws UMBServiceException {
+        this.primaryFileSystem = ucdnService.getKOMFileSystem();
+        this.primaryVolume = ucdnService.getUniformVolumeManager();
+        this.sessionPhaser = masterWarehouse.getSessionPhaser();
+        this.client = ucdnService.getKafkaClient();
+        this.producer = client.createBroadcastControlProducer();
+        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
+        this.consumer.registerController( new UCDNFMDController( masterWarehouse, ucdnService ) );
+        this.consumer.start();
+        this.producer.start();
     }
 
 

@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UCDNServiceImpl implements UCDNService {
+
     @Resource
     private KOMFileSystem                               primaryFileSystem;
 
@@ -48,7 +49,7 @@ public class UCDNServiceImpl implements UCDNService {
     private FileMultiDistributionService                fileMultiDistributionService;
 
     @Resource
-    private UOFSContentDelivery                                 uofsContentDelivery;
+    private UOFSContentDelivery                         uofsContentDelivery;
 
     @Resource
     private BucketInstrument                            bucketInstrument;
@@ -72,8 +73,8 @@ public class UCDNServiceImpl implements UCDNService {
 //        this.primaryVolume          = masterWarehouse.getUniformVolumeManager();
 //        this.primaryFileSystem      = masterWarehouse.getKOMFileSystem();
 
-        UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.primaryFileSystem, this.primaryVolume,this.uofsContentDelivery, this.primaryVersion, this.transactionManage, this.webSocketService );
-        this.fileMultiDistributionService = new UOFSFileMultiDistributionService( warehouse );
+        UMCMasterWarehouse warehouse = new UMCMasterWarehouse( this.transactionManage, this.webSocketService );
+        this.fileMultiDistributionService = new UOFSFileMultiDistributionService( warehouse, this.uofsContentDelivery.getSpartaUCDNService() );
     }
 
     @Override

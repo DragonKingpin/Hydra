@@ -13,6 +13,7 @@ import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.sparta.ucdn.console.domain.service.WebSocketService;
 import com.walnut.sparta.ucdn.console.infrastructure.SyncTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SyncFinishedVO;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 import lombok.extern.slf4j.Slf4j;
@@ -23,20 +24,16 @@ import javax.websocket.Session;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentMap;
 
-@Slf4j
 @Controller
 @AddressMapping( "com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator." )
 //@Service
 public class UFMSessionValidatorController {
     private Logger                  logger;
 
-    //@Resource
     private SessionPhaser           sessionPhaser;
 
-    //@Resource
     private KOMFileSystem           primaryFileSystem;
 
-    //@Resource
     private UniformVolumeManager    primaryVolume;
 
     private VersionManage           versionManage;
@@ -46,19 +43,19 @@ public class UFMSessionValidatorController {
     private WebSocketService        webSocketService;
 
 
-    public UFMSessionValidatorController( MasterWarehouse masterWarehouse ){
+    public UFMSessionValidatorController(MasterWarehouse masterWarehouse, UCDNService ucdnService){
         this.logger             = LoggerFactory.getLogger( this.getClass() );
-        this.primaryFileSystem  = masterWarehouse.getKOMFileSystem();
+        this.primaryFileSystem  = ucdnService.getKOMFileSystem();
         this.sessionPhaser      = masterWarehouse.getSessionPhaser();
-        this.primaryVolume      = masterWarehouse.getUniformVolumeManager();
-        this.versionManage      = masterWarehouse.getVersionManage();
+        this.primaryVolume      = ucdnService.getUniformVolumeManager();
+        this.versionManage      = ucdnService.getTitanVersionManage();
         this.transactionManage  = masterWarehouse.getTransactionManage();
         this.webSocketService   = masterWarehouse.getWebSocketService();
     }
 
     @AddressMapping("stageClusterGroupComplete")
     public void stageClusterGroupComplete( String path ){
-        log.info("回调");
+        logger.info("回调");
 
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
         this.sessionPhaser.incrementConsumerCount( elementNode.getGuid() );
@@ -89,7 +86,7 @@ public class UFMSessionValidatorController {
         SyncFinishedVO finishedVO = new SyncFinishedVO(path, serviceId, 1);
         session.getBasicRemote().sendText(finishedVO.toJSONString());
         if( transactionManage.checkTransactionOver( versionFileGuid ) ){
-            log.info("文件{} 同步事务已完毕", versionFileGuid);
+            logger.info("文件{} 同步事务已完毕", versionFileGuid);
             session.close();
             this.transactionManage.removeTransactions( versionFileGuid );
         }

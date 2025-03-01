@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umb.rocket;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -41,6 +42,12 @@ public class WolfMCRocketClient extends RocketMQClient implements UlfRocketClien
 
     public WolfMCRocketClient( String nameSrvAddr, String groupName ) {
         this( MessageNodus.nextLocalId(), nameSrvAddr, groupName, new GenericExtraHeadCoder() );
+    }
+
+    public WolfMCRocketClient(Map<String, Object> config, ExtraHeadCoder extraHeadCoder){
+        super( config );
+        this.mExtraHeadCoder           = extraHeadCoder;
+        this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
     }
 
 

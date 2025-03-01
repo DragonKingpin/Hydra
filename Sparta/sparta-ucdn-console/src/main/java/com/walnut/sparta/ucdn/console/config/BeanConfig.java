@@ -14,7 +14,6 @@ import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.ufm.SessionValidator;
-import com.walnut.sparta.ucdn.console.umc.ssfm.EFileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.umc.wolf.UCDNWolfRPCManage;
 import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
 import org.springframework.context.annotation.Bean;
@@ -47,16 +46,9 @@ public class BeanConfig {
         return client;
     }
 
-    @Bean( name = "kafkaEFileServiceClient" )
-    public UlfBroadcastControlNode kafkaEFileServiceClient() {
-        UlfBroadcastControlNode client = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.uofsContentDelivery, WolfMCExpress.class);
-        client.compile( EFileMultiDistributionIface.class,false );
-        return client;
-    }
-
     @Bean
     public WolfRPCManage wolfRPCManage() throws Exception {
-        UCDNWolfRPCManage wolfRPCManage = new UCDNWolfRPCManage(this.primaryService, this.uofsContentDelivery, this.wolfClient);
+        UCDNWolfRPCManage wolfRPCManage = new UCDNWolfRPCManage(this.uofsContentDelivery);
         wolfRPCManage.getLifecycleIFace().registerService( new RegisterServiceDTO( UCDNConstants.clientId, UCDNConstants.serviceId ));
         return wolfRPCManage;
     }

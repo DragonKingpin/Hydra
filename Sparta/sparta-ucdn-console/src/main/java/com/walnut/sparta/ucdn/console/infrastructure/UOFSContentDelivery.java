@@ -14,6 +14,10 @@ public class UOFSContentDelivery extends Radium implements FSContentDeliveryServ
         super( args, szName, parent );
     }
 
+    public SpartaUCDNService getSpartaUCDNService(){
+        return this.spartaUCDNService;
+    }
+
     @Override
     public void vitalize () throws Exception {
         this.spartaUCDNService = new SpartaUCDNService( "SpartaUCDNService", this );

@@ -9,6 +9,7 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
 import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
 
 public class UCDNWolfRPCManage implements WolfRPCManage {
@@ -26,18 +27,16 @@ public class UCDNWolfRPCManage implements WolfRPCManage {
 
     private ServiceMetaManipulationIface     mateIFace;
 
-    public UCDNWolfRPCManage(ServicesInstrument servicesInstrument, UOFSContentDelivery uofsContentDelivery, DuplexAppointClient wolfClient) throws Exception {
-        this.servicesInstrument = servicesInstrument;
-        this.wolfKing = new WolfMCServer( "", uofsContentDelivery, new JSONMaptron("{host: \"0.0.0.0\",\n" +
-                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-        this.wolfServer = new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class );
-        this.serviceManager = new UniformServiceManager( servicesInstrument, wolfServer );
-        wolfKing.execute();
+    private UCDNService                      ucdnService;
 
-        this.wolfClient = wolfClient;
-        this.wolfClient.execute();
-        this.wolfClient.compile( ServiceLifecycleIface.class, false );
-        this.wolfClient.compile( ServiceMetaManipulationIface.class, false );
+    public UCDNWolfRPCManage( UOFSContentDelivery uofsContentDelivery ) throws Exception {
+        this.ucdnService = uofsContentDelivery.getSpartaUCDNService();
+        this.servicesInstrument = this.ucdnService.getServicesInstrument();
+        this.wolfKing = this.ucdnService.getWolfMCServer();
+        this.wolfServer = this.ucdnService.getWolvesAppointServer();
+        this.serviceManager = ucdnService.getUniformServiceManager();
+
+        this.wolfClient = this.ucdnService.getWolfClient();
 
         this.lifecycleIFace = this.wolfClient.getIface( ServiceLifecycleIface.class );
         this.mateIFace  = this.wolfClient.getIface( ServiceMetaManipulationIface.class );

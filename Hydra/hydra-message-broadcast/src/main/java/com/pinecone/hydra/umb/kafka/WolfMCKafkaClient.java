@@ -9,6 +9,8 @@ import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
 import com.pinecone.hydra.umc.msg.handler.GenericErrorMessageAudit;
 
+import java.util.Map;
+
 public class WolfMCKafkaClient extends KafkaClient implements UlfKafkaClient{
     protected ExtraHeadCoder mExtraHeadCoder;
 
@@ -27,6 +29,13 @@ public class WolfMCKafkaClient extends KafkaClient implements UlfKafkaClient{
 
     public WolfMCKafkaClient( String nameSrvAddr ){
         this( MessageNodus.nextLocalId(), nameSrvAddr, new GenericExtraHeadCoder());
+
+    }
+
+    public WolfMCKafkaClient( Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
+        super( config );
+        this.mExtraHeadCoder           = extraHeadCoder;
+        this.mErrorMessageAudit        = new GenericErrorMessageAudit( this );
     }
 
     @Override

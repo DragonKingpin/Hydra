@@ -48,8 +48,4 @@ public class ClientController {
         this.service.testDistribution( path,topic );
     }
 
-    @GetMapping("/testEDistribution")
-    public void testEDistribution( @RequestParam("path") String path, @RequestParam("topic") String topic ) throws IOException, InterruptedException {
-        this.service.testEDdistribution( path,topic );
-    }
 }

@@ -38,6 +38,13 @@ public class RocketMQClient implements RocketClient {
         this( MessageNodus.nextLocalId(), nameSrvAddr, groupName );
     }
 
+    public RocketMQClient( Map<String, Object> config ){
+        this.mRocketConfig = new RocketMQConfig( config );
+        this.mProducerRegister = new ConcurrentHashMap<>();
+        this.mConsumerRegister = new ConcurrentHashMap<>();
+        this.mnNodeId          = MessageNodus.nextLocalId();
+    }
+
 
     @Override
     public ExtraHeadCoder getExtraHeadCoder() {

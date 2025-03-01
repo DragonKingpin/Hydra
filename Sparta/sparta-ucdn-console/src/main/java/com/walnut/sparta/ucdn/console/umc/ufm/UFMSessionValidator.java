@@ -5,7 +5,9 @@ import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
+import com.walnut.sparta.ucdn.console.infrastructure.SpartaUCDNService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.MasterWarehouse;
 
 import java.io.IOException;
@@ -22,14 +24,14 @@ public class UFMSessionValidator implements SessionValidator {
     protected BroadcastControlConsumer consumer;
 
 
-    public UFMSessionValidator( MasterWarehouse masterWarehouse ) throws UMBServiceException {
-//        this.primaryFileSystem = masterWarehouse.getKOMFileSystem();
-//        this.client = masterWarehouse.getRocketClient();
-//        this.producer = client.createBroadcastControlProducer();
-//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic);
-//        this.consumer.registerController( new UFMSessionValidatorController( masterWarehouse ) );
-//        this.consumer.start();
-//        this.producer.start();
+    public UFMSessionValidator(MasterWarehouse masterWarehouse, UCDNService ucdnService) throws UMBServiceException {
+        this.primaryFileSystem = ucdnService.getKOMFileSystem();
+        this.client = ucdnService.getRocketClient();
+        this.producer = client.createBroadcastControlProducer();
+        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNFileCloudDistributeTopic);
+        this.consumer.registerController( new UFMSessionValidatorController( masterWarehouse, ucdnService ) );
+        this.consumer.start();
+        this.producer.start();
     }
 
     @Override

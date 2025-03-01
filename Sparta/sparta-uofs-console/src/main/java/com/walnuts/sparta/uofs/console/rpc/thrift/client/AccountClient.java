@@ -1,6 +1,7 @@
-package com.walnuts.sparta.uofs.console.rpc.thrift;
+package com.walnuts.sparta.uofs.console.rpc.thrift.client;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.thrift.client.GenericMultiplexedThriftClient;
 import com.walnuts.sparta.account.rpc.thrift.AccountIface;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ public class AccountClient implements Pinenut {
     }
 
     public String queryNodeByPath( String path ) throws TException {
-        return null;
-        //return this.accountClient.queryNodeByPath( path );
+        return this.accountClient.queryNodeByPath( path );
     }
 }

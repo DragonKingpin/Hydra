@@ -103,7 +103,7 @@ public class TransmitController {
      * @throws SQLException
      */
     @PostMapping("/channel/download")
-    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException {
         File file = new File( dto.getTargetPath());
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
         TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
@@ -115,7 +115,7 @@ public class TransmitController {
     }
 
     @GetMapping("/download/guid")
-    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] guids = parameterMap.get("guid");
         GUID storageObjectGuid = null;
@@ -142,7 +142,7 @@ public class TransmitController {
      * @return 返回操作结果
      */
     @PostMapping("/CDNUpload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
         if( site == null ){

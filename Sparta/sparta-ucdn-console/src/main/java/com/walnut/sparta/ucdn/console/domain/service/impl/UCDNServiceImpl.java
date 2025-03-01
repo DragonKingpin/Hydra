@@ -3,7 +3,6 @@ package com.walnut.sparta.ucdn.console.domain.service.impl;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
-import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
@@ -20,6 +19,7 @@ import com.walnut.sparta.ucdn.console.infrastructure.TransactionManage;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNSyncTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
+import com.walnut.sparta.ucdn.console.rpc.thrift.client.UOFSClient;
 import com.walnut.sparta.ucdn.console.umc.ufm.FileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 import com.walnut.sparta.ucdn.console.umc.ufm.UOFSFileMultiDistributionService;
@@ -28,6 +28,7 @@ import com.walnut.sparta.ucdn.console.umc.UMCMasterWarehouse;
 import com.walnut.sparta.ucdn.console.umc.ssfm.SingleStreamFileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.umc.ssfm.SailorSSFMDistributionService;
 import com.walnut.sparta.ucdn.console.umc.wolf.WolfRPCManage;
+import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -69,6 +70,10 @@ public class UCDNServiceImpl implements UCDNService {
     @Resource
     private WebSocketService                            webSocketService;
 
+    @Resource
+    private UOFSClient                                   uofsClient;
+
+
     @PostConstruct
     private void init() throws UMBServiceException {
 //        this.primaryVolume          = masterWarehouse.getUniformVolumeManager();
@@ -98,8 +103,8 @@ public class UCDNServiceImpl implements UCDNService {
     }
 
     @Override
-    public void test() throws UMBServiceException {
-        this.EFileMultiDistributionService.test();
+    public void test() throws UMBServiceException, TException {
+        uofsClient.test( "哈哈哈" );
     }
 
     @Override

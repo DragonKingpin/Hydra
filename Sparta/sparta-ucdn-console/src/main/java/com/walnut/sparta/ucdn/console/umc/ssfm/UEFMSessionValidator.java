@@ -16,12 +16,12 @@ public class UEFMSessionValidator implements ExternalSessionValidator{
     protected BroadcastControlConsumer consumer;
 
     public UEFMSessionValidator( MasterWarehouse masterWarehouse ) throws UMBServiceException {
-        this.client = masterWarehouse.getRocketEFileClient();
-        this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic);
-        this.consumer.registerController( new UEFMSessionValidatorController() );
-        this.consumer.start();
-        this.producer.start();
+//        this.client = masterWarehouse.getRocketEFileClient();
+//        this.producer = client.createBroadcastControlProducer();
+//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic);
+//        this.consumer.registerController( new UEFMSessionValidatorController() );
+//        this.consumer.start();
+//        this.producer.start();
     }
 
     @Override

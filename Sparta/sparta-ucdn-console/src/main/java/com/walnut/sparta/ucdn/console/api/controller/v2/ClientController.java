@@ -4,6 +4,7 @@ import com.pinecone.hydra.umb.UMBServiceException;
 import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
 
+import org.apache.thrift.TException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,7 @@ public class ClientController {
     }
 
     @GetMapping("/test")
-    public void test() throws UMBServiceException {
+    public void test() throws UMBServiceException, TException {
         this.service.test();
     }
 

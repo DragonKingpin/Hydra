@@ -25,12 +25,12 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
     private static final String BACKUP_SUFFIX = "_backup.jar";
 
     public SailorSSFMDistributionService(MasterWarehouse masterWarehouse) throws UMBServiceException {
-        this.client = masterWarehouse.getKafkaEFileClient();
-        this.producer = client.createBroadcastControlProducer();
-        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
-        this.consumer.registerController(new UCDNEFMDController(masterWarehouse));
-        this.consumer.start();
-        this.producer.start();
+//        this.client = masterWarehouse.getKafkaEFileClient();
+//        this.producer = client.createBroadcastControlProducer();
+//        this.consumer = client.createBroadcastControlConsumer(UCDNConstants.UCDNEFileCloudDistributeTopic, UCDNConstants.UCDNFileServiceGroup);
+//        this.consumer.registerController(new UCDNEFMDController(masterWarehouse));
+//        this.consumer.start();
+//        this.producer.start();
     }
 
     @Override
@@ -55,8 +55,6 @@ public class SailorSSFMDistributionService implements SingleStreamFileMultiDistr
 
     @Override
     public void test() {
-        JarDistributionIface iface = this.producer.getIface(JarDistributionIface.class, UCDNConstants.UCDNEFileCloudDistributeTopic);
-        iface.hello("nnnnnnnn");
     }
 
     @Override

@@ -119,7 +119,9 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
         this.clusterFileTransactionManager.register( folder.getGuid(), map );
         for( GUID guid : guids ){
             FileNode fileNode = this.primaryFileSystem.getFileNode(guid);
-            this.fileMultiDistributionService.fileDistribution( fileNode, UCDNConstants.UCDNFileCloudDistributeTransmitTopic);
+            this.fileMultiDistributionService.fileDistribution(
+                    fileNode, this.fileMultiDistributionService.getConfig().getFileServiceTransmitGroup()
+            );
         }
     }
 }

@@ -116,6 +116,10 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
         }
     }
 
+    @Override
+    public UFMConfig getConfig() {
+        return this.config;
+    }
 
     @Override
     public Collection<UFMEventListener > fetchFileTransmitCompleteEventListeners() {

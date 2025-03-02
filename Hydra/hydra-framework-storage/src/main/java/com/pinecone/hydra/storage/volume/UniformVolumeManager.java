@@ -4,6 +4,8 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.storage.StorageConfig;
+import com.pinecone.hydra.storage.TitanStorageConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
@@ -74,6 +76,10 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
     protected KenVolumeFileSystem               kenVolumeFileSystem;
 
+    protected StorageConfig                     storageConfig;
+
+    protected VolumeConfig                      volumeConfig;
+
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name ) {
         super( superiorProcess, masterManipulator, KernelVolumeConfig, parent, name );
@@ -93,6 +99,8 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.volumeAllocateManipulator     =   this.volumeMasterManipulator.getVolumeAllocateManipulator();
         this.sqliteVolumeManipulator       =   this.volumeMasterManipulator.getSQLiteVolumeManipulator();
         this.primeLogicVolumeManipulator   =   this.volumeMasterManipulator.getPrimeLogicVolumeManipulator();
+        this.storageConfig                 =   new TitanStorageConfig();
+        this.volumeConfig                  =   new KernelVolumeConfig();
 
         this.kenusPool                     =   new KenusPool();
         this.pathSelector                  =   new SimplePathSelector(
@@ -112,6 +120,16 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
     public UniformVolumeManager( KOIMappingDriver driver ) {
         this( driver.getSuperiorProcess(), driver.getMasterManipulator() );
+    }
+
+    @Override
+    public StorageConfig getStorageConfig() {
+        return this.storageConfig;
+    }
+
+    @Override
+    public VolumeConfig getVolumeConfig() {
+        return this.volumeConfig;
     }
 
     @Override

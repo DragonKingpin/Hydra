@@ -18,9 +18,9 @@
       //        "url": "jdbc:mysql://localhost:3306/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
       //        "username": "root",
       //        "password": "123456",
-      "url": "jdbc:mysql://b-serverkingpin:33062/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+      "url": "jdbc:mysql://localhost:3306/hydranium?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&autoReconnect=true&charset=utf8",
       "username": "root",
-      "password": "",
+      "password": "123456",
       "driver-class-name": "com.mysql.cj.jdbc.Driver"
     },
     "mybatis":{
@@ -28,22 +28,23 @@
     },
 
     "sparta": {
-      "datasource": "mysql"
+      "datasource": "mysql",
     }
   },
 
   "service": {
     "LocalUploadTemporaryWorkingDirectory": "D:/文件系统/temp",
-
+    "TemporaryFileExtends": ".temp",
     "ClusterFileSynchronizationConfig": {
       "fileFrameSize": 972800,
-      "batchTransmitMemberThreshold": 1,
+      "batchTransmitMemberThreshold": 10,
       "sessionExpiredTimeMillis": 7200000,
       "fileCloudDistributeTransmitTopic": "ucdn-file-cloud-distribute-transmit-topic",
       "fileCloudDistributeEventTopic": "ucdn-file-cloud-distribute-event-topic",
       "fileServiceTransmitGroup": "UCDNFileServiceTransmitGroup",
       "temporaryFileExtends": ".temp",
       "majorTemporaryClusterFileDirectory": "D:/文件系统/temp",
+      "localMasterTemporaryClusterFileDirectory": "D:/文件系统/frameTemp" // Online, replace this as equals to the `majorTemporaryClusterFileDirectory`
     }
   }
 }

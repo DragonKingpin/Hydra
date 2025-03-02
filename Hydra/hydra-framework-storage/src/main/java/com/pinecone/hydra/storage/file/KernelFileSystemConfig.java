@@ -6,14 +6,29 @@ import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
 import com.pinecone.hydra.storage.volume.VolumeConstants;
 import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
+import java.util.Map;
+
 public class KernelFileSystemConfig extends ArchKernelObjectConfig implements FileSystemConfig {
     protected String mszVersionSignature    = FileConstants.StorageVersionSignature;
     protected Number mnClusterSize          = FileConstants.DefaultClusterSize;
     protected GUID   mLocalhostGUID         = StorageConstants.LocalhostGUID;
-    protected Number TinyFileStripSizing    = VolumeConstants.TinyFileStripSizing;
-    protected String DefaultVolumePath      = StorageConstants.DefaultVolumePath;
-    protected long   DefaultExpiryTime      = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
-    protected int    RedisTimeOut           = FileConstants.REDIS_TIME_OUT;
+    protected Number mTinyFileStripSizing = VolumeConstants.TinyFileStripSizing;
+    protected String mDefaultVolumePath = StorageConstants.DefaultVolumeGuid;
+    protected long mDefaultExpiryTime = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
+    protected int mRedisTimeOut = FileConstants.REDIS_TIME_OUT;
+
+    public KernelFileSystemConfig(){
+    }
+
+    public KernelFileSystemConfig(Map<String, Object> config){
+        this.mszVersionSignature = (String) config.get("VersionSignature");
+        this.mnClusterSize = (Number) config.get("ClusterSize");
+        this.mLocalhostGUID = (GUID) config.get("LocalhostGUID");
+        this.mTinyFileStripSizing = (Number) config.get("TinyFileStripSizing");
+        this.mDefaultExpiryTime = ((Number) config.get("DefaultExpiryTime")).longValue();
+        this.mDefaultVolumePath = (String) config.get("DefaultVolumePath");
+        this.mRedisTimeOut = ((Number)config.get("RedisTimeOut")).intValue();
+    }
 
 
     @Override
@@ -30,22 +45,22 @@ public class KernelFileSystemConfig extends ArchKernelObjectConfig implements Fi
     }
 
     @Override
-    public Number getTinyFileStripSizing() {
-        return this.TinyFileStripSizing;
+    public Number getmTinyFileStripSizing() {
+        return this.mTinyFileStripSizing;
     }
 
     @Override
     public String getDefaultVolume() {
-        return this.DefaultVolumePath;
+        return this.mDefaultVolumePath;
     }
 
     @Override
     public long getExpiryTime() {
-        return this.DefaultExpiryTime;
+        return this.mDefaultExpiryTime;
     }
 
     @Override
-    public int getRedisTimeOut() {
-        return this.RedisTimeOut;
+    public int getmRedisTimeOut() {
+        return this.mRedisTimeOut;
     }
 }

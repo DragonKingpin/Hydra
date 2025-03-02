@@ -10,6 +10,7 @@ import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SyncFinishedVO;
+import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import com.walnut.sparta.ucdn.console.ufm.event.UFMEventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +24,17 @@ public class FileSynchronizedEventSubscriber implements UFMEventSubscriber {
 
     private UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier;
 
-    private BucketInstrument                   bucketInstrument;
+    private ClusterFileSyncMapper              clusterFileSyncMapper;
 
     public FileSynchronizedEventSubscriber(
             VersionManage versionManage, ClusterFileTransactionManager transactionManager,
-            UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier, BucketInstrument bucketInstrument
+            UFMTransactionSynchronizedNotifier transactionSynchronizedNotifier, ClusterFileSyncMapper clusterFileSyncMapper
     ) {
         this.logger                             = LoggerFactory.getLogger( this.getClass() );
         this.versionManage                      = versionManage;
         this.transactionManager                 = transactionManager;
         this.transactionSynchronizedNotifier    = transactionSynchronizedNotifier;
-        this.bucketInstrument                   = bucketInstrument;
+        this.clusterFileSyncMapper = clusterFileSyncMapper;
     }
 
     @Override
@@ -48,7 +49,7 @@ public class FileSynchronizedEventSubscriber implements UFMEventSubscriber {
             session.getBasicRemote().sendText(finishedVO.toJSONString());
             if( this.transactionManager.checkTransactionFinished( versionFileGuid ) ){
                 this.logger.info( "File {} synchronized done.", versionFileGuid );
-                this.bucketInstrument.createSyncState( versionFileGuid, 1 );
+                this.clusterFileSyncMapper.insert( versionFileGuid, 1,null );
                 session.close();
                 this.transactionManager.removeTransactions( versionFileGuid );
             }

@@ -1,16 +1,15 @@
-package com.pinecone.hydra.bucket.ibatis;
+package com.walnut.sparta.ucdn.console.mapper;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.storage.bucket.source.FileSyncManipulator;
-import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-@IbatisDataAccessObject
-public interface FileSyncMapper extends FileSyncManipulator {
+@Mapper
+public interface ClusterFileSyncMapper {
     @Insert("INSERT INTO `hydra_ucdn_fmd_sync_status` (`file_guid`, `state`, `site_guid`) VALUES ( #{fileGuid},#{state},#{siteGuid})")
     void insert(@Param("fileGuid") GUID fileGuid, @Param("state") int state, @Param("siteGuid") GUID siteGuid);
 

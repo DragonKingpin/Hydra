@@ -1,6 +1,5 @@
 package com.walnut.sparta.ucdn.console.domain.service.impl;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
@@ -19,9 +18,9 @@ import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileSyncTran
 import com.walnut.sparta.ucdn.console.domain.service.cluster.ClusterFileTransactionManager;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.FileSynchronizedEventSubscriber;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.UFMTransactionSynchronizedNotifier;
-import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.domain.service.cluster.MultiClusterFileSyncTransaction;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
+import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import com.walnut.sparta.ucdn.console.ufm.FileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.ufm.UOFSFileMultiDistributionService;
@@ -54,9 +53,6 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     private UOFSContentDelivery                         uofsContentDelivery;
 
     @Resource
-    private BucketInstrument                            bucketInstrument;
-
-    @Resource
     private UCDNServiceManager                          ucdnServiceManager;
 
     @Resource
@@ -67,13 +63,17 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     @Resource
     private UFMTransactionSynchronizedNotifier          ufmTransactionSynchronizedNotifier;
 
+    @Resource
+    private ClusterFileSyncMapper                       clusterFileSyncMapper;
+
+
 
     @PostConstruct
     private void init() throws UMBServiceException {
         this.clusterFileTransactionManager = new ClusterFileSyncTransactionManager();
         this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.uofsContentDelivery.getSpartaUCDNService() );
         this.fileMultiDistributionService.registerFileTransmitCompleteEventSubscriber( new FileSynchronizedEventSubscriber(
-                this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.bucketInstrument )
+                this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.clusterFileSyncMapper )
         );
         this.fileMultiDistributionService.start();
     }

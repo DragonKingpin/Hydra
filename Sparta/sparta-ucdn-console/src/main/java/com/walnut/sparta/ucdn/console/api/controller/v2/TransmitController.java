@@ -48,6 +48,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -71,70 +72,10 @@ public class TransmitController {
     private NodeFileDistributionService fileDistributionService;
 
     @Value("${service.LocalUploadTemporaryWorkingDirectory}")
-    private String localUploadTemporaryWorkingDirectory;
+    private String majorTemporaryClusterFileDirectory;
 
-    @PostConstruct
-    void in() {
-        Debug.trace( this.localUploadTemporaryWorkingDirectory );
-    }
-
-    /**
-     * 使用channel上传对象
-     * @param dto 上传所需数据
-     * @return 返回操作结果
-     * @throws IOException
-     * @throws SQLException
-     */
-    @PostMapping("/channel/update")
-    public BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        MultipartFile object = dto.getObject();
-        File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
-        if( !file.exists() ){
-            throw new IOException( "Creating file compromised, what :" + file.toPath() );
-        }
-
-        try {
-            object.transferTo( file );
-            Chanface chanface = this.getKChannel(file);
-
-            FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-            FileNode fileNode = fsNodeAllotment.newFileNode();
-            fileNode.setDefinitionSize( file.length() );
-            fileNode.setName( file.getName() );
-
-            TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64(
-                    this.primaryFileSystem, dto.getDestDirPath(), fileNode, chanface, this.primaryVolume
-            );
-
-            this.primaryFileSystem.receive( receiveEntity );
-        }
-        finally {
-            if ( !file.delete() ){
-                throw new IOException( "Purging temporary file compromised, what :" + file.toPath() );
-            }
-        }
-
-        return BasicResultResponse.success();
-    }
-
-    /**
-     * 使用channel将对象下载到本地
-     * @param dto 下载所需的数据
-     * @return 返回操作结果
-     * @throws IOException
-     * @throws SQLException
-     */
-    @PostMapping("/channel/download")
-    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException {
-        File file = new File( dto.getTargetPath());
-        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-
-        FileNode fileNode = (FileNode) this.primaryFileSystem.get(this.primaryFileSystem.queryGUIDByPath(dto.getDestDirPath()));
-        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64( this.primaryFileSystem, this.primaryVolume, fileNode, titanFileChannelKChannel );
-        primaryFileSystem.export( exportEntity );
-        return BasicResultResponse.success();
-    }
+    @Value("${service.TemporaryFileExtends}")
+    private String temporaryFileExtends;
 
     @GetMapping("/download/guid")
     public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -178,8 +119,8 @@ public class TransmitController {
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
         String storageObjectPath = realFilePath + UCDNConsoleContents.VERSION_PREFIX+ UCDNConsoleContents.FORWARD_SLASH + version +UCDNConsoleContents.PERIOD+ extension;
-        File tempFile = File.createTempFile("upload",".temp");
-        if( !tempFile.exists() ){
+        File tempFile = new File(majorTemporaryClusterFileDirectory+ UUID.randomUUID()+temporaryFileExtends);
+        if( !tempFile.createNewFile() ){
             throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
         }
         file.transferTo(tempFile);

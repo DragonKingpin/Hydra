@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.StorageConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
@@ -18,6 +19,10 @@ import java.util.List;
 
 public interface VolumeManager extends KOMInstrument {
     VolumeConfig KernelVolumeConfig = new KernelVolumeConfig();
+
+    StorageConfig getStorageConfig();
+
+    VolumeConfig getVolumeConfig();
 
     @Override
     LogicVolume get( GUID guid );

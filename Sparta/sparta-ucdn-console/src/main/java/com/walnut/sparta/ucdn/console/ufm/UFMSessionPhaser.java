@@ -10,20 +10,20 @@ import java.util.concurrent.ConcurrentMap;
 
 //@Component
 public class UFMSessionPhaser implements SessionPhaser {
-    private ConcurrentMap<Long, UFMTransaction >    sessionTransactions;
+    private ConcurrentMap<Long, UFMTransaction >    sessionTransactions; //用sessionId记录事件是否存在
 
     // File.Guid => Lock
-    private ConcurrentMap<GUID, Object>             fileLocksMap;
+    private ConcurrentMap<GUID, Object>             fileLocksMap;//大文件的Guid，用来保存阶段锁
 
-    private ConcurrentMap<GUID, ClusterLock>        ClusterLocksMap;
+    private ConcurrentMap<GUID, ClusterLock>        ClusterLocksMap;//簇锁，保证同时只有一个线程在写入临时文件
 
     // File.Guid => Cluster.count (N)
-    private ConcurrentMap<GUID, Long>               clusterComplatedPhaserMap;
+    private ConcurrentMap<GUID, Long>               clusterComplatedPhaserMap;//大文件Guid，用来记录已经传输了多少簇
 
     // File.Guid => Consumer.count (N)
-    private ConcurrentMap<GUID, Long>               consumerComplatedPhaserMap;
+    private ConcurrentMap<GUID, Long>               consumerComplatedPhaserMap;//大文件Guid，用来记录目前有多少线程完成任务
 
-    private ConcurrentMap<GUID, RandomAccessFile>   clusterOutputStreamMap;
+    private ConcurrentMap<GUID, RandomAccessFile>   clusterOutputStreamMap; // 簇GUID，用来记录当前簇的IO操作通道
 
     public UFMSessionPhaser() {
         this.sessionTransactions          = new ConcurrentHashMap<>();

@@ -130,7 +130,6 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
                         genericApplicationContext.registerBean("primaryService", ServicesInstrument.class, () ->  servicesInstrument);
                         genericApplicationContext.registerBean("primaryWolfDuplexAppointClient", DuplexAppointClient.class, () ->  primaryMessageWareStone.getWolfAppointClient());
-
                         genericApplicationContext.registerBean("uofsContentDelivery", UOFSContentDelivery.class, () -> (UOFSContentDelivery) SpartaUCDNService.this.getSystem());
                     }
                 });

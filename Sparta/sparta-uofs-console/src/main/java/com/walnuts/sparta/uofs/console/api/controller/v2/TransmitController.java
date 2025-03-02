@@ -27,6 +27,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.DownloadObjectByChannelDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateObjectByChannelDTO;
+import com.walnuts.sparta.uofs.console.infrastructure.UOFSConfig;
 import com.walnuts.sparta.uofs.console.infrastructure.UOFSConsoleContents;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,6 +67,9 @@ public class TransmitController {
 
     @Resource
     private VersionManage primaryVersion;
+
+    @Resource
+    private UOFSConfig uofsConfig;
 
     /**
      * 使用channel上传对象
@@ -202,7 +206,7 @@ public class TransmitController {
 
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
-        String storageObjectPath = realFilePath + UOFSConsoleContents.VERSION_PREFIX+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
+        String storageObjectPath = realFilePath + this.uofsConfig.getVersionPrefix()+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
         File tempFile = File.createTempFile("upload",".temp");
         if( !tempFile.exists() ){
             throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );

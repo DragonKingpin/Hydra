@@ -10,12 +10,12 @@ public interface FileSystemConfig extends KernelObjectConfig {
 
     GUID getLocalhostGUID();
 
-    Number getTinyFileStripSizing();
+    Number getmTinyFileStripSizing();
 
     String getDefaultVolume();
 
     long getExpiryTime();
 
-    int getRedisTimeOut();
+    int getmRedisTimeOut();
 
 }

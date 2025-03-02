@@ -3,6 +3,8 @@ package com.pinecone.hydra.storage.volume;
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
+import java.util.Map;
+
 public class KernelVolumeConfig extends ArchKernelObjectConfig implements VolumeConfig {
     protected String mszVersionSignature             = StorageConstants.StorageVersionSignature;
 
@@ -15,6 +17,19 @@ public class KernelVolumeConfig extends ArchKernelObjectConfig implements Volume
     protected String mSqliteFileExtension            = VolumeConstants.SqliteFileExtension;
     protected String mPathSeparator                  = VolumeConstants.PathSeparator;
 
+    public KernelVolumeConfig(){}
+
+    public KernelVolumeConfig(Map<String, Object> config){
+        this.mszVersionSignature = (String) config.get("VersionSignature");
+        this.mnTinyFileStripSizing = (Number) config.get("TinyFileStripSizing");
+        this.mnSmallFileStripSizing = (Number) config.get("SmallFileStripSizing");
+        this.mnMegaFileStripSizing = (Number) config.get("MegaFileStripSizing");
+        this.mnDefaultStripSize = (Number) config.get("DefaultStripSize");
+        this.mStripResidentCacheAllotRatio = ((Number) config.get("StripResidentCacheAllotRatio")).intValue();
+        this.mStorageObjectExtension = (String) config.get("StorageObjectExtension");
+        this.mSqliteFileExtension = (String) config.get("SqliteFileExtension");
+        this.mPathSeparator = (String) config.get("PathSeparator");
+    }
 
     @Override
     public String getVersionSignature() {

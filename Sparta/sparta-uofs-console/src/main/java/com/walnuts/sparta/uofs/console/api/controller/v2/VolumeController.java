@@ -19,6 +19,7 @@ import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.PhysicalVolumeDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.LogicVolumeDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.StorageExpansionDTO;
+import com.walnuts.sparta.uofs.console.infrastructure.UOFSConfig;
 import com.walnuts.sparta.uofs.console.infrastructure.UOFSConsoleContents;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,6 +41,9 @@ public class VolumeController {
     @Resource
     private UniformVolumeManager primaryVolume;
 
+    @Resource
+    private UOFSConfig  uofsConfig;
+
     /**
      * 创建物理卷
      * @param dto 创建物理卷需要的参数
@@ -51,7 +55,7 @@ public class VolumeController {
         LocalPhysicalVolume physicalVolume = volumeAllotment.newLocalPhysicalVolume();
 
         physicalVolume.setName( dto.getName() );
-        physicalVolume.setType( UOFSConsoleContents.VOLUME_TYPE_PHYSICAL );
+        physicalVolume.setType( uofsConfig.getPhysicalVolumeType() );
         physicalVolume.setExtConfig(dto.getExtConfig() );
 
         VolumeCapacity64 volumeCapacity = volumeAllotment.newVolumeCapacity();
@@ -79,7 +83,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
 
-        simpleVolume.setType(UOFSConsoleContents.VOLUME_TYPE_SIMPLE);
+        simpleVolume.setType(this.uofsConfig.getSimpleVolumeType());
         simpleVolume.setName(dto.getName() );
         simpleVolume.setExtConfig(dto.getExtConfig() );
 
@@ -103,7 +107,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalSpannedVolume spannedVolume = volumeAllotment.newLocalSpannedVolume();
 
-        spannedVolume.setType(UOFSConsoleContents.VOLUME_TYPE_SPANNED);
+        spannedVolume.setType(this.uofsConfig.getSpannedVolumeType());
         spannedVolume.setName(dto.getName() );
         spannedVolume.setExtConfig(dto.getExtConfig());
 
@@ -127,7 +131,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalStripedVolume stripedVolume = volumeAllotment.newLocalStripedVolume();
 
-        stripedVolume.setType( UOFSConsoleContents.VOLUME_TYPE_STRIPED );
+        stripedVolume.setType( this.uofsConfig.getStripedVolumeType() );
         stripedVolume.setName(dto.getName() );
         stripedVolume.setExtConfig(dto.getExtConfig() );
 

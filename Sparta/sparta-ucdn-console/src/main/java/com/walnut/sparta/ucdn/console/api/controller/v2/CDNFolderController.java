@@ -9,6 +9,8 @@ import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
+import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +32,9 @@ public class CDNFolderController {
     private VersionManage versionManage;
 
     @Resource
+    private ClusterFileSyncMapper fileSyncMapper;
+
+    @Resource
     private BucketInstrument bucketInstrument;
 
     /**
@@ -49,11 +54,11 @@ public class CDNFolderController {
                 String fileName = firstVersionFileTreeNode.getName();
                 String fileExtension = "";
 
-                if (fileName.contains(".")) {
-                    fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+                if (fileName.contains(UCDNConstants.period)) {
+                    fileExtension = fileName.substring(fileName.lastIndexOf(UCDNConstants.period) + 1);
                 }
-                fileTreeNode.setName(fileTreeNode.getName()+'.'+fileExtension);
-                Integer syncState = this.bucketInstrument.getSyncState(fileTreeNode.getGuid());
+                fileTreeNode.setName(fileTreeNode.getName()+UCDNConstants.period+fileExtension);
+                Integer syncState = this.fileSyncMapper.queryState(fileTreeNode.getGuid());
                 if( syncState == null ){
                     fileTreeNode.evinceFolder().setSyncState( 0 );
                 }

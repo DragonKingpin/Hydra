@@ -21,6 +21,8 @@ public class UCFMConfig implements UFMConfig {
 
     protected String   mszMajorTemporaryClusterFileDirectory;
 
+    protected String   mszLocalMasterTemporaryClusterFileDirectory;
+
     public UCFMConfig ( Map<String, Object > configMap ) {
         this.mnFileFrameSize = ( (Number)configMap.get("fileFrameSize") ).intValue();
         this.mnBatchTransmitMemberThreshold = ( (Number)configMap.get("batchTransmitMemberThreshold") ).intValue();
@@ -30,6 +32,7 @@ public class UCFMConfig implements UFMConfig {
         this.mszFileServiceTransmitGroup = (String) configMap.get("fileServiceTransmitGroup");
         this.mszTemporaryFileExtends = (String) configMap.get("temporaryFileExtends");
         this.mszMajorTemporaryClusterFileDirectory = (String) configMap.get("majorTemporaryClusterFileDirectory");
+        this.mszLocalMasterTemporaryClusterFileDirectory = (String) configMap.get("localMasterTemporaryClusterFileDirectory");
     }
 
     @Override
@@ -70,6 +73,11 @@ public class UCFMConfig implements UFMConfig {
     @Override
     public Path formatTemporaryPath( String segName ) {
         return Path.of( this.getMajorTemporaryClusterFileDirectory(), segName + this.getTemporaryFileExtends() );
+    }
+
+    @Override
+    public Path formatMasterTemporaryPath( String segName ) {
+        return Path.of( this.mszLocalMasterTemporaryClusterFileDirectory, segName + this.getTemporaryFileExtends() );
     }
 
     @Override

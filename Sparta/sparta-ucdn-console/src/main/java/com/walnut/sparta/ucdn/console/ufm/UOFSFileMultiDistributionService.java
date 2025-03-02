@@ -156,7 +156,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
 
             fileDistribution.setFrameMeta( head, UFMDClusterDO );
 
-            Path tempFilePath     = this.config.formatTemporaryPath( frame.getSegGuid().toString() );
+            Path tempFilePath     = this.config.formatMasterTemporaryPath( frame.getSegGuid().toString() );
             String szTempFilePath = tempFilePath.toString();
             File tempFile = new File( szTempFilePath );
 
@@ -214,12 +214,10 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
                 }
 
                 fileInputStream.close();
-                if ( !tempFile.delete() ){
-                    throw new IOException( "Purging temporary file compromised, what :" + szTempFilePath );
-                }
             }
             finally {
                 fileInputStream.close();
+                tempFile.delete();
             }
 
 

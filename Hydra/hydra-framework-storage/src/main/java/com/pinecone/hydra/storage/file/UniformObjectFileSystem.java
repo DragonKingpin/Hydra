@@ -4,7 +4,9 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.storage.StorageConfig;
 import com.pinecone.hydra.storage.StorageConstants;
+import com.pinecone.hydra.storage.TitanStorageConfig;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
 import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccess;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
@@ -95,6 +97,10 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     protected DirectFileSystemAccess                  directFileSystemAccess;
 
+    protected StorageConfig                           storageConfig;
+
+    protected FileSystemConfig                        fileSystemConfig;
+
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier ){
         // Phase [1] Construct system.
@@ -117,6 +123,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.symbolicManipulator             =  this.fileMasterManipulator.getSymbolicManipulator();
         this.symbolicMetaManipulator         =  this.fileMasterManipulator.getSymbolicMetaManipulator();
         this.folderVolumeMappingManipulator  =  this.fileMasterManipulator.getFolderVolumeRelationManipulator();
+        this.storageConfig                   = new TitanStorageConfig();
+        this.fileSystemConfig                = new KernelFileSystemConfig();
 
         // Phase [4] Construct selectors.
         this.pathSelector                    =  new StandardPathSelector(
@@ -178,6 +186,16 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     protected void apply( IndexableMapQuerier<String, String > globalPathGuidCacheQuerier ) {
         this.globalPathGuidCacheQuerier = globalPathGuidCacheQuerier;
+    }
+
+    @Override
+    public StorageConfig getStorageConfig() {
+        return this.storageConfig;
+    }
+
+    @Override
+    public FileSystemConfig getFileSystemConfig() {
+        return this.fileSystemConfig;
     }
 
     @Override
@@ -452,8 +470,12 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             }
         }else {
             String name = fileTreeNode.getName();
-            String[] split = name.split("\\.");
-            File tempFile = File.createTempFile(split[0], "." + split[1]);
+            String[] split = name.split(StorageConstants.period);
+//            File tempFile = File.createTempFile(split[0], StorageConstants.PathSeparator + split[1]);
+            File tempFile = new File(this.storageConfig.getDefaultTempFilePath()+name);
+            if(!tempFile.createNewFile()){
+                throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+            }
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             TitanOutputStreamChanface outputStreamChanface = new TitanOutputStreamChanface(fileOutputStream);
             TitanFileExportEntity64 exportEntity64 = new TitanFileExportEntity64(this, volumeManager,
@@ -488,7 +510,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
         List<RemoteCluster> remoteClusters = this.remoteClusterManipulator.fetchRemoteClusterByFileGuid( guid );
         for( RemoteCluster remoteCluster : remoteClusters ){
-            if( remoteCluster.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
+            if( remoteCluster.getDeviceGuid().equals( storageConfig.getLocalHostGuid() )){
                 LocalCluster localCluster = this.localClusterManipulator.getLocalClusterByGuid( remoteCluster.getSegGuid() );
                 frameMap.put( localCluster.getSegId(), localCluster );
             }
@@ -508,12 +530,12 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     @Override
     public ClusterPage fetchClustersByFileGuid( GUID fileGuid, int pageSize ) {
-        return new ClusterPage64( this.remoteClusterManipulator, this.localClusterManipulator, fileGuid, pageSize );
+        return new ClusterPage64(this, this.remoteClusterManipulator, this.localClusterManipulator, fileGuid, pageSize );
     }
 
     @Override
     public ClusterPage fetchClustersByFileGuid( GUID fileGuid ) {
-        return new ClusterPage64( this.remoteClusterManipulator, this.localClusterManipulator, fileGuid );
+        return new ClusterPage64( this,this.remoteClusterManipulator, this.localClusterManipulator, fileGuid );
     }
 
 
@@ -537,7 +559,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public Cluster getLastCluster(GUID guid) {
         RemoteCluster remoteCluster = this.remoteClusterManipulator.getLastCluster(guid);
-        if ( remoteCluster.getDeviceGuid().equals( StorageConstants.LocalhostGUID )){
+        if ( remoteCluster.getDeviceGuid().equals( this.storageConfig.getLocalHostGuid() )){
             return this.localClusterManipulator.getLocalClusterByGuid(remoteCluster.getSegGuid());
         }
         else {
@@ -666,7 +688,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         String[] parts = this.pathResolver.segmentPathParts( path );
         Folder root = this.getFolder(this.queryGUIDByPath(parts[0]));
         if( root.getRelationVolume() == null ){
-            root.applyVolume( GUIDs.GUID72( this.getConfig().getDefaultVolume() ) );
+            root.applyVolume( GUIDs.GUID72( this.storageConfig.getDefaultVolumeGuid() ) );
         }
     }
 }

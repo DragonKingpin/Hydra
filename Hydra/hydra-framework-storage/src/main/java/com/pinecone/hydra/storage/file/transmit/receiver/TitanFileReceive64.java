@@ -57,7 +57,7 @@ public class TitanFileReceive64 implements FileReceive64{
 
     @Override
     public void receive( LogicVolume volume ) throws IOException {
-        long frameSize = this.mKOMFileSystem.getConfig().getClusterSize().longValue();
+        long frameSize = this.mKOMFileSystem.getFileSystemConfig().getClusterSize().longValue();
         this.fileNode.setGuid( mKOMFileSystem.queryGUIDByPath( this.destDirPath ) );
 
         FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();
@@ -231,16 +231,16 @@ public class TitanFileReceive64 implements FileReceive64{
 
     }
 
-    Verification getVerification() throws IOException {
-        File tempFile = File.createTempFile("temp",".temp");
-        FileNode fileNode = (FileNode)this.mKOMFileSystem.get(this.mKOMFileSystem.queryGUIDByPath(this.destDirPath));
-        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-        TitanFileChannelChanface kChannel = new TitanFileChannelChanface(channel);
-        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64(this.mKOMFileSystem, this.volumeManager, fileNode, kChannel);
-        this.mKOMFileSystem.export( exportEntity );
-
-        return getVerification(tempFile);
-    }
+//    Verification getVerification() throws IOException {
+//        File tempFile = File.createTempFile("temp",".temp");
+//        FileNode fileNode = (FileNode)this.mKOMFileSystem.get(this.mKOMFileSystem.queryGUIDByPath(this.destDirPath));
+//        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+//        TitanFileChannelChanface kChannel = new TitanFileChannelChanface(channel);
+//        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64(this.mKOMFileSystem, this.volumeManager, fileNode, kChannel);
+//        this.mKOMFileSystem.export( exportEntity );
+//
+//        return getVerification(tempFile);
+//    }
 
     private Verification getVerification(File tempFile) throws IOException {
         Verification verification = new Verification();

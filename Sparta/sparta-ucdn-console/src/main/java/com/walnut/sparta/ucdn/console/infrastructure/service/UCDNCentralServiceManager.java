@@ -7,7 +7,7 @@ import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNService;
-import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNContentDelivery;
 
 public class UCDNCentralServiceManager implements UCDNServiceManager {
     protected DuplexAppointServer              serviceControlAppointServer;
@@ -24,8 +24,8 @@ public class UCDNCentralServiceManager implements UCDNServiceManager {
 
     protected UCDNService                      ucdnService;
 
-    public UCDNCentralServiceManager( UOFSContentDelivery uofsContentDelivery ) {
-        this.ucdnService                   = uofsContentDelivery.getSpartaUCDNService();
+    public UCDNCentralServiceManager( UCDNContentDelivery UCDNContentDelivery) {
+        this.ucdnService                   = UCDNContentDelivery.getSpartaUCDNService();
         this.servicesInstrument            = this.ucdnService.getServicesInstrument();
         this.serviceManager                = ucdnService.getUniformServiceManager();
 

@@ -26,10 +26,6 @@ import java.util.TreeMap;
 public interface KOMFileSystem extends ReparseKOMTree {
     FileSystemConfig  KernelFileSystemConfig = new KernelFileSystemConfig();
 
-    StorageConfig getStorageConfig();
-
-    FileSystemConfig getFileSystemConfig();
-
     @Override
     String getPath( GUID guid );
 

@@ -2,7 +2,6 @@ package com.walnut.sparta.ucdn.console.domain.service.impl;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
-import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
@@ -24,7 +23,7 @@ import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import com.walnut.sparta.ucdn.console.ufm.FileMultiDistributionService;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.ufm.UOFSFileMultiDistributionService;
-import com.walnut.sparta.ucdn.console.infrastructure.UOFSContentDelivery;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNContentDelivery;
 import com.walnut.sparta.ucdn.console.infrastructure.service.UCDNServiceManager;
 
 import org.springframework.stereotype.Service;
@@ -50,7 +49,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     private FileMultiDistributionService                fileMultiDistributionService;
 
     @Resource
-    private UOFSContentDelivery                         uofsContentDelivery;
+    private UCDNContentDelivery UCDNContentDelivery;
 
     @Resource
     private UCDNServiceManager                          ucdnServiceManager;
@@ -71,7 +70,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
     @PostConstruct
     private void init() throws UMBServiceException {
         this.clusterFileTransactionManager = new ClusterFileSyncTransactionManager();
-        this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.uofsContentDelivery.getSpartaUCDNService() );
+        this.fileMultiDistributionService = new UOFSFileMultiDistributionService( this.UCDNContentDelivery.getSpartaUCDNService() );
         this.fileMultiDistributionService.registerFileTransmitCompleteEventSubscriber( new FileSynchronizedEventSubscriber(
                 this.primaryVersion, this.clusterFileTransactionManager,this.ufmTransactionSynchronizedNotifier, this.clusterFileSyncMapper )
         );

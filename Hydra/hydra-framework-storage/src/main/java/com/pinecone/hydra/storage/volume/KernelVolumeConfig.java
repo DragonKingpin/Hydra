@@ -1,11 +1,12 @@
 package com.pinecone.hydra.storage.volume;
 
+import com.pinecone.hydra.storage.ArchStorageConfig;
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
 import java.util.Map;
 
-public class KernelVolumeConfig extends ArchKernelObjectConfig implements VolumeConfig {
+public class KernelVolumeConfig extends ArchStorageConfig implements VolumeConfig {
     protected String mszVersionSignature             = StorageConstants.StorageVersionSignature;
 
     protected Number mnTinyFileStripSizing           = VolumeConstants.TinyFileStripSizing  ;
@@ -17,18 +18,21 @@ public class KernelVolumeConfig extends ArchKernelObjectConfig implements Volume
     protected String mSqliteFileExtension            = VolumeConstants.SqliteFileExtension;
     protected String mPathSeparator                  = VolumeConstants.PathSeparator;
 
-    public KernelVolumeConfig(){}
+    public KernelVolumeConfig(){
+        super();
+    }
 
     public KernelVolumeConfig(Map<String, Object> config){
-        this.mszVersionSignature = (String) config.get("VersionSignature");
-        this.mnTinyFileStripSizing = (Number) config.get("TinyFileStripSizing");
-        this.mnSmallFileStripSizing = (Number) config.get("SmallFileStripSizing");
-        this.mnMegaFileStripSizing = (Number) config.get("MegaFileStripSizing");
-        this.mnDefaultStripSize = (Number) config.get("DefaultStripSize");
-        this.mStripResidentCacheAllotRatio = ((Number) config.get("StripResidentCacheAllotRatio")).intValue();
-        this.mStorageObjectExtension = (String) config.get("StorageObjectExtension");
-        this.mSqliteFileExtension = (String) config.get("SqliteFileExtension");
-        this.mPathSeparator = (String) config.get("PathSeparator");
+        super(config);
+        this.mszVersionSignature            = (String) config.getOrDefault("VersionSignature", StorageConstants.StorageVersionSignature);
+        this.mnTinyFileStripSizing          = (Number) config.getOrDefault("TinyFileStripSizing", VolumeConstants.TinyFileStripSizing);
+        this.mnSmallFileStripSizing         = (Number) config.getOrDefault("SmallFileStripSizing", VolumeConstants.SmallFileStripSizing);
+        this.mnMegaFileStripSizing          = (Number) config.getOrDefault("MegaFileStripSizing", VolumeConstants.MegaFileStripSizing);
+        this.mnDefaultStripSize             = (Number) config.getOrDefault("DefaultStripSize", VolumeConstants.DefaultStripSize);
+        this.mStripResidentCacheAllotRatio  = ((Number) config.getOrDefault("StripResidentCacheAllotRatio", VolumeConstants.StripResidentCacheAllotRatio)).intValue();
+        this.mStorageObjectExtension        = (String) config.getOrDefault("StorageObjectExtension", VolumeConstants.StorageObjectExtension);
+        this.mSqliteFileExtension           = (String) config.getOrDefault("SqliteFileExtension", VolumeConstants.SqliteFileExtension);
+        this.mPathSeparator                 = (String) config.getOrDefault("PathSeparator", VolumeConstants.PathSeparator);
     }
 
     @Override

@@ -3,14 +3,14 @@ package com.walnut.sparta.ucdn.console.infrastructure;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.radium.Radium;
 
-public class UOFSContentDelivery extends Radium implements FSContentDeliveryService {
+public class UCDNContentDelivery extends Radium implements FSContentDeliveryService {
     protected SpartaUCDNService spartaUCDNService;
 
-    public UOFSContentDelivery( String[] args, CascadeSystem parent ) {
+    public UCDNContentDelivery(String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
 
-    public UOFSContentDelivery( String[] args, String szName, CascadeSystem parent ){
+    public UCDNContentDelivery(String[] args, String szName, CascadeSystem parent ){
         super( args, szName, parent );
     }
 

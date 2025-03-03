@@ -5,7 +5,8 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.StorageConfig;
-import com.pinecone.hydra.storage.TitanStorageConfig;
+import com.pinecone.hydra.storage.ArchStorageConfig;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
@@ -76,13 +77,9 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
     protected KenVolumeFileSystem               kenVolumeFileSystem;
 
-    protected StorageConfig                     storageConfig;
 
-    protected VolumeConfig                      volumeConfig;
-
-
-    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name ) {
-        super( superiorProcess, masterManipulator, KernelVolumeConfig, parent, name );
+    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config ) {
+        super( superiorProcess, masterManipulator, config, parent, name );
         this.hydrarum = hydrarum;
         this.volumeMasterManipulator       =   ( VolumeMasterManipulator ) masterManipulator;
         this.pathResolver                  =   new KOPathResolver( this.kernelObjectConfig );
@@ -99,8 +96,6 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.volumeAllocateManipulator     =   this.volumeMasterManipulator.getVolumeAllocateManipulator();
         this.sqliteVolumeManipulator       =   this.volumeMasterManipulator.getSQLiteVolumeManipulator();
         this.primeLogicVolumeManipulator   =   this.volumeMasterManipulator.getPrimeLogicVolumeManipulator();
-        this.storageConfig                 =   new TitanStorageConfig();
-        this.volumeConfig                  =   new KernelVolumeConfig();
 
         this.kenusPool                     =   new KenusPool();
         this.pathSelector                  =   new SimplePathSelector(
@@ -110,26 +105,21 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.operatorFactory               =   new TitanVolumeOperatorFactory( this, this.volumeMasterManipulator );
     }
 
-    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, VolumeManager.class.getSimpleName() );
+    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeConfig config ) {
+        this( superiorProcess, masterManipulator, null, VolumeManager.class.getSimpleName(), config );
     }
 
-    public UniformVolumeManager( KOIMappingDriver driver, VolumeManager parent, String name ){
-        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name );
+    public UniformVolumeManager( KOIMappingDriver driver, VolumeManager parent, String name, VolumeConfig config ){
+        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name, config );
     }
 
-    public UniformVolumeManager( KOIMappingDriver driver ) {
-        this( driver.getSuperiorProcess(), driver.getMasterManipulator() );
-    }
-
-    @Override
-    public StorageConfig getStorageConfig() {
-        return this.storageConfig;
+    public UniformVolumeManager( KOIMappingDriver driver, VolumeConfig config ) {
+        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), config );
     }
 
     @Override
-    public VolumeConfig getVolumeConfig() {
-        return this.volumeConfig;
+    public VolumeConfig getConfig() {
+        return (VolumeConfig) super.getConfig();
     }
 
     @Override
@@ -145,11 +135,6 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     @Override
     public KenVolumeFileSystem getKVFSystem() {
         return this.kenVolumeFileSystem;
-    }
-
-    @Override
-    public VolumeConfig getConfig() {
-        return (VolumeConfig) this.kernelObjectConfig;
     }
 
     public VolumeAllotment getVolumeAllotment(){

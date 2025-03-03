@@ -41,8 +41,8 @@ public class VolumeController {
     @Resource
     private UniformVolumeManager primaryVolume;
 
-    @Resource
-    private UOFSConfig  uofsConfig;
+//    @Resource
+//    private UOFSConfig  uofsConfig;
 
     /**
      * 创建物理卷
@@ -55,7 +55,7 @@ public class VolumeController {
         LocalPhysicalVolume physicalVolume = volumeAllotment.newLocalPhysicalVolume();
 
         physicalVolume.setName( dto.getName() );
-        physicalVolume.setType( uofsConfig.getPhysicalVolumeType() );
+        physicalVolume.setType( UOFSConsoleContents.VOLUME_TYPE_PHYSICAL );
         physicalVolume.setExtConfig(dto.getExtConfig() );
 
         VolumeCapacity64 volumeCapacity = volumeAllotment.newVolumeCapacity();
@@ -83,7 +83,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalSimpleVolume simpleVolume = volumeAllotment.newLocalSimpleVolume();
 
-        simpleVolume.setType(this.uofsConfig.getSimpleVolumeType());
+        simpleVolume.setType(UOFSConsoleContents.VOLUME_TYPE_SIMPLE);
         simpleVolume.setName(dto.getName() );
         simpleVolume.setExtConfig(dto.getExtConfig() );
 
@@ -107,7 +107,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalSpannedVolume spannedVolume = volumeAllotment.newLocalSpannedVolume();
 
-        spannedVolume.setType(this.uofsConfig.getSpannedVolumeType());
+        spannedVolume.setType(UOFSConsoleContents.VOLUME_TYPE_SPANNED);
         spannedVolume.setName(dto.getName() );
         spannedVolume.setExtConfig(dto.getExtConfig());
 
@@ -131,7 +131,7 @@ public class VolumeController {
         VolumeAllotment volumeAllotment = this.primaryVolume.getVolumeAllotment();
         LocalStripedVolume stripedVolume = volumeAllotment.newLocalStripedVolume();
 
-        stripedVolume.setType( this.uofsConfig.getStripedVolumeType() );
+        stripedVolume.setType( UOFSConsoleContents.VOLUME_TYPE_STRIPED );
         stripedVolume.setName(dto.getName() );
         stripedVolume.setExtConfig(dto.getExtConfig() );
 

@@ -18,12 +18,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public interface VolumeManager extends KOMInstrument {
-    VolumeConfig KernelVolumeConfig = new KernelVolumeConfig();
-
-    StorageConfig getStorageConfig();
-
-    VolumeConfig getVolumeConfig();
-
     @Override
     LogicVolume get( GUID guid );
 

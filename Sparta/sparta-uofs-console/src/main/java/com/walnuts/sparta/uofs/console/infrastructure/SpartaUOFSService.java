@@ -1,26 +1,19 @@
-package com.walnut.sparta.ucdn.console.infrastructure;
+package com.walnuts.sparta.uofs.console.infrastructure;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.functions.Executor;
-import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServicesInstrument;
 import com.pinecone.hydra.service.kom.UniformServicesInstrument;
-import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
-import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.storage.version.TitanVersionManage;
 import com.pinecone.hydra.storage.version.VersionManage;
-import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
-import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.system.component.ComponentInitializationException;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.uma.DuplexAppointClient;
@@ -29,11 +22,7 @@ import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
-import com.walnut.redstone.messge.PrimaryMessageWareStone;
-import com.walnut.sparta.ucdn.console.SpartaBoot;
-import com.walnut.sparta.ucdn.console.ufm.UCFMConfig;
-import com.walnut.sparta.ucdn.console.ufm.UFMConfig;
-
+import com.walnuts.sparta.uofs.console.SpartaBoot;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -41,7 +30,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class SpartaUCDNService extends Springron implements UCDNService {
+public class SpartaUOFSService extends Springron implements UOFSService {
     protected KOIMappingDriver koiMappingDriver;
 
     protected KOIMappingDriver koiFileMappingDriver;
@@ -63,13 +52,6 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected ServicesInstrument servicesInstrument;
 
-
-    protected PrimaryMessageWareStone  primaryMessageWareStone;
-
-    protected UniformServiceManager    serviceManager;
-
-    protected UFMConfig                clusterFileSynchronizationConfig;
-
     protected void initKOMSubsystem() throws ComponentInitializationException {
         this.koiMappingDriver = new VolumeMappingDriver(
                 this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
@@ -87,39 +69,11 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                 this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
         );
 
-        JSONConfig selfConfig = (JSONConfig) this.getConfig();
-        FileSystemConfig fileSystemConfig = new KernelFileSystemConfig( selfConfig.queryJSONObject( "service.PrimaryUniformFileSystem" ) );
-        this.fileSystem         = new UniformObjectFileSystem( this.koiFileMappingDriver, fileSystemConfig );
-
-        VolumeConfig volumeConfig = new KernelVolumeConfig( selfConfig.queryJSONObject( "service.PrimaryUniformVolumeManager" ) );
-        this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver, volumeConfig );
+        this.fileSystem         = new UniformObjectFileSystem( this.koiFileMappingDriver );
+        this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver );
         this.bucketInstrument   = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage      = new TitanVersionManage( this.koiVersionMappingDriver );
         this.servicesInstrument = new UniformServicesInstrument( this.koiServiceMappingDriver );
-    }
-
-    protected void initMessageWares() throws ComponentInitializationException {
-        this.primaryMessageWareStone = new WolfKingMessageWareStone( this );
-    }
-
-    protected void initModules() throws ComponentInitializationException {
-        this.serviceManager = new UniformServiceManager(
-                this.servicesInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
-        );
-
-        JSONConfig selfConfig = (JSONConfig) this.getConfig();
-        this.clusterFileSynchronizationConfig = new UCFMConfig( selfConfig.queryJSONObject( "service.ClusterFileSynchronizationConfig" ) );
-    }
-
-    protected void startGlobalMiddlewares() throws ComponentInitializationException {
-        try {
-            this.getPrimaryMessageMiddlewareDirector().getWolfKingAppointServer().execute();
-            Debug.sleep( 500 );
-            this.getPrimaryMessageMiddlewareDirector().getWolfAppointClient().execute();
-        }
-        catch ( Exception e ) {
-            throw new ComponentInitializationException( e );
-        }
     }
 
     protected void initSpringBeanFactorySubsystem() throws ComponentInitializationException {
@@ -127,7 +81,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         this.setInitializer(new Executor() {
             @Override
             public void execute() throws Exception {
-                SpartaUCDNService.this.getSpringApplication().addInitializers(new ApplicationContextInitializer<ConfigurableApplicationContext>() {
+                SpartaUOFSService.this.getSpringApplication().addInitializers(new ApplicationContextInitializer<ConfigurableApplicationContext>() {
                     @Override
                     public void initialize( ConfigurableApplicationContext applicationContext ) {
                         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
@@ -136,8 +90,6 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
                         genericApplicationContext.registerBean("primaryService", ServicesInstrument.class, () ->  servicesInstrument);
-                        genericApplicationContext.registerBean("primaryWolfDuplexAppointClient", DuplexAppointClient.class, () ->  primaryMessageWareStone.getWolfAppointClient());
-                        genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.getSystem());
                     }
                 });
             }
@@ -146,20 +98,16 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initSubsystem() throws ComponentInitializationException {
         this.initKOMSubsystem();
-        this.initMessageWares();
-        this.initModules();
-        this.startGlobalMiddlewares();
         this.initSpringBeanFactorySubsystem();
     }
 
-    public SpartaUCDNService( String szName, Processum parent, String[] springbootArgs ) throws ComponentInitializationException {
+    public SpartaUOFSService(String szName, Processum parent, String[] springbootArgs ) throws ComponentInitializationException {
         super( szName, parent, springbootArgs );
         this.mSpringKernel.setPrimarySources( SpartaBoot.class );
 
         this.initSubsystem();
     }
-
-    public SpartaUCDNService( String szName, Processum parent ) throws ComponentInitializationException {
+    public SpartaUOFSService( String szName, Processum parent ) throws ComponentInitializationException {
         this( szName, parent, new String[0] );
     }
 
@@ -183,45 +131,5 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     @Override
     public Radium getSystem() {
         return (Radium)super.getSystem();
-    }
-
-    @Override
-    public KOMFileSystem getKOMFileSystem() {
-        return this.fileSystem;
-    }
-
-    @Override
-    public UniformVolumeManager getUniformVolumeManager() {
-        return this.volumeTree;
-    }
-
-    @Override
-    public TitanBucketInstrument getTitanBucketInstrument() {
-        return this.bucketInstrument;
-    }
-
-    @Override
-    public TitanVersionManage getTitanVersionManage() {
-        return this.versionManage;
-    }
-
-    @Override
-    public ServicesInstrument getServicesInstrument() {
-        return this.servicesInstrument;
-    }
-
-    @Override
-    public PrimaryMessageWareStone getPrimaryMessageMiddlewareDirector() {
-        return this.primaryMessageWareStone;
-    }
-
-    @Override
-    public UniformServiceManager getUniformServiceManager() {
-        return this.serviceManager;
-    }
-
-    @Override
-    public UFMConfig getClusterFileSynchronizationConfig() {
-        return this.clusterFileSynchronizationConfig;
     }
 }

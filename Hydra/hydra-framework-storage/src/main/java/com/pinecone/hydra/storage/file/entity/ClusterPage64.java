@@ -96,7 +96,7 @@ public class ClusterPage64 implements ClusterPage {
         }
         else if ( cluster instanceof RemoteCluster ) {
             RemoteCluster remoteCluster = (RemoteCluster) cluster;
-            if( remoteCluster.getDeviceGuid().equals( this.komFileSystem.getStorageConfig().getLocalHostGuid() )) {
+            if( remoteCluster.getDeviceGuid().equals( this.komFileSystem.getConfig().getLocalHostGuid() )) {
                 return this.localClusterManipulator.getLocalClusterByGuid( remoteCluster.getSegGuid() );
             }
         }

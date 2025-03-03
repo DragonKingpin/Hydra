@@ -1,5 +1,7 @@
 package com.pinecone.hydra.system.ko;
 
+import java.util.Map;
+
 public abstract class ArchKernelObjectConfig implements KernelObjectConfig {
     protected String mszPathNameSeparator = KernelObjectConstants.PathNameSeparator;
 
@@ -10,6 +12,18 @@ public abstract class ArchKernelObjectConfig implements KernelObjectConfig {
     protected String mszFullNameSepRegex  = KernelObjectConstants.FullNameSepRegex;
 
     protected int    mnShortPathLength    = KernelObjectConstants.ShortPathLength;
+
+    protected ArchKernelObjectConfig() {
+
+    }
+
+    public ArchKernelObjectConfig( Map<String, Object> config ){
+        this.mszPathNameSeparator = (String) config.getOrDefault("PathNameSeparator", KernelObjectConstants.PathNameSeparator);
+        this.mszFullNameSeparator = (String) config.getOrDefault("FullNameSeparator", KernelObjectConstants.FullNameSeparator);
+        this.mszPathNameSepRegex  = (String) config.getOrDefault("PathNameSepRegex", KernelObjectConstants.PathNameSepRegex);
+        this.mszFullNameSepRegex  = (String) config.getOrDefault("FullNameSepRegex", KernelObjectConstants.FullNameSepRegex);
+        this.mnShortPathLength    = ( (Number) config.getOrDefault("ShortPathLength", KernelObjectConstants.ShortPathLength) ).intValue();
+    }
 
     @Override
     public String getPathNameSeparator() {

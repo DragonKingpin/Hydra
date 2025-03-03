@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file.builder;
 
 import com.pinecone.framework.unit.BitSet64;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -8,14 +9,17 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 public class ComponentUOFSBuilder implements UOFSBuilder {
     public static long DEFAULT_GENERATE_FEATURE = 0L;
 
-    protected UOFSComponentor[] mComponentorIndex = new UOFSComponentor[ Feature.featuresSize() ];
+    protected UOFSComponentor[]  mComponentorIndex = new UOFSComponentor[ Feature.featuresSize() ];
 
-    public KOIMappingDriver mKOIMappingDriver;
+    protected KOIMappingDriver   mKOIMappingDriver;
 
-    public long             mFeatureValues = DEFAULT_GENERATE_FEATURE;
+    protected long               mFeatureValues = DEFAULT_GENERATE_FEATURE;
 
-    public ComponentUOFSBuilder ( KOIMappingDriver driver ) {
+    protected FileSystemConfig   mFileSystemConfig;
+
+    public ComponentUOFSBuilder ( KOIMappingDriver driver, FileSystemConfig config ) {
         this.mKOIMappingDriver = driver;
+        this.mFileSystemConfig = config;
     }
 
 
@@ -48,7 +52,7 @@ public class ComponentUOFSBuilder implements UOFSBuilder {
 
     @Override
     public KOMFileSystem build( long featureValues ) {
-        KOMFileSystem fs = new UniformObjectFileSystem( this.mKOIMappingDriver );
+        KOMFileSystem fs = new UniformObjectFileSystem( this.mKOIMappingDriver, this.mFileSystemConfig );
 
         for ( int i = 0; i < Feature.featuresSize(); ++i ) {
             if ( ( featureValues & (1L << i) ) != 0 ) {

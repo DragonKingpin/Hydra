@@ -3,7 +3,11 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
+import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
@@ -17,7 +21,9 @@ import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
+import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
@@ -50,11 +56,15 @@ class Steve extends Radium {
         );
 
 
-        UOFSBuilder builder = new ComponentUOFSBuilder( koiMappingDriver );
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiMappingDriver );
+        JSONObject jo = new JSONMaptron( "{ DefaultVolumeGuid:'1788a74-000136-0000-f8', DefaultTempFilePath: 'D:/文件系统/temp/' }" );
+        FileSystemConfig config = new KernelFileSystemConfig( jo );
+        VolumeConfig volumeConfig = new KernelVolumeConfig( jo );
+
+        UOFSBuilder builder = new ComponentUOFSBuilder( koiMappingDriver, config );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiMappingDriver, config );
 //        FileSystemCacheConfig cacheConfig = new MappedFileSystemCacheConfig(new JSONMaptron("{redisHost: \"47.115.216.203\",redisPort: 6379, redisTimeOut: 2000, redisPassword: 1234abcd, redisDatabase: 0}"));
 //        KOMFileSystem fileSystem = builder.registerComponentor( new UOFSCacheComponentor(cacheConfig) ).buildByRegistered();
-        UniformVolumeManager volumeManager = new UniformVolumeManager(koiVolumeMappingDriver);
+        UniformVolumeManager volumeManager = new UniformVolumeManager(koiVolumeMappingDriver, volumeConfig);
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
         //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
         //this.testInsert( fileSystem );

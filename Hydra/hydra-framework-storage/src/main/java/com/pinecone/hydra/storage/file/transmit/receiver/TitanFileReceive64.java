@@ -57,7 +57,7 @@ public class TitanFileReceive64 implements FileReceive64{
 
     @Override
     public void receive( LogicVolume volume ) throws IOException {
-        long frameSize = this.mKOMFileSystem.getFileSystemConfig().getClusterSize().longValue();
+        long frameSize = this.mKOMFileSystem.getConfig().getClusterSize().longValue();
         this.fileNode.setGuid( mKOMFileSystem.queryGUIDByPath( this.destDirPath ) );
 
         FSNodeAllotment allotment = mKOMFileSystem.getFSNodeAllotment();

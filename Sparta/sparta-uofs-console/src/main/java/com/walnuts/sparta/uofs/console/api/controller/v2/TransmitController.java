@@ -68,8 +68,8 @@ public class TransmitController {
     @Resource
     private VersionManage primaryVersion;
 
-    @Resource
-    private UOFSConfig uofsConfig;
+//    @Resource
+//    private UOFSConfig uofsConfig;
 
     /**
      * 使用channel上传对象
@@ -206,7 +206,7 @@ public class TransmitController {
 
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
-        String storageObjectPath = realFilePath + this.uofsConfig.getVersionPrefix()+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
+        String storageObjectPath = realFilePath +UOFSConsoleContents.VERSION_PREFIX+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
         File tempFile = File.createTempFile("upload",".temp");
         if( !tempFile.exists() ){
             throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );

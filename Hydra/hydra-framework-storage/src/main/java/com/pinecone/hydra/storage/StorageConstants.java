@@ -8,5 +8,5 @@ public final class StorageConstants {
     public static final String period                   = ".";
     public static final String StorageVersionSignature  = "Titan";
     public static final GUID             LocalhostGUID  = GUIDs.GUID72( "0000000-000000-0000-00" );
-    public static final String DefaultVolumeGuid = "1788a74-000136-0000-f8";
+
 }

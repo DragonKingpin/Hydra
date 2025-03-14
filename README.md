@@ -230,16 +230,16 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
 Hydra 是基于多级级联的大型系统架构，UOFS同样沿用了Hydra的整体架构体系，采样全局级联的设计。支持存储节点、索引节点、卷节点等每一层级的级联设计。
 ![FileSystemArchitecture](assets/imgs/fs_architecture.svg)
 应用层面本项目不仅提供了文件浏览器的核心功能，还支持文件预览、多集群上传、外部挂载、文件完整性验证等。
-![image](assets/imgs/file_manage)
-![image](assets/imgs/file_preview)
-![image](assets/imgs/external_mounting)
-![image](assets/imgs/property_view)
+![image](assets/imgs/file_manage.png)
+![image](assets/imgs/file_preview.png)
+![image](assets/imgs/external_mounting.png)
+![image](assets/imgs/property_view.png)
 
 3.基于UOFS的CDN(文件分发网络)
 本项目基于UOFS结合Kafka、RocketMQ、服务管理中心等提供了保证数据一致性的CDN服务,并提供文件版本管理与站点管理。
-![image](assets/imgs/site_manage)
-![image](assets/imgs/file_distribution_and_synchronization)
-![image](assets/imgs/file_version_manage)
+![image](assets/imgs/site_manage.png)
+![image](assets/imgs/file_distribution_and_synchronization.png)
+![image](assets/imgs/file_version_manage.png)
 
 
 

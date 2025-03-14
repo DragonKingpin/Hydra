@@ -229,7 +229,8 @@ Hydra 是基于多级级联的大型系统架构，UOFS同样沿用了Hydra的�
 ![image](assets/imgs/file_preview.png)
 
 3.基于UOFS的CDN(文件分发网络)
-本项目基于UOFS结合Kafka、RocketMQ、自研服务管理中心等提供了保证数据一致性的CDN服务
+本项目基于UOFS结合Kafka、RocketMQ、服务管理中心等提供了保证数据一致性的CDN服务
+
 
 
 4. 版本管理

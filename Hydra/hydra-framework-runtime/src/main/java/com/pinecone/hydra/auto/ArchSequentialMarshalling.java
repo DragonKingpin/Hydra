@@ -20,6 +20,8 @@ public abstract class ArchSequentialMarshalling implements Marshalling {
         this.mMationInvoker          = invoker;
     }
 
+
+
     protected ArchSequentialMarshalling( MationInvoker invoker ) {
         this( new ArrayList<>(), new ArrayList<>(), new LinkedList<>(), invoker );
     }

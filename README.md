@@ -220,7 +220,8 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
    3. 跨区卷
    4. 条带卷，基于状态机无锁编程化并行存储，采用基于差分多路缓存滑动窗口、DFA、FIFO多线程缓存等算法优化的高性能条带卷设计。
 ![VolumeArchitecture](assets/imgs/volume_architecture.png)
-   应用层面本项目提供了物理卷与逻辑卷的管理后台方便用户的管理与使用。
+
+  应用层面本项目提供了物理卷与逻辑卷的管理后台方便用户的管理与使用
   ![image](assets/imgs/logic_volume_manage.png)
   ![image](assets/imgs/logic_volume_create.png)
   ![image](assets/imgs/physical_volume_manage.png)

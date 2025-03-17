@@ -54,7 +54,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
         UlfServer embedRPCServer = new WolfMCServer( "WolfKingMCServer", this.getSystem(), new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         this.wolfKingAppointServer = new WolvesAppointServer( embedRPCServer, HuskyDuplexExpress.class );
-        //this.serviceManager = new UniformServiceManager( servicesInstrument, wolfServer );
+        //this.serviceManager = new UniformServiceManager( serviceInstrument, wolfServer );
     }
 
     private void initPrimaryBroadcastSegment() throws Exception {

@@ -6,7 +6,7 @@ import java.util.Map;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 
 public abstract class ArchServoElement extends ArchElementNode implements ServoElement {
     protected GUID                       metaGuid;
@@ -31,13 +31,13 @@ public abstract class ArchServoElement extends ArchElementNode implements ServoE
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchServoElement( Map<String, Object > joEntity, ServicesInstrument servicesInstrument ) {
+    public ArchServoElement( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
         this( joEntity );
-        this.apply( servicesInstrument );
+        this.apply(serviceInstrument);
     }
 
-    public ArchServoElement( ServicesInstrument servicesInstrument ) {
-        super( servicesInstrument );
+    public ArchServoElement( ServiceInstrument serviceInstrument) {
+        super(serviceInstrument);
     }
 
     @Override

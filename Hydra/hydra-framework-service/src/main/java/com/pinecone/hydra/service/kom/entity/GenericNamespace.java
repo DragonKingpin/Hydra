@@ -11,7 +11,7 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
@@ -36,17 +36,17 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( Map<String, Object > joEntity, ServicesInstrument servicesInstrument ) {
-        super( joEntity, servicesInstrument );
+    public GenericNamespace( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
+        super( joEntity, serviceInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( ServicesInstrument servicesInstrument ) {
-        super( servicesInstrument );
+    public GenericNamespace( ServiceInstrument serviceInstrument) {
+        super(serviceInstrument);
     }
 
-    public GenericNamespace( ServicesInstrument servicesInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
-        this( servicesInstrument );
+    public GenericNamespace(ServiceInstrument serviceInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
+        this(serviceInstrument);
         this.namespaceManipulator = namespaceManipulator;
     }
 

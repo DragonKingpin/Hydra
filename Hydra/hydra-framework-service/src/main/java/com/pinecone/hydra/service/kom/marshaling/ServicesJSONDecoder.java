@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.FolderElement;
@@ -15,9 +15,9 @@ import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 
 public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
-    protected ServicesInstrument instrument;
+    protected ServiceInstrument instrument;
 
-    public ServicesJSONDecoder( ServicesInstrument instrument ) {
+    public ServicesJSONDecoder( ServiceInstrument instrument ) {
         this.instrument = instrument;
     }
 
@@ -65,7 +65,7 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "<ServicesInstrument> Existed child-destination [%s] should be namespace.", szName )
+                                    String.format( "<ServiceInstrument> Existed child-destination [%s] should be namespace.", szName )
                             );
                         }
                     }

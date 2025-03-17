@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.kom;
+package com.pinecone.hydra.task.kom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,20 +6,20 @@ import java.util.List;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.entity.ApplicationElement;
-import com.pinecone.hydra.service.kom.entity.ElementNode;
-import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
-import com.pinecone.hydra.service.kom.entity.GenericNamespace;
-import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
-import com.pinecone.hydra.service.kom.entity.Namespace;
-import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
-import com.pinecone.hydra.service.kom.entity.ServoElement;
-import com.pinecone.hydra.service.kom.operator.GenericElementOperatorFactory;
-import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
-import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
-import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
+import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.ElementNode;
+import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericNamespace;
+import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.entity.Namespace;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.task.kom.entity.ServiceTreeNode;
+import com.pinecone.hydra.task.kom.entity.ServoElement;
+import com.pinecone.hydra.task.kom.operator.GenericElementOperatorFactory;
+import com.pinecone.hydra.task.kom.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
+import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -35,17 +35,17 @@ import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-public class UniformServicesInstrument extends ArchReparseKOMTree implements ServicesInstrument {
+public class UniformTaskInstrument extends ArchReparseKOMTree implements ServiceInstrument {
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
     protected ServiceMasterManipulator    serviceMasterManipulator;
 
-    protected ServiceNamespaceManipulator serviceNamespaceManipulator;
+    protected TaskNamespaceManipulator taskNamespaceManipulator;
 
     protected ApplicationNodeManipulator  applicationNodeManipulator;
 
-    protected ServiceNodeManipulator      serviceNodeManipulator;
+    protected TaskNodeManipulator taskNodeManipulator;
 
     protected List<GUIDNameManipulator >  folderManipulators;
 
@@ -53,14 +53,14 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
 
 
 
-    public UniformServicesInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, ServicesInstrument parent, String name ){
-        super( superiorProcess, masterManipulator, ServicesInstrument.KernelServiceConfig, parent, name );
+    public UniformTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
+        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
         Debug.trace(masterManipulator);
         this.hydrarum = hydrarum;
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
-        this.serviceNamespaceManipulator = serviceMasterManipulator.getNamespaceManipulator();
+        this.taskNamespaceManipulator = serviceMasterManipulator.getNamespaceManipulator();
         this.applicationNodeManipulator  = serviceMasterManipulator.getApplicationNodeManipulator();
-        this.serviceNodeManipulator      = serviceMasterManipulator.getServiceNodeManipulator();
+        this.taskNodeManipulator = serviceMasterManipulator.getServiceNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
@@ -70,8 +70,8 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
         // TODO for customize service tree architecture.
-        this.folderManipulators          = new ArrayList<>( List.of( this.serviceNamespaceManipulator, this.applicationNodeManipulator ) );
-        this.fileManipulators            = new ArrayList<>( List.of( this.applicationNodeManipulator, this.serviceNodeManipulator ) );
+        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.applicationNodeManipulator ) );
+        this.fileManipulators            = new ArrayList<>( List.of( this.applicationNodeManipulator, this.taskNodeManipulator) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
@@ -79,22 +79,22 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
         this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 
-    public UniformServicesInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ){
-        this( superiorProcess, masterManipulator, null, ServicesInstrument.class.getSimpleName() );
+    public UniformTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ){
+        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName() );
     }
 
-//    public UniformServicesInstrument( Hydrarum hydrarum ) {
+//    public UniformTaskInstrument( Hydrarum hydrarum ) {
 //        this.hydrarum = hydrarum;
 //    }
 
-    public UniformServicesInstrument( KOIMappingDriver driver ) {
+    public UniformTaskInstrument(KOIMappingDriver driver ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator()
         );
     }
 
-    public UniformServicesInstrument( KOIMappingDriver driver, ServicesInstrument parent, String name ) {
+    public UniformTaskInstrument(KOIMappingDriver driver, ServiceInstrument parent, String name ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
@@ -149,13 +149,13 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
     }
 
     @Override
-    public ApplicationElement affirmApplication( String path ) {
-        return (ApplicationElement) this.affirmTreeNodeByPath( path, GenericApplicationElement.class, GenericNamespace.class );
+    public JobElement affirmApplication(String path ) {
+        return (JobElement) this.affirmTreeNodeByPath( path, GenericJobElement.class, GenericNamespace.class );
     }
 
     @Override
-    public ServiceElement affirmService( String path ) {
-        return (ServiceElement) this.affirmTreeNodeByPath( path, GenericServiceElement.class, GenericNamespace.class );
+    public TaskElement affirmService(String path ) {
+        return (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
     }
 
     @Override
@@ -236,7 +236,7 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
     }
 
     @Override
-    public List<ServiceElement> fetchAllService() {
-        return this.serviceNodeManipulator.fetchAllService();
+    public List<TaskElement> fetchAllService() {
+        return this.taskNodeManipulator.fetchAllService();
     }
 }

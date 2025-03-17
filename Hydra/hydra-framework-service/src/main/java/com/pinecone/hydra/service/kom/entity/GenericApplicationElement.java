@@ -5,7 +5,7 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 
 import java.util.List;
 import java.util.Map;
@@ -22,13 +22,13 @@ public class GenericApplicationElement extends ArchServoElement implements Appli
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericApplicationElement( Map<String, Object > joEntity, ServicesInstrument servicesInstrument ) {
-        super( joEntity, servicesInstrument );
+    public GenericApplicationElement( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
+        super( joEntity, serviceInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericApplicationElement( ServicesInstrument servicesInstrument ) {
-        super( servicesInstrument );
+    public GenericApplicationElement( ServiceInstrument serviceInstrument) {
+        super(serviceInstrument);
     }
 
     @Override

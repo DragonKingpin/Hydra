@@ -64,9 +64,9 @@ class Alice extends Radium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver, null );
 
-        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver );
+        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver, null );
         VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
 
 

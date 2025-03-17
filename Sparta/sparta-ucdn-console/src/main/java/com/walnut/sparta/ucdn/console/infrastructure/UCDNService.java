@@ -1,6 +1,6 @@
 package com.walnut.sparta.ucdn.console.infrastructure;
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -19,7 +19,7 @@ public interface UCDNService extends Slf4jTraceable {
 
     TitanVersionManage getTitanVersionManage();
 
-    ServicesInstrument getServicesInstrument();
+    ServiceInstrument getServiceInstrument();
 
     // TODO, For next, that will to systemically integrate the Primary-Middleware-Stone into the uniform-director.
     PrimaryMessageWareStone getPrimaryMessageMiddlewareDirector();

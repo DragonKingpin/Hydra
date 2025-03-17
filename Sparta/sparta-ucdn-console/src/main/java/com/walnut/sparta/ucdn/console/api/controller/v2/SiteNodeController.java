@@ -2,7 +2,7 @@ package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
@@ -38,7 +38,7 @@ public class SiteNodeController {
     private UCDNServiceManager UCDNServiceManager;
 
     @Resource
-    private ServicesInstrument primaryService;
+    private ServiceInstrument primaryService;
 
     @GetMapping("/query/siteGuid")
     public String querySiteNodeBySiteGuid(@RequestParam("siteGuid") String siteGuid){

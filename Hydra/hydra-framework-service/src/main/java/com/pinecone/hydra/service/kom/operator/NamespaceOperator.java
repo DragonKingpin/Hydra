@@ -3,7 +3,7 @@ package com.pinecone.hydra.service.kom.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.service.kom.GenericNamespaceRules;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.entity.Namespace;
@@ -26,8 +26,8 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         this.factory = factory;
     }
 
-    public NamespaceOperator( ServiceMasterManipulator masterManipulator, ServicesInstrument servicesInstrument ){
-        super( masterManipulator, servicesInstrument);
+    public NamespaceOperator( ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+        super( masterManipulator, serviceInstrument);
         this.namespaceManipulator = masterManipulator.getNamespaceManipulator();
         this.namespaceRulesManipulator = masterManipulator.getNamespaceRulesManipulator();
     }
@@ -37,7 +37,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         GenericNamespace ns = ( GenericNamespace ) treeNode;
 
         //存节点基础信息
-        GuidAllocator          guidAllocator = this.servicesInstrument.getGuidAllocator();
+        GuidAllocator          guidAllocator = this.serviceInstrument.getGuidAllocator();
         GUID              namespaceRulesGuid = ns.getGuid();
         GenericNamespaceRules namespaceRules = ns.getClassificationRules();
         if ( namespaceRules!= null ){
@@ -98,7 +98,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
             UOI uoi = node.getType();
             String metaType = this.getOperatorFactory().getMetaType( uoi.getObjectName() );
             if( metaType == null ) {
-                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ ServicesInstrument.class }, this.servicesInstrument);
+                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ ServiceInstrument.class }, this.serviceInstrument);
                 metaType = newInstance.getMetaType();
             }
 
@@ -110,7 +110,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     @Override
     public Namespace get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
-        GenericNamespace                      namespace = new GenericNamespace( this.servicesInstrument );
+        GenericNamespace                      namespace = new GenericNamespace( this.serviceInstrument);
         GenericNamespaceRules            namespaceRules = this.namespaceRulesManipulator.getNamespaceRules( node.getAttributesGUID() );
         GUIDImperialTrieNode guidDistributedTrieNode = this.imperialTree.getNode( node.getGuid() );
 

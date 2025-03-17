@@ -1,7 +1,7 @@
 package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
@@ -22,9 +22,9 @@ public interface AppNodeMetaMapper extends ApplicationMetaManipulator {
     @Select( "SELECT `id` AS `enumId`, `guid`, `name`, `path`, `type`, `alias`, `resource_type` AS resourceType, `deployment_method` AS deploymentMethod, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_service_app_node_meta` WHERE `guid`=#{guid}" )
     GenericApplicationElement getApplicationElement( @Param("guid") GUID guid );
 
-    default GenericApplicationElement getApplicationElement( GUID guid, ServicesInstrument servicesInstrument ){
+    default GenericApplicationElement getApplicationElement( GUID guid, ServiceInstrument serviceInstrument){
         GenericApplicationElement element = this.getApplicationElement( guid );
-        element.apply( servicesInstrument );
+        element.apply(serviceInstrument);
         return element;
     }
     @Update("UPDATE `hydra_service_app_node_meta` SET `name` = #{name}, `path` = #{path}, `type` = #{type}, `alias` = #{alias}, `resource_type` = #{resourceType}, `deployment_method` = #{deploymentMethod}, `update_time` = #{updateTime} WHERE `guid` = #{guid}")

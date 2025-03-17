@@ -10,7 +10,7 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.service.ArchServiceFamilyMeta;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.framework.util.id.GuidAllocator;
 
@@ -18,7 +18,7 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
     protected long                       enumId;
 
     protected GUIDImperialTrieNode distributedTreeNode;
-    protected ServicesInstrument         servicesInstrument;
+    protected ServiceInstrument serviceInstrument;
 
     public ArchElementNode() {
         super();
@@ -29,19 +29,19 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchElementNode( Map<String, Object > joEntity, ServicesInstrument servicesInstrument ) {
+    public ArchElementNode( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
         super( joEntity );
-        this.apply( servicesInstrument );
+        this.apply(serviceInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchElementNode( ServicesInstrument servicesInstrument ) {
-        this.apply( servicesInstrument );
+    public ArchElementNode( ServiceInstrument serviceInstrument) {
+        this.apply(serviceInstrument);
     }
 
-    public void apply( ServicesInstrument servicesInstrument ) {
-        this.servicesInstrument = servicesInstrument;
-        GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
+    public void apply( ServiceInstrument serviceInstrument) {
+        this.serviceInstrument = serviceInstrument;
+        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID() );
     }
 
@@ -128,14 +128,14 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
         List<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
-            ElementNode elementNode = (ElementNode) this.servicesInstrument.get( guid );
+            ElementNode elementNode = (ElementNode) this.serviceInstrument.get( guid );
             elementNodes.add( elementNode );
         }
         return elementNodes;
     }
 
     protected List<GUID > fetchChildrenGuids() {
-        return this.servicesInstrument.fetchChildrenGuids( this.getGuid() );
+        return this.serviceInstrument.fetchChildrenGuids( this.getGuid() );
     }
 
     protected void addChild( ElementNode child ) {
@@ -145,15 +145,15 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
             return;
         }
         else {
-            childId = this.servicesInstrument.put( child );
+            childId = this.serviceInstrument.put( child );
         }
 
 
-        this.servicesInstrument.affirmOwnedNode( this.guid, childId );
+        this.serviceInstrument.affirmOwnedNode( this.guid, childId );
     }
 
     protected boolean containsChild( String childName ) {
-        return this.servicesInstrument.containsChild( this.guid, childName );
+        return this.serviceInstrument.containsChild( this.guid, childName );
     }
 
     @Override

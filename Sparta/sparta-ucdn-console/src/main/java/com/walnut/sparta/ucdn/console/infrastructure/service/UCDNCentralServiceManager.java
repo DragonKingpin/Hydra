@@ -1,6 +1,6 @@
 package com.walnut.sparta.ucdn.console.infrastructure.service;
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
@@ -16,7 +16,7 @@ public class UCDNCentralServiceManager implements UCDNServiceManager {
 
     protected UniformServiceManager            serviceManager;
 
-    protected ServicesInstrument               servicesInstrument;
+    protected ServiceInstrument serviceInstrument;
 
     protected ServiceLifecycleIface            serviceRegistryLifecycleIface;
 
@@ -26,7 +26,7 @@ public class UCDNCentralServiceManager implements UCDNServiceManager {
 
     public UCDNCentralServiceManager( UCDNContentDelivery UCDNContentDelivery) {
         this.ucdnService                   = UCDNContentDelivery.getSpartaUCDNService();
-        this.servicesInstrument            = this.ucdnService.getServicesInstrument();
+        this.serviceInstrument = this.ucdnService.getServiceInstrument();
         this.serviceManager                = ucdnService.getUniformServiceManager();
 
         this.serviceControlAppointServer   = this.ucdnService.getPrimaryMessageMiddlewareDirector().getWolfKingAppointServer();
@@ -42,8 +42,8 @@ public class UCDNCentralServiceManager implements UCDNServiceManager {
     }
 
     @Override
-    public ServicesInstrument getServicesInstrument() {
-        return this.servicesInstrument;
+    public ServiceInstrument getServiceInstrument() {
+        return this.serviceInstrument;
     }
 
     @Override

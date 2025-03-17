@@ -1,15 +1,15 @@
 package com.pinecone.hydra.task;
 
+import java.util.Map;
+
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-import java.util.Map;
-
 public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
-    protected GUID guid;
+    protected GUID   guid;
 
     protected String name;
 
@@ -23,16 +23,19 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
 
     protected Map<String, Object > elementaryConfig;
 
+
     protected String level;
 
     protected String description;
+
     public ArchTaskFamilyMeta() {
     }
 
-    public ArchTaskFamilyMeta( Map<String, Object > joEntity ) {
+    public ArchTaskFamilyMeta(Map<String, Object > joEntity ) {
         this.apply( joEntity );
     }
-    protected ArchTaskFamilyMeta apply( Map<String, Object > joEntity ) {
+
+    protected ArchTaskFamilyMeta apply(Map<String, Object > joEntity ) {
         String szGuid = (String) joEntity.get( "guid" );
         if( szGuid != null ) {
             this.guid = GUIDs.GUID72( (String) joEntity.get( "guid" ) );

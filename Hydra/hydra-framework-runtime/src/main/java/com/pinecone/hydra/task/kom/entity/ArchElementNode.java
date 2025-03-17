@@ -1,5 +1,9 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSONObject;
@@ -7,19 +11,14 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.ArchTaskFamilyMeta;
-import com.pinecone.hydra.task.kom.TasksInstrument;
+import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-public abstract class ArchElementNode extends ArchTaskFamilyMeta implements ElementNode{
-
+public abstract class ArchElementNode extends ArchTaskFamilyMeta implements ElementNode {
     protected long                       enumId;
 
     protected GUIDImperialTrieNode distributedTreeNode;
-    protected TasksInstrument tasksInstrument;
+    protected ServiceInstrument serviceInstrument;
 
     public ArchElementNode() {
         super();
@@ -30,19 +29,19 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchElementNode( Map<String, Object > joEntity, TasksInstrument servicesInstrument ) {
+    public ArchElementNode( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
         super( joEntity );
-        this.apply( servicesInstrument );
+        this.apply(serviceInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchElementNode( TasksInstrument servicesInstrument ) {
-        this.apply( servicesInstrument );
+    public ArchElementNode( ServiceInstrument serviceInstrument) {
+        this.apply(serviceInstrument);
     }
 
-    public void apply( TasksInstrument servicesInstrument ) {
-        this.tasksInstrument = servicesInstrument;
-        GuidAllocator guidAllocator = this.tasksInstrument.getGuidAllocator();
+    public void apply( ServiceInstrument serviceInstrument) {
+        this.serviceInstrument = serviceInstrument;
+        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID() );
     }
 
@@ -53,9 +52,6 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
 
         return this;
     }
-
-
-
 
     @Override
     public long getEnumId() {
@@ -132,14 +128,14 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         List<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
-            ElementNode elementNode = (ElementNode) this.tasksInstrument.get( guid );
+            ElementNode elementNode = (ElementNode) this.serviceInstrument.get( guid );
             elementNodes.add( elementNode );
         }
         return elementNodes;
     }
 
     protected List<GUID > fetchChildrenGuids() {
-        return this.tasksInstrument.fetchChildrenGuids( this.getGuid() );
+        return this.serviceInstrument.fetchChildrenGuids( this.getGuid() );
     }
 
     protected void addChild( ElementNode child ) {
@@ -149,21 +145,19 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
             return;
         }
         else {
-            childId = this.tasksInstrument.put( child );
+            childId = this.serviceInstrument.put( child );
         }
 
 
-        this.tasksInstrument.affirmOwnedNode( this.guid, childId );
+        this.serviceInstrument.affirmOwnedNode( this.guid, childId );
     }
 
     protected boolean containsChild( String childName ) {
-        return this.tasksInstrument.containsChild( this.guid, childName );
+        return this.serviceInstrument.containsChild( this.guid, childName );
     }
 
     @Override
     public JSONObject toJSONObject() {
         return BeanColonist.DirectColonist.populate( this, ServoElement.UnbeanifiedKeys );
     }
-
-
 }

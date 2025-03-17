@@ -1,7 +1,7 @@
 package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
@@ -21,8 +21,8 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         this.factory = factory;
     }
 
-    public ServiceElementOperator( ServiceMasterManipulator masterManipulator, ServicesInstrument servicesInstrument ){
-        super( masterManipulator, servicesInstrument);
+    public ServiceElementOperator( ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+        super( masterManipulator, serviceInstrument);
        this.serviceNodeManipulator = masterManipulator.getServiceNodeManipulator();
        this.serviceMetaManipulator = masterManipulator.getServiceMetaManipulator();
 
@@ -35,7 +35,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
 
         //将信息写入数据库
         //将节点信息存入应用节点表
-        GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
+        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
         GUID serviceNodeGUID = guidAllocator.nextGUID();
         serviceElement.setGuid(serviceNodeGUID);
         this.serviceNodeManipulator.insert( serviceElement );

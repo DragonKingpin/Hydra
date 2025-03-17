@@ -1,22 +1,23 @@
 package com.pinecone.hydra.task.kom.operator;
 
-import com.pinecone.hydra.task.kom.TasksInstrument;
-import com.pinecone.hydra.task.kom.entity.GenericNamespace;
-import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
-
-import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
-import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class GenericElementOperatorFactory implements ElementOperatorFactory{
-    protected TaskMasterManipulator serviceMasterManipulator;
-    protected TasksInstrument tasksInstrument;
+import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericNamespace;
+import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+
+public class GenericElementOperatorFactory implements ElementOperatorFactory {
+    protected ServiceMasterManipulator      serviceMasterManipulator;
+    protected ServiceInstrument serviceInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
+
     protected void registerDefaultMetaType( Class<?> genericType ) {
         this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace("Generic","") );
     }
@@ -24,24 +25,22 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory{
     protected void registerDefaultMetaTypes() {
         this.registerDefaultMetaType( GenericNamespace.class );
         this.registerDefaultMetaType( GenericTaskElement.class );
-        /*this.registerDefaultMetaType( GenericApplicationElement.class );*/
+        this.registerDefaultMetaType( GenericJobElement.class );
     }
 
-    public GenericElementOperatorFactory(TasksInstrument tasksInstrument, TaskMasterManipulator serviceMasterManipulator ){
-        this.tasksInstrument = tasksInstrument;
+    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, ServiceMasterManipulator serviceMasterManipulator ){
+        this.serviceInstrument = serviceInstrument;
         this.serviceMasterManipulator = serviceMasterManipulator;
 
         this.registerer.put(
-                ElementOperatorFactory.DefaultTaskNode,
-                new TaskElementOperator( this )
+                ElementOperatorFactory.DefaultServiceNode,
+                new ServiceElementOperator( this )
         );
-/*
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultApplicationNode,
                 new ApplicationElementOperator(this)
         );
-*/
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultNamespace,
@@ -66,12 +65,12 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory{
     }
 
     @Override
-    public TasksInstrument getTasksTree() {
-        return this.tasksInstrument;
+    public ServiceInstrument getServicesTree() {
+        return this.serviceInstrument;
     }
 
     @Override
-    public TaskMasterManipulator getTaskMasterManipulator() {
+    public ServiceMasterManipulator getServiceMasterManipulator() {
         return this.serviceMasterManipulator;
     }
 
@@ -85,4 +84,5 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory{
         //Debug.trace( this.registerer.toString() );
         return (ElementOperator) this.registerer.get( typeName );
     }
+
 }

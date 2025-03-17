@@ -1,7 +1,7 @@
 //package com.walnut.sparta.services.controller.v2;
 //
 //import com.pinecone.framework.util.id.GUID;
-//import com.pinecone.hydra.service.kom.ServicesInstrument;
+//import com.pinecone.hydra.service.kom.ServiceInstrument;
 //import com.pinecone.hydra.service.kom.nodes.GenericApplicationNode;
 //import com.pinecone.hydra.service.kom.nodes.GenericNamespace;
 //import com.pinecone.hydra.service.kom.nodes.GenericServiceNode;
@@ -36,7 +36,7 @@
 //    @Resource
 //    private ServiceMasterTreeManipulatorImpl treeManipulatorSharer;
 //
-//    private ServicesInstrument servicesTree;
+//    private ServiceInstrument servicesTree;
 //
 //    MetaNodeInstanceFactory metaNodeInstanceFactory;
 //

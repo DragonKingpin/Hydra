@@ -2,7 +2,7 @@ package com.pinecone.hydra.service.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
@@ -25,8 +25,8 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         this.factory = factory;
     }
 
-    public ApplicationElementOperator(ServiceMasterManipulator masterManipulator, ServicesInstrument servicesInstrument ){
-        super( masterManipulator, servicesInstrument);
+    public ApplicationElementOperator(ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+        super( masterManipulator, serviceInstrument);
         this.applicationNodeManipulator = masterManipulator.getApplicationNodeManipulator();
         this.applicationMetaManipulator = masterManipulator.getApplicationElementManipulator();
     }
@@ -36,7 +36,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
     public GUID insert( TreeNode treeNode ) {
         GenericApplicationElement applicationElement = (GenericApplicationElement) treeNode;
 
-        GuidAllocator guidAllocator = this.servicesInstrument.getGuidAllocator();
+        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
         GUID applicationNodeGUID = guidAllocator.nextGUID();
         applicationElement.setGuid( applicationNodeGUID );
         this.applicationNodeManipulator.insert( applicationElement );
@@ -94,7 +94,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
             UOI uoi = node.getType();
             String metaType = this.getOperatorFactory().getMetaType( uoi.getObjectName() );
             if( metaType == null ) {
-                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ ServicesInstrument.class }, this.servicesInstrument);
+                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ ServiceInstrument.class }, this.serviceInstrument);
                 metaType = newInstance.getMetaType();
             }
 
@@ -108,7 +108,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         ApplicationElement applicationElement;
         if( node.getNodeMetadataGUID() != null ){
-            applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getNodeMetadataGUID(), this.servicesInstrument );
+            applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getNodeMetadataGUID(), this.serviceInstrument);
         }
         else {
             applicationElement = new GenericApplicationElement();

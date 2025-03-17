@@ -1,6 +1,6 @@
 package com.pinecone.hydra.service.kom.operator;
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
@@ -23,7 +23,7 @@ public interface ElementOperatorFactory extends OperatorFactory {
 
     ElementOperator getOperator(String typeName );
 
-    ServicesInstrument getServicesTree();
+    ServiceInstrument getServicesTree();
 
     ServiceMasterManipulator getServiceMasterManipulator();
 

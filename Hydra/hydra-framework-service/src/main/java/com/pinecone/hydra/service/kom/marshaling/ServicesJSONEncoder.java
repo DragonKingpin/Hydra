@@ -1,13 +1,13 @@
 package com.pinecone.hydra.service.kom.marshaling;
 
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 
 public class ServicesJSONEncoder implements ServicesInstrumentEncoder {
-    protected ServicesInstrument instrument;
+    protected ServiceInstrument instrument;
 
-    public ServicesJSONEncoder( ServicesInstrument instrument ) {
+    public ServicesJSONEncoder( ServiceInstrument instrument ) {
         this.instrument = instrument;
     }
 

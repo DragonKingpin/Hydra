@@ -1,6 +1,7 @@
 package com.pinecone.hydra.task.kom;
 
 import com.pinecone.framework.util.id.GUID;
+
 public class GenericNamespaceRules implements NamespaceRules {
     // 规则id
     private long enumId;

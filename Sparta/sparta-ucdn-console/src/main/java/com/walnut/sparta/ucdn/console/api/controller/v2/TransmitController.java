@@ -1,6 +1,7 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.Site;
@@ -19,12 +20,13 @@ import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
-import com.walnut.sparta.ucdn.console.domain.service.UCDNService;
+import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.DownloadObjectByChannelDTO;
-import com.walnut.sparta.ucdn.console.infrastructure.dto.SyncFileDTO;
+import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateObjectByChannelDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,18 +36,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -66,56 +69,16 @@ public class TransmitController {
     private VersionManage primaryVersion;
 
     @Resource
-    private UCDNService ucdnService;
+    private NodeFileDistributionService fileDistributionService;
 
-    /**
-     * 使用channel上传对象
-     * @param dto 上传所需数据
-     * @return 返回操作结果
-     * @throws IOException
-     * @throws SQLException
-     */
-    @PostMapping("/channel/update")
-    public BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        MultipartFile object = dto.getObject();
-        File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
-        object.transferTo( file );
-        Chanface chanface = this.getKChannel(file);
+    @Value("${service.LocalUploadTemporaryWorkingDirectory}")
+    private String majorTemporaryClusterFileDirectory;
 
-        FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( file.length() );
-        fileNode.setName( file.getName() );
-
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64(
-                this.primaryFileSystem, dto.getDestDirPath(), fileNode, chanface, this.primaryVolume
-        );
-
-        this.primaryFileSystem.receive( receiveEntity );
-        return BasicResultResponse.success();
-    }
-
-    /**
-     * 使用channel将对象下载到本地
-     * @param dto 下载所需的数据
-     * @return 返回操作结果
-     * @throws IOException
-     * @throws SQLException
-     */
-    @PostMapping("/channel/download")
-    public BasicResultResponse<String> downloadObjectByChannel( DownloadObjectByChannelDTO dto ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        File file = new File( dto.getTargetPath());
-        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-
-        FileNode fileNode = (FileNode) this.primaryFileSystem.get(this.primaryFileSystem.queryGUIDByPath(dto.getDestDirPath()));
-        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64( this.primaryFileSystem, this.primaryVolume, fileNode, titanFileChannelKChannel );
-        primaryFileSystem.export( exportEntity );
-        return BasicResultResponse.success();
-    }
+    @Value("${service.TemporaryFileExtends}")
+    private String temporaryFileExtends;
 
     @GetMapping("/download/guid")
-    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public void  getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] guids = parameterMap.get("guid");
         GUID storageObjectGuid = null;
@@ -141,8 +104,8 @@ public class TransmitController {
      * @param siteName 站点
      * @return 返回操作结果
      */
-    @PostMapping("/CDNUpload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    @PostMapping("/upload")
+    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
         if( site == null ){
@@ -156,7 +119,10 @@ public class TransmitController {
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
         String storageObjectPath = realFilePath + UCDNConsoleContents.VERSION_PREFIX+ UCDNConsoleContents.FORWARD_SLASH + version +UCDNConsoleContents.PERIOD+ extension;
-        File tempFile = File.createTempFile("upload",".temp");
+        File tempFile = new File(majorTemporaryClusterFileDirectory+ UUID.randomUUID()+temporaryFileExtends);
+        if( !tempFile.createNewFile() ){
+            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+        }
         file.transferTo(tempFile);
 
         FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
@@ -173,49 +139,22 @@ public class TransmitController {
         titanVersion.setVersion( version );
         titanVersion.setFileGuid( node.getGuid() );
         titanVersion.setTargetStorageObjectGuid( storageObject.getGuid() );
-        titanVersion.setGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
+        titanVersion.setVersionGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
 
         this.primaryVersion.insert( titanVersion );
-
-        return BasicResultResponse.success();
-    }
-
-    /**
-     *
-     * @param filePath 文件要上传的路径
-     * @param file 文件本体
-     * @return
-     */
-    @PostMapping("/upload")
-    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException, SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        File tempFile = File.createTempFile("upload",".temp");
-        file.transferTo(tempFile);
-        FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( tempFile.length() );
-        fileNode.setName( tempFile.getName() );
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64( this.primaryFileSystem,filePath, fileNode,titanFileChannelKChannel,this.primaryVolume );
-
-        this.primaryFileSystem.receive( receiveEntity );
-        return BasicResultResponse.success();
-    }
-
-    @PostMapping("/stream")
-    public String handleStreamUpload(HttpServletRequest request) throws IOException {
-        try (InputStream inputStream = request.getInputStream()) {
-            // 处理输入流
-            return "File stream processed.";
+        if( !tempFile.delete() ){
+            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
+
+        return BasicResultResponse.success();
     }
 
-    @PostMapping("/syncFile")
-    public void syncFile(@RequestBody SyncFileDTO dto) throws IOException, InterruptedException {
-        this.ucdnService.syncFile( dto );
+    @PostMapping("/clusterFileSync")
+    public void clusterFileSync(@RequestBody ClusterFileSyncDTO dto) throws IOException, InterruptedException {
+        this.fileDistributionService.clusterFileSync( dto );
     }
 
-    private Chanface getKChannel(File file ) throws IOException {
+    private Chanface getKChannel( File file ) throws IOException {
         FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         return new TitanFileChannelChanface( channel );
     }

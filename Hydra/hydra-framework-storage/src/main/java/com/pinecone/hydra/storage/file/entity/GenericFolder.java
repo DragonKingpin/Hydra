@@ -19,6 +19,7 @@ public class GenericFolder extends ArchElementNode implements Folder{
     private KOMFileSystem               fileSystem;
     private FolderManipulator           folderManipulator;
     private String                      path;
+    private Integer                     syncState;
 
     public GenericFolder() {
     }
@@ -229,5 +230,15 @@ public class GenericFolder extends ArchElementNode implements Folder{
     @Override
     public GUID getRelationVolume() {
         return this.fileSystem.getMappingVolume( this.guid );
+    }
+
+    @Override
+    public Integer getSyncState() {
+        return this.syncState;
+    }
+
+    @Override
+    public void setSyncState(Integer syncState) {
+        this.syncState = syncState;
     }
 }

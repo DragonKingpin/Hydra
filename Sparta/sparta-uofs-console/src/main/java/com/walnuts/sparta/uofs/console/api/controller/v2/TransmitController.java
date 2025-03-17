@@ -27,6 +27,7 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.DownloadObjectByChannelDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.UpdateObjectByChannelDTO;
+import com.walnuts.sparta.uofs.console.infrastructure.UOFSConfig;
 import com.walnuts.sparta.uofs.console.infrastructure.UOFSConsoleContents;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,6 +68,9 @@ public class TransmitController {
     @Resource
     private VersionManage primaryVersion;
 
+//    @Resource
+//    private UOFSConfig uofsConfig;
+
     /**
      * 使用channel上传对象
      * @param dto 上传所需数据
@@ -78,6 +82,9 @@ public class TransmitController {
     public  BasicResultResponse<String> updateObjectByChannel(UpdateObjectByChannelDTO dto ) throws IOException {
         MultipartFile object = dto.getObject();
         File file = File.createTempFile( "uofs","."+ getExtension(object.getOriginalFilename()) );
+        if( !file.exists() ){
+            throw new IOException( "Creating file compromised, what :" + file.toPath() );
+        }
         object.transferTo( file );
         Chanface chanface = this.getKChannel(file);
 
@@ -91,6 +98,9 @@ public class TransmitController {
         );
 
         this.primaryFileSystem.receive( receiveEntity );
+        if(!file.delete()){
+            throw new IOException( "Purging temporary file compromised, what :" + file.toPath() );
+        }
         return BasicResultResponse.success();
     }
 
@@ -196,8 +206,11 @@ public class TransmitController {
 
         FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
-        String storageObjectPath = realFilePath + UOFSConsoleContents.VERSION_PREFIX+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
+        String storageObjectPath = realFilePath +UOFSConsoleContents.VERSION_PREFIX+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
         File tempFile = File.createTempFile("upload",".temp");
+        if( !tempFile.exists() ){
+            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+        }
         file.transferTo(tempFile);
 
         FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
@@ -216,6 +229,9 @@ public class TransmitController {
         titanVersion.setTargetStorageObjectGuid( storageObject.getGuid() );
 
         this.primaryVersion.insert( titanVersion );
+        if( !tempFile.delete() ){
+            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
+        }
 
         return BasicResultResponse.success();
     }
@@ -229,6 +245,9 @@ public class TransmitController {
     @PostMapping("/upload")
     public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file ) throws IOException {
             File tempFile = File.createTempFile("upload",".temp");
+            if(!tempFile.exists()){
+                throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+            }
             file.transferTo(tempFile);
 
             FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
@@ -240,6 +259,9 @@ public class TransmitController {
             TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64( this.primaryFileSystem,filePath, fileNode,titanFileChannelKChannel,this.primaryVolume );
 
             this.primaryFileSystem.receive( receiveEntity );
+            if(!tempFile.delete()){
+                throw new IOException( "Temporary file has been purged failed." );
+            }
             return BasicResultResponse.success();
     }
 

@@ -1,8 +1,8 @@
 package com.pinecone.hydra.storage.volume;
 
-import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.storage.StorageConfig;
 
-public interface VolumeConfig extends KernelObjectConfig {
+public interface VolumeConfig extends StorageConfig {
     String getVersionSignature();
 
     Number getTinyFileStripSizing() ;

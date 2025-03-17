@@ -9,5 +9,4 @@ public interface BucketMasterManipulator extends KOIMasterManipulator {
 
     SiteNodeManipulator getSiteNodeManipulator();
 
-    FileSyncManipulator getFileSyncManipulator();
 }

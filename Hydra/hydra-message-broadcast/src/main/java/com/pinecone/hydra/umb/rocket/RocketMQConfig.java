@@ -1,11 +1,21 @@
 package com.pinecone.hydra.umb.rocket;
 
+import java.util.Map;
+
 public class RocketMQConfig implements RocketConfig {
     protected String mszNameServerAddr;
     protected String mszGroupName;
-    protected int mnMaxMessageSize;
-    protected int mnSendMsgTimeout;
-    protected int mnRetryTimesWhenSendFailed;
+    protected int    mnMaxMessageSize;
+    protected int    mnSendMsgTimeout;
+    protected int    mnRetryTimesWhenSendFailed;
+
+    public RocketMQConfig( Map<String, Object> conf ){
+        this.mszNameServerAddr           = (String) conf.get( "NameServerAddr" );
+        this.mszGroupName                = (String) conf.get( "GroupName" );
+        this.mnMaxMessageSize            = ( (Number) conf.get( "MaxMessageSize" ) ).intValue();
+        this.mnSendMsgTimeout            = ( (Number) conf.get( "SendMsgTimeout" ) ).intValue();
+        this.mnRetryTimesWhenSendFailed  = ( (Number) conf.get( "RetryTimesWhenSendFailed" ) ).intValue();
+    }
 
     public RocketMQConfig( String nameServerAddr, String groupName, int maxMessageSize, int sendMsgTimeout, int retryTimesWhenSendFailed ) {
         this.mszNameServerAddr          = nameServerAddr;

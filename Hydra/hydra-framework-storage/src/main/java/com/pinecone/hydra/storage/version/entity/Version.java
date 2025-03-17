@@ -5,10 +5,6 @@ import com.pinecone.framework.util.id.GUID;
 public interface Version {
     long getEnumId();
     void setEnumId( long enumId );
-
-    GUID getGuid();
-    void setGuid( GUID guid );
-
     String getVersion();
     void setVersion( String version );
 
@@ -23,4 +19,7 @@ public interface Version {
 
     long getCrc32();
     void setCrc32( long crc32 );
+
+    void setVersionGuid(GUID versionGuid);
+    GUID getVersionGuid();
 }

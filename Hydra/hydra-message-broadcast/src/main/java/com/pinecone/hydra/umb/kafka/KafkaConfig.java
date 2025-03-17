@@ -3,42 +3,40 @@ package com.pinecone.hydra.umb.kafka;
 import java.util.Map;
 
 public class KafkaConfig implements KConfig {
-    protected String server;
+    protected String mszServer;
 
-    protected String autoOffsetReset;
+    protected String mszAutoOffsetReset;
 
-    protected long defaultPollHandleMillis;
+    protected long   mnDefaultPollHandleMillis;
 
     public KafkaConfig ( Map<String, Object > conf ) {
-        this.server                  = (String) conf.get( "server" );
-        this.autoOffsetReset         = (String) conf.getOrDefault("autoOffsetReset", "earliest");
-        this.defaultPollHandleMillis = Long.parseLong(
-                conf.getOrDefault("defaultPollHandleMillis", 100
-        ).toString());
+        this.mszServer                 = (String) conf.get( "server" );
+        this.mszAutoOffsetReset        = (String) conf.getOrDefault( "AutoOffsetReset", KafkaConstants.DefaultAutoOffsetReset );
+        this.mnDefaultPollHandleMillis = ( (Number)conf.getOrDefault( "DefaultPollHandleMillis", KafkaConstants.DefaultPollHandleMillis ) ).longValue();
     }
 
-    public KafkaConfig( String server, String autoOffsetReset, long defaultPollHandleMillis ){
-        this.server                  = server;
-        this.autoOffsetReset         = autoOffsetReset;
-        this.defaultPollHandleMillis = defaultPollHandleMillis;
+    public KafkaConfig( String szServer, String szAutoOffsetReset, long nDefaultPollHandleMillis ){
+        this.mszServer                 = szServer;
+        this.mszAutoOffsetReset        = szAutoOffsetReset;
+        this.mnDefaultPollHandleMillis = nDefaultPollHandleMillis;
     }
 
-    public KafkaConfig( String server ){
-        this( server, "earliest", 100 );
-    }
-
-    @Override
-    public String getServer() {
-        return this.server;
+    public KafkaConfig( String szServer ){
+        this( szServer, KafkaConstants.DefaultAutoOffsetReset, KafkaConstants.DefaultPollHandleMillis );
     }
 
     @Override
-    public String getAutoOffsetReset() {
-        return this.autoOffsetReset;
+    public String getMszServer() {
+        return this.mszServer;
     }
 
     @Override
-    public long getDefaultPollHandleMillis() {
-        return this.defaultPollHandleMillis;
+    public String getMszAutoOffsetReset() {
+        return this.mszAutoOffsetReset;
+    }
+
+    @Override
+    public long getMnDefaultPollHandleMillis() {
+        return this.mnDefaultPollHandleMillis;
     }
 }

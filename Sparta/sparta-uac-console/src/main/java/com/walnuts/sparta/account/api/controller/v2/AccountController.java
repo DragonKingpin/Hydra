@@ -1,6 +1,5 @@
 package com.walnuts.sparta.account.api.controller.v2;
 
-
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.account.AccountManager;
@@ -24,7 +23,6 @@ import com.walnuts.sparta.account.domian.vo.UserLoginVO;
 import com.walnuts.sparta.account.interceptor.RequiresAuthentication;
 import com.walnuts.sparta.account.properties.JwtProperties;
 import com.walnuts.sparta.account.util.JwtUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @RestController
 @RequestMapping( "/api/v2/account" )
 @CrossOrigin

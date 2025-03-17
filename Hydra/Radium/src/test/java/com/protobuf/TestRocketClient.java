@@ -105,7 +105,7 @@ class Garrison extends Radium {
 
     public void testWolfMCTB() throws Exception {
         String nameSrvAddr = "localhost:9876";
-        String groupName = "UCDNFileServiceGroup";
+        String groupName = "UCDNFileServiceTransmitGroup";
         String topic = "ucdn-file-cloud-distribute-topic";
         String tags = "*";
         String keys = "testKeys";

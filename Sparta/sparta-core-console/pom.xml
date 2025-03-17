@@ -93,6 +93,11 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.walnut.sailor.sdd</groupId>
+            <artifactId>sailor-stream-distribute-sdk</artifactId>
+            <version>2.1.0</version>
+        </dependency>
         <!--        导入redis依赖-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.data</groupId>-->

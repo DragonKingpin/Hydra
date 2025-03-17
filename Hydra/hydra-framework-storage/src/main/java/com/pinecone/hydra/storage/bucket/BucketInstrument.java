@@ -42,6 +42,5 @@ public interface BucketInstrument extends Pinenut {
 
     void updateSiteNode( SiteNode siteNode );
 
-    void createSyncState( GUID fileGuid, int state );
 
 }

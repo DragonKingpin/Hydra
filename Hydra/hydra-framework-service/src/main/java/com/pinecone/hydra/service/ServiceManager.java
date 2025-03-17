@@ -69,6 +69,6 @@ public interface ServiceManager extends KernelObjectInstrument {
 
     ServicesInstrument getServicesInstrument();
 
-    int liveServiceNum();
+    int countRegisteredService();
 
 }

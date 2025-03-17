@@ -69,6 +69,9 @@ public class ConsoleController {
         Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
         String storageObjectPath = realFilePath + PolicyConstants.VERSION_PREFIX+ PolicyConstants.FORWARD_SLASH + version +PolicyConstants.PERIOD+ extension;
         File tempFile = File.createTempFile("upload",".temp");
+        if(!tempFile.exists()){
+            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
+        }
         file.transferTo(tempFile);
 
         FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
@@ -88,6 +91,9 @@ public class ConsoleController {
 
         this.primaryVersion.insert( titanVersion );
 
+        if( !tempFile.delete() ){
+            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
+        }
         return BasicResultResponse.success();
     }
 

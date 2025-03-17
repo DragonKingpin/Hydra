@@ -1,19 +1,33 @@
 package com.pinecone.hydra.storage.file;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.ArchStorageConfig;
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
 import com.pinecone.hydra.storage.volume.VolumeConstants;
-import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
+import com.pinecone.ulf.util.guid.GUIDs;
 
-public class KernelFileSystemConfig extends ArchKernelObjectConfig implements FileSystemConfig {
-    protected String mszVersionSignature    = FileConstants.StorageVersionSignature;
-    protected Number mnClusterSize          = FileConstants.DefaultClusterSize;
-    protected GUID   mLocalhostGUID         = StorageConstants.LocalhostGUID;
-    protected Number TinyFileStripSizing    = VolumeConstants.TinyFileStripSizing;
-    protected String DefaultVolumePath      = StorageConstants.DefaultVolumePath;
-    protected long   DefaultExpiryTime      = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
-    protected int    RedisTimeOut           = FileConstants.REDIS_TIME_OUT;
+import java.util.Map;
+
+public class KernelFileSystemConfig extends ArchStorageConfig implements FileSystemConfig {
+    protected String mszVersionSignature        = FileConstants.StorageVersionSignature;
+    protected Number mnClusterSize              = FileConstants.DefaultClusterSize;
+    protected GUID   mLocalhostGUID             = StorageConstants.LocalhostGUID;
+    protected Number mTinyFileStripSizing       = VolumeConstants.TinyFileStripSizing;
+    protected long mPathQueryExpiryTimeHotMil   = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
+
+    public KernelFileSystemConfig() {
+        super();
+    }
+
+    public KernelFileSystemConfig( Map<String, Object> config ) {
+        super( config );
+        this.mszVersionSignature           = (String) config.getOrDefault("VersionSignature", FileConstants.StorageVersionSignature);
+        this.mnClusterSize                 = (Number) config.getOrDefault("ClusterSize", FileConstants.DefaultClusterSize);
+        this.mLocalhostGUID                = GUIDs.GUID72( String.valueOf(config.getOrDefault("LocalhostGUID", StorageConstants.LocalhostGUID)) );
+        this.mTinyFileStripSizing          = (Number) config.getOrDefault("TinyFileStripSizing", VolumeConstants.TinyFileStripSizing);
+        this.mPathQueryExpiryTimeHotMil    = ((Number) config.getOrDefault("PathQueryExpiryTimeHotMil", DefaultCacheConstants.PathQueryExpiryTimeHotMil)).longValue();
+    }
 
 
     @Override
@@ -30,22 +44,15 @@ public class KernelFileSystemConfig extends ArchKernelObjectConfig implements Fi
     }
 
     @Override
-    public Number getTinyFileStripSizing() {
-        return this.TinyFileStripSizing;
+    public Number getmTinyFileStripSizing() {
+        return this.mTinyFileStripSizing;
     }
 
     @Override
-    public String getDefaultVolume() {
-        return this.DefaultVolumePath;
+    public long getPathQueryExpiryTimeHotMil() {
+        return this.mPathQueryExpiryTimeHotMil       ;
     }
 
-    @Override
-    public long getExpiryTime() {
-        return this.DefaultExpiryTime;
-    }
 
-    @Override
-    public int getRedisTimeOut() {
-        return this.RedisTimeOut;
-    }
+
 }

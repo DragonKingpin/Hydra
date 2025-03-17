@@ -1,6 +1,7 @@
 package com.pinecone.hydra.version.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.Version;
 import com.pinecone.hydra.storage.version.source.VersionManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @IbatisDataAccessObject
 public interface VersionMapper extends VersionManipulator {
-    @Insert("INSERT INTO `hydra_uofs_version` ( `version_guid`, `version`, `target_storage_object_guid`, `file_guid`) VALUES (#{guid},#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
+    @Insert("INSERT INTO `hydra_uofs_version` ( `version_guid`, `version`, `target_storage_object_guid`, `file_guid`) VALUES (#{versionGuid},#{version}, #{targetStorageObjectGuid}, #{fileGuid})")
     void insertObjectVersion(Version version);
 
     @Delete("DELETE FROM `hydra_uofs_version` WHERE `version` = #{version} AND `file_guid` = #{fileGuid}")
@@ -31,4 +32,7 @@ public interface VersionMapper extends VersionManipulator {
 
     @Select("SELECT `file_guid` FROM `hydra_uofs_version` WHERE target_storage_object_guid = #{fileGuid}")
     GUID getVersionFileByGuid(GUID fileGuid);
+
+    @Select("SELECT `version`, `target_storage_object_guid`AS targetStorageObjectGuid, `file_guid` AS fileGuid, `enable_crc32` AS enableCrc32, `crc32`, `version_guid` AS versionGuid FROM `hydra_uofs_version` WHERE `target_storage_object_guid` = #{targetStorageObjectGuid}")
+    TitanVersion queryByTargetStorageObjectGuid(GUID targetStorageObjectGuid);
 }

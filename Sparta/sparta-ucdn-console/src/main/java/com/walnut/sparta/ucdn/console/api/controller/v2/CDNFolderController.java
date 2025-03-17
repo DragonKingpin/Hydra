@@ -2,12 +2,15 @@ package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.sparta.ucdn.console.api.response.BasicResultResponse;
+import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
+import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +27,15 @@ import java.util.List;
 public class CDNFolderController {
     @Resource
     private KOMFileSystem primaryFileSystem;
+
     @Resource
     private VersionManage versionManage;
+
+    @Resource
+    private ClusterFileSyncMapper fileSyncMapper;
+
+    @Resource
+    private BucketInstrument bucketInstrument;
 
     /**
      * 获取文件夹下所有内容
@@ -36,18 +46,25 @@ public class CDNFolderController {
     public String listItem(@RequestParam String folderGuid ){
         Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(folderGuid));
         List<FileTreeNode> fileTreeNodes = folder.listItem();
-        for (FileTreeNode fileTreeNode : fileTreeNodes) {
-            if (versionManage.queryIsManage(fileTreeNode.getGuid())){
+        for ( FileTreeNode fileTreeNode : fileTreeNodes ) {
+            if ( this.versionManage.queryIsManage(fileTreeNode.getGuid()) ){
                 List<GUID> versions = versionManage.fetchVersions(fileTreeNode.getGuid());
                 GUID firstVersion = versions.get(0);
                 FileTreeNode firstVersionFileTreeNode = this.primaryFileSystem.get(firstVersion);
                 String fileName = firstVersionFileTreeNode.getName();
                 String fileExtension = "";
 
-                if (fileName.contains(".")) {
-                    fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+                if (fileName.contains(UCDNConstants.period)) {
+                    fileExtension = fileName.substring(fileName.lastIndexOf(UCDNConstants.period) + 1);
                 }
-                fileTreeNode.setName(fileTreeNode.getName()+'.'+fileExtension);
+                fileTreeNode.setName(fileTreeNode.getName()+UCDNConstants.period+fileExtension);
+                Integer syncState = this.fileSyncMapper.queryState(fileTreeNode.getGuid());
+                if( syncState == null ){
+                    fileTreeNode.evinceFolder().setSyncState( 0 );
+                }
+                else {
+                    fileTreeNode.evinceFolder().setSyncState( 1 );
+                }
             }
         }
         return  BasicResultResponse.success(fileTreeNodes).toJSONString() ;
@@ -58,9 +75,8 @@ public class CDNFolderController {
      * @param destDirPath 文件夹路径
      * @return 返回操作状态
      */
-    @GetMapping("/creat/folder")
+    @GetMapping("/create")
     public BasicResultResponse<String> createFolder( @RequestParam("destDirPath") String destDirPath ){
-        System.out.println(destDirPath);
         this.primaryFileSystem.affirmFolder( destDirPath );
         return BasicResultResponse.success();
     }

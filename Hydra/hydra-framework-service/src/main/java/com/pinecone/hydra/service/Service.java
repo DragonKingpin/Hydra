@@ -2,6 +2,8 @@ package com.pinecone.hydra.service;
 
 import com.pinecone.framework.util.name.Namespace;
 
+import java.util.Map;
+
 public interface Service extends ServiceFamilyMeta {
     String getName();        // Service Name, e.g. WpnService
 
@@ -24,4 +26,6 @@ public interface Service extends ServiceFamilyMeta {
     String getLevel() ;
 
     Object getProcessImageObject();
+
+    Map<String, Object> getMetaDataScope();
 }

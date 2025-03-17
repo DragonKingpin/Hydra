@@ -1,13 +1,15 @@
 package com.pinecone.hydra.storage.file.entity;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.storage.StorageConstants;
+import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.source.LocalClusterManipulator;
 import com.pinecone.hydra.storage.file.source.RemoteClusterManipulator;
 
 import java.util.List;
 
 public class ClusterPage64 implements ClusterPage {
+    protected KOMFileSystem           komFileSystem;
+
     protected RemoteClusterManipulator remoteClusterManipulator;
 
     protected LocalClusterManipulator localClusterManipulator;
@@ -24,10 +26,11 @@ public class ClusterPage64 implements ClusterPage {
 
     protected GUID fileGuid;
 
-    public ClusterPage64(
+    public ClusterPage64(KOMFileSystem fileSystem,
             RemoteClusterManipulator remoteClusterManipulator, LocalClusterManipulator localClusterManipulator,
             GUID fileGuid, int pageSize
     ) {
+        this.komFileSystem            = fileSystem;
         this.fileGuid                 = fileGuid;
         this.localClusterManipulator  = localClusterManipulator;
         this.remoteClusterManipulator = remoteClusterManipulator;
@@ -38,8 +41,8 @@ public class ClusterPage64 implements ClusterPage {
         this.mCurrClusterPage         = this.loadClusterPage(0);
     }
 
-    public ClusterPage64( RemoteClusterManipulator remoteClusterManipulator, LocalClusterManipulator localClusterManipulator, GUID fileGuid ) {
-        this( remoteClusterManipulator, localClusterManipulator, fileGuid, 10 );
+    public ClusterPage64(KOMFileSystem fileSystem, RemoteClusterManipulator remoteClusterManipulator, LocalClusterManipulator localClusterManipulator, GUID fileGuid ) {
+        this( fileSystem,remoteClusterManipulator, localClusterManipulator, fileGuid, 10 );
     }
 
     @SuppressWarnings( "unchecked" )
@@ -93,7 +96,7 @@ public class ClusterPage64 implements ClusterPage {
         }
         else if ( cluster instanceof RemoteCluster ) {
             RemoteCluster remoteCluster = (RemoteCluster) cluster;
-            if( remoteCluster.getDeviceGuid().equals( StorageConstants.LocalhostGUID )) {
+            if( remoteCluster.getDeviceGuid().equals( this.komFileSystem.getConfig().getLocalHostGuid() )) {
                 return this.localClusterManipulator.getLocalClusterByGuid( remoteCluster.getSegGuid() );
             }
         }

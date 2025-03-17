@@ -19,6 +19,7 @@ import com.walnuts.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnuts.sparta.uofs.console.domain.dto.PhysicalVolumeDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.LogicVolumeDTO;
 import com.walnuts.sparta.uofs.console.domain.dto.StorageExpansionDTO;
+import com.walnuts.sparta.uofs.console.infrastructure.UOFSConfig;
 import com.walnuts.sparta.uofs.console.infrastructure.UOFSConsoleContents;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +40,9 @@ import java.util.List;
 public class VolumeController {
     @Resource
     private UniformVolumeManager primaryVolume;
+
+//    @Resource
+//    private UOFSConfig  uofsConfig;
 
     /**
      * 创建物理卷

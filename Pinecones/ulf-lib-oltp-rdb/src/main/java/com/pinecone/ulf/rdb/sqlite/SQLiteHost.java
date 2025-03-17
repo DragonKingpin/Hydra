@@ -70,6 +70,9 @@ public class SQLiteHost implements RDBHost {
         }
         String url = "jdbc:sqlite:" + this.mszLocation;
         this.mGlobalConnection = DriverManager.getConnection( url );
+        Statement statement = this.mGlobalConnection.createStatement();
+        statement.execute( "PRAGMA journal_mode=WAL;" );
+        statement.close();
     }
 
     @Override

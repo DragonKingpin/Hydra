@@ -15,7 +15,7 @@ public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     protected static Properties newDefaultProperties( KConfig kafkaConfig ) {
         Properties properties = new Properties();
 
-        properties.put( "bootstrap.servers", kafkaConfig.getServer() );
+        properties.put( "bootstrap.servers", kafkaConfig.getMszServer() );
         properties.put( "key.serializer", StringSerializer.class.getName() );
         properties.put( "value.serializer", ByteArraySerializer.class.getName() );
 
@@ -33,7 +33,7 @@ public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     public UlfBroadcastProducer( KClient kafkaClient, Properties properties ){
         this.kafkaClient            = kafkaClient;
         KConfig kafkaConfig         = kafkaClient.getKafkaConfig();
-        this.server                 = kafkaConfig.getServer();
+        this.server                 = kafkaConfig.getMszServer();
         this.properties             = properties;
     }
 

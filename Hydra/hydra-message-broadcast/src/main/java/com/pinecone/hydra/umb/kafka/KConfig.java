@@ -3,14 +3,14 @@ package com.pinecone.hydra.umb.kafka;
 import com.pinecone.hydra.umc.msg.MsgNodeConfig;
 
 public interface KConfig extends MsgNodeConfig {
-    String getServer();
+    String getMszServer();
 
-    String getAutoOffsetReset();
+    String getMszAutoOffsetReset();
 
-    long getDefaultPollHandleMillis();
+    long getMnDefaultPollHandleMillis();
 
     @Override
     default long getSyncWaitingMillis() {
-        return this.getDefaultPollHandleMillis();
+        return this.getMnDefaultPollHandleMillis();
     }
 }

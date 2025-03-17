@@ -6,7 +6,7 @@ public final class VolumeConstants {
     public static final Number MegaFileStripSizing              = 10 * 1024 * 1024L;  //  10 MB
     public static final Number DefaultStripSize                 = VolumeConstants.MegaFileStripSizing;
     public static final int    StripResidentCacheAllotRatio     = 2;
-    public static final String StorageObjectExtension           = ".storage"; // TODO! CONST
-    public static final String SqliteFileExtension              = ".db";      // TODO! CONST
+    public static final String StorageObjectExtension           = ".storage";
+    public static final String SqliteFileExtension              = ".db";
     public static final String PathSeparator                    = "/";
 }

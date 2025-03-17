@@ -23,11 +23,11 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
     protected static Properties newDefaultProperties( KConfig kafkaConfig, String group ) {
         Properties properties = new Properties();
 
-        properties.put( "bootstrap.servers", kafkaConfig.getServer() );
+        properties.put( "bootstrap.servers", kafkaConfig.getMszServer() );
         properties.put( "group.id", group );
         properties.put( "key.deserializer", StringDeserializer.class.getName() );
         properties.put( "value.deserializer", ByteArrayDeserializer.class.getName() );
-        properties.put( "auto.offset.reset", kafkaConfig.getAutoOffsetReset() );
+        properties.put( "auto.offset.reset", kafkaConfig.getMszAutoOffsetReset() );
 
         return properties;
     }
@@ -127,7 +127,7 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
         KafkaConsumer<K, V > kafkaConsumer = new KafkaConsumer<>(this.properties);
         kafkaConsumer.subscribe(Collections.singletonList( this.topic ) );
 
-        long pollMills = this.kafkaClient.getKafkaConfig().getDefaultPollHandleMillis();
+        long pollMills = this.kafkaClient.getKafkaConfig().getMnDefaultPollHandleMillis();
         Runnable runnable = new Runnable() {
             @Override
             public void run() {

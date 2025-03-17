@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.version.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.Version;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface VersionManipulator extends Pinenut {
     List<GUID> fetchVersions(GUID guid);
 
     GUID getVersionFileByGuid(GUID fileGuid);
+
+    TitanVersion queryByTargetStorageObjectGuid(GUID targetStorageObjectGuid);
 }

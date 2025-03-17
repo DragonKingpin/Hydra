@@ -26,6 +26,6 @@ public interface ServiceLifecycleIface extends Pinenut {
 
     boolean hasOwnedServiceClient( Long clientId );
 
-    Integer liveServiceNum( String s );
+    Integer countRegisteredService();
 
 }

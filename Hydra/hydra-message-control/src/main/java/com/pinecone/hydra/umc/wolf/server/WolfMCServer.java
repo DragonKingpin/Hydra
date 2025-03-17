@@ -159,14 +159,14 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
 
     @Override
     public UlfServer registerDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mDataArrivedEventHandlers.add( handler );
         return this;
     }
 
     @Override
     public UlfServer deregisterDataArrivedEventHandlers( ChannelEventHandler handler ) throws IllegalStateException {
-        this.checkDeRegisterHandlerStatus();
+        this.checkDeregisterHandlerStatus();
         this.mDataArrivedEventHandlers.remove( handler );
         return this;
     }

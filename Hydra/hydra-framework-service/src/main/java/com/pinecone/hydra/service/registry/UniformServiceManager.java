@@ -252,7 +252,7 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public int liveServiceNum() {
+    public int countRegisteredService() {
         return this.mServiceRegistry.size();
     }
 }

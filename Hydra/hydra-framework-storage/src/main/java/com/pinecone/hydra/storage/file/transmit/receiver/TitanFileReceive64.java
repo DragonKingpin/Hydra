@@ -231,16 +231,16 @@ public class TitanFileReceive64 implements FileReceive64{
 
     }
 
-    Verification getVerification() throws IOException {
-        File tempFile = File.createTempFile("temp",".temp");
-        FileNode fileNode = (FileNode)this.mKOMFileSystem.get(this.mKOMFileSystem.queryGUIDByPath(this.destDirPath));
-        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-        TitanFileChannelChanface kChannel = new TitanFileChannelChanface(channel);
-        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64(this.mKOMFileSystem, this.volumeManager, fileNode, kChannel);
-        this.mKOMFileSystem.export( exportEntity );
-
-        return getVerification(tempFile);
-    }
+//    Verification getVerification() throws IOException {
+//        File tempFile = File.createTempFile("temp",".temp");
+//        FileNode fileNode = (FileNode)this.mKOMFileSystem.get(this.mKOMFileSystem.queryGUIDByPath(this.destDirPath));
+//        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+//        TitanFileChannelChanface kChannel = new TitanFileChannelChanface(channel);
+//        TitanFileExportEntity64 exportEntity = new TitanFileExportEntity64(this.mKOMFileSystem, this.volumeManager, fileNode, kChannel);
+//        this.mKOMFileSystem.export( exportEntity );
+//
+//        return getVerification(tempFile);
+//    }
 
     private Verification getVerification(File tempFile) throws IOException {
         Verification verification = new Verification();

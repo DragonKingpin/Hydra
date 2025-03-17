@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.file;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.StorageConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;

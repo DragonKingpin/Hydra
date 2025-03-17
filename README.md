@@ -45,15 +45,15 @@ Would you like to own the "God Eyes"? Do you crave power? Do you wish to wield a
 <strong>Now, data is all you need!</strong>
 
 Hydra + Radium fulfills your dreams, creating a data "Elder Brain" specifically for "TJ" individuals, 'all information all I need'. 
-We build a unique personal TB-PB level data warehouse and search engine just for you, your exclusive "God Eyes" !
+We build a unique personal PB level data warehouse and search engine just for you, your exclusive "God Eyes" !
 
 Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communication, service-oriented, which is the distributed operating system.
 
 ## 📖 摘要 / 简介
 <p><strong>你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！</strong></p>
-<p><strong>Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中。为你打造独一无二的的个人TB-PB级数仓和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</strong></p>
-<p>简易和多种部署模式，不一定非要Linux！不一定非要K8S！不一定非要Hadoop！集成统一的丐版配置也能玩转TB-PB级数据。</p>
-<p>不会集群？不会中间件？不会分布式？不会云计算？我是小白？Don`t worry，持续更新的保姆级教程和实例最小系统，系统可大可小，丐版技术也能玩转云和大数据。</p>
+<p><strong>Hydra + Radium 成就你的梦想，专为"TJ"人打造的数据“主脑”，一切信息尽在掌握之中。
+为你打造独一无二的的个人PB级数仓和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！弹性化中央集权架构设计，你是数据小世界的"神"，每日情报尽在掌握。</strong></p>
+<p>不会集群？不会中间件？不会分布式？不会云计算？我是小白？Don`t worry，持续更新的保姆级教程和实例最小系统，弹性结构、系统可大可小，丐版技术也能玩转云和大数据。</p>
 
 ### 字多不看？太高端听不懂？几个场景助你快速了解Hydra和其关联项目。
 - 构造你的私人知识库，关联任何你感兴趣的知识图谱（音乐、电影、视频、小说、美食、新闻、学术等），生成巨型知识字典和图谱，并交给GPT等大模型给你生成属于你的`上帝报告`。
@@ -62,11 +62,20 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 - 我关注业务，我只想赚钱，我只想写论文，Ah！Hydra + Radium的目标正是助你快速构建大规模爬虫引擎，打造你的专属网络数据采取系统。
 - 我对爬虫没兴趣，我想要一个中台系统，快速自动化部署多种多样的服务和任务。Hydra为你最大化抽象，多种任务一个接口。
 
+### 🏆 15万行源码，3A史诗巨献
+底层 Hydra = 手撕 `双工多路RPC` + `分布式文件系统` + `存储卷系统` + `MapReduce` + `运行支持库` + `操作系统内核` + `消息中间件统一总线`\
+应用层衍生子项目（Sparta 中台服务组）：分布式搜索引擎、分布式对象存储、CDN、任务管理器、服务管理系统\
+该仓库为Java 11实现版本（由C/C++版本重构），非GUI大部分不直接基于第三方框架。
+此外由于本项目工程量、复杂度和工作量较大，本人精力、能力有限，错误和功能完整性不足是不可避免的，还希望各位读者大佬批评指正。\
+最后，由于本人精力和工作时间等问题，该公开版本为beta版本，一部分功能未完全实现，后续会不断迭代，欢迎关注。
+
 ### 什么是 Hydra，他能干嘛？
 - Hydra 是由 DragonKing(undefined) 和其团队原创的，面向跨平台PB级别云计算、数据仓库、多任务调度、MapReduce、通信、服务化、抽象化分布式操作系统。
 - 其设计理念是基于对中台架构的创新和一体化，并尝试构造更一致的操作内核，
 目前的设计尝试由一个迷你中台和云系统（<a href="https://www.nutsky.com">豆子坚果云</a>）不断自底向上迭代。
 
+#### 全局中央架构鸟瞰图
+![HydraArchitecture](assets/imgs/architect/architect_frame_global_2.png)
 
 01. 支持统一高度抽象化的任务、事务、服务等编排，一套接口，可分级、可本地、可集群。
 02. 抽象统一分布式资源树系统，场景树、服务树、任务树、部署树、配置树、存储树等。
@@ -85,13 +94,6 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 15. 传统实例化、IOC化、C/C++风格化，多种对象生命周期模式，更有趣的系统设计。
 16. 可分级、分组、嵌套、级联的设计方法论，确保更灵活的大型系统设计，确保系统结构清晰、规整、可视、整整齐齐。
 17. 无需担心抽象，无需担心"吹牛逼"，我们尽可能通过实际案例和有效代码，展示系统功能，也欢迎commit。——以实现小型爬虫搜索引擎为例。
-
-### 🏆 15万行源码，3A史诗巨献
-底层 Hydra = 手撕 `双工多路RPC` + `分布式文件系统` + `存储卷系统` + `MapReduce` + `运行支持库` + `操作系统内核` + `消息中间件统一总线`\
-应用层衍生子项目（Sparta 中台服务组）：分布式搜索引擎、分布式对象存储、CDN、任务管理器、服务管理系统\
-该仓库为Java 11实现版本（由C/C++版本重构），非GUI大部分不直接基于第三方框架。
-此外由于本项目工程量、复杂度和工作量较大，本人精力、能力有限，错误和功能完整性不足是不可避免的，还希望各位读者大佬批评指正。\
-最后，由于本人精力和工作时间等问题，该公开版本为beta版本，一部分功能未完全实现，后续会不断迭代，欢迎关注。
 
 
 ### 子系统、框架和实例系统
@@ -130,6 +132,8 @@ Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communica
 
 ## 一、📝 描述
 ### 1.1、框架组成
+#### 全局中央架构鸟瞰图（抽象全局架构）
+![HydraArchitecture](assets/imgs/architect/architect_frame_global.png)
 #### 1.1.1、Pinecone 基础运行支持库
 ##### 1.1.1.1、 扩展容器
 1. LinkedTreeMap
@@ -221,11 +225,29 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
    4. 条带卷，基于状态机无锁编程化并行存储，采用基于差分多路缓存滑动窗口、DFA、FIFO多线程缓存等算法优化的高性能条带卷设计。
 ![VolumeArchitecture](assets/imgs/volume_architecture.png)
 
+  应用层面本项目提供了物理卷与逻辑卷的管理后台方便用户的管理与使用
+  ![image](assets/imgs/logic_volume_manage.png)
+  ![image](assets/imgs/logic_volume_create.png)
+  ![image](assets/imgs/physical_volume_manage.png)
+
 2. 分布式文件系统\
 Hydra 是基于多级级联的大型系统架构，UOFS同样沿用了Hydra的整体架构体系，采样全局级联的设计。支持存储节点、索引节点、卷节点等每一层级的级联设计。
 ![FileSystemArchitecture](assets/imgs/fs_architecture.svg)
+应用层面本项目不仅提供了文件浏览器的核心功能，还支持文件预览、多集群上传、外部挂载、文件完整性验证等。
+![image](assets/imgs/file_manage.png)
+![image](assets/imgs/file_preview.png)
+![image](assets/imgs/external_mounting.png)
+![image](assets/imgs/property_view.png)
 
-3. 版本管理
+3.基于UOFS的CDN(文件分发网络)
+本项目基于UOFS结合Kafka、RocketMQ、服务管理中心等提供了保证数据一致性的CDN服务,并提供文件版本管理与站点管理。
+![image](assets/imgs/site_manage.png)
+![image](assets/imgs/file_distribution_and_synchronization.png)
+![image](assets/imgs/file_version_manage.png)
+
+
+
+4. 版本管理
 
 ##### 1.1.2.9、统一资源管理、分配接口系统［TODO］
 ##### 1.1.2.10、图形管理界面［TODO］

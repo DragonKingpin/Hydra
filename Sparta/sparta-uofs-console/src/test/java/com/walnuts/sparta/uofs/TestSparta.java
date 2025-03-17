@@ -17,7 +17,6 @@ import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.radium.Radium;
-import com.walnuts.sparta.uofs.console.Sparta;
 import com.walnuts.sparta.uofs.console.SpartaBoot;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -34,65 +33,65 @@ class JesusChrist extends Radium {
 
     @Override
     public void vitalize () throws Exception {
-        Sparta sparta = new Sparta( "Sparta", this );
-
-
-        Thread shutdowner = new Thread(()->{
-            Debug.sleep( 5000 );
-            sparta.terminate();
-        });
-        //shutdowner.start();
-
-
-
-
-        sparta.setPrimarySources( SpartaBoot.class );
-
-        KOIMappingDriver koiMappingDriver = new VolumeMappingDriver(
-                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-        KOIMappingDriver koiFileMappingDriver = new FileMappingDriver(
-                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-        KOIMappingDriver koiBucketMappingDriver = new BucketMappingDriver(
-                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-        KOIMappingDriver koiVersionMappingDriver = new VersionMappingDriver(
-                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-
-
-
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
-        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver );
-        TitanBucketInstrument bucketInstrument = new TitanBucketInstrument( koiBucketMappingDriver );
-        TitanVersionManage versionManage = new TitanVersionManage( koiVersionMappingDriver );
-
-        sparta.setInitializer(new Executor() {
-            @Override
-            public void execute() throws Exception {
-                sparta.getSpringApplication().addInitializers(new ApplicationContextInitializer<ConfigurableApplicationContext>() {
-                    @Override
-                    public void initialize( ConfigurableApplicationContext applicationContext ) {
-                        GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
-                        genericApplicationContext.registerBean("primaryFileSystem", UniformObjectFileSystem.class, () -> (UniformObjectFileSystem)fileSystem);
-                        genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
-                        genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
-                        genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
-                    }
-                });
-            }
-        });
-
-
-        sparta.execute();
-
-
-
-
-
-        this.getTaskManager().add( sparta );
-        this.getTaskManager().syncWaitingTerminated();
+//        Sparta sparta = new Sparta( "Sparta", this );
+//
+//
+//        Thread shutdowner = new Thread(()->{
+//            Debug.sleep( 5000 );
+//            sparta.terminate();
+//        });
+//        //shutdowner.start();
+//
+//
+//
+//
+//        sparta.setPrimarySources( SpartaBoot.class );
+//
+//        KOIMappingDriver koiMappingDriver = new VolumeMappingDriver(
+//                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+//        );
+//        KOIMappingDriver koiFileMappingDriver = new FileMappingDriver(
+//                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+//        );
+//        KOIMappingDriver koiBucketMappingDriver = new BucketMappingDriver(
+//                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+//        );
+//        KOIMappingDriver koiVersionMappingDriver = new VersionMappingDriver(
+//                sparta, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+//        );
+//
+//
+//
+//        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
+//        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver );
+//        TitanBucketInstrument bucketInstrument = new TitanBucketInstrument( koiBucketMappingDriver );
+//        TitanVersionManage versionManage = new TitanVersionManage( koiVersionMappingDriver );
+//
+//        sparta.setInitializer(new Executor() {
+//            @Override
+//            public void execute() throws Exception {
+//                sparta.getSpringApplication().addInitializers(new ApplicationContextInitializer<ConfigurableApplicationContext>() {
+//                    @Override
+//                    public void initialize( ConfigurableApplicationContext applicationContext ) {
+//                        GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
+//                        genericApplicationContext.registerBean("primaryFileSystem", UniformObjectFileSystem.class, () -> (UniformObjectFileSystem)fileSystem);
+//                        genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
+//                        genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
+//                        genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
+//                    }
+//                });
+//            }
+//        });
+//
+//
+//        sparta.execute();
+//
+//
+//
+//
+//
+//        this.getTaskManager().add( sparta );
+//        this.getTaskManager().syncWaitingTerminated();
     }
 }
 

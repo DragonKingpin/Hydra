@@ -1,4 +1,4 @@
-package com.pinecone.hydra.conduct.entity;
+package com.pinecone.hydra.task.entity;
 
 import com.pinecone.framework.util.id.Identification;
 

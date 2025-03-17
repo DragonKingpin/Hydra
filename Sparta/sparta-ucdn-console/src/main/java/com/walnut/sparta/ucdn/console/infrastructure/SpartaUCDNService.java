@@ -8,8 +8,8 @@ import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.UniformServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
@@ -61,7 +61,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected TitanVersionManage versionManage;
 
-    protected ServicesInstrument servicesInstrument;
+    protected ServiceInstrument serviceInstrument;
 
 
     protected PrimaryMessageWareStone  primaryMessageWareStone;
@@ -95,7 +95,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver, volumeConfig );
         this.bucketInstrument   = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage      = new TitanVersionManage( this.koiVersionMappingDriver );
-        this.servicesInstrument = new UniformServicesInstrument( this.koiServiceMappingDriver );
+        this.serviceInstrument = new UniformServiceInstrument( this.koiServiceMappingDriver );
     }
 
     protected void initMessageWares() throws ComponentInitializationException {
@@ -104,7 +104,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initModules() throws ComponentInitializationException {
         this.serviceManager = new UniformServiceManager(
-                this.servicesInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
+                this.serviceInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
         );
 
         JSONConfig selfConfig = (JSONConfig) this.getConfig();
@@ -135,7 +135,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
                         genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
-                        genericApplicationContext.registerBean("primaryService", ServicesInstrument.class, () ->  servicesInstrument);
+                        genericApplicationContext.registerBean("primaryService", ServiceInstrument.class, () -> serviceInstrument);
                         genericApplicationContext.registerBean("primaryWolfDuplexAppointClient", DuplexAppointClient.class, () ->  primaryMessageWareStone.getWolfAppointClient());
                         genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.getSystem());
                     }
@@ -206,8 +206,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     @Override
-    public ServicesInstrument getServicesInstrument() {
-        return this.servicesInstrument;
+    public ServiceInstrument getServiceInstrument() {
+        return this.serviceInstrument;
     }
 
     @Override

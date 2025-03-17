@@ -6,8 +6,8 @@ import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
-import com.pinecone.hydra.service.kom.UniformServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
@@ -16,7 +16,6 @@ import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.system.component.ComponentInitializationException;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.radium.Radium;
@@ -50,7 +49,7 @@ public class SpartaUOFSService extends Springron implements UOFSService {
 
     protected TitanVersionManage versionManage;
 
-    protected ServicesInstrument servicesInstrument;
+    protected ServiceInstrument serviceInstrument;
 
     protected void initKOMSubsystem() throws ComponentInitializationException {
         this.koiMappingDriver = new VolumeMappingDriver(
@@ -73,7 +72,7 @@ public class SpartaUOFSService extends Springron implements UOFSService {
         this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver );
         this.bucketInstrument   = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage      = new TitanVersionManage( this.koiVersionMappingDriver );
-        this.servicesInstrument = new UniformServicesInstrument( this.koiServiceMappingDriver );
+        this.serviceInstrument = new UniformServiceInstrument( this.koiServiceMappingDriver );
     }
 
     protected void initSpringBeanFactorySubsystem() throws ComponentInitializationException {
@@ -89,7 +88,7 @@ public class SpartaUOFSService extends Springron implements UOFSService {
                         genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
                         genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
-                        genericApplicationContext.registerBean("primaryService", ServicesInstrument.class, () ->  servicesInstrument);
+                        genericApplicationContext.registerBean("primaryService", ServiceInstrument.class, () -> serviceInstrument);
                     }
                 });
             }

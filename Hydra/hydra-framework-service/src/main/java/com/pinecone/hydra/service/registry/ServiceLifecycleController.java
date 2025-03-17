@@ -1,11 +1,9 @@
 package com.pinecone.hydra.service.registry;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceManager;
 import com.pinecone.hydra.service.entity.BindUSII;
-import com.pinecone.hydra.service.entity.USII;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.umct.AddressMapping;
@@ -19,11 +17,11 @@ public class ServiceLifecycleController {
 
     private ServiceManager      mServiceManager;
 
-    private ServicesInstrument  mServicesInstrument;
+    private ServiceInstrument   mServiceInstrument;
 
     public ServiceLifecycleController( ServiceManager mServiceManager ){
         this.mServiceManager = mServiceManager;
-        this.mServicesInstrument = mServiceManager.getServicesInstrument();
+        this.mServiceInstrument = mServiceManager.getServicesInstrument();
     }
 
     @AddressMapping("registerService")
@@ -32,7 +30,7 @@ public class ServiceLifecycleController {
         String szServId = serviceDTO.getServiceId();
         GUID serviceId  = GUIDs.GUID72( szServId );
 
-        TreeNode node = this.mServicesInstrument.get( serviceId );
+        TreeNode node = this.mServiceInstrument.get( serviceId );
         ServiceElement serviceElement = (ServiceElement) node;
         WolfServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ) );
 

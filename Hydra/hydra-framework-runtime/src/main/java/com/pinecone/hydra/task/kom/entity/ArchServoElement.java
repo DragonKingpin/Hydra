@@ -1,13 +1,12 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.task.kom.TasksInstrument;
-
-
-import java.time.LocalDateTime;
-import java.util.Map;
+import com.pinecone.hydra.task.kom.ServiceInstrument;
 
 public abstract class ArchServoElement extends ArchElementNode implements ServoElement {
     protected GUID                       metaGuid;
@@ -25,20 +24,20 @@ public abstract class ArchServoElement extends ArchElementNode implements ServoE
         this.createTime = LocalDateTime.now();
     }
 
-    public ArchServoElement(Map<String, Object > joEntity ) {
+    public ArchServoElement( Map<String, Object > joEntity ) {
         super( joEntity );
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchServoElement(Map<String, Object > joEntity, TasksInstrument tasksInstrument ) {
+    public ArchServoElement( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
         this( joEntity );
-        this.apply( tasksInstrument );
+        this.apply(serviceInstrument);
     }
 
-    public ArchServoElement(TasksInstrument tasksInstrument ) {
-        super( tasksInstrument );
+    public ArchServoElement( ServiceInstrument serviceInstrument) {
+        super(serviceInstrument);
     }
 
     @Override

@@ -8,9 +8,15 @@ import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
+
 @Mapper
 @IbatisDataAccessObject
 public interface TaskTreeMapper extends TrieTreeManipulator {
@@ -133,11 +139,11 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
     GUID getOriginalGuidByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
 
     @Override
-    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND parent_guid = #{parentDirGuid}" )
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_task_node_tree WHERE tag_name = #{tagName} AND parent_guid = #{parentDirGuid}" )
     TreeReparseLinkNode getReparseLinkNode(@Param("tagName") String tagName, @Param("parentDirGuid") GUID parentDirGuid );
 
     @Override
-    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_service_node_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_task_node_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
     TreeReparseLinkNode getReparseLinkNodeByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
 
     @Override

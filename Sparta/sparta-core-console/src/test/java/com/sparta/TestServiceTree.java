@@ -5,10 +5,10 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.UniformServicesInstrument;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
-import com.pinecone.hydra.service.kom.marshaling.ServicesJSONDecoder;
+import com.pinecone.hydra.service.kom.marshaling.ServiceJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
@@ -30,18 +30,18 @@ class Jesse extends Radium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        UniformServicesInstrument servicesTree = new UniformServicesInstrument( koiMappingDriver );
+        UniformServiceInstrument servicesTree = new UniformServiceInstrument( koiMappingDriver );
         //this.testInsert( servicesTree );
         this.testGet( servicesTree );
         //this.testDelete( servicesTree );
     }
 
-    private void testInsert( ServicesInstrument servicesInstrument ){
+    private void testInsert( ServiceInstrument serviceInstrument){
 //        GenericNamespace namespace = new GenericNamespace();
 //        namespace.setName( "Test1" );
-//        servicesInstrument.put( namespace );
+//        serviceInstrument.put( namespace );
 
-        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03c2f90-000133-000 0-44") ) );
+        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03c2f90-000133-000 0-44") ) );
 
 
 //        GenericApplicationElement applicationNode = new GenericApplicationElement(
@@ -50,53 +50,54 @@ class Jesse extends Radium {
 //        );
 //
 //        applicationNode.apply( new JSONMaptron( "{ name:specialApp2, deploymentMethod:VM }" ) );
-//        servicesInstrument.put( applicationNode );
+//        serviceInstrument.put( applicationNode );
 
         GenericServiceElement serviceNode = new GenericServiceElement(
                 new JSONMaptron( "{ name:'特殊服务', alias:jesus, serviceType:System, path:'/xxx/xxx/ggg', resourceType:human," +
                         "type:Social, description: 'This is special', extraInformation: 'more', level:'L1', primaryImplLang: java, scenario:'/scenario/dragon/king'  }" )
         );
-        servicesInstrument.put( serviceNode );
+        serviceInstrument.put( serviceNode );
     }
 
-    private void testGet( ServicesInstrument servicesInstrument ){
-        //Debug.trace( servicesInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
-        //Debug.trace( servicesInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
-        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
-        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
-        //Debug.trace( servicesInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
+    private void testGet( ServiceInstrument serviceInstrument ){
+        //Debug.trace( serviceInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
+        //Debug.trace( serviceInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
+        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
+        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
+        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
 //        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
-        //Debug.trace( servicesInstrument.affirmApplication( "Test1/App1" ) );
+        //Debug.trace( serviceInstrument.affirmApplication( "Test1/App1" ) );
 
-//        Debug.trace( servicesInstrument.affirmService( "root/特殊服务" ) );
-//        Debug.trace( servicesInstrument.affirmApplication( "root/species/orc" ) );
-//        Debug.trace( servicesInstrument.affirmNamespace("root/species") );
-//        Debug.trace( servicesInstrument.affirmNamespace( "root" ).fetchChildren() );
+//        Debug.trace( serviceInstrument.affirmService( "root/特殊服务" ) );
+//        Debug.trace( serviceInstrument.affirmApplication( "root/species/orc" ) );
+//        Debug.trace( serviceInstrument.affirmNamespace("root/species") );
+//        Debug.trace( serviceInstrument.affirmNamespace( "root" ).fetchChildren() );
 //
-//        servicesInstrument.affirmApplication( "root/species/orc" ).addChild( new GenericServiceElement( new JSONMaptron( "{ name: slaughter }" ) ) );
+//        serviceInstrument.affirmApplication( "root/species/orc" ).addChild( new GenericServiceElement( new JSONMaptron( "{ name: slaughter }" ) ) );
 //
-//        Debug.trace( servicesInstrument.affirmApplication( "root/species/orc" ).fetchChildren() );
+//        Debug.trace( serviceInstrument.affirmApplication( "root/species/orc" ).fetchChildren() );
 //
-//        Debug.trace( servicesInstrument.queryElement( "root/species/orc/slaughter" ).toJSONObject() );
+//        Debug.trace( serviceInstrument.queryElement( "root/species/orc/slaughter" ).toJSONObject() );
 //
-//        servicesInstrument.affirmNamespace( "root" ).addChild( new GenericNamespace( new JSONMaptron( "{ name: weapon, scenario: s1, description: d1, level:L1, primaryImplLang:Java }" ) ) );
+//        serviceInstrument.affirmNamespace( "root" ).addChild( new GenericNamespace( new JSONMaptron( "{ name: weapon, scenario: s1, description: d1, level:L1, primaryImplLang:Java }" ) ) );
 //
-//        Debug.fmp( 2, servicesInstrument.queryElement( "root/weapon" ).evinceNamespace().toJSONDetails() );
-
-
+//        Debug.fmp( 2, serviceInstrument.queryElement( "root/weapon" ).evinceNamespace().toJSONDetails() );
 
 
-//        ServicesJSONDecoder decoder = new ServicesJSONDecoder( servicesInstrument );
-//        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
-//
-//        Debug.fmp( 2, servicesInstrument.queryElement( "root" ).toJSONObject() );
-        Debug.trace(servicesInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
+
+
+        ServiceJSONDecoder decoder = new ServiceJSONDecoder( serviceInstrument );
+        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
+
+        Debug.fmp( 2, serviceInstrument.queryElement( "root" ).toJSONObject() );
+        //Debug.trace(serviceInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
-    private void testDelete( ServicesInstrument servicesInstrument){
-        servicesInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+    private void testDelete( ServiceInstrument serviceInstrument){
+        serviceInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
     }
 }
+
 public class TestServiceTree {
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{

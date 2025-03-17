@@ -3,7 +3,7 @@ package com.pinecone.hydra.service.kom.entity;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 
 import java.util.Map;
 
@@ -26,13 +26,13 @@ public class GenericServiceElement extends ArchServoElement implements ServiceEl
         this.initSelf( joEntity );
     }
 
-    public GenericServiceElement( Map<String, Object > joEntity, ServicesInstrument servicesInstrument ) {
-        super( joEntity, servicesInstrument );
+    public GenericServiceElement( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
+        super( joEntity, serviceInstrument);
         this.initSelf( joEntity );
     }
 
-    public GenericServiceElement( ServicesInstrument servicesInstrument ) {
-        super( servicesInstrument );
+    public GenericServiceElement( ServiceInstrument serviceInstrument) {
+        super(serviceInstrument);
     }
 
     @Override

@@ -1,17 +1,15 @@
 package com.pinecone.hydra.service.registry;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.ServiceManager;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
-import com.pinecone.hydra.umc.msg.ChannelPool;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
@@ -24,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class UniformServiceManager implements ServiceManager {
-    protected ServicesInstrument            mServicesInstrument;
+    protected ServiceInstrument             mServiceInstrument;
 
     protected DuplexAppointServer           mAppointServer;
 
@@ -77,11 +75,11 @@ public class UniformServiceManager implements ServiceManager {
         });
     }
 
-    public UniformServiceManager( ServicesInstrument servicesInstrument, DuplexAppointServer server ){
-        this.mServicesInstrument = servicesInstrument;
-        this.mGuidAllocator      = this.mServicesInstrument.getGuidAllocator();
-        this.mImperialTree       = this.mServicesInstrument.getMasterTrieTree();
-        this.mServiceConfig      = this.mServicesInstrument.getConfig();
+    public UniformServiceManager(ServiceInstrument serviceInstrument, DuplexAppointServer server ){
+        this.mServiceInstrument = serviceInstrument;
+        this.mGuidAllocator      = this.mServiceInstrument.getGuidAllocator();
+        this.mImperialTree       = this.mServiceInstrument.getMasterTrieTree();
+        this.mServiceConfig      = this.mServiceInstrument.getConfig();
         this.mAppointServer      = server;
         this.mServiceRegistry    = new ConcurrentHashMap<>();
         this.mInstanceRegistry   = new ConcurrentHashMap<>();
@@ -247,8 +245,8 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public ServicesInstrument getServicesInstrument() {
-        return this.mServicesInstrument;
+    public ServiceInstrument getServicesInstrument() {
+        return this.mServiceInstrument;
     }
 
     @Override

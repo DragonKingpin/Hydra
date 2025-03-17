@@ -10,9 +10,11 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 public class TaskMappingDriver extends ArchMappingDriver implements KOIMappingDriver {
 
     protected KOIMasterManipulator mKOIMasterManipulator;
+
     public TaskMappingDriver( Processum superiorProcess ) {
         super( superiorProcess );
     }
+
     public TaskMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, TaskMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 

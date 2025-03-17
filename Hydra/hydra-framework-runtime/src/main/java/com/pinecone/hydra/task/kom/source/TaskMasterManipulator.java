@@ -1,25 +1,26 @@
 package com.pinecone.hydra.task.kom.source;
+
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 
 public interface TaskMasterManipulator extends KOIMasterManipulator {
-    TaskNodeManipulator getTaskNodeManipulator();
-    CommonDataManipulator getCommonDataManipulator();
-    NamespaceRulesManipulator getNamespaceRulesManipulator();
-  TaskNamespaceManipulator getNamespaceManipulator();
-   TaskMetaManipulator getTaskMetaManipulator();
     TrieTreeManipulator getTrieTreeManipulator() ;
 
+    CommonDataManipulator getCommonDataManipulator();
 
-/*    ApplicationNodeManipulator getApplicationNodeManipulator();
+    JobNodeManipulator getJobNodeManipulator();
 
-    ApplicationMetaManipulator getApplicationElementManipulator();*/
-/*
-    TaskNodeManipulator getServiceNodeManipulator();
+    JobMetaManipulator getApplicationElementManipulator();
 
-    TaskMetaManipulator getServiceMetaManipulator();*/
+    TaskNodeManipulator getTaskNodeManipulator();
 
+    TaskMetaManipulator getTaskMetaManipulator();
+
+    TaskNamespaceManipulator getNamespaceManipulator();
+
+    NamespaceRulesManipulator getNamespaceRulesManipulator();
 
     TireOwnerManipulator getTireOwnerManipulator();
+
 }

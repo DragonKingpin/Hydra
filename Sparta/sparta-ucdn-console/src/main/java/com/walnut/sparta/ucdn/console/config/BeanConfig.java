@@ -1,6 +1,6 @@
 package com.walnut.sparta.ucdn.console.config;
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.umb.kafka.WolfMCKafkaClient;
 import com.pinecone.hydra.umb.rocket.WolfMCRocketClient;
@@ -24,7 +24,7 @@ public class BeanConfig {
     private UCDNContentDelivery UCDNContentDelivery;
 
     @Resource
-    private ServicesInstrument primaryService;
+    private ServiceInstrument primaryService;
 
     @Bean( name = "kafkaFileServiceClient")
     public UlfBroadcastControlNode kafkaFileServiceClient(){

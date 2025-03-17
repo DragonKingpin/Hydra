@@ -10,7 +10,7 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import java.util.List;
 
-public interface ServicesInstrument extends ReparseKOMTree {
+public interface ServiceInstrument extends ReparseKOMTree {
 
     ServiceConfig KernelServiceConfig = new KernelServiceConfig();
 

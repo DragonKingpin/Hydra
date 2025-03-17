@@ -35,7 +35,7 @@ import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-public class UniformServicesInstrument extends ArchReparseKOMTree implements ServicesInstrument {
+public class UniformServiceInstrument extends ArchReparseKOMTree implements ServiceInstrument {
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
@@ -53,14 +53,13 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
 
 
 
-    public UniformServicesInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, ServicesInstrument parent, String name ){
-        super( superiorProcess, masterManipulator, ServicesInstrument.KernelServiceConfig, parent, name );
-        Debug.trace(masterManipulator);
-        this.hydrarum = hydrarum;
+    public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
+        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
+
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
-        this.serviceNamespaceManipulator = serviceMasterManipulator.getNamespaceManipulator();
-        this.applicationNodeManipulator  = serviceMasterManipulator.getApplicationNodeManipulator();
-        this.serviceNodeManipulator      = serviceMasterManipulator.getServiceNodeManipulator();
+        this.serviceNamespaceManipulator = this.serviceMasterManipulator.getNamespaceManipulator();
+        this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
+        this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
@@ -79,22 +78,22 @@ public class UniformServicesInstrument extends ArchReparseKOMTree implements Ser
         this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 
-    public UniformServicesInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ){
-        this( superiorProcess, masterManipulator, null, ServicesInstrument.class.getSimpleName() );
+    public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ){
+        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName() );
     }
 
-//    public UniformServicesInstrument( Hydrarum hydrarum ) {
+//    public UniformServiceInstrument( Hydrarum hydrarum ) {
 //        this.hydrarum = hydrarum;
 //    }
 
-    public UniformServicesInstrument( KOIMappingDriver driver ) {
+    public UniformServiceInstrument(KOIMappingDriver driver ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator()
         );
     }
 
-    public UniformServicesInstrument( KOIMappingDriver driver, ServicesInstrument parent, String name ) {
+    public UniformServiceInstrument(KOIMappingDriver driver, ServiceInstrument parent, String name ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),

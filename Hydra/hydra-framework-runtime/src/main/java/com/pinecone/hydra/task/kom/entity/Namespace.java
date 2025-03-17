@@ -1,41 +1,42 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.util.Set;
+
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.GenericNamespaceRules;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
-import java.util.Set;
 
-public interface Namespace extends FolderElement{
+public interface Namespace extends FolderElement {
     Set<String > UnbeanifiedKeys = Set.of( "distributedTreeNode", "classificationRules" );
 
     long getEnumId();
 
-    void setEnumId( long id );
+    void setEnumId(long id);
 
     GUID getGuid();
 
-    void setGuid( GUID guid );
+    void setGuid(GUID guid);
 
     GUID getMetaGuid();
 
-    void setMetaGuid( GUID metaGuid );
+    void setMetaGuid(GUID metaGuid);
 
     String getName();
 
-    void setName( String name );
+    void setName(String name);
 
     GUID getRulesGUID();
 
-    void setRulesGUID( GUID rulesGUID );
+    void setRulesGUID(GUID rulesGUID);
 
     GenericNamespaceRules getClassificationRules();
 
-    void setClassificationRules( GenericNamespaceRules classificationRules );
+    void setClassificationRules(GenericNamespaceRules classificationRules);
 
     GUIDImperialTrieNode getDistributedTreeNode();
 
-    void setDistributedTreeNode( GUIDImperialTrieNode distributedTreeNode );
+    void setDistributedTreeNode(GUIDImperialTrieNode distributedTreeNode);
 
     @Override
     default Namespace evinceNamespace() {

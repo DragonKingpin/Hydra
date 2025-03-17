@@ -8,10 +8,15 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.system.functions.Executor;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
+import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -48,8 +53,11 @@ class JesusChrist extends Radium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
-        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver );
+        JSONConfig selfConfig = new JSONConfig();
+        FileSystemConfig fileSystemConfig = new KernelFileSystemConfig( selfConfig.queryJSONObject( "service.PrimaryUniformFileSystem" ) );
+        VolumeConfig volumeConfig = new KernelVolumeConfig( selfConfig.queryJSONObject( "service.PrimaryUniformVolumeManager" ) );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver, fileSystemConfig );
+        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver, volumeConfig );
 
 
         sparta.setPrimarySources( SpartaBoot.class );

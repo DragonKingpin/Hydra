@@ -1,11 +1,10 @@
 package com.pinecone.hydra.service.registry;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.Service;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.ServiceManager;
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
@@ -20,11 +19,11 @@ import java.util.List;
 public class ServiceMetaController implements Pinenut {
     protected ServiceManager          mServiceManager;
 
-    protected ServicesInstrument      mServicesInstrument;
+    protected ServiceInstrument       mServiceInstrument;
 
     public ServiceMetaController( ServiceManager serviceManager ){
         this.mServiceManager = serviceManager;
-        this.mServicesInstrument = serviceManager.getServicesInstrument();
+        this.mServiceInstrument = serviceManager.getServicesInstrument();
     }
 
     @AddressMapping( "fetchServiceInsMetaByClientId" )

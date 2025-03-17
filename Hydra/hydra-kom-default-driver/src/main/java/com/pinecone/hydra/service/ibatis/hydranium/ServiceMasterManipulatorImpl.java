@@ -25,33 +25,42 @@ import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.Map;
+
 @Component
 public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
 
     @Resource
     @Structure(type = ServiceMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;
+
     @Resource
     @Structure(type = ServiceTreeMapper.class )
     TrieTreeManipulator             trieTreeManipulator;
+
     @Resource
     @Structure(type = ServiceCommonDataMapper.class )
     CommonDataManipulator           commonDataManipulator;
+
     @Resource
     @Structure(type = ApplicationNodeMapper.class )
     ApplicationNodeManipulator      applicationNodeManipulator;
+
     @Resource
     @Structure( type = AppNodeMetaMapper.class )
     ApplicationMetaManipulator      applicationMetaManipulator;
+
     @Resource
     @Structure( type = ServiceNodeMapper.class )
     ServiceNodeManipulator          serviceNodeManipulator;
+
     @Resource
     @Structure( type = ServiceMetaMapper.class )
     ServiceMetaManipulator          serviceMetaManipulator;
+
     @Resource
     @Structure( type = ServiceNamespaceMapper.class )
     ServiceNamespaceManipulator serviceNamespaceManipulator;
+
     @Resource
     @Structure( type = NamespaceRulesMapper.class )
     NamespaceRulesManipulator namespaceRulesManipulator;

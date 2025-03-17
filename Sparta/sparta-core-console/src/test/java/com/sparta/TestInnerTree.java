@@ -7,11 +7,8 @@ import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
 import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
 import com.pinecone.hydra.scenario.tree.GenericDistributedScenarioMetaTree;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.UniformServicesInstrument;
+import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.conduct.ibatis.hydranium.TaskMappingDriver;
-import com.pinecone.hydra.conduct.tree.DistributedTaskMetaTree;
-import com.pinecone.hydra.conduct.tree.GenericDistributedTaskMetaTree;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.radium.Radium;
@@ -41,22 +38,13 @@ class LadyGaga extends Radium {
 //        this.getTaskManager().syncWaitingTerminated();
 
 
-        //this.testTask();
-    }
-
-    private void testTask(){
-        KOIMappingDriver koiMappingDriver = new TaskMappingDriver(
-                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-        DistributedTaskMetaTree distributedScenarioMetaTree = new GenericDistributedTaskMetaTree(koiMappingDriver);
-        Debug.trace( distributedScenarioMetaTree.get(GUIDs.GUID72("1f4eda64-00023c-0002-e8")));
     }
 
     private void testService(){
         KOIMappingDriver koiMappingDriver = new ServiceMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        UniformServicesInstrument distributedScopeServiceTree = new UniformServicesInstrument(koiMappingDriver);
+        UniformServiceInstrument distributedScopeServiceTree = new UniformServiceInstrument(koiMappingDriver);
 
         //Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
         Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")));

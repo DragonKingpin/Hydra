@@ -1,6 +1,6 @@
 package com.pinecone.hydra.service.kom.operator;
 
-import com.pinecone.hydra.service.kom.ServicesInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
@@ -13,7 +13,7 @@ import java.util.TreeMap;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected ServiceMasterManipulator      serviceMasterManipulator;
-    protected ServicesInstrument            servicesInstrument;
+    protected ServiceInstrument serviceInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
@@ -28,8 +28,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericApplicationElement.class );
     }
 
-    public GenericElementOperatorFactory(ServicesInstrument servicesInstrument, ServiceMasterManipulator serviceMasterManipulator ){
-        this.servicesInstrument = servicesInstrument;
+    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, ServiceMasterManipulator serviceMasterManipulator ){
+        this.serviceInstrument = serviceInstrument;
         this.serviceMasterManipulator = serviceMasterManipulator;
 
         this.registerer.put(
@@ -65,8 +65,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public ServicesInstrument getServicesTree() {
-        return this.servicesInstrument;
+    public ServiceInstrument getServicesTree() {
+        return this.serviceInstrument;
     }
 
     @Override

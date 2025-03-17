@@ -2,65 +2,63 @@ package com.pinecone.hydra.task.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.task.kom.TasksInstrument;
+import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMetaManipulator;
-
-import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class TaskElementOperator extends ArchElementOperator implements ElementOperator{
+public class TaskElementOperator extends ArchElementOperator implements ElementOperator {
     protected TaskNodeManipulator taskNodeManipulator;
     protected TaskMetaManipulator taskMetaManipulator;
 
     public TaskElementOperator( ElementOperatorFactory factory ) {
-        this( factory.getTaskMasterManipulator(),factory.getTasksTree() );
+        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public TaskElementOperator(TaskMasterManipulator masterManipulator, TasksInstrument servicesInstrument ){
-        super( masterManipulator, servicesInstrument);
-        this.taskNodeManipulator = masterManipulator.getTaskNodeManipulator();
-        this.taskMetaManipulator = masterManipulator.getTaskMetaManipulator();
+    public TaskElementOperator( TaskMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+        super( masterManipulator, serviceInstrument);
+       this.taskNodeManipulator = masterManipulator.getTaskNodeManipulator();
+       this.taskMetaManipulator = masterManipulator.getTaskMetaManipulator();
 
     }
 
 
     @Override
-    public GUID insert(TreeNode treeNode ) {
-        TaskElement taskElement = (TaskElement) treeNode;
-/*        TaskNode taskNode = (TaskNode) treeNode;*/
+    public GUID insert( TreeNode treeNode ) {
+        GenericTaskElement serviceElement = (GenericTaskElement) treeNode;
 
         //将信息写入数据库
         //将节点信息存入应用节点表
-        GuidAllocator guidAllocator = this.tasksInstrument.getGuidAllocator();
-        GUID taskNodeGUID = guidAllocator.nextGUID();
-/*        taskNode.setGuid(taskNodeGUID);*/
-        taskElement.setGuid(taskNodeGUID);
-        /*this.taskNodeManipulator.insert(taskElement);*/
-        this.taskNodeManipulator.insert( taskElement );
+        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
+        GUID serviceNodeGUID = guidAllocator.nextGUID();
+        serviceElement.setGuid(serviceNodeGUID);
+        this.taskNodeManipulator.insert( serviceElement );
 
         //将应用节点基础信息存入信息表
-     /*   GUID metaGUID = guidAllocator.nextGUID();
-        if ( taskElement.getMetaGuid() == null ){
-            taskElement.setMetaGuid( metaGUID );
-        }*/
-       /* this.taskMetaManipulator.insert( taskElement );*/
+        GUID metaGUID = guidAllocator.nextGUID();
+        if ( serviceElement.getMetaGuid() == null ){
+            serviceElement.setMetaGuid( metaGUID );
+        }
+        this.taskMetaManipulator.insert( serviceElement );
+
 
         //将应用元信息存入元信息表
-      /*  this.commonDataManipulator.insert( taskElement );*/
+       this.commonDataManipulator.insert( serviceElement );
+
 
         //将节点信息存入主表
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        /*node.setNodeMetadataGUID( metaGUID );*/
-        node.setGuid( taskNodeGUID );
+        node.setNodeMetadataGUID( metaGUID );
+        node.setGuid( serviceNodeGUID );
         node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
         this.imperialTree.insert( node );
-        return taskNodeGUID;
+        return serviceNodeGUID;
     }
 
     @Override
@@ -71,18 +69,18 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     @Override
     public TaskElement get(GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
-        TaskElement taskElement = new GenericTaskElement();
+        TaskElement serviceElement = new GenericTaskElement();
         if( node.getNodeMetadataGUID() != null ){
-            taskElement = this.taskMetaManipulator.getTaskMeta( node.getNodeMetadataGUID() );
+            serviceElement = this.taskMetaManipulator.getTaskMeta( node.getNodeMetadataGUID() );
         }
 
-        this.applyCommonMeta( taskElement, this.commonDataManipulator.getNodeCommonData( guid ) );
+        this.applyCommonMeta( serviceElement, this.commonDataManipulator.getNodeCommonData( guid ) );
 
-        taskElement.setDistributedTreeNode(node);
-        taskElement.setGuid( guid );
-        taskElement.setName( this.taskNodeManipulator.getTaskNode(guid).getName() );
+        serviceElement.setDistributedTreeNode(node);
+        serviceElement.setGuid( guid );
+        serviceElement.setName( this.taskNodeManipulator.getTaskNode(guid).getName() );
 
-        return taskElement;
+        return serviceElement;
     }
 
     @Override
@@ -104,7 +102,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     }
 
     @Override
-    public void updateName(GUID guid, String name) {
+    public void updateName( GUID guid, String name) {
 
     }
 

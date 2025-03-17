@@ -13,11 +13,11 @@ public interface TaskNodeManipulator extends GUIDNameManipulator {
 
     void remove(GUID UUID);
 
-    GenericTaskElement getServiceNode(GUID UUID);
+    GenericTaskElement getTaskNode(GUID UUID);
 
     void update(GenericTaskElement serviceNode);
 
-    List<GenericTaskElement> fetchServiceNodeByName(String name);
+    List<GenericTaskElement> fetchTaskNodeByName(String name);
 
     @Override
     List<GUID> getGuidsByName(String name);

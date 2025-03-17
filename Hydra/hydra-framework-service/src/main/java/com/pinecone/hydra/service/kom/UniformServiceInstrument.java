@@ -55,12 +55,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
 
     public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
         super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
-        Debug.trace(masterManipulator);
-        this.hydrarum = hydrarum;
+
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
-        this.serviceNamespaceManipulator = serviceMasterManipulator.getNamespaceManipulator();
-        this.applicationNodeManipulator  = serviceMasterManipulator.getApplicationNodeManipulator();
-        this.serviceNodeManipulator      = serviceMasterManipulator.getServiceNodeManipulator();
+        this.serviceNamespaceManipulator = this.serviceMasterManipulator.getNamespaceManipulator();
+        this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
+        this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);

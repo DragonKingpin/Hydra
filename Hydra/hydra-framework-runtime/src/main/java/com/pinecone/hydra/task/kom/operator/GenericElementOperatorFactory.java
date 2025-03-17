@@ -8,11 +8,11 @@ import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
-    protected ServiceMasterManipulator      serviceMasterManipulator;
+    protected TaskMasterManipulator taskMasterManipulator;
     protected ServiceInstrument serviceInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
@@ -28,18 +28,18 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericJobElement.class );
     }
 
-    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, ServiceMasterManipulator serviceMasterManipulator ){
+    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, TaskMasterManipulator taskMasterManipulator){
         this.serviceInstrument = serviceInstrument;
-        this.serviceMasterManipulator = serviceMasterManipulator;
+        this.taskMasterManipulator = taskMasterManipulator;
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultServiceNode,
-                new ServiceElementOperator( this )
+                new TaskElementOperator( this )
         );
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultApplicationNode,
-                new ApplicationElementOperator(this)
+                new JobElementOperator(this)
         );
 
         this.registerer.put(
@@ -70,8 +70,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public ServiceMasterManipulator getServiceMasterManipulator() {
-        return this.serviceMasterManipulator;
+    public TaskMasterManipulator getTaskMasterManipulator() {
+        return this.taskMasterManipulator;
     }
 
     @Override

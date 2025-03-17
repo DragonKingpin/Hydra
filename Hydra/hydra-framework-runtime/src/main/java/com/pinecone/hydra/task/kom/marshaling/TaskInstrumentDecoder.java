@@ -6,7 +6,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 
-public interface ServicesInstrumentDecoder extends Pinenut {
+public interface TaskInstrumentDecoder extends Pinenut {
     default ElementNode decode(Object val, GUID parentGUID) {
         if ( val instanceof Map ) {
             Map map = (Map) val;

@@ -1,23 +1,23 @@
-package com.pinecone.hydra.service.kom.marshaling;
+package com.pinecone.hydra.task.kom.marshaling;
 
 import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.ServiceInstrument;
-import com.pinecone.hydra.service.kom.entity.ApplicationElement;
-import com.pinecone.hydra.service.kom.entity.ElementNode;
-import com.pinecone.hydra.service.kom.entity.FolderElement;
-import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
-import com.pinecone.hydra.service.kom.entity.GenericNamespace;
-import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
-import com.pinecone.hydra.service.kom.entity.Namespace;
-import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.ElementNode;
+import com.pinecone.hydra.task.kom.entity.FolderElement;
+import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericNamespace;
+import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.entity.Namespace;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 
-public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
+public class TaskJSONDecoder implements TaskInstrumentDecoder {
     protected ServiceInstrument instrument;
 
-    public ServicesJSONDecoder( ServiceInstrument instrument ) {
+    public TaskJSONDecoder( ServiceInstrument instrument ) {
         this.instrument = instrument;
     }
 
@@ -87,18 +87,18 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
     }
 
     protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        ApplicationElement app = null;
+        JobElement app = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceApplicationElement() == null ) {
+                if( rootE.evinceJobElement() == null ) {
                     throw new IllegalArgumentException(
-                            String.format( "Existed child-destination [%s] should be `ApplicationElement`.", szName )
+                            String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
                     );
                 }
 
-                app = rootE.evinceApplicationElement();
+                app = rootE.evinceJobElement();
             }
         }
         else {
@@ -107,13 +107,13 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
                 Collection<ElementNode> destChildren = parentNode.evinceNamespace().fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof ApplicationElement ) {
-                            app = (ApplicationElement) node;
+                        if( node instanceof JobElement ) {
+                            app = (JobElement) node;
                             break;
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `ApplicationElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
                             );
                         }
                     }
@@ -123,9 +123,9 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
 
 
 
-        ApplicationElement neo ;
+        JobElement neo ;
         if( app == null ) {
-            neo = new GenericApplicationElement( jo, this.instrument );
+            neo = new GenericJobElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
@@ -135,18 +135,18 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
     }
 
     protected Object[]    affirmSerExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        ServiceElement ser = null;
+        TaskElement ser = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceServiceElement() == null ) {
+                if( rootE.evinceTaskElement() == null ) {
                     throw new IllegalArgumentException(
-                            String.format( "Existed child-destination [%s] should be `ServiceElement`.", szName )
+                            String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
                     );
                 }
 
-                ser = rootE.evinceServiceElement();
+                ser = rootE.evinceTaskElement();
             }
         }
         else {
@@ -156,13 +156,13 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
                 destChildren = ( (FolderElement) parentNode ).fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof ServiceElement ) {
-                            ser = (ServiceElement) node;
+                        if( node instanceof TaskElement ) {
+                            ser = (TaskElement) node;
                             break;
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `ServiceElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
                             );
                         }
                     }
@@ -170,16 +170,16 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
             }
             else {
                 throw new IllegalStateException(
-                        String.format( "Parent of `ServiceElement` [%s] should be `FolderElement`.", szName )
+                        String.format( "Parent of `TaskElement` [%s] should be `FolderElement`.", szName )
                 );
             }
         }
 
 
 
-        ServiceElement neo ;
+        TaskElement neo ;
         if( ser == null ) {
-            neo = new GenericServiceElement( jo, this.instrument );
+            neo = new GenericTaskElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
@@ -220,11 +220,11 @@ public class ServicesJSONDecoder implements ServicesInstrumentDecoder {
         else {
             Object[] pair;
             boolean bIsFolderElement = false;
-            if( szMetaType.equals( ApplicationElement.class.getSimpleName() ) ) {
+            if( szMetaType.equals( JobElement.class.getSimpleName() ) ) {
                 pair = this.affirmAppExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }
-            else if( szMetaType.equals( ServiceElement.class.getSimpleName() ) ) {
+            else if( szMetaType.equals( TaskElement.class.getSimpleName() ) ) {
                 pair = this.affirmSerExisted( szName, parentGuid, jo );
             }
             else {

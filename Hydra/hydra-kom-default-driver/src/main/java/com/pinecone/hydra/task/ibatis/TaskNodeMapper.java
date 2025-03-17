@@ -6,10 +6,16 @@ import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Mapper
 @IbatisDataAccessObject
 public interface TaskNodeMapper extends TaskNodeManipulator {
@@ -26,7 +32,7 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     void update(GenericTaskElement serviceNode);
 
     @Select("SELECT `id` AS `enumId`, `guid` , `name` FROM `hydra_task_task_nodes` WHERE name=#{name}")
-    List<GenericTaskElement> fetchServiceNodeByName(@Param("name") String name);
+    List<GenericTaskElement> fetchTaskNodeByName(@Param("name") String name);
 
     @Override
     @Select( "SELECT `guid` FROM `hydra_task_task_nodes` WHERE `name` = #{name}" )

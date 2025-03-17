@@ -5,26 +5,26 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
-import com.pinecone.hydra.task.kom.source.ServiceMetaManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMetaManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class ServiceElementOperator extends ArchElementOperator implements ElementOperator {
+public class TaskElementOperator extends ArchElementOperator implements ElementOperator {
     protected TaskNodeManipulator taskNodeManipulator;
-    protected ServiceMetaManipulator  serviceMetaManipulator;
+    protected TaskMetaManipulator taskMetaManipulator;
 
-    public ServiceElementOperator( ElementOperatorFactory factory ) {
-        this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
+    public TaskElementOperator( ElementOperatorFactory factory ) {
+        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public ServiceElementOperator( ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+    public TaskElementOperator( TaskMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
         super( masterManipulator, serviceInstrument);
-       this.taskNodeManipulator = masterManipulator.getServiceNodeManipulator();
-       this.serviceMetaManipulator = masterManipulator.getServiceMetaManipulator();
+       this.taskNodeManipulator = masterManipulator.getTaskNodeManipulator();
+       this.taskMetaManipulator = masterManipulator.getTaskMetaManipulator();
 
     }
 
@@ -45,7 +45,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         if ( serviceElement.getMetaGuid() == null ){
             serviceElement.setMetaGuid( metaGUID );
         }
-        this.serviceMetaManipulator.insert( serviceElement );
+        this.taskMetaManipulator.insert( serviceElement );
 
 
         //将应用元信息存入元信息表
@@ -71,25 +71,25 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
         TaskElement serviceElement = new GenericTaskElement();
         if( node.getNodeMetadataGUID() != null ){
-            serviceElement = this.serviceMetaManipulator.getServiceMeta( node.getNodeMetadataGUID() );
+            serviceElement = this.taskMetaManipulator.getTaskMeta( node.getNodeMetadataGUID() );
         }
 
         this.applyCommonMeta( serviceElement, this.commonDataManipulator.getNodeCommonData( guid ) );
 
         serviceElement.setDistributedTreeNode(node);
         serviceElement.setGuid( guid );
-        serviceElement.setName( this.taskNodeManipulator.getServiceNode(guid).getName() );
+        serviceElement.setName( this.taskNodeManipulator.getTaskNode(guid).getName() );
 
         return serviceElement;
     }
 
     @Override
-    public TaskElement get(GUID guid, int depth ) {
+    public TaskElement get( GUID guid, int depth ) {
         return this.get( guid );
     }
 
     @Override
-    public TaskElement getSelf(GUID guid ) {
+    public TaskElement getSelf( GUID guid ) {
         return this.get( guid );
     }
 
@@ -97,12 +97,12 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
     public void update( TreeNode nodeWideData ) {
         GenericTaskElement serviceElement = (GenericTaskElement) nodeWideData;
         this.taskNodeManipulator.update( serviceElement );
-        this.serviceMetaManipulator.update( serviceElement );
+        this.taskMetaManipulator.update( serviceElement );
         this.commonDataManipulator.update( serviceElement );
     }
 
     @Override
-    public void updateName(GUID guid, String name) {
+    public void updateName( GUID guid, String name) {
 
     }
 
@@ -111,7 +111,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.taskNodeManipulator.remove( node.getGuid() );
-        this.serviceMetaManipulator.remove( node.getAttributesGUID() );
+        this.taskMetaManipulator.remove( node.getAttributesGUID() );
         this.commonDataManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

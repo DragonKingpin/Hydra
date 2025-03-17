@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
@@ -16,8 +15,8 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.task.kom.entity.ServoElement;
 import com.pinecone.hydra.task.kom.operator.GenericElementOperatorFactory;
-import com.pinecone.hydra.task.kom.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
@@ -39,11 +38,11 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements Service
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
-    protected ServiceMasterManipulator    serviceMasterManipulator;
+    protected TaskMasterManipulator taskMasterManipulator;
 
     protected TaskNamespaceManipulator taskNamespaceManipulator;
 
-    protected ApplicationNodeManipulator  applicationNodeManipulator;
+    protected JobNodeManipulator jobNodeManipulator;
 
     protected TaskNodeManipulator taskNodeManipulator;
 
@@ -53,25 +52,24 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements Service
 
 
 
-    public UniformTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
         super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
-        Debug.trace(masterManipulator);
-        this.hydrarum = hydrarum;
-        this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
-        this.taskNamespaceManipulator = serviceMasterManipulator.getNamespaceManipulator();
-        this.applicationNodeManipulator  = serviceMasterManipulator.getApplicationNodeManipulator();
-        this.taskNodeManipulator = serviceMasterManipulator.getServiceNodeManipulator();
-        KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
+
+        this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
+        this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
+        this.jobNodeManipulator = this.taskMasterManipulator.getJobNodeManipulator();
+        this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
+        KOISkeletonMasterManipulator skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
         this.guidAllocator               = GUIDs.newGuidAllocator();
-        this.operatorFactory             = new GenericElementOperatorFactory(this,(ServiceMasterManipulator) masterManipulator);
+        this.operatorFactory             = new GenericElementOperatorFactory(this,(TaskMasterManipulator) masterManipulator);
 
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
         // TODO for customize service tree architecture.
-        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.applicationNodeManipulator ) );
-        this.fileManipulators            = new ArrayList<>( List.of( this.applicationNodeManipulator, this.taskNodeManipulator) );
+        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.jobNodeManipulator) );
+        this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.taskNodeManipulator) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
@@ -79,7 +77,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements Service
         this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 
-    public UniformTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ){
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ){
         this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName() );
     }
 
@@ -87,14 +85,14 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements Service
 //        this.hydrarum = hydrarum;
 //    }
 
-    public UniformTaskInstrument(KOIMappingDriver driver ) {
+    public UniformTaskInstrument( KOIMappingDriver driver ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator()
         );
     }
 
-    public UniformTaskInstrument(KOIMappingDriver driver, ServiceInstrument parent, String name ) {
+    public UniformTaskInstrument( KOIMappingDriver driver, ServiceInstrument parent, String name ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
@@ -149,12 +147,12 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements Service
     }
 
     @Override
-    public JobElement affirmApplication(String path ) {
+    public JobElement affirmApplication( String path ) {
         return (JobElement) this.affirmTreeNodeByPath( path, GenericJobElement.class, GenericNamespace.class );
     }
 
     @Override
-    public TaskElement affirmService(String path ) {
+    public TaskElement affirmService( String path ) {
         return (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
     }
 

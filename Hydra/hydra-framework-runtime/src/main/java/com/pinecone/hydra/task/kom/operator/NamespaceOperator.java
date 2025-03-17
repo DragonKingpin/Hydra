@@ -11,7 +11,7 @@ import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
@@ -22,11 +22,11 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     protected NamespaceRulesManipulator     namespaceRulesManipulator;
 
     public NamespaceOperator( ElementOperatorFactory factory ) {
-        this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
+        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public NamespaceOperator( ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+    public NamespaceOperator(TaskMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
         super( masterManipulator, serviceInstrument);
         this.namespaceManipulator = masterManipulator.getNamespaceManipulator();
         this.namespaceRulesManipulator = masterManipulator.getNamespaceRulesManipulator();

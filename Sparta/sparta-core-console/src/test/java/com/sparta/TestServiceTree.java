@@ -8,6 +8,7 @@ import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
+import com.pinecone.hydra.service.kom.marshaling.ServiceJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
@@ -58,7 +59,7 @@ class Jesse extends Radium {
         serviceInstrument.put( serviceNode );
     }
 
-    private void testGet( ServiceInstrument serviceInstrument){
+    private void testGet( ServiceInstrument serviceInstrument ){
         //Debug.trace( serviceInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
         //Debug.trace( serviceInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
         //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
@@ -85,17 +86,18 @@ class Jesse extends Radium {
 
 
 
-//        ServicesJSONDecoder decoder = new ServicesJSONDecoder( serviceInstrument );
-//        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
-//
-//        Debug.fmp( 2, serviceInstrument.queryElement( "root" ).toJSONObject() );
-        Debug.trace(serviceInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
+        ServiceJSONDecoder decoder = new ServiceJSONDecoder( serviceInstrument );
+        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
+
+        Debug.fmp( 2, serviceInstrument.queryElement( "root" ).toJSONObject() );
+        //Debug.trace(serviceInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
     private void testDelete( ServiceInstrument serviceInstrument){
         serviceInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
     }
 }
+
 public class TestServiceTree {
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{

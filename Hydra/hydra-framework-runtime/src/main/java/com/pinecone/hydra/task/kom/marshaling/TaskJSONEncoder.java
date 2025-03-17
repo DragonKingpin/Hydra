@@ -4,10 +4,10 @@ package com.pinecone.hydra.task.kom.marshaling;
 import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 
-public class ServicesJSONEncoder implements ServicesInstrumentEncoder {
+public class TaskJSONEncoder implements TaskInstrumentEncoder {
     protected ServiceInstrument instrument;
 
-    public ServicesJSONEncoder( ServiceInstrument instrument ) {
+    public TaskJSONEncoder(ServiceInstrument instrument ) {
         this.instrument = instrument;
     }
 

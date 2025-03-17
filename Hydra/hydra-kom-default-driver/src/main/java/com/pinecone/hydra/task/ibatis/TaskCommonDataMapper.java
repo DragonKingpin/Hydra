@@ -27,7 +27,7 @@ public interface TaskCommonDataMapper extends CommonDataManipulator {
     @Delete("DELETE FROM `hydra_task_node_common_data` WHERE `guid`=#{guid}")
     void remove( @Param("guid")GUID guid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_service_node_common_data` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_task_node_common_data` WHERE `guid`=#{guid}")
     GenericCommonMeta getNodeCommonData(@Param("guid") GUID guid );
     @Update("UPDATE `hydra_task_node_common_data` SET `scenario` = #{scenario}, `primary_impl_lang` = #{primaryImplLang}, `extra_information` = #{extraInformation}, `level` = #{level}, `description` = #{description}")
     void update( TaskFamilyNode node );

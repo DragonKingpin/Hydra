@@ -4,7 +4,7 @@ import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.OperatorFactory;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
@@ -25,6 +25,6 @@ public interface ElementOperatorFactory extends OperatorFactory {
 
     ServiceInstrument getServicesTree();
 
-    ServiceMasterManipulator getServiceMasterManipulator();
+    TaskMasterManipulator getTaskMasterManipulator();
 
 }

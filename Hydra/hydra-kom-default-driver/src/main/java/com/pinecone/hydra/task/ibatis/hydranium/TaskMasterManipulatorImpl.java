@@ -1,43 +1,75 @@
 package com.pinecone.hydra.task.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.task.ibatis.*;
-import com.pinecone.hydra.task.kom.source.*;
+
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
+import com.pinecone.hydra.task.ibatis.JobNodeMetaMapper;
+import com.pinecone.hydra.task.ibatis.JobNodeMapper;
+import com.pinecone.hydra.task.ibatis.NamespaceRulesMapper;
+import com.pinecone.hydra.task.ibatis.TaskCommonDataMapper;
+import com.pinecone.hydra.task.ibatis.TaskMetaMapper;
+import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
+import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
+import com.pinecone.hydra.task.kom.source.JobMetaManipulator;
+import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.task.kom.source.CommonDataManipulator;
+import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMetaManipulator;
+import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
+import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Map;
+
 @Component
 public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Resource
     @Structure( type = TaskNodeOwnerMapper.class )
     TireOwnerManipulator            tireOwnerManipulator;
+
     @Resource
     @Structure(type = TaskMetaMapper.class)
     TaskMetaManipulator taskMetaManipulator;
+
     @Resource
-    @Structure(type =TaskTreeMapper.class )
+    @Structure(type = TaskTreeMapper.class )
     TrieTreeManipulator             trieTreeManipulator;
+
     @Resource
     @Structure(type = TaskNodeMapper.class)
     TaskNodeManipulator taskNodeManipulator;
+
     @Resource
     @Structure(type = TaskCommonDataMapper.class )
     CommonDataManipulator commonDataManipulator;
+
+    @Resource
+    @Structure(type = JobNodeMapper.class )
+    JobNodeManipulator jobNodeManipulator;
+
+    @Resource
+    @Structure( type = JobNodeMetaMapper.class )
+    JobMetaManipulator jobMetaManipulator;
+
     @Resource
     @Structure( type = TaskNamespaceMapper.class )
     TaskNamespaceManipulator taskNamespaceManipulator;
+
     @Resource
     @Structure( type = NamespaceRulesMapper.class )
     NamespaceRulesManipulator namespaceRulesManipulator;
+
     @Resource
     @Structure(type = TaskMasterTreeManipulatorImpl.class)
     KOISkeletonMasterManipulator skeletonMasterManipulator;
+
     public TaskMasterManipulatorImpl() {
 
     }
@@ -61,17 +93,16 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     public CommonDataManipulator getCommonDataManipulator() {
         return this.commonDataManipulator;
     }
-/*
+
     @Override
-    public ApplicationNodeManipulator getApplicationNodeManipulator() {
-        return this.applicationNodeManipulator;
+    public JobNodeManipulator getJobNodeManipulator() {
+        return this.jobNodeManipulator;
     }
 
     @Override
-    public ApplicationMetaManipulator getApplicationElementManipulator() {
-        return this.applicationMetaManipulator;
+    public JobMetaManipulator getApplicationElementManipulator() {
+        return this.jobMetaManipulator;
     }
-*/
 
     @Override
     public TaskNamespaceManipulator getNamespaceManipulator() {
@@ -80,7 +111,7 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
 
     @Override
     public TaskMetaManipulator getTaskMetaManipulator() {
-        return null;
+        return this.taskMetaManipulator;
     }
 
     @Override
@@ -89,13 +120,13 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public TireOwnerManipulator getTireOwnerManipulator() {
-        return this.tireOwnerManipulator;
+    public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
+        return this.skeletonMasterManipulator;
     }
 
     @Override
-    public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
-        return this.skeletonMasterManipulator;
+    public TireOwnerManipulator getTireOwnerManipulator() {
+        return this.tireOwnerManipulator;
     }
 
 

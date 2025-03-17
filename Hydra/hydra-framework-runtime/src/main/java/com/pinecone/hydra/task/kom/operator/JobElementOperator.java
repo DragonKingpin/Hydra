@@ -9,26 +9,26 @@ import com.pinecone.hydra.task.kom.ServiceInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
-import com.pinecone.hydra.task.kom.source.ApplicationMetaManipulator;
-import com.pinecone.hydra.task.kom.source.ApplicationNodeManipulator;
-import com.pinecone.hydra.task.kom.source.ServiceMasterManipulator;
+import com.pinecone.hydra.task.kom.source.JobMetaManipulator;
+import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class ApplicationElementOperator extends ArchElementOperator implements ElementOperator {
-    protected ApplicationNodeManipulator        applicationNodeManipulator;
-    protected ApplicationMetaManipulator        applicationMetaManipulator;
+public class JobElementOperator extends ArchElementOperator implements ElementOperator {
+    protected JobNodeManipulator jobNodeManipulator;
+    protected JobMetaManipulator jobMetaManipulator;
 
-    public ApplicationElementOperator(ElementOperatorFactory factory ) {
-        this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
+    public JobElementOperator(ElementOperatorFactory factory ) {
+        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public ApplicationElementOperator(ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
+    public JobElementOperator(TaskMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
         super( masterManipulator, serviceInstrument);
-        this.applicationNodeManipulator = masterManipulator.getApplicationNodeManipulator();
-        this.applicationMetaManipulator = masterManipulator.getApplicationElementManipulator();
+        this.jobNodeManipulator = masterManipulator.getJobNodeManipulator();
+        this.jobMetaManipulator = masterManipulator.getApplicationElementManipulator();
     }
 
 
@@ -39,14 +39,14 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
         GUID applicationNodeGUID = guidAllocator.nextGUID();
         applicationElement.setGuid( applicationNodeGUID );
-        this.applicationNodeManipulator.insert( applicationElement );
+        this.jobNodeManipulator.insert( applicationElement );
 
 
         GUID descriptionGUID = guidAllocator.nextGUID();
         if( applicationElement.getMetaGuid() == null ){
             applicationElement.setMetaGuid( descriptionGUID );
         }
-        this.applicationMetaManipulator.insert( applicationElement );
+        this.jobMetaManipulator.insert( applicationElement );
 
 
         //将应用元信息存入元信息表
@@ -108,7 +108,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         JobElement jobElement;
         if( node.getNodeMetadataGUID() != null ){
-            jobElement = this.applicationMetaManipulator.getApplicationElement( node.getNodeMetadataGUID(), this.serviceInstrument);
+            jobElement = this.jobMetaManipulator.getJobElement( node.getNodeMetadataGUID(), this.serviceInstrument);
         }
         else {
             jobElement = new GenericJobElement();
@@ -116,7 +116,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
 
         this.applyCommonMeta(jobElement, this.commonDataManipulator.getNodeCommonData( guid ) );
 
-        jobElement.setName( this.applicationNodeManipulator.getApplicationNode(guid).getName() );
+        jobElement.setName( this.jobNodeManipulator.getJobElement(guid).getName() );
         jobElement.setGuid(jobElement.getGuid());
         return jobElement;
     }
@@ -134,8 +134,8 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
     @Override
     public void update( TreeNode treeNode ) {
         GenericJobElement applicationElement = (GenericJobElement) treeNode;
-        this.applicationNodeManipulator.update( applicationElement );
-        this.applicationMetaManipulator.update( applicationElement );
+        this.jobNodeManipulator.update( applicationElement );
+        this.jobMetaManipulator.update( applicationElement );
         this.commonDataManipulator.update( applicationElement );
     }
 
@@ -148,8 +148,8 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
-        this.applicationMetaManipulator.remove( node.getAttributesGUID() );
+        this.jobMetaManipulator.remove( node.getAttributesGUID() );
         this.commonDataManipulator.remove( node.getNodeMetadataGUID() );
-        this.applicationNodeManipulator.remove( node.getGuid( ));
+        this.jobNodeManipulator.remove( node.getGuid( ));
     }
 }

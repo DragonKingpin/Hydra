@@ -6,8 +6,9 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
-import com.pinecone.hydra.task.kom.UniformTasksInstrument;
+import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.radium.Radium;
@@ -28,18 +29,18 @@ class Randy extends Radium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        UniformTasksInstrument servicesTree = new UniformTasksInstrument( koiMappingDriver );
-        this.testInsert( servicesTree );
-        //this.testGet( servicesTree );
-        //this.testDelete( servicesTree );
+        UniformTaskInstrument instrument = new UniformTaskInstrument( koiMappingDriver );
+        //this.testInsert( instrument );
+        this.testGet( instrument );
+        //this.testDelete( instrument );
     }
 
-    private void testInsert( UniformTasksInstrument servicesInstrument ){
+    private void testInsert( UniformTaskInstrument instrument ){
 //        GenericNamespace namespace = new GenericNamespace();
 //        namespace.setName( "Test1" );
-//        serviceInstrument.put( namespace );
+//        instrument.put( namespace );
 
-        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03c2f90-000133-000 0-44") ) );
+        //Debug.trace( instrument.get( GUIDs.GUID72("03c2f90-000133-000 0-44") ) );
 
 
 //        GenericApplicationElement applicationNode = new GenericApplicationElement(
@@ -48,51 +49,51 @@ class Randy extends Radium {
 //        );
 //
 //        applicationNode.apply( new JSONMaptron( "{ name:specialApp2, deploymentMethod:VM }" ) );
-//        serviceInstrument.put( applicationNode );
+//        instrument.put( applicationNode );
 
         GenericTaskElement taskElement = new GenericTaskElement(
                 new JSONMaptron( "{ name:'特殊服务', alias:jesus, serviceType:System, path:'/xxx/xxx/ggg', resourceType:human," +
                         "type:Social, description: 'This is special', extraInformation: 'more', level:'L1', primaryImplLang: java, scenario:'/scenario/dragon/king'  }" )
         );
-        servicesInstrument.put( taskElement );
+        instrument.put( taskElement );
     }
 
-    private void testGet( UniformTasksInstrument servicesInstrument ){
-        //Debug.trace( serviceInstrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
-        //Debug.trace( serviceInstrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
-        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
-        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
-        //Debug.trace( serviceInstrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
-//        Debug.trace( servicesTree.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
-        //Debug.trace( serviceInstrument.affirmApplication( "Test1/App1" ) );
+    private void testGet( UniformTaskInstrument instrument ){
+        //Debug.trace( instrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
+        //Debug.trace( instrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
+        //Debug.trace( instrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
+        //Debug.trace( instrument.get( GUIDs.GUID72("03e60e8-0000c5-0000-48") ) );
+        //Debug.trace( instrument.get( GUIDs.GUID72("03e60e8-000117-0000-18") ) );
+//        Debug.trace( instrument.get( GUIDs.GUID72( "02be396-0001e9-0000-e4" ) ) );
+        //Debug.trace( instrument.affirmApplication( "Test1/App1" ) );
 
-//        Debug.trace( serviceInstrument.affirmService( "root/特殊服务" ) );
-//        Debug.trace( serviceInstrument.affirmApplication( "root/species/orc" ) );
-//        Debug.trace( serviceInstrument.affirmNamespace("root/species") );
-//        Debug.trace( serviceInstrument.affirmNamespace( "root" ).fetchChildren() );
+//        Debug.trace( instrument.affirmService( "root/特殊服务" ) );
+//        Debug.trace( instrument.affirmApplication( "root/species/orc" ) );
+//        Debug.trace( instrument.affirmNamespace("root/species") );
+//        Debug.trace( instrument.affirmNamespace( "root" ).fetchChildren() );
 //
-//        serviceInstrument.affirmApplication( "root/species/orc" ).addChild( new GenericServiceElement( new JSONMaptron( "{ name: slaughter }" ) ) );
+//        instrument.affirmApplication( "root/species/orc" ).addChild( new GenericServiceElement( new JSONMaptron( "{ name: slaughter }" ) ) );
 //
-//        Debug.trace( serviceInstrument.affirmApplication( "root/species/orc" ).fetchChildren() );
+//        Debug.trace( instrument.affirmApplication( "root/species/orc" ).fetchChildren() );
 //
-//        Debug.trace( serviceInstrument.queryElement( "root/species/orc/slaughter" ).toJSONObject() );
+//        Debug.trace( instrument.queryElement( "root/species/orc/slaughter" ).toJSONObject() );
 //
-//        serviceInstrument.affirmNamespace( "root" ).addChild( new GenericNamespace( new JSONMaptron( "{ name: weapon, scenario: s1, description: d1, level:L1, primaryImplLang:Java }" ) ) );
+//        instrument.affirmNamespace( "root" ).addChild( new GenericNamespace( new JSONMaptron( "{ name: weapon, scenario: s1, description: d1, level:L1, primaryImplLang:Java }" ) ) );
 //
-//        Debug.fmp( 2, serviceInstrument.queryElement( "root/weapon" ).evinceNamespace().toJSONDetails() );
-
-
+//        Debug.fmp( 2, instrument.queryElement( "root/weapon" ).evinceNamespace().toJSONDetails() );
 
 
-//        ServicesJSONDecoder decoder = new ServicesJSONDecoder( serviceInstrument );
-//        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { ser: { metaType: ServiceElement, type: Microservice } } } } } }" ) );
-//
-//        Debug.fmp( 2, serviceInstrument.queryElement( "root" ).toJSONObject() );
-        Debug.trace(servicesInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
+
+
+        TaskJSONDecoder decoder = new TaskJSONDecoder( instrument );
+        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: JobElement, alias:as, services: { ser: { metaType: TaskElement, type: Microservice } } } } } }" ) );
+
+        Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
+        //Debug.trace(taskInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
-    private void testDelete( UniformTasksInstrument servicesInstrument ){
-        servicesInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+    private void testDelete( UniformTaskInstrument instrument ){
+        instrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
     }
 }
 

@@ -1,8 +1,9 @@
 package com.pinecone.hydra.storage.version.entity;
 
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
-public interface Version {
+public interface Version extends Pinenut {
     long getEnumId();
     void setEnumId( long enumId );
     String getVersion();

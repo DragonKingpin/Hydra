@@ -68,7 +68,11 @@ public class SQLiteHost implements RDBHost {
         catch ( ClassNotFoundException e ){
             throw new SQLException( "JDBC Driver is not found.", "CLASS_NOT_FOUND", e );
         }
+
         String url = "jdbc:sqlite:" + this.mszLocation;
+        if ( !"jdbc:".startsWith( this.mszLocation ) ) {
+            url = "jdbc:sqlite:" + this.mszLocation;;
+        }
         this.mGlobalConnection = DriverManager.getConnection( url );
         Statement statement = this.mGlobalConnection.createStatement();
         statement.execute( "PRAGMA journal_mode=WAL;" );

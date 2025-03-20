@@ -18,7 +18,6 @@ public class MySQLHost implements RDBHost {
 
     protected Connection  mGlobalConnection;
 
-
     public MySQLHost( String dbLocation, String dbUsername, String dbPassword ) throws SQLException {
         this( dbLocation, dbUsername, dbPassword, "UTF-8" );
     }
@@ -60,7 +59,11 @@ public class MySQLHost implements RDBHost {
             throw new SQLException( "JDBC Driver is not found.", "CLASS_NOT_FOUND", e );
         }
 
-        this.mGlobalConnection = DriverManager.getConnection("jdbc:mysql://" + this.mszLocation + "?characterEncoding="+ this.mszCharset +"&useSSL=false",this.mszUsername,this.mszPassword);
+        String url = this.mszLocation;
+        if ( !"jdbc:".startsWith( this.mszLocation ) ) {
+            url = "jdbc:mysql://" + this.mszLocation + "?characterEncoding="+ this.mszCharset +"&useSSL=false";
+        }
+        this.mGlobalConnection = DriverManager.getConnection( url, this.mszUsername, this.mszPassword );
     }
 
     @Override

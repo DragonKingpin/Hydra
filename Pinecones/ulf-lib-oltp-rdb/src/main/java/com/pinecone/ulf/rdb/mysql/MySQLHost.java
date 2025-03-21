@@ -60,7 +60,7 @@ public class MySQLHost implements RDBHost {
         }
 
         String url = this.mszLocation;
-        if ( !"jdbc:".startsWith( this.mszLocation ) ) {
+        if ( !this.mszLocation.startsWith( "jdbc:" ) ) {
             url = "jdbc:mysql://" + this.mszLocation + "?characterEncoding="+ this.mszCharset +"&useSSL=false";
         }
         this.mGlobalConnection = DriverManager.getConnection( url, this.mszUsername, this.mszPassword );

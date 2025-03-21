@@ -70,7 +70,7 @@ public class SQLiteHost implements RDBHost {
         }
 
         String url = "jdbc:sqlite:" + this.mszLocation;
-        if ( !"jdbc:".startsWith( this.mszLocation ) ) {
+        if ( !this.mszLocation.startsWith( "jdbc:" ) ) {
             url = "jdbc:sqlite:" + this.mszLocation;;
         }
         this.mGlobalConnection = DriverManager.getConnection( url );

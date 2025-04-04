@@ -43,17 +43,18 @@
 
 ## 📖 Abstract
 Would you like to own the "God Eyes"? Do you crave power? Do you wish to wield all information at your fingertips? 
-<strong>Now, data is all you need!</strong>
+**Now, data is all you need!**
 
-Hydra + Radium fulfills your dreams, creating a data "Elder Brain" specifically for "TJ" individuals, 'all information all I need'. 
-We build a unique personal PB level data warehouse and search engine just for you, your exclusive "God Eyes" !
+The Hazelnut and Hydra ecosystem is a powerful data analysis "Elder Brain" designed specifically for "TJ" individuals, 'all information all I need'.
+**Hey, commander!** We build a unique personal PB level data warehouse, knowledge base, and search engine just for you, your exclusive "God Eyes" !
 
-Hydra is a cloud computing-oriented, multi-task scheduling, MapReduce, communication, service-oriented, which is the distributed operating system.
+Hydra is a cloud computing-oriented, multi-task scheduling, big data, communication, service-oriented, which is the distributed operating system.
+Hydra helps build data products such as Adhoc analysis, OLAP, search engines, knowledge bases, knowledge graphs, quantitative systems, and data platforms.
 
 ## 📖 摘要 / 简介
 <p><strong>你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！</strong></p>
-<p><strong>Hazelnut、Hydra 生态，专为"TJ"人打造的大规模数据分析“主脑”，一切尽在掌握之中。
-为你打造独一无二的的个人PB级数仓、知识库和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</strong></p>
+<p>Hazelnut、Hydra 生态，专为"TJ"人打造的大规模数据分析“主脑”，一切尽在掌握之中。
+为你打造独一无二的的个人PB级数仓、知识库和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</p>
 <p>不会集群？不会中间件？不会分布式？不会云计算？我是小白？Don`t worry，持续更新的保姆级教程和实例最小系统，弹性结构、系统可大可小，丐版技术也能玩转云和大数据。</p>
 
 ### 字多不看？太高端听不懂？几个场景助你快速了解Hydra理念。

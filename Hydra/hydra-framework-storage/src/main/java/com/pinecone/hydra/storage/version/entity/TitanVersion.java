@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.version.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 
 public class TitanVersion implements Version{
     private long enumId;
@@ -89,5 +90,15 @@ public class TitanVersion implements Version{
     @Override
     public void setVersionGuid(GUID versionGuid) {
         this.versionGuid = versionGuid;
+    }
+
+    @Override
+    public String toJSONString() {
+        return BeanJSONEncoder.BasicEncoder.encode( this );
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSONString();
     }
 }

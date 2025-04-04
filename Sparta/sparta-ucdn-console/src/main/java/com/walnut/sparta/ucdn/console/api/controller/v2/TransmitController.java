@@ -7,10 +7,14 @@ import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.direct.ExternalFile;
+import com.pinecone.hydra.storage.file.direct.GenericExternalFile;
+import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
+import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
 import com.pinecone.hydra.storage.io.Chanface;
@@ -18,6 +22,7 @@ import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.version.entity.TitanVersion;
+import com.pinecone.hydra.storage.version.entity.TitanVersionMapping;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.redstone.response.BasicResultResponse;
@@ -42,6 +47,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
@@ -67,6 +73,8 @@ public class TransmitController {
 
     @Resource
     private VersionManage primaryVersion;
+    @Resource
+    private VersionManage versionManage;
 
     @Resource
     private NodeFileDistributionService fileDistributionService;
@@ -140,13 +148,58 @@ public class TransmitController {
         titanVersion.setFileGuid( node.getGuid() );
         titanVersion.setTargetStorageObjectGuid( storageObject.getGuid() );
         titanVersion.setVersionGuid( this.primaryFileSystem.getGuidAllocator().nextGUID() );
-
+        TitanVersionMapping versionMapping = new TitanVersionMapping();
+        versionMapping.setFileGuid(titanVersion.getFileGuid());
+        versionMapping.setEnableVersionGuid(titanVersion.getTargetStorageObjectGuid());
+        versionMapping.setVersionGuid((titanVersion.getVersionGuid()));
+        this.versionManage.insertVesionMapping(versionMapping);
         this.primaryVersion.insert( titanVersion );
         if( !tempFile.delete() ){
             throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
 
         return BasicResultResponse.success();
+    }
+    /**
+     * 使用文件路径下载文件
+     */
+    @GetMapping("/download/path")
+    public void getFileByPath(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        String[] paths = parameterMap.get("path");
+        String path = null;
+
+        if(paths != null){
+            path = paths[0];
+        }
+
+        ServletOutputStream outputStream = response.getOutputStream();
+        TitanOutputStreamChanface kChannel = new TitanOutputStreamChanface(outputStream);
+
+        ElementNode elementNode = this.primaryFileSystem.queryElement(path);
+        if(elementNode instanceof GenericExternalFile){
+            ExternalFile externalFile = (ExternalFile) elementNode;
+            File nativeFile = externalFile.getNativeFile();
+            try (FileInputStream fileInputStream = new FileInputStream(nativeFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                // 刷新输出流
+                outputStream.flush();
+                return;
+            } catch (IOException e) {
+                // 处理异常，比如记录日志等
+                e.printStackTrace();
+            }
+        }
+
+        if( elementNode instanceof GenericFileNode){
+            FileNode fileNode = (FileNode) elementNode;
+            TitanFileExportEntity64 entity = new TitanFileExportEntity64(this.primaryFileSystem, this.primaryVolume, fileNode, kChannel);
+            this.primaryFileSystem.export( entity );
+        }
     }
 
     @PostMapping("/clusterFileSync")

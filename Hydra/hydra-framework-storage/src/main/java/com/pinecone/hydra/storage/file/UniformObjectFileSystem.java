@@ -100,7 +100,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier, FileSystemConfig fileSystemConfig ){
         // Phase [1] Construct system.
-        super( superiorProcess, masterManipulator, KernelFileSystemConfig, parent, name );
+        super( superiorProcess, masterManipulator, fileSystemConfig, parent, name );
 
         // Phase [2] Construct fundamentals.
         this.fileMasterManipulator         = (FileMasterManipulator) masterManipulator;

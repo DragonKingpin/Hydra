@@ -24,7 +24,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />
-    <orderEntry type="module" module-name="hydra-framework-runtime" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="module" module-name="hydra-architecture" />
     <orderEntry type="module" module-name="ulfhedinn" />

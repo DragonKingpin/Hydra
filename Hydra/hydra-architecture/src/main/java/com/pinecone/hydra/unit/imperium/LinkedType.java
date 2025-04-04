@@ -4,7 +4,8 @@ public enum LinkedType {
     Owned           ( "Owned" ),
 
     // HardLink
-    Hard            ( "Hard" );
+    Hard            ( "Hard" ),
+    WeaK            ("Weak");
 
     private final String value;
 

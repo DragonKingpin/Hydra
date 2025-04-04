@@ -30,12 +30,14 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     protected KOMInstrument         mParentInstrument;
 
     protected Hydrarum              hydrarum;
+
     protected Processum             superiorProcess;
 
     protected GuidAllocator         guidAllocator;
     protected OperatorFactory       operatorFactory;
 
     protected PathResolver          pathResolver;
+
     protected PathSelector          pathSelector;
 
     protected DynamicFactory        dynamicFactory;

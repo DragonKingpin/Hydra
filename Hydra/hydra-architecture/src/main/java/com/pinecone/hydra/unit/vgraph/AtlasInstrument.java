@@ -1,14 +1,14 @@
-package com.pinecone.hydra.unit.atlas;
+package com.pinecone.hydra.unit.vgraph;
 
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.util.List;
 
-public interface AtlasInstrument extends Pinenut {
+public interface AtlasInstrument extends Instrument {
     AtlasInstrument parent();
 
     Processum getSuperiorProcess();

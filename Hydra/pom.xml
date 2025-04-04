@@ -29,5 +29,6 @@
         <module>hydra-lib-uofs-cache</module>
 
         <module>radium</module>
+        <module>hydra-r-atlas-default-driver</module>
     </modules>
 </project>

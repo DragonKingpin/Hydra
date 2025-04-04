@@ -1,4 +1,4 @@
-package com.pinecone.hydra.unit.atlas;
+package com.pinecone.hydra.unit.vgraph;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
@@ -7,15 +7,11 @@ import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.kom.PathSelector;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
-import com.pinecone.hydra.unit.vgraph.MegaVectorDAG;
-import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 import com.pinecone.ulf.util.guid.GenericGuidAllocator;
-import lombok.val;
 
 import java.util.List;
 

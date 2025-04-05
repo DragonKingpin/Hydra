@@ -80,7 +80,6 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config ) {
         super( superiorProcess, masterManipulator, config, parent, name );
-        this.hydrarum = hydrarum;
         this.volumeMasterManipulator       =   ( VolumeMasterManipulator ) masterManipulator;
         this.pathResolver                  =   new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator                 =   GUIDs.newGuidAllocator();

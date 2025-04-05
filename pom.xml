@@ -14,9 +14,9 @@
         <module>saurons</module>
         <module>sparta</module>
         <module>walnuts</module>
+        <module>Odin</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->
-        <!--<module>Console</module>-->
         <!--<module>file</module>-->
         <!--<module>Logger</module>-->
     </modules>

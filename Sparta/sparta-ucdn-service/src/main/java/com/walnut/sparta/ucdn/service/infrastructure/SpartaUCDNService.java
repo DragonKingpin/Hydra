@@ -2,15 +2,20 @@ package com.walnut.sparta.ucdn.service.infrastructure;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.functions.Executor;
+import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
+import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.storage.version.TitanVersionManage;
 import com.pinecone.hydra.storage.version.VersionManage;
+import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
+import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
@@ -60,9 +65,12 @@ public class SpartaUCDNService extends Springron implements UCDNService {
         );
 
 
+        JSONConfig selfConfig = (JSONConfig) this.getConfig();
+        FileSystemConfig fileSystemConfig = new KernelFileSystemConfig( selfConfig.queryJSONObject( "service.PrimaryUniformFileSystem" ) );
+        this.fileSystem = new UniformObjectFileSystem( this.koiFileMappingDriver, fileSystemConfig );
 
-        this.fileSystem = new UniformObjectFileSystem( this.koiFileMappingDriver );
-        this.volumeTree = new UniformVolumeManager( this.koiMappingDriver );
+        VolumeConfig volumeConfig = new KernelVolumeConfig( selfConfig.queryJSONObject( "service.PrimaryUniformVolumeManager" ) );
+        this.volumeTree = new UniformVolumeManager( this.koiMappingDriver, volumeConfig );
         this.bucketInstrument = new TitanBucketInstrument( this.koiBucketMappingDriver );
         this.versionManage = new TitanVersionManage( this.koiVersionMappingDriver );
 

@@ -34,7 +34,7 @@
 
                 <configuration>
                     <includeSystemScope>true</includeSystemScope>
-                    <mainClass>com.walnuts.sparta.uofs.console.UOFSBoot</mainClass>
+                    <mainClass>com.walnut.sparta.uofs.console.UOFSBoot</mainClass>
                 </configuration>
             </plugin>
             <plugin>

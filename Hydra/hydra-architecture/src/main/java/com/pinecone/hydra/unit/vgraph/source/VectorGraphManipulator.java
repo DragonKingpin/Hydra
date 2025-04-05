@@ -9,17 +9,23 @@ import java.util.List;
 public interface VectorGraphManipulator extends Pinenut {
     void insertStartNode( GraphNode graphNode );
 
-    void insertIntermediateNode(GUID parentGuid, GraphNode graphNode);
+    void insertNode(GUID parentGuid, GraphNode graphNode);
+
 
     void removeNode( GUID guid );
 
     GraphNode queryNode( GUID guid );
 
+    List<GUID> fetchParentIds(GUID guid );
+
     List<GraphNode> fetchChildNodes( GUID guid );
 
-    List<GUID> fetchChildNodeGuids( GUID guid );
+    List<GraphNode> fetchRootNodes();
+
+    List<GUID> fetchChildNodeIds(GUID guid );
+
+    List<GraphNode> fetchNodesByName( String name );
 
     void updateNode( GraphNode graphNode );
-
 
 }

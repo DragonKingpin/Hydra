@@ -19,6 +19,8 @@ public interface AtlasInstrument extends Instrument {
 
     GUID queryGUIDByPath( String path );
 
+    GUID queryParentID( GUID guid );
+
     default GUID assertPath( String path, String pathType ) throws IllegalArgumentException {
         GUID guid      = this.queryGUIDByPath( path );
         if( guid == null ) {
@@ -32,7 +34,7 @@ public interface AtlasInstrument extends Instrument {
         return this.assertPath( path, "path" );
     }
 
-    boolean contains( GUID nodeGuid );
+    boolean contains( GUID handleNode, GUID nodeGuid );
 
     GUID put( GraphNode graphNode );
 
@@ -42,15 +44,13 @@ public interface AtlasInstrument extends Instrument {
 
     TreeNode get(GUID guid, int depth );
 
-    TreeNode getSelf( GUID guid );
-
     void remove( GUID guid );
 
     void remove( String path );
 
     List<GraphNode> getChildren( GUID guid );
 
-    List<GUID > fetchChildrenGuids( GUID guid );
+    List<GUID > fetchChildrenIds(GUID guid );
 
     void rename( GUID guid, String name );
 }

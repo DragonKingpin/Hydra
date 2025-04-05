@@ -55,8 +55,8 @@ class JesusChrist extends Radium {
 
 
 
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver );
-        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver );
+        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver,null );
+        UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver,null );
         TitanBucketInstrument bucketInstrument = new TitanBucketInstrument( koiBucketMappingDriver );
 
 

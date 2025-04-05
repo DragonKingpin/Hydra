@@ -1,6 +1,7 @@
 package com.pinecone.hydra.atlas;
 
 import com.pinecone.framework.system.regime.Orchestrator;
+import com.pinecone.hydra.unit.vgraph.AtlasInstrument;
 
 /**
  *  Pinecone Ursus For Java RuntimeAtlas
@@ -11,5 +12,5 @@ import com.pinecone.framework.system.regime.Orchestrator;
  *  统一大规模运行矢量调度云图
  *  *****************************************************************************************
  */
-public interface RuntimeAtlas extends Orchestrator {
+public interface RuntimeAtlas extends AtlasInstrument {
 }

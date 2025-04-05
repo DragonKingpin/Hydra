@@ -6,10 +6,10 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.util.List;
 
-public interface MegaVectorDAG extends PineUnit {
+public interface MegaVectorDAG extends VectorDAG, PineUnit {
     void insertInletNode(GraphNode graphNode );
 
-    void insertIntermediateNode( GUID parentGuid, GraphNode graphNode );
+    void insertNode(GUID parentGuid, GraphNode graphNode );
 
     void purge(GUID guid );
 
@@ -17,11 +17,11 @@ public interface MegaVectorDAG extends PineUnit {
 
     GraphNode getGraphNode( String path );
 
-    GUID queryGUIDByPath( String path );
+    GUID queryIdByPath(String path );
 
     List<GraphNode> fetchChildren( GUID guid );
 
-    List<GUID> fetchChildrenGuids( GUID guid );
+    List<GUID> fetchChildrenIds(GUID guid );
 
     String getCachePath( GUID guid );
 

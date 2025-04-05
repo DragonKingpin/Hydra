@@ -1,5 +1,6 @@
 package com.pinecone.hydra.unit.vgraph;
 
+import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
@@ -8,7 +9,7 @@ import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 
 import java.util.List;
 
-public class MagnitudeVectorDAG implements MegaVectorDAG{
+public class MagnitudeVectorDAG extends ArchAtlasInstrument implements MegaVectorDAG{
 
     protected VectorGraphManipulator                mVectorGraphManipulator;
 
@@ -17,15 +18,13 @@ public class MagnitudeVectorDAG implements MegaVectorDAG{
     protected VectorGraphConfig                     mVectorGraphConfig;
 
 
-    public MagnitudeVectorDAG( VectorGraphMasterManipulator vectorGraphMasterManipulator ){
+    public MagnitudeVectorDAG( Processum superiorProcess, VectorGraphMasterManipulator vectorGraphMasterManipulator, VectorGraphConfig vectorGraphConfig, AtlasInstrument parent, String name ){
+        super(superiorProcess, vectorGraphMasterManipulator, vectorGraphConfig, parent, name );
         this.mVectorGraphManipulator = vectorGraphMasterManipulator.getVectorGraphManipulator();
         this.mVectorGraphPathCacheManipulator = vectorGraphMasterManipulator.getVectorGraphPathCacheManipulator();
-    }
-
-    public MagnitudeVectorDAG( VectorGraphMasterManipulator vectorGraphMasterManipulator, VectorGraphConfig vectorGraphConfig ) {
-        this(vectorGraphMasterManipulator);
         this.mVectorGraphConfig = vectorGraphConfig;
     }
+
 
 
     @Override
@@ -44,8 +43,8 @@ public class MagnitudeVectorDAG implements MegaVectorDAG{
     }
 
     @Override
-    public void insertIntermediateNode(GUID parentGuid, GraphNode graphNode) {
-        this.mVectorGraphManipulator.insertIntermediateNode( parentGuid, graphNode );
+    public void insertNode(GUID parentGuid, GraphNode graphNode) {
+        this.mVectorGraphManipulator.insertNode( parentGuid, graphNode );
     }
 
     @Override
@@ -61,12 +60,12 @@ public class MagnitudeVectorDAG implements MegaVectorDAG{
 
     @Override
     public GraphNode getGraphNode(String path) {
-        GUID guid = this.queryGUIDByPath(path);
+        GUID guid = this.queryIdByPath(path);
         return this.mVectorGraphManipulator.queryNode( guid );
     }
 
     @Override
-    public GUID queryGUIDByPath(String path) {
+    public GUID queryIdByPath(String path) {
         return this.mVectorGraphPathCacheManipulator.queryGUIDByPath( path );
     }
 
@@ -81,8 +80,8 @@ public class MagnitudeVectorDAG implements MegaVectorDAG{
     }
 
     @Override
-    public List<GUID> fetchChildrenGuids(GUID guid) {
-        return this.mVectorGraphManipulator.fetchChildNodeGuids( guid );
+    public List<GUID> fetchChildrenIds(GUID guid) {
+        return this.mVectorGraphManipulator.fetchChildNodeIds( guid );
     }
 
     @Override

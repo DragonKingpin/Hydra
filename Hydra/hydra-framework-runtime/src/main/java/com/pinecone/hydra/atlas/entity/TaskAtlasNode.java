@@ -4,14 +4,14 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.util.List;
 
-public class AtlasRuntimeNode implements RuntimeNode{
+public class TaskAtlasNode implements TaskGraphNode {
     private GUID guid;
 
     private String name;
 
     private List<GUID> parentIds;
 
-    public AtlasRuntimeNode(){
+    public TaskAtlasNode(){
     }
 
 

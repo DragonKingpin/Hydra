@@ -15,7 +15,7 @@ public interface AtlasInstrument extends Instrument {
 
     void setParent( AtlasInstrument atlasInstrument );
 
-    String getPath( GUID guid );
+    List<String> getPath( GUID guid );
 
     GUID queryGUIDByPath( String path );
 

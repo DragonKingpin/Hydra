@@ -12,13 +12,10 @@ import java.util.Stack;
 public class BasicDAGPathSelector implements DAGPathSelector {
     protected DAGPathResolver mPathResolver;
 
-    protected AtlasInstrument mAtlasInstrument;
-
     protected VectorGraphManipulator    mVectorGraphManipulator;
 
-    public BasicDAGPathSelector(DAGPathResolver pathResolver, AtlasInstrument atlasInstrument, VectorGraphManipulator vectorGraphManipulator  ){
+    public BasicDAGPathSelector(DAGPathResolver pathResolver, VectorGraphManipulator vectorGraphManipulator  ){
         this.mPathResolver = pathResolver;
-        this.mAtlasInstrument = atlasInstrument;
         this.mVectorGraphManipulator = vectorGraphManipulator;
     }
     @Override
@@ -79,7 +76,7 @@ public class BasicDAGPathSelector implements DAGPathSelector {
     }
 
 
-    /** 使用递归实现图的DFS遍历 **/
+    /** 使用递归实现图的DFS遍历（考古专用） **/
     protected Object dfsSearch(GUID parentID, List<String> parts, int depth) {
         if (depth == parts.size() - 1) {
             List<GraphNode> nodes = this.mVectorGraphManipulator.fetchNodesByName(parts.get(depth));

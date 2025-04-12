@@ -3,30 +3,31 @@ package com.pinecone.hydra.unit.vgraph;
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 
 import java.util.List;
 
 public interface MegaVectorDAG extends VectorDAG, PineUnit {
-    void insertInletNode(GraphNode graphNode );
 
-    void insertNode(GUID parentGuid, GraphNode graphNode );
+    VectorGraphMasterManipulator getMasterManipulator();
+    GUID put( GraphNode graphNode );
 
-    void purge(GUID guid );
+    void putCachePath( String path, GUID guid );
 
-    GraphNode getGraphNode( GUID guid );
+    GraphNode get( GUID guid );
 
-    GraphNode getGraphNode( String path );
+    GUID getGuidByCachePath( String path );
 
-    GUID queryIdByPath(String path );
+    List<String> getCachePath( GUID guid );
 
-    List<GraphNode> fetchChildren( GUID guid );
+    void remove( GUID guid );
 
-    List<GUID> fetchChildrenIds(GUID guid );
+    void removeCache( GUID guid );
 
-    String getCachePath( GUID guid );
+    void removeCache( String path );
 
-    void removeCachePath( GUID guid );
+    List<GraphNode> getChildren( GUID guid );
 
-    GraphNode updateGraphNode( GraphNode graphNode );
+    List<GUID> fetchChildrenIds(GUID guid);
 
 }

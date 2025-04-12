@@ -1,81 +1,93 @@
 package com.pinecone.hydra.unit.vgraph;
 
-import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathResolver;
+import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathSelector;
+import com.pinecone.hydra.unit.vgraph.algo.DAGPathResolver;
+import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
+import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 
 import java.util.List;
 
-public class MagnitudeVectorDAG extends ArchAtlasInstrument implements MegaVectorDAG{
+public class MagnitudeVectorDAG implements MegaVectorDAG {
+    protected List<GraphNode>                   lstHandles;
+    protected VectorGraphMasterManipulator      mMasterManipulator;
 
-    protected VectorGraphManipulator                mVectorGraphManipulator;
+    protected VectorGraphManipulator            mVectorGraphManipulator;
 
-    protected VectorGraphPathCacheManipulator       mVectorGraphPathCacheManipulator;
+    protected VectorGraphPathCacheManipulator   mVectorGraphPathCacheManipulator;
 
-    protected VectorGraphConfig                     mVectorGraphConfig;
+    protected GuidAllocator                     mGuidAllocator;
 
+    protected VectorGraphConfig                 mVectorGraphConfig;
 
-    public MagnitudeVectorDAG( Processum superiorProcess, VectorGraphMasterManipulator vectorGraphMasterManipulator, VectorGraphConfig vectorGraphConfig, AtlasInstrument parent, String name ){
-        super(superiorProcess, vectorGraphMasterManipulator, vectorGraphConfig, parent, name );
-        this.mVectorGraphManipulator = vectorGraphMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator = vectorGraphMasterManipulator.getVectorGraphPathCacheManipulator();
+    public MagnitudeVectorDAG(  List<GraphNode> handles, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig){
+        this.lstHandles                 = handles;
+        this.mMasterManipulator = masterManipulator;
         this.mVectorGraphConfig = vectorGraphConfig;
-    }
-
-
-
-    @Override
-    public boolean hasOwnProperty(Object elm) {
-        return false;
+        this.mVectorGraphManipulator = this.mMasterManipulator.getVectorGraphManipulator();
+        this.mVectorGraphPathCacheManipulator = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
+        this.mGuidAllocator = new GenericGuidAllocator();
     }
 
     @Override
-    public boolean containsKey(Object key) {
-        return false;
+    public VectorGraphMasterManipulator getMasterManipulator() {
+        return this.mMasterManipulator;
     }
 
     @Override
-    public void insertInletNode(GraphNode graphNode) {
+    public GUID put(GraphNode graphNode) {
+        GUID guid = this.mGuidAllocator.nextGUID();
+        graphNode.setId( guid );
         this.mVectorGraphManipulator.insertStartNode( graphNode );
+
+        return guid;
     }
 
     @Override
-    public void insertNode(GUID parentGuid, GraphNode graphNode) {
-        this.mVectorGraphManipulator.insertNode( parentGuid, graphNode );
+    public void putCachePath(String path, GUID guid) {
+        this.mVectorGraphPathCacheManipulator.insert( path, guid );
     }
 
     @Override
-    public void purge(GUID guid) {
-        this.mVectorGraphManipulator.removeNode( guid );
-        this.removeCachePath( guid );
-    }
-
-    @Override
-    public GraphNode getGraphNode(GUID guid) {
-        return this.mVectorGraphManipulator.queryNode(guid);
-    }
-
-    @Override
-    public GraphNode getGraphNode(String path) {
-        GUID guid = this.queryIdByPath(path);
+    public GraphNode get(GUID guid) {
         return this.mVectorGraphManipulator.queryNode( guid );
     }
 
     @Override
-    public GUID queryIdByPath(String path) {
+    public GUID getGuidByCachePath(String path) {
         return this.mVectorGraphPathCacheManipulator.queryGUIDByPath( path );
     }
 
     @Override
-    public GraphNode updateGraphNode(GraphNode graphNode) {
-        return null;
+    public List<String> getCachePath(GUID guid) {
+        return this.mVectorGraphPathCacheManipulator.getPath( guid );
     }
 
     @Override
-    public List<GraphNode> fetchChildren(GUID guid) {
+    public void remove(GUID guid) {
+        this.mVectorGraphManipulator.removeNode( guid );
+        this.mVectorGraphPathCacheManipulator.remove( guid );
+    }
+
+    @Override
+    public void removeCache(GUID guid) {
+        this.mVectorGraphPathCacheManipulator.remove( guid );
+    }
+
+    @Override
+    public void removeCache(String path) {
+        this.mVectorGraphPathCacheManipulator.removeByPath( path );
+    }
+
+    @Override
+    public List<GraphNode> getChildren(GUID guid) {
         return this.mVectorGraphManipulator.fetchChildNodes( guid );
     }
 
@@ -85,12 +97,12 @@ public class MagnitudeVectorDAG extends ArchAtlasInstrument implements MegaVecto
     }
 
     @Override
-    public String getCachePath(GUID guid) {
-        return this.mVectorGraphPathCacheManipulator.getPath( guid );
+    public boolean hasOwnProperty(Object elm) {
+        return false;
     }
 
     @Override
-    public void removeCachePath(GUID guid) {
-        this.mVectorGraphPathCacheManipulator.remove( guid );
+    public boolean containsKey(Object key) {
+        return false;
     }
 }

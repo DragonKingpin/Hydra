@@ -10,12 +10,9 @@ import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.algo.DAGPathResolver;
 import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 import com.pinecone.ulf.util.guid.GenericGuidAllocator;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 
-public abstract class ArchAtlasInstrument implements AtlasInstrument{
+public abstract class KArchAtlasInstrument implements AtlasInstrument {
     protected AtlasInstrument                   mParentInstrument;
 
     protected MegaVectorDAG                     mMegaVectorDAG;
@@ -43,25 +40,29 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument{
 
     protected VectorGraphConfig                 mVectorGraphConfig;
 
-    public ArchAtlasInstrument (
-            Processum superiorProcess, MegaVectorDAG megaVectorDAG, AtlasMasterManipulator atlasMasterManipulator, VectorGraphConfig vectorGraphConfig,
-            AtlasInstrument parent, String name
+    public KArchAtlasInstrument(
+            List<GraphNode> parent, AtlasMappingDriver atlasMappingDriver, VectorGraphConfig vectorGraphConfig
     ){
         this.mVectorGraphConfig = vectorGraphConfig;
-        this.mSuperiorProcess = superiorProcess;
-        this.mMegaVectorDAG = megaVectorDAG;
-        this.mAtlasMasterManipulator = atlasMasterManipulator;
+        this.mSuperiorProcess = atlasMappingDriver.getSuperiorProcess();
+        this.mAtlasMasterManipulator = atlasMappingDriver.getMasterManipulator();
+
+
         if ( this.mSuperiorProcess instanceof Hydrarum ) {
             this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess;
         }
         else {
-            this.mHydrarum                    = (Hydrarum) superiorProcess.getSystem();
+            this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess.getSystem();
         }
-        this.mParentInstrument = parent;
-
+        this.mMegaVectorDAG = new MagnitudeVectorDAG(parent,atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
         this.mGuidAllocator = new GenericGuidAllocator();
         this.mPathResolver = new BasicDAGPathResolver();//后续要使用配置类指定
         this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this.mMegaVectorDAG.getMasterManipulator().getVectorGraphManipulator() );
+
+    }
+
+    public KArchAtlasInstrument(AtlasMappingDriver driver) {
+        this(null,driver,null);
     }
 
     @Override
@@ -77,6 +78,11 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument{
     @Override
     public void setParent(AtlasInstrument atlasInstrument) {
         this.mParentInstrument = atlasInstrument;
+    }
+
+    @Override
+    public GuidAllocator getGuidAllocator() {
+        return this.mGuidAllocator;
     }
 
     @Override

@@ -15,7 +15,7 @@ public interface AtlasMappingDriver extends Pinenut {
 
     Processum getSuperiorProcess();
 
-    VectorGraphMasterManipulator getMasterManipulator();
+    AtlasMasterManipulator getMasterManipulator();
 
     // Temp, TODO
     StereotypicInjector autoConstruct(Class<?> stereotype, Map config, Object instance );

@@ -10,6 +10,7 @@ import java.util.List;
 public interface MegaVectorDAG extends VectorDAG, PineUnit {
 
     VectorGraphMasterManipulator getMasterManipulator();
+
     GUID put( GraphNode graphNode );
 
     void putCachePath( String path, GUID guid );

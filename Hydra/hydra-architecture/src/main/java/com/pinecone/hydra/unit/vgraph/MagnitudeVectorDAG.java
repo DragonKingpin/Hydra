@@ -1,12 +1,7 @@
 package com.pinecone.hydra.unit.vgraph;
 
-import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathResolver;
-import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathSelector;
-import com.pinecone.hydra.unit.vgraph.algo.DAGPathResolver;
-import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
@@ -17,6 +12,7 @@ import java.util.List;
 
 public class MagnitudeVectorDAG implements MegaVectorDAG {
     protected List<GraphNode>                   lstHandles;
+
     protected VectorGraphMasterManipulator      mMasterManipulator;
 
     protected VectorGraphManipulator            mVectorGraphManipulator;

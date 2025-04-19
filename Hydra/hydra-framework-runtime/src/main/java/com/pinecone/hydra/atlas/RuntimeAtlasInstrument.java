@@ -1,7 +1,6 @@
 package com.pinecone.hydra.atlas;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.system.regime.Orchestrator;
 import com.pinecone.hydra.unit.vgraph.AtlasInstrument;
 
 /**
@@ -13,5 +12,5 @@ import com.pinecone.hydra.unit.vgraph.AtlasInstrument;
  *  统一大规模运行矢量调度云图
  *  *****************************************************************************************
  */
-public interface RuntimeAtlas extends Pinenut, AtlasInstrument {
+public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
 }

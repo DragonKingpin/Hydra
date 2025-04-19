@@ -41,6 +41,8 @@ public interface AtlasInstrument extends Instrument {
 
     GUID put( GraphNode graphNode );
 
+    GUID put( GUID parentGuid, GraphNode graphNode );
+
     GraphNode get( GUID guid );
 
     GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep );

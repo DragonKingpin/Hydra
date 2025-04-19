@@ -87,7 +87,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
 
     @Override
     public List<String> getPath(GUID guid) {
-        return this.getNS( guid, this.mVectorGraphConfig.getPathNameSeparator() );
+        return this.getNS( guid, "/" );
     }
 
     @Override
@@ -111,6 +111,14 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
         graphNode.setId( guid );
         this.mMegaVectorDAG.put(graphNode);
 
+        return guid;
+    }
+
+    @Override
+    public GUID put(GUID parentGuid, GraphNode graphNode) {
+        GUID guid = this.mGuidAllocator.nextGUID();
+        graphNode.setId( guid );
+        this.mMegaVectorDAG.put(parentGuid,graphNode);
         return guid;
     }
 
@@ -180,7 +188,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
     protected List<String> getNS( GUID guid, String szSeparator ){
         // 先检查缓存
         List<String> path = this.mMegaVectorDAG.getCachePath(guid);
-        if (path != null) {
+        if (path != null && !path.isEmpty()) {
             return path;
         }
 
@@ -198,7 +206,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
             GraphNode currentNode = current.getGraphNode();
             String currentPath = current.getCurrentPath();
 
-            List<GUID> parentIds = currentNode.getParentIds();
+            List<GUID> parentIds = this.mMegaVectorDAG.fetchParentIds(currentNode.getId());
             if (parentIds.isEmpty() || !this.allNonNull(parentIds)) {
                 allPaths.add(currentPath);
                 continue;

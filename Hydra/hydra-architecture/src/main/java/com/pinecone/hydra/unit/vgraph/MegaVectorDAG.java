@@ -13,6 +13,8 @@ public interface MegaVectorDAG extends VectorDAG, PineUnit {
 
     GUID put( GraphNode graphNode );
 
+    void put( GUID parentGuid, GraphNode graphNode );
+
     void putCachePath( String path, GUID guid );
 
     GraphNode get( GUID guid );
@@ -30,5 +32,7 @@ public interface MegaVectorDAG extends VectorDAG, PineUnit {
     List<GraphNode> getChildren( GUID guid );
 
     List<GUID> fetchChildrenIds(GUID guid);
+
+    List<GUID> fetchParentIds(GUID guid);
 
 }

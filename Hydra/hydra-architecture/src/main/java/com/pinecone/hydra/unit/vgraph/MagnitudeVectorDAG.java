@@ -47,6 +47,11 @@ public class MagnitudeVectorDAG implements MegaVectorDAG {
     }
 
     @Override
+    public void put(GUID parentGuid, GraphNode graphNode) {
+        this.mVectorGraphManipulator.insertNode(parentGuid, graphNode);
+    }
+
+    @Override
     public void putCachePath(String path, GUID guid) {
         this.mVectorGraphPathCacheManipulator.insert( path, guid );
     }
@@ -90,6 +95,11 @@ public class MagnitudeVectorDAG implements MegaVectorDAG {
     @Override
     public List<GUID> fetchChildrenIds(GUID guid) {
         return this.mVectorGraphManipulator.fetchChildNodeIds( guid );
+    }
+
+    @Override
+    public List<GUID> fetchParentIds(GUID guid) {
+        return this.mVectorGraphManipulator.fetchParentIds(guid);
     }
 
     @Override

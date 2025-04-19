@@ -12,7 +12,9 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @IbatisDataAccessObject
@@ -83,9 +85,15 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     @Select("SELECT `guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `parent_guid` = #{parentGuid}")
     List<GUID> fetchChildNodeIds(GUID guid );
 
+
+    @Select("SELECT `id` AS enumId, `guid`, `node_name` AS name, `node_description` AS description  FROM `hydra_atlas_vgraph_nodes` WHERE `node_name` = #{name}")
+    List<TaskAtlasNode> fetchNodesByName0( String name );
+
     @Override
-    @Select("SELECT `id`, `guid`, `node_name`, `node_description` FROM `hydra_atlas_vgraph_nodes` WHERE `node_name` = #{name}")
-    List<GraphNode> fetchNodesByName( String name );
+    default List<GraphNode> fetchNodesByName( String name ) {
+        List<TaskAtlasNode> taskAtlasNodes = this.fetchNodesByName0(name);
+        return new ArrayList<>(taskAtlasNodes);
+    }
 
     @Override
     @Update("UPDATE `hydra_atlas_vgraph_nodes` SET `node_name` = #{nodeName}, `node_description` = #{nodeDescription} WHERE `guid` = #{guid}")

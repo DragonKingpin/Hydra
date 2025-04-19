@@ -3,22 +3,18 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.atlas.UniformRuntimeAtlas;
 import com.pinecone.hydra.atlas.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.entity.TaskGraphNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
-import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
-import com.pinecone.hydra.service.kom.ServiceInstrument;
-import com.pinecone.hydra.service.kom.UniformServiceInstrument;
-import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
-import com.pinecone.hydra.service.kom.marshaling.ServiceJSONDecoder;
-import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
+
+import java.util.List;
 
 class Rick extends Radium {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -40,14 +36,17 @@ class Rick extends Radium {
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点");
-        uniformRuntimeAtlas.put(taskAtlasNode);
+        taskAtlasNode.setName("这是测试图节点2");
+        //uniformRuntimeAtlas.put(taskAtlasNode);
+        uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }
 
     public void testQuery(UniformRuntimeAtlas uniformRuntimeAtlas) {
         GuidAllocator guidAllocator = uniformRuntimeAtlas.getGuidAllocator();
-        TaskGraphNode query = uniformRuntimeAtlas.query(GUIDs.GUID72("20dc3d8-00007b-0000-50"));
-        Debug.trace(query.toJSONString());
+//        TaskGraphNode query = uniformRuntimeAtlas.query(GUIDs.GUID72("20dc3d8-00007b-0000-50"));
+//        Debug.trace(query.toJSONString());
+        List<String> path = uniformRuntimeAtlas.getPath(GUIDs.GUID72("210f43c-000017-0000-64"));
+        Debug.trace(path);
     }
 
 

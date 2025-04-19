@@ -5,6 +5,7 @@ import java.util.Map;
 import com.pinecone.framework.util.name.Namespace;
 
 public interface Task extends TaskFamilyMeta {
+
     String getName();        // Service Name, e.g. WpnService
 
     String getDisplayName(); // Service Long Name, e.g. Windows Push Notification System Service
@@ -13,19 +14,14 @@ public interface Task extends TaskFamilyMeta {
 
     String getFullName();
 
-    Namespace getGroupNamespace();
-
-    String getGroupName();
-
     String getScenario() ;
 
-    String getPrimaryImplLang() ;
+    String getMarshallingArchitecture() ;
 
     String getExtraInformation() ;
 
     String getLevel() ;
 
-    Object getProcessImageObject();
-
     Map<String, Object> getMetaDataScope();
+
 }

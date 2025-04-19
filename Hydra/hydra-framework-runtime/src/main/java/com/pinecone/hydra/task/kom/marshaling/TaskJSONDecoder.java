@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.FolderElement;
@@ -15,9 +15,9 @@ import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 
 public class TaskJSONDecoder implements TaskInstrumentDecoder {
-    protected ServiceInstrument instrument;
+    protected TaskInstrument instrument;
 
-    public TaskJSONDecoder( ServiceInstrument instrument ) {
+    public TaskJSONDecoder( TaskInstrument instrument ) {
         this.instrument = instrument;
     }
 
@@ -65,7 +65,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "<ServiceInstrument> Existed child-destination [%s] should be namespace.", szName )
+                                    String.format( "<TaskInstrument> Existed child-destination [%s] should be namespace.", szName )
                             );
                         }
                     }

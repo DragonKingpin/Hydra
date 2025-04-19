@@ -1,7 +1,7 @@
 package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
@@ -13,41 +13,67 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
 @IbatisDataAccessObject
 public interface TaskNodeMapper extends TaskNodeManipulator {
-    @Insert("INSERT INTO `hydra_task_task_nodes` (`guid`, `name`) VALUES (#{guid},#{name})")
-    void insert(GenericTaskElement taskNode);
-
-    @Delete("DELETE FROM `hydra_task_task_nodes` WHERE `guid`=#{guid}")
-    void remove(@Param("guid")GUID guid);
-
-    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_task_task_nodes` WHERE `guid`=#{guid}")
-    GenericTaskElement getTaskNode(@Param("guid") GUID guid);
-
-    @Update("UPDATE `hydra_task_task_nodes` SET `name` = #{name} WHERE `guid` = #{guid}")
-    void update(GenericTaskElement serviceNode);
-
-    @Select("SELECT `id` AS `enumId`, `guid` , `name` FROM `hydra_task_task_nodes` WHERE name=#{name}")
-    List<GenericTaskElement> fetchTaskNodeByName(@Param("name") String name);
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_nodes` WHERE `name` = #{name}" )
+    @Insert("INSERT INTO `hydra_task_task_node` " +
+            "(`guid`, `name`, `image_path`, `type`, `resource_type`, `deployment_method`, `create_time`, `update_time`) " +
+            "VALUES (#{guid}, #{name}, #{imagePath}, #{type}, #{resourceType}, #{deploymentMethod}, #{createTime}, #{updateTime})")
+    void insert( TaskElement taskNode );
+
+    @Override
+    @Delete("DELETE FROM `hydra_task_task_node` WHERE `guid`=#{guid}")
+    void remove( @Param("guid")GUID guid );
+
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `image_path` AS `imagePath`, `type`, " +
+            "`resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, " +
+            "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
+            "FROM `hydra_task_task_node` WHERE `guid` = #{guid}")
+    GenericTaskElement getTaskNode0( @Param("guid") GUID guid );
+
+    @Override
+    default TaskElement getTaskNode( GUID guid, TaskInstrument instrument ) {
+        GenericTaskElement taskElement = this.getTaskNode0( guid );
+        taskElement.apply( instrument );
+        return taskElement;
+    }
+
+    @Override
+    @Update("UPDATE `hydra_task_task_node` SET " +
+            "`name` = #{name}, " +
+            "`image_path` = #{imagePath}, " +
+            "`type` = #{type}, " +
+            "`resource_type` = #{resourceType}, " +
+            "`deployment_method` = #{deploymentMethod}, " +
+            "`create_time` = #{createTime}, " +
+            "`update_time` = #{updateTime} " +
+            "WHERE `guid` = #{guid}")
+    void update( TaskElement serviceNode );
+
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `image_path` AS `imagePath`, `type`, " +
+            "`resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, " +
+            "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
+            "FROM `hydra_task_task_node` WHERE `name` = #{name}")
+    List<GenericTaskElement> fetchTaskNodeByName0( @Param("name") String name );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<TaskElement> fetchTaskNodeByName( String name ) {
+        List<GenericTaskElement> list = this.fetchTaskNodeByName0( name );
+        return (List) list;
+    }
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name}" )
     List<GUID> getGuidsByName( String name );
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_nodes` WHERE `name` = #{name} AND `guid` = #{guid}" )
+    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 
-    default List<TaskElement> fetchAllTask(){
-        List<TaskElement> taskElements = this.fetchAllTask();
-        return new ArrayList<>(taskElements);
-    }
-
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_task_task_nodes` ")
-    List<GenericTaskElement> fetchAllTask0();
 }

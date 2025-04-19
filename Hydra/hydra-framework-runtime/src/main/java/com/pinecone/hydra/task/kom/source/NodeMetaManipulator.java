@@ -6,14 +6,16 @@ import com.pinecone.hydra.task.kom.TaskFamilyNode;
 import com.pinecone.hydra.task.kom.entity.CommonMeta;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 
-public interface CommonDataManipulator extends Pinenut {
+public interface NodeMetaManipulator extends Pinenut {
+
     void insert(TaskFamilyNode node);
 
     void insertNS(Namespace node);
 
     void remove(GUID guid);
 
-    CommonMeta getNodeCommonData(GUID guid);
+    CommonMeta getNodeCommonMeta(GUID guid);
 
     void update(TaskFamilyNode node);
+
 }

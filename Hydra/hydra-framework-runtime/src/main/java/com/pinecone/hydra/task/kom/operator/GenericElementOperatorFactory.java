@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
@@ -13,7 +13,7 @@ import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected TaskMasterManipulator taskMasterManipulator;
-    protected ServiceInstrument serviceInstrument;
+    protected TaskInstrument taskInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
@@ -28,8 +28,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericJobElement.class );
     }
 
-    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, TaskMasterManipulator taskMasterManipulator){
-        this.serviceInstrument = serviceInstrument;
+    public GenericElementOperatorFactory(TaskInstrument taskInstrument, TaskMasterManipulator taskMasterManipulator){
+        this.taskInstrument = taskInstrument;
         this.taskMasterManipulator = taskMasterManipulator;
 
         this.registerer.put(
@@ -65,8 +65,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public ServiceInstrument getServicesTree() {
-        return this.serviceInstrument;
+    public TaskInstrument getServicesTree() {
+        return this.taskInstrument;
     }
 
     @Override

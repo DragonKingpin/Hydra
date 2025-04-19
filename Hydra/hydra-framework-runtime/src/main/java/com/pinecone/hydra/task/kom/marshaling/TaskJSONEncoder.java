@@ -1,13 +1,13 @@
 package com.pinecone.hydra.task.kom.marshaling;
 
 
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 
 public class TaskJSONEncoder implements TaskInstrumentEncoder {
-    protected ServiceInstrument instrument;
+    protected TaskInstrument instrument;
 
-    public TaskJSONEncoder(ServiceInstrument instrument ) {
+    public TaskJSONEncoder(TaskInstrument instrument ) {
         this.instrument = instrument;
     }
 

@@ -11,7 +11,7 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.kom.GenericNamespaceRules;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
@@ -36,17 +36,17 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
-        super( joEntity, serviceInstrument);
+    public GenericNamespace( Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+        super( joEntity, taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( ServiceInstrument serviceInstrument) {
-        super(serviceInstrument);
+    public GenericNamespace( TaskInstrument taskInstrument) {
+        super(taskInstrument);
     }
 
-    public GenericNamespace(ServiceInstrument serviceInstrument, TaskNamespaceManipulator namespaceManipulator ) {
-        this(serviceInstrument);
+    public GenericNamespace(TaskInstrument taskInstrument, TaskNamespaceManipulator namespaceManipulator ) {
+        this(taskInstrument);
         this.namespaceManipulator = namespaceManipulator;
     }
 
@@ -103,7 +103,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     @Override
     public JSONObject toJSONDetails() {
-        return BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys);
+        return BeanColonist.DirectColonist.populate( this, ElementNode.UnbeanifiedKeys );
     }
 
     @Override

@@ -7,15 +7,11 @@ import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 public interface TaskMasterManipulator extends KOIMasterManipulator {
     TrieTreeManipulator getTrieTreeManipulator() ;
 
-    CommonDataManipulator getCommonDataManipulator();
+    NodeMetaManipulator getNodeMetaManipulator();
 
     JobNodeManipulator getJobNodeManipulator();
 
-    JobMetaManipulator getApplicationElementManipulator();
-
     TaskNodeManipulator getTaskNodeManipulator();
-
-    TaskMetaManipulator getTaskMetaManipulator();
 
     TaskNamespaceManipulator getNamespaceManipulator();
 

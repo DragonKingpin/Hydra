@@ -8,10 +8,10 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 
-public class GenericJobElement extends ArchServoElement implements JobElement {
-    protected String                     deploymentMethod;
+public class GenericJobElement extends ArchElementNode implements JobElement {
+    protected String        taskType;
 
     public GenericJobElement() {
         super();
@@ -22,23 +22,23 @@ public class GenericJobElement extends ArchServoElement implements JobElement {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericJobElement(Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
-        super( joEntity, serviceInstrument);
+    public GenericJobElement(Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+        super( joEntity, taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericJobElement(ServiceInstrument serviceInstrument) {
-        super(serviceInstrument);
+    public GenericJobElement(TaskInstrument taskInstrument) {
+        super(taskInstrument);
     }
 
     @Override
-    public String getDeploymentMethod() {
-        return this.deploymentMethod;
+    public String getType() {
+        return this.taskType;
     }
 
     @Override
-    public void setDeploymentMethod( String deploymentMethod ) {
-        this.deploymentMethod = deploymentMethod;
+    public void setType( String taskType ) {
+        this.taskType = taskType;
     }
 
     @Override
@@ -67,13 +67,13 @@ public class GenericJobElement extends ArchServoElement implements JobElement {
     @Override
     public JSONObject toJSONObject() {
         List<ElementNode > children = this.fetchChildren();
-        JSONObject jo         = BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys);
+        JSONObject jo         = BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys );
         JSONObject joChildren = new JSONMaptron();
 
         for( ElementNode node : children ) {
             joChildren.put( node.getName(), node.toJSONObject() );
         }
-        jo.put( "services", joChildren );
+        jo.put( "jobs", joChildren );
         return jo;
     }
 }

@@ -52,7 +52,7 @@ class Randy extends Radium {
 //        instrument.put( applicationNode );
 
         GenericTaskElement taskElement = new GenericTaskElement(
-                new JSONMaptron( "{ name:'特殊服务', alias:jesus, serviceType:System, path:'/xxx/xxx/ggg', resourceType:human," +
+                new JSONMaptron( "{ name:'特殊服务', alias:jesus, serviceType:System, resourceType:human," +
                         "type:Social, description: 'This is special', extraInformation: 'more', level:'L1', primaryImplLang: java, scenario:'/scenario/dragon/king'  }" )
         );
         instrument.put( taskElement );
@@ -86,7 +86,7 @@ class Randy extends Radium {
 
 
         TaskJSONDecoder decoder = new TaskJSONDecoder( instrument );
-        decoder.decode( new JSONMaptron( "{ root: { test: { app: { metaType: JobElement, alias:as, services: { ser: { metaType: TaskElement, type: Microservice } } } } } }" ) );
+        decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, services: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
         //Debug.trace(taskInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));

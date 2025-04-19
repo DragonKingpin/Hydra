@@ -15,7 +15,7 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
 
     protected String scenario;
 
-    protected String primaryImplLang;
+    protected String marshallingArchitecture;
 
     protected String extraInformation;
 
@@ -35,7 +35,7 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
         this.apply( joEntity );
     }
 
-    protected ArchTaskFamilyMeta apply(Map<String, Object > joEntity ) {
+    protected ArchTaskFamilyMeta apply( Map<String, Object > joEntity ) {
         String szGuid = (String) joEntity.get( "guid" );
         if( szGuid != null ) {
             this.guid = GUIDs.GUID72( (String) joEntity.get( "guid" ) );
@@ -66,8 +66,8 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
     }
 
     @Override
-    public String getPrimaryImplLang() {
-        return this.primaryImplLang;
+    public String getMarshallingArchitecture() {
+        return this.marshallingArchitecture;
     }
 
     @Override

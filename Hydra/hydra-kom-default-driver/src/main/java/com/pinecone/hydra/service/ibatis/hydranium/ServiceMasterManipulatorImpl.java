@@ -5,7 +5,7 @@ import com.pinecone.hydra.service.ibatis.AppNodeMetaMapper;
 import com.pinecone.hydra.service.ibatis.ApplicationNodeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper;
 import com.pinecone.hydra.service.ibatis.NamespaceRulesMapper;
-import com.pinecone.hydra.service.ibatis.ServiceCommonDataMapper;
+import com.pinecone.hydra.service.ibatis.ServiceNodeMetaMapper;
 import com.pinecone.hydra.service.ibatis.ServiceMetaMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
@@ -14,7 +14,7 @@ import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.NamespaceRulesManipulator;
-import com.pinecone.hydra.service.kom.source.CommonDataManipulator;
+import com.pinecone.hydra.service.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
@@ -38,8 +38,8 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     TrieTreeManipulator             trieTreeManipulator;
 
     @Resource
-    @Structure(type = ServiceCommonDataMapper.class )
-    CommonDataManipulator           commonDataManipulator;
+    @Structure(type = ServiceNodeMetaMapper.class )
+    NodeMetaManipulator nodeMetaManipulator;
 
     @Resource
     @Structure(type = ApplicationNodeMapper.class )
@@ -84,8 +84,8 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     }
 
     @Override
-    public CommonDataManipulator getCommonDataManipulator() {
-        return this.commonDataManipulator;
+    public NodeMetaManipulator getNodeMetaManipulator() {
+        return this.nodeMetaManipulator;
     }
 
     @Override

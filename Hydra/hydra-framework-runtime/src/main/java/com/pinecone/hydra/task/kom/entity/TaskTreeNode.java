@@ -2,14 +2,14 @@ package com.pinecone.hydra.task.kom.entity;
 
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public interface ServiceTreeNode extends TreeNode {
+public interface TaskTreeNode extends TreeNode {
     String getName();
 
     default String getMetaType() {
         return this.className().replace("Generic","");
     }
 
-    default ServiceTreeNode evinceTreeNode(){
+    default TaskTreeNode evinceTreeNode(){
         return this;
     }
 

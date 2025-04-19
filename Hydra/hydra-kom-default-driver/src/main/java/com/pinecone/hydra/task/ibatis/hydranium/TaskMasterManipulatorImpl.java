@@ -4,21 +4,17 @@ import com.pinecone.framework.system.construction.Structure;
 
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.task.ibatis.JobNodeMetaMapper;
 import com.pinecone.hydra.task.ibatis.JobNodeMapper;
 import com.pinecone.hydra.task.ibatis.NamespaceRulesMapper;
-import com.pinecone.hydra.task.ibatis.TaskCommonDataMapper;
-import com.pinecone.hydra.task.ibatis.TaskMetaMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodeMetaMapper;
 import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
-import com.pinecone.hydra.task.kom.source.JobMetaManipulator;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
-import com.pinecone.hydra.task.kom.source.CommonDataManipulator;
+import com.pinecone.hydra.task.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
-import com.pinecone.hydra.task.kom.source.TaskMetaManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
@@ -35,10 +31,6 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     TireOwnerManipulator            tireOwnerManipulator;
 
     @Resource
-    @Structure(type = TaskMetaMapper.class)
-    TaskMetaManipulator taskMetaManipulator;
-
-    @Resource
     @Structure(type = TaskTreeMapper.class )
     TrieTreeManipulator             trieTreeManipulator;
 
@@ -47,16 +39,12 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     TaskNodeManipulator taskNodeManipulator;
 
     @Resource
-    @Structure(type = TaskCommonDataMapper.class )
-    CommonDataManipulator commonDataManipulator;
+    @Structure(type = TaskNodeMetaMapper.class )
+    NodeMetaManipulator nodeMetaManipulator;
 
     @Resource
     @Structure(type = JobNodeMapper.class )
     JobNodeManipulator jobNodeManipulator;
-
-    @Resource
-    @Structure( type = JobNodeMetaMapper.class )
-    JobMetaManipulator jobMetaManipulator;
 
     @Resource
     @Structure( type = TaskNamespaceMapper.class )
@@ -90,8 +78,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public CommonDataManipulator getCommonDataManipulator() {
-        return this.commonDataManipulator;
+    public NodeMetaManipulator getNodeMetaManipulator() {
+        return this.nodeMetaManipulator;
     }
 
     @Override
@@ -100,18 +88,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public JobMetaManipulator getApplicationElementManipulator() {
-        return this.jobMetaManipulator;
-    }
-
-    @Override
     public TaskNamespaceManipulator getNamespaceManipulator() {
         return this.taskNamespaceManipulator;
-    }
-
-    @Override
-    public TaskMetaManipulator getTaskMetaManipulator() {
-        return this.taskMetaManipulator;
     }
 
     @Override

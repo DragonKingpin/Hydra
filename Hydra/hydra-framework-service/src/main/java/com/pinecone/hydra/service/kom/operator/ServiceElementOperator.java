@@ -49,7 +49,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
 
 
         //将应用元信息存入元信息表
-       this.commonDataManipulator.insert( serviceElement );
+       this.nodeMetaManipulator.insert( serviceElement );
 
 
         //将节点信息存入主表
@@ -74,7 +74,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
             serviceElement = this.serviceMetaManipulator.getServiceMeta( node.getNodeMetadataGUID() );
         }
 
-        this.applyCommonMeta( serviceElement, this.commonDataManipulator.getNodeCommonData( guid ) );
+        this.applyCommonMeta( serviceElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         serviceElement.setDistributedTreeNode(node);
         serviceElement.setGuid( guid );
@@ -98,7 +98,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         GenericServiceElement serviceElement = (GenericServiceElement) nodeWideData;
         this.serviceNodeManipulator.update( serviceElement );
         this.serviceMetaManipulator.update( serviceElement );
-        this.commonDataManipulator.update( serviceElement );
+        this.nodeMetaManipulator.update( serviceElement );
     }
 
     @Override
@@ -112,6 +112,6 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         this.imperialTree.removeCachePath( guid );
         this.serviceNodeManipulator.remove( node.getGuid() );
         this.serviceMetaManipulator.remove( node.getAttributesGUID() );
-        this.commonDataManipulator.remove( node.getNodeMetadataGUID() );
+        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

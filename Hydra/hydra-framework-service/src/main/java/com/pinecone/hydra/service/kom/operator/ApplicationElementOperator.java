@@ -50,7 +50,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
 
 
         //将应用元信息存入元信息表
-        this.commonDataManipulator.insert( applicationElement );
+        this.nodeMetaManipulator.insert( applicationElement );
 
 
         //将节点信息存入主表
@@ -114,7 +114,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
             applicationElement = new GenericApplicationElement();
         }
 
-        this.applyCommonMeta( applicationElement, this.commonDataManipulator.getNodeCommonData( guid ) );
+        this.applyCommonMeta( applicationElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         applicationElement.setName( this.applicationNodeManipulator.getApplicationNode(guid).getName() );
         applicationElement.setGuid(applicationElement.getGuid());
@@ -136,7 +136,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GenericApplicationElement applicationElement = (GenericApplicationElement) treeNode;
         this.applicationNodeManipulator.update( applicationElement );
         this.applicationMetaManipulator.update( applicationElement );
-        this.commonDataManipulator.update( applicationElement );
+        this.nodeMetaManipulator.update( applicationElement );
     }
 
     @Override
@@ -149,7 +149,7 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
         this.applicationMetaManipulator.remove( node.getAttributesGUID() );
-        this.commonDataManipulator.remove( node.getNodeMetadataGUID() );
+        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
         this.applicationNodeManipulator.remove( node.getGuid( ));
     }
 }

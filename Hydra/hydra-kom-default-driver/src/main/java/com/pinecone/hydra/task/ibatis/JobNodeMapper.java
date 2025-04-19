@@ -1,6 +1,7 @@
 package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
@@ -17,17 +18,39 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface JobNodeMapper extends JobNodeManipulator {
-    @Insert("INSERT INTO  `hydra_task_job_node` (`guid`, `name`) VALUES (#{guid},#{name})")
-    void insert( JobElement jobElement );
 
-    @Delete("DELETE FROM `hydra_task_job_node` WHERE `guid`=#{guid}")
-    void remove( @Param("guid")GUID guid );
+    @Override
+    @Insert("INSERT INTO `hydra_task_job_node` " +
+            "(`guid`, `name`, `type`, `create_time`, `update_time`) " +
+            "VALUES (#{guid}, #{name}, #{type}, #{createTime}, #{updateTime})")
+    void insert(JobElement jobElement);
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_task_job_node` WHERE `guid`=#{guid}")
-    GenericJobElement getJobElement(@Param("guid")GUID guid);
+    @Override
+    @Delete("DELETE FROM `hydra_task_job_node` WHERE `guid` = #{guid}")
+    void remove(@Param("guid") GUID guid);
 
-    @Update("UPDATE `hydra_task_job_node` SET name = #{name} WHERE guid = #{guid}")
-    void update( JobElement jobElement );
+    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `type`, " +
+            "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
+            "FROM `hydra_task_job_node` WHERE `guid` = #{guid}")
+    GenericJobElement getJobElement(@Param("guid") GUID guid);
+
+    @Override
+    default JobElement getJobElement( GUID guid, TaskInstrument instrument ) {
+        GenericJobElement element = this.getJobElement( guid );
+        element.apply( instrument );
+
+        return element;
+    }
+
+    @Override
+    @Update("UPDATE `hydra_task_job_node` SET " +
+            "`name` = #{name}, " +
+            "`type` = #{type}, " +
+            "`create_time` = #{createTime}, " +
+            "`update_time` = #{updateTime} " +
+            "WHERE `guid` = #{guid}")
+    void update(JobElement jobElement);
+
 
     @Override
     @Select( "SELECT `guid` FROM `hydra_task_job_node` WHERE `name` = #{name}" )

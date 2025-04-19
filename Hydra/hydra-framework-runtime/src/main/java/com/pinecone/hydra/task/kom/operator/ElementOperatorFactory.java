@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task.kom.operator;
 
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
@@ -23,7 +23,7 @@ public interface ElementOperatorFactory extends OperatorFactory {
 
     ElementOperator getOperator(String typeName);
 
-    ServiceInstrument getServicesTree();
+    TaskInstrument getServicesTree();
 
     TaskMasterManipulator getTaskMasterManipulator();
 

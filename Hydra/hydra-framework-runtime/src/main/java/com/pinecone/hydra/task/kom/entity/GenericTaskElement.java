@@ -5,10 +5,17 @@ import java.util.Map;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 
-public class GenericTaskElement extends ArchServoElement implements TaskElement {
-    protected String                     serviceType;
+public class GenericTaskElement extends ArchElementNode implements TaskElement {
+    protected String        taskType;
+
+    protected String        imagePath;
+
+    protected String        resourceType;
+
+    protected String        deploymentMethod;
+
 
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
@@ -26,23 +33,53 @@ public class GenericTaskElement extends ArchServoElement implements TaskElement 
         this.initSelf( joEntity );
     }
 
-    public GenericTaskElement(Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
-        super( joEntity, serviceInstrument);
+    public GenericTaskElement(Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+        super( joEntity, taskInstrument);
         this.initSelf( joEntity );
     }
 
-    public GenericTaskElement(ServiceInstrument serviceInstrument) {
-        super(serviceInstrument);
+    public GenericTaskElement(TaskInstrument taskInstrument) {
+        super(taskInstrument);
     }
 
     @Override
-    public String getServiceType() {
-        return this.serviceType;
+    public String getType() {
+        return this.taskType;
     }
 
     @Override
-    public void setServiceType( String serviceType ) {
-        this.serviceType = serviceType;
+    public void setType( String taskType ) {
+        this.taskType = taskType;
+    }
+
+    @Override
+    public String getImagePath() {
+        return this.imagePath;
+    }
+
+    @Override
+    public void setImagePath( String imagePath ) {
+        this.imagePath = imagePath;
+    }
+
+    @Override
+    public String getResourceType() {
+        return this.resourceType;
+    }
+
+    @Override
+    public void setResourceType( String resourceType ) {
+        this.resourceType = resourceType;
+    }
+
+    @Override
+    public String getDeploymentMethod() {
+        return this.deploymentMethod;
+    }
+
+    @Override
+    public void setDeploymentMethod( String deploymentMethod ) {
+        this.deploymentMethod = deploymentMethod;
     }
 
 }

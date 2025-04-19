@@ -1,12 +1,22 @@
 package com.pinecone.hydra.task.kom.entity;
 
-public interface TaskElement extends ServoElement {
+public interface TaskElement extends ElementNode {
+
     @Override
     default TaskElement evinceTaskElement() {
         return this;
     }
 
-    String getServiceType();
+    String getImagePath();
+    void setImagePath( String path );
 
-    void setServiceType(String serviceType);
+    String getType();
+    void setType( String type );
+
+    String getDeploymentMethod();
+    void setDeploymentMethod( String deploymentMethod );
+
+    String getResourceType();
+    void setResourceType( String resourceType );
+
 }

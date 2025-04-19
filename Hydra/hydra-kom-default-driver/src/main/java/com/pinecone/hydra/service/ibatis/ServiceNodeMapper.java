@@ -19,35 +19,46 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface ServiceNodeMapper extends ServiceNodeManipulator {
 
-    @Insert("INSERT INTO `hydra_service_service_nodes` (`guid`, `name`) VALUES (#{guid},#{name})")
+    @Insert("INSERT INTO `hydra_service_service_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void insert(GenericServiceElement serviceNode);
 
-    @Delete("DELETE FROM `hydra_service_service_nodes` WHERE `guid`=#{guid}")
+    @Override
+    @Delete("DELETE FROM `hydra_service_service_node` WHERE `guid`=#{guid}")
     void remove(@Param("guid")GUID guid);
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_service_service_nodes` WHERE `guid`=#{guid}")
+    @Override
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_service_service_node` WHERE `guid`=#{guid}")
     GenericServiceElement getServiceNode(@Param("guid") GUID guid);
 
-    @Update("UPDATE `hydra_service_service_nodes` SET `name` = #{name} WHERE `guid` = #{guid}")
-    void update(GenericServiceElement serviceNode);
+    @Update("UPDATE `hydra_service_service_node` SET `name` = #{name} WHERE `guid` = #{guid}")
+    void update( GenericServiceElement serviceNode );
 
-    @Select("SELECT `id` AS `enumId`, `guid` , `name` FROM `hydra_service_service_nodes` WHERE name=#{name}")
-    List<GenericServiceElement> fetchServiceNodeByName(@Param("name") String name);
+    @Select("SELECT `id` AS `enumId`, `guid` , `name` FROM `hydra_service_service_node` WHERE name=#{name}")
+    List<GenericServiceElement> fetchServiceNodeByName0( @Param("name") String name );
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_service_service_nodes` WHERE `name` = #{name}" )
+    @SuppressWarnings("unchecked")
+    default List<ServiceElement> fetchServiceNodeByName( String name ) {
+        return (List) this.fetchServiceNodeByName0( name );
+    }
+
+
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_service_service_node` WHERE `name` = #{name}" )
     List<GUID> getGuidsByName( String name );
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_service_service_nodes` WHERE `name` = #{name} AND `guid` = #{guid}" )
+    @Select( "SELECT `guid` FROM `hydra_service_service_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 
+    @Override
+    @SuppressWarnings("unchecked")
     default List<ServiceElement> fetchAllService(){
-        List<GenericServiceElement> serviceElements = this.fetchAllService0();
-        return new ArrayList<>(serviceElements);
+        return (List) this.fetchAllService0();
     }
 
-    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_service_nodes` ")
+    @Select("SELECT `id`, `guid`, `name` FROM `hydra_service_service_node` ")
     List<GenericServiceElement> fetchAllService0();
 }

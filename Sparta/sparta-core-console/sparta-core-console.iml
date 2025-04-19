@@ -56,6 +56,7 @@
     <orderEntry type="library" name="Maven: org.mybatis:mybatis:3.5.9" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:2.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
+    <orderEntry type="module" module-name="hydra-r-atlas-default-driver" />
     <orderEntry type="module" module-name="slime" />
     <orderEntry type="module" module-name="jelly" />
     <orderEntry type="library" name="Maven: redis.clients:jedis:3.3.0" level="project" />

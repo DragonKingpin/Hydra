@@ -37,13 +37,13 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
-    protected TaskMasterManipulator taskMasterManipulator;
+    protected TaskMasterManipulator       taskMasterManipulator;
 
-    protected TaskNamespaceManipulator taskNamespaceManipulator;
+    protected TaskNamespaceManipulator    taskNamespaceManipulator;
 
-    protected JobNodeManipulator jobNodeManipulator;
+    protected JobNodeManipulator          jobNodeManipulator;
 
-    protected TaskNodeManipulator taskNodeManipulator;
+    protected TaskNodeManipulator         taskNodeManipulator;
 
     protected List<GUIDNameManipulator >  folderManipulators;
 
@@ -51,12 +51,12 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
 
 
-    public UniformTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ){
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ){
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
         this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
-        this.jobNodeManipulator = this.taskMasterManipulator.getJobNodeManipulator();
+        this.jobNodeManipulator          = this.taskMasterManipulator.getJobNodeManipulator();
         this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -210,7 +210,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
-    public TaskTreeNode get(GUID guid ){
+    public TaskTreeNode get( GUID guid ){
         return (TaskTreeNode) super.get( guid );
     }
 

@@ -11,9 +11,9 @@ public interface MegaVectorDAG extends VectorDAG, PineUnit {
 
     VectorGraphMasterManipulator getMasterManipulator();
 
-    GUID put( GraphNode graphNode );
+    GUID putHandleNode( GraphNode graphNode );
 
-    void put( GUID parentGuid, GraphNode graphNode );
+    void putNodeByEdge( GUID parentGuid, GraphNode graphNode );
 
     void putCachePath( String path, GUID guid );
 

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @IbatisDataAccessObject
 public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     @Override
-    default void insertStartNode( GraphNode graphNode ){
+    default void insertHandleNode( GraphNode graphNode ){
         this.insertGraphNode(graphNode);
     }
 
@@ -31,7 +31,7 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     void insertNodeAdjacent(@Param("parentGuid") GUID parentGuid, @Param("childGuid") GUID childGuid );
 
     @Override
-    default void insertNode(GUID parentGuid, GraphNode graphNode){
+    default void insertNodeByEdge(GUID parentGuid, GraphNode graphNode){
         this.insertGraphNode(graphNode);
         this.insertNodeAdjacent(parentGuid,graphNode.getId());
     }

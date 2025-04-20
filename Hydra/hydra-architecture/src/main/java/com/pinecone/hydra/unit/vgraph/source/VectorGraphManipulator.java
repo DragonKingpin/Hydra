@@ -7,9 +7,9 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import java.util.List;
 
 public interface VectorGraphManipulator extends Pinenut {
-    void insertStartNode( GraphNode graphNode );
+    void insertHandleNode( GraphNode graphNode );
 
-    void insertNode(GUID parentGuid, GraphNode graphNode);
+    void insertNodeByEdge( GUID parentGuid, GraphNode graphNode );
 
 
     void removeNode( GUID guid );

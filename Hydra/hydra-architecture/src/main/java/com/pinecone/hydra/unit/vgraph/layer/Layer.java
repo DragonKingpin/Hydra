@@ -12,9 +12,9 @@ public interface Layer extends TreeNode {
 
     void setGuid( GUID guid );
 
-    List<GUID> getHandleNodes();
+    List<GUID> getHandleGuids();
 
-    void setHandleNode( List<GUID> handleNodes );
+    void setHandleGuids( List<GUID> handleGuids );
 
     LocalDateTime getUpdateTime();
 

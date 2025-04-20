@@ -6,12 +6,12 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class VgraphLayer implements Layer{
+public class VgraphLayer implements Layer {
     private String                  mszName;
 
     private GUID                    mGuid;
 
-    private List<GUID>              mlHandleNodes;
+    private List<GUID>              mlHandleGuids;
 
     private LocalDateTime           mUpdateTime;
 
@@ -38,13 +38,13 @@ public class VgraphLayer implements Layer{
     }
 
     @Override
-    public List<GUID> getHandleNodes() {
-        return this.mlHandleNodes;
+    public List<GUID> getHandleGuids() {
+        return this.mlHandleGuids;
     }
 
     @Override
-    public void setHandleNode(List<GUID> handleNodes) {
-        this.mlHandleNodes = handleNodes;
+    public void setHandleGuids(List<GUID> handleGuids) {
+        this.mlHandleGuids = handleGuids;
     }
 
     @Override

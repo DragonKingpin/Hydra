@@ -54,7 +54,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
         else {
             this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess.getSystem();
         }
-        this.mMegaVectorDAG = new MagnitudeVectorDAG(parent,atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
+        this.mMegaVectorDAG = new MagnitudeVectorDAG( atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
         this.mGuidAllocator = new GenericGuidAllocator();
         this.mPathResolver = new BasicDAGPathResolver();//后续要使用配置类指定
         this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this.mMegaVectorDAG.getMasterManipulator().getVectorGraphManipulator() );
@@ -109,7 +109,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
     public GUID put(GraphNode graphNode) {
         GUID guid = this.mGuidAllocator.nextGUID();
         graphNode.setId( guid );
-        this.mMegaVectorDAG.put(graphNode);
+        this.mMegaVectorDAG.putHandleNode(graphNode);
 
         return guid;
     }
@@ -118,7 +118,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
     public GUID put(GUID parentGuid, GraphNode graphNode) {
         GUID guid = this.mGuidAllocator.nextGUID();
         graphNode.setId( guid );
-        this.mMegaVectorDAG.put(parentGuid,graphNode);
+        this.mMegaVectorDAG.putNodeByEdge(parentGuid,graphNode);
         return guid;
     }
 

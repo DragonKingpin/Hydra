@@ -10,8 +10,7 @@ import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 
 import java.util.List;
 
-public class MagnitudeVectorDAG implements MegaVectorDAG {
-    protected List<GraphNode>                   lstHandles;
+public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
 
     protected VectorGraphMasterManipulator      mMasterManipulator;
 
@@ -23,8 +22,7 @@ public class MagnitudeVectorDAG implements MegaVectorDAG {
 
     protected VectorGraphConfig                 mVectorGraphConfig;
 
-    public MagnitudeVectorDAG(  List<GraphNode> handles, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig){
-        this.lstHandles                 = handles;
+    public MagnitudeVectorDAG( VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
         this.mMasterManipulator = masterManipulator;
         this.mVectorGraphConfig = vectorGraphConfig;
         this.mVectorGraphManipulator = this.mMasterManipulator.getVectorGraphManipulator();
@@ -38,17 +36,17 @@ public class MagnitudeVectorDAG implements MegaVectorDAG {
     }
 
     @Override
-    public GUID put(GraphNode graphNode) {
+    public GUID putHandleNode(GraphNode graphNode) {
         GUID guid = this.mGuidAllocator.nextGUID();
         graphNode.setId( guid );
-        this.mVectorGraphManipulator.insertStartNode( graphNode );
+        this.mVectorGraphManipulator.insertHandleNode( graphNode );
 
         return guid;
     }
 
     @Override
-    public void put(GUID parentGuid, GraphNode graphNode) {
-        this.mVectorGraphManipulator.insertNode(parentGuid, graphNode);
+    public void putNodeByEdge(GUID parentGuid, GraphNode graphNode) {
+        this.mVectorGraphManipulator.insertNodeByEdge(parentGuid, graphNode);
     }
 
     @Override

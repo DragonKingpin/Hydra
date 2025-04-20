@@ -6,11 +6,11 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 public class GraphNodePair implements Pinenut {
     private GraphNode mGraphNode;
 
-    private String sCurrentPath;
+    private String mszCurrentPath;
 
     public GraphNodePair( GraphNode graphNode, String currentPath){
         this.mGraphNode = graphNode;
-        this.sCurrentPath = currentPath;
+        this.mszCurrentPath = currentPath;
     }
 
     public GraphNodePair(){}
@@ -24,10 +24,10 @@ public class GraphNodePair implements Pinenut {
     }
 
     public String getCurrentPath() {
-        return sCurrentPath;
+        return mszCurrentPath;
     }
 
     public void setCurrentPath(String sCurrentPath) {
-        this.sCurrentPath = sCurrentPath;
+        this.mszCurrentPath = sCurrentPath;
     }
 }

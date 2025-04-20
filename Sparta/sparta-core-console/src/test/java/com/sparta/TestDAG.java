@@ -1,7 +1,7 @@
 package com.sparta;
 
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.hydra.dag.ibatis.hydranium.DAGMappingDriver;
+import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.vgraph.layer.VLayerManager;
 import com.pinecone.radium.Radium;
@@ -18,7 +18,7 @@ class peter extends Radium {
 
     @Override
     public void vitalize () throws Exception {
-        KOIMappingDriver koiMappingDriver = new DAGMappingDriver(
+        KOIMappingDriver koiMappingDriver = new LayerMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 

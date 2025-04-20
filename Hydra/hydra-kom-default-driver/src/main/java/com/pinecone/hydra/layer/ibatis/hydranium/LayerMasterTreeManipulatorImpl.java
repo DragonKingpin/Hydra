@@ -1,9 +1,9 @@
-package com.pinecone.hydra.dag.ibatis.hydranium;
+package com.pinecone.hydra.layer.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.dag.ibatis.DAGCachePathMapper;
-import com.pinecone.hydra.dag.ibatis.DAGOwnerMapper;
-import com.pinecone.hydra.dag.ibatis.DAGTreeMapper;
+import com.pinecone.hydra.layer.ibatis.LayerCachePathMapper;
+import com.pinecone.hydra.layer.ibatis.LayerOwnerMapper;
+import com.pinecone.hydra.layer.ibatis.LayerTreeMapper;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
@@ -15,25 +15,25 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 @Component
-public class DAGMasterTreeManipulatorImpl implements TreeMasterManipulator {
+public class LayerMasterTreeManipulatorImpl implements TreeMasterManipulator {
     @Resource
-    @Structure( type = DAGTreeMapper.class )
+    @Structure( type = LayerTreeMapper.class )
     TrieTreeManipulator trieTreeManipulator;
 
     @Resource
-    @Structure( type = DAGCachePathMapper.class )
+    @Structure( type = LayerCachePathMapper.class )
     TriePathCacheManipulator triePathCacheManipulator;
 
     @Resource
-    @Structure( type = DAGOwnerMapper.class )
+    @Structure( type = LayerOwnerMapper.class )
     TireOwnerManipulator tireOwnerManipulator;
 
-    public DAGMasterTreeManipulatorImpl() {
+    public LayerMasterTreeManipulatorImpl() {
 
     }
 
-    public DAGMasterTreeManipulatorImpl( KOIMappingDriver driver ) {
-        driver.autoConstruct( DAGMasterTreeManipulatorImpl.class, Map.of(), this );
+    public LayerMasterTreeManipulatorImpl(KOIMappingDriver driver ) {
+        driver.autoConstruct( LayerMasterTreeManipulatorImpl.class, Map.of(), this );
     }
 
     @Override

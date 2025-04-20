@@ -1,4 +1,4 @@
-package com.pinecone.hydra.dag.ibatis;
+package com.pinecone.hydra.layer.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
@@ -15,8 +15,8 @@ import org.apache.ibatis.annotations.Update;
 import java.util.List;
 
 @IbatisDataAccessObject
-public interface DAGTreeMapper extends LayerTreeManipulator {
-    @Insert("INSERT INTO `hydra_vgraph_dag_tree` (`guid`) VALUES ( #{guid} )")
+public interface LayerTreeMapper extends LayerTreeManipulator {
+    @Insert("INSERT INTO `hydra_layer_tree` (`guid`) VALUES ( #{guid} )")
     void insertRootNode(@Param("guid")  GUID guid);
 
     @Override
@@ -25,13 +25,13 @@ public interface DAGTreeMapper extends LayerTreeManipulator {
         ownerManipulator.insertRootNode( node.getGuid() );
     }
 
-    @Insert("INSERT INTO `hydra_vgraph_dag_nodes` (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
+    @Insert("INSERT INTO `hydra_layer_nodes` (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
     void insertTreeNode( @Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `type`, base_data_guid AS baseDataGUID, node_meta_guid AS nodeMetadataGUID FROM hydra_vgraph_dag_nodes WHERE guid=#{guid}")
     GUIDImperialTrieNode getNodeExtendsFromMeta(GUID guid );
 
-    @Select("SELECT COUNT( `id` ) FROM hydra_vgraph_dag_nodes WHERE guid=#{guid}")
+    @Select("SELECT COUNT( `id` ) FROM hydra_layer_nodes WHERE guid=#{guid}")
     boolean contains( GUID key );
 
     @Override
@@ -45,10 +45,10 @@ public interface DAGTreeMapper extends LayerTreeManipulator {
         return node;
     }
 
-    @Select("SELECT id, guid, parent_guid FROM hydra_vgraph_dag_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
+    @Select("SELECT id, guid, parent_guid FROM hydra_layer_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
     GUIDImperialTrieNode getTreeNodeOnly(@Param("guid") GUID guid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT count( * ) FROM hydra_vgraph_dag_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
+    @Select("SELECT count( * ) FROM hydra_layer_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
     long countNode( GUID guid, GUID parentGuid );
 
 
@@ -58,41 +58,41 @@ public interface DAGTreeMapper extends LayerTreeManipulator {
         this.removeTreeNode( guid );
     }
 
-    @Delete("DELETE FROM `hydra_vgraph_dag_nodes` WHERE `guid`=#{guid}")
+    @Delete("DELETE FROM `hydra_layer_nodes` WHERE `guid`=#{guid}")
     void removeNodeMeta( @Param("guid") GUID guid );
 
-    @Delete("DELETE FROM `hydra_vgraph_dag_tree` WHERE `guid` = #{guid}")
+    @Delete("DELETE FROM `hydra_layer_tree` WHERE `guid` = #{guid}")
     void removeTreeNode( @Param("guid") GUID guid );
 
-    @Delete("DELETE FROM `hydra_vgraph_dag_tree` WHERE `parent_guid` = #{parent_guid}")
+    @Delete("DELETE FROM `hydra_layer_tree` WHERE `parent_guid` = #{parent_guid}")
     void removeTreeNodeByParentGuid( @Param("parent_guid") GUID parentGuid );
 
-    @Delete("DELETE FROM `hydra_vgraph_dag_tree` WHERE `guid` = #{guid} AND `parent_guid` = #{parent_guid}")
+    @Delete("DELETE FROM `hydra_layer_tree` WHERE `guid` = #{guid} AND `parent_guid` = #{parent_guid}")
     void removeTreeNodeYoke( @Param("guid") GUID guid, @Param("parent_guid") GUID parentGuid );
 
 
-    @Delete("DELETE FROM `hydra_vgraph_dag_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
+    @Delete("DELETE FROM `hydra_layer_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
     void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_vgraph_dag_tree` WHERE `parent_guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_layer_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDImperialTrieNode> getChildren(GUID guid );
 
-    @Select("SELECT `guid` FROM `hydra_vgraph_dag_tree` WHERE `parent_guid` = #{parentGuid}")
+    @Select("SELECT `guid` FROM `hydra_layer_tree` WHERE `parent_guid` = #{parentGuid}")
     List<GUID > fetchChildrenGuids( @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `parent_guid` FROM `hydra_vgraph_dag_tree` WHERE `guid`=#{guid}")
+    @Select("SELECT `parent_guid` FROM `hydra_layer_tree` WHERE `guid`=#{guid}")
     List<GUID > fetchParentGuids( GUID guid );
 
-    @Update("UPDATE `hydra_vgraph_dag_nodes` SET `type` = #{type} WHERE guid=#{guid}")
+    @Update("UPDATE `hydra_layer_nodes` SET `type` = #{type} WHERE guid=#{guid}")
     void updateType( UOI type , GUID guid );
 
-    @Select( "SELECT guid FROM hydra_vgraph_dag_tree WHERE parent_guid IS NULL " )
+    @Select( "SELECT guid FROM hydra_layer_tree WHERE parent_guid IS NULL " )
     List<GUID > fetchRoot();
 
     @Override
-    @Select( "SELECT COUNT( `guid` ) FROM hydra_vgraph_dag_tree WHERE `parent_guid` IS NULL AND guid = #{guid}" )
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_layer_tree WHERE `parent_guid` IS NULL AND guid = #{guid}" )
     boolean isRoot( GUID guid );
 
-    @Update("UPDATE hydra_vgraph_dag_tree SET parent_guid = #{parentGuid} WHERE guid = #{childGuid}")
+    @Update("UPDATE hydra_layer_tree SET parent_guid = #{parentGuid} WHERE guid = #{childGuid}")
     void addChild( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 }

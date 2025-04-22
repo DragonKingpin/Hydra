@@ -9,6 +9,8 @@ import java.util.List;
 public class VgraphLayer implements Layer {
     private String                  mszName;
 
+    private GUID                    parentGuid;
+
     private GUID                    mGuid;
 
     private List<GUID>              mlHandleGuids;
@@ -35,6 +37,16 @@ public class VgraphLayer implements Layer {
     @Override
     public void setGuid(GUID guid) {
         this.mGuid = guid;
+    }
+
+    @Override
+    public void setParentGuid(GUID parentGuid) {
+        this.parentGuid = parentGuid;
+    }
+
+    @Override
+    public GUID getParentGuid() {
+        return this.parentGuid;
     }
 
     @Override

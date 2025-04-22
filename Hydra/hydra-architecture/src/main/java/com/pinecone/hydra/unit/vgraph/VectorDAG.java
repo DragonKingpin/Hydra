@@ -7,17 +7,21 @@ import java.util.List;
 
 public interface VectorDAG extends Pinenut {
 
-    //List<GUID> fetchHandleGuids( long offset, long limit );
+    List<GUID> fetchHandleGuids( long offset, long limit );
 
-    //long countHandleNodes();
+    long countHandleNodes();
 
-//    List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit );
-//
-//    List<GUID> fetchUpstreamNodeGuid( GUID nodeGuid, long offset, long limit );
-//
-//    long queryInDegree( GUID nodeGuid );
-//
-//    long queryOutDegree( GUID nodeGuid );
+    List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit );
+
+    List<GUID> fetchUpstreamNodeGuid( GUID nodeGuid, long offset, long limit );
+
+    long queryInDegree( GUID nodeGuid );
+
+    long queryOutDegree( GUID nodeGuid );
+
+    void saveVectorDAG( VectorDAG vectorDAG );
+
+    void addHandleNodeGuid( GUID handleNodeGuid );
 
 
 }

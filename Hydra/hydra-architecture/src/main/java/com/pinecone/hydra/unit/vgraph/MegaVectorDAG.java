@@ -35,4 +35,6 @@ public interface MegaVectorDAG extends VectorDAG, PineUnit {
 
     List<GUID> fetchParentIds(GUID guid);
 
+    VectorDAG queryVectorDAG( GUID guid );
+
 }

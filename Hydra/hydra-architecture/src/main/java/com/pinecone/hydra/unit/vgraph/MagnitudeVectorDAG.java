@@ -11,23 +11,8 @@ import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 import java.util.List;
 
 public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
-
-    protected VectorGraphMasterManipulator      mMasterManipulator;
-
-    protected VectorGraphManipulator            mVectorGraphManipulator;
-
-    protected VectorGraphPathCacheManipulator   mVectorGraphPathCacheManipulator;
-
-    protected GuidAllocator                     mGuidAllocator;
-
-    protected VectorGraphConfig                 mVectorGraphConfig;
-
     public MagnitudeVectorDAG( VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
-        this.mMasterManipulator = masterManipulator;
-        this.mVectorGraphConfig = vectorGraphConfig;
-        this.mVectorGraphManipulator = this.mMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
-        this.mGuidAllocator = new GenericGuidAllocator();
+        super(masterManipulator, vectorGraphConfig);
     }
 
     @Override
@@ -98,6 +83,11 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
     @Override
     public List<GUID> fetchParentIds(GUID guid) {
         return this.mVectorGraphManipulator.fetchParentIds(guid);
+    }
+
+    @Override
+    public VectorDAG queryVectorDAG(GUID guid) {
+        return null;
     }
 
     @Override

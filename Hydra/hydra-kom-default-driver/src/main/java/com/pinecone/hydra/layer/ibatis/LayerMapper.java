@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface LayerMapper extends LayerManipulator {
 
-    @Insert("INSERT INTO hydra_atlas_layer_layers (layer_guid, graph_node_guid, layer_name, update_time, create_time) VALUES (#{guid}, #{}))")
+
     void insertStartLayer( LayerGraphHandle layer );
 
     void insertLayer(GUID parentGuid, Layer layer);

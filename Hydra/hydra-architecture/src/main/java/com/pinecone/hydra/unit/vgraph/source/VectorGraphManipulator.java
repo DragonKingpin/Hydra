@@ -28,4 +28,16 @@ public interface VectorGraphManipulator extends Pinenut {
 
     void updateNode( GraphNode graphNode );
 
+    List<GUID> fetchHandleGuids(long offset, long limit);
+
+    long countHandleNodes();
+
+    List<GUID> fetchDownstreamNodeGuid(GUID nodeGuid, long offset, long limit);
+
+    List<GUID> fetchUpstreamNodeGuid(GUID nodeGuid, long offset, long limit);
+
+    long queryInDegree(GUID nodeGuid);
+
+    long queryOutDegree(GUID nodeGuid);
+
 }

@@ -24,11 +24,11 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
         this.insertGraphNode(graphNode);
     }
 
-    @Insert("INSERT INTO `hydra_atlas_vgraph_nodes` (`guid`, `node_name`, `node_description`) VALUES (#{guid},#{name},#{description})")
-    void insertGraphNode( GraphNode graphNode );
+    @Insert("INSERT INTO #{tableName} (`guid`, `node_name`, `node_description`) VALUES (#{graphNode.guid},#{graphNode.name},#{graphNode.description})")
+    void insertGraphNode(  @Param("graphNode") GraphNode graphNode );
 
-    @Insert("INSERT INTO `hydra_atlas_vgraph_adjacent` (`guid`, `linked_type`, `parent_guid`) VALUES (#{childGuid},'weak',#{parentGuid})")
-    void insertNodeAdjacent(@Param("parentGuid") GUID parentGuid, @Param("childGuid") GUID childGuid );
+    @Insert("INSERT INTO #{tableName} (`guid`, `linked_type`, `parent_guid`) VALUES (#{childGuid},'weak',#{parentGuid})")
+    void insertNodeAdjacent( @Param("parentGuid") GUID parentGuid, @Param("childGuid") GUID childGuid );
 
     @Override
     default void insertNodeByEdge(GUID parentGuid, GraphNode graphNode){
@@ -47,23 +47,23 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
         this.removeGraphAdjacent(guid);
     }
 
-    @Delete("DELETE FROM `hydra_atlas_vgraph_nodes` WHERE `guid` = #{guid}")
-    void removeGraphNode( GUID guid );
+    @Delete("DELETE FROM #{tableName} WHERE `guid` = #{guid}")
+    void removeGraphNode(  @Param("guid") GUID guid );
 
-    @Delete("DELETE FROM `hydra_atlas_vgraph_adjacent` WHERE `guid` = #{guid}")
-    void removeGraphAdjacent( GUID guid );
-
-    @Override
-    @Select("SELECT `id` AS enumId, `guid`, `node_name` AS name, `node_description` AS description  FROM `hydra_atlas_vgraph_nodes` WHERE `guid` = #{guid}")
-    TaskAtlasNode queryNode(GUID guid );
+    @Delete("DELETE FROM #{tableName} WHERE `guid` = #{guid}")
+    void removeGraphAdjacent(  @Param("guid") GUID guid );
 
     @Override
-    @Select("SELECT `parent_guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `guid` = #{guid}")
-    List<GUID> fetchParentIds(GUID guid );
+    @Select("SELECT `id` AS enumId, `guid`, `node_name` AS name, `node_description` AS description  FROM #{tableName} WHERE `guid` = #{guid}")
+    TaskAtlasNode queryNode( @Param("guid") GUID guid );
+
+    @Override
+    @Select("SELECT `parent_guid` FROM #{tableName} WHERE `guid` = #{guid}")
+    List<GUID> fetchParentIds( @Param("guid") GUID guid );
 
     @Override
     @Select("SELECT havn.`id`,havn.`guid`,havn.`node_name`,havn.`node_description` FROM `hydra_atlas_vgraph_nodes` havn, `hydra_atlas_vgraph_adjacent` hava WHERE hava.`parent_guid` = #{guid} ")
-    List<GraphNode> fetchChildNodes( GUID guid );
+    List<GraphNode> fetchChildNodes(  @Param("guid") GUID guid );
 
     @Override
     @Select("SELECT \n" +
@@ -82,12 +82,12 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     List<GraphNode> fetchRootNodes();
 
     @Override
-    @Select("SELECT `guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `parent_guid` = #{parentGuid}")
-    List<GUID> fetchChildNodeIds(GUID guid );
+    @Select("SELECT `guid` FROM #{tableName} WHERE `parent_guid` = #{parentGuid}")
+    List<GUID> fetchChildNodeIds( @Param("guid") GUID guid );
 
 
-    @Select("SELECT `id` AS enumId, `guid`, `node_name` AS name, `node_description` AS description  FROM `hydra_atlas_vgraph_nodes` WHERE `node_name` = #{name}")
-    List<TaskAtlasNode> fetchNodesByName0( String name );
+    @Select("SELECT `id` AS enumId, `guid`, `node_name` AS name, `node_description` AS description  FROM #{tableName} WHERE `node_name` = #{name}")
+    List<TaskAtlasNode> fetchNodesByName0(  @Param("name") String name );
 
     @Override
     default List<GraphNode> fetchNodesByName( String name ) {
@@ -96,6 +96,35 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     }
 
     @Override
-    @Update("UPDATE `hydra_atlas_vgraph_nodes` SET `node_name` = #{nodeName}, `node_description` = #{nodeDescription} WHERE `guid` = #{guid}")
-    void updateNode( GraphNode graphNode );
+    @Update("UPDATE #{tableName} SET `node_name` = #{graphNode.nodeName}, `node_description` = #{graphNode.nodeDescription} WHERE `guid` = #{graphNode.guid}")
+    void updateNode(  @Param("graphNode") GraphNode graphNode );
+
+    @Override
+    @Select("SELECT `havn`.guid " +
+            "FROM `hydra_atlas_vgraph_nodes` havn " +
+            "WHERE NOT EXISTS (SELECT 1 FROM `hydra_atlas_vgraph_adjacent` hava WHERE `hava`.guid = `havn`.guid) " +
+            "LIMIT #{limit} OFFSET #{offset}")
+    List<GUID> fetchHandleGuids( @Param("offset") long offset, @Param("limit") long limit);
+
+    @Override
+    @Select("SELECT COUNT(havn.guid) " +
+            "FROM `hydra_atlas_vgraph_nodes` havn " +
+            "WHERE NOT EXISTS (SELECT 1 FROM `hydra_atlas_vgraph_adjacent` `hava` WHERE `hava`.guid = `havn`.guid)")
+    long countHandleNodes( );
+
+    @Override
+    @Select("SELECT `guid` FROM #{tableName} WHERE `parent_guid` = #{nodeGuid} LIMIT #{limit} OFFSET #{offset}")
+    List<GUID> fetchDownstreamNodeGuid( @Param("nodeGuid") GUID nodeGuid, @Param("offset") long offset, @Param("limit") long limit);
+
+    @Override
+    @Select("SELECT `guid` FROM #{tableName} WHERE `parent_guid` = #{nodeGuid} LIMIT #{limit} OFFSET #{offset}")
+    List<GUID> fetchUpstreamNodeGuid( @Param("nodeGuid") GUID nodeGuid, @Param("offset") long offset, @Param("limit") long limit);
+
+    @Override
+    @Select("SELECT COUNT(`guid`) FROM #{tableName} WHERE `parent_guid` = #{nodeGuid}")
+    long queryInDegree( @Param("nodeGuid") GUID nodeGuid);
+
+    @Override
+    @Select("SELECT COUNT(`guid`) FROM #{tableName} WHERE `guid` = #{nodeGuid}")
+    long queryOutDegree( @Param("nodeGuid") GUID nodeGuid);
 }

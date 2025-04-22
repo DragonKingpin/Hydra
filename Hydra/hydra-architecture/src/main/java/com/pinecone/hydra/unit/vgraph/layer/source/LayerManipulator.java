@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface LayerManipulator extends GUIDNameManipulator {
 
-    void insertStartLayer( LayerGraphHandle layer );
+    void insertStartLayer(  LayerGraphHandle layer );
 
     void insertLayer( GUID parentGuid, Layer layer);
 

@@ -10,22 +10,22 @@ import org.apache.ibatis.annotations.Update;
 
 @IbatisDataAccessObject
 public interface LayerOwnerMapper extends LayerOwnerManipulator {
-    @Insert("INSERT INTO `hydra_layer_tree` (`guid`) VALUES ( #{guid} )")
+    @Insert("INSERT INTO `hydra_atlas_layer_tree` (`guid`) VALUES ( #{guid} )")
     void insertRootNode(@Param("guid") GUID guid );
 
-    @Insert( "INSERT INTO `hydra_layer_tree` (`guid`, `parent_guid`) VALUES (#{targetGuid}, #{parentGuid})" )
+    @Insert( "INSERT INTO `hydra_atlas_layer_tree` (`guid`, `parent_guid`) VALUES (#{targetGuid}, #{parentGuid})" )
     void insert( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
 
 
-    @Update( "UPDATE `hydra_layer_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
+    @Update( "UPDATE `hydra_atlas_layer_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
     void update( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
 
-    @Update( "UPDATE `hydra_layer_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
+    @Update( "UPDATE `hydra_atlas_layer_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
     void updateParentGuid( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
 
-    @Delete( "DELETE FROM `hydra_layer_tree` WHERE `guid`=#{subordinateGuid} " )
+    @Delete( "DELETE FROM `hydra_atlas_layer_tree` WHERE `guid`=#{subordinateGuid} " )
     void remove( @Param("subordinateGuid") GUID subordinateGuid );
 
-    @Delete( "DELETE FROM `hydra_layer_tree` WHERE `guid`=#{subordinateGuid} " )
+    @Delete( "DELETE FROM `hydra_atlas_layer_tree` WHERE `guid`=#{subordinateGuid} " )
     void removeBySubordinate( GUID subordinateGuid );
 }

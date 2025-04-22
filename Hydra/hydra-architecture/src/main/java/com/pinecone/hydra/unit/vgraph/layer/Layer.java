@@ -12,6 +12,10 @@ public interface Layer extends TreeNode {
 
     void setGuid( GUID guid );
 
+    void setParentGuid( GUID parentGuid );
+
+    GUID getParentGuid();
+
     List<GUID> getHandleGuids();
 
     void setHandleGuids( List<GUID> handleGuids );

@@ -22,4 +22,9 @@ public class Int64ID implements NumbernicID {
     public int intVal() {
         return (int) this.mId;
     }
+
+    @Override
+    public String toString() {
+        return Long.toUnsignedString( this.mId );
+    }
 }

@@ -22,4 +22,10 @@ public class Int32ID implements NumbernicID {
     public int intVal() {
         return this.mId;
     }
+
+    @Override
+    public String toString() {
+        return Integer.toUnsignedString( this.mId );
+    }
+
 }

@@ -2,59 +2,43 @@ package com.walnut.odin.task;
 
 import com.pinecone.framework.system.executum.Processum;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ArchKOMTree;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
-import com.pinecone.radium.Radium;
-import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.hydra.task.kom.entity.ElementNode;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.odin.category.KernelCategoryManager;
-import com.walnut.odin.category.entity.CategoryTag;
-import com.walnut.odin.category.entity.KernelCategory;
-import com.walnut.odin.category.entity.TaskCategory;
-import com.walnut.odin.category.source.CategoryTagManipulator;
-import com.walnut.odin.category.source.KernelCategoryManipulator;
-import com.walnut.odin.category.source.CategoryMasterManipulator;
-import com.walnut.odin.category.source.TaskCategoryManipulator;
-import com.walnut.odin.mapper.KernelCategoryMappingDriver;
+import com.walnut.odin.task.service.CategoryService;
+import com.walnut.odin.task.service.RavenCategoryService;
+import com.walnut.odin.task.source.RavenTaskMasterManipulator;
+import com.walnut.odin.task.system.TaskPathInvalidException;
 
-public class RavenTaskInstrument extends ArchKOMTree implements com.walnut.odin.category.KernelCategoryManager {
-    protected KernelCategoryManipulator kernelCategoryManipulator;
+public class RavenTaskInstrument extends ArchKOMTree implements CentralizedTaskInstrument {
+    protected RavenTaskMasterManipulator ravenTaskMasterManipulator;
 
-    protected CategoryMasterManipulator categoryMasterManipulator;
+    protected UniformTaskInstrument     uniformTaskInstrument;
 
-    protected TaskCategoryManipulator taskCategoryManipulator;
+    protected CategoryService           categoryService;
 
-    protected CategoryTagManipulator categoryTagMasterManipulator;
-
-    protected UniformTaskInstrument uniformTaskInstrument;
-
-    public RavenTaskInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMInstrument parent, String name) {
-        super(superiorProcess, masterManipulator, KernelCategoryConfig,parent, name);
-        this.categoryMasterManipulator = (CategoryMasterManipulator) masterManipulator;
+    public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMInstrument parent, String name ) {
+        super( superiorProcess, masterManipulator, RAVEN_TASK_CONFIG, parent, name );
+        this.ravenTaskMasterManipulator = (RavenTaskMasterManipulator) masterManipulator;
         this.pathResolver          = new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator         = GUIDs.newGuidAllocator();
-        this.kernelCategoryManipulator = this.categoryMasterManipulator.getKernelCategoryManipulator();
-/*        this.taskCategoryManipulator = this.kernelCategoryMasterManipulator.getTaskCategoryManipulator();
-        this.categoryTagMasterManipulator = this.kernelCategoryMasterManipulator.getCategoryTagManipulator();*/
 
-
-        Radium sys = (Radium) this.getSuperiorProcess().getSystem();
-        KOIMappingDriver koiMappingDriver = new KernelCategoryMappingDriver(
-                this.getSuperiorProcess(), (IbatisClient)sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), sys.getDispenserCenter()
-        );
-
-        this.uniformTaskInstrument = new UniformTaskInstrument(koiMappingDriver);
+        this.uniformTaskInstrument = new UniformTaskInstrument( this.ravenTaskMasterManipulator.getTaskMappingDriver() );
+        this.categoryService       = new RavenCategoryService( this );
     }
 
     public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, com.walnut.odin.category.KernelCategoryManager.class.getSimpleName() );
+        this( superiorProcess, masterManipulator, null, CentralizedTaskInstrument.class.getSimpleName() );
     }
 
-    public RavenTaskInstrument( KOIMappingDriver driver, KernelCategoryManager parent, String name ){
+    public RavenTaskInstrument( KOIMappingDriver driver, CentralizedTaskInstrument parent, String name ){
         this( driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name );
     }
 
@@ -63,35 +47,46 @@ public class RavenTaskInstrument extends ArchKOMTree implements com.walnut.odin.
     }
 
     @Override
-    public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
+    public GUID assertGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException {
+        GUID guid = this.uniformTaskInstrument.queryGUIDByPath( taskTreePath );
+        if ( guid == null ) {
+            throw new TaskPathInvalidException( taskTreePath );
+        }
+
+        return guid;
+    }
+
+    @Override
+    public GUID assertTaskGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException, IllegalArgumentException {
+        ElementNode node = this.uniformTaskInstrument.queryElement( taskTreePath );
+        if ( node == null ) {
+            throw new TaskPathInvalidException( taskTreePath );
+        }
+        if ( node.evinceTaskElement() == null ) {
+            throw new IllegalArgumentException( "Path `" + taskTreePath + "` is not a task." );
+        }
+
+        return node.getGuid();
+    }
+
+
+    @Override
+    public UniformTaskInstrument getUniformTaskInstrument() {
+        return this.uniformTaskInstrument;
+    }
+
+    @Override
+    public RavenTaskMasterManipulator getRavenTaskMasterManipulator() {
+        return this.ravenTaskMasterManipulator;
+    }
+
+    @Override
+    public Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) {
         return null;
     }
 
     @Override
-    public void insert(KernelCategory kernelCategory) {
-        this.kernelCategoryManipulator.insert(kernelCategory);
-    }
-
-    @Override
-    public void remove(String kernelCategoryName) {
-        this.kernelCategoryManipulator.remove(kernelCategoryName);}
-
-    @Override
-    public void update(KernelCategory kernelCategory) {
-        this.kernelCategoryManipulator.update(kernelCategory);}
-    @Override
-    public KernelCategory query(String kernelCategoryName) {
-        return kernelCategoryManipulator.queryKernelCategory(kernelCategoryName);
-    }
-
-    @Override
-    public void insertTaskCategory(TaskCategory taskCategory) {
-        this.taskCategoryManipulator.insert(taskCategory);
-    }
-
-
-    @Override
-    public void insertCategoryTag(CategoryTag categoryTag) {
-        this.categoryTagMasterManipulator.insert(categoryTag);
+    public CategoryService getCategoryService() {
+        return this.categoryService;
     }
 }

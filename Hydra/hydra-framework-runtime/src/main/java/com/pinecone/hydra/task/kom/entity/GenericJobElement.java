@@ -73,7 +73,7 @@ public class GenericJobElement extends ArchElementNode implements JobElement {
         for( ElementNode node : children ) {
             joChildren.put( node.getName(), node.toJSONObject() );
         }
-        jo.put( "jobs", joChildren );
+        jo.put( "tasks", joChildren );
         return jo;
     }
 }

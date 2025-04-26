@@ -12,6 +12,13 @@ import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.radium.Radium;
+import com.walnut.odin.task.RavenTaskInstrument;
+import com.walnut.odin.task.dto.CategoryTag;
+import com.walnut.odin.task.dto.GenericCategoryTag;
+import com.walnut.odin.task.entity.GenericCategoryType;
+import com.walnut.odin.task.entity.GenericTaskCategory;
+import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
+import com.walnut.odin.task.service.CategoryService;
 
 
 class Randy extends Radium {
@@ -33,6 +40,24 @@ class Randy extends Radium {
         //this.testInsert( instrument );
         this.testGet( instrument );
         //this.testDelete( instrument );
+
+
+        OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+        );
+        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
+
+        this.testCategory( ravenTaskInstrument );
+
+    }
+
+    private void testCategory( RavenTaskInstrument instrument ) {
+        CategoryService categoryService = instrument.getCategoryService();
+
+        CategoryTag tag = new GenericCategoryTag();
+        tag.setCategoryName( "Data" );
+        tag.setCategoryType( "System" );
+        Debug.greenfs( categoryService.setCategoryTag( "root/test/job/task", tag ) );
     }
 
     private void testInsert( UniformTaskInstrument instrument ){
@@ -86,7 +111,7 @@ class Randy extends Radium {
 
 
         TaskJSONDecoder decoder = new TaskJSONDecoder( instrument );
-        decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, services: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
+        decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, tasks: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
         //Debug.trace(taskInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));

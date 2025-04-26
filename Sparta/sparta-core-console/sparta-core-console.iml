@@ -170,6 +170,8 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:2.2.2" level="project" />
     <orderEntry type="module" module-name="hydra-lib-uofs-cache" />
+    <orderEntry type="module" module-name="odin-framework-runtime" scope="TEST" />
+    <orderEntry type="module" module-name="odin-architecture" scope="TEST" />
     <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-core:9.0.41" level="project" />
     <orderEntry type="library" name="Maven: org.apache.tomcat:tomcat-annotations-api:9.0.41" level="project" />
     <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.18.16" level="project" />

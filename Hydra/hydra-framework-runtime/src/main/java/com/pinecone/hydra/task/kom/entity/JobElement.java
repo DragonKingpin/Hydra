@@ -9,5 +9,6 @@ public interface JobElement extends FolderElement, TaskFamilyNode {
     }
 
     String getType();
+
     void setType( String type );
 }

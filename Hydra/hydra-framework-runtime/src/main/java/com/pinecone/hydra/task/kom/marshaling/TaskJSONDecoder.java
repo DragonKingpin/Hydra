@@ -28,7 +28,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             return (ElementNode) this.instrument.get( this.decodeJSONObject( szName, (Map<String, Object>) o, parentGuid ).getGuid() );
         }
 
-        throw new IllegalArgumentException( "Elements of `ServersInstrument` should all be object." );
+        throw new IllegalArgumentException( "Elements of `TaskInstrument` should all be object." );
     }
 
     protected Namespace   newNamespace( String szName, Map<String, Object > jo ) {
@@ -249,7 +249,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             }
 
             if( bIsFolderElement ) {
-                Object services = jo.get( "services" );
+                Object services = jo.get( "tasks" );
                 if( services instanceof Map ) {
                     Map joSer = (Map) services;
                     this.decodeChildren( joSer, currentGuid );

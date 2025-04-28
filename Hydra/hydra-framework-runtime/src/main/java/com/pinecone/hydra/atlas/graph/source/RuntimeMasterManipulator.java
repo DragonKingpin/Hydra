@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas.source;
+package com.pinecone.hydra.atlas.graph.source;
 
 import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
 

@@ -1,12 +1,12 @@
-package com.pinecone.hydra.atlas.entity.ibatis.hydranium;
+package com.pinecone.hydra.atlas.graph.ibatis.hydranium;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.construction.UnifyStructureInjector;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.homotype.StereotypicInjector;
-import com.pinecone.hydra.atlas.entity.ibatis.GUID72TypeHandler;
-import com.pinecone.hydra.atlas.entity.ibatis.GUIDTypeHandler;
-import com.pinecone.hydra.atlas.entity.ibatis.UOITypeHandler;
+import com.pinecone.hydra.atlas.graph.ibatis.GUID72TypeHandler;
+import com.pinecone.hydra.atlas.graph.ibatis.GUIDTypeHandler;
+import com.pinecone.hydra.atlas.graph.ibatis.UOITypeHandler;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;

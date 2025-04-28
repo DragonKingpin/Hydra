@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas.entity;
+package com.pinecone.hydra.atlas.graph.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;

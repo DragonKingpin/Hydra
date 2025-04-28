@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas.entity;
+package com.pinecone.hydra.atlas.graph.entity;
 
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 

@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas.entity.ibatis;
+package com.pinecone.hydra.atlas.graph.ibatis;
 
 import com.pinecone.framework.util.uoi.UOI;
 import org.apache.ibatis.type.BaseTypeHandler;

@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.pinecone.hydra.kernel</groupId>
-    <artifactId>hydra-framework-runtime</artifactId>
+    <artifactId>hydra-architecture-conduct</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>
     <modules>
@@ -43,38 +43,16 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-architecture</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-architecture-conduct</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.pinecone.ulf</groupId>
             <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.slime</groupId>
-            <artifactId>slime</artifactId>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-architecture</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.26</version>
-        </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-            <version>3.29.0-GA</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas;
+package com.pinecone.hydra.atlas.graph;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.unit.vgraph.AtlasInstrument;

@@ -1,8 +1,7 @@
 package com.pinecone.hydra.atlas.runtime.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.atlas.entity.TaskAtlasNode;
-import com.pinecone.hydra.atlas.entity.TaskGraphNode;
+import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
@@ -14,7 +13,6 @@ import org.apache.ibatis.annotations.Update;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @IbatisDataAccessObject

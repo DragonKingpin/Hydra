@@ -1,11 +1,10 @@
 package com.pinecone.hydra.atlas.runtime.ibatis.hydranium;
 
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.hydra.atlas.entity.ibatis.hydranium.ArchAtlasMappingDriver;
+import com.pinecone.hydra.atlas.graph.ibatis.hydranium.ArchAtlasMappingDriver;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
 public class RuntimeMappingDriver extends ArchAtlasMappingDriver implements AtlasMappingDriver {

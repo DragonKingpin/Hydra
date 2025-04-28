@@ -1,7 +1,7 @@
 package com.pinecone.hydra.atlas.runtime.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.atlas.source.RuntimeMasterManipulator;
+import com.pinecone.hydra.atlas.graph.source.RuntimeMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import org.springframework.stereotype.Component;

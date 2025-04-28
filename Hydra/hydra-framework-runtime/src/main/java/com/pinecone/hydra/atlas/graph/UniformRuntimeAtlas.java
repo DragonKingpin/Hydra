@@ -1,7 +1,7 @@
-package com.pinecone.hydra.atlas;
+package com.pinecone.hydra.atlas.graph;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.atlas.entity.TaskGraphNode;
+import com.pinecone.hydra.atlas.graph.entity.TaskGraphNode;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.KArchAtlasInstrument;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;

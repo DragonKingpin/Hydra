@@ -16,6 +16,7 @@
 
     <modules>
         <module>hydra-architecture</module>
+        <module>hydra-architecture-conduct</module>
         <module>hydra-framework-runtime</module>
         <module>hydra-message-control</module>
         <module>hydra-message-broadcast</module>

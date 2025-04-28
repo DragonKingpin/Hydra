@@ -1,5 +1,6 @@
-package com.pinecone.hydra.atlas.entity.ibatis;
+package com.pinecone.hydra.atlas.graph.ibatis;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.ulf.util.guid.GUID72;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -11,17 +12,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-@MappedTypes(GUID72.class)
+@MappedTypes(GUID.class)
 @MappedJdbcTypes(JdbcType.VARCHAR)
-public class GUID72TypeHandler extends BaseTypeHandler<GUID72> {
+public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
 
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, GUID72 parameter, JdbcType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, GUID parameter, JdbcType jdbcType) throws SQLException {
         ps.setString(i, parameter.toString());
     }
 
     @Override
-    public GUID72 getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    public GUID getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String value = rs.getString(columnName);
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
@@ -30,7 +31,7 @@ public class GUID72TypeHandler extends BaseTypeHandler<GUID72> {
     }
 
     @Override
-    public GUID72 getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    public GUID getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String value = rs.getString(columnIndex);
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
@@ -39,7 +40,7 @@ public class GUID72TypeHandler extends BaseTypeHandler<GUID72> {
     }
 
     @Override
-    public GUID72 getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    public GUID getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
         String value = cs.getString(columnIndex);
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null

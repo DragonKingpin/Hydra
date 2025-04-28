@@ -10,7 +10,7 @@ public class LayerGraphHandle implements Pinenut {
 
     private GUID                    mGuid;
 
-    private GUID                    mHandleNode;
+    private GUID                    mHandleNodeGuid;
 
     private LocalDateTime           mUpdateTime;
 
@@ -32,12 +32,12 @@ public class LayerGraphHandle implements Pinenut {
         this.mGuid = guid;
     }
 
-    public GUID getHandleNode() {
-        return this.mHandleNode;
+    public GUID getHandleNodeGuid() {
+        return this.mHandleNodeGuid;
     }
 
-    public void setHandleNode(GUID handleNode) {
-        this.mHandleNode = handleNode;
+    public void setHandleNodeGuid(GUID handleNode) {
+        this.mHandleNodeGuid = handleNode;
     }
 
     public LocalDateTime getUpdateTime() {

@@ -1,23 +1,29 @@
 package com.pinecone.hydra.unit.vgraph.layer;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-public class VgraphLayer implements Layer {
+public class AtlasLayer implements Layer {
     private String                  mszName;
 
     private GUID                    parentGuid;
 
     private GUID                    mGuid;
 
-    private List<GUID>              mlHandleGuids;
+    private List<GUID>              mLstHandleGuids;
 
     private LocalDateTime           mUpdateTime;
 
     private LocalDateTime           mCreateTime;
+
+    public AtlasLayer() {
+        this.mLstHandleGuids = new ArrayList<>();
+        this.mUpdateTime = LocalDateTime.now();
+        this.mCreateTime = LocalDateTime.now();
+    }
 
     @Override
     public String getName() {
@@ -51,12 +57,18 @@ public class VgraphLayer implements Layer {
 
     @Override
     public List<GUID> getHandleGuids() {
-        return this.mlHandleGuids;
+        return this.mLstHandleGuids;
     }
 
     @Override
     public void setHandleGuids(List<GUID> handleGuids) {
-        this.mlHandleGuids = handleGuids;
+        this.mLstHandleGuids = handleGuids;
+    }
+
+    @Override
+    public GUID addHandleGuid(GUID handleGuid) {
+        this.mLstHandleGuids.add(handleGuid);
+        return handleGuid;
     }
 
     @Override

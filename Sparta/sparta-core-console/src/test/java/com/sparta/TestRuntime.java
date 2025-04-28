@@ -31,14 +31,14 @@ class Rick extends Radium {
                 this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
         );
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver);
-        this.testQuery(uniformRuntimeAtlas);
+        this.testInsert(uniformRuntimeAtlas);
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点2");
-        //uniformRuntimeAtlas.put(taskAtlasNode);
-        uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
+        taskAtlasNode.setName("这是测试图节点1");
+        uniformRuntimeAtlas.put(taskAtlasNode);
+        //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }
 
     public void testQuery(UniformRuntimeAtlas uniformRuntimeAtlas) {

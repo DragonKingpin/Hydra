@@ -12,40 +12,45 @@ import com.pinecone.hydra.system.ko.kom.SimplePathSelector;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.vgraph.layer.operator.AtlasLayerComponentOperatorFactory;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
+import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
 import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.sun.source.tree.Tree;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class VLayerManager extends ArchKOMTree implements LayerManager {
-    protected LayerMasterManipulator mLayerMasterManipulator;
+    protected LayerMasterManipulator    mLayerMasterManipulator;
 
-    protected LayerManipulator       mLayerManipulator;
+    protected LayerManipulator          mLayerManipulator;
 
-    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerManager parent, String name, LayerConfig config ) {
-        super( superiorProcess, masterManipulator, config, parent, name );
-        this.mLayerMasterManipulator = (LayerMasterManipulator) masterManipulator;
-        this.pathResolver = new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator = new GenericGuidAllocator();
+    protected NamespaceManipulator      mNamespaceManipulator;
 
-        this.mLayerManipulator = this.mLayerMasterManipulator.getLayerManipulator();
+    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerManager parent, String name ) {
+        super( superiorProcess, masterManipulator, LayerManager.LayerConfig, parent, name );
+        this.mLayerMasterManipulator    = (LayerMasterManipulator) masterManipulator;
+        this.pathResolver               = new KOPathResolver( this.kernelObjectConfig );
+        this.guidAllocator              = new GenericGuidAllocator();
+
+        this.operatorFactory            = new AtlasLayerComponentOperatorFactory( this, (LayerMasterManipulator) masterManipulator);
+        this.mLayerManipulator          = this.mLayerMasterManipulator.getLayerManipulator();
+        this.mNamespaceManipulator      = this.mLayerMasterManipulator.getNamespaceManipulator();
 
         this.pathSelector = new SimplePathSelector(
-                this.pathResolver, this.imperialTree, this.mLayerManipulator,new GUIDNameManipulator[]{}
+                this.pathResolver, this.imperialTree, this.mNamespaceManipulator,new GUIDNameManipulator[]{ this.mLayerManipulator }
         );
     }
 
-    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerConfig config ) {
-        this( superiorProcess, masterManipulator, null, LayerConfig.class.getSimpleName(), config );
+    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
+        this( superiorProcess, masterManipulator, null, LayerConfig.class.getSimpleName() );
     }
 
-    public VLayerManager(KOIMappingDriver driver, LayerManager parent, String name, LayerConfig config ) {
-        this(driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name, config);
-    }
-
-    public VLayerManager(KOIMappingDriver driver, LayerConfig config ) {
-        this(driver.getSuperiorProcess(), driver.getMasterManipulator(), config);
+    public VLayerManager(KOIMappingDriver driver ) {
+        this(driver.getSuperiorProcess(), driver.getMasterManipulator());
     }
 
     @Override
@@ -69,33 +74,51 @@ public class VLayerManager extends ArchKOMTree implements LayerManager {
     }
 
     @Override
-    public GUID put( TreeNode treeNode ) {
-        VgraphLayer vgraphLayer = (VgraphLayer) treeNode;
-        vgraphLayer.setGuid(this.guidAllocator.nextGUID());
-        ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize(vgraphLayer);
-        GUID guid = vgraphLayer.getGuid();
-        this.imperialTree.insert(imperialTreeNode);
-        //this.mLayerManipulator.insertStartLayer(vgraphLayer);
-        return guid;
+    public GUID put(TreeNode treeNode ) {
+        TreeNodeOperator operator = this.operatorFactory.getOperator( this.getLayerMetaType( treeNode ) );
+        return operator.insert( treeNode );
     }
 
     @Override
-    public void remove(GUID guid) {
-        this.imperialTree.purge( guid );
-        this.imperialTree.removeCachePath( guid );
-        this.mLayerManipulator.remove( guid );
+    public void remove(GUID guid ) {
+        GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
+        TreeNode newInstance = (TreeNode)node.getType().newInstance();
+        TreeNodeOperator operator = this.operatorFactory.getOperator( this.getLayerMetaType( newInstance ) );
+        operator.purge( guid );
+    }
+
+    protected TreeNodeOperator getOperatorByGuid( GUID guid ) {
+        ImperialTreeNode node = this.imperialTree.getNode( guid );
+        if ( node == null ){
+            return null;
+        }
+        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{this.getClass()}, this );
+        return this.operatorFactory.getOperator( this.getLayerMetaType( newInstance ) );
     }
 
     @Override
     public Layer get(GUID guid) {
-        return this.mLayerManipulator.queryLayer(guid);
+        TreeNodeOperator operator = this.getOperatorByGuid( guid );
+        if( operator == null ) {
+            return null;
+        }
+        return (Layer) operator.get( guid );
     }
 
-    protected ImperialTreeNode affirmPreinsertionInitialize( VgraphLayer vgraphLayer ) {
-        GUID guid = vgraphLayer.getGuid();
-        vgraphLayer.setUpdateTime(LocalDateTime.now());
+    @Override
+    public void addChild(GUID parentGuid, GUID childGuid) {
+        this.imperialTree.affirmOwnedNode(childGuid, parentGuid);
+    }
+
+    protected ImperialTreeNode affirmPreinsertionInitialize(AtlasLayer atlasLayer) {
+        GUID guid = atlasLayer.getGuid();
+        atlasLayer.setUpdateTime(LocalDateTime.now());
         GUIDImperialTrieNode imperialTrieNode = new GUIDImperialTrieNode();
         imperialTrieNode.setGuid(guid);
         return imperialTrieNode;
+    }
+
+    private String getLayerMetaType( TreeNode treeNode ) {
+        return treeNode.className().replace( "Atlas", "" );
     }
 }

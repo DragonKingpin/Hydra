@@ -7,7 +7,7 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface Layer extends TreeNode {
+public interface Layer extends LayerTreeNode {
     void setName( String name );
 
     void setGuid( GUID guid );
@@ -19,6 +19,8 @@ public interface Layer extends TreeNode {
     List<GUID> getHandleGuids();
 
     void setHandleGuids( List<GUID> handleGuids );
+
+    GUID addHandleGuid( GUID handleGuid );
 
     LocalDateTime getUpdateTime();
 

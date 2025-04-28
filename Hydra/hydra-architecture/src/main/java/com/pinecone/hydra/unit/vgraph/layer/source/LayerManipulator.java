@@ -11,7 +11,7 @@ public interface LayerManipulator extends GUIDNameManipulator {
 
     void insertStartLayer(  LayerGraphHandle layer );
 
-    void insertLayer( GUID parentGuid, Layer layer);
+    void batchInsertLayer( List<LayerGraphHandle> list );
 
     void remove( GUID guid );
 

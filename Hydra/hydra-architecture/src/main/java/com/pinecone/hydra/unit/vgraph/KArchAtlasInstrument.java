@@ -54,7 +54,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
         else {
             this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess.getSystem();
         }
-        this.mMegaVectorDAG = new MagnitudeVectorDAG( atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
+        this.mMegaVectorDAG = new MagnitudeVectorDAG(null, atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
         this.mGuidAllocator = new GenericGuidAllocator();
         this.mPathResolver = new BasicDAGPathResolver();//后续要使用配置类指定
         this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this.mMegaVectorDAG.getMasterManipulator().getVectorGraphManipulator() );

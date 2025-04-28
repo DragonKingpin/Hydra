@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.vgraph.layer;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.time.LocalDateTime;

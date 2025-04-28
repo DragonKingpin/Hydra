@@ -11,8 +11,8 @@ import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 import java.util.List;
 
 public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
-    public MagnitudeVectorDAG( VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
-        super(masterManipulator, vectorGraphConfig);
+    public MagnitudeVectorDAG( List<GUID> handleNodeGuids,VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
+        super(handleNodeGuids,masterManipulator, vectorGraphConfig);
     }
 
     @Override
@@ -99,4 +99,6 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
     public boolean containsKey(Object key) {
         return false;
     }
+
+
 }

@@ -3,6 +3,8 @@ package com.pinecone.hydra.unit.vgraph;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
@@ -23,12 +25,13 @@ public abstract class ArchVectorDAG implements VectorDAG {
 
     protected VectorGraphConfig                         mVectorGraphConfig;
 
-    public ArchVectorDAG(VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
-        this.mMasterManipulator = masterManipulator;
-        this.mVectorGraphConfig = vectorGraphConfig;
-        this.mVectorGraphManipulator = this.mMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
-        this.mGuidAllocator = new GenericGuidAllocator();
+    public ArchVectorDAG( List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
+        this.mLstHandleNodeGuids                    = handleNodeGuids;
+        this.mMasterManipulator                     = masterManipulator;
+        this.mVectorGraphConfig                     = vectorGraphConfig;
+        this.mVectorGraphManipulator                = this.mMasterManipulator.getVectorGraphManipulator();
+        this.mVectorGraphPathCacheManipulator       = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
+        this.mGuidAllocator                         = new GenericGuidAllocator();
     }
     @Override
     public List<GUID> fetchHandleGuids(long offset, long limit) {
@@ -68,5 +71,18 @@ public abstract class ArchVectorDAG implements VectorDAG {
     @Override
     public void addHandleNodeGuid(GUID handleNodeGuid) {
         this.mLstHandleNodeGuids.add(handleNodeGuid);
+    }
+
+    @Override
+    public VectorGraphConfig getConfig() {
+        return this.mVectorGraphConfig;
+    }
+
+    @Override
+    public void save(LayerManager layerManager, String name) {
+        AtlasLayer atlasLayer = new AtlasLayer();
+        atlasLayer.setHandleGuids( this.mLstHandleNodeGuids );
+        atlasLayer.setName( name );
+        layerManager.put( atlasLayer );
     }
 }

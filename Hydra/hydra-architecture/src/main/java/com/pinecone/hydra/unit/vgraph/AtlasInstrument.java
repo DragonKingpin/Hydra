@@ -6,6 +6,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
 
 import java.util.List;
 
@@ -58,4 +59,7 @@ public interface AtlasInstrument extends Instrument {
     List<GUID > fetchChildrenIds(GUID guid );
 
     void rename( GUID guid, String name );
+
+    VectorDAG toVectorDAG( Layer layer );
+
 }

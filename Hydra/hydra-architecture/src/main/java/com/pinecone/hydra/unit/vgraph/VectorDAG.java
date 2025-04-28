@@ -2,6 +2,7 @@ package com.pinecone.hydra.unit.vgraph;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
 
 import java.util.List;
@@ -27,4 +28,6 @@ public interface VectorDAG extends Pinenut {
     VectorGraphConfig getConfig();
 
     void save( LayerManager layerManager, String name );
+
+    List<GraphNode> nextNodes( GUID guid );
 }

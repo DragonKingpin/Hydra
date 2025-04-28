@@ -35,7 +35,11 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
     @Override
     public List<GUID> fetchHandleGuids(long offset, long limit) {
-        return this.mVectorGraphManipulator.fetchHandleGuids(offset, limit);
+        if( this.mLstHandleNodeGuids == null || this.mLstHandleNodeGuids.isEmpty() ) {
+            return this.mVectorGraphManipulator.fetchHandleGuids(offset, limit);
+        }else {
+            return this.mLstHandleNodeGuids.subList( (int) offset, (int) (offset+limit) );
+        }
     }
 
     @Override
@@ -84,5 +88,10 @@ public abstract class ArchVectorDAG implements VectorDAG {
         atlasLayer.setHandleGuids( this.mLstHandleNodeGuids );
         atlasLayer.setName( name );
         layerManager.put( atlasLayer );
+    }
+
+    @Override
+    public List<GraphNode> nextNodes(GUID guid) {
+        return this.mVectorGraphManipulator.fetchChildNodes(guid);
     }
 }

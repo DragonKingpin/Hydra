@@ -3,8 +3,8 @@ package com.walnut.odin.task.mapper;
 import java.util.List;
 
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import com.walnut.odin.task.entity.GenericTaskCategory;
-import com.walnut.odin.task.entity.TaskCategory;
+import com.walnut.odin.task.entity.pyramid.GenericTaskCategory;
+import com.walnut.odin.task.entity.pyramid.TaskCategory;
 import com.walnut.odin.task.source.TaskCategoryManipulator;
 
 import org.apache.ibatis.annotations.Delete;

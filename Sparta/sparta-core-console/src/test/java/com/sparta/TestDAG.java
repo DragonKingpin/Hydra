@@ -7,12 +7,12 @@ import com.pinecone.hydra.unit.vgraph.layer.VLayerManager;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
-class peter extends Radium {
-    public peter( String[] args, CascadeSystem parent ) {
+class Peter extends Radium {
+    public Peter( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
 
-    public peter( String[] args, String szName, CascadeSystem parent ){
+    public Peter( String[] args, String szName, CascadeSystem parent ){
         super( args, szName, parent );
     }
 
@@ -22,7 +22,7 @@ class peter extends Radium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        VLayerManager vLayerManager = new VLayerManager(koiMappingDriver,null);
+        //VLayerManager vLayerManager = new VLayerManager(koiMappingDriver,null);
 
     }
 

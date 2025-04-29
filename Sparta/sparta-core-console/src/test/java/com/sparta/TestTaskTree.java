@@ -15,8 +15,6 @@ import com.pinecone.radium.Radium;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
-import com.walnut.odin.task.entity.GenericCategoryType;
-import com.walnut.odin.task.entity.GenericTaskCategory;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 

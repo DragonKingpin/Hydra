@@ -1,4 +1,4 @@
-package com.walnut.odin.task.entity;
+package com.walnut.odin.task.entity.pyramid;
 
 import com.pinecone.slime.entity.EnumIndexableEntity;
 

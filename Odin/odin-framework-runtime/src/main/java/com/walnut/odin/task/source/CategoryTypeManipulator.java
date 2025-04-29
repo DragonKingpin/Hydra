@@ -3,7 +3,7 @@ package com.walnut.odin.task.source;
 import java.util.List;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.walnut.odin.task.entity.CategoryType;
+import com.walnut.odin.task.entity.pyramid.CategoryType;
 
 
 public interface CategoryTypeManipulator extends Pinenut {

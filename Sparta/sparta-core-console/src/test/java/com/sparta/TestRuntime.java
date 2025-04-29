@@ -3,11 +3,9 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.atlas.UniformRuntimeAtlas;
-import com.pinecone.hydra.atlas.entity.TaskAtlasNode;
-import com.pinecone.hydra.atlas.entity.TaskGraphNode;
+import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
+import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.radium.Radium;
@@ -36,7 +34,7 @@ class Rick extends Radium {
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点1");
+        taskAtlasNode.setName("这是测试图节点3");
         uniformRuntimeAtlas.put(taskAtlasNode);
         //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }

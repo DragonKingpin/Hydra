@@ -4,15 +4,15 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.unit.pqueue.entity.QueueElement;
 
 public interface DPQueueManipulator extends Pinenut {
-    void add(QueueElement queueElement);
+    void add(QueueElement queueElement, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta);
 
-    QueueElement poll();
+    QueueElement peek( long currentPos, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 
-    QueueElement peek();
+    long size( String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 
-    long size();
+    QueueElement remove( long currentPos, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 
-    QueueElement remove( QueueElement queueElement );
+    QueueElement query( long enumId, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 
-    void update( QueueElement queueElement );
+    long nextPos( long currentPos, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta  );
 }

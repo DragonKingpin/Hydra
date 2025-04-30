@@ -11,6 +11,12 @@ public interface QueueElement extends Pinenut {
 
     long getPriority();
 
+    long getLinkedPriority();
+
+    long getIndexPriority();
+
+    long getActualPriority();
+
     long getBias();
 
 }

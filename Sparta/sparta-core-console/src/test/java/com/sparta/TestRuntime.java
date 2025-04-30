@@ -34,7 +34,7 @@ class Rick extends Radium {
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点3");
+        taskAtlasNode.setName("这是测试图节点4");
         uniformRuntimeAtlas.put(taskAtlasNode);
         //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }

@@ -14,28 +14,28 @@ import java.util.List;
 
 public class UniformRuntimeAtlas extends KArchAtlasInstrument implements RuntimeAtlasInstrument {
 
-    public UniformRuntimeAtlas(List<GraphNode> parent, AtlasMappingDriver driver, VectorGraphConfig config) {
+    public UniformRuntimeAtlas( List<GraphNode> parent, AtlasMappingDriver driver, VectorGraphConfig config ) {
         super(parent,driver,config);
     }
 
-    public UniformRuntimeAtlas(AtlasMappingDriver driver) {
+    public UniformRuntimeAtlas( AtlasMappingDriver driver ) {
         super(driver);
     }
 
-    public GUID put(GraphNode graphNode) {
+    public GUID put( GraphNode graphNode ) {
         return super.put(graphNode);
     }
 
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         super.remove(guid);
     }
 
-    public TaskGraphNode query(GUID guid) {
+    public TaskGraphNode query( GUID guid ) {
         return (TaskGraphNode) super.get(guid);
     }
 
     @Override
-    public VectorDAG toVectorDAG(Layer layer) {
+    public VectorDAG toVectorDAG( Layer layer ) {
         List<GUID> handleGuids = layer.getHandleGuids();
         return new GenericVectorDAG( handleGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );
     }

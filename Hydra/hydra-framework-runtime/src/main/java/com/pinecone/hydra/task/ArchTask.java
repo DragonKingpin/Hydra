@@ -67,8 +67,8 @@ public abstract class ArchTask implements Task {
     }
 
     @Override
-    public String getLevel() {
-        return this.mTaskElement.getLevel();
+    public short getPriority() {
+        return this.mTaskElement.getPriority();
     }
 
     @Override

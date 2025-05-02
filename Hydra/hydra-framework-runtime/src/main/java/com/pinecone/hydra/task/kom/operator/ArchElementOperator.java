@@ -36,7 +36,6 @@ public abstract class ArchElementOperator implements ElementOperator {
             ele.setScenario                 ( commonMeta.getScenario()                 );
             ele.setMarshallingArchitecture  ( commonMeta.getMarshallingArchitecture()  );
             ele.setExtraInformation         ( commonMeta.getExtraInformation()         );
-            ele.setLevel                    ( commonMeta.getLevel()                    );
             ele.setDescription              ( commonMeta.getDescription()              );
         }
     }

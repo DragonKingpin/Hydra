@@ -124,11 +124,6 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
     @Override
-    public void setLevel( String level ) {
-        this.level = level;
-    }
-
-    @Override
     public void setDescription( String description ) {
         this.description = description;
     }

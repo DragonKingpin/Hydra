@@ -24,8 +24,6 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
     protected Map<String, Object > elementaryConfig;
 
 
-    protected String level;
-
     protected String description;
 
     public ArchTaskFamilyMeta() {
@@ -73,11 +71,6 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
     @Override
     public String getExtraInformation() {
         return this.extraInformation;
-    }
-
-    @Override
-    public String getLevel() {
-        return this.level;
     }
 
     @Override

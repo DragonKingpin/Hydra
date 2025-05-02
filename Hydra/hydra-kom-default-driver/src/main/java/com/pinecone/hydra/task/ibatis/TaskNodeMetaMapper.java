@@ -20,22 +20,24 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 public interface TaskNodeMetaMapper extends NodeMetaManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_task_node_meta` (`guid`, `scenario`, marshalling_architecture, extra_information, `level`, `description`) VALUES (#{guid}, #{scenario}, #{marshallingArchitecture}, #{extraInformation}, #{level}, #{description})")
+    @Insert("INSERT INTO `hydra_task_node_meta` (`guid`, `scenario`, marshalling_architecture, extra_information, `description`) " +
+            "VALUES (#{guid}, #{scenario}, #{marshallingArchitecture}, #{extraInformation}, #{description})")
     void insert( TaskFamilyNode node );
-
-    @Insert("INSERT INTO `hydra_task_node_meta` (`guid`, `scenario`, marshalling_architecture, extra_information, `level`, `description`) VALUES (#{metaGuid}, #{scenario}, #{marshallingArchitecture}, #{extraInformation}, #{level}, #{description})")
-    void insertNS( Namespace node );
 
     @Override
     @Delete("DELETE FROM `hydra_task_node_meta` WHERE `guid`=#{guid}")
     void remove( @Param("guid")GUID guid );
 
     @Override
-    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `marshalling_architecture` AS marshallingArchitecture, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_task_node_meta` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `marshalling_architecture` AS marshallingArchitecture, `extra_information` AS extraInformation, `description`" +
+            " FROM `hydra_task_node_meta` WHERE `guid` = #{guid}")
     GenericCommonMeta getNodeCommonMeta( @Param("guid") GUID guid );
 
     @Override
-    @Update("UPDATE `hydra_task_node_meta` SET `scenario` = #{scenario}, `marshalling_architecture` = #{marshallingArchitecture}, `extra_information` = #{extraInformation}, `level` = #{level}, `description` = #{description}")
+    @Update("UPDATE `hydra_task_node_meta` SET " +
+            "`scenario` = #{scenario}, `marshalling_architecture` = #{marshallingArchitecture}, " +
+            "`extra_information` = #{extraInformation}, " +
+            "`description` = #{description}")
     void update( TaskFamilyNode node );
 
     @Update("UPDATE `hydra_task_node_meta` SET `scenario` = #{scenario} WHERE `guid` = #{guid}")
@@ -47,8 +49,8 @@ public interface TaskNodeMetaMapper extends NodeMetaManipulator {
     @Update("UPDATE `hydra_task_node_meta` SET `extra_information` = #{extraInformation} WHERE `guid` = #{guid}")
     void updateExtraInformation( @Param("extraInformation") String extraInformation, @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_task_node_meta` SET `level` = #{level} WHERE `guid` = #{guid}")
-    void updateLevel( @Param("level") String level, @Param("guid") GUID guid );
+    @Update("UPDATE `hydra_task_node_meta` SET `priority` = #{priority} WHERE `guid` = #{guid}")
+    void updatePriority( @Param("priority") String priority, @Param("guid") GUID guid );
 
     @Update("UPDATE `hydra_task_node_meta` SET `description` = #{description} WHERE `guid` = #{guid}")
     void updateDescription( @Param("description") String description, @Param("guid") GUID guid );

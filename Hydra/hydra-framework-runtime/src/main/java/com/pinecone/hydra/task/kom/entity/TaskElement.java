@@ -19,4 +19,9 @@ public interface TaskElement extends ElementNode {
     String getResourceType();
     void setResourceType( String resourceType );
 
+    short getPriority();
+    void setPriority( short priority );
+
+    short getActuallyPriority();
+    void setActuallyPriority( short priority );
 }

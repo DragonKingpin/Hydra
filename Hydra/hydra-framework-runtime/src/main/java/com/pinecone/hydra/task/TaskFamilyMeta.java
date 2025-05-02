@@ -19,8 +19,6 @@ public interface TaskFamilyMeta extends Pinenut  {
 
     String getExtraInformation();
 
-    String getLevel();
-
     String getDescription();
 
 }

@@ -16,6 +16,10 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
 
     protected String        deploymentMethod;
 
+    protected short         priority;
+
+    protected short         actuallyPriority;
+
 
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
@@ -28,17 +32,17 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         super();
     }
 
-    public GenericTaskElement(Map<String, Object > joEntity ) {
+    public GenericTaskElement( Map<String, Object > joEntity ) {
         super( joEntity );
         this.initSelf( joEntity );
     }
 
-    public GenericTaskElement(Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+    public GenericTaskElement( Map<String, Object > joEntity, TaskInstrument taskInstrument ) {
         super( joEntity, taskInstrument);
         this.initSelf( joEntity );
     }
 
-    public GenericTaskElement(TaskInstrument taskInstrument) {
+    public GenericTaskElement( TaskInstrument taskInstrument ) {
         super(taskInstrument);
     }
 
@@ -70,6 +74,24 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setResourceType( String resourceType ) {
         this.resourceType = resourceType;
+    }
+
+    @Override
+    public short getPriority() {
+        return this.priority;
+    }
+
+    @Override
+    public void setPriority( short priority ) {
+        this.priority = priority;
+    }
+
+    public short getActuallyPriority() {
+        return this.actuallyPriority;
+    }
+
+    public void setActuallyPriority( short actuallyPriority ) {
+        this.actuallyPriority = actuallyPriority;
     }
 
     @Override

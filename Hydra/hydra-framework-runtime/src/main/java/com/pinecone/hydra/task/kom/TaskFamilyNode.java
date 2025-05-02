@@ -34,10 +34,6 @@ public interface TaskFamilyNode extends TaskFamilyMeta {
 
     void setExtraInformation( String extraInformation );
 
-    String getLevel();
-
-    void setLevel( String level );
-
     String getDescription();
 
     void setDescription( String description );

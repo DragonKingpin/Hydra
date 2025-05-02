@@ -20,7 +20,7 @@ public interface Task extends TaskFamilyMeta {
 
     String getExtraInformation() ;
 
-    String getLevel() ;
+    short getPriority();
 
     Map<String, Object> getMetaDataScope();
 

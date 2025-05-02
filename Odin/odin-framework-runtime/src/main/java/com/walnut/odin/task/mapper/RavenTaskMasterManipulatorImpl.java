@@ -10,6 +10,7 @@ import com.walnut.odin.task.source.CategoryMappingManipulator;
 import com.walnut.odin.task.source.CategoryTypeManipulator;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.TaskCategoryManipulator;
+import com.walnut.odin.task.source.TaskExMetaManipulator;
 
 import org.springframework.stereotype.Component;
 
@@ -36,6 +37,10 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     @Resource
     @Structure( type = CategoryMappingMapper.class )
     protected CategoryMappingManipulator categoryMappingManipulator;
+
+    @Resource
+    @Structure( type = TastExMetaMapper.class )
+    protected TaskExMetaManipulator taskExMetaManipulator;
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {
         driver.autoConstruct( RavenTaskMasterManipulatorImpl.class, Map.of(), this );
@@ -74,4 +79,8 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
         return this.categoryMappingManipulator;
     }
 
+    @Override
+    public TaskExMetaManipulator getTaskExMetaManipulator() {
+        return this.taskExMetaManipulator;
+    }
 }

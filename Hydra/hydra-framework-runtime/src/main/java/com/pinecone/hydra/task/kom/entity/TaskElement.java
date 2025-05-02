@@ -1,5 +1,7 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import com.pinecone.hydra.task.TaskExtraMeta;
+
 public interface TaskElement extends ElementNode {
 
     @Override
@@ -24,4 +26,20 @@ public interface TaskElement extends ElementNode {
 
     short getActuallyPriority();
     void setActuallyPriority( short priority );
+
+
+
+    boolean isDryRun() ;
+    void setDryRun( boolean dryRun ) ;
+
+    int getScheduleTypeCode() ;
+    void setScheduleTypeCode( int scheduleTypeCode ) ;
+
+    boolean isEnable() ;
+    void setEnable( boolean enable ) ;
+
+
+
+    TaskExtraMeta getExtraMeta();
+
 }

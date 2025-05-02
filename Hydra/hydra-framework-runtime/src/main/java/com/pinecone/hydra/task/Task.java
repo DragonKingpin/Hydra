@@ -22,6 +22,16 @@ public interface Task extends TaskFamilyMeta {
 
     short getPriority();
 
+    short getActuallyPriority();
+
+
+    boolean isDryRun() ;
+
+    int getScheduleTypeCode() ;
+
+    boolean isEnable() ;
+
+
     Map<String, Object> getMetaDataScope();
 
 }

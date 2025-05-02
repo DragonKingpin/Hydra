@@ -8,14 +8,14 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 public interface TaskNodeManipulator extends GUIDNameManipulator {
-    //ServiceNode的CRUD
-    void insert( TaskElement serviceNode );
+
+    void insert( TaskElement taskElement );
 
     void remove( GUID UUID );
 
     TaskElement getTaskNode( GUID guid, TaskInstrument instrument );
 
-    void update( TaskElement serviceNode );
+    void update( TaskElement taskElement );
 
     List<TaskElement> fetchTaskNodeByName( String name );
 

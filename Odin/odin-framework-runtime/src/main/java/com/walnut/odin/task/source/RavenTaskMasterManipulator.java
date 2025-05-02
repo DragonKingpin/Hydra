@@ -17,4 +17,6 @@ public interface RavenTaskMasterManipulator extends KOIMasterManipulator {
 
     CategoryMappingManipulator getCategoryMappingManipulator();
 
+    TaskExMetaManipulator getTaskExMetaManipulator();
+
 }

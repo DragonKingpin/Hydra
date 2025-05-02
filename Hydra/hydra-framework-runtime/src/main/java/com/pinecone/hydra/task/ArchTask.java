@@ -72,6 +72,26 @@ public abstract class ArchTask implements Task {
     }
 
     @Override
+    public short getActuallyPriority() {
+        return this.mTaskElement.getActuallyPriority();
+    }
+
+    @Override
+    public boolean isDryRun() {
+        return this.mTaskElement.isDryRun();
+    }
+
+    @Override
+    public int getScheduleTypeCode() {
+        return this.mTaskElement.getScheduleTypeCode();
+    }
+
+    @Override
+    public boolean isEnable() {
+        return this.mTaskElement.isEnable();
+    }
+
+    @Override
     public String getDescription() {
         return this.mTaskElement.getDescription();
     }

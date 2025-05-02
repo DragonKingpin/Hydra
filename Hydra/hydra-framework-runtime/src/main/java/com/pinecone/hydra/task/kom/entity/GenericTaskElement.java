@@ -5,6 +5,7 @@ import java.util.Map;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
+import com.pinecone.hydra.task.TaskExtraMeta;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
@@ -19,6 +20,12 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected short         priority;
 
     protected short         actuallyPriority;
+
+    protected boolean       dryRun;
+
+    protected int           scheduleTypeCode;
+
+    protected boolean       enable;
 
 
     private void initSelf( Map<String, Object > joEntity ) {
@@ -86,10 +93,12 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         this.priority = priority;
     }
 
+    @Override
     public short getActuallyPriority() {
         return this.actuallyPriority;
     }
 
+    @Override
     public void setActuallyPriority( short actuallyPriority ) {
         this.actuallyPriority = actuallyPriority;
     }
@@ -104,4 +113,40 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         this.deploymentMethod = deploymentMethod;
     }
 
+
+    @Override
+    public boolean isDryRun() {
+        return this.dryRun;
+    }
+
+    @Override
+    public void setDryRun( boolean dryRun ) {
+        this.dryRun = dryRun;
+    }
+
+    @Override
+    public int getScheduleTypeCode() {
+        return this.scheduleTypeCode;
+    }
+
+    @Override
+    public void setScheduleTypeCode( int scheduleTypeCode ) {
+        this.scheduleTypeCode = scheduleTypeCode;
+    }
+
+    @Override
+    public boolean isEnable() {
+        return this.enable;
+    }
+
+    @Override
+    public void setEnable( boolean enable ) {
+        this.enable = enable;
+    }
+
+
+    @Override
+    public TaskExtraMeta getExtraMeta() {
+        return null;
+    }
 }

@@ -6,6 +6,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
@@ -30,22 +31,16 @@ class Randy extends Radium {
 
     @Override
     public void vitalize () throws Exception {
-        KOIMappingDriver koiMappingDriver = new TaskMappingDriver(
-                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-
-        UniformTaskInstrument instrument = new UniformTaskInstrument( koiMappingDriver );
-        //this.testInsert( instrument );
-        this.testGet( instrument );
-        //this.testDelete( instrument );
-
-
         OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
 
         this.testCategory( ravenTaskInstrument );
+
+        //this.testInsert( instrument );
+        this.testGet( ravenTaskInstrument );
+        //this.testDelete( instrument );
 
     }
 
@@ -58,7 +53,7 @@ class Randy extends Radium {
         Debug.greenfs( categoryService.setCategoryTag( "root/test/job/task", tag ) );
     }
 
-    private void testInsert( UniformTaskInstrument instrument ){
+    private void testInsert( TaskInstrument instrument ) {
 //        GenericNamespace namespace = new GenericNamespace();
 //        namespace.setName( "Test1" );
 //        instrument.put( namespace );
@@ -81,7 +76,7 @@ class Randy extends Radium {
         instrument.put( taskElement );
     }
 
-    private void testGet( UniformTaskInstrument instrument ){
+    private void testGet( TaskInstrument instrument ){
         //Debug.trace( instrument.queryGUIDByPath( "规则1/很好的服务/我的世界" ) );
         //Debug.trace( instrument.getPath(GUIDs.GUID72( "03c4a36-000381-0000-48" ) ) );
         //Debug.trace( instrument.get( GUIDs.GUID72("03e60e8-0000ae-0000-20") ) );
@@ -115,7 +110,7 @@ class Randy extends Radium {
         //Debug.trace(taskInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
-    private void testDelete( UniformTaskInstrument instrument ){
+    private void testDelete( TaskInstrument instrument ) {
         instrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
     }
 }

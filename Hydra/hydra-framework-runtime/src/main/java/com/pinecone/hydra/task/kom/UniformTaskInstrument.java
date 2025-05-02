@@ -51,7 +51,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
 
 
-    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ){
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
@@ -76,7 +76,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 
-    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ){
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
         this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName() );
     }
 
@@ -91,7 +91,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         );
     }
 
-    public UniformTaskInstrument(KOIMappingDriver driver, TaskInstrument parent, String name ) {
+    public UniformTaskInstrument( KOIMappingDriver driver, TaskInstrument parent, String name ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
@@ -100,7 +100,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         );
     }
 
-    protected TaskTreeNode affirmTreeNodeByPath(String path, Class<? > cnSup, Class<? > nsSup ) {
+    protected TaskTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
         GUID parentGuid = GUIDs.Dummy72();
@@ -146,12 +146,12 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
-    public JobElement affirmApplication( String path ) {
+    public JobElement affirmJob( String path ) {
         return (JobElement) this.affirmTreeNodeByPath( path, GenericJobElement.class, GenericNamespace.class );
     }
 
     @Override
-    public TaskElement affirmService( String path ) {
+    public TaskElement affirmTask( String path ) {
         return (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
     }
 

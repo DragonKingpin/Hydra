@@ -12,16 +12,16 @@ public interface TaskInstrument extends ReparseKOMTree {
 
     ServiceConfig KernelServiceConfig = new KernelServiceConfig();
 
-    JobElement         affirmApplication(String path);
+    JobElement         affirmJob( String path );
 
-    Namespace          affirmNamespace(String path);
+    Namespace          affirmNamespace( String path );
 
-    TaskElement        affirmService(String path);
+    TaskElement        affirmTask( String path );
 
-    ElementNode        queryElement(String path);
+    ElementNode        queryElement( String path );
 
-    boolean            containsChild(GUID parentGuid, String childName);
+    boolean            containsChild( GUID parentGuid, String childName );
 
-    void               update(TreeNode treeNode);
+    void               update( TreeNode treeNode );
 
 }

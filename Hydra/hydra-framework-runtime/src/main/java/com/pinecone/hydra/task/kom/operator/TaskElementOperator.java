@@ -80,7 +80,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
 
     @Override
     public void update( TreeNode nodeWideData ) {
-        GenericTaskElement serviceElement = (GenericTaskElement) nodeWideData;
+        TaskElement serviceElement = (TaskElement) nodeWideData;
         this.taskNodeManipulator.update( serviceElement );
         this.nodeMetaManipulator.update( serviceElement );
     }

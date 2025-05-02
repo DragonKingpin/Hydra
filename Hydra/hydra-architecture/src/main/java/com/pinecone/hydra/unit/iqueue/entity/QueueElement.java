@@ -1,4 +1,4 @@
-package com.pinecone.hydra.unit.pqueue.entity;
+package com.pinecone.hydra.unit.iqueue.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
@@ -15,8 +15,10 @@ public interface QueueElement extends Pinenut {
 
     long getIndexPriority();
 
+    void setIndexPriority( long indexPriority );
+
     long getActualPriority();
 
-    long getBias();
+    double getBias();
 
 }

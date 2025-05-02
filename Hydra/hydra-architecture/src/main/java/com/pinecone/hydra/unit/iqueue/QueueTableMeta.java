@@ -1,4 +1,4 @@
-package com.pinecone.hydra.unit.pqueue;
+package com.pinecone.hydra.unit.iqueue;
 
 public class QueueTableMeta implements QueueMeta {
     protected String  mszQueueTableName;
@@ -9,11 +9,12 @@ public class QueueTableMeta implements QueueMeta {
 
     public QueueTableMeta(){}
 
-    void setQueueTableName( String queueTableName ) {
+    public void setQueueTableName( String queueTableName ) {
         this.mszQueueTableName = queueTableName;
     }
 
-    String queueTableName() {
+    @Override
+    public String getQueueTable() {
         return this.mszQueueTableName;
     }
 }

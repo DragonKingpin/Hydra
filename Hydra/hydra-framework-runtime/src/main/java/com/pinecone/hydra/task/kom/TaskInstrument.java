@@ -1,6 +1,7 @@
 package com.pinecone.hydra.task.kom;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.Task;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -23,5 +24,6 @@ public interface TaskInstrument extends ReparseKOMTree {
     boolean            containsChild( GUID parentGuid, String childName );
 
     void               update( TreeNode treeNode );
+
 
 }

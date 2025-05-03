@@ -23,7 +23,7 @@ public interface MegaVectorDAG extends VectorDAG, PineUnit {
 
     List<String> getCachePath( GUID guid );
 
-    void remove( GUID guid );
+    void removeNode( GUID guid );
 
     void removeCache( GUID guid );
 

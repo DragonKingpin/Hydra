@@ -3,7 +3,7 @@ package com.pinecone.hydra.unit.vgraph.layer.operator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
 import com.pinecone.hydra.unit.vgraph.layer.AtlasLayerNamespace;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class AtlasLayerComponentOperatorFactory implements LayerComponentOperatorFactory {
     protected LayerMasterManipulator                mLayerMasterManipulator;
 
-    protected LayerManager                          mLayerManager;
+    protected LayerInstrument mLayerInstrument;
 
     protected Map<String, TreeNodeOperator>   registerer = new HashMap<>();
 
@@ -30,8 +30,8 @@ public class AtlasLayerComponentOperatorFactory implements LayerComponentOperato
         this.registerDefaultMetaType( AtlasLayerNamespace.class );
     }
 
-    public AtlasLayerComponentOperatorFactory( LayerManager layerManager, LayerMasterManipulator layerMasterManipulator ) {
-        this.mLayerManager = layerManager;
+    public AtlasLayerComponentOperatorFactory(LayerInstrument layerInstrument, LayerMasterManipulator layerMasterManipulator ) {
+        this.mLayerInstrument = layerInstrument;
         this.mLayerMasterManipulator = layerMasterManipulator;
 
         this.registerer.put(
@@ -72,8 +72,8 @@ public class AtlasLayerComponentOperatorFactory implements LayerComponentOperato
     }
 
     @Override
-    public LayerManager getLayerManager() {
-        return this.mLayerManager;
+    public LayerInstrument getLayerManager() {
+        return this.mLayerInstrument;
     }
 
     @Override

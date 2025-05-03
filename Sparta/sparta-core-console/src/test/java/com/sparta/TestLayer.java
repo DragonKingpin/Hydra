@@ -5,9 +5,7 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.unit.vgraph.layer.AtlasLayerNamespace;
-import com.pinecone.hydra.unit.vgraph.layer.VLayerManager;
-import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
+import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
@@ -26,11 +24,11 @@ class Louis extends Radium {
         KOIMappingDriver koiMappingDriver = new LayerMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        VLayerManager vLayerManager = new VLayerManager(koiMappingDriver);
+        VLayerInstrument vLayerManager = new VLayerInstrument(koiMappingDriver);
         this.testQuery(vLayerManager);
     }
 
-    public void testInsert(VLayerManager vLayerManager) {
+    public void testInsert(VLayerInstrument vLayerManager) {
 //        AtlasLayer atlasLayer = new AtlasLayer();
 //        atlasLayer.setName("这是测试图层");
 //        atlasLayer.addHandleGuid(GUIDs.GUID72("22610ea-00002d-0000-a0"));
@@ -43,7 +41,7 @@ class Louis extends Radium {
 
     }
 
-    public void testQuery( VLayerManager vLayerManager ) {
+    public void testQuery( VLayerInstrument vLayerManager ) {
         Debug.trace(vLayerManager.queryGUIDByPath( "这是测试命名空间/这是测试图层" ));
     }
 }

@@ -7,6 +7,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
+import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
 
 import java.util.List;
 
@@ -14,6 +15,10 @@ public interface AtlasInstrument extends Instrument {
     AtlasInstrument parent();
 
     Processum getSuperiorProcess();
+
+    AtlasMasterManipulator getMasterManipulator();
+
+    VectorGraphConfig getConfig();
 
     void setParent( AtlasInstrument atlasInstrument );
 

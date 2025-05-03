@@ -1,6 +1,9 @@
 package com.pinecone.hydra.unit.iqueue;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
+
+import java.util.List;
 
 public interface MegaDeflectPriorityQueue extends MegaPriorityQueue, SharedSegmentIQueue {
     void pushBack( QueueElement queueElement );
@@ -10,6 +13,10 @@ public interface MegaDeflectPriorityQueue extends MegaPriorityQueue, SharedSegme
     QueueElement getByIndex( long index );
 
     QueueElement popFront();
+
+    List<QueueElement> fetchElements( long offset, long limit );
+
+    List<GUID> fetchElementGuids( long offset, long limit );
 
     QueueElement popBack();
 
@@ -24,6 +31,8 @@ public interface MegaDeflectPriorityQueue extends MegaPriorityQueue, SharedSegme
     void reset();
 
     QueueElement remove( long enumId );
+
+    List<QueueElement> fetchElementByPriority( long priority, long offset, long limit );
 
 
 }

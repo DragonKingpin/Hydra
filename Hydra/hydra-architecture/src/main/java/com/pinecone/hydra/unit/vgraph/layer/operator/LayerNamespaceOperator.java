@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.LayerNamespace;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
@@ -19,8 +19,8 @@ public class LayerNamespaceOperator extends ArchLayerComponentOperator implement
         this.mFactory = factory;
     }
 
-    public LayerNamespaceOperator(LayerMasterManipulator layerMasterManipulator, LayerManager layerManager) {
-        super(layerMasterManipulator, layerManager);
+    public LayerNamespaceOperator(LayerMasterManipulator layerMasterManipulator, LayerInstrument layerInstrument) {
+        super(layerMasterManipulator, layerInstrument);
         this.mNamespaceManipulator = layerMasterManipulator.getNamespaceManipulator();
     }
 

@@ -7,14 +7,14 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.LayerTreeNode;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 
 import java.time.LocalDateTime;
 
 public abstract class ArchLayerComponentOperator implements LayerComponentOperator {
-    protected LayerManager                      mLayerManager;
+    protected LayerInstrument mLayerInstrument;
 
     protected LayerComponentOperatorFactory     mFactory;
 
@@ -25,11 +25,11 @@ public abstract class ArchLayerComponentOperator implements LayerComponentOperat
     protected GuidAllocator                     mGuidAllocator;
 
 
-    public ArchLayerComponentOperator( LayerMasterManipulator layerMasterManipulator, LayerManager layerManager ) {
-        this.mImperialTree = layerManager.getMasterTrieTree();
-        this.mLayerManager = layerManager;
+    public ArchLayerComponentOperator( LayerMasterManipulator layerMasterManipulator, LayerInstrument layerInstrument) {
+        this.mImperialTree = layerInstrument.getMasterTrieTree();
+        this.mLayerInstrument = layerInstrument;
         this.mLayerMasterManipulator = layerMasterManipulator;
-        this.mGuidAllocator  = layerManager.getGuidAllocator();
+        this.mGuidAllocator  = layerInstrument.getGuidAllocator();
     }
 
     protected ImperialTreeNode affirmPreinsertionInitialize( LayerTreeNode treeNode ) {

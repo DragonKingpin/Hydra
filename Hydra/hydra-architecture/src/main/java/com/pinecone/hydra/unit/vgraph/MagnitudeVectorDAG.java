@@ -39,10 +39,7 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
         this.mVectorGraphPathCacheManipulator.insert( path, guid );
     }
 
-    @Override
-    public GraphNode get(GUID guid) {
-        return this.mVectorGraphManipulator.queryNode( guid );
-    }
+
 
     @Override
     public GUID getGuidByCachePath(String path) {
@@ -54,11 +51,7 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
         return this.mVectorGraphPathCacheManipulator.getPath( guid );
     }
 
-    @Override
-    public void remove(GUID guid) {
-        this.mVectorGraphManipulator.removeNode( guid );
-        this.mVectorGraphPathCacheManipulator.remove( guid );
-    }
+
 
     @Override
     public void removeCache(GUID guid) {

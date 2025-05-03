@@ -5,7 +5,7 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.layer.LayerGraphHandle;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
@@ -21,8 +21,8 @@ public class LayerOperator extends ArchLayerComponentOperator implements LayerCo
         this.mFactory = factory;
     }
 
-    public LayerOperator(LayerMasterManipulator layerMasterManipulator, LayerManager layerManager) {
-        super(layerMasterManipulator, layerManager);
+    public LayerOperator(LayerMasterManipulator layerMasterManipulator, LayerInstrument layerInstrument) {
+        super(layerMasterManipulator, layerInstrument);
         this.mLayerManipulator = mLayerMasterManipulator.getLayerManipulator();
     }
 

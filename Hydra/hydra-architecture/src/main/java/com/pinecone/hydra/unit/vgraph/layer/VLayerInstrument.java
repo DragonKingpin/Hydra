@@ -13,26 +13,23 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
-import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.layer.operator.AtlasLayerComponentOperatorFactory;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
 import com.pinecone.ulf.util.guid.GenericGuidAllocator;
-import com.sun.source.tree.Tree;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
-public class VLayerManager extends ArchKOMTree implements LayerManager {
+public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     protected LayerMasterManipulator    mLayerMasterManipulator;
 
     protected LayerManipulator          mLayerManipulator;
 
     protected NamespaceManipulator      mNamespaceManipulator;
 
-    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerManager parent, String name ) {
-        super( superiorProcess, masterManipulator, LayerManager.LayerConfig, parent, name );
+    public VLayerInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name ) {
+        super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name );
         this.mLayerMasterManipulator    = (LayerMasterManipulator) masterManipulator;
         this.pathResolver               = new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator              = new GenericGuidAllocator();
@@ -46,11 +43,11 @@ public class VLayerManager extends ArchKOMTree implements LayerManager {
         );
     }
 
-    public VLayerManager(Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
+    public VLayerInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
         this( superiorProcess, masterManipulator, null, LayerConfig.class.getSimpleName() );
     }
 
-    public VLayerManager(KOIMappingDriver driver ) {
+    public VLayerInstrument(KOIMappingDriver driver ) {
         this(driver.getSuperiorProcess(), driver.getMasterManipulator());
     }
 
@@ -109,6 +106,11 @@ public class VLayerManager extends ArchKOMTree implements LayerManager {
     @Override
     public void addChild(GUID parentGuid, GUID childGuid) {
         this.imperialTree.affirmOwnedNode(childGuid, parentGuid);
+    }
+
+    @Override
+    public void update( TreeNode treeNode ) {
+
     }
 
     protected ImperialTreeNode affirmPreinsertionInitialize(AtlasLayer atlasLayer) {

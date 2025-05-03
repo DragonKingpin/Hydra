@@ -1,9 +1,8 @@
 package com.pinecone.hydra.unit.vgraph.layer.operator;
 
 import com.pinecone.hydra.unit.imperium.operator.OperatorFactory;
-import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.LayerNamespace;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 
@@ -20,7 +19,7 @@ public interface LayerComponentOperatorFactory extends OperatorFactory {
 
     LayerComponentOperator getOperator(String typeName );
 
-    LayerManager getLayerManager();
+    LayerInstrument getLayerManager();
 
     LayerMasterManipulator getMasterManipulator();
 }

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 
-public abstract class KArchAtlasInstrument implements AtlasInstrument {
+public abstract class ArchAtlasInstrument implements AtlasInstrument {
     protected AtlasInstrument                   mParentInstrument;
 
     protected MegaVectorDAG                     mMegaVectorDAG;
@@ -40,7 +40,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
 
     protected VectorGraphConfig                 mVectorGraphConfig;
 
-    public KArchAtlasInstrument(
+    public ArchAtlasInstrument(
             List<GraphNode> parent, AtlasMappingDriver atlasMappingDriver, VectorGraphConfig vectorGraphConfig
     ){
         this.mVectorGraphConfig = vectorGraphConfig;
@@ -61,7 +61,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
 
     }
 
-    public KArchAtlasInstrument(AtlasMappingDriver driver) {
+    public ArchAtlasInstrument(AtlasMappingDriver driver) {
         this(null,driver,null);
     }
 
@@ -78,6 +78,16 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
     @Override
     public void setParent(AtlasInstrument atlasInstrument) {
         this.mParentInstrument = atlasInstrument;
+    }
+
+    @Override
+    public AtlasMasterManipulator getMasterManipulator() {
+        return this.mAtlasMasterManipulator;
+    }
+
+    @Override
+    public VectorGraphConfig getConfig() {
+        return this.mVectorGraphConfig;
     }
 
     @Override
@@ -107,11 +117,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
 
     @Override
     public GUID put(GraphNode graphNode) {
-        GUID guid = this.mGuidAllocator.nextGUID();
-        graphNode.setId( guid );
-        this.mMegaVectorDAG.putHandleNode(graphNode);
-
-        return guid;
+        return this.mMegaVectorDAG.putHandleNode(graphNode);
     }
 
     @Override
@@ -157,7 +163,7 @@ public abstract class KArchAtlasInstrument implements AtlasInstrument {
 
     @Override
     public void remove(GUID guid) {
-        this.mMegaVectorDAG.remove( guid );
+        this.mMegaVectorDAG.removeNode( guid );
         this.mMegaVectorDAG.removeCache( guid );
     }
 

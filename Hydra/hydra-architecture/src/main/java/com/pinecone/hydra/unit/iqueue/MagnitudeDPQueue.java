@@ -1,7 +1,10 @@
 package com.pinecone.hydra.unit.iqueue;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
+
+import java.util.List;
 
 public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     private QueueMasterManipulator      mQueueMasterManipulator;
@@ -90,8 +93,18 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     }
 
     @Override
+    public List<QueueElement> fetchElements( long offset, long limit ) {
+        return this.mDPQueueManipulator.fetchElement( this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta, limit, offset );
+    }
+
+    @Override
+    public List<GUID> fetchElementGuids( long offset, long limit ) {
+        return this.mDPQueueManipulator.fetchElementGuid( this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta, limit, offset );
+    }
+
+    @Override
     public QueueElement popBack() {
-        return null;
+        return this.mDPQueueManipulator.popBack( this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta );
     }
 
     @Override
@@ -113,6 +126,11 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     @Override
     public QueueElement remove( long enumId ) {
         return this.mDPQueueManipulator.remove( this.mnCurrentPos, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta );
+    }
+
+    @Override
+    public List<QueueElement> fetchElementByPriority( long priority, long limit, long offset ) {
+        return this.mDPQueueManipulator.fetchElementByPriority( priority, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta, limit, offset );
     }
 
     public long currentPosition() {

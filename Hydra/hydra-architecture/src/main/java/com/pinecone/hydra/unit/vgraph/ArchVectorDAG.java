@@ -1,10 +1,13 @@
 package com.pinecone.hydra.unit.vgraph;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
@@ -14,6 +17,10 @@ import java.util.List;
 
 public abstract class ArchVectorDAG implements VectorDAG {
     protected List<GUID>                                mLstHandleNodeGuids;
+
+    protected Layer                                     mGraphLayer;
+
+    protected GUID                                      mLayerAffiDAGGuid;
 
     protected VectorGraphMasterManipulator              mMasterManipulator;
 
@@ -25,16 +32,38 @@ public abstract class ArchVectorDAG implements VectorDAG {
 
     protected VectorGraphConfig                         mVectorGraphConfig;
 
-    public ArchVectorDAG( List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
+    public ArchVectorDAG( @Nullable Layer affliatedLayer, List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
         this.mLstHandleNodeGuids                    = handleNodeGuids;
         this.mMasterManipulator                     = masterManipulator;
         this.mVectorGraphConfig                     = vectorGraphConfig;
         this.mVectorGraphManipulator                = this.mMasterManipulator.getVectorGraphManipulator();
         this.mVectorGraphPathCacheManipulator       = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
         this.mGuidAllocator                         = new GenericGuidAllocator();
+        this.mGraphLayer                            = affliatedLayer;
+
+        if ( this.mGraphLayer != null ) {
+            this.mLayerAffiDAGGuid = this.mGraphLayer.getGuid();
+        }
     }
+
+    // Temporary Graph
+    public ArchVectorDAG( @Nullable GUID graphGuid, List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
+        this( (Layer) null, handleNodeGuids, masterManipulator, vectorGraphConfig );
+
+        if ( graphGuid == null ) {
+            graphGuid = this.mGuidAllocator.nextGUID();
+        }
+        this.mLayerAffiDAGGuid = graphGuid;
+    }
+
+    // Temporary Graph
+    public ArchVectorDAG( List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
+        this( (GUID) null, handleNodeGuids, masterManipulator, vectorGraphConfig );
+    }
+
+
     @Override
-    public List<GUID> fetchHandleGuids(long offset, long limit) {
+    public List<GUID> fetchHandleGuids( long offset, long limit ) {
         if( this.mLstHandleNodeGuids == null || this.mLstHandleNodeGuids.isEmpty() ) {
             return this.mVectorGraphManipulator.fetchHandleGuids(offset, limit);
         }else {
@@ -48,32 +77,48 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
 
     @Override
-    public List<GUID> fetchDownstreamNodeGuid(GUID nodeGuid, long offset, long limit) {
+    public List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit ) {
         return this.mVectorGraphManipulator.fetchDownstreamNodeGuid(nodeGuid,offset,limit);
     }
 
     @Override
-    public List<GUID> fetchUpstreamNodeGuid(GUID nodeGuid, long offset, long limit) {
+    public List<GUID> fetchUpstreamNodeGuid( GUID nodeGuid, long offset, long limit ) {
         return this.mVectorGraphManipulator.fetchUpstreamNodeGuid(nodeGuid,offset,limit);
     }
 
     @Override
-    public long queryInDegree(GUID nodeGuid) {
+    public long queryInDegree( GUID nodeGuid ) {
         return this.mVectorGraphManipulator.queryInDegree(nodeGuid);
     }
 
     @Override
-    public long queryOutDegree(GUID nodeGuid) {
+    public long queryOutDegree( GUID nodeGuid ) {
         return this.mVectorGraphManipulator.queryOutDegree(nodeGuid);
     }
 
     @Override
-    public void saveVectorDAG(VectorDAG vectorDAG) {
-
+    public GraphNode get( GUID guid ) {
+        return this.mVectorGraphManipulator.queryNode( guid );
     }
 
     @Override
-    public void addHandleNodeGuid(GUID handleNodeGuid) {
+    public void removeNode( GUID guid ) {
+        this.mVectorGraphManipulator.removeNode( guid );
+        this.mVectorGraphPathCacheManipulator.remove( guid );
+    }
+
+    @Override
+    public GUID getGuid() {
+        return this.mLayerAffiDAGGuid;
+    }
+
+    @Override
+    public Layer getAffiliateLayer() {
+        return this.mGraphLayer;
+    }
+
+    @Override
+    public void addHandleNodeGuid( GUID handleNodeGuid ) {
         this.mLstHandleNodeGuids.add(handleNodeGuid);
     }
 
@@ -83,15 +128,29 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
 
     @Override
-    public void save(LayerManager layerManager, String name) {
-        AtlasLayer atlasLayer = new AtlasLayer();
-        atlasLayer.setHandleGuids( this.mLstHandleNodeGuids );
-        atlasLayer.setName( name );
-        layerManager.put( atlasLayer );
+    public Layer persistenceAsLayer( LayerInstrument layerInstrument, String name ) {
+        TreeNode node = layerInstrument.get( this.mLayerAffiDAGGuid );
+        if ( node == null ) {
+            this.mGraphLayer = new AtlasLayer();
+            this.mGraphLayer.setGuid( this.mLayerAffiDAGGuid );
+        }
+
+        this.mGraphLayer.setHandleGuids( this.mLstHandleNodeGuids );
+        this.mGraphLayer.setName( name );
+
+        if ( node == null ) {
+            layerInstrument.put( this.mGraphLayer );
+        }
+        else {
+            layerInstrument.update( this.mGraphLayer );
+        }
+
+        return this.mGraphLayer;
     }
 
     @Override
-    public List<GraphNode> nextNodes(GUID guid) {
-        return this.mVectorGraphManipulator.fetchChildNodes(guid);
+    public List<GraphNode> fetchChildNodes( GUID guid ) {
+        return this.mVectorGraphManipulator.fetchChildNodes( guid );
     }
+
 }

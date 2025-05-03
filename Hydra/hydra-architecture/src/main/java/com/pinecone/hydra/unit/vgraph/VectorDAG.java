@@ -3,11 +3,19 @@ package com.pinecone.hydra.unit.vgraph;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
-import com.pinecone.hydra.unit.vgraph.layer.LayerManager;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 
 import java.util.List;
 
 public interface VectorDAG extends Pinenut {
+    GUID getGuid();
+
+    Layer getAffiliateLayer();
+
+    default boolean isPersistenceGraph() {
+        return this.getAffiliateLayer() != null;
+    }
 
     List<GUID> fetchHandleGuids( long offset, long limit );
 
@@ -21,13 +29,15 @@ public interface VectorDAG extends Pinenut {
 
     long queryOutDegree( GUID nodeGuid );
 
-    void saveVectorDAG( VectorDAG vectorDAG );
-
     void addHandleNodeGuid( GUID handleNodeGuid );
 
     VectorGraphConfig getConfig();
 
-    void save( LayerManager layerManager, String name );
+    Layer persistenceAsLayer( LayerInstrument layerInstrument, String name );
 
-    List<GraphNode> nextNodes( GUID guid );
+    List<GraphNode> fetchChildNodes( GUID guid );
+
+    GraphNode get( GUID guid );
+
+    void removeNode( GUID guid );
 }

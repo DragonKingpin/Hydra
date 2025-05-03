@@ -40,8 +40,8 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     }
 
     @Override
-    public void setCurrentPos( long mnCurrentPos ) {
-        this.mnCurrentPos = mnCurrentPos;
+    public void setCurrentPos( long currentPos ) {
+        this.mnCurrentPos = currentPos;
     }
 
     @Override
@@ -67,13 +67,13 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     }
 
     @Override
-    public void pushFront(QueueElement queueElement) {
+    public void pushFront( QueueElement queueElement ) {
         this.mDPQueueManipulator.pushFront( queueElement, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta );
         this.mDPQueueManipulator.incrementLinkedPriorities( queueElement, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta );
     }
 
     @Override
-    public QueueElement getByIndex(long index) {
+    public QueueElement getByIndex( long index ) {
         return this.mDPQueueManipulator.getByIndex( index, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta );
     }
 

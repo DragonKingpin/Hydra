@@ -26,6 +26,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="module" module-name="springram" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />
+    <orderEntry type="module" module-name="hydra-architecture-conduct" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-json:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.4" level="project" />
@@ -59,7 +60,7 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:5.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-websocket:5.3.3" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.3" level="project" />
-    <orderEntry type="module" module-name="radium" />
+    <orderEntry type="module" module-name="hydra-system-radium" />
     <orderEntry type="module" module-name="hydra-message-control" />
     <orderEntry type="module" module-name="hydra-message-broadcast" />
     <orderEntry type="library" name="Maven: com.rabbitmq:amqp-client:5.10.0" level="project" />
@@ -117,7 +118,7 @@
     <orderEntry type="module" module-name="sparta-api-uofs" />
     <orderEntry type="module" module-name="hydra-lib-thrift-sdk" />
     <orderEntry type="library" name="Maven: org.apache.thrift:libthrift:0.18.0" level="project" />
-    <orderEntry type="module" module-name="redstone-core" />
+    <orderEntry type="module" module-name="redstone-architecture" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.4.1" level="project" />

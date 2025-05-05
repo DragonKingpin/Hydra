@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.console.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.util.JWTUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.version.TitanVersionManage;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
-import com.walnut.redstone.messge.PrimaryMessageWareStone;
+import com.walnut.archcraft.redstone.messge.PrimaryMessageWareStone;
 import com.walnut.sparta.ucdn.console.ufm.UFMConfig;
 
 public interface UCDNService extends Slf4jTraceable {

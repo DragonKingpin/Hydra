@@ -59,6 +59,7 @@
     <orderEntry type="module" module-name="hydra-architecture" />
     <orderEntry type="module" module-name="hydra-message-control" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />
+    <orderEntry type="module" module-name="hydra-architecture-conduct" />
     <orderEntry type="module" module-name="slime" />
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.23" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty-all:4.1.58.Final" level="project" />

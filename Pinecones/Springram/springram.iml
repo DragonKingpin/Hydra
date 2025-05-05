@@ -22,6 +22,7 @@
     <orderEntry type="module" module-name="hydra-framework-runtime" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="module" module-name="hydra-architecture" />
+    <orderEntry type="module" module-name="hydra-architecture-conduct" />
     <orderEntry type="module" module-name="ulfhedinn" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />

@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.bucket.entity.GenericSite;
 import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.Folder;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.BasicResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

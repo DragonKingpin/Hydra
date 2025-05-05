@@ -10,7 +10,7 @@ import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.GenericSiteNode;
 import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.BasicResultResponse;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SiteNodeDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SiteNodeVO;
 import com.walnut.sparta.ucdn.console.infrastructure.service.UCDNServiceManager;

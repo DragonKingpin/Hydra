@@ -67,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>com.pinecone.radium</groupId>
-            <artifactId>radium</artifactId>
+            <artifactId>hydra-system-radium</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

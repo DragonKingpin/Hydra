@@ -64,6 +64,10 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     List<GraphNode> fetchChildNodes(  @Param("guid") GUID guid );
 
     @Override
+    @Select("SELECT havn.`guid` FROM `hydra_atlas_vgraph_nodes` havn, `hydra_atlas_vgraph_adjacent` hava WHERE hava.`parent_guid` = #{guid} ")
+    List<GUID> fetchChildNodeGuids(GUID guid);
+
+    @Override
     @Select("SELECT \n" +
             "    havn.`id`,\n" +
             "    havn.`guid`,\n" +

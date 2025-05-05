@@ -9,4 +9,6 @@ public interface QueueStratumManipulator extends Pinenut {
     int countStratum( GUID vgraphGuid );
 
     int countPriority( GUID vgraphGuid, short stratumId  );
+
+    void put( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName );
 }

@@ -3,6 +3,7 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.pinecone.hydra.atlas.advance.GraphStratumTape;
 import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
 import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
@@ -12,6 +13,8 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
+import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
@@ -46,6 +49,7 @@ class Rick extends Radium {
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument);
         //this.testInsert(uniformRuntimeAtlas);
         //this.testQuery( uniformRuntimeAtlas );
+        //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
         this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver );
     }
 
@@ -71,12 +75,21 @@ class Rick extends Radium {
         Debug.trace(taskElement.toJSONObject());
     }
 
-    public void testAdvancer(UniformRuntimeAtlas uniformRuntimeAtlas,KOIMappingDriver driver ) {
+    public void testTape(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
         GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID72("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
         GraphStratumTape tapeded = uniformRuntimeAtlas.tapedGraphStratumAdvancer(genericVectorDAG, driver);
         //Debug.trace(tapeded.next().toJSONString());
         Debug.trace(tapeded.fetchNodes(2,1));
 
+    }
+
+    public void testAdvancer( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
+        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID72("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+        QueueTableMeta meta = new QueueTableMeta();
+        meta.setQueueTableName( "hydra_queue_nodes" );
+        MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta);
+        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue);
+        advancer.traverse( genericVectorDAG );
     }
 
 

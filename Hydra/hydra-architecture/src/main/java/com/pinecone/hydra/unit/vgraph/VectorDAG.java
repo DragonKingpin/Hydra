@@ -37,6 +37,8 @@ public interface VectorDAG extends Pinenut {
 
     List<GraphNode> fetchChildNodes( GUID guid );
 
+    List<GUID> fetchChildNodeGuids( GUID guid );
+
     GraphNode get( GUID guid );
 
     void removeNode( GUID guid );

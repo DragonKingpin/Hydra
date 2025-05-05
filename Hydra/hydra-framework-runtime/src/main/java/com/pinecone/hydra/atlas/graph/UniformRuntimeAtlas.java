@@ -105,6 +105,11 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
+    public void putStratumMeta(GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName) {
+        this.mQueueStratumManipulator.put( vgraphGuid, stratumId, runtimePriority, segmentName );
+    }
+
+    @Override
     public VectorDAG toVectorDAG( Layer layer ) {
         List<GUID> handleGuids = layer.getHandleGuids();
         return new GenericVectorDAG( handleGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );

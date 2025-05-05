@@ -3,6 +3,7 @@ package com.pinecone.hydra.atlas.runtime.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.atlas.graph.source.QueueStratumManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -24,4 +25,9 @@ public interface QueueStratumMapper extends QueueStratumManipulator {
     @Override
     @Select("SELECT `runtime_priority` FROM `hydra_atlas_queue_stratum` ORDER BY `runtime_priority` DESC LIMIT 1")
     int countPriority(@Param("vgraphGuid") GUID vgraphGuid, @Param("stratumId") short stratumId);
+
+    @Override
+    @Insert("INSERT INTO `hydra_atlas_queue_stratum` (runtime_priority, stratum_id, segment_name, vgraph_guid) VALUES (#{runtimePriority}," +
+            "#{stratumId},#{segmentName},#{vgraphGuid})")
+    void put(GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName);
 }

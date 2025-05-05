@@ -20,6 +20,8 @@ public interface VectorGraphManipulator extends Pinenut {
 
     List<GraphNode> fetchChildNodes( GUID guid );
 
+    List<GUID> fetchChildNodeGuids( GUID guid );
+
     List<GraphNode> fetchRootNodes();
 
     List<GUID> fetchChildNodeIds(GUID guid );

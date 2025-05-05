@@ -153,4 +153,8 @@ public abstract class ArchVectorDAG implements VectorDAG {
         return this.mVectorGraphManipulator.fetchChildNodes( guid );
     }
 
+    @Override
+    public List<GUID> fetchChildNodeGuids(GUID guid) {
+        return this.mVectorGraphManipulator.fetchChildNodeGuids( guid );
+    }
 }

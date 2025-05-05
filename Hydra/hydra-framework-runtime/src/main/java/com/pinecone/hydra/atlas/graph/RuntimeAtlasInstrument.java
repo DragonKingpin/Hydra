@@ -33,4 +33,6 @@ public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
 
     int countPriority( GUID vgraphGuid, short stratumId );
 
+    void putStratumMeta( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName );
+
 }

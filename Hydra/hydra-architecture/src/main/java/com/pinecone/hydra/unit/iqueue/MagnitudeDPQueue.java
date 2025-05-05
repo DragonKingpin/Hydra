@@ -133,6 +133,11 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
         return this.mDPQueueManipulator.fetchElementByPriority( priority, this.mszSharedSegmentField, this.mszSharedSegmentName, this.mQueueMeta, limit, offset );
     }
 
+    @Override
+    public String getSegmentName() {
+        return this.mszSharedSegmentName;
+    }
+
     public long currentPosition() {
         return this.mnCurrentPos;
     }

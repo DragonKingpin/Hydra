@@ -30,8 +30,8 @@ class Chris extends Radium {
         QueueTableMeta queueTableMeta = new QueueTableMeta();
         queueTableMeta.setQueueTableName( "hydra_queue_nodes" );
         MagnitudeDPQueue dpQueue = new MagnitudeDPQueue(koiMappingDriver, 6L, "segment_name", "测试队列", queueTableMeta);
-        //this.testInsert( dpQueue );
-        this.testQuery( dpQueue );
+        this.testInsert( dpQueue );
+        //this.testQuery( dpQueue );
     }
 
     public void testInsert( MagnitudeDPQueue dpQueue ) {

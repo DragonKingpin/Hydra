@@ -27,13 +27,15 @@ public interface AtlasExecuteQueueMapper extends DPQueueManipulator {
             "(object_guid, priority, linked_priority, bias, ${field})",
             "SELECT ",
             "#{element.objectGuid}, #{element.priority},",
-            "COUNT(id) + 1, #{element.bias}, #{segmentName}",
-            "FROM (SELECT `id` AS mnEnumId, `object_guid` AS mObjectGuid, `priority`, `linked_priority` AS mnLinkedPriority, `bias` FROM ${meta.QueueTable}) AS tmp",
-            "WHERE priority = #{element.priority} AND ${field} = #{segmentName}",
+            "(SELECT COUNT(*) + 1 FROM ${meta.QueueTable}",
+            " WHERE priority = #{element.priority} AND ${field} = #{segmentName}),",
+            "#{element.bias}, #{segmentName}",
             "</script>"
     })
-    void pushBack(@Param("element") QueueElement queueElement, @Param("field") String sharedSegmentField,
-             @Param("segmentName") String sharedSegmentName, @Param("meta") QueueMeta meta);
+    void pushBack(@Param("element") QueueElement queueElement,
+                  @Param("field") String sharedSegmentField,
+                  @Param("segmentName") String sharedSegmentName,
+                  @Param("meta") QueueMeta meta);
 
     @Override
     @Insert({

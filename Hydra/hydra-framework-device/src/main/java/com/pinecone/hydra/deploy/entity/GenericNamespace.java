@@ -1,6 +1,6 @@
 package com.pinecone.hydra.deploy.entity;
 
-import com.pinecone.hydra.deploy.entity.iface.Namespace;
+import com.pinecone.hydra.deploy.Namespace;
 
 public class GenericNamespace implements Namespace {
 

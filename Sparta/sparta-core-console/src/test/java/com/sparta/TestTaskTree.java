@@ -107,7 +107,7 @@ class Randy extends Radium {
         decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, tasks: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
-        //Debug.trace(taskInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
+        //Debug.trace(deployInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
     private void testDelete( TaskInstrument instrument ) {

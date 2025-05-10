@@ -14,7 +14,9 @@
         <module>saurons</module>
         <module>sparta</module>
         <module>walnuts</module>
-        <module>Odin</module>
+        <module>odin</module>
+        <module>zeus</module>
+        <module>archcraft</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->
         <!--<module>file</module>-->

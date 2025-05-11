@@ -104,7 +104,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public KernelObjectConfig getConfig() {
-        return null;
+        return this.kernelObjectConfig;
     }
 
     @Override

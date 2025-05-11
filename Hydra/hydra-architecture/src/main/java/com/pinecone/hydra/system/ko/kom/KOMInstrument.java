@@ -57,7 +57,7 @@ public interface KOMInstrument extends CascadeInstrument {
 
     void remove( String path );
 
-    Collection<TreeNode > getChildren(GUID guid );
+    Collection<TreeNode > getChildren( GUID guid );
 
     Collection<GUID > fetchChildrenGuids( GUID guid );
 

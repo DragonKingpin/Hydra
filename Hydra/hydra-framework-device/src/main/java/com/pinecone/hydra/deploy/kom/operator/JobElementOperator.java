@@ -6,10 +6,10 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
+import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.system.ko.UOIUtils;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.kom.entity.JobElement;
 import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
@@ -31,7 +31,7 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
 
     @Override
     public GUID insert( TreeNode treeNode ) {
-        GenericJobElement jobElement = (GenericJobElement) treeNode;
+        GenericClusterElement jobElement = (GenericClusterElement) treeNode;
 
         GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
         GUID jobNodeGUID = guidAllocator.nextGUID();
@@ -93,28 +93,28 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
     }
 
     @Override
-    public JobElement get(GUID guid ) {
-        JobElement jobElement;
-        jobElement = this.jobNodeManipulator.getJobElement( guid, this.deployInstrument);
-        this.applyCommonMeta(jobElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
+    public ClusterElement get(GUID guid ) {
+        ClusterElement clusterElement;
+        clusterElement = this.jobNodeManipulator.getJobElement( guid, this.deployInstrument);
+        this.applyCommonMeta(clusterElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
-        jobElement.setGuid(jobElement.getGuid());
-        return jobElement;
+        clusterElement.setGuid(clusterElement.getGuid());
+        return clusterElement;
     }
 
     @Override
-    public JobElement get(GUID guid, int depth ) {
+    public ClusterElement get(GUID guid, int depth ) {
         return this.get( guid );
     }
 
     @Override
-    public JobElement getSelf(GUID guid ) {
+    public ClusterElement getAsRootDepth(GUID guid ) {
         return this.get( guid );
     }
 
     @Override
     public void update( TreeNode treeNode ) {
-        GenericJobElement applicationElement = (GenericJobElement) treeNode;
+        GenericClusterElement applicationElement = (GenericClusterElement) treeNode;
         this.jobNodeManipulator.update( applicationElement );
         this.nodeMetaManipulator.update( applicationElement );
     }

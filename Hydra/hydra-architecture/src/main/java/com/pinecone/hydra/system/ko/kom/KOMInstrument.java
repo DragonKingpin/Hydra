@@ -17,9 +17,11 @@ public interface KOMInstrument extends CascadeInstrument {
         CascadeInstrument.super.setTargetingName( name );
     }
 
-    String getPath( GUID guid );
+    String getPath( GUID objectGuid );
 
-    String getFullName( GUID guid );
+    String querySystemKernelObjectPath( GUID objectGuid ) ;
+
+    String getFullName( GUID objectGuid );
 
     GUID queryGUIDByPath( String path );
 
@@ -42,13 +44,13 @@ public interface KOMInstrument extends CascadeInstrument {
 
     GUID put( TreeNode treeNode );
 
-    TreeNode get( GUID guid );
+    TreeNode get( GUID objectGuid );
 
     GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep );
 
     TreeNode get( GUID guid, int depth );
 
-    TreeNode getSelf( GUID guid );
+    TreeNode getAsRootDepth( GUID guid );
 
     void remove( GUID guid );
 

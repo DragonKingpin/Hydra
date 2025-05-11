@@ -69,7 +69,7 @@ public class SpannedVolumeOperator extends ArchVolumeOperator  implements Volume
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 

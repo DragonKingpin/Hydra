@@ -5,7 +5,7 @@ import com.pinecone.hydra.deploy.PhysicalHost;
 import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.deploy.kom.entity.JobElement;
+import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -14,7 +14,7 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     DeployConfig KERNEL_DEPLOY_CONFIG = new KernelDeployConfig();
 
-    JobElement         affirmJob( String path );
+    ClusterElement affirmJob(String path );
 
     Namespace          affirmNamespace( String path );
 

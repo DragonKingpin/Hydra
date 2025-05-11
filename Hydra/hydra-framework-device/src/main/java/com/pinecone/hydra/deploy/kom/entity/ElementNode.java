@@ -16,7 +16,7 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
         return null;
     }
 
-    default JobElement evinceJobElement() {
+    default ClusterElement evinceJobElement() {
         return null;
     }
 

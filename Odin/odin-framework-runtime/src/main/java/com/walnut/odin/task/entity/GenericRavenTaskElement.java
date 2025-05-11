@@ -155,6 +155,11 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
     @Override
+    public String getSystemKernelObjectPath() {
+        return this.taskElement.getSystemKernelObjectPath();
+    }
+
+    @Override
     public String getName() {
         return this.taskElement.getName();
     }

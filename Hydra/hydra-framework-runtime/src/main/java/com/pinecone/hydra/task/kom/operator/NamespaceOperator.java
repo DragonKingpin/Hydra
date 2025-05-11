@@ -135,7 +135,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     }
 
     @Override
-    public Namespace getSelf( GUID guid ) {
+    public Namespace getAsRootDepth( GUID guid ) {
         return this.get( guid );
     }
 

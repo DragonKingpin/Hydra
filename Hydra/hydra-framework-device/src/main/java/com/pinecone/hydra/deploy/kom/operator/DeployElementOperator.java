@@ -76,7 +76,7 @@ public class DeployElementOperator extends ArchElementOperator implements Elemen
     }
 
     @Override
-    public DeployElement getSelf(GUID guid ) {
+    public DeployElement getAsRootDepth(GUID guid ) {
         return this.get( guid );
     }
 

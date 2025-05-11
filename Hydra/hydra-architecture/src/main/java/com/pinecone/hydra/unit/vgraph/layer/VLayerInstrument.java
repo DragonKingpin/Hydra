@@ -4,6 +4,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
+import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -28,8 +29,8 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
 
     protected NamespaceManipulator      mNamespaceManipulator;
 
-    public VLayerInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name ) {
-        super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name );
+    public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name, String superiorPathScope ) {
+        super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name, superiorPathScope );
         this.mLayerMasterManipulator    = (LayerMasterManipulator) masterManipulator;
         this.pathResolver               = new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator              = new GenericGuidAllocator();
@@ -43,11 +44,15 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
         );
     }
 
-    public VLayerInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
+    public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name ) {
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope );
+    }
+
+    public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
         this( superiorProcess, masterManipulator, null, LayerConfig.class.getSimpleName() );
     }
 
-    public VLayerInstrument(KOIMappingDriver driver ) {
+    public VLayerInstrument( KOIMappingDriver driver ) {
         this(driver.getSuperiorProcess(), driver.getMasterManipulator());
     }
 

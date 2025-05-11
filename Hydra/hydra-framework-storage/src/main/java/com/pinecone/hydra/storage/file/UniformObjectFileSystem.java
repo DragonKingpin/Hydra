@@ -208,8 +208,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
-    public FileTreeNode getSelf( GUID guid ) {
-        return (FileTreeNode) super.getSelf( guid );
+    public FileTreeNode getAsRootDepth( GUID guid ) {
+        return (FileTreeNode) super.getAsRootDepth( guid );
     }
 
     @Override

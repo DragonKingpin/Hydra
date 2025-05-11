@@ -8,7 +8,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.source.NamespaceRulesManipulator;
@@ -91,7 +91,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
             }
         }
 
-        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericJobElement.class.getName())){
+        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericClusterElement.class.getName())){
             this.removeNode(guid);
         }
         else {
@@ -135,7 +135,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     }
 
     @Override
-    public Namespace getSelf( GUID guid ) {
+    public Namespace getAsRootDepth( GUID guid ) {
         return this.get( guid );
     }
 

@@ -3,6 +3,7 @@ package com.pinecone.hydra.system.ko.kom;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
+import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
@@ -13,9 +14,9 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
 
     public ArchReparseKOMTree(
             Processum superiorProcess, KOIMasterManipulator masterManipulator , OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector,
-            KOMInstrument parent, String name
+            KOMInstrument parent, String name, String superiorPathScope
     ){
-        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
         this.pathResolver                  =  new KOPathResolver( kernelObjectConfig );
         this.pathSelector                  =  pathSelector;
         this.operatorFactory               =  operatorFactory;
@@ -23,9 +24,15 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
     }
 
     public ArchReparseKOMTree (
+            Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name, String superiorPathScope
+    ){
+        super( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
+    }
+
+    public ArchReparseKOMTree (
             Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name
     ){
-        super( superiorProcess, masterManipulator, kernelObjectConfig, parent, name );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, CascadeInstrument.EmptySuperiorPathScope );
     }
 
     @Override

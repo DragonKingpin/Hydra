@@ -2,8 +2,8 @@ package com.pinecone.hydra.deploy.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
-import com.pinecone.hydra.deploy.kom.entity.JobElement;
+import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -23,7 +23,7 @@ public interface JobNodeMapper extends JobNodeManipulator {
     @Insert("INSERT INTO `hydra_deploy_job_node` " +
             "(`guid`, `name`, `type`, `create_time`, `update_time`) " +
             "VALUES (#{guid}, #{name}, #{type}, #{createTime}, #{updateTime})")
-    void insert( JobElement jobElement );
+    void insert( ClusterElement clusterElement);
 
     @Override
     @Delete("DELETE FROM `hydra_deploy_job_node` WHERE `guid` = #{guid}")
@@ -32,11 +32,11 @@ public interface JobNodeMapper extends JobNodeManipulator {
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `type`, " +
             "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
             "FROM `hydra_deploy_job_node` WHERE `guid` = #{guid}")
-    GenericJobElement getJobElement( @Param("guid") GUID guid );
+    GenericClusterElement getJobElement(@Param("guid") GUID guid );
 
     @Override
-    default JobElement getJobElement( GUID guid, DeployInstrument instrument ) {
-        GenericJobElement element = this.getJobElement( guid );
+    default ClusterElement getJobElement(GUID guid, DeployInstrument instrument ) {
+        GenericClusterElement element = this.getJobElement( guid );
         element.apply( instrument );
 
         return element;
@@ -49,7 +49,7 @@ public interface JobNodeMapper extends JobNodeManipulator {
             "`create_time` = #{createTime}, " +
             "`update_time` = #{updateTime} " +
             "WHERE `guid` = #{guid}")
-    void update( JobElement jobElement );
+    void update( ClusterElement clusterElement);
 
 
     @Override

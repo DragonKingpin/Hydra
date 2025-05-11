@@ -108,7 +108,7 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
     }
 
     @Override
-    public JobElement getSelf(GUID guid ) {
+    public JobElement getAsRootDepth(GUID guid ) {
         return this.get( guid );
     }
 

@@ -26,6 +26,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="module" module-name="hydra-system-radium" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />

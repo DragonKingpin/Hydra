@@ -12,5 +12,5 @@ public interface ElementOperator extends TreeNodeOperator {
     ElementNode get(GUID guid, int depth);
 
     @Override
-    ElementNode getSelf(GUID guid);
+    ElementNode getAsRootDepth(GUID guid);
 }

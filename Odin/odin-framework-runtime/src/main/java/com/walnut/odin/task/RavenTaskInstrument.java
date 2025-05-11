@@ -76,8 +76,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
             }
 
             @Override
-            public TreeNode getSelf( GUID guid ) {
-                TreeNode treeNode =  super.getSelf( guid );
+            public TreeNode getAsRootDepth( GUID guid ) {
+                TreeNode treeNode =  super.getAsRootDepth( guid );
                 return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode );
             }
         };
@@ -249,8 +249,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
-    public TreeNode getSelf( GUID guid ) {
-        return this.uniformTaskInstrument.getSelf( guid );
+    public TreeNode getAsRootDepth( GUID guid ) {
+        return this.uniformTaskInstrument.getAsRootDepth( guid );
     }
 
 
@@ -281,6 +281,11 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public String getPath( GUID guid ) {
         return this.uniformTaskInstrument.getPath( guid );
+    }
+
+    @Override
+    public String querySystemKernelObjectPath( GUID objectGuid ) {
+        return this.uniformTaskInstrument.querySystemKernelObjectPath( objectGuid );
     }
 
     @Override
@@ -372,5 +377,16 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     public KernelObjectConfig getConfig() {
         return this.uniformTaskInstrument.getConfig();
     }
+
+    @Override
+    public String getSuperiorPathScope() {
+        return this.uniformTaskInstrument.getSuperiorPathScope();
+    }
+
+    @Override
+    public void applySuperiorPathScope( String superiorPathScope ) {
+        this.uniformTaskInstrument.applySuperiorPathScope( superiorPathScope );
+    }
+
 
 }

@@ -45,9 +45,9 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     public ArchKOMTree (
             Processum superiorProcess, KOIMasterManipulator masterManipulator,
             OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector,
-            KOMInstrument parent, String name
+            KOMInstrument parent, String name, String superiorPathScope
     ){
-        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
 
         this.pathSelector              =  pathSelector;
         this.operatorFactory           =  operatorFactory;
@@ -55,9 +55,9 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
 
     public ArchKOMTree (
             Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig kernelObjectConfig,
-            KOMInstrument parent, String name
+            KOMInstrument parent, String name, String superiorPathScope
     ){
-        super( masterManipulator, kernelObjectConfig );
+        super( masterManipulator, kernelObjectConfig, superiorPathScope );
         this.superiorProcess                 = superiorProcess;
         if ( this.superiorProcess instanceof Hydrarum ) {
             this.hydrarum                    = (Hydrarum) this.superiorProcess;
@@ -116,8 +116,8 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     }
 
     @Override
-    public TreeNode getSelf( GUID guid ) {
-        return this.getOperatorByGuid( guid ).getSelf( guid );
+    public TreeNode getAsRootDepth( GUID guid ) {
+        return this.getOperatorByGuid( guid ).getAsRootDepth( guid );
     }
 
     protected String getNS( GUID guid, String szSeparator ) {

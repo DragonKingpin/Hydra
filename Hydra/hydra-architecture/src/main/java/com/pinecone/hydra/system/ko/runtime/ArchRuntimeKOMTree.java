@@ -1,5 +1,6 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,28 +14,35 @@ import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
+import com.pinecone.hydra.unit.imperium.ArchUniformInstitutionalizedInstrument;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.ulf.util.guid.GenericGuidAllocator;
 
-public abstract class ArchRuntimeKOMTree implements RuntimeInstrument {
-    protected Namespace                  mThisNamespace;
-    protected KOMInstrument              mParentInstrument;
+public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedInstrument implements RuntimeInstrument {
+    protected Namespace                          mThisNamespace;
+    protected KOMInstrument                      mParentInstrument;
 
-    protected TrieMap<String, TreeNode > mNodeIndex;
-    protected Map<GUID, TreeNode >       mNodeTable;
+    protected TrieMap<String, TreeNode  >        mNodeIndex;
+    protected Map<GUID, RuntimeTreeNode >        mNodeTable;
 
-    protected Hydrarum                   hydrarum;
-    protected Processum                  superiorProcess;
+    protected Hydrarum                           hydrarum;
+    protected Processum                          superiorProcess;
 
-    protected GuidAllocator              guidAllocator;
+    protected GuidAllocator                      guidAllocator;
 
-    protected DynamicFactory             dynamicFactory;
+    protected DynamicFactory                     dynamicFactory;
+
+    protected String                             superiorPathScope;
 
 
-    public ArchRuntimeKOMTree() {
-        this.mNodeTable = new ConcurrentHashMap<>();
+    public ArchRuntimeKOMTree( String superiorPathScope ) {
+        super( superiorPathScope );
+        this.mNodeTable    = new ConcurrentHashMap<>();
+        this.mNodeTable    = new ConcurrentHashMap<>();
+        this.guidAllocator = new GenericGuidAllocator();
     }
 
     //************************************** CascadeInstrument **************************************
@@ -71,14 +79,21 @@ public abstract class ArchRuntimeKOMTree implements RuntimeInstrument {
         return this.guidAllocator;
     }
 
+    @Override
+    public String getSuperiorPathScope() {
+        return this.superiorPathScope;
+    }
 
+    @Override
+    public void applySuperiorPathScope( String superiorPathScope ) {
+        this.superiorPathScope = superiorPathScope;
+    }
 
-
-
-
-
-
-
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public Collection<TreeNode> fetchTreeNodes() {
+        return (Collection) this.mNodeTable.values();
+    }
 
 
 
@@ -110,7 +125,7 @@ public abstract class ArchRuntimeKOMTree implements RuntimeInstrument {
 
     @Override
     public boolean contains( GUID nodeGuid ) {
-        return false;
+        return this.mNodeTable.containsKey( nodeGuid );
     }
 
     @Override
@@ -120,22 +135,25 @@ public abstract class ArchRuntimeKOMTree implements RuntimeInstrument {
 
     @Override
     public TreeNode get( GUID guid ) {
-        return null;
+        return this.mNodeTable.get( guid );
     }
 
     @Override
     public TreeNode get( GUID guid, int depth ) {
-        return null;
+        return this.mNodeTable.get( guid );
     }
 
     @Override
-    public TreeNode getSelf( GUID guid ) {
-        return null;
+    public TreeNode getAsRootDepth( GUID guid ) {
+        return this.mNodeTable.get( guid );
     }
 
     @Override
     public void remove( GUID guid ) {
-
+        RuntimeTreeNode treeNode = this.mNodeTable.get( guid );
+        if ( treeNode != null ) {
+            this.mNodeIndex.remove( treeNode.getPath() );
+        }
     }
 
     @Override
@@ -181,5 +199,34 @@ public abstract class ArchRuntimeKOMTree implements RuntimeInstrument {
     @Override
     public ImperialTree getMasterTrieTree() {
         return null;
+    }
+
+    static class RuntimeTreeNode implements TreeNode {
+        private TreeNode treeNode;
+
+        private String   path;
+
+        public RuntimeTreeNode( TreeNode treeNode, String path ) {
+            this.treeNode = treeNode;
+            this.path     = path;
+        }
+
+        @Override
+        public String getName() {
+            return this.treeNode.getName();
+        }
+
+        @Override
+        public GUID getGuid() {
+            return this.treeNode.getGuid();
+        }
+
+        public TreeNode getTreeNode() {
+            return this.treeNode;
+        }
+
+        public String getPath() {
+            return this.path;
+        }
     }
 }

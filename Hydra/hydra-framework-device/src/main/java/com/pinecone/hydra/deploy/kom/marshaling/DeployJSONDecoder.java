@@ -8,10 +8,10 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.FolderElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
-import com.pinecone.hydra.deploy.kom.entity.JobElement;
+import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 
 public class DeployJSONDecoder implements DeployInstrumentDecoder {
@@ -87,7 +87,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
     }
 
     protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        JobElement app = null;
+        ClusterElement app = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
@@ -107,8 +107,8 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
                 Collection<ElementNode> destChildren = parentNode.evinceNamespace().fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof JobElement ) {
-                            app = (JobElement) node;
+                        if( node instanceof ClusterElement) {
+                            app = (ClusterElement) node;
                             break;
                         }
                         else {
@@ -123,9 +123,9 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
 
 
 
-        JobElement neo ;
+        ClusterElement neo ;
         if( app == null ) {
-            neo = new GenericJobElement( jo, this.instrument );
+            neo = new GenericClusterElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
@@ -220,7 +220,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
         else {
             Object[] pair;
             boolean bIsFolderElement = false;
-            if( szMetaType.equals( JobElement.class.getSimpleName() ) ) {
+            if( szMetaType.equals( ClusterElement.class.getSimpleName() ) ) {
                 pair = this.affirmAppExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }

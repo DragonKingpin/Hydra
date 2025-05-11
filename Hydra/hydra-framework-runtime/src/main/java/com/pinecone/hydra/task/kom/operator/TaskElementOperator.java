@@ -74,7 +74,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     }
 
     @Override
-    public TaskElement getSelf( GUID guid ) {
+    public TaskElement getAsRootDepth( GUID guid ) {
         return this.get( guid );
     }
 

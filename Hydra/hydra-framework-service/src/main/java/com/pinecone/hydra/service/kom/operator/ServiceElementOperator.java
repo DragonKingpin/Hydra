@@ -89,7 +89,7 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
     }
 
     @Override
-    public ServiceElement getSelf( GUID guid ) {
+    public ServiceElement getAsRootDepth( GUID guid ) {
         return this.get( guid );
     }
 

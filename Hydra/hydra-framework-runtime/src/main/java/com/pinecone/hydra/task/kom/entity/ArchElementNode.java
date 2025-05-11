@@ -74,6 +74,11 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
     @Override
+    public String getSystemKernelObjectPath() {
+        return this.taskInstrument.querySystemKernelObjectPath( this.getGuid() );
+    }
+
+    @Override
     public GUID getMetaGuid() {
         return this.metaGuid;
     }

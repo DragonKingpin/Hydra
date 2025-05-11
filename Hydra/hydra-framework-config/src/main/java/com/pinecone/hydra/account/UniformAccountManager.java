@@ -23,6 +23,7 @@ import com.pinecone.hydra.account.source.CredentialManipulator;
 import com.pinecone.hydra.account.source.PrivilegeManipulator;
 import com.pinecone.hydra.account.source.RoleManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
+import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -66,8 +67,8 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     protected ACNodeAllotment                   acNodeAllotment;
 
 
-    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
-        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name );
+    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name, String superiorPathScope ) {
+        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name, superiorPathScope );
         this.userMasterManipulator = (UserMasterManipulator) masterManipulator;
         this.pathResolver          = new KOPathResolver( this.kernelObjectConfig );
         this.guidAllocator         = GUIDs.newGuidAllocator();
@@ -89,6 +90,10 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
         );
 
         this.acNodeAllotment = new GenericACNodeAllotment( this );
+    }
+
+    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope );
     }
 
     public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {

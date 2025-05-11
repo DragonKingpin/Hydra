@@ -171,8 +171,8 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     }
 
     @Override
-    public RegistryTreeNode getSelf( GUID guid ) {
-        return (RegistryTreeNode) super.getSelf( guid );
+    public RegistryTreeNode getAsRootDepth( GUID guid ) {
+        return (RegistryTreeNode) super.getAsRootDepth( guid );
     }
 
     @Override

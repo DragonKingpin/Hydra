@@ -63,7 +63,7 @@ class Randon extends Radium {
         physicalHost.setIpAddress("127.0.0.1");
         physicalHost.setHardwareSpecs("Intel i7-7700HQ");
         physicalHost.setStatus("OK");
-        physicalHost.setGuid( GUIDs.GUID72("1b05246-0002cc-0001-f1"));
+        //physicalHost.setGuid( GUIDs.GUID72("1b05246-0002cc-0001-f1"));
 
         instrument.newPhysicalHost(physicalHost);
         Debug.info( "physicalHost: " + physicalHost);
@@ -77,8 +77,8 @@ class Randon extends Radium {
         virtualMachine.setName("VirtualMachine1");
         virtualMachine.setIpAddress("192.168.1.1");
         virtualMachine.setStatus("OK");
-        virtualMachine.setGuid( GUIDs.GUID72("1b05246-0002cc-0001-f2"));
-        virtualMachine.setAffiliateHostGuid(GUIDs.GUID72("1b05246-0002cc-0001-f3"));
+        //virtualMachine.setGuid( GUIDs.GUID72("1b05246-0002cc-0001-f2"));
+        //virtualMachine.setAffiliateHostGuid(GUIDs.GUID72("1b05246-0002cc-0001-f3"));
         instrument.newVirtualMachine(virtualMachine);
         Debug.info( "virtualMachine: " + virtualMachine);
 

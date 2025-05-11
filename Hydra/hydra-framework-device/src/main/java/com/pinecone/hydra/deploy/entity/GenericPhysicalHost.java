@@ -36,15 +36,15 @@ public class GenericPhysicalHost implements PhysicalHost {
             this.hardwareSpecs = hardwareSpecs;
     }
 
-    @Override
-    public GUID getGuid() {
-        return this.guid;
-    }
-
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
+//    @Override
+//    public GUID getGuid() {
+//        return this.guid;
+//    }
+//
+//    @Override
+//    public void setGuid(GUID guid) {
+//        this.guid = guid;
+//    }
 
     @Override
     public String getName() {
@@ -65,6 +65,7 @@ public class GenericPhysicalHost implements PhysicalHost {
     public void setIpAddress( String ipAddress ) {
             this.ipAddress = ipAddress;
     }
+
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );

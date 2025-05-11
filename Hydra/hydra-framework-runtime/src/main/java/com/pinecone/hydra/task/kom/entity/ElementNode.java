@@ -41,6 +41,8 @@ public interface ElementNode extends TaskTreeNode, TaskFamilyNode {
 
     String getKomPath();
 
+    String getSystemKernelObjectPath();
+
     String getName();
     void setName( String name );
 

@@ -61,7 +61,7 @@ public class GenericAccountOperator extends ArchAccountServiceOperator implement
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 

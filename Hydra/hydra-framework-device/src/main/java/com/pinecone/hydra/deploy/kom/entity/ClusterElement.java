@@ -2,13 +2,13 @@ package com.pinecone.hydra.deploy.kom.entity;
 
 import com.pinecone.hydra.deploy.kom.DeployFamilyNode;
 
-public interface JobElement extends FolderElement, DeployFamilyNode {
+public interface ClusterElement extends FolderElement, DeployFamilyNode {
     @Override
-    default JobElement evinceJobElement() {
+    default ClusterElement evinceJobElement() {
         return this;
     }
 
     String getType();
 
-    void setType(String type);
+    void setType( String type );
 }

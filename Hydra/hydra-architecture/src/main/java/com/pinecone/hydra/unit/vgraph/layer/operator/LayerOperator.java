@@ -70,7 +70,7 @@ public class LayerOperator extends ArchLayerComponentOperator implements LayerCo
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 

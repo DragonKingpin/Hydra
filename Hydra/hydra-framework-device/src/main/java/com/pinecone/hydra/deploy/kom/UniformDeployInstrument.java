@@ -7,6 +7,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.PhysicalHost;
 import com.pinecone.hydra.deploy.VirtualMachine;
+import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
@@ -19,10 +20,9 @@ import com.pinecone.hydra.system.ko.kom.ArchReparseKOMTree;
 import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
-import com.pinecone.hydra.deploy.kom.entity.JobElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.entity.DeployTreeNode;
 import com.pinecone.hydra.deploy.kom.operator.GenericElementOperatorFactory;
@@ -153,8 +153,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     @Override
-    public JobElement affirmJob( String path ) {
-        return (JobElement) this.affirmTreeNodeByPath( path, GenericJobElement.class, GenericNamespace.class );
+    public ClusterElement affirmJob(String path ) {
+        return (ClusterElement) this.affirmTreeNodeByPath( path, GenericClusterElement.class, GenericNamespace.class );
     }
 
     @Override

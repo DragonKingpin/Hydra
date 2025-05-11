@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
@@ -25,7 +25,7 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected void registerDefaultMetaTypes() {
         this.registerDefaultMetaType( GenericNamespace.class );
         this.registerDefaultMetaType( GenericDeployElement.class );
-        this.registerDefaultMetaType( GenericJobElement.class );
+        this.registerDefaultMetaType( GenericClusterElement.class );
     }
 
     public GenericElementOperatorFactory(DeployInstrument deployInstrument, DeployMasterManipulator deployMasterManipulator){

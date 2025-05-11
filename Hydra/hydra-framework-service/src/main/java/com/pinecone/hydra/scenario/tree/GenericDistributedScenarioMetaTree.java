@@ -156,7 +156,7 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 

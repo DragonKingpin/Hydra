@@ -2,6 +2,7 @@ package com.pinecone.hydra.deploy.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
+import com.pinecone.hydra.deploy.PhysicalHost;
 import com.pinecone.hydra.deploy.VirtualMachine;
 
 public class GenericVirtualMachine implements VirtualMachine {
@@ -47,14 +48,14 @@ public class GenericVirtualMachine implements VirtualMachine {
     }
 
     @Override
-    public GUID getAffiliateHost() {
-        return this.affiliateHostGuid;
+    public PhysicalHost getAffiliateHost() {
+        return null;
     }
 
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
+//    @Override
+//    public void setGuid(GUID guid) {
+//        this.guid = guid;
+//    }
 
     @Override
     public String toJSONString() {
@@ -65,8 +66,9 @@ public class GenericVirtualMachine implements VirtualMachine {
     public String toString() {
         return this.toJSONString();
     }
-    @Override
-    public void setAffiliateHostGuid(GUID guid) {
-        this.affiliateHostGuid = guid;
-    }
+
+//    @Override
+//    public void setAffiliateHostGuid( GUID guid ) {
+//        this.affiliateHostGuid = guid;
+//    }
 }

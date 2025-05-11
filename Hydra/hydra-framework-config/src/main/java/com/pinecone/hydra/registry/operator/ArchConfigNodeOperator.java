@@ -112,7 +112,7 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
     }
 
     @Override
-    public RegistryTreeNode getSelf( GUID guid ) {
+    public RegistryTreeNode getAsRootDepth( GUID guid ) {
         return this.getConfigNodeWideData( guid );
     }
 

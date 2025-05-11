@@ -126,9 +126,9 @@ public class RegistryMetaController {
      * @return 返回节点信息
      *//*
     @GetMapping("/getSelf")
-    public BasicResultResponse<TreeNode > getSelf(@RequestParam("guid") String guid){
+    public BasicResultResponse<TreeNode > getAsRootDepth(@RequestParam("guid") String guid){
         return BasicResultResponse.success(
-                this.KOMRegistry.getSelf( GUIDs.GUID72( guid ) )
+                this.KOMRegistry.getAsRootDepth( GUIDs.GUID72( guid ) )
         );
     }*/
 }

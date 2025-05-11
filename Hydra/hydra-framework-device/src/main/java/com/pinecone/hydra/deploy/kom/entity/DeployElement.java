@@ -15,6 +15,8 @@ public interface DeployElement extends ElementNode {
 
     DeployExtraMeta getExtraMeta();
 
+    void setExtraMeta(DeployExtraMeta extraMeta);
+
     DeployElement getAffiliateDeployment();
 
 }

@@ -6,7 +6,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 
-public interface TaskNamespaceManipulator extends GUIDNameManipulator {
+public interface DeployNamespaceManipulator extends GUIDNameManipulator {
     void insert(Namespace ns);
 
     void remove(GUID guid);

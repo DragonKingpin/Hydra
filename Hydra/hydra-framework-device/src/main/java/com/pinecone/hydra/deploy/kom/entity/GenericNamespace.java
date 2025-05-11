@@ -12,7 +12,7 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
-import com.pinecone.hydra.deploy.kom.source.TaskNamespaceManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericNamespace extends ArchElementNode implements Namespace {
@@ -24,7 +24,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     protected GenericNamespaceRules       classificationRules;
 
-    protected TaskNamespaceManipulator namespaceManipulator;
+    protected DeployNamespaceManipulator namespaceManipulator;
 
 
     public GenericNamespace() {
@@ -45,7 +45,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
         super(deployInstrument);
     }
 
-    public GenericNamespace(DeployInstrument deployInstrument, TaskNamespaceManipulator namespaceManipulator ) {
+    public GenericNamespace(DeployInstrument deployInstrument, DeployNamespaceManipulator namespaceManipulator ) {
         this(deployInstrument);
         this.namespaceManipulator = namespaceManipulator;
     }

@@ -8,11 +8,11 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
-import com.pinecone.hydra.deploy.kom.source.TaskMasterManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
-    protected TaskMasterManipulator taskMasterManipulator;
+    protected DeployMasterManipulator deployMasterManipulator;
     protected DeployInstrument deployInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
@@ -28,9 +28,9 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericJobElement.class );
     }
 
-    public GenericElementOperatorFactory(DeployInstrument deployInstrument, TaskMasterManipulator taskMasterManipulator){
+    public GenericElementOperatorFactory(DeployInstrument deployInstrument, DeployMasterManipulator deployMasterManipulator){
         this.deployInstrument = deployInstrument;
-        this.taskMasterManipulator = taskMasterManipulator;
+        this.deployMasterManipulator = deployMasterManipulator;
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultServiceNode,
@@ -70,8 +70,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public TaskMasterManipulator getTaskMasterManipulator() {
-        return this.taskMasterManipulator;
+    public DeployMasterManipulator getTaskMasterManipulator() {
+        return this.deployMasterManipulator;
     }
 
     @Override

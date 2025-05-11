@@ -7,17 +7,17 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
-public interface TaskNodeManipulator extends GUIDNameManipulator {
+public interface DeployNodeManipulator extends GUIDNameManipulator {
 
-    void insert(DeployElement taskElement);
+    void insert(DeployElement deployElement);
 
     void remove(GUID UUID);
 
-    DeployElement getTaskNode(GUID guid, DeployInstrument instrument);
+    DeployElement getDeployNode(GUID guid, DeployInstrument instrument);
 
     void update(DeployElement taskElement);
 
-    List<DeployElement> fetchTaskNodeByName(String name);
+    List<DeployElement> fetchDeployNodeByName(String name);
 
     @Override
     List<GUID> getGuidsByName(String name);

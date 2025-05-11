@@ -42,12 +42,15 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
     String getKomPath();
 
     String getName();
+
     void setName(String name);
 
     LocalDateTime getCreateTime();
+
     void setCreateTime(LocalDateTime createTime);
 
     LocalDateTime getUpdateTime();
+
     void setUpdateTime(LocalDateTime updateTime);
 
 }

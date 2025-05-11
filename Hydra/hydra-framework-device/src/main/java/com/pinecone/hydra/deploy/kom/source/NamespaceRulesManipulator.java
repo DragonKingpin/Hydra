@@ -5,7 +5,10 @@ import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
 
 public interface NamespaceRulesManipulator {
     void insert(GenericNamespaceRules classificationRules);
+
     void remove(GUID guid);
+
     GenericNamespaceRules getNamespaceRules(GUID guid);
+
     void update(GenericNamespaceRules classificationRules);
 }

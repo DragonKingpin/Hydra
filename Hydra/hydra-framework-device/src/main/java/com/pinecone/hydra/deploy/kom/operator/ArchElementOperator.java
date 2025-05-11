@@ -4,25 +4,25 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.CommonMeta;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.source.NodeMetaManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskMasterManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 public abstract class ArchElementOperator implements ElementOperator {
     protected DeployInstrument deployInstrument;
     protected ImperialTree                  imperialTree;
     protected NodeMetaManipulator           nodeMetaManipulator;
-    protected TaskMasterManipulator         taskMasterManipulator;
+    protected DeployMasterManipulator deployMasterManipulator;
     protected ElementOperatorFactory        factory;
 
     public ArchElementOperator( ElementOperatorFactory factory ){
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
-    public ArchElementOperator(TaskMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public ArchElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         this.imperialTree = deployInstrument.getMasterTrieTree();
         this.deployInstrument = deployInstrument;
         this.nodeMetaManipulator = masterManipulator.getNodeMetaManipulator();
-        this.taskMasterManipulator = masterManipulator;
+        this.deployMasterManipulator = masterManipulator;
         //this.factory = new GenericServiceOperatorFactory(servicesTree,masterManipulator);
     }
 

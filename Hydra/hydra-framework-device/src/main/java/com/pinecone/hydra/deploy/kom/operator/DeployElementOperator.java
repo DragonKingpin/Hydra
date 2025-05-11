@@ -6,39 +6,40 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.system.ko.UOIUtils;
-import com.pinecone.hydra.deploy.kom.source.TaskMasterManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public class DeployElementOperator extends ArchElementOperator implements ElementOperator {
-    protected TaskNodeManipulator taskNodeManipulator;
+    protected DeployNodeManipulator deployNodeManipulator;
 
     public DeployElementOperator(ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public DeployElementOperator(TaskMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public DeployElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         super( masterManipulator, deployInstrument);
-        this.taskNodeManipulator = masterManipulator.getTaskNodeManipulator();
+
+        this.deployNodeManipulator = masterManipulator.getDeployNodeManipulator();
     }
 
 
     @Override
     public GUID insert( TreeNode treeNode ) {
-        GenericDeployElement taskElement = (GenericDeployElement) treeNode;
+        GenericDeployElement deployElement = ( GenericDeployElement ) treeNode;
 
         //将信息写入数据库
         //将节点信息存入应用节点表
         GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
         GUID taskNodeGUID = guidAllocator.nextGUID();
-        taskElement.setGuid(taskNodeGUID);
-        this.taskNodeManipulator.insert( taskElement );
+        deployElement.setGuid(taskNodeGUID);
+        this.deployNodeManipulator.insert( deployElement );
 
 
         //将应用元信息存入元信息表
-       this.nodeMetaManipulator.insert( taskElement );
+       this.nodeMetaManipulator.insert( deployElement );
 
 
         //将节点信息存入主表
@@ -58,14 +59,15 @@ public class DeployElementOperator extends ArchElementOperator implements Elemen
     @Override
     public DeployElement get(GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
-        DeployElement taskElement   = this.taskNodeManipulator.getTaskNode( guid, this.deployInstrument);
+        DeployElement deployElement   = this.deployNodeManipulator.getDeployNode( guid, this.deployInstrument);
 
-        this.applyCommonMeta( taskElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
+        this.applyCommonMeta( deployElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
-        taskElement.setDistributedTreeNode(node);
-        taskElement.setGuid( guid );
+        deployElement.setDistributedTreeNode(node);
 
-        return taskElement;
+        deployElement.setGuid( guid );
+
+        return deployElement;
     }
 
     @Override
@@ -81,7 +83,7 @@ public class DeployElementOperator extends ArchElementOperator implements Elemen
     @Override
     public void update( TreeNode nodeWideData ) {
         DeployElement serviceElement = (DeployElement) nodeWideData;
-        this.taskNodeManipulator.update( serviceElement );
+        this.deployNodeManipulator.update( serviceElement );
         this.nodeMetaManipulator.update( serviceElement );
     }
 
@@ -94,7 +96,7 @@ public class DeployElementOperator extends ArchElementOperator implements Elemen
         GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
-        this.taskNodeManipulator.remove( node.getGuid() );
+        this.deployNodeManipulator.remove( node.getGuid() );
         this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

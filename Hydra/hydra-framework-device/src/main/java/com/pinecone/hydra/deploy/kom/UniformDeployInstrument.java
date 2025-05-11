@@ -5,7 +5,11 @@ import java.util.List;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.deploy.PhysicalHost;
+import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
+import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
+import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -23,9 +27,9 @@ import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.entity.DeployTreeNode;
 import com.pinecone.hydra.deploy.kom.operator.GenericElementOperatorFactory;
 import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskMasterManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskNamespaceManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -37,38 +41,41 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
-    protected TaskMasterManipulator       taskMasterManipulator;
+    protected DeployMasterManipulator deployMasterManipulator;
 
-    protected TaskNamespaceManipulator    taskNamespaceManipulator;
+    protected DeployNamespaceManipulator deployNamespaceManipulator;
 
     protected JobNodeManipulator          jobNodeManipulator;
 
-    protected TaskNodeManipulator         taskNodeManipulator;
+    protected DeployNodeManipulator deployNodeManipulator;
 
     protected List<GUIDNameManipulator >  folderManipulators;
 
     protected List<GUIDNameManipulator >  fileManipulators;
 
+    protected PhysicalHostManipulator physicalHostManipulator;
 
+    protected VirtualMachineManipulator  virtualMachineManipulator;
 
     public UniformDeployInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name );
 
-        this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
-        this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
-        this.jobNodeManipulator          = this.taskMasterManipulator.getJobNodeManipulator();
-        this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
-        KOISkeletonMasterManipulator skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
+        this.deployMasterManipulator = (DeployMasterManipulator) masterManipulator;
+        this.deployNamespaceManipulator = this.deployMasterManipulator.getNamespaceManipulator();
+        this.jobNodeManipulator          = this.deployMasterManipulator.getJobNodeManipulator();
+        this.deployNodeManipulator = this.deployMasterManipulator.getDeployNodeManipulator();
+        KOISkeletonMasterManipulator skeletonMasterManipulator = this.deployMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
         this.guidAllocator               = GUIDs.newGuidAllocator();
-        this.operatorFactory             = new GenericElementOperatorFactory(this,(TaskMasterManipulator) masterManipulator);
-
+        this.operatorFactory             = new GenericElementOperatorFactory(this,(DeployMasterManipulator) masterManipulator);
+        this.physicalHostManipulator     = this.deployMasterManipulator.getPhysicalHostManipulator();
+        this.virtualMachineManipulator   = this.deployMasterManipulator.getVirtualMachineManipulator();
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
         // TODO for customize service tree architecture.
-        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.jobNodeManipulator) );
-        this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.taskNodeManipulator) );
+        this.folderManipulators          = new ArrayList<>( List.of( this.deployNamespaceManipulator, this.jobNodeManipulator) );
+        this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.deployNodeManipulator) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
@@ -220,6 +227,15 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         operator.update( treeNode );
     }
 
+    @Override
+    public void newPhysicalHost( PhysicalHost physicalHost ) {
+        this.physicalHostManipulator.insert( physicalHost );
+    }
+
+    @Override
+    public void newVirtualMachine(VirtualMachine virtualMachine) {
+        this.virtualMachineManipulator.insert( virtualMachine );
+    }
 
 
     @Override

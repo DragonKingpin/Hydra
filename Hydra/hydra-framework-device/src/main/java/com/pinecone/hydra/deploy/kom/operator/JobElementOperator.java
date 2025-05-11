@@ -11,7 +11,7 @@ import com.pinecone.hydra.deploy.kom.entity.GenericJobElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.JobElement;
 import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
-import com.pinecone.hydra.deploy.kom.source.TaskMasterManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -23,7 +23,7 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
         this.factory = factory;
     }
 
-    public JobElementOperator(TaskMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public JobElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         super( masterManipulator, deployInstrument);
         this.jobNodeManipulator = masterManipulator.getJobNodeManipulator();
     }

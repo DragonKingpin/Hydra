@@ -9,6 +9,6 @@ public interface DeployExtraMeta extends Pinenut {
 
     GUID getGuid() ;
 
-    String getTaskName();
+    String getDeployName();
 
 }

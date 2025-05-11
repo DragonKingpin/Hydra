@@ -11,6 +11,7 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 public class GenericDeployElement extends ArchElementNode implements DeployElement {
 
     protected boolean       enable;
+    protected DeployExtraMeta extraMeta;
 
 
     private void initSelf( Map<String, Object > joEntity ) {
@@ -51,7 +52,12 @@ public class GenericDeployElement extends ArchElementNode implements DeployEleme
 
     @Override
     public DeployExtraMeta getExtraMeta() {
-        return null;
+        return this.extraMeta;
+    }
+
+    @Override
+    public void setExtraMeta( DeployExtraMeta extraMeta ) {
+        this.extraMeta = extraMeta;
     }
 
     @Override

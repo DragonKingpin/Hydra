@@ -1,5 +1,6 @@
 package com.pinecone.hydra.deploy.kom.entity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,12 +43,12 @@ public class GenericClusterElement extends ArchElementNode implements ClusterEle
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 
@@ -66,7 +67,7 @@ public class GenericClusterElement extends ArchElementNode implements ClusterEle
 
     @Override
     public JSONObject toJSONObject() {
-        List<ElementNode > children = this.fetchChildren();
+        Collection<ElementNode > children = this.fetchChildren();
         JSONObject jo         = BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys );
         JSONObject joChildren = new JSONMaptron();
 

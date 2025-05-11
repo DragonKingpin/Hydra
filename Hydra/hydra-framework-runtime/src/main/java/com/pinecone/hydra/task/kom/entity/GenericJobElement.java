@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
@@ -42,12 +42,12 @@ public class GenericJobElement extends ArchElementNode implements JobElement {
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 
@@ -66,7 +66,7 @@ public class GenericJobElement extends ArchElementNode implements JobElement {
 
     @Override
     public JSONObject toJSONObject() {
-        List<ElementNode > children = this.fetchChildren();
+        Collection<ElementNode > children = this.fetchChildren();
         JSONObject jo         = BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys );
         JSONObject joChildren = new JSONMaptron();
 

@@ -1,5 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +93,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     @Override
     public JSONObject toJSONObject() {
-        List<ElementNode > children = this.fetchChildren();
+        Collection<ElementNode > children = this.fetchChildren();
         JSONObject jo = new JSONMaptron();
 
         for( ElementNode node : children ) {
@@ -120,12 +121,12 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 

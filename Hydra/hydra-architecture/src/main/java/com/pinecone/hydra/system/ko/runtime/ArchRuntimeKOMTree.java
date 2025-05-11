@@ -37,12 +37,16 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     protected String                             superiorPathScope;
 
+    protected KernelObjectConfig                 kernelObjectConfig;
 
-    public ArchRuntimeKOMTree( String superiorPathScope ) {
+
+    public ArchRuntimeKOMTree( String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
         super( superiorPathScope );
-        this.mNodeTable    = new ConcurrentHashMap<>();
-        this.mNodeTable    = new ConcurrentHashMap<>();
-        this.guidAllocator = new GenericGuidAllocator();
+
+        this.kernelObjectConfig  = kernelObjectConfig;
+        this.mNodeTable          = new ConcurrentHashMap<>();
+        this.mNodeTable          = new ConcurrentHashMap<>();
+        this.guidAllocator       = new GenericGuidAllocator();
     }
 
     //************************************** CascadeInstrument **************************************
@@ -105,22 +109,30 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public String getPath( GUID guid ) {
-        return null;
+        RuntimeTreeNode treeNode = this.mNodeTable.get( guid );
+        if ( treeNode == null ) {
+            return null;
+        }
+        return treeNode.getPath();
     }
 
     @Override
     public String getFullName( GUID guid ) {
-        return null;
+        return this.getPath( guid );
     }
 
     @Override
     public GUID queryGUIDByPath( String path ) {
+        TreeNode treeNode = this.mNodeIndex.get( path );
+        if ( treeNode != null ) {
+            return treeNode.getGuid();
+        }
         return null;
     }
 
     @Override
     public GUID queryGUIDByFN( String fullName ) {
-        return null;
+        return this.queryGUIDByPath( fullName );
     }
 
     @Override
@@ -153,26 +165,30 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         RuntimeTreeNode treeNode = this.mNodeTable.get( guid );
         if ( treeNode != null ) {
             this.mNodeIndex.remove( treeNode.getPath() );
+            this.mNodeTable.remove( guid );
         }
     }
 
     @Override
     public void remove( String path ) {
-
+        GUID guid = this.queryGUIDByPath( path );
+        if ( guid != null ) {
+            this.remove( guid );
+        }
     }
 
     @Override
     public void rename( GUID guid, String name ) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<TreeNode> getChildren( GUID guid ) {
+    public Collection<TreeNode> getChildren( GUID guid ) {
         return null;
     }
 
     @Override
-    public List<GUID> fetchChildrenGuids( GUID guid ) {
+    public Collection<GUID> fetchChildrenGuids( GUID guid ) {
         return null;
     }
 

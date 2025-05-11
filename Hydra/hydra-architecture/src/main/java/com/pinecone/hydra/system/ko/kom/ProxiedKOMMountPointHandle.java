@@ -1,5 +1,6 @@
 package com.pinecone.hydra.system.ko.kom;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.pinecone.framework.system.executum.Processum;
@@ -122,12 +123,12 @@ public class ProxiedKOMMountPointHandle implements KOMMountPointHandle {
     }
 
     @Override
-    public List<TreeNode> getChildren( GUID guid ) {
+    public Collection<TreeNode> getChildren( GUID guid ) {
         return this.mWarpedInstrument.getChildren( guid );
     }
 
     @Override
-    public List<GUID> fetchChildrenGuids( GUID guid ) {
+    public Collection<GUID> fetchChildrenGuids( GUID guid ) {
         return this.mWarpedInstrument.fetchChildrenGuids( guid );
     }
 

@@ -14,6 +14,7 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 public class StripedVolumeOperator extends ArchVolumeOperator  implements VolumeOperator{
@@ -92,7 +93,7 @@ public class StripedVolumeOperator extends ArchVolumeOperator  implements Volume
         try {
             SQLiteExecutor sqLiteExecutor = logicVolume.getSQLiteExecutor();
             this.kenVolumeFileSystem.removeStripMetaTable( storageObjectGuid, sqLiteExecutor );
-            List<TreeNode> children = this.volumeManager.getChildren(volumeGuid);
+            Collection<TreeNode> children = this.volumeManager.getChildren(volumeGuid);
             for( TreeNode treeNode : children ){
                 this.volumeManager.removeStorageObject( treeNode.getGuid(), storageObjectGuid, size );
             }

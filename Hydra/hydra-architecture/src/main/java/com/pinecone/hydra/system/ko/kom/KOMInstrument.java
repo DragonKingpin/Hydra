@@ -6,6 +6,7 @@ import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface KOMInstrument extends CascadeInstrument {
@@ -56,9 +57,9 @@ public interface KOMInstrument extends CascadeInstrument {
 
     void remove( String path );
 
-    List<TreeNode > getChildren( GUID guid );
+    Collection<TreeNode > getChildren(GUID guid );
 
-    List<GUID > fetchChildrenGuids( GUID guid );
+    Collection<GUID > fetchChildrenGuids( GUID guid );
 
     Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep );
 

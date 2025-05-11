@@ -2,6 +2,7 @@ package com.pinecone.hydra.task.kom.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -174,8 +175,8 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
 
-    protected List<ElementNode > fetchChildren() {
-        List<GUID > guids = this.fetchChildrenGuids();
+    protected Collection<ElementNode > fetchChildren() {
+        Collection<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
             ElementNode elementNode = (ElementNode) this.taskInstrument.get( guid );
@@ -184,7 +185,7 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         return elementNodes;
     }
 
-    protected List<GUID > fetchChildrenGuids() {
+    protected Collection<GUID > fetchChildrenGuids() {
         return this.taskInstrument.fetchChildrenGuids( this.getGuid() );
     }
 

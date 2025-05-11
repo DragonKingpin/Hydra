@@ -2,6 +2,7 @@ package com.pinecone.hydra.deploy.kom.entity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -159,8 +160,8 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
     }
 
 
-    protected List<ElementNode > fetchChildren() {
-        List<GUID > guids = this.fetchChildrenGuids();
+    protected Collection<ElementNode > fetchChildren() {
+        Collection<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
             ElementNode elementNode = (ElementNode) this.deployInstrument.get( guid );
@@ -169,7 +170,7 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
         return elementNodes;
     }
 
-    protected List<GUID > fetchChildrenGuids() {
+    protected Collection<GUID > fetchChildrenGuids() {
         return this.deployInstrument.fetchChildrenGuids( this.getGuid() );
     }
 

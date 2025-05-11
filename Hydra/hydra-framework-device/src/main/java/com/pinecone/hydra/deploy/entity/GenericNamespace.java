@@ -14,9 +14,8 @@ import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
-import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class GenericNamespace extends ArchElementNode implements Namespace {
@@ -96,7 +95,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     @Override
     public JSONObject toJSONObject() {
-        List<ElementNode> children = this.fetchChildren();
+        Collection<ElementNode> children = this.fetchChildren();
         JSONObject jo = new JSONMaptron();
 
         for( ElementNode node : children ) {
@@ -124,12 +123,12 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 

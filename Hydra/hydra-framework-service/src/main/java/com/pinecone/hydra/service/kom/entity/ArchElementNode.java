@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.kom.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -124,8 +125,8 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
     }
 
 
-    protected List<ElementNode > fetchChildren() {
-        List<GUID > guids = this.fetchChildrenGuids();
+    protected Collection<ElementNode > fetchChildren() {
+        Collection<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
             ElementNode elementNode = (ElementNode) this.serviceInstrument.get( guid );
@@ -134,7 +135,7 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
         return elementNodes;
     }
 
-    protected List<GUID > fetchChildrenGuids() {
+    protected Collection<GUID > fetchChildrenGuids() {
         return this.serviceInstrument.fetchChildrenGuids( this.getGuid() );
     }
 

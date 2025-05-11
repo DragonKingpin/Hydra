@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.account.AccountManager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class ArchFolderElementNode extends ArchElementNode implements FolderElement{
@@ -18,7 +19,7 @@ public class ArchFolderElementNode extends ArchElementNode implements FolderElem
     @Override
     public List<ElementNode> fetchChildren() {
         ArrayList<ElementNode> elementNodes = new ArrayList<>();
-        List<GUID> guids = this.fetchChildrenGuids();
+        Collection<GUID> guids = this.fetchChildrenGuids();
         for( GUID elementGuid : guids ){
             ElementNode node = (ElementNode)this.accountManager.get(elementGuid);
             elementNodes.add( node );
@@ -27,7 +28,7 @@ public class ArchFolderElementNode extends ArchElementNode implements FolderElem
     }
 
     @Override
-    public List<GUID> fetchChildrenGuids() {
+    public Collection<GUID> fetchChildrenGuids() {
         return this.accountManager.fetchChildrenGuids(this.getGuid());
     }
 

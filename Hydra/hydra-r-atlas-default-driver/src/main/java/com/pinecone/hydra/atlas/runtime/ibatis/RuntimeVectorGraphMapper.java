@@ -103,15 +103,26 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
 
     @Override
     @Select("SELECT `havn`.guid " +
-            "FROM `hydra_atlas_vgraph_nodes` havn " +
-            "WHERE NOT EXISTS (SELECT 1 FROM `hydra_atlas_vgraph_adjacent` hava WHERE `hava`.guid = `havn`.guid) " +
+            "FROM `hydra_atlas_vgraph_nodes` havn" +
+            "WHERE NOT EXISTS (SELECT `id` FROM `hydra_atlas_vgraph_adjacent` hava WHERE `hava`.guid = `havn`.guid) " +
             "LIMIT #{limit} OFFSET #{offset}")
     List<GUID> fetchHandleGuids( @Param("offset") long offset, @Param("limit") long limit);
 
     @Override
+    @Select("SELECT havn.guid " +
+            "FROM hydra_atlas_vgraph_nodes havn " +
+            "JOIN hydra_atlas_vgraph_task_mapping vatm ON havn.guid = vatm.vgraph_node_guid " +
+            "JOIN hydra_task_task_node httn ON vatm.task_guid = httn.guid " +
+            "WHERE NOT EXISTS (" +
+            "SELECT id FROM hydra_atlas_vgraph_adjacent hava WHERE hava.guid = havn.guid) " +
+            "ORDER BY httn.priority " +
+            "LIMIT #{limit} OFFSET #{offset}")
+    List<GUID> fetchHandleGuidsByTaskPriority(long offset, long limit);
+
+    @Override
     @Select("SELECT COUNT(havn.guid) " +
             "FROM `hydra_atlas_vgraph_nodes` havn " +
-            "WHERE NOT EXISTS (SELECT 1 FROM `hydra_atlas_vgraph_adjacent` `hava` WHERE `hava`.guid = `havn`.guid)")
+            "WHERE NOT EXISTS (SELECT `id` FROM `hydra_atlas_vgraph_adjacent` `hava` WHERE `hava`.guid = `havn`.guid)")
     long countHandleNodes( );
 
     @Override
@@ -129,4 +140,31 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     @Override
     @Select("SELECT COUNT(`guid`) FROM `hydra_atlas_vgraph_adjacent` WHERE `guid` = #{nodeGuid}")
     long queryOutDegree( @Param("nodeGuid") GUID nodeGuid);
+
+    @Override
+    @Select("SELECT COUNT(*) + 1 " +
+            "FROM (" +
+            "    SELECT guid, COUNT(*) AS degree " +
+            "    FROM hydra_atlas_vgraph_adjacent " +
+            "    GROUP BY guid" +
+            ") t1 " +
+            "WHERE t1.degree > (" +
+            "    SELECT COUNT(*) " +
+            "    FROM hydra_atlas_vgraph_adjacent " +
+            "    WHERE guid = #{guid}" +
+            ")")
+    long getPriorityByInDegree(@Param("guid") GUID guid);
+
+
+    @Override
+    @Select("SELECT `guid` FROM `hydra_atlas_vgraph_adjacent`  WHERE `parent_guid` = #{guid} LIMIT #{limit} OFFSET #{offset} ")
+    List<GUID> limitFetchChildNodeGuids(@Param("offset") long offset, @Param("limit") long limit, @Param("guid") GUID guid);
+
+    @Override
+    @Select("SELECT COUNT(`id`) FROM hydra_atlas_vgraph_adjacent WHERE parent_guid = #{guid}")
+    long countChildNodeNums(GUID guid);
+
+    @Override
+    @Insert("INSERT INTO `hydra_atlas_vgraph_adjacent` (guid, linked_type, parent_guid) VALUES (#{childGuid},'weak',#{parentGuid})")
+    void addChild(GUID parentGuid, GUID childGuid);
 }

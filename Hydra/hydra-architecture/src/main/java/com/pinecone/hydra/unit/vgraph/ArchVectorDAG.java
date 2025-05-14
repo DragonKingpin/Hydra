@@ -72,6 +72,15 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
 
     @Override
+    public List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit ) {
+        if( this.mLstHandleNodeGuids == null || this.mLstHandleNodeGuids.isEmpty() ) {
+            return this.mVectorGraphManipulator.fetchHandleGuidsByTaskPriority(offset, limit);
+        }else {
+            return this.mLstHandleNodeGuids.subList( (int) offset, (int) (offset+limit) );
+        }
+    }
+
+    @Override
     public long countHandleNodes() {
         return this.mVectorGraphManipulator.countHandleNodes();
     }
@@ -156,5 +165,25 @@ public abstract class ArchVectorDAG implements VectorDAG {
     @Override
     public List<GUID> fetchChildNodeGuids(GUID guid) {
         return this.mVectorGraphManipulator.fetchChildNodeGuids( guid );
+    }
+
+    @Override
+    public List<GUID> fetchChildNodeGuids(long offset, long limit, GUID guid) {
+        return this.mVectorGraphManipulator.limitFetchChildNodeGuids( offset, limit, guid );
+    }
+
+    @Override
+    public long countChildNodeNum(GUID guid) {
+        return this.mVectorGraphManipulator.countChildNodeNums( guid );
+    }
+
+    @Override
+    public long getPriorityByInDegree(GUID guid) {
+        return this.mVectorGraphManipulator.getPriorityByInDegree( guid );
+    }
+
+    @Override
+    public void addChild(GUID parentGuid, GUID childGuid) {
+        this.mVectorGraphManipulator.addChild( parentGuid,childGuid );
     }
 }

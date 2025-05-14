@@ -5,17 +5,17 @@ import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 
 public class GenericQueueElement implements QueueElement {
 
-    private long        mnEnumId;
+    protected long        mnEnumId;
 
-    private GUID        mObjectGuid;
+    protected GUID        mObjectGuid;
 
-    private long        mnPriority;
+    protected long        mnPriority;
 
-    private long        mnLinkedPriority;
+    protected long        mnLinkedPriority;
 
-    private long        mnIndexPriority;
+    protected long        mnIndexPriority;
 
-    private double      mBias;
+    protected double      mBias;
 
     @Override
     public long getEnumId() {

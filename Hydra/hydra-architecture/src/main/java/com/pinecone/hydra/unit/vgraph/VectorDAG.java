@@ -19,6 +19,8 @@ public interface VectorDAG extends Pinenut {
 
     List<GUID> fetchHandleGuids( long offset, long limit );
 
+    List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit );
+
     long countHandleNodes();
 
     List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit );
@@ -39,7 +41,15 @@ public interface VectorDAG extends Pinenut {
 
     List<GUID> fetchChildNodeGuids( GUID guid );
 
+    List<GUID> fetchChildNodeGuids( long offset, long limit, GUID guid );
+
+    long countChildNodeNum( GUID guid );
+
     GraphNode get( GUID guid );
 
     void removeNode( GUID guid );
+
+    long getPriorityByInDegree( GUID guid );
+
+    void addChild( GUID parentGuid, GUID childGuid );
 }

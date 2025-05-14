@@ -22,7 +22,12 @@ public interface VectorGraphManipulator extends Pinenut {
 
     List<GUID> fetchChildNodeGuids( GUID guid );
 
+    List<GUID> limitFetchChildNodeGuids( long offset, long limit, GUID guid );
+
     List<GraphNode> fetchRootNodes();
+
+    long countChildNodeNums( GUID guid );
+
 
     List<GUID> fetchChildNodeIds(GUID guid );
 
@@ -31,6 +36,8 @@ public interface VectorGraphManipulator extends Pinenut {
     void updateNode( GraphNode graphNode );
 
     List<GUID> fetchHandleGuids(long offset, long limit);
+
+    List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit );
 
     long countHandleNodes();
 
@@ -42,4 +49,7 @@ public interface VectorGraphManipulator extends Pinenut {
 
     long queryOutDegree(GUID nodeGuid);
 
+    long getPriorityByInDegree( GUID guid );
+
+    void addChild( GUID parentGuid, GUID childGuid );
 }

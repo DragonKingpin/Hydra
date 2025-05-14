@@ -61,7 +61,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public GUID put( GraphNode graphNode, GUID TaskGuid ) {
+    public GUID putMappingTask( GraphNode graphNode, GUID TaskGuid ) {
         GUID guid = this.put(graphNode);
         this.mVgraphTaskMappingManipulator.insert( TaskGuid, guid );
         return guid;
@@ -113,5 +113,10 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     public VectorDAG toVectorDAG( Layer layer ) {
         List<GUID> handleGuids = layer.getHandleGuids();
         return new GenericVectorDAG( handleGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );
+    }
+
+    @Override
+    public void addChild(GUID parentGuid, GUID childGuid) {
+        this.mMegaVectorDAG.addChild( parentGuid,childGuid );
     }
 }

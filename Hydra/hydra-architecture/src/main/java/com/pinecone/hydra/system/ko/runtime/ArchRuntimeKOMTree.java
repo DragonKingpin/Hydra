@@ -29,6 +29,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     protected Map<GUID, RuntimeTreeNode >        mNodeTable;
 
     protected Hydrarum                           hydrarum;
+
     protected Processum                          superiorProcess;
 
     protected GuidAllocator                      guidAllocator;

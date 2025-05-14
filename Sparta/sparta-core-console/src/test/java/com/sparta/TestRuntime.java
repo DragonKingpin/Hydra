@@ -3,8 +3,10 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.pinecone.hydra.atlas.advance.GraphStratumTape;
+import com.pinecone.hydra.atlas.advance.chain.InDegreeFirstStrategyChain;
 import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
 import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
@@ -14,6 +16,7 @@ import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
+import com.pinecone.hydra.unit.iqueue.MegaDPStratumQueue;
 import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -54,9 +57,12 @@ class Rick extends Radium {
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
+        GuidAllocator guidAllocator = uniformRuntimeAtlas.getGuidAllocator();
+
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点5");
-        uniformRuntimeAtlas.put(taskAtlasNode,GUIDs.GUID72( "21164d6-0003e5-000f-50" ));
+        taskAtlasNode.setName("这是测试图节点8");
+        //uniformRuntimeAtlas.put( GUIDs.GUID72("252386a-0000ca-0001-f0"),taskAtlasNode );
+        uniformRuntimeAtlas.addChild(GUIDs.GUID72("25238b4-0001f4-0001-c4"),GUIDs.GUID72("25238ce-00037b-0001-f8"));
         //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }
 
@@ -85,10 +91,14 @@ class Rick extends Radium {
 
     public void testAdvancer( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
         GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID72("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
-        QueueTableMeta meta = new QueueTableMeta();
-        meta.setQueueTableName( "hydra_queue_nodes" );
-        MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta);
-        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue);
+        QueueTableMeta meta1 = new QueueTableMeta();
+        meta1.setQueueTableName( "hydra_queue_nodes" );
+        QueueTableMeta meta2 = new QueueTableMeta();
+        meta2.setQueueTableName( "hydra_temporary_queue_nodes" );
+        MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta1);
+        MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(driver, "segment_name", "测试临时队列", meta2);
+        InDegreeFirstStrategyChain strategyChain = new InDegreeFirstStrategyChain(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue);
+        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue,megaDPStratumQueue,strategyChain);
         advancer.traverse( genericVectorDAG );
     }
 

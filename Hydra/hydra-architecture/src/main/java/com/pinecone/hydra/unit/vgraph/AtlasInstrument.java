@@ -67,4 +67,6 @@ public interface AtlasInstrument extends Instrument {
 
     VectorDAG toVectorDAG( Layer layer );
 
+    void addChild( GUID parentGuid, GUID childGuid );
+
 }

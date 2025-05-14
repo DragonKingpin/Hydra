@@ -113,7 +113,7 @@ class Randon extends Radium {
         physicalHost.setLocalDomain("testDomain");
 
         instrument.put( physicalHost );*/
-      instrument.get(GUIDs.GUID72("24e2fc4-00016c-0000-dc"));
+      instrument.get(GUIDs.GUID72("2508b12-000080-0000-58"));
 
 
 /*
@@ -121,7 +121,7 @@ class Randon extends Radium {
 */
     }
 
-    private void testInsertVirtualMachine(UniformDeployInstrument instrument) {
+    private void testInsertVirtualMachine( UniformDeployInstrument instrument ) {
 
         GenericVirtualMachineElement virtualMachine = new GenericVirtualMachineElement();
         virtualMachine.setName("testVirtualMachine01");

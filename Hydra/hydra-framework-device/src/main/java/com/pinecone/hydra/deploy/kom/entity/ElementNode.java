@@ -24,6 +24,10 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
         return null;
     }
 
+    default VirtualMachineElement evinceVirtualMachineElement() {
+        return null;
+    }
+
     GUIDImperialTrieNode getDistributedTreeNode();
 
     void setDistributedTreeNode(GUIDImperialTrieNode distributedTreeNode);
@@ -40,6 +44,8 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
     void setMetaGuid(GUID metaGuid);
 
     String getKomPath();
+
+
 
     String getName();
 

@@ -9,6 +9,14 @@ import com.pinecone.hydra.deploy.PhysicalHost;
 import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericServerElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
+import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.QuickElement;
+import com.pinecone.hydra.deploy.kom.entity.ServerElement;
+import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
@@ -163,6 +171,26 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     @Override
+    public ServerElement affirmServer(String path) {
+        return (ServerElement) this.affirmTreeNodeByPath( path, GenericServerElement.class, GenericNamespace.class );
+    }
+
+    @Override
+    public QuickElement affirmQuick(String path) {
+        return (QuickElement) this.affirmTreeNodeByPath( path, GenericQuickElement.class, GenericNamespace.class );
+    }
+
+    @Override
+    public VirtualMachineElement affirmVirtualMachine(String path) {
+        return (VirtualMachineElement) this.affirmTreeNodeByPath( path, GenericVirtualMachineElement.class, GenericNamespace.class );
+    }
+
+    @Override
+    public PhysicalHostElement affirmPhysicalHost(String path) {
+        return (PhysicalHostElement) this.affirmTreeNodeByPath( path, GenericPhysicalHostElement.class, GenericNamespace.class );
+    }
+
+    @Override
     public ElementNode queryElement( String path ) {
         GUID guid = this.queryGUIDByPath( path );
         if( guid != null ) {
@@ -227,15 +255,15 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         operator.update( treeNode );
     }
 
-    @Override
-    public void newPhysicalHost( PhysicalHost physicalHost ) {
-        this.physicalHostManipulator.insert( physicalHost );
-    }
+/*    @Override
+    public void newPhysicalHost( PhysicalHostElement physicalHostElement ) {
+        this.physicalHostManipulator.insert( physicalHostElement );
+    }*/
 
-    @Override
+/*    @Override
     public void newVirtualMachine(VirtualMachine virtualMachine) {
         this.virtualMachineManipulator.insert( virtualMachine );
-    }
+    }*/
 
 
     @Override

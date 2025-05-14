@@ -3,6 +3,10 @@ package com.pinecone.hydra.deploy.kom;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.PhysicalHost;
 import com.pinecone.hydra.deploy.VirtualMachine;
+import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.QuickElement;
+import com.pinecone.hydra.deploy.kom.entity.ServerElement;
+import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
@@ -20,13 +24,21 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     DeployElement  affirmTask( String path );
 
+    ServerElement       affirmServer( String path );
+
+    QuickElement  affirmQuick( String path );
+
+    VirtualMachineElement affirmVirtualMachine( String path );
+
+    PhysicalHostElement affirmPhysicalHost( String path );
+
     ElementNode        queryElement( String path );
 
     boolean            containsChild( GUID parentGuid, String childName );
 
     void               update( TreeNode treeNode );
 
-    void               newPhysicalHost( PhysicalHost physicalHost );
 
-    void               newVirtualMachine( VirtualMachine virtualMachine );
+
+
 }

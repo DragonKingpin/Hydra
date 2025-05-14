@@ -11,13 +11,15 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 @IbatisDataAccessObject
 public interface DeployNodeMetaMapper extends NodeMetaManipulator {
-    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`) VALUES (#{guid}, #{description}, #{extraInformation})")
+    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`) VALUES (#{guid}, #{description}, #{extraInformation},#{name})")
     void insert( DeployFamilyNode node );
 
+    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`) VALUES (#{guid}, #{description}, #{extraInformation},#{name})")
     void insertNS( Namespace node );
 
     @Delete("DELETE FROM `hydra_deploy_node_meta` WHERE `guid`=#{guid}")
@@ -26,6 +28,7 @@ public interface DeployNodeMetaMapper extends NodeMetaManipulator {
     @Select("SELECT `id` AS `enumId`, `guid`, `description` AS Description, `extra_information` AS ExtraInformation FROM `hydra_deploy_node_meta` WHERE `guid` = #{guid}")
     CommonMeta getNodeCommonMeta( @Param("guid") GUID guid );
 
+    @Update( "UPDATE `hydra_deploy_node_meta` SET `description` = #{description} , `extra_information` = #{extraInformation} WHERE guid = #{guid}")
     void update( DeployFamilyNode node );
 
 

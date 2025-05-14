@@ -3,8 +3,9 @@ package com.pinecone.hydra.deploy.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.deploy.PhysicalHost;
+import com.pinecone.hydra.deploy.kom.entity.ArchElementNode;
 
-public class GenericPhysicalHost implements PhysicalHost {
+public class GenericPhysicalHost extends ArchElementNode implements PhysicalHost {
 
     protected GUID guid;
 
@@ -34,6 +35,16 @@ public class GenericPhysicalHost implements PhysicalHost {
     @Override
     public void setHardwareSpecs( String hardwareSpecs ) {
             this.hardwareSpecs = hardwareSpecs;
+    }
+
+    @Override
+    public GUID getGuid() {
+        return this.guid;
+    }
+
+    @Override
+    public void setGuid(GUID guid) {
+        this.guid = guid;
     }
 
 //    @Override

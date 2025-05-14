@@ -31,6 +31,7 @@ public interface DeployNodeMapper extends DeployNodeManipulator {
 @Select("SELECT `guid`, `enable` AS Enable FROM `hydra_deploy_deploy_nodes` WHERE `name`=#{name}")
     List<DeployElement> fetchDeployNodeByName( @Param("name") String name );
 
+@Select("SELECT `guid` FROM `hydra_deploy_deploy_nodes` WHERE `name`=#{name}")
     @Override
     List<GUID> getGuidsByName( String name );
 

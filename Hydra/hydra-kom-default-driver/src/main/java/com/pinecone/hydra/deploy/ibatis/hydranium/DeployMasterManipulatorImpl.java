@@ -9,11 +9,13 @@ import com.pinecone.hydra.deploy.ibatis.DeployTreeMapper;
 import com.pinecone.hydra.deploy.ibatis.JobNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.deploy.ibatis.PhysicalHostMapper;
+import com.pinecone.hydra.deploy.ibatis.QuickElementMapper;
 import com.pinecone.hydra.deploy.ibatis.VirtualMachineMapper;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
+import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
@@ -64,6 +66,10 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Resource
     @Structure( type = VirtualMachineMapper.class )
     VirtualMachineManipulator virtualMachineManipulator;
+
+    @Resource
+    @Structure( type = QuickElementMapper.class )
+    QuickElementManipulator quickElementManipulator;
 
 
     @Resource( type = DeployMasterTreeManipulatorImpl.class )
@@ -128,5 +134,10 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Override
     public VirtualMachineManipulator getVirtualMachineManipulator() {
         return this.virtualMachineManipulator;
+    }
+
+    @Override
+    public QuickElementManipulator getQuickElementManipulator() {
+        return this.quickElementManipulator;
     }
 }

@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected DeployMasterManipulator deployMasterManipulator;
@@ -26,6 +29,9 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericNamespace.class );
         this.registerDefaultMetaType( GenericDeployElement.class );
         this.registerDefaultMetaType( GenericClusterElement.class );
+        this.registerDefaultMetaType( GenericVirtualMachineElement.class );
+        this.registerDefaultMetaType( GenericPhysicalHostElement.class );
+        this.registerDefaultMetaType( GenericQueueElement.class);
     }
 
     public GenericElementOperatorFactory(DeployInstrument deployInstrument, DeployMasterManipulator deployMasterManipulator){
@@ -47,6 +53,20 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
                 new NamespaceOperator(this)
         );
 
+        this.registerer.put(
+                ElementOperatorFactory.DefaultVirtualMachine,
+                new VirtualMachineElementOperator(this)
+        );
+
+        this.registerer.put(
+                ElementOperatorFactory.DefaultPhysicalHost,
+                new PhysicalHostElementOperator(this)
+        );
+
+        this.registerer.put(
+                ElementOperatorFactory.DefaultQuickElement,
+                new QuickElementOperator(this)
+        );
         this.registerDefaultMetaTypes();
     }
     @Override

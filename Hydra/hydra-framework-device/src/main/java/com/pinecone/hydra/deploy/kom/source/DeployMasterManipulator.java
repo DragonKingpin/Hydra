@@ -22,4 +22,6 @@ public interface DeployMasterManipulator extends KOIMasterManipulator {
     PhysicalHostManipulator getPhysicalHostManipulator();
 
     VirtualMachineManipulator getVirtualMachineManipulator();
+
+    QuickElementManipulator getQuickElementManipulator();
 }

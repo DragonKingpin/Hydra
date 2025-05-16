@@ -61,7 +61,7 @@ public class DeployElementOperator extends ArchElementOperator implements Elemen
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         DeployElement deployElement   = this.deployNodeManipulator.getDeployNode( guid, this.deployInstrument);
 
-        this.applyCommonMeta( deployElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
+        /*this.applyCommonMeta( deployElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );*/
 
         deployElement.setDistributedTreeNode(node);
 

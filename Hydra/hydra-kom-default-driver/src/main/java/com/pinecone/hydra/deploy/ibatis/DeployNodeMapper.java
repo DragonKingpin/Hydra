@@ -3,6 +3,7 @@ package com.pinecone.hydra.deploy.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.DeployElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -24,8 +25,9 @@ public interface DeployNodeMapper extends DeployNodeManipulator {
     void remove( GUID UUID );
 
 @Select("SELECT `guid`, `enable` FROM `hydra_deploy_deploy_nodes` WHERE `guid`=#{guid}")
-    DeployElement getDeployNode( GUID guid, DeployInstrument instrument );
+GenericDeployElement getDeployNode(GUID guid, DeployInstrument instrument );
 
+@Insert( "UPDATE `hydra_deploy_deploy_nodes` SET `enable`=#{enable}, `name`=#{name} WHERE `guid`=#{guid}")
     void update( DeployElement deployElement );
 
 @Select("SELECT `guid`, `enable` AS Enable FROM `hydra_deploy_deploy_nodes` WHERE `name`=#{name}")
@@ -35,6 +37,7 @@ public interface DeployNodeMapper extends DeployNodeManipulator {
     @Override
     List<GUID> getGuidsByName( String name );
 
+@Select("SELECT `guid` FROM `hydra_deploy_deploy_nodes` WHERE `name`=#{name} AND `guid`!=#{guid}")
     @Override
     List<GUID> getGuidsByNameID( String name, GUID guid );
 

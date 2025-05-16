@@ -19,4 +19,6 @@ public interface DeployElement extends ElementNode {
 
     DeployElement getAffiliateDeployment();
 
+
+    void addChild(ElementNode child);
 }

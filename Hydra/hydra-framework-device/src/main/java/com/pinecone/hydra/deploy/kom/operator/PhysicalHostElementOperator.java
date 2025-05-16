@@ -60,7 +60,7 @@ public class PhysicalHostElementOperator extends ArchElementOperator implements 
     @Override
     public PhysicalHostElement get(GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
-        PhysicalHostElement physicalHostElement   = this.physicalHostManipulator.getDeployNode( guid, this.deployInstrument);
+        PhysicalHostElement physicalHostElement   = this.physicalHostManipulator.getPhysicalHostElement( guid, this.deployInstrument);
         //TODO
 /*
         this.applyCommonMeta( physicalHostElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );

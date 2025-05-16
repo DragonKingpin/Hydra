@@ -17,8 +17,6 @@ public class GenericQuickElement extends ArchElementNode implements QuickElement
 
     protected  DeployExtraMeta extraMeta;
 
-    protected DeployElement affiliateDeployment;
-
     protected QuickElementManipulator quickElementManipulator;
 
 
@@ -84,6 +82,14 @@ public class GenericQuickElement extends ArchElementNode implements QuickElement
 
     @Override
     public DeployElement getAffiliateDeployment() {
-        return this.affiliateDeployment;
+        return null;
     }
+
+    @Override
+    public void addChild(ElementNode child) {
+        super.addChild( child );
+    }
+
+
+
 }

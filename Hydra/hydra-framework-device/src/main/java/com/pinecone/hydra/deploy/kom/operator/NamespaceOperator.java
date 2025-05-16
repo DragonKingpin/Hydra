@@ -9,7 +9,7 @@ import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
+import com.pinecone.hydra.deploy.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;

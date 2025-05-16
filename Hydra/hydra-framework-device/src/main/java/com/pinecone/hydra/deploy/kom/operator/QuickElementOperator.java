@@ -5,7 +5,6 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
 import com.pinecone.hydra.deploy.kom.entity.QuickElement;
-import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
@@ -61,7 +60,7 @@ public class QuickElementOperator extends ArchElementOperator implements Element
     @Override
     public QuickElement get(GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
-        QuickElement quickElement   = this.quickElementManipulator.getDeployNode( guid, this.deployInstrument);
+        QuickElement quickElement   = this.quickElementManipulator.getQuickElement( guid, this.deployInstrument);
     //TODO
 /*
         this.applyCommonMeta( quickElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
@@ -86,9 +85,9 @@ public class QuickElementOperator extends ArchElementOperator implements Element
 
     @Override
     public void update( TreeNode nodeWideData ) {
-        QuickElement serviceElement = (QuickElement) nodeWideData;
-        this.quickElementManipulator.update( serviceElement );
-        this.nodeMetaManipulator.update( serviceElement );
+        QuickElement quickElement = (QuickElement) nodeWideData;
+        this.quickElementManipulator.update( quickElement );
+        this.nodeMetaManipulator.update( quickElement );
     }
 
     @Override

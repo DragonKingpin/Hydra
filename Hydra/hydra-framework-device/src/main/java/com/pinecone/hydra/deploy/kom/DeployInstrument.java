@@ -1,8 +1,6 @@
 package com.pinecone.hydra.deploy.kom;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.PhysicalHost;
-import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.QuickElement;
 import com.pinecone.hydra.deploy.kom.entity.ServerElement;
@@ -22,7 +20,7 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     Namespace          affirmNamespace( String path );
 
-    DeployElement  affirmTask( String path );
+    DeployElement affirmDeployNode(String path );
 
     ServerElement       affirmServer( String path );
 

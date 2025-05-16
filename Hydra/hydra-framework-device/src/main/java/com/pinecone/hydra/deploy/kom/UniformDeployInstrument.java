@@ -18,6 +18,7 @@ import com.pinecone.hydra.deploy.kom.entity.QuickElement;
 import com.pinecone.hydra.deploy.kom.entity.ServerElement;
 import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
+import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -65,6 +66,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
 
     protected VirtualMachineManipulator  virtualMachineManipulator;
 
+    protected QuickElementManipulator     quickElementManipulator;
+
     public UniformDeployInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name );
 
@@ -80,7 +83,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         this.physicalHostManipulator     = this.deployMasterManipulator.getPhysicalHostManipulator();
         this.virtualMachineManipulator   = this.deployMasterManipulator.getVirtualMachineManipulator();
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
-
+        this.quickElementManipulator     = this.deployMasterManipulator.getQuickElementManipulator();
         // TODO for customize service tree architecture.
         this.folderManipulators          = new ArrayList<>( List.of( this.deployNamespaceManipulator, this.jobNodeManipulator) );
         this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.deployNodeManipulator) );
@@ -166,7 +169,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     @Override
-    public DeployElement affirmTask(String path ) {
+    public DeployElement affirmDeployNode(String path ) {
         return (DeployElement) this.affirmTreeNodeByPath( path, GenericDeployElement.class, GenericNamespace.class );
     }
 
@@ -179,6 +182,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     public QuickElement affirmQuick(String path) {
         return (QuickElement) this.affirmTreeNodeByPath( path, GenericQuickElement.class, GenericNamespace.class );
     }
+
 
     @Override
     public VirtualMachineElement affirmVirtualMachine(String path) {
@@ -254,17 +258,6 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         TreeNodeOperator operator = this.operatorFactory.getOperator( treeNode.getMetaType() );
         operator.update( treeNode );
     }
-
-/*    @Override
-    public void newPhysicalHost( PhysicalHostElement physicalHostElement ) {
-        this.physicalHostManipulator.insert( physicalHostElement );
-    }*/
-
-/*    @Override
-    public void newVirtualMachine(VirtualMachine virtualMachine) {
-        this.virtualMachineManipulator.insert( virtualMachine );
-    }*/
-
 
     @Override
     public void remove( GUID guid ) {

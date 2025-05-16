@@ -49,6 +49,10 @@ public class GenericDeployElement extends ArchElementNode implements DeployEleme
         this.enable = enable;
     }
 
+    @Override
+    public void addChild( ElementNode child ) {
+        super.addChild( child );
+    }
 
     @Override
     public DeployExtraMeta getExtraMeta() {
@@ -64,4 +68,6 @@ public class GenericDeployElement extends ArchElementNode implements DeployEleme
     public DeployElement getAffiliateDeployment() {
         return null;
     }
+
+
 }

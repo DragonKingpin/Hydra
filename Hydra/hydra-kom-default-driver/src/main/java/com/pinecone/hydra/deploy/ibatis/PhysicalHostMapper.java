@@ -13,6 +13,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 @IbatisDataAccessObject
 public interface PhysicalHostMapper extends PhysicalHostManipulator {
@@ -27,6 +29,14 @@ public interface PhysicalHostMapper extends PhysicalHostManipulator {
     void remove(GUID guid);
 
    @Select("SELECT `guid`, `name`, `ip_address`, `hardware_specs`, `status` FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
-   GenericPhysicalHostElement getDeployNode(GUID guid, DeployInstrument deployInstrument);
+   GenericPhysicalHostElement getPhysicalHostElement(GUID guid, DeployInstrument deployInstrument);
+
+    @Select("SELECT `guid` FROM `hydra_deploy_physical_host` WHERE `name`=#{name}")
+    @Override
+    List<GUID> getGuidsByName(String name );
+
+    @Select("SELECT `guid` FROM `hydra_deploy_physical_host` WHERE `name`=#{name} AND `guid`!=#{guid}")
+    @Override
+    List<GUID> getGuidsByNameID( String name, GUID guid );
 
 }

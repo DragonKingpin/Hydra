@@ -70,7 +70,7 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
 
     @Override
     public String getLocalDomain() {
-        return "";
+        return this.localDomain;
     }
 
     @Override
@@ -80,12 +80,12 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
 
     @Override
     public String getWideDomain() {
-        return "";
+        return this.wideDomain;
     }
 
     @Override
     public void setWideDomain(String wideDomain) {
-
+            this.wideDomain =wideDomain ;
     }
 
     @Override
@@ -126,22 +126,22 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
 
     @Override
     public boolean isEnable() {
-        return false;
+        return this.enabled;
     }
 
     @Override
     public void setEnable(boolean enable) {
-
+            this.enabled = enable;
     }
 
     @Override
     public DeployExtraMeta getExtraMeta() {
-        return null;
+        return this.extraMeta;
     }
 
     @Override
     public void setExtraMeta(DeployExtraMeta extraMeta) {
-
+            this.extraMeta = extraMeta;
     }
 
     @Override

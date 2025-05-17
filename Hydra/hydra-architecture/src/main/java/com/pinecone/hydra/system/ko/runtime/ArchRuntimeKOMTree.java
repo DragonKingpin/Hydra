@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.unit.trie.TrieMap;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
+import com.pinecone.framework.util.CollectionUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
@@ -127,22 +129,6 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public GUID queryGUIDByPath( String path ) {
-//        TreeNode treeNode = this.mNodeIndex.get( path );
-//        if ( treeNode != null ) {
-//            return treeNode.getGuid();
-//        }
-//
-//        String[] split = path.split("/");
-//        for( int i = split.length - 2; i >= 0; --i ) {
-//            TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
-//            if( node instanceof RuntimeTreeNode ) {
-//                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
-//                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
-//                //this.mNodeIndex.put( path, pointHandle.get(guid) );
-//                return guid;
-//            }
-//        }
-//        return null;
         return this.queryGUIDByPathForward(path);
     }
 
@@ -273,34 +259,30 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public Collection<TreeNode> getChildren( GUID guid ) {
-        RuntimeTreeNode runtimeTreeNode = this.mNodeTable.get(guid);
-        String path = runtimeTreeNode.getPath();
-        ArrayList<TreeNode> children = new ArrayList<>();
         for( RuntimeTreeNode node : this.mNodeTable.values() ) {
-            String nodePath = node.getPath();
-            if (nodePath.startsWith(path) &&
-                    !nodePath.equals(path) &&
-                    nodePath.substring(path.length()).split("/").length == 2) {
-                children.add(node);
+            if ( node.treeNode instanceof KOMInstrument ) {
+                KOMInstrument instrument = (KOMInstrument) node.treeNode;
+                Collection<TreeNode > cs = instrument.getChildren( guid );
+                if ( CollectionUtils.isNoneEmpty( cs ) ) {
+                    return cs;
+                }
             }
         }
-        return children;
+        return Units.emptyList();
     }
 
     @Override
     public Collection<GUID> fetchChildrenGuids( GUID guid ) {
-        RuntimeTreeNode runtimeTreeNode = this.mNodeTable.get(guid);
-        String path = runtimeTreeNode.getPath();
-        ArrayList<GUID> children = new ArrayList<>();
         for( RuntimeTreeNode node : this.mNodeTable.values() ) {
-            String nodePath = node.getPath();
-            if (nodePath.startsWith(path) &&
-                    !nodePath.equals(path) &&
-                    nodePath.substring(path.length()).split("/").length == 2) {
-                children.add(node.getGuid());
+            if ( node.treeNode instanceof KOMInstrument ) {
+                KOMInstrument instrument = (KOMInstrument) node.treeNode;
+                Collection<GUID> cs = instrument.fetchChildrenGuids( guid );
+                if ( CollectionUtils.isNoneEmpty( cs ) ) {
+                    return cs;
+                }
             }
         }
-        return children;
+        return Units.emptyList();
     }
 
     @Override

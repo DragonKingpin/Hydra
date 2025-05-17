@@ -5,7 +5,7 @@ import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 
-public class KernelExpressInstrument extends ArchRuntimeKOMTree implements CentralizedRuntimeInstrument {
+public class KernelExpressInstrument extends ArchDirectMappingRuntimeKOMTree implements CentralizedRuntimeInstrument {
 
     public KernelExpressInstrument( String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
         super( superiorPathScope, kernelObjectConfig );

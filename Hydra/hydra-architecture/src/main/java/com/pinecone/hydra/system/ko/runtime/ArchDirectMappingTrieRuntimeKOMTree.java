@@ -1,0 +1,38 @@
+package com.pinecone.hydra.system.ko.runtime;
+
+import com.pinecone.framework.unit.trie.DirectoryNode;
+import com.pinecone.framework.unit.trie.TrieNode;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+
+public abstract class ArchDirectMappingTrieRuntimeKOMTree extends ArchRuntimeKOMTree implements DirectMappingTrieRuntimeInstrument {
+    public ArchDirectMappingTrieRuntimeKOMTree(String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
+        super( superiorPathScope, kernelObjectConfig );
+    }
+
+    @Override
+    public boolean hasOwnProperty( Object elm ) {
+        return this.mNodeIndex.hasOwnProperty( elm );
+    }
+
+    @Override
+    public boolean containsKey( Object key ) {
+        return this.queryGUIDByPath( key.toString() ) != null;
+    }
+
+    @Override
+    public TrieNode<TreeNode> getOwnProperty( String path ) {
+        return this.mNodeIndex.queryNode( path );
+    }
+
+    @Override
+    public DirectoryNode<TreeNode > fetchOwnChildren( String path ) {
+        TrieNode<TreeNode> self = this.getOwnProperty( path );
+        if ( self == null ) {
+            return null;
+        }
+
+        return self.evinceDirectory();
+    }
+
+}

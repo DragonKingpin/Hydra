@@ -4,8 +4,8 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 import com.pinecone.hydra.system.ko.runtime.KernelExpressInstrument;
+import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.walnut.odin.task.RavenTaskInstrument;
@@ -28,12 +28,12 @@ class Loki extends Radium {
         RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
 
 
-        KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( "", null );
+        KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( "", new GenericRuntimeInstrumentConfig());
 
         kernelExpressInstrument.setTargetingName("task1");
         kernelExpressInstrument.mount( "task1", ravenTaskInstrument );
 
-        Debug.trace( kernelExpressInstrument.queryGUIDByPath( "task1/test/job/task" ) );
+        Debug.fmp( 2,  kernelExpressInstrument.queryNode( "task1/test/job/task" ) );
     }
 
     private void testCategory( KernelExpressInstrument instrument ) {

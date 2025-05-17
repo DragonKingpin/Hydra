@@ -138,7 +138,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             return treeNode.getGuid();
         }
 
-        String[] split = path.split("/");
+        String[] split = path.split(this.kernelObjectConfig.getPathNameSepRegex());
         for( int i = split.length - 2; i >= 0; --i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
@@ -157,7 +157,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             return treeNode.getGuid();
         }
 
-        String[] split = path.split("/");
+        String[] split = path.split(this.kernelObjectConfig.getPathNameSeparator());
         for( int i = 0; i < split.length; ++i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
@@ -174,7 +174,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         StringBuilder stringBuilder = new StringBuilder();
         for( int i = start; i <= end; ++i ) {
             if (stringBuilder.length() > 0) {
-                stringBuilder.append('/');
+                stringBuilder.append(this.kernelObjectConfig.getPathNameSeparator());
             }
             stringBuilder.append( segments[ i ] );
         }
@@ -292,18 +292,42 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) {
+        if( szTargetSep != null ) {
+            path = path.replace( szBadSep, szTargetSep );
+        }
+
+        TreeNode treeNode = this.mNodeIndex.get( path );
+        if ( treeNode != null ) {
+            return treeNode;
+        }
+
+        String[] split = path.split( this.kernelObjectConfig.getPathNameSeparator() );
+        for( int i = 0; i < split.length; ++i ) {
+            TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
+            if( node instanceof RuntimeTreeNode ) {
+                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
+                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                return pointHandle.get( guid );
+            }
+        }
         return null;
     }
 
     @Override
     public EntityNode queryNode( String path ) {
-        this.queryGUIDByPath(path);
-        return this.mNodeIndex.get(path);
+        Object o = this.queryEntityHandleByNS( path, null, null );
+        if ( o instanceof EntityNode ) {
+            return (EntityNode) o;
+        }
+        return null;
     }
 
     @Override
     public GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep ) {
-        return null;
+        if( szTargetSep != null ) {
+            path = path.replace( szBadSep, szTargetSep );
+        }
+        return this.queryGUIDByPath( path );
     }
 
     @Override

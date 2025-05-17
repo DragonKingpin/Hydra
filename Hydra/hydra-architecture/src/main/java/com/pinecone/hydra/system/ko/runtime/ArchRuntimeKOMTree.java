@@ -127,6 +127,26 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public GUID queryGUIDByPath( String path ) {
+//        TreeNode treeNode = this.mNodeIndex.get( path );
+//        if ( treeNode != null ) {
+//            return treeNode.getGuid();
+//        }
+//
+//        String[] split = path.split("/");
+//        for( int i = split.length - 2; i >= 0; --i ) {
+//            TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
+//            if( node instanceof RuntimeTreeNode ) {
+//                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
+//                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+//                //this.mNodeIndex.put( path, pointHandle.get(guid) );
+//                return guid;
+//            }
+//        }
+//        return null;
+        return this.queryGUIDByPathForward(path);
+    }
+
+    protected GUID queryGUIDByPathBackward( String path ) {
         TreeNode treeNode = this.mNodeIndex.get( path );
         if ( treeNode != null ) {
             return treeNode.getGuid();
@@ -134,6 +154,25 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
         String[] split = path.split("/");
         for( int i = split.length - 2; i >= 0; --i ) {
+            TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
+            if( node instanceof RuntimeTreeNode ) {
+                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
+                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                //this.mNodeIndex.put( path, pointHandle.get(guid) );
+                return guid;
+            }
+        }
+        return null;
+    }
+
+    protected GUID queryGUIDByPathForward( String path ) {
+        TreeNode treeNode = this.mNodeIndex.get( path );
+        if ( treeNode != null ) {
+            return treeNode.getGuid();
+        }
+
+        String[] split = path.split("/");
+        for( int i = 0; i < split.length; ++i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
                 ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;

@@ -12,7 +12,7 @@ import com.pinecone.hydra.unit.vgraph.VectorDAG;
 
 import java.util.List;
 
-public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements StrategyChain {
+public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements GraphPriorityProcessStrategyChain {
     private RuntimeAtlasInstrument      mRuntimeAtlasInstrument;
 
     private MegaDeflectPriorityQueue    mMegaDeflectPriorityQueue;
@@ -30,31 +30,29 @@ public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements
 
 
     @Override
-    public void execute( VectorDAG vectorDAG ) {
-
-
+    public void process( VectorDAG vectorDAG ) {
         long handNodeNums = vectorDAG.countHandleNodes();
         long offset = 0;
 
         for( long i = 0; i < handNodeNums; i+=1000 ) {
             List<GUID> handleGuids = vectorDAG.fetchHandleGuidsByTaskPriority(offset, 1000);
             for (GUID handleGuid : handleGuids) {
-                TaskElement taskElement = mRuntimeAtlasInstrument.queryTaskElementByGuid(handleGuid);
-                if (taskElement.getPriority() > mnPriority) {
-                    this.dpPop(vectorDAG,this.mnPriority);
-                    this.mnPriority++;
+                TaskElement taskElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid(handleGuid);
+                if (taskElement.getPriority() > this.mnPriority) {
+                    this.bfsGraph(vectorDAG,this.mnPriority);
+                    ++this.mnPriority;
                 }
                 GenericStratumQueueElement element = new GenericStratumQueueElement();
                 element.setObjectGuid(handleGuid);
                 element.setStratum((short) 0);
                 this.mTempMegaStratumQueue.pushBack(element);
-                offset++;
+                ++offset;
             }
         }
-        this.dpPop( vectorDAG,this.mnPriority );
+        this.bfsGraph( vectorDAG, this.mnPriority );
     }
 
-    private void dpPop(VectorDAG vectorDAG,int priority){
+    protected void bfsGraph( VectorDAG vectorDAG, int priority ) {
         while( !this.mTempMegaStratumQueue.isEmpty() ) {
             QueueStratumElement pop = this.mTempMegaStratumQueue.popFront();
 
@@ -73,7 +71,7 @@ public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements
                 List<GUID> guids = vectorDAG.fetchChildNodeGuids(childOffset, 1000, pop.getObjectGuid());
                 for( GUID guid : guids ) {
                     TaskElement childtaskElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid(guid);
-                    if( childtaskElement.getPriority() <= this.mnPriority  ) {
+                    if( childtaskElement.getPriority() <= priority  ) {
                         GenericStratumQueueElement stratumQueueElement = new GenericStratumQueueElement();
                         stratumQueueElement.setObjectGuid( guid );
                         stratumQueueElement.setStratum((short) (pop.getStratum() + 1));
@@ -81,7 +79,6 @@ public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements
                     }
                 }
             }
-
         }
     }
 

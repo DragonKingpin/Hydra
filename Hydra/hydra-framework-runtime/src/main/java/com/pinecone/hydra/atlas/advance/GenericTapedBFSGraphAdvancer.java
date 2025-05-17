@@ -1,17 +1,10 @@
 package com.pinecone.hydra.atlas.advance;
 
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.atlas.advance.chain.StrategyChain;
+import com.pinecone.hydra.atlas.advance.chain.GraphPriorityProcessStrategyChain;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
-import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.MegaStratumQueue;
-import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
-
-import java.util.ArrayDeque;
-import java.util.List;
 
 public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvancer {
     private RuntimeAtlasInstrument          mRuntimeAtlasInstrument;
@@ -20,10 +13,10 @@ public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvance
 
     private MegaStratumQueue                mTempMegaStratumQueue;
 
-    private StrategyChain                   mStrategyChain;
+    private GraphPriorityProcessStrategyChain mStrategyChain;
 
-    public GenericTapedBFSGraphAdvancer( RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
-                                         MegaStratumQueue tempMegaStratumQueue,StrategyChain strategyChain ) {
+    public GenericTapedBFSGraphAdvancer(RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
+                                        MegaStratumQueue tempMegaStratumQueue, GraphPriorityProcessStrategyChain strategyChain ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
         this.mMegaDeflectPriorityQueue  = megaDeflectPriorityQueue;
         this.mTempMegaStratumQueue      = tempMegaStratumQueue;
@@ -32,7 +25,11 @@ public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvance
 
 
     public void traverse( VectorDAG vectorDAG ) {
-        this.mStrategyChain.execute( vectorDAG );
+        GraphPriorityProcessStrategyChain strategyChain = this.mStrategyChain;
+         while ( strategyChain != null ) {
+             strategyChain.process(vectorDAG);
+             strategyChain = strategyChain.next();
+         }
     }
 
 }

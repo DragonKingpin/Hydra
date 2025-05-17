@@ -1,9 +1,9 @@
 package com.pinecone.hydra.atlas.advance.chain;
 
-public abstract class AbstractStrategyChain implements StrategyChain {
-    protected StrategyChain mNextStrategyChain;
+public abstract class AbstractStrategyChain implements GraphPriorityProcessStrategyChain {
+    protected GraphPriorityProcessStrategyChain mNextStrategyChain;
 
-    public AbstractStrategyChain( StrategyChain strategyChain ) {
+    public AbstractStrategyChain( GraphPriorityProcessStrategyChain strategyChain ) {
         this.mNextStrategyChain = strategyChain;
     }
 
@@ -12,13 +12,13 @@ public abstract class AbstractStrategyChain implements StrategyChain {
     }
 
     @Override
-    public StrategyChain addNext(StrategyChain strategyChain) {
+    public GraphPriorityProcessStrategyChain addNext(GraphPriorityProcessStrategyChain strategyChain) {
         this.mNextStrategyChain = strategyChain;
         return this.mNextStrategyChain;
     }
 
     @Override
-    public StrategyChain next() {
+    public GraphPriorityProcessStrategyChain next() {
         return this.mNextStrategyChain;
     }
 }

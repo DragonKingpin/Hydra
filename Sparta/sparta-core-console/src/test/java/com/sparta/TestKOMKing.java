@@ -3,6 +3,8 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
+import com.pinecone.framework.util.Debug;
+import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 import com.pinecone.hydra.system.ko.runtime.KernelExpressInstrument;
 import com.pinecone.radium.Radium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -27,6 +29,11 @@ class Loki extends Radium {
 
 
         KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( "", null );
+
+        kernelExpressInstrument.setTargetingName("task1");
+        kernelExpressInstrument.mount( "task1", ravenTaskInstrument );
+
+        Debug.trace( kernelExpressInstrument.queryGUIDByPath( "task1/test/job/task" ) );
     }
 
     private void testCategory( KernelExpressInstrument instrument ) {

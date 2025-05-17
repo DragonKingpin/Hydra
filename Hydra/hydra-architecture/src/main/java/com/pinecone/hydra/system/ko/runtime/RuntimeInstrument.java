@@ -9,4 +9,6 @@ public interface RuntimeInstrument extends KOMInstrument {
 
     Collection<TreeNode> fetchTreeNodes();
 
+    TreeNode add( String mountPointPath, TreeNode that );
+
 }

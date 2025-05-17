@@ -1,5 +1,6 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.unit.trie.TrieMap;
+import com.pinecone.framework.unit.trie.UniTrieMaptron;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
@@ -14,6 +16,7 @@ import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
+import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 import com.pinecone.hydra.unit.imperium.ArchUniformInstitutionalizedInstrument;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
@@ -45,7 +48,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         super( superiorPathScope );
 
         this.kernelObjectConfig  = kernelObjectConfig;
-        this.mNodeTable          = new ConcurrentHashMap<>();
+        this.mNodeIndex          = new UniTrieMaptron<>( ConcurrentHashMap::new );
         this.mNodeTable          = new ConcurrentHashMap<>();
         this.guidAllocator       = new GenericGuidAllocator();
     }
@@ -128,7 +131,29 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         if ( treeNode != null ) {
             return treeNode.getGuid();
         }
+
+        String[] split = path.split("/");
+        for( int i = split.length - 2; i >= 0; --i ) {
+            TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
+            if( node instanceof RuntimeTreeNode ) {
+                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
+                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                //this.mNodeIndex.put( path, pointHandle.get(guid) );
+                return guid;
+            }
+        }
         return null;
+    }
+
+    protected String concatenateFullPathBySegments( String[] segments, int start, int end ) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for( int i = start; i <= end; ++i ) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append('/');
+            }
+            stringBuilder.append( segments[ i ] );
+        }
+        return stringBuilder.toString();
     }
 
     @Override
@@ -142,9 +167,33 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     }
 
     @Override
-    public GUID put( TreeNode treeNode ) {
-        return null;
+    public GUID put( TreeNode treeNode ) throws IllegalArgumentException {
+        RuntimeTreeNode runtimeTreeNode;
+        if ( treeNode instanceof RuntimeTreeNode ) {
+            runtimeTreeNode = (RuntimeTreeNode) treeNode;
+        }
+        else {
+            throw new IllegalArgumentException( "TreeNode which been putted should be `RuntimeTreeNode`." );
+        }
+        this.mNodeTable.put( treeNode.getGuid(), runtimeTreeNode );
+        return treeNode.getGuid();
     }
+
+    @Override
+    public TreeNode add( String mountPointPath, TreeNode that ) {
+        RuntimeTreeNode runtimeTreeNode;
+        if ( that instanceof RuntimeTreeNode ) {
+            runtimeTreeNode = (RuntimeTreeNode) that;
+        }
+        else {
+            runtimeTreeNode = new RuntimeTreeNode( that, mountPointPath );
+        }
+
+        this.mNodeTable.put( that.getGuid(), runtimeTreeNode );
+        this.mNodeIndex.put( mountPointPath, runtimeTreeNode );
+        return that;
+    }
+
 
     @Override
     public TreeNode get( GUID guid ) {
@@ -185,17 +234,39 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public Collection<TreeNode> getChildren( GUID guid ) {
-        return null;
+        RuntimeTreeNode runtimeTreeNode = this.mNodeTable.get(guid);
+        String path = runtimeTreeNode.getPath();
+        ArrayList<TreeNode> children = new ArrayList<>();
+        for( RuntimeTreeNode node : this.mNodeTable.values() ) {
+            String nodePath = node.getPath();
+            if (nodePath.startsWith(path) &&
+                    !nodePath.equals(path) &&
+                    nodePath.substring(path.length()).split("/").length == 2) {
+                children.add(node);
+            }
+        }
+        return children;
     }
 
     @Override
     public Collection<GUID> fetchChildrenGuids( GUID guid ) {
-        return null;
+        RuntimeTreeNode runtimeTreeNode = this.mNodeTable.get(guid);
+        String path = runtimeTreeNode.getPath();
+        ArrayList<GUID> children = new ArrayList<>();
+        for( RuntimeTreeNode node : this.mNodeTable.values() ) {
+            String nodePath = node.getPath();
+            if (nodePath.startsWith(path) &&
+                    !nodePath.equals(path) &&
+                    nodePath.substring(path.length()).split("/").length == 2) {
+                children.add(node.getGuid());
+            }
+        }
+        return children;
     }
 
     @Override
     public List<? extends TreeNode> fetchRoot() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -205,7 +276,8 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     @Override
     public EntityNode queryNode( String path ) {
-        return null;
+        this.queryGUIDByPath(path);
+        return this.mNodeIndex.get(path);
     }
 
     @Override

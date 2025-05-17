@@ -35,8 +35,8 @@ class Randy extends Radium {
 
         //this.testCategory( ravenTaskInstrument );
 
-        this.testInsert( ravenTaskInstrument );
-        //this.testGet( ravenTaskInstrument );
+        //this.testInsert( ravenTaskInstrument );
+        this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
     }

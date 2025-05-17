@@ -2,8 +2,8 @@ package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.ClusterElement;
-import com.pinecone.hydra.task.kom.entity.GenericClusterElement;
+import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.GenericJobElement;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
@@ -23,7 +23,7 @@ public interface JobNodeMapper extends JobNodeManipulator {
     @Insert("INSERT INTO `hydra_task_job_node` " +
             "(`guid`, `name`, `type`, `create_time`, `update_time`) " +
             "VALUES (#{guid}, #{name}, #{type}, #{createTime}, #{updateTime})")
-    void insert(ClusterElement clusterElement);
+    void insert( JobElement jobElement );
 
     @Override
     @Delete("DELETE FROM `hydra_task_job_node` WHERE `guid` = #{guid}")
@@ -32,11 +32,11 @@ public interface JobNodeMapper extends JobNodeManipulator {
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `type`, " +
             "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
             "FROM `hydra_task_job_node` WHERE `guid` = #{guid}")
-    GenericClusterElement getJobElement(@Param("guid") GUID guid);
+    GenericJobElement getJobElement(@Param("guid") GUID guid);
 
     @Override
-    default ClusterElement getJobElement(GUID guid, TaskInstrument instrument ) {
-        GenericClusterElement element = this.getJobElement( guid );
+    default JobElement getJobElement(GUID guid, TaskInstrument instrument ) {
+        GenericJobElement element = this.getJobElement( guid );
         element.apply( instrument );
 
         return element;
@@ -49,7 +49,7 @@ public interface JobNodeMapper extends JobNodeManipulator {
             "`create_time` = #{createTime}, " +
             "`update_time` = #{updateTime} " +
             "WHERE `guid` = #{guid}")
-    void update(ClusterElement clusterElement);
+    void update( JobElement jobElement );
 
 
     @Override

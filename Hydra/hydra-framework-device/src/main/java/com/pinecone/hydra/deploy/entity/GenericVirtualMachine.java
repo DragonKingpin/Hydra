@@ -48,19 +48,20 @@ public class GenericVirtualMachine implements VirtualMachine {
     }
 
     @Override
-    public GUID getAffiliateHost() {
-        return this.affiliateHostGuid;
+    public PhysicalHost getAffiliateHost() {
+        return null;
+        //return this.affiliateHostGuid;
     }
 
-    @Override
-    public void setGuid(GUID guid) {
-        this.guid = guid;
-    }
-
-    @Override
-    public void setAffiliateHostGuid(GUID guid) {
-        this.affiliateHostGuid = guid;
-    }
+//    @Override
+//    public void setGuid(GUID guid) {
+//        this.guid = guid;
+//    }
+//
+//    @Override
+//    public void setAffiliateHostGuid(GUID guid) {
+//        this.affiliateHostGuid = guid;
+//    }
 
 //    @Override
 //    public void setGuid(GUID guid) {

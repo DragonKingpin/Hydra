@@ -38,14 +38,14 @@ class Randon extends Radium {
         UniformDeployInstrument deployInstrument = new UniformDeployInstrument( deployMappingDriver );
         /*this.testInsert( deployInstrument );*/
         /*this.testUpdate( deployInstrument );*/
-     //  this.testInsertPhysicalHost( deployInstrument );
-       /*this.testUpdate( deployInstrument );*/
+        //  this.testInsertPhysicalHost( deployInstrument );
+        /*this.testUpdate( deployInstrument );*/
 /*         deployInstrument.affirmNamespace( "testNamespace").addChild(new GenericNamespace( new JSONMaptron( "{ name: weapon002, description: d1 }" )));
          GenericQuickElement quickElement = new GenericQuickElement();
          quickElement.setName("weapon005");
          quickElement.setTypeName("weapon");
          deployInstrument.put(quickElement);*/
-         /*TreeNode roodNode = deployInstrument.queryElement("testNamespace/weapon001" );*/
+        /*TreeNode roodNode = deployInstrument.queryElement("testNamespace/weapon001" );*/
         /*Debug.greenfs("根节点信息: " + roodNode.evinceTreeNode().toJSONString());*/
      /*   GenericNamespace namespace = new GenericNamespace();
         namespace.setName("testNamespace007");
@@ -94,7 +94,7 @@ class Randon extends Radium {
         quickElement.setTypeName("quickElement009");
         deployInstrument.put(quickElement);*/
         Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "quickElement009" ));
-      deployInstrument.affirmQuick("quickElement003").addChild(new GenericQuickElement( new JSONMaptron( "{ name: 'deployElement002', description: 'd1' }" )));
+        //deployInstrument.affirmQuick("quickElement003").addChild(new GenericQuickElement( new JSONMaptron( "{ name: 'deployElement002', description: 'd1' }" )));
 /*        GenericDeployElement deployElement = new GenericDeployElement();
         deployElement.setName("deployElement004");
         deployElement.setEnable(true);
@@ -103,6 +103,7 @@ class Randon extends Radium {
         deployInstrument.affirmDeployNode("deployElement004").addChild(new GenericDeployElement( new JSONMaptron( "{ name: 'deployElement003', description: 'd1' }" )));*/
 
     }
+
     private void testInsert(UniformDeployInstrument instrument) {
 /*        String jsonConfig = "{"
                 + "name: 'dataSyncJob', "
@@ -130,6 +131,7 @@ class Randon extends Radium {
     private void testGet( UniformDeployInstrument instrument ) {
         Debug.info( "taskElement: " + instrument.get(GUIDs.GUID72("24b2258-0000bd-0000-44")));
     }
+
     private void testUpdate( UniformDeployInstrument instrument ) {
 
         GenericVirtualMachineElement virtualMachine = new GenericVirtualMachineElement();
@@ -143,6 +145,7 @@ class Randon extends Radium {
         virtualMachine.setAffiliateHostGuid(GUIDs.GUID72("2261a1a-000377-0000-75"));
         instrument.update( virtualMachine );
     }
+
     private void testInsertPhysicalHost(UniformDeployInstrument instrument) {
 
  /*       GenericPhysicalHostElement physicalHost = new GenericPhysicalHostElement();

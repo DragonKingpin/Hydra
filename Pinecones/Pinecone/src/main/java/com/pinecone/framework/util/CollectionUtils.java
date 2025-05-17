@@ -23,12 +23,20 @@ public abstract class CollectionUtils {
     public CollectionUtils() {
     }
 
-    public static boolean isEmpty(Collection<?> collection) {
+    public static boolean isEmpty( Collection<?> collection ) {
         return collection == null || collection.isEmpty();
     }
 
-    public static boolean isEmpty(Map<?, ?> map) {
+    public static boolean isNoneEmpty( Collection<?> collection ) {
+        return !CollectionUtils.isEmpty( collection );
+    }
+
+    public static boolean isEmpty( Map<?, ?> map ) {
         return map == null || map.isEmpty();
+    }
+
+    public static boolean isNoneEmpty( Map<?, ?> map ) {
+        return !CollectionUtils.isEmpty( map );
     }
 
     public static List arrayToList(Object source) {

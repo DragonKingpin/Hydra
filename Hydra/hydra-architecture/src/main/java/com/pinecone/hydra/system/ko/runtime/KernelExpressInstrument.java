@@ -1,7 +1,10 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.handle.KHandle;
 import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
+import com.pinecone.hydra.system.ko.handle.ObjectTreeAddressingSectionHandle;
 import com.pinecone.hydra.system.ko.kom.ExpressInstrument;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
@@ -31,6 +34,12 @@ public class KernelExpressInstrument extends ArchDirectMappingTrieRuntimeKOMTree
                 treeNodeName, this.guidAllocator.nextGUID(), that
         );
         this.add( mountPointPath, handle );
+        return that;
+    }
+
+    @Override
+    public KHandle mount(String mountPointPath, ObjectTreeAddressingSectionHandle that) {
+        this.add( mountPointPath, that );
         return that;
     }
 

@@ -6,8 +6,9 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
+import com.pinecone.hydra.storage.file.direct.DirectFileInstrument;
 import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
-import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccessor;
+import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemInstrument;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ClusterPage64;
@@ -93,7 +94,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     protected IndexableMapQuerier<String, String >    globalPathGuidCacheQuerier;
 
-    protected DirectFileSystemAccessor directFileSystemAccessor;
+    protected DirectFileInstrument directFileSystemAccessor;
 
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier, FileSystemConfig fileSystemConfig ){
@@ -131,7 +132,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.fsNodeAllotment                 =  new GenericFSNodeAllotment(this.fileMasterManipulator,this);
         this.globalPathGuidCacheQuerier      =  globalPathGuidCacheQuerier;
 
-        this.directFileSystemAccessor = new KenDirectFileSystemAccessor(this);
+        this.directFileSystemAccessor = new KenDirectFileSystemInstrument(this);
     }
 
 //    public GenericKOMFileSystem( Hydrarum hydrarum ) {

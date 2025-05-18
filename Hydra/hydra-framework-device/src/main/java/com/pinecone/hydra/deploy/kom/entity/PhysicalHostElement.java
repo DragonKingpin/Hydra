@@ -8,5 +8,8 @@ public interface PhysicalHostElement extends ServerElement {
     void setStatus( String status );
     String getStatus();
 
+    default PhysicalHostElement evincePhysicalHostElement() {
+        return this;
+    }
 
 }

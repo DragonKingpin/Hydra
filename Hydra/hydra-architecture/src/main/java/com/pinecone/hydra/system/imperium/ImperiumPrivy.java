@@ -1,6 +1,7 @@
 package com.pinecone.hydra.system.imperium;
 
 import com.pinecone.hydra.system.HyComponent;
+import com.pinecone.hydra.system.ko.runtime.CentralizedRuntimeInstrument;
 
 /**
  *  Pinecone Ursus For Java Imperium Privy Council
@@ -21,4 +22,7 @@ import com.pinecone.hydra.system.HyComponent;
  *  *****************************************************************************************
  */
 public interface ImperiumPrivy extends HyComponent {
+
+    CentralizedRuntimeInstrument getExpressInstrument();
+
 }

@@ -25,9 +25,5 @@ public interface VirtualMachineElement extends ServerElement {
     void setAffiliateHostGuid(GUID guid);
 
 
-    boolean isEnabled();
-    void setEnabled(boolean enabled);
-
-
     DeployExtraMeta getVmExtraMeta();
 }

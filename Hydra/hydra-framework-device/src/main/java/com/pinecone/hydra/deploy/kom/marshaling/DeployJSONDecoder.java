@@ -5,14 +5,18 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.FolderElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
+import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.QuickElement;
+import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 
 public class DeployJSONDecoder implements DeployInstrumentDecoder {
     protected DeployInstrument instrument;
@@ -86,8 +90,8 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
         return new Object[] { ns, currentGuid };
     }
 
-    protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        ClusterElement app = null;
+    protected Object[]    affirmClusterExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        ClusterElement cluster = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
@@ -98,7 +102,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
                     );
                 }
 
-                app = rootE.evinceJobElement();
+                cluster = rootE.evinceJobElement();
             }
         }
         else {
@@ -108,7 +112,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
                         if( node instanceof ClusterElement) {
-                            app = (ClusterElement) node;
+                            cluster = (ClusterElement) node;
                             break;
                         }
                         else {
@@ -124,29 +128,29 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
 
 
         ClusterElement neo ;
-        if( app == null ) {
+        if( cluster == null ) {
             neo = new GenericClusterElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = app;
+            neo = cluster;
         }
-        return new Object[] { app, neo };
+        return new Object[] { cluster, neo };
     }
 
-    protected Object[]    affirmSerExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        DeployElement ser = null;
+    protected Object[]    affirmPhyExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        PhysicalHostElement dep = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceDeployElement() == null ) {
+                if( rootE.evincePhysicalHostElement() == null ) {
                     throw new IllegalArgumentException(
                             String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
                     );
                 }
 
-                ser = rootE.evinceDeployElement();
+                dep = rootE.evincePhysicalHostElement();
             }
         }
         else {
@@ -156,13 +160,13 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
                 destChildren = ( (FolderElement) parentNode ).fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof DeployElement) {
-                            ser = (DeployElement) node;
+                        if( node instanceof PhysicalHostElement ) {
+                            dep = (PhysicalHostElement) node;
                             break;
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `PhysicalHostElement`.", szName )
                             );
                         }
                     }
@@ -177,15 +181,123 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
 
 
 
-        DeployElement neo ;
-        if( ser == null ) {
-            neo = new GenericDeployElement( jo, this.instrument );
+        PhysicalHostElement neo ;
+        if( dep == null ) {
+            neo = new GenericPhysicalHostElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = ser;
+            neo = dep;
         }
-        return new Object[] { ser, neo };
+        return new Object[] { dep, neo };
+    }
+
+    protected Object[]    affirmVMExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        VirtualMachineElement dep = null;
+
+        if( parentGuid == null ) {
+            ElementNode rootE = this.instrument.queryElement( szName );
+            if( rootE != null ) {
+                if( rootE.evinceVirtualMachineElement() == null ) {
+                    throw new IllegalArgumentException(
+                            String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
+                    );
+                }
+
+                dep = rootE.evinceVirtualMachineElement();
+            }
+        }
+        else {
+            ElementNode parentNode = (ElementNode)this.instrument.get( parentGuid );
+            Collection<ElementNode> destChildren;
+            if( parentNode instanceof FolderElement ) {
+                destChildren = ( (FolderElement) parentNode ).fetchChildren();
+                for( ElementNode node : destChildren ) {
+                    if( szName.equals( node.getName() ) ) {
+                        if( node instanceof VirtualMachineElement ) {
+                            dep = (VirtualMachineElement) node;
+                            break;
+                        }
+                        else {
+                            throw new IllegalArgumentException(
+                                    String.format( "Existed child-destination [%s] should be `VirtualMachineElement`.", szName )
+                            );
+                        }
+                    }
+                }
+            }
+            else {
+                throw new IllegalStateException(
+                        String.format( "Parent of `TaskElement` [%s] should be `FolderElement`.", szName )
+                );
+            }
+        }
+
+
+
+        VirtualMachineElement neo ;
+        if( dep == null ) {
+            neo = new GenericVirtualMachineElement( jo, this.instrument );
+            neo.setName( szName );
+        }
+        else {
+            neo = dep;
+        }
+        return new Object[] { dep, neo };
+    }
+
+    protected Object[]    affirmQuickExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        QuickElement dep = null;
+
+        if( parentGuid == null ) {
+            ElementNode rootE = this.instrument.queryElement( szName );
+            if( rootE != null ) {
+                if( rootE.evinceQuickElement() == null ) {
+                    throw new IllegalArgumentException(
+                            String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
+                    );
+                }
+
+                dep = rootE.evinceQuickElement();
+            }
+        }
+        else {
+            ElementNode parentNode = (ElementNode)this.instrument.get( parentGuid );
+            Collection<ElementNode> destChildren;
+            if( parentNode instanceof FolderElement ) {
+                destChildren = ( (FolderElement) parentNode ).fetchChildren();
+                for( ElementNode node : destChildren ) {
+                    if( szName.equals( node.getName() ) ) {
+                        if( node instanceof QuickElement ) {
+                            dep = (QuickElement) node;
+                            break;
+                        }
+                        else {
+                            throw new IllegalArgumentException(
+                                    String.format( "Existed child-destination [%s] should be `QuickElement`.", szName )
+                            );
+                        }
+                    }
+                }
+            }
+            else {
+                throw new IllegalStateException(
+                        String.format( "Parent of `TaskElement` [%s] should be `FolderElement`.", szName )
+                );
+            }
+        }
+
+
+
+        QuickElement neo ;
+        if( dep == null ) {
+            neo = new GenericQuickElement( jo, this.instrument );
+            neo.setName( szName );
+        }
+        else {
+            neo = dep;
+        }
+        return new Object[] { dep, neo };
     }
 
     protected Object[]    decodeExternalElements( String szMetaType, String szName, GUID parentGuid, Map<String, Object > jo ) throws IllegalArgumentException {
@@ -221,11 +333,17 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
             Object[] pair;
             boolean bIsFolderElement = false;
             if( szMetaType.equals( ClusterElement.class.getSimpleName() ) ) {
-                pair = this.affirmAppExisted( szName, parentGuid, jo );
+                pair = this.affirmClusterExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }
-            else if( szMetaType.equals( DeployElement.class.getSimpleName() ) ) {
-                pair = this.affirmSerExisted( szName, parentGuid, jo );
+            else if( szMetaType.equals( PhysicalHostElement.class.getSimpleName() ) ) {
+                pair = this.affirmPhyExisted( szName, parentGuid, jo );
+            }
+            else if( szMetaType.equals( VirtualMachineElement.class.getSimpleName() ) ) {
+                pair = this.affirmVMExisted( szName, parentGuid, jo );
+            }
+            else if( szMetaType.equals( QuickElement.class.getSimpleName() ) ) {
+                pair = this.affirmQuickExisted( szName, parentGuid, jo );
             }
             else {
                 try{
@@ -249,7 +367,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
             }
 
             if( bIsFolderElement ) {
-                Object services = jo.get( "tasks" );
+                Object services = jo.get( "deployments" );
                 if( services instanceof Map ) {
                     Map joSer = (Map) services;
                     this.decodeChildren( joSer, currentGuid );

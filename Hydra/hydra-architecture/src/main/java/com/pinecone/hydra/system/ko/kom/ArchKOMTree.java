@@ -127,6 +127,10 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
         }
 
         ImperialTreeNode node = this.imperialTree.getNode(guid);
+        if ( node == null ) {
+            return null;
+        }
+
         GUID owner = this.imperialTree.getOwner(guid);
         if ( owner == null ){
             String assemblePath = this.getNodeName(node);

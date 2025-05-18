@@ -9,7 +9,6 @@ import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
@@ -27,7 +26,6 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
 
     protected void registerDefaultMetaTypes() {
         this.registerDefaultMetaType( GenericNamespace.class );
-        this.registerDefaultMetaType( GenericDeployElement.class );
         this.registerDefaultMetaType( GenericClusterElement.class );
         this.registerDefaultMetaType( GenericVirtualMachineElement.class );
         this.registerDefaultMetaType( GenericPhysicalHostElement.class );
@@ -39,13 +37,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.deployMasterManipulator = deployMasterManipulator;
 
         this.registerer.put(
-                ElementOperatorFactory.DefaultServiceNode,
-                new DeployElementOperator( this )
-        );
-
-        this.registerer.put(
                 ElementOperatorFactory.DefaultApplicationNode,
-                new JobElementOperator(this)
+                new ClusterElementOperator(this)
         );
 
         this.registerer.put(

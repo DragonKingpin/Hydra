@@ -29,6 +29,7 @@ import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
+import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
@@ -226,11 +227,6 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     @Override
     public void remove( GUID guid ) {
         super.remove( guid );
-    }
-
-    @Override
-    public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
-        return null;
     }
 
 }

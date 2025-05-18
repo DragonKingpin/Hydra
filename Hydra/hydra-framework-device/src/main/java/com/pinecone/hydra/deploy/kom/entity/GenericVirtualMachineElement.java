@@ -6,24 +6,16 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.deploy.DeployExtraMeta;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
-import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 
 import java.util.Map;
 
-public class GenericVirtualMachineElement extends GenericServerElement implements VirtualMachineElement {
+public class GenericVirtualMachineElement extends ArchServerElement implements VirtualMachineElement {
 
     protected GUID affiliateHostGuid;
 
-    protected String ipAddress;
-
     protected String status;
 
-    protected boolean enabled;
-
     protected DeployExtraMeta vmExtraMeta;
-
-
 
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
@@ -32,17 +24,18 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
         }
     }
 
-    public GenericVirtualMachineElement(Map<String, Object> joEntity) {
+    public GenericVirtualMachineElement( Map<String, Object> joEntity ) {
         super(joEntity);
     }
 
-    public GenericVirtualMachineElement(DeployInstrument deployInstrument) {
+    public GenericVirtualMachineElement( DeployInstrument deployInstrument ) {
         super(deployInstrument);
     }
 
     public GenericVirtualMachineElement() {
         super();
     }
+
     public GenericVirtualMachineElement( Map<String, Object > joEntity, DeployInstrument deployInstrument ) {
         super( joEntity, deployInstrument);
         this.initSelf( joEntity );
@@ -99,16 +92,6 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
     }
 
     @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Override
     public GUID getAffiliateHostGuid() {
         return this.affiliateHostGuid;
     }
@@ -121,17 +104,6 @@ public class GenericVirtualMachineElement extends GenericServerElement implement
     @Override
     public DeployExtraMeta getVmExtraMeta() {
         return this.vmExtraMeta;
-    }
-
-
-    @Override
-    public boolean isEnable() {
-        return this.enabled;
-    }
-
-    @Override
-    public void setEnable(boolean enable) {
-            this.enabled = enable;
     }
 
     @Override

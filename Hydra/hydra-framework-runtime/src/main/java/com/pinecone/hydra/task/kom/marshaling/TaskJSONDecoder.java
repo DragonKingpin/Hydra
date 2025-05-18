@@ -86,8 +86,8 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
         return new Object[] { ns, currentGuid };
     }
 
-    protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        JobElement app = null;
+    protected Object[]    affirmJobExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        JobElement job = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
@@ -98,7 +98,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                     );
                 }
 
-                app = rootE.evinceJobElement();
+                job = rootE.evinceJobElement();
             }
         }
         else {
@@ -108,7 +108,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
                         if( node instanceof JobElement ) {
-                            app = (JobElement) node;
+                            job = (JobElement) node;
                             break;
                         }
                         else {
@@ -124,18 +124,18 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
 
 
         JobElement neo ;
-        if( app == null ) {
+        if( job == null ) {
             neo = new GenericJobElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = app;
+            neo = job;
         }
-        return new Object[] { app, neo };
+        return new Object[] { job, neo };
     }
 
-    protected Object[]    affirmSerExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        TaskElement ser = null;
+    protected Object[]    affirmTasExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        TaskElement task = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
@@ -146,7 +146,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                     );
                 }
 
-                ser = rootE.evinceTaskElement();
+                task = rootE.evinceTaskElement();
             }
         }
         else {
@@ -157,7 +157,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
                         if( node instanceof TaskElement ) {
-                            ser = (TaskElement) node;
+                            task = (TaskElement) node;
                             break;
                         }
                         else {
@@ -178,14 +178,14 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
 
 
         TaskElement neo ;
-        if( ser == null ) {
+        if( task == null ) {
             neo = new GenericTaskElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = ser;
+            neo = task;
         }
-        return new Object[] { ser, neo };
+        return new Object[] { task, neo };
     }
 
     protected Object[]    decodeExternalElements( String szMetaType, String szName, GUID parentGuid, Map<String, Object > jo ) throws IllegalArgumentException {
@@ -221,11 +221,11 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             Object[] pair;
             boolean bIsFolderElement = false;
             if( szMetaType.equals( JobElement.class.getSimpleName() ) ) {
-                pair = this.affirmAppExisted( szName, parentGuid, jo );
+                pair = this.affirmJobExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }
             else if( szMetaType.equals( TaskElement.class.getSimpleName() ) ) {
-                pair = this.affirmSerExisted( szName, parentGuid, jo );
+                pair = this.affirmTasExisted( szName, parentGuid, jo );
             }
             else {
                 try{

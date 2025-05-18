@@ -9,7 +9,7 @@ public interface DeployMasterManipulator extends KOIMasterManipulator {
 
     NodeMetaManipulator getNodeMetaManipulator();
 
-    JobNodeManipulator getJobNodeManipulator();
+    ClusterNodeManipulator getJobNodeManipulator();
 
     DeployNodeManipulator getDeployNodeManipulator();
 

@@ -1,5 +1,7 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import java.util.Collection;
+
 import com.pinecone.framework.unit.trie.DirectoryNode;
 import com.pinecone.framework.unit.trie.TrieNode;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
@@ -33,6 +35,11 @@ public abstract class ArchDirectMappingTrieRuntimeKOMTree extends ArchRuntimeKOM
         }
 
         return self.evinceDirectory();
+    }
+
+    @Override
+    public Collection<String > fetchOwnMappingPath() {
+        return this.mNodeIndex.keySet();
     }
 
 }

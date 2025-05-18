@@ -10,20 +10,20 @@ import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class JobElementOperator extends ArchElementOperator implements ElementOperator {
-    protected JobNodeManipulator jobNodeManipulator;
+public class ClusterElementOperator extends ArchElementOperator implements ElementOperator {
+    protected ClusterNodeManipulator jobNodeManipulator;
 
-    public JobElementOperator(ElementOperatorFactory factory ) {
+    public ClusterElementOperator(ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public JobElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public ClusterElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         super( masterManipulator, deployInstrument);
         this.jobNodeManipulator = masterManipulator.getJobNodeManipulator();
     }
@@ -95,7 +95,7 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
     @Override
     public ClusterElement get(GUID guid ) {
         ClusterElement clusterElement;
-        clusterElement = this.jobNodeManipulator.getJobElement( guid, this.deployInstrument);
+        clusterElement = this.jobNodeManipulator.getClusterElement( guid, this.deployInstrument);
         this.applyCommonMeta(clusterElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         clusterElement.setGuid(clusterElement.getGuid());

@@ -74,7 +74,7 @@ public class GenericClusterElement extends ArchElementNode implements ClusterEle
         for( ElementNode node : children ) {
             joChildren.put( node.getName(), node.toJSONObject() );
         }
-        jo.put( "tasks", joChildren );
+        jo.put( "deployments", joChildren );
         return jo;
     }
 }

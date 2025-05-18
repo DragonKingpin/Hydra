@@ -13,8 +13,6 @@ public interface DeployNodeManipulator extends GUIDNameManipulator {
 
     void remove(GUID UUID);
 
-    DeployElement getDeployNode(GUID guid, DeployInstrument instrument);
-
     void update(DeployElement taskElement);
 
     List<DeployElement> fetchDeployNodeByName(String name);

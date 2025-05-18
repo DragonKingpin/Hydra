@@ -9,11 +9,11 @@ import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 
 import java.util.Map;
 
-public class GenericQuickElement extends ArchElementNode implements QuickElement{
+public class GenericQuickElement extends ArchElementNode implements QuickElement {
 
     protected String typeName;
 
-    protected boolean isEnable;
+    protected boolean enable;
 
     protected  DeployExtraMeta extraMeta;
 
@@ -62,12 +62,12 @@ public class GenericQuickElement extends ArchElementNode implements QuickElement
 
     @Override
     public boolean isEnable() {
-        return this.isEnable;
+        return this.enable;
     }
 
     @Override
     public void setEnable(boolean enable) {
-           this.isEnable = enable;
+           this.enable = enable;
     }
 
     @Override

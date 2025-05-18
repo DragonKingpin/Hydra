@@ -16,27 +16,23 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     DeployConfig KERNEL_DEPLOY_CONFIG = new KernelDeployConfig();
 
-    ClusterElement affirmJob(String path );
+    ClusterElement          affirmCluster(String path );
 
-    Namespace          affirmNamespace( String path );
+    Namespace               affirmNamespace( String path );
 
-    DeployElement affirmDeployNode(String path );
+    ServerElement           affirmServer( String path );
 
-    ServerElement       affirmServer( String path );
+    QuickElement            affirmQuick( String path );
 
-    QuickElement  affirmQuick( String path );
+    VirtualMachineElement   affirmVirtualMachine( String path );
 
-    VirtualMachineElement affirmVirtualMachine( String path );
+    PhysicalHostElement     affirmPhysicalHost( String path );
 
-    PhysicalHostElement affirmPhysicalHost( String path );
+    ElementNode             queryElement( String path );
 
-    ElementNode        queryElement( String path );
+    boolean                 containsChild( GUID parentGuid, String childName );
 
-    boolean            containsChild( GUID parentGuid, String childName );
-
-    void               update( TreeNode treeNode );
-
-
+    void                    update( TreeNode treeNode );
 
 
 }

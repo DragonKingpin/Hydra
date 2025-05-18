@@ -74,7 +74,7 @@ public class RegimentedImperialTree implements UniImperialTree {
     }
 
     @Override
-    public GUIDImperialTrieNode getNode(GUID guid ){
+    public GUIDImperialTrieNode getNode( GUID guid ){
         return this.trieTreeManipulator.getNode( guid );
     }
 

@@ -19,17 +19,27 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface PhysicalHostMapper extends PhysicalHostManipulator {
 
+    @Override
     @Insert("INSERT INTO `hydra_deploy_physical_host` (`guid`, `name`, `ip_address`, `hardware_specs`, `status`) VALUES (#{guid},#{name},#{ipAddress},#{hardwareSpecs},#{status})")
-    void insert(PhysicalHostElement physicalHostElement);
+    void insert( PhysicalHostElement physicalHostElement );
 
+    @Override
     @Insert("UPDATE `hydra_deploy_physical_host` SET `name` = #{name}, `ip_address` = #{ipAddress}, `hardware_specs` = #{hardwareSpecs}, `status` = #{status} WHERE `guid` = #{guid}")
-    void update(PhysicalHostElement serviceElement);
+    void update( PhysicalHostElement serviceElement );
 
+    @Override
     @Delete("DELETE FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
     void remove(GUID guid);
 
-   @Select("SELECT `guid`, `name`, `ip_address`, `hardware_specs`, `status` FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
-   GenericPhysicalHostElement getPhysicalHostElement(GUID guid, DeployInstrument deployInstrument);
+    @Select("SELECT `guid`, `name`, `ip_address` as ipAddress, `hardware_specs` as hardwareSpecs, `status` FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
+    GenericPhysicalHostElement getPhysicalHostElement0( GUID guid );
+
+    @Override
+    default GenericPhysicalHostElement getPhysicalHostElement( GUID guid, DeployInstrument instrument ){
+        GenericPhysicalHostElement element = this.getPhysicalHostElement0( guid );
+        element.apply( instrument );
+        return element;
+    }
 
     @Select("SELECT `guid` FROM `hydra_deploy_physical_host` WHERE `name`=#{name}")
     @Override

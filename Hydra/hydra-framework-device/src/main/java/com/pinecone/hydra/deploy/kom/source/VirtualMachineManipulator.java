@@ -1,22 +1,26 @@
 package com.pinecone.hydra.deploy.kom.source;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import java.util.List;
+
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 public interface VirtualMachineManipulator extends GUIDNameManipulator {
 
-    /*void insert( VirtualMachine virtualMachine );*/
-
     void insert( VirtualMachineElement virtualMachineElement );
 
-    VirtualMachineElement getDeployNode(GUID guid, DeployInstrument instrument);
+    VirtualMachineElement getDeployNode( GUID guid, DeployInstrument instrument );
 
-    void update(VirtualMachineElement serviceElement);
+    void update( VirtualMachineElement serviceElement );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
+
+    @Override
+    List<GUID> getGuidsByName( String name );
+
+    @Override
+    List<GUID> getGuidsByNameID( String name, GUID guid );
+
 }

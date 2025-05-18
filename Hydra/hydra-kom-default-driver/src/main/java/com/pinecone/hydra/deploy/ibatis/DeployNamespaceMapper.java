@@ -22,20 +22,27 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface DeployNamespaceMapper extends DeployNamespaceManipulator {
+
+    @Override
     @Insert("INSERT INTO `hydra_deploy_namespace_node` (`guid`, `name`, `rules_guid`) VALUES (#{guid},#{name},#{rulesGUID})")
     void insert( Namespace ns );
 
+    @Override
     @Delete("DELETE FROM `hydra_deploy_namespace_node` WHERE `guid`=#{guid}")
     void remove( @Param("guid") GUID GUID );
 
+    @Override
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_deploy_namespace_node` WHERE `guid`=#{guid}")
     GenericNamespace getNamespace( @Param("guid") GUID guid );
+
+    @Override
     @Update("UPDATE `hydra_deploy_namespace_node` SET `name` = #{name} WHERE `guid` = #{guid}")
     void update( Namespace ns );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_deploy_namespace_node` WHERE name=#{name}")
     List<GenericNamespace > fetchNamespaceNodeByName0( @Param("name") String name );
 
+    @Override
     @SuppressWarnings( "unchecked" )
     default List<Namespace > fetchNamespaceNodeByName( String name ){
         return (List) this.fetchNamespaceNodeByName0( name );
@@ -48,4 +55,5 @@ public interface DeployNamespaceMapper extends DeployNamespaceManipulator {
     @Override
     @Select( "SELECT `guid` FROM `hydra_deploy_namespace_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID > getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
+
 }

@@ -17,9 +17,11 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
     }
 
 
+
     default QuickElement evinceQuickElement() {
         return null;
     }
+
     default ClusterElement evinceJobElement() {
         return null;
     }
@@ -31,6 +33,16 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode {
     default VirtualMachineElement evinceVirtualMachineElement() {
         return null;
     }
+
+    default PhysicalHostElement evincePhysicalHostElement() {
+        return null;
+    }
+
+    default ContainerElement evinceContainerElement() {
+        return null;
+    }
+
+
 
     GUIDImperialTrieNode getDistributedTreeNode();
 

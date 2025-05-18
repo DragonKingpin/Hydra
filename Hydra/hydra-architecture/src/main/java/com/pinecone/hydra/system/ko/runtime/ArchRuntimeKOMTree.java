@@ -175,7 +175,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
                 RuntimeTreeNode rtn = (RuntimeTreeNode)node;
-                if ( rtn instanceof ObjectTreeGUIDAddressingSectionHandle ) {
+                if ( rtn.treeNode instanceof ObjectTreeGUIDAddressingSectionHandle ) {
                     ObjectTreeGUIDAddressingSectionHandle pointHandle = (ObjectTreeGUIDAddressingSectionHandle) rtn.treeNode;
                     GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
                     //this.mNodeIndex.put( path, pointHandle.get(guid) );
@@ -197,7 +197,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
                 RuntimeTreeNode rtn = (RuntimeTreeNode)node;
-                if ( rtn instanceof ObjectTreeGUIDAddressingSectionHandle ) {
+                if ( rtn.treeNode instanceof ObjectTreeGUIDAddressingSectionHandle ) {
                     ObjectTreeGUIDAddressingSectionHandle pointHandle = (ObjectTreeGUIDAddressingSectionHandle) rtn.treeNode;
                     GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
                     //this.mNodeIndex.put( path, pointHandle.get(guid) );
@@ -344,7 +344,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
                 RuntimeTreeNode rtn = (RuntimeTreeNode)node;
-                if ( rtn instanceof ObjectTreeAddressingSectionHandle ) {
+                if ( rtn.treeNode instanceof ObjectTreeAddressingSectionHandle ) {
                     ObjectTreeAddressingSectionHandle pointHandle = (ObjectTreeAddressingSectionHandle) rtn.treeNode;
                     EntityNode entityNode = pointHandle.queryNode( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
                     return entityNode;

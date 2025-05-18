@@ -8,7 +8,7 @@ import com.pinecone.hydra.deploy.kom.DeployInstrument;
 
 import java.util.Map;
 
-public class GenericServerElement extends ArchElementNode implements ServerElement{
+public abstract class ArchServerElement extends ArchElementNode implements ServerElement {
 
     protected String ipAddress;
 
@@ -16,7 +16,7 @@ public class GenericServerElement extends ArchElementNode implements ServerEleme
 
     protected String wideDomain;
 
-    protected boolean  isEnable;
+    protected boolean  enable;
 
     protected DeployExtraMeta extraMeta;
 
@@ -28,22 +28,23 @@ public class GenericServerElement extends ArchElementNode implements ServerEleme
             this.elementaryConfig = (JSONObject) JSON.parse( this.szElementaryConfig );
         }
     }
-    public GenericServerElement( Map<String, Object > joEntity ) {
+
+    public ArchServerElement(Map<String, Object > joEntity ) {
         super( joEntity );
         this.initSelf( joEntity );
     }
 
-    public GenericServerElement( Map<String, Object > joEntity, DeployInstrument deployInstrument ) {
+    public ArchServerElement(Map<String, Object > joEntity, DeployInstrument deployInstrument ) {
         super( joEntity, deployInstrument);
         this.initSelf( joEntity );
     }
 
-    public GenericServerElement( DeployInstrument deployInstrument ) {
+    public ArchServerElement(DeployInstrument deployInstrument ) {
         super(deployInstrument);
     }
 
 
-    public GenericServerElement() {
+    public ArchServerElement() {
         super();
     }
 
@@ -79,12 +80,12 @@ public class GenericServerElement extends ArchElementNode implements ServerEleme
 
     @Override
     public boolean isEnable() {
-        return this.isEnable;
+        return this.enable;
     }
 
     @Override
-    public void setEnable(boolean enable) {
-        this.isEnable = enable;
+    public void setEnable( boolean enable ) {
+        this.enable = enable;
     }
 
     @Override

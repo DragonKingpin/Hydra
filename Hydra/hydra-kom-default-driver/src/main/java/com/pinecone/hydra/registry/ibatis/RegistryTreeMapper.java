@@ -35,8 +35,11 @@ public interface RegistryTreeMapper extends TrieTreeManipulator {
     GUIDImperialTrieNode getNodeExtendsFromMeta(GUID guid );
 
     @Override
-    default GUIDImperialTrieNode getNode(GUID guid ) {
+    default GUIDImperialTrieNode getNode( GUID guid ) {
         GUIDImperialTrieNode node = this.getNodeExtendsFromMeta( guid );
+        if ( node == null ) {
+            return null;
+        }
         List<GUID > parent = this.fetchParentGuids( guid );
         node.setParentGUID( parent );
         return node;

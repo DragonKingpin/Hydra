@@ -5,13 +5,10 @@ import java.util.List;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.PhysicalHost;
-import com.pinecone.hydra.deploy.VirtualMachine;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
-import com.pinecone.hydra.deploy.kom.entity.DeployElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericServerElement;
+import com.pinecone.hydra.deploy.kom.entity.ArchServerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.QuickElement;
@@ -31,11 +28,10 @@ import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.entity.DeployTreeNode;
 import com.pinecone.hydra.deploy.kom.operator.GenericElementOperatorFactory;
-import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
@@ -50,30 +46,30 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     //GenericDistributedScopeTree
     protected ImperialTree                imperialTree;
 
-    protected DeployMasterManipulator deployMasterManipulator;
+    protected DeployMasterManipulator     deployMasterManipulator;
 
-    protected DeployNamespaceManipulator deployNamespaceManipulator;
+    protected DeployNamespaceManipulator  deployNamespaceManipulator;
 
-    protected JobNodeManipulator          jobNodeManipulator;
+    protected ClusterNodeManipulator      clusterNodeManipulator;
 
-    protected DeployNodeManipulator deployNodeManipulator;
+    protected DeployNodeManipulator       deployNodeManipulator;
 
     protected List<GUIDNameManipulator >  folderManipulators;
 
     protected List<GUIDNameManipulator >  fileManipulators;
 
-    protected PhysicalHostManipulator physicalHostManipulator;
+    protected PhysicalHostManipulator     physicalHostManipulator;
 
-    protected VirtualMachineManipulator  virtualMachineManipulator;
+    protected VirtualMachineManipulator   virtualMachineManipulator;
 
     protected QuickElementManipulator     quickElementManipulator;
 
-    public UniformDeployInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name ) {
+    public UniformDeployInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name );
 
         this.deployMasterManipulator = (DeployMasterManipulator) masterManipulator;
         this.deployNamespaceManipulator = this.deployMasterManipulator.getNamespaceManipulator();
-        this.jobNodeManipulator          = this.deployMasterManipulator.getJobNodeManipulator();
+        this.clusterNodeManipulator          = this.deployMasterManipulator.getJobNodeManipulator();
         this.deployNodeManipulator = this.deployMasterManipulator.getDeployNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.deployMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -85,8 +81,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
         this.quickElementManipulator     = this.deployMasterManipulator.getQuickElementManipulator();
         // TODO for customize service tree architecture.
-        this.folderManipulators          = new ArrayList<>( List.of( this.deployNamespaceManipulator, this.jobNodeManipulator) );
-        this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.deployNodeManipulator) );
+        this.folderManipulators          = new ArrayList<>( List.of( this.deployNamespaceManipulator, this.clusterNodeManipulator) );
+        this.fileManipulators            = new ArrayList<>( List.of( this.clusterNodeManipulator, this.physicalHostManipulator, this.virtualMachineManipulator, this.quickElementManipulator) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
@@ -109,7 +105,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         );
     }
 
-    public UniformDeployInstrument(KOIMappingDriver driver, DeployInstrument parent, String name ) {
+    public UniformDeployInstrument( KOIMappingDriver driver, DeployInstrument parent, String name ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
@@ -164,25 +160,19 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     @Override
-    public ClusterElement affirmJob(String path ) {
+    public ClusterElement affirmCluster(String path ) {
         return (ClusterElement) this.affirmTreeNodeByPath( path, GenericClusterElement.class, GenericNamespace.class );
     }
 
     @Override
-    public DeployElement affirmDeployNode(String path ) {
-        return (DeployElement) this.affirmTreeNodeByPath( path, GenericDeployElement.class, GenericNamespace.class );
-    }
-
-    @Override
     public ServerElement affirmServer(String path) {
-        return (ServerElement) this.affirmTreeNodeByPath( path, GenericServerElement.class, GenericNamespace.class );
+        return (ServerElement) this.affirmTreeNodeByPath( path, ArchServerElement.class, GenericNamespace.class );
     }
 
     @Override
     public QuickElement affirmQuick(String path) {
         return (QuickElement) this.affirmTreeNodeByPath( path, GenericQuickElement.class, GenericNamespace.class );
     }
-
 
     @Override
     public VirtualMachineElement affirmVirtualMachine(String path) {
@@ -208,6 +198,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     public Namespace affirmNamespace( String path ) {
         return ( Namespace ) this.affirmTreeNodeByPath( path, null, GenericNamespace.class );
     }
+
 
     protected boolean containsChild( GUIDNameManipulator manipulator, GUID parentGuid, String childName ) {
         List<GUID > guids = manipulator.getGuidsByName( childName );
@@ -249,7 +240,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     @Override
-    public DeployTreeNode get(GUID guid ){
+    public DeployTreeNode get( GUID guid ){
         return (DeployTreeNode) super.get( guid );
     }
 
@@ -262,11 +253,6 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     @Override
     public void remove( GUID guid ) {
         super.remove( guid );
-    }
-
-    @Override
-    public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
-        return null;
     }
 
 }

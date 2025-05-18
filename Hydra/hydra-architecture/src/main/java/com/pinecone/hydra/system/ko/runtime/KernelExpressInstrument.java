@@ -2,11 +2,12 @@ package com.pinecone.hydra.system.ko.runtime;
 
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
+import com.pinecone.hydra.system.ko.kom.ExpressInstrument;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class KernelExpressInstrument extends ArchDirectMappingTrieRuntimeKOMTree implements CentralizedRuntimeInstrument {
+public class KernelExpressInstrument extends ArchDirectMappingTrieRuntimeKOMTree implements ExpressInstrument {
 
     public KernelExpressInstrument( String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
         super( superiorPathScope, kernelObjectConfig );

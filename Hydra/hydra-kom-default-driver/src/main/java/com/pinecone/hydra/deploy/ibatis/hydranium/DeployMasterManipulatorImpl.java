@@ -6,7 +6,7 @@ import com.pinecone.hydra.deploy.ibatis.DeployNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeMetaMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeOwnerMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployTreeMapper;
-import com.pinecone.hydra.deploy.ibatis.JobNodeMapper;
+import com.pinecone.hydra.deploy.ibatis.ClusterNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.deploy.ibatis.PhysicalHostMapper;
 import com.pinecone.hydra.deploy.ibatis.QuickElementMapper;
@@ -19,7 +19,7 @@ import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.deploy.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.deploy.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
@@ -40,8 +40,8 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     TrieTreeManipulator trieTreeManipulator;
 
     @Resource
-    @Structure(type = JobNodeMapper.class )
-    JobNodeManipulator jobNodeManipulator;
+    @Structure(type = ClusterNodeMapper.class )
+    ClusterNodeManipulator jobNodeManipulator;
 
     @Resource
     @Structure(type = DeployNodeMetaMapper.class )
@@ -102,7 +102,7 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     }
 
     @Override
-    public JobNodeManipulator getJobNodeManipulator() {
+    public ClusterNodeManipulator getJobNodeManipulator() {
         return this.jobNodeManipulator;
     }
 

@@ -65,6 +65,8 @@ public interface KOMInstrument extends CascadeInstrument {
 
     EntityNode queryNode( String path );
 
+    TreeNode queryTreeNode( String path );
+
     List<? extends TreeNode > fetchRoot();
 
     void rename( GUID guid, String name );

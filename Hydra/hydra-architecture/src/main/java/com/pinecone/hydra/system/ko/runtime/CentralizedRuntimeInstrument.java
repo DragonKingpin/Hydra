@@ -8,4 +8,6 @@ public interface CentralizedRuntimeInstrument extends RuntimeInstrument {
 
     KOMInstrument mount( String mountPointPath, String treeNodeName, KOMInstrument that );
 
+    KOMInstrument getMountedInstrument ( String mountPointPath );
+
 }

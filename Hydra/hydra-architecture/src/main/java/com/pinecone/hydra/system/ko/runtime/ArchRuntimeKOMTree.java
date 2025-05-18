@@ -11,6 +11,7 @@ import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.unit.trie.TrieMap;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
 import com.pinecone.framework.util.CollectionUtils;
+import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
@@ -40,8 +41,6 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     protected GuidAllocator                      guidAllocator;
 
     protected DynamicFactory                     dynamicFactory;
-
-    protected String                             superiorPathScope;
 
     protected KernelObjectConfig                 kernelObjectConfig;
 
@@ -106,7 +105,28 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     }
 
 
+    @Override
+    public KOMInstrument implicated( GUID objectGuid ) {
+        RuntimeTreeNode treeNode = this.mNodeTable.get( objectGuid );
+        if ( treeNode == null ) {
+            for( RuntimeTreeNode node : this.mNodeTable.values() ) {
+                if ( node.treeNode instanceof KOMInstrument ) {
+                    KOMInstrument instrument = (KOMInstrument) node.treeNode;
+                    TreeNode sn = instrument.get( objectGuid );
+                    if ( sn != null ) {
+                        return instrument;
+                    }
+                }
+            }
 
+            return null;
+        }
+
+        if ( treeNode instanceof KOMInstrument ) {
+            return (KOMInstrument) treeNode;
+        }
+        return null;
+    }
 
     @Override
     public KernelObjectConfig getConfig() {
@@ -117,6 +137,16 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     public String getPath( GUID guid ) {
         RuntimeTreeNode treeNode = this.mNodeTable.get( guid );
         if ( treeNode == null ) {
+            for( RuntimeTreeNode node : this.mNodeTable.values() ) {
+                if ( node.treeNode instanceof KOMInstrument ) {
+                    KOMInstrument instrument = (KOMInstrument) node.treeNode;
+                    String path = instrument.getPath( guid );
+                    if ( StringUtils.isNoneEmpty( path ) ) {
+                        return path;
+                    }
+                }
+            }
+
             return null;
         }
         return treeNode.getPath();
@@ -316,9 +346,22 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     @Override
     public EntityNode queryNode( String path ) {
         Object o = this.queryEntityHandleByNS( path, null, null );
-        if ( o instanceof EntityNode ) {
+        if( o instanceof EntityNode ) {
             return (EntityNode) o;
         }
+        return null;
+    }
+
+    @Override
+    public TreeNode queryTreeNode( String path ) {
+        Object o = this.queryEntityHandleByNS( path, null, null );
+        if( o instanceof TreeNode ) {
+            return (TreeNode) o;
+        }
+        // Runtime KOM shouldn`t be GUID.
+//        else if( o instanceof GUID ) {
+//            return this.get( (GUID) o );
+//        }
         return null;
     }
 
@@ -328,6 +371,21 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
             path = path.replace( szBadSep, szTargetSep );
         }
         return this.queryGUIDByPath( path );
+    }
+
+    @Override
+    public String querySystemKernelObjectPath( GUID objectGuid ) {
+        String thisScopePath = this.getPath( objectGuid );
+        if ( thisScopePath == null ) {
+            return null;
+        }
+
+        KOMInstrument imp = this.implicated( objectGuid );
+        if ( imp != null ) {
+            thisScopePath = imp.querySystemKernelObjectPath( objectGuid );
+        }
+
+        return this.getSuperiorPathScope() + this.getConfig().getPathNameSeparator() + thisScopePath;
     }
 
     @Override
@@ -361,6 +419,16 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
         public String getPath() {
             return this.path;
+        }
+
+        @Override
+        public String toJSONString() {
+            return this.treeNode.toJSONString();
+        }
+
+        @Override
+        public String toString() {
+            return this.treeNode.toString();
         }
     }
 }

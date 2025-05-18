@@ -44,48 +44,49 @@ public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
     protected ImperialTree                  imperialTree;
 
 
-    public KenDirectFileSystemAccess(KOMFileSystem fileSystem){
+    public KenDirectFileSystemAccess( KOMFileSystem fileSystem ){
         this.fileSystem                     = fileSystem;
         this.pathResolver                   = new KOPathResolver( fileSystem.getConfig() );
         this.fileMasterManipulator          = this.fileSystem.getFileMasterManipulator();
         this.fileManipulator                = this.fileMasterManipulator.getFileManipulator();
         this.folderManipulator              = this.fileMasterManipulator.getFolderManipulator();
-        this.externalSymbolicManipulator    = this.fileMasterManipulator.getExternalSymbolicManipulator();;
+        this.externalSymbolicManipulator    = this.fileMasterManipulator.getExternalSymbolicManipulator();
         this.imperialTree                   = fileSystem.getMasterTrieTree();
 
-        this.pathSelector = new KenExternalSymbolicSelector(
+        this.pathSelector                   = new KenExternalSymbolicSelector(
                 this.pathResolver, this.fileSystem.getMasterTrieTree(),this.folderManipulator, new GUIDNameManipulator[] { this.fileManipulator },
                 this.externalSymbolicManipulator
         );
     }
 
     @Override
-    public ElementNode queryElement(String path) {
+    public ElementNode queryElement( String path ) {
         GUID guid = this.queryGUIDByPath(path);
-        if(guid == null){
+        if( guid == null ){
             return null;
         }
 
         ExternalSymbolic externalSymbolic = this.externalSymbolicManipulator.getSymbolicByGuid(guid);
         String externalPath = this.fileSystem.getPath(externalSymbolic.getGuid());
-        String remainingPath = path.substring(externalPath.length()).replaceFirst(StorageConstants.PathSeparator, "");
+        String remainingPath = path.substring(externalPath.length()).replaceFirst( StorageConstants.PathSeparator, "" );
 
         String realFilePath = externalSymbolic.getReparsedPoint()+ StorageConstants.PathSeparator + remainingPath;
         File file = new File(realFilePath);
         if( file.isDirectory() ){
-            return new GenericExternalFolder(file);
-        }else {
-            return new GenericExternalFile(file);
+            return new GenericExternalFolder( file );
+        }
+        else {
+            return new GenericExternalFile( file );
         }
     }
 
     @Override
-    public void insertExternalSymbolic(ExternalSymbolic externalSymbolic) {
+    public void insertExternalSymbolic( ExternalSymbolic externalSymbolic ) {
         this.externalSymbolicManipulator.insert( externalSymbolic );
     }
 
     @Override
-    public void copy(String sourcePath, String destinationPath) throws IOException {
+    public void copy( String sourcePath, String destinationPath ) throws IOException {
         // 注意参数语义交换：destinationPath是待复制的内容，sourcePath是目标容器目录
         Path source = Paths.get(destinationPath); // 实际要复制的源内容
         Path destinationDir = Paths.get(sourcePath); // 目标容器目录
@@ -148,12 +149,12 @@ public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
     }
 
     @Override
-    public void createExternalSymbolic(String folderPath, String externalSymbolicName, String reparsedPoint) {
+    public void createExternalSymbolic( String folderPath, String externalSymbolicName, String reparsedPoint ) {
         ElementNode elementNode = this.fileSystem.queryElement(folderPath);
         elementNode.evinceFolder().createExternalSymbolic( externalSymbolicName,reparsedPoint );
     }
 
-    private GUID queryGUIDByPath(String path ) {
+    private GUID queryGUIDByPath( String path ) {
         return this.queryGUIDByNS( path, null, null );
     }
 
@@ -175,4 +176,5 @@ public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
         guid = this.pathSelector.searchGUID( resolvedParts );
         return guid;
     }
+
 }

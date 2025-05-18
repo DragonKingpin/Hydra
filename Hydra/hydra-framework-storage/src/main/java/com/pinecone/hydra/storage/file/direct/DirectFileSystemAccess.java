@@ -10,7 +10,7 @@ public interface DirectFileSystemAccess extends Pinenut {
 
     ElementNode queryElement(String path);
 
-    void insertExternalSymbolic(ExternalSymbolic externalSymbolic);
+    void insertExternalSymbolic( ExternalSymbolic externalSymbolic );
 
     void copy( String sourcePath, String destinationPath ) throws IOException;
 

@@ -253,10 +253,22 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
         return this.imperialTree.fetchChildrenGuids( guid );
     }
 
-    public EntityNode queryNodeByNS(String path, String szBadSep, String szTargetSep ) {
+    public EntityNode queryNodeByNS( String path, String szBadSep, String szTargetSep ) {
         Object ret = this.queryEntityHandleByNS( path, szBadSep, szTargetSep );
         if( ret instanceof EntityNode ) {
             return (EntityNode) ret;
+        }
+        else if( ret instanceof GUID ) {
+            return this.get( (GUID) ret );
+        }
+
+        return null;
+    }
+
+    public TreeNode queryTreeNodeByNS( String path, String szBadSep, String szTargetSep ) {
+        Object ret = this.queryEntityHandleByNS( path, szBadSep, szTargetSep );
+        if( ret instanceof TreeNode ) {
+            return (TreeNode) ret;
         }
         else if( ret instanceof GUID ) {
             return this.get( (GUID) ret );
@@ -291,7 +303,10 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
         return this.queryNodeByNS( path, null, null );
     }
 
-
+    @Override
+    public TreeNode queryTreeNode( String path ) {
+        return this.queryTreeNodeByNS( path, null, null );
+    }
 
     @Override
     public GUID queryGUIDByFN( String fullName ) {

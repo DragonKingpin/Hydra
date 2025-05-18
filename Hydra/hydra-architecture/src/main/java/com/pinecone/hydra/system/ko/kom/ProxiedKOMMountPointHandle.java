@@ -28,6 +28,11 @@ public class ProxiedKOMMountPointHandle implements KOMMountPointHandle {
     }
 
     @Override
+    public KOMInstrument revealWrapped() {
+        return this.mWarpedInstrument;
+    }
+
+    @Override
     public KOMInstrument parent() {
         return this.mWarpedInstrument.parent();
     }
@@ -143,6 +148,11 @@ public class ProxiedKOMMountPointHandle implements KOMMountPointHandle {
     }
 
     @Override
+    public TreeNode queryTreeNode( String path ) {
+        return this.mWarpedInstrument.queryTreeNode( path );
+    }
+
+    @Override
     public List<? extends TreeNode> fetchRoot() {
         return this.mWarpedInstrument.fetchRoot();
     }
@@ -180,5 +190,15 @@ public class ProxiedKOMMountPointHandle implements KOMMountPointHandle {
     @Override
     public GUID getGuid() {
         return this.mTreeNodeGuid;
+    }
+
+    @Override
+    public String toJSONString() {
+        return this.mWarpedInstrument.toJSONString();
+    }
+
+    @Override
+    public String toString() {
+        return this.mWarpedInstrument.toString();
     }
 }

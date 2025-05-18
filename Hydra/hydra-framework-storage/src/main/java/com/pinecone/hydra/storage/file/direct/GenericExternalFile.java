@@ -13,19 +13,19 @@ import java.time.ZoneId;
 public class GenericExternalFile extends ArchElementNode implements ExternalFile {
     protected File      mNativeFile;
 
-    protected String    parentPath;;
+    protected String    parentPath;
 
     protected String    path;
 
     protected long      physicalSize;
 
-    public GenericExternalFile(File file){
-        this.mNativeFile = file;
-        this.name = file.getName();
+    public GenericExternalFile( File file ){
+        this.mNativeFile  = file;
+        this.name         = file.getName();
         long lastModified = file.lastModified();
-        this.updateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
+        this.updateTime   = LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
         this.physicalSize = file.getTotalSpace();
-        this.path = file.getPath();
+        this.path         = file.getPath();
     }
 
 

@@ -1,6 +1,6 @@
 package com.pinecone.hydra.system.imperium;
 
-import com.pinecone.hydra.system.ko.KernelObjectInstrument;
+import com.pinecone.hydra.system.HyComponent;
 
 /**
  *  Pinecone Ursus For Java Imperium Privy Council
@@ -20,5 +20,5 @@ import com.pinecone.hydra.system.ko.KernelObjectInstrument;
  *  e.g. /proc/137/status                                       => {name: scsi_eh_26, State: S, Pid: 137}
  *  *****************************************************************************************
  */
-public interface ImperiumPrivy extends KernelObjectInstrument {
+public interface ImperiumPrivy extends HyComponent {
 }

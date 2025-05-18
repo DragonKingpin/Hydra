@@ -1,32 +1,16 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import java.util.Map;
+
+import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 
-public class GenericRuntimeInstrumentConfig implements KernelObjectConfig {
-    protected String mszPathNameSeparator = "/";
-
-    @Override
-    public String getPathNameSeparator() {
-        return this.mszPathNameSeparator;
+public class GenericRuntimeInstrumentConfig extends ArchKernelObjectConfig implements KernelObjectConfig {
+    public GenericRuntimeInstrumentConfig() {
+        super();
     }
 
-    @Override
-    public String getFullNameSeparator() {
-        return null;
-    }
-
-    @Override
-    public String getPathNameSepRegex() {
-        return null;
-    }
-
-    @Override
-    public String getFullNameSepRegex() {
-        return null;
-    }
-
-    @Override
-    public int getShortPathLength() {
-        return 0;
+    public GenericRuntimeInstrumentConfig( Map<String, Object> config ){
+        super( config );
     }
 }

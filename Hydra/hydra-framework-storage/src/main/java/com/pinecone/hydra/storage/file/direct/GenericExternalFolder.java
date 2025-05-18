@@ -29,10 +29,8 @@ public class GenericExternalFolder extends ArchElementNode implements ExternalFo
         this.mNativeFile = file;
         this.name = file.getName();
         long lastModified = file.lastModified();
-         this.updateTime = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(lastModified), ZoneId.systemDefault());
-         this.path = file.getPath();
-
+        this.updateTime = LocalDateTime.ofInstant( Instant.ofEpochMilli(lastModified), ZoneId.systemDefault() );
+        this.path = file.getPath();
     }
 
 
@@ -85,12 +83,13 @@ public class GenericExternalFolder extends ArchElementNode implements ExternalFo
     public List<FileTreeNode> listItem() {
         ArrayList<FileTreeNode> fileTreeNodes = new ArrayList<>();
         File[] files = this.listFiles();
-        if(files.length > 0){
-            for( int i = 0;i < files.length; i++ ){
+        if( files.length > 0 ){
+            for( int i = 0;i < files.length; ++i ){
                 File file = files[i];
-                if(file.isDirectory()){
+                if( file.isDirectory() ){
                     fileTreeNodes.add( new GenericExternalFolder(file) );
-                }else {
+                }
+                else {
                     fileTreeNodes.add( new GenericExternalFile( file ) );
                 }
             }
@@ -101,10 +100,10 @@ public class GenericExternalFolder extends ArchElementNode implements ExternalFo
     @Override
     public void delete() {
         try {
-            deleteDirectoryRecursively(mNativeFile.toPath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            // 或者根据需要处理异常
+            deleteDirectoryRecursively( this.mNativeFile.toPath() );
+        }
+        catch ( IOException ignore ) {
+
         }
     }
 

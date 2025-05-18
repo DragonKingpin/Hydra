@@ -349,6 +349,11 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
+    public TreeNode queryTreeNode( String path ) {
+        return this.uniformTaskInstrument.queryTreeNode( path );
+    }
+
+    @Override
     public List<? extends TreeNode> fetchRoot() {
         return this.uniformTaskInstrument.fetchRoot();
     }

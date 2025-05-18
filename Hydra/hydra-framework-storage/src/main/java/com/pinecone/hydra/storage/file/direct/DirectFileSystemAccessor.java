@@ -1,13 +1,12 @@
 package com.pinecone.hydra.storage.file.direct;
 
-import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
-import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
+import com.pinecone.hydra.system.ko.handle.AppliableKHandle;
 import com.pinecone.hydra.system.ko.handle.ObjectTreeAddressingSectionHandle;
 
 import java.io.IOException;
 
-public interface DirectFileSystemAccessor extends ObjectTreeAddressingSectionHandle {
+public interface DirectFileSystemAccessor extends ObjectTreeAddressingSectionHandle, AppliableKHandle {
 
     ElementNode queryElement( String path );
 

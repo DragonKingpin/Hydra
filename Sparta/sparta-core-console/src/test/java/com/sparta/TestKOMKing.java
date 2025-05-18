@@ -5,7 +5,7 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
-import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccessor;
+import com.pinecone.hydra.storage.file.direct.NativeDirectFileSystemAccessor;
 import com.pinecone.hydra.system.ko.runtime.KernelExpressInstrument;
 import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
@@ -35,15 +35,14 @@ class Loki extends Radium {
         kernelExpressInstrument.setTargetingName("task1");
         kernelExpressInstrument.mount( "task1/afc", ravenTaskInstrument );
 
-        DirectFileSystemAccessor directFileSystemAccessor = new KenDirectFileSystemAccessor( "direct1", ravenTaskInstrument.getGuidAllocator().nextGUID() );
-
-        kernelExpressInstrument.mount( "direct/test", directFileSystemAccessor );
+        DirectFileSystemAccessor directFileSystemAccessor = new NativeDirectFileSystemAccessor( "E:/" );
+        kernelExpressInstrument.directMount( "direct/test", directFileSystemAccessor );
 
         this.testSimple( kernelExpressInstrument );
     }
 
     private void testSimple( KernelExpressInstrument instrument ) {
-        EntityNode entityNode = instrument.queryNode( "direct/test/D/简历" );
+        EntityNode entityNode = instrument.queryNode( "direct/test/MyFiles" );
         Debug.trace( entityNode );
         //Debug.fmp( 2, entityNode );
 //        Debug.fmp( 2, instrument.querySystemKernelObjectPath( entityNode.getGuid() ) );

@@ -3,7 +3,7 @@ package com.walnut.sparta.uofs.console.api.controller.v2;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFile;
+import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFile;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.io.Chanface;
@@ -157,7 +157,7 @@ public class TransmitController {
         TitanOutputStreamChanface kChannel = new TitanOutputStreamChanface(outputStream);
 
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
-        if(elementNode instanceof GenericExternalFile){
+        if(elementNode instanceof GenericNativeExternalFile){
             ExternalFile externalFile = (ExternalFile) elementNode;
             File nativeFile = externalFile.getNativeFile();
             try (FileInputStream fileInputStream = new FileInputStream(nativeFile)) {

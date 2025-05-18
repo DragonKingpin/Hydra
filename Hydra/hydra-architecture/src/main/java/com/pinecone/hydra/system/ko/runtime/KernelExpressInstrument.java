@@ -1,8 +1,7 @@
 package com.pinecone.hydra.system.ko.runtime;
 
-import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
-import com.pinecone.hydra.system.ko.handle.KHandle;
+import com.pinecone.hydra.system.ko.handle.AppliableKHandle;
 import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
 import com.pinecone.hydra.system.ko.handle.ObjectTreeAddressingSectionHandle;
 import com.pinecone.hydra.system.ko.kom.ExpressInstrument;
@@ -38,7 +37,27 @@ public class KernelExpressInstrument extends ArchDirectMappingTrieRuntimeKOMTree
     }
 
     @Override
-    public KHandle mount(String mountPointPath, ObjectTreeAddressingSectionHandle that) {
+    public ObjectTreeAddressingSectionHandle directMount( String mountPointPath, ObjectTreeAddressingSectionHandle that ) {
+        if ( that instanceof AppliableKHandle ) {
+            String[] debris = mountPointPath.split( this.getConfig().getPathNameSepRegex() );
+            if ( debris.length < 1 ) {
+                throw new IllegalArgumentException( "Path given should not be empty." );
+            }
+            this.directMount( mountPointPath, debris[ debris.length - 1 ], that );
+        }
+        this.add( mountPointPath, that );
+        return that;
+    }
+
+    @Override
+    public ObjectTreeAddressingSectionHandle directMount( String mountPointPath, String treeNodeName, ObjectTreeAddressingSectionHandle that ) {
+        if ( that instanceof AppliableKHandle ) {
+            AppliableKHandle handle = (AppliableKHandle) that;
+            if ( that.getGuid() == null ) {
+                handle.applyTreeNodeGuid( this.guidAllocator.nextGUID() );
+            }
+            handle.applyTreeNodeName( treeNodeName );
+        }
         this.add( mountPointPath, that );
         return that;
     }

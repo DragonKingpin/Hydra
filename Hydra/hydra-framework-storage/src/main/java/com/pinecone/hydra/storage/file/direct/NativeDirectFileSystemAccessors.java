@@ -1,6 +1,5 @@
 package com.pinecone.hydra.storage.file.direct;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -11,25 +10,25 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public abstract class ArchDirectFileSystemAccessor implements Pinenut {
+public final class NativeDirectFileSystemAccessors {
 
-    public void copy(String sourcePath, String destinationPath) throws IOException {
+    public static void copy( String sourcePath, String destinationPath ) throws IOException {
         // 注意参数语义交换：destinationPath是待复制的内容，sourcePath是目标容器目录
         Path source = Paths.get(destinationPath); // 实际要复制的源内容
         Path destinationDir = Paths.get(sourcePath); // 目标容器目录
 
         // 校验源是否存在
-        if (!Files.exists(source)) {
+        if ( !Files.exists(source) ) {
             throw new IOException("Source to copy does not exist: " + source);
         }
 
         // 确保目标目录存在
-        if (!Files.exists(destinationDir)) {
+        if ( !Files.exists(destinationDir) ) {
             Files.createDirectories(destinationDir);
         }
 
         // 如果源是单个文件，直接复制到目标目录
-        if (Files.isRegularFile(source)) {
+        if ( Files.isRegularFile(source) ) {
             Path target = destinationDir.resolve(source.getFileName());
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
             return;
@@ -74,4 +73,5 @@ public abstract class ArchDirectFileSystemAccessor implements Pinenut {
             }
         });
     }
+
 }

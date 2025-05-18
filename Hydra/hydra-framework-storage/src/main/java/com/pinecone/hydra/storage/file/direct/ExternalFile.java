@@ -6,16 +6,21 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import java.io.File;
 import java.net.URI;
 
-public interface ExternalFile extends ElementNode, UFile {
+public interface ExternalFile extends ExternalFileObject, UFile {
+
     File getNativeFile();
 
     URI toURI();
 
     String getName();
 
-    String getParentPath();
-
     String getPath();
 
-    void delete();
+    boolean delete();
+
+    @Override
+    default Object getNativeHandler() {
+        return this.getNativeFile();
+    }
+
 }

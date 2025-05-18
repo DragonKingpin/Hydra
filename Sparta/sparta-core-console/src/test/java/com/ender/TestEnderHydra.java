@@ -9,12 +9,15 @@ import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.reign.UnixInstitutionalizedMetaImperiumPrivy;
+import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
+import com.pinecone.hydra.storage.file.direct.ExternalFolder;
+import com.pinecone.hydra.storage.file.direct.NativeDirectFileSystemAccessor;
 import com.pinecone.hydra.system.imperium.KernelObjectRootMountPoint;
+import com.pinecone.hydra.system.imperium.KernelRootMountPoint;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.kom.ExpressInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
@@ -53,6 +56,9 @@ class Floki extends EnderHydra {
         instrument.mount( KernelObjectRootMountPoint.Registry.getMountPoint(), registry );
         instrument.mount( KernelObjectRootMountPoint.DeployMeta.getMountPoint(), deployInstrument );
 
+        DirectFileSystemAccessor directFileSystemAccessor = new NativeDirectFileSystemAccessor( "E:/" );
+        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", directFileSystemAccessor );
+
 
         this.testSimple( instrument );
     }
@@ -71,6 +77,14 @@ class Floki extends EnderHydra {
         Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
 
         Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
+
+
+        EntityNode myf = instrument.queryNode( "mnt/volE/MyFiles" );
+        Debug.fmp( 2, myf );
+        ExternalFolder myff = (ExternalFolder) myf;
+
+        Debug.fmp( 2, myff.listItem() );
+
     }
 }
 

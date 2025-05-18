@@ -9,7 +9,7 @@ import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
+import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFolder;
 import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemInstrument;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
@@ -113,7 +113,7 @@ class Steve extends Radium {
 
 //        ExternalFile externalFile = (GenericExternalFile)directFileSystemAccess.queryElement("我的文件/external/《智育》概要设计.docx");
 //        Debug.trace(externalFile.getPath());
-        GenericExternalFolder externalFolder = new GenericExternalFolder(new File("D:/文件"));
+        GenericNativeExternalFolder externalFolder = new GenericNativeExternalFolder(new File("D:/文件"));
         Debug.trace(externalFolder.getName());
         Debug.trace(externalFolder.toJSONString());
     }

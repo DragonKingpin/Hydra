@@ -1,20 +1,18 @@
 package com.pinecone.hydra.storage.file.direct;
 
-import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-public interface ExternalFolder extends ElementNode {
+public interface ExternalFolder extends ExternalFileObject {
+
     File getNativeFile();
 
     URI toURI();
 
     String getName();
-
-    String getParentPath();
 
     String getPath();
 
@@ -24,5 +22,11 @@ public interface ExternalFolder extends ElementNode {
 
     List<FileTreeNode> listItem();
 
-    void delete();
+    boolean delete();
+
+    @Override
+    default Object getNativeHandler() {
+        return this.getNativeFile();
+    }
+
 }

@@ -26,7 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-public class KenDirectFileSystemInstrument extends ArchDirectFileSystemAccessor implements DirectFileInstrument {
+public class KenDirectFileSystemInstrument implements DirectFileInstrument {
     protected KOMFileSystem                 fileSystem;
 
     protected PathResolver                  pathResolver;
@@ -73,10 +73,10 @@ public class KenDirectFileSystemInstrument extends ArchDirectFileSystemAccessor 
         String realFilePath = externalSymbolic.getReparsedPoint()+ StorageConstants.PathSeparator + remainingPath;
         File file = new File(realFilePath);
         if( file.isDirectory() ){
-            return new GenericExternalFolder( file );
+            return new GenericNativeExternalFolder( file );
         }
         else {
-            return new GenericExternalFile( file );
+            return new GenericNativeExternalFile( file );
         }
     }
 
@@ -90,6 +90,11 @@ public class KenDirectFileSystemInstrument extends ArchDirectFileSystemAccessor 
     public void createExternalSymbolic( String folderPath, String externalSymbolicName, String reparsedPoint ) {
         ElementNode elementNode = this.fileSystem.queryElement(folderPath);
         elementNode.evinceFolder().createExternalSymbolic( externalSymbolicName,reparsedPoint );
+    }
+
+    @Override
+    public void copy( String sourcePath, String destinationPath ) throws IOException {
+        NativeDirectFileSystemAccessors.copy( sourcePath, destinationPath );
     }
 
     private GUID queryGUIDByPath( String path ) {

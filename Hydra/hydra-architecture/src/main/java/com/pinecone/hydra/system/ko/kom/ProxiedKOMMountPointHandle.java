@@ -9,21 +9,18 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.handle.ArchKHandle;
 import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class ProxiedKOMMountPointHandle implements KOMMountPointHandle {
-    protected String mszTreeNodeName;
-
-    protected GUID   mTreeNodeGuid;
+public class ProxiedKOMMountPointHandle extends ArchKHandle implements KOMMountPointHandle {
 
     protected KOMInstrument mWarpedInstrument;
 
     public ProxiedKOMMountPointHandle( String treeNodeName, GUID treeNodeGuid, KOMInstrument warpedInstrument ) {
-        this.mszTreeNodeName   = treeNodeName;
-        this.mTreeNodeGuid     = treeNodeGuid;
+        super( treeNodeName, treeNodeGuid );
         this.mWarpedInstrument = warpedInstrument;
     }
 

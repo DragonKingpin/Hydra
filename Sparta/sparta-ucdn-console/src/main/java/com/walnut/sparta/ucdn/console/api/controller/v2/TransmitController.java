@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFile;
+import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFile;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
@@ -170,7 +170,7 @@ public class TransmitController {
         TitanOutputStreamChanface kChannel = new TitanOutputStreamChanface(outputStream);
 
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
-        if(elementNode instanceof GenericExternalFile){
+        if(elementNode instanceof GenericNativeExternalFile){
             ExternalFile externalFile = (ExternalFile) elementNode;
             File nativeFile = externalFile.getNativeFile();
             try (FileInputStream fileInputStream = new FileInputStream(nativeFile)) {

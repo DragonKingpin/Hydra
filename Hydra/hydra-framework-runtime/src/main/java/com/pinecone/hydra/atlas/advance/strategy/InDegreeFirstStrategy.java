@@ -1,4 +1,4 @@
-package com.pinecone.hydra.atlas.advance.chain;
+package com.pinecone.hydra.atlas.advance.strategy;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
@@ -12,7 +12,7 @@ import com.pinecone.hydra.unit.vgraph.VectorDAG;
 
 import java.util.List;
 
-public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements GraphPriorityProcessStrategyChain {
+public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
     private RuntimeAtlasInstrument      mRuntimeAtlasInstrument;
 
     private MegaDeflectPriorityQueue    mMegaDeflectPriorityQueue;
@@ -21,8 +21,8 @@ public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements
 
     private int mnPriority = 0;
 
-    public InDegreeFirstStrategyChain( RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
-                                       MegaStratumQueue megaStratumQueue ) {
+    public InDegreeFirstStrategy(RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
+                                 MegaStratumQueue megaStratumQueue ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
         this.mMegaDeflectPriorityQueue  = megaDeflectPriorityQueue;
         this.mTempMegaStratumQueue = megaStratumQueue;
@@ -34,7 +34,8 @@ public class InDegreeFirstStrategyChain extends AbstractStrategyChain implements
         long handNodeNums = vectorDAG.countHandleNodes();
         long offset = 0;
 
-        for( long i = 0; i < handNodeNums; i+=1000 ) {
+        //todo后面记得将这个每次遍历的节点数量改成配置
+        for( long i = 0; i < handNodeNums; i += 1000 ) {
             List<GUID> handleGuids = vectorDAG.fetchHandleGuidsByTaskPriority(offset, 1000);
             for (GUID handleGuid : handleGuids) {
                 TaskElement taskElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid(handleGuid);

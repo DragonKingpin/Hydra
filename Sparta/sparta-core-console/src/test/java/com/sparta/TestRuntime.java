@@ -6,7 +6,8 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.pinecone.hydra.atlas.advance.GraphStratumTape;
-import com.pinecone.hydra.atlas.advance.chain.InDegreeFirstStrategyChain;
+import com.pinecone.hydra.atlas.advance.strategy.AtlasPriorityProcessStrategy;
+import com.pinecone.hydra.atlas.advance.strategy.InDegreeFirstStrategy;
 import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
 import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
@@ -97,8 +98,10 @@ class Rick extends Radium {
         meta2.setQueueTableName( "hydra_temporary_queue_nodes" );
         MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta1);
         MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(driver, "segment_name", "测试临时队列", meta2);
-        InDegreeFirstStrategyChain strategyChain = new InDegreeFirstStrategyChain(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue);
-        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue,megaDPStratumQueue,strategyChain);
+        InDegreeFirstStrategy strategyChain = new InDegreeFirstStrategy(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue);
+        AtlasPriorityProcessStrategy atlasPriorityProcessStrategy = new AtlasPriorityProcessStrategy();
+        atlasPriorityProcessStrategy.addStrategy( strategyChain );
+        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue,megaDPStratumQueue,atlasPriorityProcessStrategy);
         advancer.traverse( genericVectorDAG );
     }
 

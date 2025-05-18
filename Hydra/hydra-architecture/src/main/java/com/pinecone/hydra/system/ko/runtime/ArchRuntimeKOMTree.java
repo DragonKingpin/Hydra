@@ -18,6 +18,8 @@ import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.handle.ObjectTreeAddressingSectionHandle;
+import com.pinecone.hydra.system.ko.handle.ObjectTreeGUIDAddressingSectionHandle;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.system.ko.kom.ProxiedKOMMountPointHandle;
 import com.pinecone.hydra.unit.imperium.ArchUniformInstitutionalizedInstrument;
@@ -172,10 +174,13 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         for( int i = split.length - 2; i >= 0; --i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
-                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
-                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
-                //this.mNodeIndex.put( path, pointHandle.get(guid) );
-                return guid;
+                RuntimeTreeNode rtn = (RuntimeTreeNode)node;
+                if ( rtn instanceof ObjectTreeGUIDAddressingSectionHandle ) {
+                    ObjectTreeGUIDAddressingSectionHandle pointHandle = (ObjectTreeGUIDAddressingSectionHandle) rtn.treeNode;
+                    GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                    //this.mNodeIndex.put( path, pointHandle.get(guid) );
+                    return guid;
+                }
             }
         }
         return null;
@@ -191,10 +196,13 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         for( int i = 0; i < split.length; ++i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
-                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
-                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
-                //this.mNodeIndex.put( path, pointHandle.get(guid) );
-                return guid;
+                RuntimeTreeNode rtn = (RuntimeTreeNode)node;
+                if ( rtn instanceof ObjectTreeGUIDAddressingSectionHandle ) {
+                    ObjectTreeGUIDAddressingSectionHandle pointHandle = (ObjectTreeGUIDAddressingSectionHandle) rtn.treeNode;
+                    GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                    //this.mNodeIndex.put( path, pointHandle.get(guid) );
+                    return guid;
+                }
             }
         }
         return null;
@@ -335,9 +343,12 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         for( int i = 0; i < split.length; ++i ) {
             TreeNode node = this.mNodeIndex.get( this.concatenateFullPathBySegments(split, 0, i) );
             if( node instanceof RuntimeTreeNode ) {
-                ProxiedKOMMountPointHandle pointHandle = (ProxiedKOMMountPointHandle) ( (RuntimeTreeNode)node ).treeNode;
-                GUID guid = pointHandle.queryGUIDByPath( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
-                return pointHandle.get( guid );
+                RuntimeTreeNode rtn = (RuntimeTreeNode)node;
+                if ( rtn instanceof ObjectTreeAddressingSectionHandle ) {
+                    ObjectTreeAddressingSectionHandle pointHandle = (ObjectTreeAddressingSectionHandle) rtn.treeNode;
+                    EntityNode entityNode = pointHandle.queryNode( this.concatenateFullPathBySegments(split, i + 1, split.length - 1) );
+                    return entityNode;
+                }
             }
         }
         return null;

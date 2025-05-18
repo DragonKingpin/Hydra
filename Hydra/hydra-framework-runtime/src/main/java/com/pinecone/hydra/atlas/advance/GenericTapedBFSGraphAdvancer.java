@@ -1,6 +1,6 @@
 package com.pinecone.hydra.atlas.advance;
 
-import com.pinecone.hydra.atlas.advance.chain.GraphPriorityProcessStrategyChain;
+import com.pinecone.hydra.atlas.advance.strategy.PriorityProcessStrategy;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.MegaStratumQueue;
@@ -13,23 +13,19 @@ public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvance
 
     private MegaStratumQueue                mTempMegaStratumQueue;
 
-    private GraphPriorityProcessStrategyChain mStrategyChain;
+    private PriorityProcessStrategy         mStrategy;
 
     public GenericTapedBFSGraphAdvancer(RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
-                                        MegaStratumQueue tempMegaStratumQueue, GraphPriorityProcessStrategyChain strategyChain ) {
+                                        MegaStratumQueue tempMegaStratumQueue, PriorityProcessStrategy strategy ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
         this.mMegaDeflectPriorityQueue  = megaDeflectPriorityQueue;
         this.mTempMegaStratumQueue      = tempMegaStratumQueue;
-        this.mStrategyChain             = strategyChain;
+        this.mStrategy = strategy;
     }
 
 
     public void traverse( VectorDAG vectorDAG ) {
-        GraphPriorityProcessStrategyChain strategyChain = this.mStrategyChain;
-         while ( strategyChain != null ) {
-             strategyChain.process(vectorDAG);
-             strategyChain = strategyChain.next();
-         }
+       this.mStrategy.process( vectorDAG );
     }
 
 }

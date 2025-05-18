@@ -4,12 +4,10 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.storage.StorageConfig;
 import com.pinecone.hydra.storage.StorageConstants;
-import com.pinecone.hydra.storage.ArchStorageConfig;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
-import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccess;
-import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
+import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
+import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccessor;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ClusterPage64;
@@ -95,7 +93,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     protected IndexableMapQuerier<String, String >    globalPathGuidCacheQuerier;
 
-    protected DirectFileSystemAccess                  directFileSystemAccess;
+    protected DirectFileSystemAccessor directFileSystemAccessor;
 
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier, FileSystemConfig fileSystemConfig ){
@@ -133,7 +131,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.fsNodeAllotment                 =  new GenericFSNodeAllotment(this.fileMasterManipulator,this);
         this.globalPathGuidCacheQuerier      =  globalPathGuidCacheQuerier;
 
-        this.directFileSystemAccess          = new KenDirectFileSystemAccess(this);
+        this.directFileSystemAccessor = new KenDirectFileSystemAccessor(this);
     }
 
 //    public GenericKOMFileSystem( Hydrarum hydrarum ) {
@@ -358,7 +356,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         if( guid != null ) {
             return (ElementNode) this.get( guid );
         }
-        return this.directFileSystemAccess.queryElement(path);
+        return this.directFileSystemAccessor.queryElement(path);
     }
 
     @Override
@@ -446,7 +444,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     @Override
     public void directCopy(String sourcePath, String destinationPath) throws IOException {
-        this.directFileSystemAccess.copy( sourcePath,destinationPath );
+        this.directFileSystemAccessor.copy( sourcePath,destinationPath );
     }
 
     private void copy(String sourcePath, FileTreeNode fileTreeNode, VolumeManager volumeManager ) throws IOException {

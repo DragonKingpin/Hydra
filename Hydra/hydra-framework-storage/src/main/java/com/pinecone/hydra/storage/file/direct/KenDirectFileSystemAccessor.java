@@ -26,7 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
+public class KenDirectFileSystemAccessor implements DirectFileSystemAccessor {
     protected KOMFileSystem                 fileSystem;
 
     protected PathResolver                  pathResolver;
@@ -44,7 +44,7 @@ public class KenDirectFileSystemAccess implements DirectFileSystemAccess {
     protected ImperialTree                  imperialTree;
 
 
-    public KenDirectFileSystemAccess( KOMFileSystem fileSystem ){
+    public KenDirectFileSystemAccessor(KOMFileSystem fileSystem ){
         this.fileSystem                     = fileSystem;
         this.pathResolver                   = new KOPathResolver( fileSystem.getConfig() );
         this.fileMasterManipulator          = this.fileSystem.getFileMasterManipulator();

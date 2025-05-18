@@ -3,19 +3,11 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
-import com.pinecone.hydra.deploy.entity.GenericNamespace;
-import com.pinecone.hydra.deploy.entity.GenericPhysicalHost;
 import com.pinecone.hydra.deploy.ibatis.hydranium.DeployMappingDriver;
 import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.deploy.kom.entity.GenericDeployElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
-import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
-import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.hydra.deploy.kom.marshaling.DeployJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.radium.Radium;
 import com.pinecone.ulf.util.guid.GUIDs;
@@ -93,7 +85,7 @@ class Randon extends Radium {
         quickElement.setName("quickElement009");
         quickElement.setTypeName("quickElement009");
         deployInstrument.put(quickElement);*/
-        Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "quickElement009" ));
+       // Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "quickElement009" ));
         //deployInstrument.affirmQuick("quickElement003").addChild(new GenericQuickElement( new JSONMaptron( "{ name: 'deployElement002', description: 'd1' }" )));
 /*        GenericDeployElement deployElement = new GenericDeployElement();
         deployElement.setName("deployElement004");
@@ -101,6 +93,9 @@ class Randon extends Radium {
         deployInstrument.put(deployElement);
         Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "deployElement004" ));
         deployInstrument.affirmDeployNode("deployElement004").addChild(new GenericDeployElement( new JSONMaptron( "{ name: 'deployElement003', description: 'd1' }" )));*/
+
+
+        this.testGet( deployInstrument );
 
     }
 
@@ -118,18 +113,18 @@ class Randon extends Radium {
                 + "enable: false, "
                 + "}";
 
-        GenericDeployElement taskElement = new GenericDeployElement(
-                new JSONMaptron( jsonConfig )
-        );
 
-        taskElement.setMetaGuid(GUIDs.GUID72("2b05246-0002cc-0002-f2"));
-        Debug.info( "taskElement: " + taskElement );
-        instrument.put(taskElement);
         /*Debug.trace(instrument.queryGUIDByPath("specialTask"));*/
     }
 
-    private void testGet( UniformDeployInstrument instrument ) {
-        Debug.info( "taskElement: " + instrument.get(GUIDs.GUID72("24b2258-0000bd-0000-44")));
+    private void testGet( UniformDeployInstrument instrument ){
+        DeployJSONDecoder decoder = new DeployJSONDecoder( instrument );
+        decoder.decode( new JSONMaptron( "{ root: { test: { cluster: { metaType: ClusterElement, type:Physic, deployments: { vm1: { metaType: VirtualMachineElement, ipAddress: 192.168.1.1, status: 12222s } } } } } }" ) );
+
+        Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
+
+        Debug.greenfs( instrument.queryElement( "root/test/cluster/vm1" ) );
+        //Debug.trace(deployInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 
     private void testUpdate( UniformDeployInstrument instrument ) {
@@ -138,7 +133,7 @@ class Randon extends Radium {
         virtualMachine.setName("testVirtualMachine08");
         virtualMachine.setIpAddress("127.0.0.9");
         virtualMachine.setStatus("OK");
-        virtualMachine.setEnabled(true);
+        virtualMachine.setEnable(true);
         virtualMachine.setDescription("testVirtualMachine009");
         virtualMachine.setMetaGuid(GUIDs.GUID72("2261a1a-000377-0000-78"));
         virtualMachine.setGuid(GUIDs.GUID72("24e2fc4-00016c-0000-dc"));
@@ -221,7 +216,7 @@ class Randon extends Radium {
         virtualMachine.setName("testVirtualMachine01");
         virtualMachine.setIpAddress("127.0.0.5");
         virtualMachine.setStatus("OK");
-        virtualMachine.setEnabled(true);
+        virtualMachine.setEnable(true);
         virtualMachine.setDescription("testVirtualMachine");
         virtualMachine.setMetaGuid(GUIDs.GUID72("2261a1a-000377-0000-78"));
         virtualMachine.setGuid(GUIDs.GUID72("2261a1a-000377-0000-76"));
@@ -230,7 +225,7 @@ class Randon extends Radium {
    /*     GenericVirtualMachineElement virtualMachine = new GenericVirtualMachineElement();
         virtualMachine = (GenericVirtualMachineElement)instrument.get( GUIDs.GUID72("24e2fc4-00016c-0000-dc"));
         Debug.trace(virtualMachine);*/
-        GenericDeployElement taskElement = new GenericDeployElement();
+
         instrument.get(GUIDs.GUID72("24b1e50-000044-0000-50"));
 
 

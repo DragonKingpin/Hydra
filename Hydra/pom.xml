@@ -31,5 +31,6 @@
 
         <module>hydra-system-radium</module>
         <module>hydra-r-atlas-default-driver</module>
+        <module>hydra-system-reign</module>
     </modules>
 </project>

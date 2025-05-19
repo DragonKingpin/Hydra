@@ -1,4 +1,4 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.name.path.PathResolver;
@@ -10,6 +10,7 @@ import com.pinecone.hydra.storage.file.source.ExternalSymbolicManipulator;
 import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
+import com.pinecone.hydra.storage.natives.NativeExternalFileSystems;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.kom.PathSelector;
@@ -17,16 +18,9 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
-public class KenDirectFileSystemInstrument implements DirectFileInstrument {
+public class KenExternalFileSystemInstrument implements ExternalFileSystemInstrument {
     protected KOMFileSystem                 fileSystem;
 
     protected PathResolver                  pathResolver;
@@ -44,7 +38,7 @@ public class KenDirectFileSystemInstrument implements DirectFileInstrument {
     protected ImperialTree                  imperialTree;
 
 
-    public KenDirectFileSystemInstrument(KOMFileSystem fileSystem ){
+    public KenExternalFileSystemInstrument( KOMFileSystem fileSystem ){
         this.fileSystem                     = fileSystem;
         this.pathResolver                   = new KOPathResolver( fileSystem.getConfig() );
         this.fileMasterManipulator          = this.fileSystem.getFileMasterManipulator();
@@ -62,7 +56,7 @@ public class KenDirectFileSystemInstrument implements DirectFileInstrument {
     @Override
     public ElementNode queryElement( String path ) {
         GUID guid = this.queryGUIDByPath(path);
-        if( guid == null ){
+        if( guid == null ) {
             return null;
         }
 
@@ -70,7 +64,7 @@ public class KenDirectFileSystemInstrument implements DirectFileInstrument {
         String externalPath = this.fileSystem.getPath(externalSymbolic.getGuid());
         String remainingPath = path.substring(externalPath.length()).replaceFirst( StorageConstants.PathSeparator, "" );
 
-        String realFilePath = externalSymbolic.getReparsedPoint()+ StorageConstants.PathSeparator + remainingPath;
+        String realFilePath = externalSymbolic.getReparsedPoint() + StorageConstants.PathSeparator + remainingPath;
         File file = new File(realFilePath);
         if( file.isDirectory() ){
             return new GenericNativeExternalFolder( file );
@@ -94,7 +88,7 @@ public class KenDirectFileSystemInstrument implements DirectFileInstrument {
 
     @Override
     public void copy( String sourcePath, String destinationPath ) throws IOException {
-        NativeDirectFileSystemAccessors.copy( sourcePath, destinationPath );
+        NativeExternalFileSystems.copy( sourcePath, destinationPath );
     }
 
     private GUID queryGUIDByPath( String path ) {

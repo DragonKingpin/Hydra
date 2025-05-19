@@ -4,8 +4,8 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
-import com.pinecone.hydra.storage.file.direct.NativeDirectFileSystemAccessor;
+import com.pinecone.hydra.storage.mfs.MappingFileSystem;
+import com.pinecone.hydra.storage.mfs.NativeMappingFileSystem;
 import com.pinecone.hydra.system.ko.runtime.KernelExpressInstrument;
 import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
@@ -35,8 +35,8 @@ class Loki extends Radium {
         kernelExpressInstrument.setTargetingName("task1");
         kernelExpressInstrument.mount( "task1/afc", ravenTaskInstrument );
 
-        DirectFileSystemAccessor directFileSystemAccessor = new NativeDirectFileSystemAccessor( "E:/" );
-        kernelExpressInstrument.directMount( "direct/test", directFileSystemAccessor );
+        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
+        kernelExpressInstrument.directMount( "direct/test", mappingFileSystem);
 
         this.testSimple( kernelExpressInstrument );
     }

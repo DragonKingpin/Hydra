@@ -9,8 +9,8 @@ import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
-import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFolder;
-import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemInstrument;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFolder;
+import com.pinecone.hydra.storage.file.external.KenExternalFileSystemInstrument;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
@@ -100,7 +100,7 @@ class Steve extends Radium {
     }
 
     private void testExternal(KOMFileSystem fileSystem){
-        KenDirectFileSystemInstrument directFileSystemAccess = new KenDirectFileSystemInstrument(fileSystem);
+        KenExternalFileSystemInstrument directFileSystemAccess = new KenExternalFileSystemInstrument(fileSystem);
 //        GenericExternalSymbolic externalSymbolic = new GenericExternalSymbolic();
 //        externalSymbolic.setName("xxx");
 //        externalSymbolic.setGuid( fileSystem.getGuidAllocator().nextGUID() );

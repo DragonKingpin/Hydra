@@ -1,7 +1,6 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
 import com.pinecone.hydra.storage.UFile;
-import com.pinecone.hydra.storage.file.entity.ElementNode;
 
 import java.io.File;
 import java.net.URI;
@@ -18,8 +17,12 @@ public interface ExternalFile extends ExternalFileObject, UFile {
 
     boolean delete();
 
+    default boolean exists() {
+        return this.getNativeFile().exists();
+    }
+
     @Override
-    default Object getNativeHandler() {
+    default Object getNativeHandle() {
         return this.getNativeFile();
     }
 

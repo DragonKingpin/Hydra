@@ -1,4 +1,4 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
 import java.net.URI;
 
@@ -15,6 +15,6 @@ public interface ExternalFileObject extends ElementNode {
 
     boolean delete();
 
-    Object getNativeHandler();
+    Object getNativeHandle();
 
 }

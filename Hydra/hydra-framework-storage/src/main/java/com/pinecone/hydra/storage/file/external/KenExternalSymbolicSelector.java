@@ -1,4 +1,4 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.name.path.PathResolver;

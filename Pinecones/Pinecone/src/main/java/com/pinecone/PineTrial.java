@@ -1,5 +1,7 @@
 package com.pinecone;
 
+import java.math.BigDecimal;
+
 import com.pinecone.framework.util.Debug;
 //import opennlp.tools.ml.maxent.DataStream;
 //import org.glassfish.jersey.server.internal.scanning.FilesScanner;
@@ -75,21 +77,32 @@ public class PineTrial {
 
 
 
-            SS runnable = new SS();
+//            SS runnable = new SS();
+//
+//            Thread t1 = new Thread( runnable );
+//            Thread t2 = new Thread( runnable );
+//
+//
+//            t1.start();
+//
+//            t2.start();
+//
+//            Thread.sleep( 100 );
+//
+//            Debug.trace( runnable.i );
 
-            Thread t1 = new Thread( runnable );
-            Thread t2 = new Thread( runnable );
 
 
-            t1.start();
-
-            t2.start();
-
-            Thread.sleep( 100 );
-
-            Debug.trace( runnable.i );
 
 
+
+            Debug.redfs((new BigDecimal("8031.12"))
+                    .multiply(new BigDecimal(1024))
+                    .multiply(new BigDecimal(1024))
+                    .multiply(new BigDecimal(1024))
+                    .multiply(new BigDecimal(1024))
+                    .multiply(new BigDecimal(1024))
+                    .longValue());
 
 
 

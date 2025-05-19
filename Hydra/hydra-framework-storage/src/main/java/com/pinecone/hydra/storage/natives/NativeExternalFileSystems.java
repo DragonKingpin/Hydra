@@ -1,4 +1,4 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.natives;
 
 
 import java.io.IOException;
@@ -10,7 +10,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
-public final class NativeDirectFileSystemAccessors {
+import com.pinecone.framework.util.io.FileUtils;
+
+public final class NativeExternalFileSystems {
 
     public static void copy( String sourcePath, String destinationPath ) throws IOException {
         // 注意参数语义交换：destinationPath是待复制的内容，sourcePath是目标容器目录

@@ -31,7 +31,7 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
                     "create_time, update_time" +
                     ") VALUES (" +
                     "#{guid}, #{affiliatedTaskGuid}, #{instanceName}, #{businessTime}, #{priority}, " +
-                    "#{actuallyPriority}, #{instanceStatus}, #{kernelScheduleCycle}, #{kernelScheduleType}, " +
+                    "#{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
                     "#{taskType}, #{dryRun}, #{runCount}, #{lastStartTime}, #{lastEndTime}, " +
                     "#{createTime}, #{updateTime}" +
                     ")"
@@ -46,9 +46,9 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
                     "business_time = #{businessTime}, " +
                     "priority = #{priority}, " +
                     "actually_priority = #{actuallyPriority}, " +
-                    "run_status = #{instanceStatus}, " +
-                    "schedule_cycle_code = #{kernelScheduleCycle}, " +
-                    "schedule_type_code = #{kernelScheduleType}, " +
+                    "run_status = #{runStatus}, " +
+                    "schedule_cycle_code = #{kernelScheduleCycleCode}, " +
+                    "schedule_type_code = #{kernelScheduleTypeCode}, " +
                     "task_type = #{taskType}, " +
                     "dry_run = #{dryRun}, " +
                     "run_count = #{runCount}, " +
@@ -74,9 +74,9 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             @Result(property = "businessTime", column = "business_time"),
             @Result(property = "priority", column = "priority"),
             @Result(property = "actuallyPriority", column = "actually_priority"),
-            @Result(property = "instanceStatus", column = "run_status"),
-            @Result(property = "kernelScheduleCycle", column = "schedule_cycle_code"),
-            @Result(property = "kernelScheduleType", column = "schedule_type_code"),
+            @Result(property = "runStatus", column = "run_status"),
+            @Result(property = "kernelScheduleCycleCode", column = "schedule_cycle_code"),
+            @Result(property = "kernelScheduleTypeCode", column = "schedule_type_code"),
             @Result(property = "taskType", column = "task_type"),
             @Result(property = "dryRun", column = "dry_run"),
             @Result(property = "runCount", column = "run_count"),

@@ -7,25 +7,29 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.TaskExtraMeta;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
-    protected String        taskType;
+    protected String                   taskType;
 
-    protected String        imagePath;
+    protected String                   imagePath;
 
-    protected String        resourceType;
+    protected String                   resourceType;
 
-    protected String        deploymentMethod;
+    protected String                   deploymentMethod;
 
-    protected short         priority;
+    protected short                    priority;
 
-    protected short         actuallyPriority;
+    protected short                    actuallyPriority;
 
-    protected boolean       dryRun;
+    protected boolean                  dryRun;
 
-    protected int           scheduleTypeCode;
+    protected KernelTaskScheduleCycle  kernelScheduleCycle;
 
-    protected boolean       enable;
+    protected KernelTaskScheduleType   kernelScheduleType;
+
+    protected boolean                  enable;
 
 
     private void initSelf( Map<String, Object > joEntity ) {
@@ -124,15 +128,59 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         this.dryRun = dryRun;
     }
 
+
+
     @Override
-    public int getScheduleTypeCode() {
-        return this.scheduleTypeCode;
+    public void setScheduleCycleCode ( int code ) {
+        this.kernelScheduleCycle = KernelTaskScheduleCycle.getByCode( code );
     }
 
     @Override
-    public void setScheduleTypeCode( int scheduleTypeCode ) {
-        this.scheduleTypeCode = scheduleTypeCode;
+    public int getScheduleCycleCode() {
+        if ( this.kernelScheduleCycle == null ) {
+            return KernelTaskScheduleCycle.Undefined.getCode();
+        }
+
+        return this.kernelScheduleCycle.getCode();
     }
+
+    @Override
+    public void setScheduleTypeCode ( int code ) {
+        this.kernelScheduleType = KernelTaskScheduleType.getByCode( code );
+    }
+
+    @Override
+    public int getScheduleTypeCode() {
+        if ( this.kernelScheduleType == null ) {
+            return KernelTaskScheduleType.Undefined.getCode();
+        }
+
+        return this.kernelScheduleType.getCode();
+    }
+
+
+
+    @Override
+    public void setScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) {
+        this.kernelScheduleCycle = kernelScheduleCycle;
+    }
+
+    @Override
+    public KernelTaskScheduleCycle getScheduleCycle() {
+        return this.kernelScheduleCycle;
+    }
+
+    @Override
+    public void setScheduleType ( KernelTaskScheduleType kernelScheduleType ) {
+        this.kernelScheduleType = kernelScheduleType;
+    }
+
+    @Override
+    public KernelTaskScheduleType getScheduleType() {
+        return this.kernelScheduleType;
+    }
+
+
 
     @Override
     public boolean isEnable() {

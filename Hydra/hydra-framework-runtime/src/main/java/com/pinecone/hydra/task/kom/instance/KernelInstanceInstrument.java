@@ -1,9 +1,14 @@
 package com.pinecone.hydra.task.kom.instance;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class KernelInstanceInstrument implements InstanceInstrument {
@@ -60,7 +65,27 @@ public class KernelInstanceInstrument implements InstanceInstrument {
         return this.instanceManipulator.countInstanceByTaskGuid( taskGuid );
     }
 
-
-
-
+    @Override
+    public InstanceEntry makeInstanceEntry( GUID taskGuid, @Nullable String insName, @Nullable LocalDateTime bizTime ) {
+        TreeNode tn = this.taskInstrument.get( taskGuid );
+        if ( tn instanceof TaskElement ) {
+            TaskElement taskElement = (TaskElement) tn;
+            InstanceEntry instanceEntry = new GenericInstanceEntry( this.taskInstrument );
+            instanceEntry.setAffiliatedTaskGuid( taskGuid );
+            instanceEntry.setGuid( this.taskInstrument.getGuidAllocator().nextGUID() );
+            instanceEntry.setPriority( taskElement.getPriority() );
+            instanceEntry.setActuallyPriority( taskElement.getPriority() );
+            instanceEntry.setTaskType( taskElement.getType() );
+//            instanceEntry.setInstanceName( taskElement.getName() );
+//            instanceEntry.setBusinessTime( taskElement.getBusinessTime() );
+//            instanceEntry.setScheduleCycleCode( taskElement.getScheduleCycleCode() );
+            instanceEntry.setKernelScheduleCycle( taskElement.getScheduleCycle() );
+            instanceEntry.setKernelScheduleType( taskElement.getScheduleType() );
+            instanceEntry.setRunCount( 0 );
+            instanceEntry.setDryRun( taskElement.isDryRun() );
+            instanceEntry.setInstanceStatus( TaskInstanceStatus.New );
+            return instanceEntry;
+        }
+        return null;
+    }
 }

@@ -5,7 +5,10 @@ public enum TaskInstanceStatus {
     WaitingDependency          ( "WaitingDependency" ),
     Running                    ( "Running"           ),
     Paused                     ( "Paused"            ),
-    Stopped                    ( "Stopped"           );
+    Finished                   ( "Finished"          ), // Finished termination.
+    Terminated                 ( "Terminated"        ), // Forced termination.
+    Error                      ( "Error"             ), // Error termination.
+    ;
 
     private final String value;
 

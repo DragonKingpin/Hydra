@@ -1,9 +1,11 @@
 package com.pinecone.hydra.task.kom.instance;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface InstanceInstrument extends Instrument {
@@ -30,6 +32,12 @@ public interface InstanceInstrument extends Instrument {
     List<InstanceEntry> queryInstances( GUID taskGuid, long offset, long pageSize );
 
     TaskInstrument getTaskInstrument();
+
+    InstanceEntry makeInstanceEntry( GUID taskGuid, @Nullable String insName, @Nullable LocalDateTime bizTime );
+
+    default InstanceEntry makeInstanceEntry( GUID taskGuid ) {
+        return this.makeInstanceEntry( taskGuid, null, null );
+    }
 
 
 }

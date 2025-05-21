@@ -127,7 +127,7 @@ class Randy extends Radium {
 
         //Debug.fmp( 2, instanceEntry );
 
-        Debug.fmp( 2, instanceInstrument.queryInstances( taskGuid ) );
+        Debug.fmp( 2, instanceInstrument.makeInstanceEntry( taskGuid ) );
     }
 }
 

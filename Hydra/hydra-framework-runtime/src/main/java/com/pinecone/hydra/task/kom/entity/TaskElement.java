@@ -1,6 +1,8 @@
 package com.pinecone.hydra.task.kom.entity;
 
 import com.pinecone.hydra.task.TaskExtraMeta;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
 public interface TaskElement extends ElementNode {
 
@@ -28,9 +30,18 @@ public interface TaskElement extends ElementNode {
     void setActuallyPriority( int priority );
 
 
+    KernelTaskScheduleCycle getScheduleCycle();
+    void setScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) ;
+
+    KernelTaskScheduleType getScheduleType();
+    void setScheduleType ( KernelTaskScheduleType kernelScheduleType ) ;
+
 
     boolean isDryRun() ;
     void setDryRun( boolean dryRun ) ;
+
+    int getScheduleCycleCode();
+    void setScheduleCycleCode ( int code ) ;
 
     int getScheduleTypeCode() ;
     void setScheduleTypeCode( int scheduleTypeCode ) ;

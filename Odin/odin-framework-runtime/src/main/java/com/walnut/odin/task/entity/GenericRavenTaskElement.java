@@ -10,6 +10,8 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.task.kom.TaskFamilyNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericRavenTaskElement implements RavenTaskElement {
@@ -94,14 +96,41 @@ public class GenericRavenTaskElement implements RavenTaskElement {
         this.taskElement.setActuallyPriority( priority );
     }
 
+
+
+
     @Override
-    public boolean isDryRun() {
-        return this.taskElement.isDryRun();
+    public KernelTaskScheduleCycle getScheduleCycle() {
+        return this.taskElement.getScheduleCycle();
     }
 
     @Override
-    public void setDryRun( boolean dryRun ) {
-        this.taskElement.setDryRun( dryRun );
+    public void setScheduleCycle( KernelTaskScheduleCycle kernelScheduleCycle ) {
+        this.taskElement.setScheduleCycle( kernelScheduleCycle );
+    }
+
+    @Override
+    public KernelTaskScheduleType getScheduleType() {
+        return this.taskElement.getScheduleType();
+    }
+
+    @Override
+    public void setScheduleType( KernelTaskScheduleType kernelScheduleType ) {
+        this.taskElement.setScheduleType( kernelScheduleType );
+    }
+
+
+
+
+
+    @Override
+    public int getScheduleCycleCode() {
+        return this.taskElement.getScheduleCycleCode();
+    }
+
+    @Override
+    public void setScheduleCycleCode( int code ) {
+        this.taskElement.setScheduleCycleCode( code );
     }
 
     @Override
@@ -113,6 +142,22 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     public void setScheduleTypeCode( int scheduleTypeCode ) {
         this.taskElement.setScheduleTypeCode( scheduleTypeCode );
     }
+
+
+
+
+
+    @Override
+    public boolean isDryRun() {
+        return this.taskElement.isDryRun();
+    }
+
+    @Override
+    public void setDryRun( boolean dryRun ) {
+        this.taskElement.setDryRun( dryRun );
+    }
+
+
 
     @Override
     public boolean isEnable() {

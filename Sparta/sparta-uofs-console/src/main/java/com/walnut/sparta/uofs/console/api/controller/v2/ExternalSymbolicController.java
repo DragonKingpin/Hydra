@@ -2,9 +2,9 @@ package com.walnut.sparta.uofs.console.api.controller.v2;
 
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.ExternalFolder;
-import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFolder;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
+import com.pinecone.hydra.storage.file.external.ExternalFolder;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFolder;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.Folder;

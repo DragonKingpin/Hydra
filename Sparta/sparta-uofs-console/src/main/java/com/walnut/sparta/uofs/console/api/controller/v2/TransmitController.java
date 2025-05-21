@@ -2,8 +2,8 @@ package com.walnut.sparta.uofs.console.api.controller.v2;
 
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.GenericNativeExternalFile;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFile;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.io.Chanface;

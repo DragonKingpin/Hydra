@@ -9,9 +9,10 @@ import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.reign.UnixInstitutionalizedMetaImperiumPrivy;
-import com.pinecone.hydra.storage.file.direct.DirectFileSystemAccessor;
-import com.pinecone.hydra.storage.file.direct.ExternalFolder;
-import com.pinecone.hydra.storage.file.direct.NativeDirectFileSystemAccessor;
+import com.pinecone.hydra.storage.mfs.MappingFileSystem;
+import com.pinecone.hydra.storage.file.external.ExternalFolder;
+import com.pinecone.hydra.storage.mfs.NativeMFile;
+import com.pinecone.hydra.storage.mfs.NativeMappingFileSystem;
 import com.pinecone.hydra.system.imperium.KernelObjectRootMountPoint;
 import com.pinecone.hydra.system.imperium.KernelRootMountPoint;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -33,6 +34,22 @@ class Floki extends EnderHydra {
 
     @Override
     public void vitalize () throws Exception {
+        UnixInstitutionalizedMetaImperiumPrivy privy = new UnixInstitutionalizedMetaImperiumPrivy( this, null );
+
+        ExpressInstrument instrument = privy.getExpressInstrument();
+
+
+        //this.prepareKOMTrees( instrument );
+
+        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
+        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
+        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
+
+
+        this.testSimple( instrument );
+    }
+
+    private void prepareKOMTrees( ExpressInstrument instrument ) {
         OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
@@ -42,48 +59,39 @@ class Floki extends EnderHydra {
         KOIMappingDriver koiMappingDriver = new RegistryMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
+
         DeployMappingDriver deployMappingDriver = new DeployMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         UniformDeployInstrument deployInstrument = new UniformDeployInstrument( deployMappingDriver );
 
-        UnixInstitutionalizedMetaImperiumPrivy privy = new UnixInstitutionalizedMetaImperiumPrivy( this, null );
-
-        ExpressInstrument instrument = privy.getExpressInstrument();
         instrument.mount( KernelObjectRootMountPoint.TaskMeta.getMountPoint(), ravenTaskInstrument );
         instrument.mount( KernelObjectRootMountPoint.Registry.getMountPoint(), registry );
         instrument.mount( KernelObjectRootMountPoint.DeployMeta.getMountPoint(), deployInstrument );
-
-        DirectFileSystemAccessor directFileSystemAccessor = new NativeDirectFileSystemAccessor( "E:/" );
-        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", directFileSystemAccessor );
-
-
-        this.testSimple( instrument );
     }
 
     private void testSimple( ExpressInstrument instrument ) {
-        EntityNode entityNode = instrument.queryNode( "meta/task/test/job/task" );
+//        EntityNode entityNode = instrument.queryNode( "meta/task/test/job/task" );
+//
+//        //Debug.fmp( 2, entityNode );
+//        Debug.fmp( 2, instrument.querySystemKernelObjectPath( entityNode.getGuid() ) );
+//
+//        Debug.fmp( 2, instrument.getMountedInstrument( "meta/task" ) );
+//
+//        Debug.greenfs( instrument.fetchOwnMappingPath() );
+//
+//        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
+//        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
+//
+//        Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
 
-        //Debug.fmp( 2, entityNode );
-        Debug.fmp( 2, instrument.querySystemKernelObjectPath( entityNode.getGuid() ) );
 
-        Debug.fmp( 2, instrument.getMountedInstrument( "meta/task" ) );
-
-        Debug.greenfs( instrument.fetchOwnMappingPath() );
-
-        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
-        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
-
-        Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
-
-
-        EntityNode myf = instrument.queryNode( "mnt/volE/MyFiles" );
+        EntityNode myf = instrument.queryNode( "mnt/volE/Users" );
         Debug.fmp( 2, myf );
-        ExternalFolder myff = (ExternalFolder) myf;
+        NativeMFile myff = (NativeMFile) myf;
 
-        Debug.fmp( 2, myff.listItem() );
+        Debug.fmp( 2, myff.listFiles() );
 
     }
 }

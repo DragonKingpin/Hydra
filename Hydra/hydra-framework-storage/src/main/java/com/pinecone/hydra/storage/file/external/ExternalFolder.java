@@ -1,4 +1,4 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 
@@ -25,7 +25,7 @@ public interface ExternalFolder extends ExternalFileObject {
     boolean delete();
 
     @Override
-    default Object getNativeHandler() {
+    default Object getNativeHandle() {
         return this.getNativeFile();
     }
 

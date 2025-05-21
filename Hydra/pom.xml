@@ -17,6 +17,7 @@
     <modules>
         <module>hydra-architecture</module>
         <module>hydra-architecture-conduct</module>
+        <module>hydra-architecture-storage</module>
         <module>hydra-framework-runtime</module>
         <module>hydra-message-control</module>
         <module>hydra-message-broadcast</module>
@@ -32,5 +33,6 @@
         <module>hydra-system-radium</module>
         <module>hydra-r-atlas-default-driver</module>
         <module>hydra-system-reign</module>
+        <module>hydra-service-control</module>
     </modules>
 </project>

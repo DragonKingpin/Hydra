@@ -1,12 +1,10 @@
 package com.pinecone.hydra.service.registry;
 
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.ServiceManager;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
-import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
@@ -14,7 +12,6 @@ import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
-import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,12 +22,6 @@ public class UniformServiceManager implements ServiceManager {
     protected ServiceInstrument             mServiceInstrument;
 
     protected DuplexAppointServer           mAppointServer;
-
-    protected GuidAllocator                 mGuidAllocator;
-
-    protected ImperialTree                  mImperialTree;
-
-    protected KernelObjectConfig            mServiceConfig;
 
 
     protected final ConcurrentMap<Long, ServiceInstance > mInstanceRegistry;
@@ -75,19 +66,6 @@ public class UniformServiceManager implements ServiceManager {
         });
     }
 
-    public UniformServiceManager(ServiceInstrument serviceInstrument, DuplexAppointServer server ){
-        this.mServiceInstrument = serviceInstrument;
-        this.mGuidAllocator      = this.mServiceInstrument.getGuidAllocator();
-        this.mImperialTree       = this.mServiceInstrument.getMasterTrieTree();
-        this.mServiceConfig      = this.mServiceInstrument.getConfig();
-        this.mAppointServer      = server;
-        this.mServiceRegistry    = new ConcurrentHashMap<>();
-        this.mInstanceRegistry   = new ConcurrentHashMap<>();
-        this.mClientRegistry     = new ConcurrentHashMap<>();
-
-        this.initRPCSubsystem();
-    }
-
     protected void afterChannelDetach( Long clientId, Object channelId ) {
         synchronized ( this.mClientRegistry ) {
             ConcurrentMap<Object, Object > channelSet = this.mClientRegistry.get( clientId );
@@ -105,23 +83,16 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
+    public UniformServiceManager( ServiceInstrument serviceInstrument, DuplexAppointServer server ){
+        this.mServiceInstrument = serviceInstrument;
+        this.mAppointServer      = server;
+        this.mServiceRegistry    = new ConcurrentHashMap<>();
+        this.mInstanceRegistry   = new ConcurrentHashMap<>();
+        this.mClientRegistry     = new ConcurrentHashMap<>();
 
-
-
-    @Override
-    public GuidAllocator getGuidAllocator() {
-        return this.mGuidAllocator;
+        this.initRPCSubsystem();
     }
 
-    @Override
-    public ImperialTree getMasterTrieTree() {
-        return this.mImperialTree;
-    }
-
-    @Override
-    public KernelObjectConfig getConfig() {
-        return this.mServiceConfig;
-    }
 
 
 //    @Override

@@ -1,13 +1,12 @@
-package com.pinecone.hydra.storage.file.direct;
+package com.pinecone.hydra.storage.file.external;
 
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 
 import java.io.IOException;
 
-public interface DirectFileInstrument extends Instrument {
+public interface ExternalFileSystemInstrument extends Instrument {
 
     void insertExternalSymbolic( ExternalSymbolic externalSymbolic );
 

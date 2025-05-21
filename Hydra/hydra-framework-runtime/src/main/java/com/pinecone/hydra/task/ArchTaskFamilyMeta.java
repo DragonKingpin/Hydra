@@ -33,7 +33,7 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
         this.apply( joEntity );
     }
 
-    protected ArchTaskFamilyMeta apply( Map<String, Object > joEntity ) {
+    protected ArchTaskFamilyMeta apply(Map<String, Object > joEntity ) {
         String szGuid = (String) joEntity.get( "guid" );
         if( szGuid != null ) {
             this.guid = GUIDs.GUID72( (String) joEntity.get( "guid" ) );

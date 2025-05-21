@@ -3,8 +3,9 @@ package com.pinecone.hydra.service.kom.entity;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
+import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
 
-public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode {
+public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode, ElementumNode {
     default Namespace evinceNamespace() {
         return null;
     }

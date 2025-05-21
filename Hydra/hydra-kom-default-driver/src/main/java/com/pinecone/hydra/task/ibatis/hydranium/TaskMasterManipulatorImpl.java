@@ -2,7 +2,7 @@ package com.pinecone.hydra.task.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
 
-import com.pinecone.hydra.task.kom.instance.source.InstanceMappingManipulator;
+import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.JobNodeMapper;
@@ -12,7 +12,7 @@ import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
-import com.pinecone.hydra.task.ibatis.InstanceMapper;
+import com.pinecone.hydra.task.ibatis.InstanceNodeMapper;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.task.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
@@ -62,8 +62,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
 
 
     @Resource
-    @Structure(type = InstanceMapper.class)
-    InstanceMappingManipulator instanceMappingManipulator;
+    @Structure(type = InstanceNodeMapper.class)
+    InstanceNodeManipulator instanceNodeManipulator;
 
     public TaskMasterManipulatorImpl() {
 
@@ -116,8 +116,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public InstanceMappingManipulator getInstanceMappingManipulator() {
-        return this.instanceMappingManipulator;
+    public InstanceNodeManipulator getInstanceNodeManipulator() {
+        return this.instanceNodeManipulator;
     }
 
 

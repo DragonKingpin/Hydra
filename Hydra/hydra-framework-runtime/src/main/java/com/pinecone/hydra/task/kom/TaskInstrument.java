@@ -7,6 +7,7 @@ import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public interface TaskInstrument extends ReparseKOMTree {
@@ -24,6 +25,10 @@ public interface TaskInstrument extends ReparseKOMTree {
     boolean            containsChild( GUID parentGuid, String childName );
 
     void               update( TreeNode treeNode );
+
+    InstanceInstrument getInstanceInstrument();
+
+
 
 
 }

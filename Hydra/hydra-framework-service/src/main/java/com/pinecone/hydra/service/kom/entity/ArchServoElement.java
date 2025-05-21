@@ -21,7 +21,7 @@ public abstract class ArchServoElement extends ArchElementNode implements ServoE
     public ArchServoElement() {
         super();
         this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchServoElement( Map<String, Object > joEntity ) {

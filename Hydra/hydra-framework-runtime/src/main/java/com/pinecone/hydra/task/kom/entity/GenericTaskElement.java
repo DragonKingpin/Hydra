@@ -89,8 +89,8 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     }
 
     @Override
-    public void setPriority( short priority ) {
-        this.priority = priority;
+    public void setPriority( int priority ) {
+        this.priority = (short) priority;
     }
 
     @Override
@@ -99,8 +99,8 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     }
 
     @Override
-    public void setActuallyPriority( short actuallyPriority ) {
-        this.actuallyPriority = actuallyPriority;
+    public void setActuallyPriority( int actuallyPriority ) {
+        this.actuallyPriority = (short) actuallyPriority;
     }
 
     @Override

@@ -8,5 +8,5 @@ public interface TaskInstance extends Pinenut {
 
     Object getProcessObject();
 
-    Task getService();
+    Task getAffiliatedTask();
 }

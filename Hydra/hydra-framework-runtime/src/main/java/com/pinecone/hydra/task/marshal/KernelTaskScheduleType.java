@@ -1,9 +1,12 @@
 package com.pinecone.hydra.task.marshal;
 
 public enum KernelTaskScheduleType {
-    Undefined  ( 0x00, "Undefined" ),
-    Cycle      ( 0x01, "Cycle" ),
-    Manual     ( 0x02, "Manual" );
+    Undefined      ( 0x00, "Undefined" ),
+    Cycle          ( 0x01, "Cycle" ),
+    Manual         ( 0x02, "Manual" ),
+    Triggered      ( 0x03, "Triggered" ),
+    Resident       ( 0x04, "Resident" ),
+    ;
 
     private final int code;
 

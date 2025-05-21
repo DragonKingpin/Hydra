@@ -39,7 +39,7 @@ class Floki extends EnderHydra {
         ExpressInstrument instrument = privy.getExpressInstrument();
 
 
-        //this.prepareKOMTrees( instrument );
+        this.prepareKOMTrees( instrument );
 
         //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
         MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
@@ -72,19 +72,19 @@ class Floki extends EnderHydra {
     }
 
     private void testSimple( ExpressInstrument instrument ) {
-//        EntityNode entityNode = instrument.queryNode( "meta/task/test/job/task" );
-//
-//        //Debug.fmp( 2, entityNode );
-//        Debug.fmp( 2, instrument.querySystemKernelObjectPath( entityNode.getGuid() ) );
-//
-//        Debug.fmp( 2, instrument.getMountedInstrument( "meta/task" ) );
-//
-//        Debug.greenfs( instrument.fetchOwnMappingPath() );
-//
-//        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
-//        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
-//
-//        Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
+        EntityNode entityNode = instrument.queryNode( "meta/task/test/job/task" );
+
+        //Debug.fmp( 2, entityNode );
+        Debug.fmp( 2, instrument.querySystemKernelObjectPath( entityNode.getGuid() ) );
+
+        Debug.fmp( 2, instrument.getMountedInstrument( "meta/task" ) );
+
+        Debug.greenfs( instrument.fetchOwnMappingPath() );
+
+        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
+        Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
+
+        Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
 
 
         EntityNode myf = instrument.queryNode( "mnt/volE/Users" );

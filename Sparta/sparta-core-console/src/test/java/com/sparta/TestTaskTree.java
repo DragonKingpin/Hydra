@@ -3,9 +3,13 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
+import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
@@ -36,8 +40,10 @@ class Randy extends Radium {
         //this.testCategory( ravenTaskInstrument );
 
         //this.testInsert( ravenTaskInstrument );
-        this.testGet( ravenTaskInstrument );
+        //this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
+
+        this.testInstance( ravenTaskInstrument );
 
     }
 
@@ -109,6 +115,19 @@ class Randy extends Radium {
 
     private void testDelete( TaskInstrument instrument ) {
         instrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+    }
+
+    private void testInstance( TaskInstrument instrument ) {
+        InstanceInstrument instanceInstrument = instrument.getInstanceInstrument();
+
+        GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
+        //InstanceEntry instanceEntry = new GenericInstanceEntry( new JSONMaptron( "{priority:456, taskType: Spark, instanceName: test123}" ) );
+
+        //instanceInstrument.addInstance( taskGuid, instanceEntry );
+
+        //Debug.fmp( 2, instanceEntry );
+
+        Debug.fmp( 2, instanceInstrument.queryInstances( taskGuid ) );
     }
 }
 

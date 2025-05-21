@@ -80,7 +80,7 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
     @Override
-    public void setPriority( short priority ) {
+    public void setPriority( int priority ) {
         this.taskElement.setPriority( priority );
     }
 
@@ -90,7 +90,7 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
     @Override
-    public void setActuallyPriority( short priority ) {
+    public void setActuallyPriority( int priority ) {
         this.taskElement.setActuallyPriority( priority );
     }
 

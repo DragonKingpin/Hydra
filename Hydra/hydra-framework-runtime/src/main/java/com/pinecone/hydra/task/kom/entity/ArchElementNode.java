@@ -33,14 +33,14 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         super();
 
         this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchElementNode( Map<String, Object > joEntity ) {
         super( joEntity );
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
         this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchElementNode( Map<String, Object > joEntity, TaskInstrument taskInstrument) {
@@ -57,8 +57,10 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         this.taskInstrument = taskInstrument;
         GuidAllocator guidAllocator = this.taskInstrument.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID() );
-        this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        if ( this.createTime == null ) {
+            this.createTime = LocalDateTime.now();
+            this.updateTime = LocalDateTime.now();
+        }
     }
 
     @Override

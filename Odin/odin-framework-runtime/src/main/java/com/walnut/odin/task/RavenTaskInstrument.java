@@ -19,6 +19,7 @@ import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
@@ -102,6 +103,11 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     public RavenTaskInstrument( KOIMappingDriver driver ) {
         this( driver.getSuperiorProcess(), driver.getMasterManipulator() );
+    }
+
+    @Override
+    public InstanceInstrument getInstanceInstrument() {
+        return this.uniformTaskInstrument.getInstanceInstrument();
     }
 
     @Override

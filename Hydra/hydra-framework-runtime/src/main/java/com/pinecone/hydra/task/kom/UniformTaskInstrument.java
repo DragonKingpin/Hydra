@@ -13,7 +13,9 @@ import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
-import com.pinecone.hydra.task.kom.instance.source.InstanceMappingManipulator;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
+import com.pinecone.hydra.task.kom.instance.KernelInstanceInstrument;
+import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.task.kom.operator.GenericElementOperatorFactory;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
@@ -50,7 +52,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected List<GUIDNameManipulator >  fileManipulators;
 
-    protected InstanceMappingManipulator instanceMappingManipulator;
+    protected InstanceInstrument          instanceInstrument;
 
     public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name );
@@ -72,8 +74,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
-        this.instanceMappingManipulator = this.taskMasterManipulator.getInstanceMappingManipulator();
-        this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
+        this.mReparseKOM                 = new GenericReparseKOMTreeAddition( this );
+        this.instanceInstrument          = new KernelInstanceInstrument( this, this.taskMasterManipulator.getInstanceNodeManipulator() );
     }
 
     public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
@@ -143,6 +145,11 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         }
 
         return ret;
+    }
+
+    @Override
+    public InstanceInstrument getInstanceInstrument() {
+        return this.instanceInstrument;
     }
 
     @Override
@@ -219,8 +226,6 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         TreeNodeOperator operator = this.operatorFactory.getOperator( treeNode.getMetaType() );
         operator.update( treeNode );
     }
-
-
 
     @Override
     public void remove( GUID guid ) {

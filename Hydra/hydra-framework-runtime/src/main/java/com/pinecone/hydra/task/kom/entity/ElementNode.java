@@ -7,8 +7,9 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.TaskFamilyNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
+import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
 
-public interface ElementNode extends TaskTreeNode, TaskFamilyNode {
+public interface ElementNode extends TaskTreeNode, TaskFamilyNode, ElementumNode {
 
     Set<String > UnbeanifiedKeys = Set.of( "distributedTreeNode" );
 

@@ -22,10 +22,10 @@ public interface TaskElement extends ElementNode {
     void setResourceType( String resourceType );
 
     short getPriority();
-    void setPriority( short priority );
+    void setPriority( int priority );
 
     short getActuallyPriority();
-    void setActuallyPriority( short priority );
+    void setActuallyPriority( int priority );
 
 
 

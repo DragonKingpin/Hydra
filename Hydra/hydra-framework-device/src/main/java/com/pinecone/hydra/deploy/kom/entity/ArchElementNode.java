@@ -33,14 +33,14 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
         super();
 
         this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchElementNode( Map<String, Object > joEntity ) {
         super( joEntity );
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
         this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchElementNode( Map<String, Object > joEntity, DeployInstrument deployInstrument) {
@@ -57,8 +57,10 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
         this.deployInstrument = deployInstrument;
         GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
         this.setGuid( guidAllocator.nextGUID() );
-        this.createTime = LocalDateTime.now();
-        this.createTime = LocalDateTime.now();
+        if ( this.createTime == null ) {
+            this.createTime = LocalDateTime.now();
+            this.updateTime = LocalDateTime.now();
+        }
     }
 
     @Override

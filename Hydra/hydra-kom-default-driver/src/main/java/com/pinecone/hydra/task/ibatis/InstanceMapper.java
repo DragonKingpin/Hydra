@@ -33,10 +33,10 @@ public interface InstanceMapper extends InstanceMappingManipulator {
     @Select("SELECT COUNT(*) FROM `hydra_task_instance` WHERE name = #{name}")
     long countInstanceByName( String name );
 
-    @Select("SELECT  business_date AS businessDate, priority, run_status AS runStatus, schedule_cycle AS scheduleCycle, task_type AS taskType, generation_mode AS generationMode, run_count,run_count AS runCount, schedule_type AS scheduleType, latest_start_time AS latestStartTime, latest_end_time AS latestEndTime, name FROM `hydra_task_instance` WHERE guid = #{guid} ORDER BY latest_start_time DESC LIMIT #{pageSize} , #{offset} ")
+    @Select("SELECT  business_date AS businessDate, priority, run_status AS runStatus, schedule_cycle AS scheduleCycle, task_type AS taskType,  run_count,run_count AS runCount, schedule_type AS scheduleType, latest_start_time AS latestStartTime, latest_end_time AS latestEndTime, name FROM `hydra_task_instance` WHERE guid = #{guid} ORDER BY latest_start_time DESC LIMIT #{pageSize} , #{offset} ")
     List<GenericInstance> fetchInstanceByGuid(long offset, long pageSize );
 
-    @Select("SELECT  business_date AS businessDate, priority, run_status AS runStatus, schedule_cycle AS scheduleCycle, task_type AS taskType, generation_mode AS generationMode, run_count,run_count AS runCount, schedule_type AS scheduleType, latest_start_time AS latestStartTime, latest_end_time AS latestEndTime, name FROM `hydra_task_instance` WHERE task_guid = #{taskGuid}")
+    @Select("SELECT  business_date AS businessDate, priority, run_status AS runStatus, schedule_cycle AS scheduleCycle, task_type AS taskType,  run_count,run_count AS runCount, schedule_type AS scheduleType, latest_start_time AS latestStartTime, latest_end_time AS latestEndTime, name FROM `hydra_task_instance` WHERE task_guid = #{taskGuid}")
     List<GenericInstance> queryByTaskGuid(GUID guid );
 
     @Select("SELECT COUNT(*) FROM `hydra_task_instance` WHERE task_guid = #{taskGuid}")

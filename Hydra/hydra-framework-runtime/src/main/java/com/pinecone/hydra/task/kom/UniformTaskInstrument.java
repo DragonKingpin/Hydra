@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.task.Task;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
@@ -14,6 +13,7 @@ import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
+import com.pinecone.hydra.task.kom.instance.source.InstanceMappingManipulator;
 import com.pinecone.hydra.task.kom.operator.GenericElementOperatorFactory;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
@@ -29,7 +29,6 @@ import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
-import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
@@ -51,7 +50,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected List<GUIDNameManipulator >  fileManipulators;
 
-
+    protected InstanceMappingManipulator instanceMappingManipulator;
 
     public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ) {
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name );
@@ -65,7 +64,6 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
         this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericElementOperatorFactory(this,(TaskMasterManipulator) masterManipulator);
-
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
         // TODO for customize service tree architecture.
@@ -74,7 +72,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
-
+        this.instanceMappingManipulator = this.taskMasterManipulator.getInstanceMappingManipulator();
         this.mReparseKOM                 =  new GenericReparseKOMTreeAddition( this );
     }
 

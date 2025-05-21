@@ -2,6 +2,7 @@ package com.pinecone.hydra.task.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
 
+import com.pinecone.hydra.task.kom.instance.source.InstanceMappingManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.JobNodeMapper;
@@ -11,6 +12,7 @@ import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
+import com.pinecone.hydra.task.ibatis.InstanceMapper;
 import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
 import com.pinecone.hydra.task.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
@@ -58,6 +60,11 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Structure(type = TaskMasterTreeManipulatorImpl.class)
     KOISkeletonMasterManipulator skeletonMasterManipulator;
 
+
+    @Resource
+    @Structure(type = InstanceMapper.class)
+    InstanceMappingManipulator instanceMappingManipulator;
+
     public TaskMasterManipulatorImpl() {
 
     }
@@ -66,6 +73,7 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
         driver.autoConstruct( TaskMasterManipulatorImpl.class, Map.of(), this );
         this.skeletonMasterManipulator = new TaskMasterTreeManipulatorImpl( driver );
     }
+
 
     @Override
     public TrieTreeManipulator getTrieTreeManipulator() {
@@ -105,6 +113,11 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Override
     public TireOwnerManipulator getTireOwnerManipulator() {
         return this.tireOwnerManipulator;
+    }
+
+    @Override
+    public InstanceMappingManipulator getInstanceMappingManipulator() {
+        return this.instanceMappingManipulator;
     }
 
 

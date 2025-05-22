@@ -2,11 +2,11 @@ package com.pinecone.hydra.storage.file.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
+import com.pinecone.hydra.system.ko.meta.ElementObject;
 
 import java.time.LocalDateTime;
 
-public interface ElementNode extends FileTreeNode, ElementumNode {
+public interface ElementNode extends FileTreeNode, ElementObject {
 
     long getEnumId();
 
@@ -24,5 +24,10 @@ public interface ElementNode extends FileTreeNode, ElementumNode {
     void setAttributes( FileSystemAttributes attributes );
 
     KOMFileSystem parentFileSystem();
+
+    @Override
+    default String getObjectCategoryName() {
+        return "Storage";
+    }
 
 }

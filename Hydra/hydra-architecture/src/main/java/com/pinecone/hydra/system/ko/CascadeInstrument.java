@@ -1,9 +1,10 @@
 package com.pinecone.hydra.system.ko;
 
+import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.system.regimentation.UniformCascadeNodus;
 import com.pinecone.framework.util.name.Namespace;
 
-public interface CascadeInstrument extends KernelObjectInstrument, UniformCascadeNodus {
+public interface CascadeInstrument extends UniformCascadeNodus, Instrument {
     String EmptySuperiorPathScope = "";
 
     @Override

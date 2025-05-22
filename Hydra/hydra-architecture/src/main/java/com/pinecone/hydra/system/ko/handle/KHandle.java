@@ -1,4 +1,4 @@
 package com.pinecone.hydra.system.ko.handle;
 
-public interface KHandle extends ObjectHandle {
+public interface KHandle extends HandleObject {
 }

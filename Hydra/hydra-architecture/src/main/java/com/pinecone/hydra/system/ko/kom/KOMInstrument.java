@@ -2,20 +2,20 @@ package com.pinecone.hydra.system.ko.kom;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.CascadeInstrument;
+import com.pinecone.hydra.system.ko.CascadeKOTreeInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import java.util.Collection;
 import java.util.List;
 
-public interface KOMInstrument extends CascadeInstrument {
+public interface KOMInstrument extends CascadeKOTreeInstrument {
     @Override
     KOMInstrument parent();
 
     @Override
     default void setTargetingName( String name ) {
-        CascadeInstrument.super.setTargetingName( name );
+        CascadeKOTreeInstrument.super.setTargetingName( name );
     }
 
     String getPath( GUID objectGuid );

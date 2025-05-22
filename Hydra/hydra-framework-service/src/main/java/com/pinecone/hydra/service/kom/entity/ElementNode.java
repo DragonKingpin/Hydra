@@ -2,10 +2,10 @@ package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.service.kom.ServiceFamilyNode;
+import com.pinecone.hydra.system.ko.meta.ElementObject;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
-import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
 
-public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode, ElementumNode {
+public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode, ElementObject {
     default Namespace evinceNamespace() {
         return null;
     }
@@ -27,5 +27,10 @@ public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode, Element
     @Override
     default ElementNode evinceElementNode(){
         return this;
+    }
+
+    @Override
+    default String getObjectCategoryName() {
+        return "Service";
     }
 }

@@ -3,7 +3,7 @@ package com.pinecone.framework.system.executum;
 import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.functions.Executable;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *  Pinecone Ursus For Java Executum
@@ -22,7 +22,7 @@ public interface Executum extends Executable, Lifecycle {
 
     void                setName( String szName );
 
-    int                 getId();
+    long                getId();
 
     RuntimeSystem       getSystem();
 
@@ -42,9 +42,9 @@ public interface Executum extends Executable, Lifecycle {
 
     boolean             isTerminated();
 
-    AtomicInteger AutoIncrementId     = new AtomicInteger( 0 );
+    AtomicLong AutoIncrementId     = new AtomicLong( 0 );
 
-    static int nextAutoIncrementId() {
+    static long nextAutoIncrementId() {
         return Executum.AutoIncrementId.getAndIncrement();
     }
 }

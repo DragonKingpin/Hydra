@@ -65,7 +65,7 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
     }
 
     @Override
-    public Map<Integer, Executum > getOwnThreadGroup() {
+    public Map<Long, Executum > getOwnThreadGroup() {
         return this.getTaskManager().getExecutumPool();
     }
 }

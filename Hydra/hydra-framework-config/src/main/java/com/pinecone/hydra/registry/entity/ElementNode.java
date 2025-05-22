@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.Registry;
-import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
+import com.pinecone.hydra.system.ko.meta.ElementObject;
 
-public interface ElementNode extends RegistryTreeNode, ElementumNode {
+public interface ElementNode extends RegistryTreeNode, ElementObject {
     long getEnumId();
 
     GUID getGuid();
@@ -20,4 +20,9 @@ public interface ElementNode extends RegistryTreeNode, ElementumNode {
     Attributes getAttributes();
 
     Registry parentRegistry();
+
+    @Override
+    default String getObjectCategoryName() {
+        return "Registry";
+    }
 }

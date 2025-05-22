@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class ArchExecutum implements Executum {
-    private int               mnId                      ;
+    private long              mnId                      ;
     protected String          mszName                   ;
     protected RuntimeSystem   mParentSystem             ;
     protected Processum       mParentProcessum          ;
@@ -81,7 +81,7 @@ public abstract class ArchExecutum implements Executum {
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return this.mnId;
     }
 

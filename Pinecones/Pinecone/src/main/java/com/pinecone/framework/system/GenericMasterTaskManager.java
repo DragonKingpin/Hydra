@@ -19,7 +19,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
     protected Processum                               mParentProcessum     ;
     protected ClassLoader                             mClassLoader         ;
     protected RuntimeSystem                           mSystem;
-    protected Map<Integer, Executum>                  mExecutumPool        = new ConcurrentHashMap<>();
+    protected Map<Long, Executum>                     mExecutumPool        = new ConcurrentHashMap<>();
     protected Map<String, ExclusiveProcessum >        mExclusiveTasks      = new ConcurrentHashMap<>();
     protected Map<Integer, VitalResource>             mVitalResourcePool   = new ConcurrentHashMap<>();
     protected long                                    mnVitalizeCount      = 0;
@@ -57,7 +57,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
         return this.mSyncApoptosisQueue;
     }
 
-    public Map<Integer, Executum > getExecutumPool() {
+    public Map<Long, Executum > getExecutumPool() {
         return this.mExecutumPool;
     }
 
@@ -103,14 +103,14 @@ public class GenericMasterTaskManager implements EventedTaskManager {
 
     @Override
     public void sendApoptosisSignal() {
-        for ( Map.Entry<Integer, Executum > kv : this.getExecutumPool().entrySet() ) {
+        for ( Map.Entry<Long, Executum > kv : this.getExecutumPool().entrySet() ) {
             kv.getValue().apoptosis();
         }
     }
 
     protected void killAll() {
         if( !this.isTerminated() ) {
-            for ( Map.Entry<Integer, Executum > kv : this.getExecutumPool().entrySet() ) {
+            for ( Map.Entry<Long, Executum > kv : this.getExecutumPool().entrySet() ) {
                 kv.getValue().kill();
             }
 
@@ -128,14 +128,14 @@ public class GenericMasterTaskManager implements EventedTaskManager {
 
     @Override
     public void  suspendAll() {
-        for ( Map.Entry<Integer, Executum > kv : this.getExecutumPool().entrySet() ) {
+        for ( Map.Entry<Long, Executum > kv : this.getExecutumPool().entrySet() ) {
             kv.getValue().suspend();
         }
     }
 
     @Override
     public void  resumeAll() {
-        for ( Map.Entry<Integer, Executum > kv : this.getExecutumPool().entrySet() ) {
+        for ( Map.Entry<Long, Executum > kv : this.getExecutumPool().entrySet() ) {
             kv.getValue().resume();
         }
     }
@@ -192,7 +192,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
     @Override
     public boolean isTerminated(){
         boolean b = true;
-        for ( Map.Entry<Integer, Executum > kv : this.getExecutumPool().entrySet() ) {
+        for ( Map.Entry<Long, Executum > kv : this.getExecutumPool().entrySet() ) {
             Thread primaryAffiliateThread = kv.getValue().getAffiliateThread();
             if( primaryAffiliateThread != null ) { // null is uninitialized thread.
                 if( !primaryAffiliateThread.isDaemon() ) {

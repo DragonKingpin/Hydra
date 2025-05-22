@@ -13,11 +13,12 @@ import com.pinecone.hydra.registry.entity.TextFile;
 import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.entity.TypeConverter;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
+import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public interface Registry extends KernelObjectInstrument {
+public interface Registry extends KOMInstrument {
     RegistryConfig KernelRegistryConfig = new KernelRegistryConfig();
 
     RegistryConfig getRegistryConfig();

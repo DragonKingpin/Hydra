@@ -6,18 +6,21 @@ import java.util.Set;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.deploy.kom.DeployFamilyNode;
+import com.pinecone.hydra.system.ko.meta.ElementObject;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
-import com.pinecone.hydra.unit.imperium.entity.ElementumNode;
 
-public interface ElementNode extends DeployTreeNode, DeployFamilyNode, ElementumNode {
+public interface ElementNode extends DeployTreeNode, DeployFamilyNode, ElementObject {
 
     Set<String > UnbeanifiedKeys = Set.of( "distributedTreeNode" );
+
+    @Override
+    default String getObjectCategoryName() {
+        return "Deploy";
+    }
 
     default Namespace evinceNamespace() {
         return null;
     }
-
-
 
     default QuickElement evinceQuickElement() {
         return null;

@@ -3,7 +3,7 @@ package com.pinecone.framework.system.executum;
 import java.util.Map;
 
 public interface Processum extends Executum {
-    Map<Integer, Executum > getOwnThreadGroup();
+    Map<Long, Executum >   getOwnThreadGroup();
 
     default Thread         rootThread() {
         return this.getAffiliateThread();

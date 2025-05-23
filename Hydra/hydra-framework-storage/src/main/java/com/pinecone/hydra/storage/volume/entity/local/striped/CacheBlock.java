@@ -23,8 +23,8 @@ public interface CacheBlock extends Pinenut { ;
     int getCacheBlockNumber();
     void setCacheBlockNumber( int cacheBlockNumber );
 
-    int getBufferWriteThreadId();
-    void setBufferWriteThreadId( int bufferWriteThreadId );
+    long getBufferWriteThreadId();
+    void setBufferWriteThreadId( long bufferWriteThreadId );
 
     LogicVolume getVolume();
     void setVolume( LogicVolume volume );

@@ -4,13 +4,20 @@ package com.pinecone.framework.system.executum;
 import com.pinecone.framework.system.ApoptosisRejectSignalException;
 import com.pinecone.framework.system.GenericMasterTaskManager;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public abstract class ArchProcessum extends ArchExecutum implements Processum {
     protected GenericMasterTaskManager mTaskManager              ;
 
+    protected LocalDateTime            mCreateTime;
+    protected LocalDateTime            mStartTime;
+
     public ArchProcessum ( String szName, Processum parent ) {
         super( szName, parent );
+
+        this.mCreateTime = LocalDateTime.now();
+        this.mStartTime  = LocalDateTime.now();
     }
 
 
@@ -68,4 +75,17 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
     public Map<Long, Executum > getOwnThreadGroup() {
         return this.getTaskManager().getExecutumPool();
     }
+
+
+
+    @Override
+    public LocalDateTime getCreateTime() {
+        return this.mCreateTime;
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return this.mStartTime;
+    }
+
 }

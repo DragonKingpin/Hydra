@@ -1,5 +1,6 @@
 package com.pinecone.framework.system.executum;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public interface Processum extends Executum {
@@ -14,4 +15,11 @@ public interface Processum extends Executum {
     }
 
     TaskManager            getTaskManager();
+
+
+    LocalDateTime          getCreateTime() ;
+
+    LocalDateTime          getStartTime() ;
+
+
 }

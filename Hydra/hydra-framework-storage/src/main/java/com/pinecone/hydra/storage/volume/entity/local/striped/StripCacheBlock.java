@@ -9,7 +9,7 @@ public class StripCacheBlock implements CacheBlock{
     protected int                 cacheBlockNumber;
     protected Number              byteStart;
     protected Number              byteEnd;
-    protected int                 bufferWriteThreadId;
+    protected long                bufferWriteThreadId;
 
     protected LogicVolume         volume;
 
@@ -82,12 +82,12 @@ public class StripCacheBlock implements CacheBlock{
     }
 
     @Override
-    public int getBufferWriteThreadId() {
+    public long getBufferWriteThreadId() {
         return this.bufferWriteThreadId;
     }
 
     @Override
-    public void setBufferWriteThreadId(int bufferWriteThreadId) {
+    public void setBufferWriteThreadId(long bufferWriteThreadId) {
         this.bufferWriteThreadId = bufferWriteThreadId;
     }
 

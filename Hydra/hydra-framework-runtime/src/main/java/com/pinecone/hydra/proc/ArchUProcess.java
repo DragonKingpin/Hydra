@@ -6,37 +6,39 @@ import java.util.Map;
 import com.pinecone.framework.system.executum.ArchProcessum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 
 public abstract class ArchUProcess extends ArchProcessum implements UProcess {
 
     protected GUID                 mProcessID;
-
     protected ObjectTable          mObjectTable;
+    protected ProcSpace            mProcSpace;
 
     protected ProcessManager       mProcessManager;
 
     protected ExecutionImage       mExecutionImage;
 
-    protected ControllableLevel    mControllableLevel;
-
     protected Map<String, String>  mStartupArgs;
-
     protected Map<String, String>  mEnvironmentVars;
 
-
+    protected ControllableLevel    mControllableLevel;
     protected LocalDateTime        mEndTime;
     protected LocalDateTime        mLastUpdateTime;
 
-    public ArchUProcess( GUID guid, String szName, UProcess parent, ProcessManager processManager ) {
+    public ArchUProcess( GUID guid, String szName, UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace, Map<String, String> startupArgs, Map<String, String> environmentVars ) {
         super( szName, parent );
 
-        this.mProcessManager = processManager;
-        this.mProcessID      = guid;
+        this.mProcessManager  = processManager;
+        this.mProcessID       = guid;
+        this.mExecutionImage  = image;
+        this.mProcSpace       = procSpace;
+        this.mStartupArgs     = startupArgs;
+        this.mEnvironmentVars = environmentVars;
     }
 
-    public ArchUProcess( String szName, UProcess parent, ProcessManager processManager ) {
-        this( processManager.getGuidAllocator().nextGUID(), szName, parent, processManager );
+    public ArchUProcess( String szName, UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace, Map<String, String> startupArgs, Map<String, String> environmentVars ) {
+        this( processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
 
     @Override
@@ -64,6 +66,21 @@ public abstract class ArchUProcess extends ArchProcessum implements UProcess {
             return this.parentProcess().getLocalPID();
         }
         return -1;
+    }
+
+    @Override
+    public ProcSpace getProcNamespace() {
+        return this.mProcSpace;
+    }
+
+    @Override
+    public Map<String, String> getStartupArguments() {
+        return this.mStartupArgs;
+    }
+
+    @Override
+    public Map<String, String> getEnvironmentVariables() {
+        return this.mEnvironmentVars;
     }
 
     @Override

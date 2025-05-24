@@ -18,7 +18,7 @@ import com.pinecone.hydra.unit.vgraph.layer.operator.AtlasLayerComponentOperator
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
 
 import java.time.LocalDateTime;
 

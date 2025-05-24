@@ -3,7 +3,7 @@ package com.pinecone.hydra.account.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
 
 public class ArchElementNode implements ElementNode{
     protected long              enumId;

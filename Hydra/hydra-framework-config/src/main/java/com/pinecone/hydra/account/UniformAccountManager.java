@@ -37,7 +37,7 @@ import com.pinecone.hydra.account.source.DomainNodeManipulator;
 import com.pinecone.hydra.account.source.GroupNodeManipulator;
 import com.pinecone.hydra.account.source.UserMasterManipulator;
 import com.pinecone.hydra.account.source.UserNodeManipulator;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i64.GUID72;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;

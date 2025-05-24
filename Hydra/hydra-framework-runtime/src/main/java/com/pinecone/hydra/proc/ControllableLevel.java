@@ -8,8 +8,7 @@ public enum ControllableLevel {
     Weak     ( 0x02, "Weak" ),
 
     Absolute ( 0x03, "Absolute" ),
-
-
+    
     ;
 
     private final int code;

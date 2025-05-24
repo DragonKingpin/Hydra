@@ -1,4 +1,4 @@
 package com.pinecone.hydra.proc;
 
-public interface LocalUProcess {
+public interface LocalUProcess extends UProcess {
 }

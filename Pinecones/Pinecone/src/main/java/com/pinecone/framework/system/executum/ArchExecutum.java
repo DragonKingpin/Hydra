@@ -115,4 +115,12 @@ public abstract class ArchExecutum implements Executum {
     public boolean isTerminated(){
         return this.getState() == Thread.State.TERMINATED;
     }
+
+    @Override
+    public void start() {
+        if ( this.mAffiliateThread != null ) {
+            this.mAffiliateThread.start();
+        }
+    }
+
 }

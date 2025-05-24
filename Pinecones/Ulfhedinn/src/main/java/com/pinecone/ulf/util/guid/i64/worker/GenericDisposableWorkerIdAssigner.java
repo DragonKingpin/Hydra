@@ -1,9 +1,9 @@
-package com.pinecone.ulf.util.guid.worker;
+package com.pinecone.ulf.util.guid.i64.worker;
 
 
-import com.pinecone.ulf.util.guid.utils.DockerUtils;
-import com.pinecone.ulf.util.guid.utils.NetUtils;
-import com.pinecone.ulf.util.guid.worker.entity.WorkerNodeEntity;
+import com.pinecone.ulf.util.guid.i64.utils.DockerUtils;
+import com.pinecone.ulf.util.guid.i64.utils.NetUtils;
+import com.pinecone.ulf.util.guid.i64.worker.entity.WorkerNodeEntity;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

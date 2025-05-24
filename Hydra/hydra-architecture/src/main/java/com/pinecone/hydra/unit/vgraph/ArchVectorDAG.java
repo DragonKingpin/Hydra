@@ -11,7 +11,7 @@ import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
 
 import java.util.List;
 

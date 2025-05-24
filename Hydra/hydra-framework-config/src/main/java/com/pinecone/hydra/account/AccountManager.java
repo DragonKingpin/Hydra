@@ -15,7 +15,7 @@ import com.pinecone.hydra.account.entity.Group;
 import com.pinecone.hydra.account.entity.Privilege;
 import com.pinecone.hydra.account.entity.Role;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i64.GUID72;
 
 import java.util.List;
 

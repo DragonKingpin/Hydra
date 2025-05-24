@@ -17,7 +17,6 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
         super( szName, parent );
 
         this.mCreateTime = LocalDateTime.now();
-        this.mStartTime  = LocalDateTime.now();
     }
 
 
@@ -76,7 +75,11 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
         return this.getTaskManager().getExecutumPool();
     }
 
-
+    @Override
+    public void start() {
+        super.start();
+        this.mStartTime  = LocalDateTime.now();
+    }
 
     @Override
     public LocalDateTime getCreateTime() {

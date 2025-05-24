@@ -1,11 +1,11 @@
-package com.pinecone.ulf.util.guid;
+package com.pinecone.ulf.util.guid.i64;
 
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidGenerateException;
-import com.pinecone.ulf.util.guid.utils.DateUtils;
-import com.pinecone.ulf.util.guid.worker.GenericDisposableWorkerIdAssigner;
-import com.pinecone.ulf.util.guid.worker.WorkerIdAssigner;
+import com.pinecone.ulf.util.guid.i64.utils.DateUtils;
+import com.pinecone.ulf.util.guid.i64.worker.GenericDisposableWorkerIdAssigner;
+import com.pinecone.ulf.util.guid.i64.worker.WorkerIdAssigner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -42,6 +42,8 @@ public interface Executum extends Executable, Lifecycle {
 
     boolean             isTerminated();
 
+    void                start();
+
     AtomicLong AutoIncrementId     = new AtomicLong( 0 );
 
     static long nextAutoIncrementId() {

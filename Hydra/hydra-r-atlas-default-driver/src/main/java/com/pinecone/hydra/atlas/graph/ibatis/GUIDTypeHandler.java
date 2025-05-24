@@ -1,7 +1,7 @@
 package com.pinecone.hydra.atlas.graph.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i64.GUID72;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;

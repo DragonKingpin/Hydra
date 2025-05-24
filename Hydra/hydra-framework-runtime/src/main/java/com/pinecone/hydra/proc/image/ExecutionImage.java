@@ -3,6 +3,7 @@ package com.pinecone.hydra.proc.image;
 import java.net.URI;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.proc.ControllableLevel;
 
 public interface ExecutionImage extends Pinenut {
 
@@ -17,6 +18,8 @@ public interface ExecutionImage extends Pinenut {
     boolean isReusable();
 
     String getSignature();
+
+    ControllableLevel getControllableLevel();
 
 
 }

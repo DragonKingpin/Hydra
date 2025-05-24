@@ -14,8 +14,8 @@ import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 
 public class UniformProcessManager implements ProcessManager {
 
-    protected CascadeInstrument mParentInstrument;
-    protected Map<GUID, EntityNode> mEntityNodeMap;
+    protected CascadeInstrument      mParentInstrument;
+    protected Map<GUID, EntityNode>  mEntityNodeMap;
 
     public UniformProcessManager () {
 
@@ -37,7 +37,7 @@ public class UniformProcessManager implements ProcessManager {
     }
 
     @Override
-    public void setTargetingName(Namespace name) {
+    public void setTargetingName( Namespace name ) {
 
     }
 
@@ -47,7 +47,7 @@ public class UniformProcessManager implements ProcessManager {
     }
 
     @Override
-    public void applySuperiorPathScope(String superiorPathScope) {
+    public void applySuperiorPathScope( String superiorPathScope ) {
 
     }
 

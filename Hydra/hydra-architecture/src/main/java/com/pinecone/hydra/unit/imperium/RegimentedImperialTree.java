@@ -9,7 +9,7 @@ import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TriePathCacheManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i64.GUID72;
 import com.pinecone.framework.util.id.GuidAllocator;
 
 import java.util.List;

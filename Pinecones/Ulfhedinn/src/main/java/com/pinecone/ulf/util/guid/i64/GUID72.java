@@ -1,4 +1,4 @@
-package com.pinecone.ulf.util.guid;
+package com.pinecone.ulf.util.guid.i64;
 
 import com.pinecone.framework.util.id.IllegalIdentificationException;
 

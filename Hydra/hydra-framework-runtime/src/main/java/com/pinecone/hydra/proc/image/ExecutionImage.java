@@ -11,6 +11,8 @@ public interface ExecutionImage extends Pinenut {
 
     URI getResourceURI();
 
+    Class<?> processMainClass();
+
     ImageLoader getImageLoader();
 
     boolean isReadOnly();

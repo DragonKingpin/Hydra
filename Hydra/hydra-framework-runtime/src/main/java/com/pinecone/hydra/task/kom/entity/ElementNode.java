@@ -14,7 +14,7 @@ public interface ElementNode extends TaskTreeNode, TaskFamilyNode, ElementObject
     Set<String > UnbeanifiedKeys = Set.of( "distributedTreeNode" );
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Task";
     }
 

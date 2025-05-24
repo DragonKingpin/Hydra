@@ -2,6 +2,7 @@ package com.pinecone.hydra.system.ko.kom;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.CascadeKOTreeInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -12,6 +13,8 @@ import java.util.List;
 public interface KOMInstrument extends CascadeKOTreeInstrument {
     @Override
     KOMInstrument parent();
+
+    void applyGuidAllocator( GuidAllocator guidAllocator );
 
     @Override
     default void setTargetingName( String name ) {

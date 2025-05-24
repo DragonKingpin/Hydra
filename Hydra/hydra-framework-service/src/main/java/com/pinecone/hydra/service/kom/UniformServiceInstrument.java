@@ -3,9 +3,11 @@ package com.pinecone.hydra.service.kom;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
@@ -53,8 +55,8 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
 
 
 
-    public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
-        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
+    public UniformServiceInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
         this.serviceNamespaceManipulator = this.serviceMasterManipulator.getNamespaceManipulator();
@@ -63,7 +65,6 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
-        this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericElementOperatorFactory(this,(ServiceMasterManipulator) masterManipulator);
 
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
@@ -79,7 +80,7 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ){
-        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName() );
+        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName(), null );
     }
 
 //    public UniformServiceInstrument( Hydrarum hydrarum ) {
@@ -98,7 +99,8 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
                 parent,
-                name
+                name,
+                null
         );
     }
 

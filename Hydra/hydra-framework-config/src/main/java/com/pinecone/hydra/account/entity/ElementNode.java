@@ -15,7 +15,7 @@ public interface ElementNode extends TreeNode, ElementObject {
     void setGuid( GUID guid );
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Account";
     }
 }

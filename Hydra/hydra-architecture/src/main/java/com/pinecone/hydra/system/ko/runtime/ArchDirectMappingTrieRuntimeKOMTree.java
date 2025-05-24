@@ -2,14 +2,17 @@ package com.pinecone.hydra.system.ko.runtime;
 
 import java.util.Collection;
 
+import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.unit.trie.DirectoryNode;
 import com.pinecone.framework.unit.trie.TrieNode;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public abstract class ArchDirectMappingTrieRuntimeKOMTree extends ArchRuntimeKOMTree implements DirectMappingTrieRuntimeInstrument {
-    public ArchDirectMappingTrieRuntimeKOMTree(String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
-        super( superiorPathScope, kernelObjectConfig );
+    public ArchDirectMappingTrieRuntimeKOMTree( @Nullable Processum superiorProcess, String superiorPathScope, KernelObjectConfig kernelObjectConfig, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, superiorPathScope, kernelObjectConfig, guidAllocator );
     }
 
     @Override

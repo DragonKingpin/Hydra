@@ -7,8 +7,8 @@ public interface KernelObject extends Pinenut {
 
     GUID getGuid();
 
-    String getObjectFunctionName();
+    String objectFunctionName();
 
-    String getObjectCategoryName();
+    String objectCategoryName();
 
 }

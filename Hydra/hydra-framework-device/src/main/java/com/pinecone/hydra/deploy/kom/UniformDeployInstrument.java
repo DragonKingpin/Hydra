@@ -3,8 +3,10 @@ package com.pinecone.hydra.deploy.kom;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
@@ -64,8 +66,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
 
     protected QuickElementManipulator     quickElementManipulator;
 
-    public UniformDeployInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name ) {
-        super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name );
+    public UniformDeployInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name, guidAllocator );
 
         this.deployMasterManipulator = (DeployMasterManipulator) masterManipulator;
         this.deployNamespaceManipulator = this.deployMasterManipulator.getNamespaceManipulator();
@@ -74,7 +76,6 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.deployMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
-        this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericElementOperatorFactory(this,(DeployMasterManipulator) masterManipulator);
         this.physicalHostManipulator     = this.deployMasterManipulator.getPhysicalHostManipulator();
         this.virtualMachineManipulator   = this.deployMasterManipulator.getVirtualMachineManipulator();
@@ -91,7 +92,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     }
 
     public UniformDeployInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, DeployInstrument.class.getSimpleName() );
+        this( superiorProcess, masterManipulator, null, DeployInstrument.class.getSimpleName(), null );
     }
 
 //    public UniformTaskInstrument( Hydrarum hydrarum ) {
@@ -110,7 +111,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
                 parent,
-                name
+                name,
+                null
         );
     }
 

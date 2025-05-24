@@ -16,7 +16,7 @@ public class UnixInstitutionalizedMetaImperiumPrivy extends ArchSystemCascadeCom
     public UnixInstitutionalizedMetaImperiumPrivy( Namespace name, Hydrarum system, HyComponent parent, JSONConfig config ) {
         super( name, system, system.getComponentManager(), parent );
 
-        this.expressInstrument = new KernelExpressInstrument( "", new GenericRuntimeInstrumentConfig());
+        this.expressInstrument = new KernelExpressInstrument( system, "", new GenericRuntimeInstrumentConfig());
     }
 
     public UnixInstitutionalizedMetaImperiumPrivy( Hydrarum system, HyComponent parent, JSONConfig config ) {

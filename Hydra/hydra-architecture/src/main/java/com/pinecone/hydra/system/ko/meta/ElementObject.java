@@ -8,7 +8,7 @@ public interface ElementObject extends ElementumNode, KernelObject {
     String FunctionName = ElementObject.class.getSimpleName().replace( "Object", "" );
 
     @Override
-    default String getObjectFunctionName() {
+    default String objectFunctionName() {
         return FunctionName;
     }
 

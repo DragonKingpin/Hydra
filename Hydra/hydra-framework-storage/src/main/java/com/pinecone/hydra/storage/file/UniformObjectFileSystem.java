@@ -1,8 +1,10 @@
 package com.pinecone.hydra.storage.file;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
@@ -96,14 +98,17 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     protected ExternalFileSystemInstrument directFileSystemAccessor;
 
 
-    public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier, FileSystemConfig fileSystemConfig ){
+    public UniformObjectFileSystem(
+            Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent,
+            String name, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier,
+            FileSystemConfig fileSystemConfig, @Nullable GuidAllocator guidAllocator
+    ){
         // Phase [1] Construct system.
-        super( superiorProcess, masterManipulator, fileSystemConfig, parent, name );
+        super( superiorProcess, masterManipulator, fileSystemConfig, parent, name, guidAllocator );
 
         // Phase [2] Construct fundamentals.
         this.fileMasterManipulator         = (FileMasterManipulator) masterManipulator;
         this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator                 =  GUIDs.newGuidAllocator();
 
         // Phase [3] Construct manipulators.
         this.operatorFactory                 =  new GenericFileSystemOperatorFactory( this, (FileMasterManipulator) masterManipulator );
@@ -139,7 +144,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 //    }
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name,FileSystemConfig fileSystemConfig ) {
-        this( superiorProcess, masterManipulator, parent, name, null,fileSystemConfig );
+        this( superiorProcess, masterManipulator, parent, name, null,fileSystemConfig, null );
     }
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, FileSystemConfig fileSystemConfig ){
@@ -147,7 +152,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, IndexableMapQuerier<String, String > globalPathGuidCacheQuerier, FileSystemConfig fileSystemConfig  ){
-        this( superiorProcess, masterManipulator, null, KOMFileSystem.class.getSimpleName(), globalPathGuidCacheQuerier,fileSystemConfig );
+        this( superiorProcess, masterManipulator, null, KOMFileSystem.class.getSimpleName(), globalPathGuidCacheQuerier,fileSystemConfig, null );
     }
 
     public UniformObjectFileSystem( KOIMappingDriver driver, KOMFileSystem parent, String name, FileSystemConfig fileSystemConfig ) {

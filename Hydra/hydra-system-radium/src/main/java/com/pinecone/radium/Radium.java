@@ -47,7 +47,7 @@ import java.util.Map;
  *  DragonKing.cn of Harold
  */
 public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
-    public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra Radium";
+    public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra";
     public static final long    VER_PINE            =  202506L;
     public static final String  VERSION             = "2.1.0";
     public static final String  RELEASE_DATE        = "2025/06/06";
@@ -93,7 +93,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
     }
 
     protected void prepare_system_skeleton() {
-        this.infoLifecycle( "Skeleton Initialization", LogStatuses.StatusStart );
+        this.infoLifecycle( "<Hydra Kingdom> Skeleton Initialization", LogStatuses.StatusStart );
         this.mTracerScope            = new GenericTracerScope( this );
         this.mPrimaryConfigScope     = new RadiumConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
         this.mMiddlewareDirector     = new KnittedMiddlewareDirector( this );
@@ -114,7 +114,7 @@ public class Radium extends Hydradom implements RadiumSystem, Slf4jTraceable {
         //Debug.echo( ( (JSONObject)this.getGlobalConfigScope().thisScope() ).toJSONStringI(4) );
 
         super.prepare_system_skeleton();
-        this.infoLifecycle( "Skeleton Initialization", LogStatuses.StatusReady );
+        this.infoLifecycle( "<Hydra Kingdom> Skeleton Initialization", LogStatuses.StatusReady );
     }
 
     @Override

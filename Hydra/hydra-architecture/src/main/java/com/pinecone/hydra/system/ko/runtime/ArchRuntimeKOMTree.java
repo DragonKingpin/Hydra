@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.unit.trie.TrieMap;
@@ -14,7 +16,7 @@ import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.handle.ObjectTreeAddressingSectionHandle;
@@ -25,7 +27,7 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedInstrument implements RuntimeInstrument {
     protected Namespace                          mThisNamespace;
@@ -34,9 +36,9 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     protected TrieMap<String, TreeNode  >        mNodeIndex;
     protected Map<GUID, RuntimeTreeNode >        mNodeTable;
 
-    protected Hydrarum                           hydrarum;
-
     protected Processum                          superiorProcess;
+
+    protected RuntimeSystem                      superiorSystem;
 
     protected GuidAllocator                      guidAllocator;
 
@@ -45,13 +47,31 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
     protected KernelObjectConfig                 kernelObjectConfig;
 
 
-    public ArchRuntimeKOMTree( String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
+    public ArchRuntimeKOMTree( @Nullable Processum superiorProcess, String superiorPathScope, KernelObjectConfig kernelObjectConfig, @Nullable GuidAllocator guidAllocator ) {
         super( superiorPathScope );
 
         this.kernelObjectConfig  = kernelObjectConfig;
         this.mNodeIndex          = new UniTrieMaptron<>( ConcurrentHashMap::new );
         this.mNodeTable          = new ConcurrentHashMap<>();
-        this.guidAllocator       = new GenericGuidAllocator();
+        this.superiorProcess     = superiorProcess;
+        this.guidAllocator       = guidAllocator;
+
+        if ( this.superiorProcess != null ) {
+            if ( this.superiorProcess instanceof RuntimeSystem ) {
+                this.superiorSystem = (RuntimeSystem) this.superiorProcess;
+            }
+            else  {
+                this.superiorSystem = this.superiorProcess.getSystem();
+            }
+            if ( this.guidAllocator == null && this.superiorSystem instanceof UniformCentralSystem ) {
+                UniformCentralSystem system = (UniformCentralSystem) this.superiorSystem;
+                this.guidAllocator = system.getSystemGuidAllocator();
+            }
+        }
+
+        if ( this.guidAllocator == null ) {
+            this.guidAllocator = GUIDs.newGuidAllocator();
+        }
     }
 
     //************************************** CascadeInstrument **************************************
@@ -82,6 +102,11 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
     //************************************** CascadeInstrument End **************************************
 
+
+    @Override
+    public void applyGuidAllocator( GuidAllocator guidAllocator ) {
+        this.guidAllocator = guidAllocator;
+    }
 
     @Override
     public GuidAllocator getGuidAllocator() {

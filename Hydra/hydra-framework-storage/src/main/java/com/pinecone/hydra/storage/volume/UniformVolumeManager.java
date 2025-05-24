@@ -1,5 +1,6 @@
 package com.pinecone.hydra.storage.volume;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
@@ -79,11 +80,10 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     protected KenVolumeFileSystem               kenVolumeFileSystem;
 
 
-    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config, String superiorPathScope ) {
-        super( superiorProcess, masterManipulator, config, parent, name, superiorPathScope );
+    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, config, parent, name, superiorPathScope, guidAllocator );
         this.volumeMasterManipulator       =   ( VolumeMasterManipulator ) masterManipulator;
         this.pathResolver                  =   new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator                 =   GUIDs.newGuidAllocator();
 
         this.volumeAllotment               =   new TitanVolumeAllotment( this,this.volumeMasterManipulator );
         this.mirroredVolumeManipulator     =   this.volumeMasterManipulator.getMirroredVolumeManipulator();
@@ -101,12 +101,12 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.pathSelector                  =   new SimplePathSelector(
                 this.pathResolver, this.imperialTree, this.primeLogicVolumeManipulator, new GUIDNameManipulator[] {}
         );
-        this.kenVolumeFileSystem           = new KenVolumeFileSystem(this);
+        this.kenVolumeFileSystem           =   new KenVolumeFileSystem(this);
         this.operatorFactory               =   new TitanVolumeOperatorFactory( this, this.volumeMasterManipulator );
     }
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config ) {
-        this( superiorProcess, masterManipulator, parent, name, config, CascadeInstrument.EmptySuperiorPathScope );
+        this( superiorProcess, masterManipulator, parent, name, config, CascadeInstrument.EmptySuperiorPathScope, null );
     }
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeConfig config ) {

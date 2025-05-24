@@ -5,7 +5,7 @@ import com.pinecone.hydra.system.ko.meta.ElementObject;
 public interface ElementNode extends ElementObject {
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Process";
     }
 

@@ -1,5 +1,8 @@
 package com.pinecone.hydra.system.ko.runtime;
 
+import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.handle.AppliableKHandle;
 import com.pinecone.hydra.system.ko.handle.KOMMountPointHandle;
@@ -11,8 +14,12 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public class KernelExpressInstrument extends ArchDirectMappingTrieRuntimeKOMTree implements ExpressInstrument {
 
-    public KernelExpressInstrument( String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
-        super( superiorPathScope, kernelObjectConfig );
+    public KernelExpressInstrument( @Nullable Processum superiorProcess, String superiorPathScope, KernelObjectConfig kernelObjectConfig, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, superiorPathScope, kernelObjectConfig, guidAllocator );
+    }
+
+    public KernelExpressInstrument( @Nullable Processum superiorProcess, String superiorPathScope, KernelObjectConfig kernelObjectConfig ) {
+        this( superiorProcess, superiorPathScope, kernelObjectConfig, null );
     }
 
     @Override

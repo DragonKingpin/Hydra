@@ -14,7 +14,7 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode, ElementOb
     Set<String > UnbeanifiedKeys = Set.of( "distributedTreeNode" );
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Deploy";
     }
 

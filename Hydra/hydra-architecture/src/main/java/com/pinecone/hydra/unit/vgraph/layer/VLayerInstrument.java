@@ -1,7 +1,9 @@
 package com.pinecone.hydra.unit.vgraph.layer;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.Hydrarum;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
@@ -18,7 +20,6 @@ import com.pinecone.hydra.unit.vgraph.layer.operator.AtlasLayerComponentOperator
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
 
 import java.time.LocalDateTime;
 
@@ -29,11 +30,10 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
 
     protected NamespaceManipulator      mNamespaceManipulator;
 
-    public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name, String superiorPathScope ) {
-        super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name, superiorPathScope );
+    public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name, superiorPathScope, guidAllocator );
         this.mLayerMasterManipulator    = (LayerMasterManipulator) masterManipulator;
         this.pathResolver               = new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator              = new GenericGuidAllocator();
 
         this.operatorFactory            = new AtlasLayerComponentOperatorFactory( this, (LayerMasterManipulator) masterManipulator);
         this.mLayerManipulator          = this.mLayerMasterManipulator.getLayerManipulator();
@@ -45,7 +45,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name ) {
-        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope );
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope, null );
     }
 
     public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {

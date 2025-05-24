@@ -26,7 +26,7 @@ public interface ElementNode extends FileTreeNode, ElementObject {
     KOMFileSystem parentFileSystem();
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Storage";
     }
 

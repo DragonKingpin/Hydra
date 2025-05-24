@@ -22,7 +22,7 @@ public interface ElementNode extends RegistryTreeNode, ElementObject {
     Registry parentRegistry();
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Registry";
     }
 }

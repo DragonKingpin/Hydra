@@ -3,8 +3,10 @@ package com.pinecone.hydra.task.kom;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
@@ -54,8 +56,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected InstanceInstrument          instanceInstrument;
 
-    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name ) {
-        super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name );
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
         this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
@@ -64,7 +66,6 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
-        this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericElementOperatorFactory(this,(TaskMasterManipulator) masterManipulator);
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
@@ -79,7 +80,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName() );
+        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), null );
     }
 
 //    public UniformTaskInstrument( Hydrarum hydrarum ) {
@@ -98,7 +99,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
                 parent,
-                name
+                name,
+                null
         );
     }
 

@@ -8,12 +8,12 @@ public interface HandleObject extends TreeNode, KernelObject {
     String FunctionName = HandleObject.class.getSimpleName().replace( "Object", "" );
 
     @Override
-    default String getObjectFunctionName() {
+    default String objectFunctionName() {
         return FunctionName;
     }
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Handle";
     }
 

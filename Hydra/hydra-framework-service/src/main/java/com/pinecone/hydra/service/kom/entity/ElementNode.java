@@ -30,7 +30,7 @@ public interface ElementNode extends ServiceTreeNode, ServiceFamilyNode, Element
     }
 
     @Override
-    default String getObjectCategoryName() {
+    default String objectCategoryName() {
         return "Service";
     }
 }

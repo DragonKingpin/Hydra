@@ -25,8 +25,10 @@ public interface UProcess extends Processum, ProcessElement {
 
     LocalDateTime getLastUpdateTime() ;
 
-    Map<String, String> getStartupArguments();
+    Map<String, String[]> getStartupArguments();
 
-    Map<String, String> getEnvironmentVariables();
+    Map<String, String[]> getEnvironmentVariables();
+
+    Processum getCurrentLocalSystemProcess();
 
 }

@@ -1,7 +1,9 @@
 package com.pinecone.hydra.account;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.account.entity.ACNodeAllotment;
 import com.pinecone.hydra.account.entity.Account;
@@ -67,11 +69,10 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     protected ACNodeAllotment                   acNodeAllotment;
 
 
-    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name, String superiorPathScope ) {
-        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name, superiorPathScope );
+    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name, superiorPathScope, guidAllocator );
         this.userMasterManipulator = (UserMasterManipulator) masterManipulator;
         this.pathResolver          = new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator         = GUIDs.newGuidAllocator();
 
         this.operatorFactory            = new GenericAccountOperatorFactory( this, this.userMasterManipulator );
         this.groupNodeManipulator       = this.userMasterManipulator.getGroupNodeManipulator();
@@ -93,7 +94,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     }
 
     public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
-        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope );
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope, null );
     }
 
     public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {

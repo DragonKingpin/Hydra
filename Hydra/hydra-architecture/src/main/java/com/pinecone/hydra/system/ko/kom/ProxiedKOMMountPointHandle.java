@@ -25,6 +25,11 @@ public class ProxiedKOMMountPointHandle extends ArchKHandle implements KOMMountP
     }
 
     @Override
+    public void applyGuidAllocator( GuidAllocator guidAllocator ) {
+        this.mWarpedInstrument.applyGuidAllocator( guidAllocator );
+    }
+
+    @Override
     public KOMInstrument revealWrapped() {
         return this.mWarpedInstrument;
     }

@@ -6,7 +6,7 @@ public interface ObjectHandle extends HandleObject {
     String FunctionName = HandleObject.class.getSimpleName();
 
     @Override
-    default String getObjectFunctionName() {
+    default String objectFunctionName() {
         return FunctionName;
     }
 }

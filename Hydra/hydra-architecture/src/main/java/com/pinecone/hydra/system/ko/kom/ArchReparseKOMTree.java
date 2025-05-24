@@ -1,7 +1,9 @@
 package com.pinecone.hydra.system.ko.kom;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
@@ -14,9 +16,9 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
 
     public ArchReparseKOMTree(
             Processum superiorProcess, KOIMasterManipulator masterManipulator , OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector,
-            KOMInstrument parent, String name, String superiorPathScope
+            KOMInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator
     ){
-        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope, guidAllocator );
         this.pathResolver                  =  new KOPathResolver( kernelObjectConfig );
         this.pathSelector                  =  pathSelector;
         this.operatorFactory               =  operatorFactory;
@@ -24,15 +26,15 @@ public abstract class ArchReparseKOMTree extends ArchKOMTree implements ReparseK
     }
 
     public ArchReparseKOMTree (
-            Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name, String superiorPathScope
+            Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator
     ){
-        super( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
+        super( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope, guidAllocator );
     }
 
     public ArchReparseKOMTree (
-            Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name
+            Processum superiorProcess, KOIMasterManipulator masterManipulator ,KernelObjectConfig kernelObjectConfig, KOMInstrument parent, String name, @Nullable GuidAllocator guidAllocator
     ){
-        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, CascadeInstrument.EmptySuperiorPathScope );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, CascadeInstrument.EmptySuperiorPathScope, guidAllocator );
     }
 
     @Override

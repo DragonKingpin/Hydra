@@ -7,7 +7,7 @@ public interface ControlObject extends KernelObject {
     String FunctionName = ControlObject.class.getSimpleName().replace( "Object", "" );
 
     @Override
-    default String getObjectFunctionName() {
+    default String objectFunctionName() {
         return FunctionName;
     }
 

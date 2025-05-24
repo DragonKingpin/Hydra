@@ -31,7 +31,7 @@ class Loki extends Radium {
         RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
 
 
-        KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( "", new GenericRuntimeInstrumentConfig());
+        KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( this, "", new GenericRuntimeInstrumentConfig());
         kernelExpressInstrument.setTargetingName("task1");
         kernelExpressInstrument.mount( "task1/afc", ravenTaskInstrument );
 

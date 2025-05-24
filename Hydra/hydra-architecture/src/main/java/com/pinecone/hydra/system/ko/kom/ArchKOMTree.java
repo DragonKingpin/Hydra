@@ -1,5 +1,6 @@
 package com.pinecone.hydra.system.ko.kom;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.lang.DynamicFactory;
@@ -8,6 +9,7 @@ import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -20,6 +22,7 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.OperatorFactory;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +48,9 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     public ArchKOMTree (
             Processum superiorProcess, KOIMasterManipulator masterManipulator,
             OperatorFactory operatorFactory, KernelObjectConfig kernelObjectConfig, PathSelector pathSelector,
-            KOMInstrument parent, String name, String superiorPathScope
+            KOMInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator
     ){
-        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope );
+        this( superiorProcess, masterManipulator, kernelObjectConfig, parent, name, superiorPathScope, guidAllocator );
 
         this.pathSelector              =  pathSelector;
         this.operatorFactory           =  operatorFactory;
@@ -55,7 +58,7 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
 
     public ArchKOMTree (
             Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig kernelObjectConfig,
-            KOMInstrument parent, String name, String superiorPathScope
+            KOMInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator
     ){
         super( masterManipulator, kernelObjectConfig, superiorPathScope );
         this.superiorProcess                 = superiorProcess;
@@ -66,9 +69,24 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
             this.hydrarum                    = (Hydrarum) superiorProcess.getSystem();
         }
 
+        this.guidAllocator                   = guidAllocator;
         this.dynamicFactory                  = new GenericDynamicFactory( this.superiorProcess.getTaskManager().getClassLoader() );
         this.mParentInstrument               = parent;
         this.setTargetingName( name );
+        this.prepare_uniform_skeleton();
+    }
+
+    protected void prepare_uniform_skeleton() {
+        if ( this.superiorProcess != null ) {
+            if ( this.guidAllocator == null && this.hydrarum instanceof UniformCentralSystem ) {
+                UniformCentralSystem system = (UniformCentralSystem) this.hydrarum;
+                this.guidAllocator = system.getSystemGuidAllocator();
+            }
+        }
+
+        if ( this.guidAllocator == null ) {
+            this.guidAllocator = GUIDs.newGuidAllocator();
+        }
     }
 
     //************************************** CascadeInstrument **************************************
@@ -98,6 +116,12 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     }
 
     //************************************** CascadeInstrument End **************************************
+
+
+    @Override
+    public void applyGuidAllocator( GuidAllocator guidAllocator ) {
+        this.guidAllocator = guidAllocator;
+    }
 
     @Override
     public GUID put( TreeNode treeNode ) {

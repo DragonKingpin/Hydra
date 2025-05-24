@@ -3,6 +3,7 @@ package com.pinecone.hydra.registry;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.DefaultPropertyConverter;
@@ -66,14 +67,13 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     protected TypeConverter                   textValueTypeConverter;
 
 
-    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name ){
+    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name, @Nullable GuidAllocator guidAllocator ){
         // Phase [1] Construct system.
-        super( superiorProcess, masterManipulator, KernelRegistryConfig, parent, name );
+        super( superiorProcess, masterManipulator, KernelRegistryConfig, parent, name, guidAllocator );
 
         // Phase [2] Construct fundamentals.
         this.registryMasterManipulator     =  (RegistryMasterManipulator) masterManipulator;
         this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator                 =  GUIDs.newGuidAllocator();
 
         // Phase [3] Construct manipulators.
         this.registryPropertiesManipulator =  this.registryMasterManipulator.getPropertiesManipulator();
@@ -92,6 +92,10 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
         // Phase [5] Construct misc.
         this.propertyTypeConverter         =  new DefaultPropertyConverter();
         this.textValueTypeConverter        =  new DefaultTextValueConverter();
+    }
+
+    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name ){
+        this ( superiorProcess, masterManipulator, parent, name, null );
     }
 
     public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator ){

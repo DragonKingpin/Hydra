@@ -9,11 +9,11 @@ import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.marshaling.DeployJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 
-class Randon extends Radium {
+class Randon extends Tritium {
     public Randon( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

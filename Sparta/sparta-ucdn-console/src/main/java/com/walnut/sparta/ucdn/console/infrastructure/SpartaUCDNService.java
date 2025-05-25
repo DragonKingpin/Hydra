@@ -26,7 +26,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
 import com.walnut.archcraft.redstone.messge.PrimaryMessageWareStone;
@@ -181,8 +181,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     @Override
-    public Radium getSystem() {
-        return (Radium)super.getSystem();
+    public Tritium getSystem() {
+        return (Tritium)super.getSystem();
     }
 
     @Override

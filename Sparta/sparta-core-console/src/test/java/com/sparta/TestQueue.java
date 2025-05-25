@@ -9,11 +9,11 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
 import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
 import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-class Chris extends Radium {
+class Chris extends Tritium {
     public Chris( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

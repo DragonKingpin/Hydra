@@ -23,7 +23,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hydra-framework-device" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.4.1" level="project" />
@@ -57,6 +56,7 @@
     <orderEntry type="module" module-name="hydra-framework-storage" scope="TEST" />
     <orderEntry type="module" module-name="ulf-lib-oltp-rdb" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.xerial:sqlite-jdbc:3.32.3.3" level="project" />
+    <orderEntry type="module" module-name="hydra-architecture-storage" scope="TEST" />
     <orderEntry type="module" module-name="hydra-framework-config" scope="TEST" />
     <orderEntry type="module" module-name="hydra-framework-device" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: org.mybatis:mybatis:3.5.9" level="project" />
@@ -66,7 +66,7 @@
     <orderEntry type="module" module-name="jelly" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: redis.clients:jedis:3.3.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.commons:commons-pool2:2.9.0" level="project" />
-    <orderEntry type="module" module-name="hydra-system-radium" scope="TEST" />
+    <orderEntry type="module" module-name="hydra-system-tritium" scope="TEST" />
     <orderEntry type="module" module-name="hydra-message-control" scope="TEST" />
     <orderEntry type="module" module-name="hydra-message-broadcast" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: com.rabbitmq:amqp-client:5.10.0" level="project" />

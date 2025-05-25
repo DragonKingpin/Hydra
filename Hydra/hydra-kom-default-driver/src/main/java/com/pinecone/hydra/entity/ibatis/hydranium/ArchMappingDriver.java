@@ -10,14 +10,14 @@ import com.pinecone.framework.system.homotype.StereotypicInjector;
 import com.pinecone.hydra.entity.ibatis.GUID72TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUIDTypeHandler;
 import com.pinecone.hydra.entity.ibatis.UOITypeHandler;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.ProxySessionMapperPool;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
 public abstract class ArchMappingDriver implements KOIMappingDriver {
-    protected Hydrarum             mSystem;
+    protected Hydrogen mSystem;
 
     protected Processum            mSuperiorProcess;
 
@@ -31,11 +31,11 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
 
     public ArchMappingDriver( Processum superiorProcess ) {
         this.mSuperiorProcess                 = superiorProcess;
-        if ( this.mSuperiorProcess instanceof Hydrarum ) {
-            this.mSystem                      = (Hydrarum) this.mSuperiorProcess;
+        if ( this.mSuperiorProcess instanceof Hydrogen) {
+            this.mSystem                      = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mSystem                      = (Hydrarum) superiorProcess.getSystem();
+            this.mSystem                      = (Hydrogen) superiorProcess.getSystem();
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
     }
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return this.mSystem;
     }
 

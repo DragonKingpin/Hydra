@@ -19,6 +19,9 @@ import com.pinecone.ulf.util.guid.GUIDs;
 
 public class UniformProcessManager implements ProcessManager {
 
+    protected long                   mnVitalizeCount      = 0;
+    protected long                   mnFatalityCount      = 0;
+
     protected String                 mSuperiorPathScope;
     protected Namespace              mThisNamespace;
     protected GuidAllocator          mGuidAllocator;
@@ -55,7 +58,7 @@ public class UniformProcessManager implements ProcessManager {
             else  {
                 this.mSuperiorSystem = this.mSuperiorProcess.getSystem();
             }
-            if ( this.mGuidAllocator == null && this.mSuperiorSystem instanceof UniformCentralSystem) {
+            if ( this.mGuidAllocator == null && this.mSuperiorSystem instanceof UniformCentralSystem ) {
                 UniformCentralSystem system = (UniformCentralSystem) this.mSuperiorSystem;
                 this.mGuidAllocator = system.getSystemGuidAllocator();
             }
@@ -124,4 +127,33 @@ public class UniformProcessManager implements ProcessManager {
         return this.mKernelObjectConfig;
     }
 
+
+
+
+    @Override
+    public long    getVitalizeCount() {
+        return this.mnVitalizeCount;
+    }
+
+    @Override
+    public long    getFatalityCount() {
+        return this.mnFatalityCount;
+    }
+
+    @Override
+    public void erase( UProcess that ) {
+        if( this.autopsy( that ) ) {
+            this.mProcessMap.remove( that.getPID() );
+            ++this.mnFatalityCount;
+            that.triggerUpdateTerminationStatus();
+        }
+        else {
+            throw new IllegalStateException( "Process is still alive." );
+        }
+    }
+
+    @Override
+    public boolean autopsy( UProcess that ) {
+        return that.getState() == Thread.State.TERMINATED;
+    }
 }

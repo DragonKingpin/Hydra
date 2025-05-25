@@ -19,7 +19,7 @@ import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.hydra.umct.WolfMCExpress;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.walnut.archcraft.redstone.messge.PrimaryMessageWareStone;
 import com.walnut.sparta.ucdn.console.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.ufm.SessionValidator;
@@ -101,7 +101,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     @Override
-    public Radium getSystem() {
-        return (Radium)this.parentProcess.getSystem();
+    public Tritium getSystem() {
+        return (Tritium)this.parentProcess.getSystem();
     }
 }

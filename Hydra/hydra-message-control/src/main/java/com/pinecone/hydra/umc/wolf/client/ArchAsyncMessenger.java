@@ -9,7 +9,7 @@ import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.UlfIdleFirstBalanceStrategy;
 import com.pinecone.hydra.umc.wolf.UlfMessageNode;
@@ -32,7 +32,7 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
         //this.makeNameAndId();
     }
 
-    public ArchAsyncMessenger( long nodeId, String szName, Hydrarum system, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
+    public ArchAsyncMessenger(long nodeId, String szName, Hydrogen system, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
 

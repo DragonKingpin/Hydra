@@ -5,9 +5,6 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.storage.StorageConfig;
-import com.pinecone.hydra.storage.ArchStorageConfig;
-import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
@@ -36,7 +33,7 @@ import com.pinecone.hydra.storage.volume.source.StripedVolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeAllocateManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -346,8 +343,8 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
-    public Hydrarum getHydrarum() {
-        return this.hydrarum;
+    public Hydrogen getHydrogen() {
+        return this.hydrogen;
     }
 
     @Override

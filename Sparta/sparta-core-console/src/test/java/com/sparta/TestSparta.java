@@ -20,11 +20,11 @@ import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.walnut.sparta.Sparta;
 import com.walnut.sparta.SpartaBoot;
 
-class JesusChrist extends Radium {
+class JesusChrist extends Tritium {
     public JesusChrist( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

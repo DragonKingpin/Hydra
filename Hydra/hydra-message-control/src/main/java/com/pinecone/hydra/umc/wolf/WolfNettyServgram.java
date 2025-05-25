@@ -7,7 +7,7 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.servgram.ArchServgramium;
 import com.pinecone.framework.system.RedirectRuntimeException;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.umc.msg.UMCException;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 
@@ -34,8 +34,8 @@ public abstract class WolfNettyServgram extends ArchServgramium {
     }
 
     @Override
-    public Hydrarum getSystem() {
-        return (Hydrarum) super.getSystem();
+    public Hydrogen getSystem() {
+        return (Hydrogen) super.getSystem();
     }
 
 

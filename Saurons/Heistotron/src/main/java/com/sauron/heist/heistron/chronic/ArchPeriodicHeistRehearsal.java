@@ -15,7 +15,7 @@ import com.sauron.heist.heistron.HTTPHeist;
 import com.sauron.heist.heistron.Heistgram;
 import com.sauron.heist.heistron.Heists;
 import com.sauron.heist.heistron.Heistum;
-import com.pinecone.radium.system.RadiumSystem;
+import com.pinecone.tritium.system.TritiumSystem;
 import com.sauron.heist.heistron.orchestration.LocalHeistumOrchestrator;
 
 import java.util.ArrayList;
@@ -58,8 +58,8 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
         this.mIndexId           = new AtomicInteger();
         this.mExclusiveRaiders  = new ArrayList<>();
         RuntimeSystem system    = heistum.getSystem();
-        if( system instanceof RadiumSystem) {
-            ( (RadiumSystem) system ).getPrimaryConfigScope().autoInject( ArchPeriodicHeistRehearsal.class, this.mHeistum.getConfig(), this );
+        if( system instanceof TritiumSystem) {
+            ( (TritiumSystem) system ).getPrimaryConfigScope().autoInject( ArchPeriodicHeistRehearsal.class, this.mHeistum.getConfig(), this );
         }
         else {
             AnnotatedObjectInjector injector = new AnnotatedObjectInjector( ArchPeriodicHeistRehearsal.class );

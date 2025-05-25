@@ -3,7 +3,7 @@ package com.pinecone.hydra.unit.vgraph;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathResolver;
 import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathSelector;
@@ -26,7 +26,7 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
 
     protected MegaVectorDAG                     mMegaVectorDAG;
 
-    protected Hydrarum                          mHydrarum;
+    protected Hydrogen                          mHydrogen;
 
     protected Processum                         mSuperiorProcess;
 
@@ -48,11 +48,11 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
         this.mAtlasMasterManipulator = atlasMappingDriver.getMasterManipulator();
 
 
-        if ( this.mSuperiorProcess instanceof Hydrarum ) {
-            this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess;
+        if ( this.mSuperiorProcess instanceof Hydrogen) {
+            this.mHydrogen = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess.getSystem();
+            this.mHydrogen = (Hydrogen) this.mSuperiorProcess.getSystem();
         }
         this.mMegaVectorDAG = new MagnitudeVectorDAG(null, atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
         this.mGuidAllocator = new GenericGuidAllocator();

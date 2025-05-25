@@ -1,6 +1,6 @@
 package com.sauron.system;
 
-import com.pinecone.radium.system.RadiumSystem;
+import com.pinecone.tritium.system.TritiumSystem;
 
-public interface SauronKingdom extends RadiumSystem {
+public interface SauronKingdom extends TritiumSystem {
 }

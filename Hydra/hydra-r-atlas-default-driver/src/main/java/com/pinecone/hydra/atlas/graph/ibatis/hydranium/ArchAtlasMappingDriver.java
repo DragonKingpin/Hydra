@@ -7,7 +7,7 @@ import com.pinecone.framework.system.homotype.StereotypicInjector;
 import com.pinecone.hydra.atlas.graph.ibatis.GUID72TypeHandler;
 import com.pinecone.hydra.atlas.graph.ibatis.GUIDTypeHandler;
 import com.pinecone.hydra.atlas.graph.ibatis.UOITypeHandler;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ArchAtlasMappingDriver implements AtlasMappingDriver {
-    protected Hydrarum mSystem;
+    protected Hydrogen mSystem;
 
     protected Processum mSuperiorProcess;
 
@@ -31,11 +31,11 @@ public abstract class ArchAtlasMappingDriver implements AtlasMappingDriver {
 
     public ArchAtlasMappingDriver( Processum superiorProcess ) {
         this.mSuperiorProcess                 = superiorProcess;
-        if ( this.mSuperiorProcess instanceof Hydrarum ) {
-            this.mSystem                      = (Hydrarum) this.mSuperiorProcess;
+        if ( this.mSuperiorProcess instanceof Hydrogen) {
+            this.mSystem                      = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mSystem                      = (Hydrarum) superiorProcess.getSystem();
+            this.mSystem                      = (Hydrogen) superiorProcess.getSystem();
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class ArchAtlasMappingDriver implements AtlasMappingDriver {
     }
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return this.mSystem;
     }
 

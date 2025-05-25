@@ -33,10 +33,10 @@ import com.pinecone.hydra.storage.volume.entity.local.spanned.receive.TitanSpann
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.radium.Radium;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +47,7 @@ import java.nio.file.StandardOpenOption;
 import java.sql.SQLException;
 
 
-class Alice extends Radium {
+class Alice extends Tritium {
     public Alice( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

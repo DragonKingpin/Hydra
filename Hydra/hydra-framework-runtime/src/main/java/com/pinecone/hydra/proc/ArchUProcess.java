@@ -95,6 +95,11 @@ public class ArchUProcess implements UProcess {
     }
 
     @Override
+    public ProcessManager getOwnedProcessManager() {
+        return this.mProcessManager;
+    }
+
+    @Override
     public GUID getParentProcessId() {
         if ( this.parentProcess() != null ) {
             return this.parentProcess().getGuid();
@@ -151,9 +156,15 @@ public class ArchUProcess implements UProcess {
         return this.mLastUpdateTime;
     }
 
+    @Override
+    public void triggerUpdateTerminationStatus() {
+        if ( this.getState() != Thread.State.TERMINATED ) {
+            throw new IllegalStateException( "Bad time to trigger, I am still alive!" );
+        }
 
-
-
+        this.mLastUpdateTime = LocalDateTime.now();
+        this.mEndTime        = LocalDateTime.now();
+    }
 
 
     /** Proxied Processum **/

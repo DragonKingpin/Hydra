@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class AccountController {
     @RequiresAuthentication
     public BasicResultResponse<String> removeDomain( @RequestParam("domainGuid") String domainGuid ){
 
-        List<TreeNode> children = this.primaryAccount.getChildren( GUIDs.GUID72(domainGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren( GUIDs.GUID72(domainGuid));
         for (TreeNode treeNode : children) {
             this.primaryAccount.remove(treeNode.getGuid());
         }
@@ -93,7 +94,7 @@ public class AccountController {
     @DeleteMapping("/remove/group")
     @RequiresAuthentication
     public BasicResultResponse<String> removeGroup( @RequestParam("groupGuid") String groupGuid ){
-        List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(groupGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(groupGuid));
         System.out.println(children.isEmpty());
         System.out.println(groupGuid);
         if (children.isEmpty()) {
@@ -123,7 +124,7 @@ public class AccountController {
     @RequiresAuthentication
     public String queryUsersByGroup(@RequestParam("groupGuid") String groupGuid) {
         List<GenericAccount> accounts = new ArrayList<>();
-        List<GUID> guids = this.primaryAccount.fetchChildrenGuids(GUIDs.GUID72(groupGuid));
+        Collection<GUID> guids = this.primaryAccount.fetchChildrenGuids(GUIDs.GUID72(groupGuid));
         for (GUID guid : guids)
         {
             accounts.add((GenericAccount) this.primaryAccount.queryAccountByUserGuid(guid));
@@ -326,7 +327,7 @@ public class AccountController {
     public BasicResultResponse<String> queryDomainGroups(
             @RequestParam("domainGuid") String domainGuid) {
         try {
-            List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
+            Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
             List<Map<String, String>> groups = new ArrayList<>();
             for (TreeNode child : children) {
                 if (child instanceof Group) {
@@ -350,7 +351,7 @@ public class AccountController {
     public BasicResultResponse<String> queryDomainGroup(
             @RequestParam("domainGuid") String domainGuid
     ){
-        List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
         List<Group> groups = new ArrayList<>();
         for (TreeNode child : children) {
             if (child instanceof Group) {

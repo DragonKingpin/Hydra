@@ -55,8 +55,8 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.radium</groupId>
-            <artifactId>hydra-system-radium</artifactId>
+            <groupId>com.pinecone.tritium</groupId>
+            <artifactId>hydra-system-tritium</artifactId>
             <version>2.1.0</version>
         </dependency>
         <dependency>

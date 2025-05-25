@@ -83,8 +83,8 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName(), null );
     }
 
-//    public UniformServiceInstrument( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
+//    public UniformServiceInstrument( Hydrogen hydrogen ) {
+//        this.hydrogen = hydrogen;
 //    }
 
     public UniformServiceInstrument(KOIMappingDriver driver ) {

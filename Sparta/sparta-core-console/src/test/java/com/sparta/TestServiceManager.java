@@ -18,12 +18,12 @@ import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
 import java.util.List;
 
-class Brian extends Radium {
+class Brian extends Tritium {
     public Brian( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

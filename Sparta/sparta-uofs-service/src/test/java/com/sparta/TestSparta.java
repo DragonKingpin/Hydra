@@ -12,8 +12,8 @@ import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
 
 import com.walnut.sparta.uofs.service.Sparta;
 import com.walnut.sparta.uofs.service.SpartaBoot;
@@ -21,7 +21,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
-class JesusChrist extends Radium {
+class JesusChrist extends Tritium {
     public JesusChrist( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

@@ -15,4 +15,19 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
 
     void applyGuidAllocator( GuidAllocator guidAllocator );
 
+    long     getVitalizeCount();
+
+    long     getFatalityCount();
+
+    // Object clearance rate, help load balance and dispatch. [e.g. Using priority queue.]
+    default double getClearanceRate() {
+        double nFatality = this.getFatalityCount();
+        double nVitalize = this.getVitalizeCount();
+        return nFatality / ( nVitalize + nFatality );
+    }
+
+    void erase( UProcess that );
+
+    boolean autopsy( UProcess that );
+
 }

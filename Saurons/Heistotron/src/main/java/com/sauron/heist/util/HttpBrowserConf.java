@@ -4,7 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.json.homotype.DirectObjectInjector;
 import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.radium.util.ConfigHelper;
+import com.pinecone.tritium.util.ConfigHelper;
 import com.sauron.heist.heistron.HeistConfigConstants;
 import com.sauron.heist.heistron.Heistum;
 

@@ -8,13 +8,14 @@ import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.hydra.account.UniformAccountManager;
 import com.pinecone.hydra.account.ibatis.hydranium.UserMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
+
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 
-class JesusChrist extends Radium {
+class JesusChrist extends Tritium {
     public JesusChrist( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

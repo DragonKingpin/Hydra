@@ -4,7 +4,7 @@ import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
@@ -67,8 +67,8 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public Hydrarum getHydrarum() {
-        return this.hydrarum;
+    public Hydrogen getHydrogen() {
+        return this.hydrogen;
     }
 
     @Override

@@ -25,12 +25,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />
     <orderEntry type="module" module-name="hydra-architecture" />
     <orderEntry type="module" module-name="hydra-architecture-conduct" />
-    <orderEntry type="module" module-name="hydra-system-radium" />
+    <orderEntry type="module" module-name="hydra-system-tritium" />
     <orderEntry type="module" module-name="hydra-framework-config" />
     <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="module" module-name="hydra-message-control" />

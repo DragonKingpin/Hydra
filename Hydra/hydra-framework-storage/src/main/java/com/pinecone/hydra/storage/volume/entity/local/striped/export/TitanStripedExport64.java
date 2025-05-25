@@ -18,7 +18,7 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.TitanStripBufferOu
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.OnVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.runtime.MasterVolumeGram;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -85,13 +85,13 @@ public class TitanStripedExport64 implements StripedExport64{
         int jobCount = volumes.size();
 
         int StripResidentCacheAllotRatio = volumeManager.getConfig().getStripResidentCacheAllotRatio();
-        Hydrarum hydrarum = null;
+        Hydrogen hydrogen = null;
         MasterVolumeGram masterVolumeGram = null;
         try {
             SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
 
-            hydrarum = this.volumeManager.getHydrarum();
-            masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
+            hydrogen = this.volumeManager.getHydrogen();
+            masterVolumeGram = this.createMasterVolumeGram(hydrogen,jobCount,StripResidentCacheAllotRatio);
 
             // 创建文件写入线程
             createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
@@ -106,7 +106,7 @@ public class TitanStripedExport64 implements StripedExport64{
         this.waitForTaskCompletion(masterVolumeGram);
         //masterVolumeGram.majorJobCountDownLatchWait();
 
-        hydrarum.getTaskManager().erase(masterVolumeGram);
+        hydrogen.getTaskManager().erase(masterVolumeGram);
 
         return null;
     }

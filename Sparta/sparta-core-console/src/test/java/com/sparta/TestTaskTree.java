@@ -7,13 +7,11 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
-import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
-import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
@@ -21,7 +19,7 @@ import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 
 
-class Randy extends Radium {
+class Randy extends Tritium {
     public Randy( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

@@ -13,6 +13,8 @@ public interface UProcess extends Processum, ProcessElement {
 
     UProcess parentProcess();
 
+    ProcessManager getOwnedProcessManager();
+
     ProcSpace getProcNamespace();
 
     ObjectTable getObjectTable();
@@ -30,5 +32,7 @@ public interface UProcess extends Processum, ProcessElement {
     Map<String, String[]> getEnvironmentVariables();
 
     Processum getCurrentLocalSystemProcess();
+
+    void triggerUpdateTerminationStatus();
 
 }

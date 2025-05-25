@@ -1,12 +1,12 @@
 package com.pinecone.hydra.system;
 
 public class SystemSkeleton extends ArchSystemCascadeComponentManager implements HySkeleton {
-    public SystemSkeleton( Hydrarum system ){
+    public SystemSkeleton( Hydrogen system ){
         super( system );
     }
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return this.mSystem;
     }
 }

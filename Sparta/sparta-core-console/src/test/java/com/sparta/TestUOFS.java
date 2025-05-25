@@ -30,14 +30,14 @@ import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
-class Steve extends Radium {
+class Steve extends Tritium {
     public Steve( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

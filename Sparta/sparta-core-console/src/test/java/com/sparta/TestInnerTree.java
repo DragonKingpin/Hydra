@@ -11,10 +11,10 @@ import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
 
-class LadyGaga extends Radium {
+class LadyGaga extends Tritium {
     public LadyGaga( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

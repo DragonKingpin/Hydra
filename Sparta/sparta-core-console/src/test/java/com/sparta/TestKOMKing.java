@@ -9,12 +9,12 @@ import com.pinecone.hydra.storage.mfs.NativeMappingFileSystem;
 import com.pinecone.hydra.system.ko.runtime.KernelExpressInstrument;
 import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
-class Loki extends Radium {
+class Loki extends Tritium {
     public Loki( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

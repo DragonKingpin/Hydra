@@ -139,8 +139,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.directFileSystemAccessor = new KenExternalFileSystemInstrument(this);
     }
 
-//    public GenericKOMFileSystem( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
+//    public GenericKOMFileSystem( Hydrogen hydrogen ) {
+//        this.hydrogen = hydrogen;
 //    }
 
     public UniformObjectFileSystem( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMFileSystem parent, String name,FileSystemConfig fileSystemConfig ) {

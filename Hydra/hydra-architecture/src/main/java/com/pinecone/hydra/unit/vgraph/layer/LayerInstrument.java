@@ -1,7 +1,7 @@
 package com.pinecone.hydra.unit.vgraph.layer;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -10,7 +10,7 @@ public interface LayerInstrument extends KOMInstrument {
 
     LayerConfig getConfig();
 
-    Hydrarum getHydrarum();
+    Hydrogen getHydrogen();
 
     void addChild( GUID parentGuid, GUID childGuid );
 

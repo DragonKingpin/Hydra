@@ -6,7 +6,7 @@ import com.pinecone.framework.system.executum.ArchProcessum;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import org.slf4j.Logger;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -88,8 +88,8 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
     }
 
     @Override
-    public Hydrarum getSystem() {
-        return (Hydrarum) super.getSystem();
+    public Hydrogen getSystem() {
+        return (Hydrogen) super.getSystem();
     }
 
     @Override

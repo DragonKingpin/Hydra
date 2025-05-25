@@ -30,7 +30,7 @@
         <module>hydra-lib-thrift-sdk</module>
         <module>hydra-lib-uofs-cache</module>
 
-        <module>hydra-system-radium</module>
+        <module>hydra-system-tritium</module>
         <module>hydra-r-atlas-default-driver</module>
         <module>hydra-system-reign</module>
         <module>hydra-service-control</module>

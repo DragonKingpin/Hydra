@@ -95,8 +95,8 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         this( superiorProcess, masterManipulator, null, DeployInstrument.class.getSimpleName(), null );
     }
 
-//    public UniformTaskInstrument( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
+//    public UniformTaskInstrument( Hydrogen hydrogen ) {
+//        this.hydrogen = hydrogen;
 //    }
 
     public UniformDeployInstrument( KOIMappingDriver driver ) {

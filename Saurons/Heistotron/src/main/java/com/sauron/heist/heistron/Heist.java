@@ -17,7 +17,7 @@ import com.pinecone.hydra.servgram.GramTransaction;
 import com.pinecone.hydra.servgram.OrchestrateInterruptException;
 import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
-import com.pinecone.radium.util.ConfigHelper;
+import com.pinecone.tritium.util.ConfigHelper;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
 import com.sauron.heist.heistron.orchestration.Hierarchy;

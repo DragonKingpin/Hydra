@@ -7,5 +7,5 @@ public interface Taskium extends Processum {
         return (ChildHeistOrchestrator) this.getTaskManager();
     }
 
-    int getTaskId();
+    long getTaskId();
 }

@@ -8,8 +8,8 @@
       <configuration>
         <webroots />
         <sourceRoots>
-          <root url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/src/main/java" />
-          <root url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/src/main/resources" />
+          <root url="file://$MODULE_DIR$/src/main/java" />
+          <root url="file://$MODULE_DIR$/src/main/resources" />
         </sourceRoots>
       </configuration>
     </facet>
@@ -17,15 +17,14 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
-    <content url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones">
-      <sourceFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/src/main/resources" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/src/test/java" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-message-stones/target" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="module" module-name="pinecone" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-json:2.4.1" level="project" />
@@ -79,6 +78,7 @@
     <orderEntry type="module" module-name="hydra-framework-storage" />
     <orderEntry type="module" module-name="ulf-lib-oltp-rdb" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.32.3.3" level="project" />
+    <orderEntry type="module" module-name="hydra-architecture-storage" />
     <orderEntry type="module" module-name="hydra-framework-config" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.15.4" level="project" />
     <orderEntry type="module" module-name="hydra-framework-device" />

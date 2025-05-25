@@ -7,7 +7,7 @@ public interface SystemCascadeComponent extends CascadeComponent, SystemComponen
     @Override
     SystemCascadeComponentManager getComponentManager();
 
-    default Hydrarum getSystem() {
+    default Hydrogen getSystem() {
         return this.getComponentManager().getSystem();
     }
 }

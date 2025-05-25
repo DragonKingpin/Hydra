@@ -9,7 +9,7 @@ import com.pinecone.hydra.umb.kafka.WolfMCKafkaClient;
 import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 import com.pinecone.hydra.umb.wolf.WolfMCBClient;
 import com.pinecone.hydra.umct.WolfMCExpress;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.walnut.sailor.stream.fm.SFMConfig;
 import com.walnut.sailor.stream.fm.SFMSessionValidatorController;
 import com.walnut.sailor.stream.fm.SailorFMConfig;
@@ -17,7 +17,7 @@ import com.walnut.sailor.stream.fm.SailorFMDistributionService;
 import com.walnut.sailor.stream.fm.SingleStreamFileMultiDistributionService;
 import com.walnut.sailor.stream.fm.event.SFMEventSubscriber;
 
-class Lois extends Radium {
+class Lois extends Tritium {
     public Lois( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

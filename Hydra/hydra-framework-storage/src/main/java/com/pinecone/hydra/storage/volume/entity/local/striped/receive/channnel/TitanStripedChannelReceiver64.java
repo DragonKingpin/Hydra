@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.volume.entity.local.striped.receive.channnel;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.rdb.MappedExecutor;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.ulf.rdb.sqlite.SQLiteHost;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.RandomAccessChanface;
@@ -20,7 +21,6 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.TitanStripReceiver
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.OnVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.runtime.MasterVolumeGram;
-import com.pinecone.hydra.system.Hydrarum;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -45,9 +45,9 @@ public class TitanStripedChannelReceiver64 implements StripedChannelReceiver64{
 
     @Override
     public StorageIOResponse channelReceive() throws UIOException {
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
-        hydrarum.getTaskManager().add( masterVolumeGram );
+        Hydrogen hydrogen = this.volumeManager.getHydrogen();
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen);
+        hydrogen.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
         try {
@@ -72,9 +72,9 @@ public class TitanStripedChannelReceiver64 implements StripedChannelReceiver64{
 
     @Override
     public StorageIOResponse channelReceive(Number offset, Number endSize) throws UIOException {
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
-        hydrarum.getTaskManager().add( masterVolumeGram );
+        Hydrogen hydrogen = this.volumeManager.getHydrogen();
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen);
+        hydrogen.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
         MappedExecutor sqLiteExecutor = null;

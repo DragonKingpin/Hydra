@@ -2,7 +2,7 @@ package com.pinecone.hydra.umct;
 
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.hydra.servgram.ArchServgramium;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.framework.system.executum.Processum;
 
 import java.lang.reflect.Constructor;
@@ -76,8 +76,8 @@ public abstract class ArchMessagram extends ArchServgramium implements Messagram
     }
 
     @Override
-    public Hydrarum getSystem() {
-        return (Hydrarum) super.getSystem();
+    public Hydrogen getSystem() {
+        return (Hydrogen) super.getSystem();
     }
 
     @Override

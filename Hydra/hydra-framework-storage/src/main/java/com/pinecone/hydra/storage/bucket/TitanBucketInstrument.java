@@ -9,7 +9,7 @@ import com.pinecone.hydra.storage.bucket.source.BucketMasterManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.bucket.source.SiteNodeManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class TitanBucketInstrument implements BucketInstrument {
-    protected Hydrarum                  hydrarum;
+    protected Hydrogen                  hydrogen;
 
     protected BucketMasterManipulator   masterManipulator;
 
@@ -31,8 +31,8 @@ public class TitanBucketInstrument implements BucketInstrument {
 
     protected GuidAllocator             guidAllocator;
 
-    public TitanBucketInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
-        this.hydrarum = hydrarum;
+    public TitanBucketInstrument(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
+        this.hydrogen               = hydrogen;
         this.masterManipulator      = (BucketMasterManipulator) masterManipulator;
         this.guidAllocator          = new GenericGuidAllocator();
 
@@ -41,8 +41,8 @@ public class TitanBucketInstrument implements BucketInstrument {
         this.siteNodeManipulator    = this.masterManipulator.getSiteNodeManipulator();
     }
 
-    public TitanBucketInstrument(Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
-        this( hydrarum, masterManipulator, KOMFileSystem.class.getSimpleName() );
+    public TitanBucketInstrument( Hydrogen hydrogen, KOIMasterManipulator masterManipulator ){
+        this( hydrogen, masterManipulator, KOMFileSystem.class.getSimpleName() );
     }
 
     public TitanBucketInstrument(KOIMappingDriver driver ) {

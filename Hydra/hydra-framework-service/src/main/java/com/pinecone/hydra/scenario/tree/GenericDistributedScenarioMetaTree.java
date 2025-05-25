@@ -2,7 +2,7 @@ package com.pinecone.hydra.scenario.tree;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
@@ -30,7 +30,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GenericDistributedScenarioMetaTree implements DistributedScenarioMetaTree{
-    protected Hydrarum                       hydrarum;
+    protected Hydrogen   hydrogen;
     private ImperialTree distributedScenarioTree;
     private ScenarioMasterManipulator       scenarioMasterManipulator;
 
@@ -38,8 +38,8 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
     private NamespaceNodeManipulator        namespaceNodeManipulator;
     private ScenarioCommonDataManipulator   scenarioCommonDataManipulator;
 
-    public GenericDistributedScenarioMetaTree( Hydrarum hydrarum, KOIMasterManipulator masterManipulator){
-        this.hydrarum                       =   hydrarum;
+    public GenericDistributedScenarioMetaTree(Hydrogen hydrogen, KOIMasterManipulator masterManipulator){
+        this.hydrogen                       = hydrogen;
         this.scenarioMasterManipulator      =   (ScenarioMasterManipulator) masterManipulator;
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.scenarioMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -49,8 +49,8 @@ public class GenericDistributedScenarioMetaTree implements DistributedScenarioMe
         this.scenarioCommonDataManipulator  =   this.scenarioMasterManipulator.getScenarioCommonDataManipulator();
     }
 
-    public GenericDistributedScenarioMetaTree( Hydrarum hydrarum ) {
-        this.hydrarum = hydrarum;
+    public GenericDistributedScenarioMetaTree( Hydrogen hydrogen) {
+        this.hydrogen = hydrogen;
     }
 
     public GenericDistributedScenarioMetaTree( KOIMappingDriver driver ) {

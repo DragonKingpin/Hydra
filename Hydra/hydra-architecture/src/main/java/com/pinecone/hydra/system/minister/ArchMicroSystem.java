@@ -1,12 +1,12 @@
 package com.pinecone.hydra.system.minister;
 
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 public abstract class ArchMicroSystem implements MicroSystem {
     protected String      mszName;
-    protected Hydrarum    mSystem;
+    protected Hydrogen mSystem;
 
-    public ArchMicroSystem( String name, Hydrarum system ) {
+    public ArchMicroSystem( String name, Hydrogen system ) {
         this.mszName = name;
         this.mSystem = system;
     }
@@ -17,7 +17,7 @@ public abstract class ArchMicroSystem implements MicroSystem {
     }
 
     @Override
-    public Hydrarum getMasterSystem(){
+    public Hydrogen getMasterSystem(){
         return this.mSystem;
     }
 

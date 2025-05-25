@@ -5,11 +5,11 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.system.component.LogStatuses;
 
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.system.HydraEmpire;
 
-public class EnderHydra extends Radium implements HydraEmpire {
+public class EnderHydra extends Tritium implements HydraEmpire {
     protected GuidAllocator mSystemGuidAllocator;
 
     public EnderHydra( String[] args, CascadeSystem parent ) {

@@ -14,7 +14,7 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.ArchSystemCascadeComponent;
 import com.pinecone.hydra.system.HyComponent;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 public class CentralMicroSystemCabinet extends ArchSystemCascadeComponent implements KernelMicroSystemCabinet {
     protected ConcurrentHashMap<String, MicroSystem > mRegistry;
@@ -22,7 +22,7 @@ public class CentralMicroSystemCabinet extends ArchSystemCascadeComponent implem
     protected PatriarchalConfig                       mConfMicroSystems;
     protected DynamicFactory                          mDynamicFactory;
 
-    public CentralMicroSystemCabinet( Namespace name, Hydrarum system, HyComponent parent ) {
+    public CentralMicroSystemCabinet(Namespace name, Hydrogen system, HyComponent parent ) {
         super( name, system, system.getComponentManager(), parent );
 
         this.mDynamicFactory    = new GenericDynamicFactory( this.getSystem().getTaskManager().getClassLoader() );
@@ -32,11 +32,11 @@ public class CentralMicroSystemCabinet extends ArchSystemCascadeComponent implem
         this.loadConfigEtSystem();
     }
 
-    public CentralMicroSystemCabinet( Hydrarum system, HyComponent parent ) {
+    public CentralMicroSystemCabinet(Hydrogen system, HyComponent parent ) {
         this( null, system, parent );
     }
 
-    public CentralMicroSystemCabinet( Hydrarum system ) {
+    public CentralMicroSystemCabinet( Hydrogen system ) {
         this( system, null );
     }
 
@@ -118,7 +118,7 @@ public class CentralMicroSystemCabinet extends ArchSystemCascadeComponent implem
 
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return super.getSystem();
     }
 }

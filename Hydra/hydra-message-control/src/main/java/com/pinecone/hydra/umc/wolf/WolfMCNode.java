@@ -7,7 +7,7 @@ import com.pinecone.framework.system.regimentation.CascadeNodus;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ExtraEncode;
@@ -53,7 +53,7 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
         this.setTargetingName( szName );
     }
 
-    public WolfMCNode( long nodeId, String szName, Hydrarum system, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
+    public WolfMCNode(long nodeId, String szName, Hydrogen system, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
 

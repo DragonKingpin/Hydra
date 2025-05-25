@@ -6,11 +6,11 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-class Louis extends Radium {
+class Louis extends Tritium {
     public Louis( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

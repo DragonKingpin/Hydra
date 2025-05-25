@@ -4,7 +4,7 @@ import com.pinecone.hydra.auto.Instructation;
 import com.sauron.heist.heistron.Reaver;
 
 /**
- *  Bean Nuts Hazelnut Sauron Radium For Java, Raider [突袭者]
+ *  Bean Nuts Hazelnut Sauron Tritium For Java, Raider [突袭者]
  *  Author: Harold.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************

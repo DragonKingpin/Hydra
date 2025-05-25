@@ -1,7 +1,7 @@
 package com.pinecone.hydra.server;
 
 import com.pinecone.hydra.system.HyComponent;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.json.JSONObject;
 
@@ -15,5 +15,5 @@ public interface ServersCenter extends Pinenut, HyComponent {
 
     ServersCenter removeServer( Server server );
 
-    Hydrarum getSystem();
+    Hydrogen getSystem();
 }

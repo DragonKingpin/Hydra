@@ -5,7 +5,7 @@ import com.pinecone.hydra.storage.policy.entity.Policy;
 import com.pinecone.hydra.storage.policy.source.PolicyFileMappingManipulator;
 import com.pinecone.hydra.storage.policy.source.PolicyManipulator;
 import com.pinecone.hydra.storage.policy.source.PolicyMasterManipulator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
@@ -15,7 +15,7 @@ import java.util.List;
 public class TitanPolicyManage implements PolicyManage{
     protected PolicyManipulator                 policyManipulator;
 
-    protected Hydrarum                          hydrarum;
+    protected Hydrogen                          hydrogen;
 
     protected PolicyMasterManipulator           masterManipulator;
 
@@ -25,8 +25,8 @@ public class TitanPolicyManage implements PolicyManage{
 
 
 
-    public TitanPolicyManage(Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
-       this.hydrarum                      = hydrarum;
+    public TitanPolicyManage(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
+       this.hydrogen = hydrogen;
        this.masterManipulator             = (PolicyMasterManipulator) masterManipulator;
        this.guidAllocator                 = new GenericGuidAllocator();
        this.policyManipulator             = this.masterManipulator.getPolicyManipulator();

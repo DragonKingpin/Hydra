@@ -47,10 +47,10 @@ public class TitanStripedStreamReceive64 implements StripedStreamReceive64{
 
     @Override
     public StorageIOResponse streamReceive() throws UIOException {
-//        Hydrarum hydrarum = this.volumeManager.getHydrarum();
+//        Hydrogen hydrogen = this.volumeManager.getHydrogen();
 //        List<LogicVolume> volumes = this.stripedVolume.queryChildren();
-//        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum, volumes.size(), 1, this.volumeManager.getConfig().getDefaultStripSize().intValue() );
-//        hydrarum.getTaskManager().add( masterVolumeGram );
+//        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen, volumes.size(), 1, this.volumeManager.getConfig().getDefaultStripSize().intValue() );
+//        hydrogen.getTaskManager().add( masterVolumeGram );
 //        MappedExecutor executor = this.getExecutor();
 //
 //        TitanStripReceiveBufferOutJob bufferOutJob = new TitanStripReceiveBufferOutJob( masterVolumeGram, this.volumeManager, this.stream, this.storageReceiveIORequest, executor );

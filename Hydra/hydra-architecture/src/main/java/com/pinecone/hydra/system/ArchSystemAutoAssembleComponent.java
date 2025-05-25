@@ -15,7 +15,7 @@ public class ArchSystemAutoAssembleComponent extends ArchSystemCascadeComponent 
     protected DynamicFactory                     mUniformFactory         ;
 
 
-    protected ArchSystemAutoAssembleComponent( Namespace name, Hydrarum system, SystemCascadeComponentManager manager, CascadeComponent parent ) {
+    protected ArchSystemAutoAssembleComponent(Namespace name, Hydrogen system, SystemCascadeComponentManager manager, CascadeComponent parent ) {
         super( name, system, manager, parent );
 
         this.mLogger             = system.getTracerScope().newLogger( this.className() );

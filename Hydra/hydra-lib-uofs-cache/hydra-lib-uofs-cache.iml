@@ -39,6 +39,7 @@
     <orderEntry type="module" module-name="ulf-lib-oltp-rdb" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.32.3.3" level="project" />
     <orderEntry type="module" module-name="slime" />
+    <orderEntry type="module" module-name="hydra-architecture-storage" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:3.8.1" level="project" />
     <orderEntry type="module" module-name="jelly" />
     <orderEntry type="module" module-name="hydra-framework-runtime" />

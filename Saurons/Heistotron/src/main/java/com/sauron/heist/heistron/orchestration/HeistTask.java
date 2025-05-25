@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class HeistTask extends ArchProcessum implements Taskium {
     private static final AtomicInteger rootAutoIncrementId     = new AtomicInteger( 0 );
 
-    private static int nextRootAutoIncrementId() {
+    private static long nextRootAutoIncrementId() {
         return Executum.AutoIncrementId.getAndIncrement();
     }
 
@@ -27,7 +27,7 @@ public abstract class HeistTask extends ArchProcessum implements Taskium {
         return heistum.heistName();
     }
 
-    private int          mnTaskId;
+    private long         mnTaskId;
     protected Heistum    mParentHeist;
 
     public HeistTask( String szName, Heistum heistum ) {
@@ -58,7 +58,7 @@ public abstract class HeistTask extends ArchProcessum implements Taskium {
     }
 
     @Override
-    public int getTaskId() {
+    public long getTaskId() {
         return this.mnTaskId;
     }
 

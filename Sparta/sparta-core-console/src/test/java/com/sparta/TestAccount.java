@@ -10,9 +10,9 @@ import com.pinecone.hydra.account.entity.GenericGroup;
 import com.pinecone.hydra.account.ibatis.hydranium.UserMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
-class Geralt extends Radium {
+class Geralt extends Tritium {
     public Geralt(String[] args, CascadeSystem parent) {
         this(args, null, parent);
     }

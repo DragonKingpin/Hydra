@@ -22,11 +22,11 @@ import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-class Rick extends Radium {
+class Rick extends Tritium {
     public Rick( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

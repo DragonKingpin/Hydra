@@ -83,8 +83,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), null );
     }
 
-//    public UniformTaskInstrument( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
+//    public UniformTaskInstrument( Hydrogen hydrogen ) {
+//        this.hydrogen = hydrogen;
 //    }
 
     public UniformTaskInstrument( KOIMappingDriver driver ) {

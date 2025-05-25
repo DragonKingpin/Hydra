@@ -1,8 +1,8 @@
 package com.sauron.heist.heistron;
 
-import com.pinecone.radium.system.MissionTerminateException;
-import com.pinecone.radium.system.RadiumSystem;
-import com.pinecone.radium.system.StorageSystem;
+import com.pinecone.tritium.system.MissionTerminateException;
+import com.pinecone.tritium.system.TritiumSystem;
+import com.pinecone.tritium.system.StorageSystem;
 import com.pinecone.framework.system.functions.FunctionTraits;
 import com.pinecone.framework.util.json.JSONObject;
 
@@ -131,8 +131,8 @@ public abstract class ArchCrew extends LocalCrewnium implements Crew {
 
 
     @Override
-    public RadiumSystem getSystem() {
-        return (RadiumSystem) super.getSystem();
+    public TritiumSystem getSystem() {
+        return (TritiumSystem) super.getSystem();
     }
 
     @Override

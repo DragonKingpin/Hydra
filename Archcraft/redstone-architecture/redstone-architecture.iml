@@ -11,15 +11,14 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_11">
-    <output url="file://$MODULE_DIR$/../../Archcraft/redstone-architecture/target/classes" />
-    <output-test url="file://$MODULE_DIR$/../../Archcraft/redstone-architecture/target/test-classes" />
-    <content url="file://$MODULE_DIR$/../../Archcraft/redstone-architecture">
-      <sourceFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-architecture/src/main/java" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/../../Archcraft/redstone-architecture/target" />
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.3" level="project" />
@@ -96,7 +95,7 @@
     <orderEntry type="library" name="Maven: mysql:mysql-connector-java:8.0.23" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.29.0-GA" level="project" />
     <orderEntry type="module" module-name="springram" />
-    <orderEntry type="module" module-name="hydra-system-radium" scope="TEST" />
+    <orderEntry type="module" module-name="hydra-system-tritium" scope="TEST" />
     <orderEntry type="module" module-name="hydra-framework-config" />
     <orderEntry type="module" module-name="hydra-framework-device" />
     <orderEntry type="module" module-name="hydra-message-control" />
@@ -154,6 +153,7 @@
     <orderEntry type="module" module-name="hydra-framework-storage" />
     <orderEntry type="module" module-name="ulf-lib-oltp-rdb" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.32.3.3" level="project" />
+    <orderEntry type="module" module-name="hydra-architecture-storage" />
     <orderEntry type="library" name="Maven: org.apache.thrift:libthrift:0.18.0" level="project" />
     <orderEntry type="module" module-name="hydra-lib-thrift-sdk" />
     <orderEntry type="module" module-name="sparta-api-uac" />

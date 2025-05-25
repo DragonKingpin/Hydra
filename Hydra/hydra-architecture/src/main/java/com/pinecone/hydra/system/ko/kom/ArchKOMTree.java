@@ -8,7 +8,7 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.framework.util.name.path.PathResolver;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
@@ -32,7 +32,7 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     protected Namespace             mThisNamespace;
     protected KOMInstrument         mParentInstrument;
 
-    protected Hydrarum              hydrarum;
+    protected Hydrogen              hydrogen;
 
     protected Processum             superiorProcess;
 
@@ -62,11 +62,11 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
     ){
         super( masterManipulator, kernelObjectConfig, superiorPathScope );
         this.superiorProcess                 = superiorProcess;
-        if ( this.superiorProcess instanceof Hydrarum ) {
-            this.hydrarum                    = (Hydrarum) this.superiorProcess;
+        if ( this.superiorProcess instanceof Hydrogen) {
+            this.hydrogen = (Hydrogen) this.superiorProcess;
         }
         else {
-            this.hydrarum                    = (Hydrarum) superiorProcess.getSystem();
+            this.hydrogen = (Hydrogen) superiorProcess.getSystem();
         }
 
         this.guidAllocator                   = guidAllocator;
@@ -78,8 +78,8 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
 
     protected void prepare_uniform_skeleton() {
         if ( this.superiorProcess != null ) {
-            if ( this.guidAllocator == null && this.hydrarum instanceof UniformCentralSystem ) {
-                UniformCentralSystem system = (UniformCentralSystem) this.hydrarum;
+            if ( this.guidAllocator == null && this.hydrogen instanceof UniformCentralSystem ) {
+                UniformCentralSystem system = (UniformCentralSystem) this.hydrogen;
                 this.guidAllocator = system.getSystemGuidAllocator();
             }
         }

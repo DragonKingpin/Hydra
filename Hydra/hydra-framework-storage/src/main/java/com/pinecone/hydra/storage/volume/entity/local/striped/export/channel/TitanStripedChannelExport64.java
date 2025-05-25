@@ -1,6 +1,7 @@
 package com.pinecone.hydra.storage.volume.entity.local.striped.export.channel;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.ulf.rdb.sqlite.SQLiteExecutor;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.StorageIOResponse;
@@ -15,7 +16,6 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.TitanStripBufferOu
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.OnVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.runtime.MasterVolumeGram;
-import com.pinecone.hydra.system.Hydrarum;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -48,8 +48,8 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
         try {
             SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
 
-            Hydrarum hydrarum = this.volumeManager.getHydrarum();
-            masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
+            Hydrogen hydrogen = this.volumeManager.getHydrogen();
+            masterVolumeGram = this.createMasterVolumeGram(hydrogen,jobCount,StripResidentCacheAllotRatio);
 
             // 创建文件写入线程
             createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
@@ -77,8 +77,8 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
         try {
             SQLiteExecutor sqLiteExecutor = this.stripedVolume.getSQLiteExecutor();
 
-            Hydrarum hydrarum = this.volumeManager.getHydrarum();
-            masterVolumeGram = this.createMasterVolumeGram(hydrarum,jobCount,StripResidentCacheAllotRatio);
+            Hydrogen hydrogen = this.volumeManager.getHydrogen();
+            masterVolumeGram = this.createMasterVolumeGram(hydrogen,jobCount,StripResidentCacheAllotRatio);
 
             // 创建文件写入线程
             createBufferOutJob( masterVolumeGram, this.storageExportIORequest.getSize().longValue());
@@ -95,11 +95,11 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
         return null;
     }
 
-    private MasterVolumeGram createMasterVolumeGram(Hydrarum hydrarum, int jobCount, int StripResidentCacheAllotRatio ) {
+    private MasterVolumeGram createMasterVolumeGram(Hydrogen hydrogen, int jobCount, int StripResidentCacheAllotRatio ) {
         Number stripSize = this.volumeManager.getConfig().getDefaultStripSize();
 
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram(this.stripedVolume.getGuid().toString(), hydrarum,jobCount, StripResidentCacheAllotRatio, stripSize.intValue());
-        hydrarum.getTaskManager().add(masterVolumeGram);
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram(this.stripedVolume.getGuid().toString(), hydrogen,jobCount, StripResidentCacheAllotRatio, stripSize.intValue());
+        hydrogen.getTaskManager().add(masterVolumeGram);
         return masterVolumeGram;
     }
 

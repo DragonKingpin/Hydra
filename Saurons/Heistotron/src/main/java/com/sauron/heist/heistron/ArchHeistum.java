@@ -1,6 +1,6 @@
 package com.sauron.heist.heistron;
 
-import com.pinecone.radium.system.RadiumSystem;
+import com.pinecone.tritium.system.TritiumSystem;
 
 import org.slf4j.Logger;
 
@@ -35,8 +35,8 @@ public abstract class ArchHeistum extends HeistEntity implements Heistum {
         return this.mHeistgram;
     }
 
-    public RadiumSystem getSystem() {
-        return (RadiumSystem) this.getHeistgram().getSystem();
+    public TritiumSystem getSystem() {
+        return (TritiumSystem) this.getHeistgram().getSystem();
     }
 
     /**

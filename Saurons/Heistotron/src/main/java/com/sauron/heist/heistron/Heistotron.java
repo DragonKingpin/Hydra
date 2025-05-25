@@ -4,7 +4,7 @@ import com.pinecone.hydra.config.MapConfigReinterpreter;
 import com.pinecone.hydra.servgram.Gram;
 import com.pinecone.hydra.servgram.OrchestrateInterruptException;
 import com.sauron.heist.heistron.orchestration.Heistlet;
-import com.pinecone.radium.system.RadiumSystem;
+import com.pinecone.tritium.system.TritiumSystem;
 import com.sauron.heist.heistron.orchestration.LocalHeistumOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
 import com.pinecone.framework.util.config.JSONConfig;
@@ -82,8 +82,8 @@ public class Heistotron extends ArchServgramium implements Heistgram {
     }
 
     @Override
-    public RadiumSystem getSystem() {
-        return (RadiumSystem) super.getSystem();
+    public TritiumSystem getSystem() {
+        return (TritiumSystem) super.getSystem();
     }
 
     @Override

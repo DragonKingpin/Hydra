@@ -12,10 +12,10 @@ import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.registry.marshaling.RegistryJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
 
-class StanMarsh extends Radium {
+class StanMarsh extends Tritium {
     public StanMarsh( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

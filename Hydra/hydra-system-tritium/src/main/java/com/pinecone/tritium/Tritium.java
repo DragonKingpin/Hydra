@@ -43,6 +43,10 @@ import java.util.Map;
  *  Hydra - Tritium Kingdom - Pyramid Hierarchy - Centralized Architecture
  *  Hydra - 九头龙第三帝国 - 金字塔阶级控制架构 - 中央集权架构典型实现
  *  *****************************************************************************************
+ *  Hydrogen   | 氕 | Prime Frame  | 框架层原型
+ *  Deuterium  | 氘 | Federal Arch | 九头龙第二共和国
+ *  Tritium    | 氚 | Hierarchy    | 九头龙第三帝国
+ *  *****************************************************************************************
  *  Tritium Hydra | 氚
  *  DragonKing.cn of Harold
  */
@@ -50,7 +54,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra";
     public static final long    VER_PINE            =  202506L;
     public static final String  VERSION             = "2.1.0";
-    public static final String  RELEASE_DATE        = "2025/06/06";
+    public static final String  RELEASE_DATE        = "2026/06/06";
     public static final String  ROOT_SERVER         = "https://www.dragonking.cn/";
     public static final String  CONTACT_INFO        = "E-Mail:info#dragonking.cn"; // Giving your contact information, if this program interrupt abnormally.
 
@@ -189,11 +193,11 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     }
 
 
-    public Tritium(String[] args, CascadeSystem parent ) {
+    public Tritium( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
 
-    public Tritium(String[] args, String szName, CascadeSystem parent ){
+    public Tritium( String[] args, String szName, CascadeSystem parent ){
         super( args, szName, parent );
 
         this.load_this_class_config();

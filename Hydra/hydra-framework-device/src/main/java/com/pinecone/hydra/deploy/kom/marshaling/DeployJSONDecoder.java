@@ -5,9 +5,11 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
+import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
 import com.pinecone.hydra.deploy.kom.entity.FolderElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
@@ -96,13 +98,13 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceJobElement() == null ) {
+                if( rootE.evinceClusterElement() == null ) {
                     throw new IllegalArgumentException(
                             String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
                     );
                 }
 
-                cluster = rootE.evinceJobElement();
+                cluster = rootE.evinceClusterElement();
             }
         }
         else {
@@ -300,6 +302,61 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
         return new Object[] { dep, neo };
     }
 
+    protected Object[]    affirmContainerExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        ContainerElement dep = null;
+
+        if( parentGuid == null ) {
+            ElementNode rootE = this.instrument.queryElement( szName );
+            if( rootE != null ) {
+                if( rootE.evinceContainerElement() == null ) {
+                    throw new IllegalArgumentException(
+                            String.format( "Existed child-destination [%s] should be `TaskElement`.", szName )
+                    );
+                }
+
+                dep = rootE.evinceContainerElement();
+            }
+        }
+        else {
+            ElementNode parentNode = (ElementNode)this.instrument.get( parentGuid );
+            Collection<ElementNode> destChildren;
+            if( parentNode instanceof FolderElement ) {
+                destChildren = ( (FolderElement) parentNode ).fetchChildren();
+                for( ElementNode node : destChildren ) {
+                    if( szName.equals( node.getName() ) ) {
+                        if( node instanceof ContainerElement ) {
+                            dep = (ContainerElement) node;
+                            break;
+                        }
+                        else {
+                            throw new IllegalArgumentException(
+                                    String.format( "Existed child-destination [%s] should be `ContainerElement`.", szName )
+                            );
+                        }
+                    }
+                }
+            }
+            else {
+                throw new IllegalStateException(
+                        String.format( "Parent of `TaskElement` [%s] should be `FolderElement`.", szName )
+                );
+            }
+        }
+
+
+
+        ContainerElement neo ;
+        if( dep == null ) {
+            neo = new GenericContainerElement( jo, this.instrument );
+            neo.setName( szName );
+        }
+        else {
+            neo = dep;
+        }
+        return new Object[] { dep, neo };
+    }
+
+
     protected Object[]    decodeExternalElements( String szMetaType, String szName, GUID parentGuid, Map<String, Object > jo ) throws IllegalArgumentException {
         throw new IllegalArgumentException( "Unknown metaType '" + szMetaType + "'." );
     }
@@ -344,6 +401,9 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
             }
             else if( szMetaType.equals( QuickElement.class.getSimpleName() ) ) {
                 pair = this.affirmQuickExisted( szName, parentGuid, jo );
+            }
+            else if( szMetaType.equals( ContainerElement.class.getSimpleName() ) ) {
+                pair = this.affirmContainerExisted( szName, parentGuid, jo );
             }
             else {
                 try{

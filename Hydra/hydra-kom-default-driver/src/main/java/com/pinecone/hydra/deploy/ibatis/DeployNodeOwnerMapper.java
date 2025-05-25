@@ -14,33 +14,41 @@ import java.util.List;
 
 @IbatisDataAccessObject
 public interface DeployNodeOwnerMapper extends TireOwnerManipulator {
+    @Override
     @Insert("INSERT INTO `hydra_deploy_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )")
     void insertRootNode( @Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
+    @Override
     @Insert( "INSERT INTO `hydra_deploy_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{targetGuid}, #{parentGuid}, #{linkedType})" )
     void insert( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
 
+    @Override
     @Update( "UPDATE `hydra_deploy_node_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
     void update( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID, @Param("linkedType") LinkedType linkedType );
 
+    @Override
     @Update( "UPDATE `hydra_deploy_node_tree` SET `guid` = #{targetGuid}, `parent_guid` = #{parentGuid} WHERE `guid` = #{targetGuid}" )
     void updateParentGuid( @Param("targetGuid") GUID targetGuid, @Param("parentGuid") GUID parentGUID );
 
+    @Override
     @Update( "UPDATE `hydra_deploy_node_tree` SET `guid` = #{targetGuid}, `linked_type` = #{linkedType} WHERE `guid` = #{targetGuid}" )
     void updateLinkedType( @Param("targetGuid") GUID targetGuid, @Param("linkedType") LinkedType linkedType );
 
+    @Override
     @Delete( "DELETE FROM `hydra_deploy_node_tree` WHERE `guid`=#{subordinateGuid}  AND `linked_type` = 'Owned'" )
     void remove( @Param("subordinateGuid") GUID subordinateGuid, @Param("ownerGuid") GUID ownerGuid );
 
+    @Override
     @Delete( "DELETE FROM `hydra_deploy_node_tree` WHERE `guid`=#{subordinateGuid} AND `linked_type` = 'Owned'" )
     void removeBySubordinate( GUID subordinateGuid );
 
 //    @Delete("DELETE FROM `hydra_registry_node_owner` WHERE `owner_guid`=#{ownerGuid}")
 //    void removeByOwner(GUID ownerGuid);
-
+    @Override
     @Select( "SELECT `parent_guid` FROM `hydra_deploy_node_tree` WHERE `guid`=#{subordinateGuid} AND linked_type = 'Owned'" )
     GUID getOwner( GUID subordinateGuid );
 
+    @Override
     @Select( "SELECT guid FROM hydra_deploy_node_tree where parent_guid=#{guid} AND linked_type = 'Owned'" )
     List<GUID > getSubordinates( GUID guid );
 

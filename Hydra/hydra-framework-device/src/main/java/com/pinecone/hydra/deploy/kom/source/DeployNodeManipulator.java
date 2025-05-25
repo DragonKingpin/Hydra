@@ -9,19 +9,19 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 public interface DeployNodeManipulator extends GUIDNameManipulator {
 
-    void insert(DeployElement deployElement);
+    void insert( DeployElement deployElement );
 
-    void remove(GUID UUID);
+    void remove( GUID UUID );
 
-    void update(DeployElement taskElement);
+    void update( DeployElement taskElement );
 
-    List<DeployElement> fetchDeployNodeByName(String name);
-
-    @Override
-    List<GUID> getGuidsByName(String name);
+    List<DeployElement> fetchDeployNodeByName( String name );
 
     @Override
-    List<GUID> getGuidsByNameID(String name, GUID guid);
+    List<GUID> getGuidsByName( String name );
+
+    @Override
+    List<GUID> getGuidsByNameID( String name, GUID guid );
 
 
 }

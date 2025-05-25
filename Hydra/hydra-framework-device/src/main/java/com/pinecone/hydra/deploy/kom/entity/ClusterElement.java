@@ -4,7 +4,7 @@ import com.pinecone.hydra.deploy.kom.DeployFamilyNode;
 
 public interface ClusterElement extends FolderElement, DeployFamilyNode {
     @Override
-    default ClusterElement evinceJobElement() {
+    default ClusterElement evinceClusterElement() {
         return this;
     }
 

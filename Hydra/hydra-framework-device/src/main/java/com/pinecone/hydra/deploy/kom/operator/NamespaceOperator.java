@@ -26,7 +26,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         this.factory = factory;
     }
 
-    public NamespaceOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public NamespaceOperator( DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument ){
         super( masterManipulator, deployInstrument);
         this.namespaceManipulator = masterManipulator.getNamespaceManipulator();
         this.namespaceRulesManipulator = masterManipulator.getNamespaceRulesManipulator();

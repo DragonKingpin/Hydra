@@ -16,12 +16,12 @@ public class QuickElementOperator extends ArchElementOperator implements Element
 
 
 
-    public QuickElementOperator(ElementOperatorFactory factory ) {
+    public QuickElementOperator( ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public QuickElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public QuickElementOperator( DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument ){
         super( masterManipulator, deployInstrument);
 
         this.quickElementManipulator = masterManipulator.getQuickElementManipulator();

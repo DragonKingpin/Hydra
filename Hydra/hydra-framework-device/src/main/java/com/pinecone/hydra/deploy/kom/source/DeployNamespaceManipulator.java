@@ -7,13 +7,13 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
 
 public interface DeployNamespaceManipulator extends GUIDNameManipulator {
-    void insert(Namespace ns);
+    void insert( Namespace ns );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
 
-    Namespace getNamespace(GUID guid);
+    Namespace getNamespace( GUID guid );
 
-    void update(Namespace ns);
+    void update( Namespace ns );
 
-    List<Namespace > fetchNamespaceNodeByName(String name);
+    List<Namespace > fetchNamespaceNodeByName( String name );
 }

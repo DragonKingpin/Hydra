@@ -10,12 +10,15 @@ import org.apache.ibatis.annotations.Select;
 
 @IbatisDataAccessObject
 public interface DeployNodePathCacheMapper extends TriePathCacheManipulator {
+    @Override
     @Insert("INSERT INTO `hydra_deploy_node_path`(`path`, `guid`) VALUES ( #{path}, #{guid} )")
     void insert(@Param("guid") GUID guid, @Param("path") String path );
 
+    @Override
     @Insert("INSERT INTO `hydra_deploy_node_path` (path, long_path, guid) VALUES ( #{path},#{longPath},#{guid} )")
     void insertLongPath( @Param("guid") GUID guid, @Param("path") String path, @Param("longPath") String longPath );
 
+    @Override
     @Delete("DELETE FROM `hydra_deploy_node_path` WHERE `guid`=#{guid}")
     void remove( GUID guid );
 
@@ -27,10 +30,13 @@ public interface DeployNodePathCacheMapper extends TriePathCacheManipulator {
         }
         return this.getPath0( guid );
     };
+
     @Select("SELECT `long_path` FROM `hydra_deploy_node_path` WHERE `guid`=#{guid}")
     String getLongPath( GUID guid );
+
     @Select("SELECT `path` FROM `hydra_deploy_node_path` WHERE `guid`=#{guid}")
     String getPath0( GUID guid );
+
     @Select("SELECT `guid` FROM `hydra_deploy_node_path` WHERE `guid`=#{guid}")
     GUID getNode( String path );
 

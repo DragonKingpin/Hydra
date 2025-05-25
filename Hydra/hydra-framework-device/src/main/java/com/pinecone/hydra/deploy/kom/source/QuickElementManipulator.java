@@ -12,18 +12,18 @@ public interface QuickElementManipulator extends GUIDNameManipulator {
 
     void insert( QuickElement quickElement );
 
-    QuickElement getQuickElement(GUID guid, DeployInstrument deployInstrument);
+    QuickElement getQuickElement( GUID guid, DeployInstrument deployInstrument );
 
-    void update(QuickElement serviceElement);
+    void update( QuickElement serviceElement );
 
-    void remove(GUID guid);
+    void remove( GUID guid );
 
 
-    List<QuickElement> fetchQuickElementByName(String name);
-
-    @Override
-    List<GUID> getGuidsByName(String name);
+    List<QuickElement> fetchQuickElementByName( String name );
 
     @Override
-    List<GUID> getGuidsByNameID(String name, GUID guid);
+    List<GUID> getGuidsByName( String name );
+
+    @Override
+    List<GUID> getGuidsByNameID( String name, GUID guid );
 }

@@ -16,12 +16,12 @@ public class PhysicalHostElementOperator extends ArchElementOperator implements 
 
 
 
-    public PhysicalHostElementOperator(ElementOperatorFactory factory ) {
+    public PhysicalHostElementOperator( ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public PhysicalHostElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
+    public PhysicalHostElementOperator( DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument ){
         super( masterManipulator, deployInstrument);
 
         this.physicalHostManipulator = masterManipulator.getPhysicalHostManipulator();

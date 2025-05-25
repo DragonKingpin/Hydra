@@ -15,14 +15,14 @@ public interface VirtualMachineElement extends ServerElement {
     void setName(String name);*/
 
     String getIpAddress();
-    void setIpAddress(String ipAddress);
+    void setIpAddress( String ipAddress );
 
     String getStatus();
-    void setStatus(String status);
+    void setStatus( String status );
 
 
     GUID getAffiliateHostGuid();
-    void setAffiliateHostGuid(GUID guid);
+    void setAffiliateHostGuid( GUID guid );
 
 
     DeployExtraMeta getVmExtraMeta();

@@ -24,4 +24,6 @@ public interface DeployMasterManipulator extends KOIMasterManipulator {
     VirtualMachineManipulator getVirtualMachineManipulator();
 
     QuickElementManipulator getQuickElementManipulator();
+
+    ContainerElementManipulator getContainerElementManipulator();
 }

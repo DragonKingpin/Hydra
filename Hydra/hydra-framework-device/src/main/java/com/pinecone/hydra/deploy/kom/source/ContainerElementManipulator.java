@@ -2,27 +2,28 @@ package com.pinecone.hydra.deploy.kom.source;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
+import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
 import java.util.List;
 
-public interface PhysicalHostManipulator extends GUIDNameManipulator {
+public interface ContainerElementManipulator extends GUIDNameManipulator {
 
-   /* void insert(PhysicalHost physicalHost);*/
+    void insert(  ContainerElement quickElement );
 
-    void insert( PhysicalHostElement physicalHostElement );
+    ContainerElement getContainerElement( GUID guid, DeployInstrument deployInstrument );
 
-    PhysicalHostElement getPhysicalHostElement( GUID guid, DeployInstrument deployInstrument );
+    void update( ContainerElement serviceElement);
 
-    void update( PhysicalHostElement serviceElement );
 
     void remove( GUID guid );
+
+
+    List< ContainerElement> fetchContainerElementByName( String name );
 
     @Override
     List<GUID> getGuidsByName( String name );
 
     @Override
     List<GUID> getGuidsByNameID( String name, GUID guid );
-
 }

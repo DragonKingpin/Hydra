@@ -10,8 +10,8 @@ public interface FolderElement extends ElementNode {
 
     Collection<GUID > fetchChildrenGuids();
 
-    void addChild(ElementNode child);
+    void addChild( ElementNode child );
 
-    boolean containsChild(String childName);
+    boolean containsChild( String childName );
 
 }

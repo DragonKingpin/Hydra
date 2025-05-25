@@ -1,6 +1,7 @@
 package com.pinecone.hydra.deploy.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.hydra.deploy.ibatis.ContainerElementMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNamespaceMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeMetaMapper;
@@ -11,6 +12,7 @@ import com.pinecone.hydra.deploy.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.deploy.ibatis.PhysicalHostMapper;
 import com.pinecone.hydra.deploy.ibatis.QuickElementMapper;
 import com.pinecone.hydra.deploy.ibatis.VirtualMachineMapper;
+import com.pinecone.hydra.deploy.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
@@ -70,6 +72,11 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Resource
     @Structure( type = QuickElementMapper.class )
     QuickElementManipulator quickElementManipulator;
+
+
+    @Resource
+    @Structure( type = ContainerElementMapper.class )
+    ContainerElementManipulator containerElementManipulator;
 
 
     @Resource( type = DeployMasterTreeManipulatorImpl.class )
@@ -139,5 +146,10 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Override
     public QuickElementManipulator getQuickElementManipulator() {
         return this.quickElementManipulator;
+    }
+
+    @Override
+    public ContainerElementManipulator getContainerElementManipulator() {
+        return this.containerElementManipulator;
     }
 }

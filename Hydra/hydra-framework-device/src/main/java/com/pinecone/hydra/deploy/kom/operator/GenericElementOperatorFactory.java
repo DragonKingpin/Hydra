@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
@@ -30,6 +31,7 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerDefaultMetaType( GenericVirtualMachineElement.class );
         this.registerDefaultMetaType( GenericPhysicalHostElement.class );
         this.registerDefaultMetaType( GenericQueueElement.class);
+        this.registerDefaultMetaType( GenericContainerElement.class);
     }
 
     public GenericElementOperatorFactory(DeployInstrument deployInstrument, DeployMasterManipulator deployMasterManipulator){
@@ -59,6 +61,11 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
         this.registerer.put(
                 ElementOperatorFactory.DefaultQuickElement,
                 new QuickElementOperator(this)
+        );
+
+        this.registerer.put(
+                ElementOperatorFactory.DefaultContainerElement,
+                new ContainerElementOperator(this)
         );
         this.registerDefaultMetaTypes();
     }

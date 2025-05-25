@@ -46,7 +46,7 @@
           "Zhihu"                : {
             "HotlineApi": "https://www.zhihu.com/api/v4/creators/rank/hot?domain=0",  //https://www.zhihu.com/api/v4/creators/rank/hot?domain=0&limit=20&offset=20&period=hour
             "Topstory"  : "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=100",
-            "TopSearch" : "https://www.zhihu.com/api/v4/search/top_search",
+            "TopSearch" : "https://www.zhihu.com/api/v4/creators/rank/hot?domain=0&period=hour",
 
             "Global"    : {
               "IndexFrom" : 0,
@@ -92,9 +92,7 @@
 
       "HttpBrowser"      : {
       }
-    },
-
-    "ss": ""
+    }
   },
 
   "Orchestration"         : {

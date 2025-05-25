@@ -16,7 +16,7 @@
     "Middleware"    : {
       "RDBs": {
         "Configs": {
-          "Engine": "com.pinecone.radium.ally.rdb.GenericIbatisClient",
+          "Engine": "com.pinecone.tritium.ally.rdb.GenericIbatisClient",
           "Enable": true,
           "JDBC": {
             "Driver"   : "com.mysql.cj.jdbc.Driver",
@@ -134,7 +134,7 @@
             "host"                   : "localhost",
             "port"                   : 5777,
             "SocketTimeout"          : 800,
-            "KeepAliveTimeout"       : 3600, //3600, // 0 to close keep-alive
+            "KeepAliveTimeout"       : 3, //3600, // 0 to close keep-alive
             "ParallelChannels"       : 5,
             "ExtraHeadCoder"         : "com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder",
             "DefaultExtraEncode"     : "JSONString", // JSONString / Binary
@@ -198,7 +198,11 @@
 
       "Heist": "./system/setup/heist.json5",
 
-      "Sparta": "./system/setup/SpringBootApplication.json5"
+      "Sparta": "./system/setup/SpringBootApplication.json5",
+
+      "SpartaAccountService": "./system/setup/sparta/AccountServiceSpring.json5",
+
+      "SpartaUCDNService": "./system/setup/sparta/SpartaUCDNService.json5",
 
     }
   }

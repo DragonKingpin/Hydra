@@ -123,6 +123,11 @@ public class GenericGuidAllocator implements GuidAllocator72, InitializingBean {
     }
 
     @Override
+    public GUID parse( String hexId ) {
+        return new GUID72( hexId );
+    }
+
+    @Override
     public GUID nextGUID72() {
         //先获取GUID64
         long guid64 = this.getGUID64();

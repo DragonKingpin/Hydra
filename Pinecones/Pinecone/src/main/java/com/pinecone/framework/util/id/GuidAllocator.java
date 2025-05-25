@@ -6,4 +6,6 @@ public interface GuidAllocator extends Pinenut {
 
     GUID nextGUID();
 
+    GUID parse( final String hexId );
+
 }

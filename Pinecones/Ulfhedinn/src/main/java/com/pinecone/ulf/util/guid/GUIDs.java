@@ -1,18 +1,24 @@
 package com.pinecone.ulf.util.guid;
 
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.ulf.util.guid.i128.GUID128;
+import com.pinecone.ulf.util.guid.i128.UUID128;
 import com.pinecone.ulf.util.guid.i64.GUID64;
 import com.pinecone.ulf.util.guid.i64.GUID72;
 import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
 import com.pinecone.ulf.util.guid.i64.worker.WorkerIdAssigner;
 
 public final class GUIDs {
-    public static GUID64 GUID64(String s ) {
+    public static GUID64 GUID64( String s ) {
         return new GUID64( s );
     }
 
-    public static GUID72 GUID72(String s ) {
+    public static GUID72 GUID72( String s ) {
         return new GUID72( s );
+    }
+
+    public static GUID128 GUID128( String s ) {
+        return new UUID128( s );
     }
 
     public static GUID72 Dummy72() {

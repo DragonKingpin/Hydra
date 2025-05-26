@@ -5,7 +5,7 @@ import com.pinecone.ulf.util.guid.i128.GUID128;
 import com.pinecone.ulf.util.guid.i128.UUID128;
 import com.pinecone.ulf.util.guid.i64.GUID64;
 import com.pinecone.ulf.util.guid.i64.GUID72;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 import com.pinecone.ulf.util.guid.i64.worker.WorkerIdAssigner;
 
 public final class GUIDs {
@@ -27,9 +27,9 @@ public final class GUIDs {
 
     public static GuidAllocator newGuidAllocator(WorkerIdAssigner idAssigner ) {
         if( idAssigner == null ) {
-            return new GenericGuidAllocator();
+            return new GuidAllocator72V2();
         }
-        return new GenericGuidAllocator( idAssigner );
+        return new GuidAllocator72V2( idAssigner );
     }
 
     public static GuidAllocator newGuidAllocator() {

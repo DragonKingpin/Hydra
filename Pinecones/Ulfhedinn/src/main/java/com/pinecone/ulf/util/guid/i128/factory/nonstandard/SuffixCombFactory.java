@@ -147,16 +147,6 @@ public final class SuffixCombFactory extends AbstCombFactory {
 		}
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
-
 	private GUID128 make(final long time, final long long1, final long long2) {
 		return toUuid(long1, (long2 << 48) | (time & 0x0000ffffffffffffL));
 	}

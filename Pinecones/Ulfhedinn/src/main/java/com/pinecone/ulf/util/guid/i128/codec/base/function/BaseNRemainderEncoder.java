@@ -82,8 +82,8 @@ public final class BaseNRemainderEncoder extends BaseNEncoder {
 	@Override
 	public String apply(GUID128 uuid) {
 
-		long msb = uuid.getMsb();
-		long lsb = uuid.getLsb();
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
 
 		int b = length; // buffer index
 		char[] buffer = new char[length];

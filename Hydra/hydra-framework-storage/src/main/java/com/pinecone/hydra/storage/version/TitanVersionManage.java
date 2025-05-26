@@ -11,7 +11,7 @@ import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class TitanVersionManage implements VersionManage {
     public TitanVersionManage(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
         this.hydrogen = hydrogen;
         this.masterManipulator          = (VersionMasterManipulator) masterManipulator;
-        this.guidAllocator              = new GenericGuidAllocator();
+        this.guidAllocator              = new GuidAllocator72V2();
         this.versionManipulator         = this.masterManipulator.getVersionManipulator();
         this.versionMappingManipulator  = this.masterManipulator.getVersionMappingManipulator();
     }

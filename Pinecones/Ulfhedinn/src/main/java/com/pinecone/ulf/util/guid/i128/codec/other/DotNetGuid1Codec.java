@@ -111,8 +111,8 @@ public class DotNetGuid1Codec implements GuidCodec<GUID128> {
 	 */
 	protected static GUID128 toAndFromDotNetGuid(GUID128 uuid) {
 
-		long msb = uuid.getMsb();
-		long lsb = uuid.getLsb();
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
 
 		long newMsb = 0x0000000000000000L;
 		// high bits

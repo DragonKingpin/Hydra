@@ -6,14 +6,18 @@ import java.util.UUID;
 
 public interface GUID128 extends GUID {
 
-    long getMsb();
+    long getMostSignificantBits();
 
-    long getLsb();
+    long getLeastSignificantBits();
 
     UUID toUUID();
 
     int version();
 
     int variant();
+
+    int clockSequence() ;
+
+    long node() ;
 
 }

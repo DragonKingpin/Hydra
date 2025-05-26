@@ -13,7 +13,7 @@ import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,7 +34,7 @@ public class TitanBucketInstrument implements BucketInstrument {
     public TitanBucketInstrument(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
         this.hydrogen               = hydrogen;
         this.masterManipulator      = (BucketMasterManipulator) masterManipulator;
-        this.guidAllocator          = new GenericGuidAllocator();
+        this.guidAllocator          = new GuidAllocator72V2();
 
         this.bucketManipulator      = this.masterManipulator.getBucketManipulator();
         this.siteManipulator        = this.masterManipulator.getSiteManipulator();

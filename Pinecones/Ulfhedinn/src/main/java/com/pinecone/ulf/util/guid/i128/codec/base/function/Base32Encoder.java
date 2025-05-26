@@ -53,8 +53,8 @@ public final class Base32Encoder extends BaseNEncoder {
 	public String apply(GUID128 uuid) {
 
 		final char[] chars = new char[CHAR_LENGTH];
-		long msb = uuid.getMsb();
-		long lsb = uuid.getLsb();
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
 
 		chars[0x00] = get((msb >>> 59) & 0b11111);
 		chars[0x01] = get((msb >>> 54) & 0b11111);

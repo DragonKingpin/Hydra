@@ -16,8 +16,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-public class GenericGuidAllocator implements GuidAllocator72, InitializingBean {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericGuidAllocator.class);
+public class GuidAllocator72V2 implements GuidAllocator72, InitializingBean {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GuidAllocator72V2.class);
 
     /** Bits allocate */
     protected int timeBits = 28;
@@ -40,11 +40,11 @@ public class GenericGuidAllocator implements GuidAllocator72, InitializingBean {
     /** Spring property */
     protected WorkerIdAssigner workerIdAssigner;
 
-    public GenericGuidAllocator() {
+    public GuidAllocator72V2() {
         this( new GenericDisposableWorkerIdAssigner() );
     }
 
-    public GenericGuidAllocator( WorkerIdAssigner idAssigner ) {
+    public GuidAllocator72V2(WorkerIdAssigner idAssigner ) {
         this.workerIdAssigner = idAssigner;
         this.afterPropertiesSet();
     }

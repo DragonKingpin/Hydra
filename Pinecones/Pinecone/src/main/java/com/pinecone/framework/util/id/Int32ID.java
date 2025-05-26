@@ -28,4 +28,17 @@ public class Int32ID implements NumbernicID {
         return Integer.toUnsignedString( this.mId );
     }
 
+    @Override
+    public int compareTo( Identification that ) {
+        Int32ID val;
+        if ( that instanceof Int32ID ) {
+            val = (Int32ID) that;
+        }
+        else {
+            throw new IllegalArgumentException( "Not Int32ID" );
+        }
+
+        return Integer.compare( this.mId, val.mId );
+    }
+
 }

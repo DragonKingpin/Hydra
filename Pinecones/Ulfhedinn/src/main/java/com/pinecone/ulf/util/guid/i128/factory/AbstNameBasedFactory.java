@@ -108,7 +108,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws NullPointerException if name is null
 	 */
 	public GUID128 create(final byte[] name) {
-		return (GUID128) this.create(this.namespace, nameBytes(name), false);
+		return (GUID128) this.create(this.namespace, nameBytes(name));
 	}
 
 	/**
@@ -121,7 +121,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws NullPointerException if name is null
 	 */
 	public GUID128 create(final String name) {
-		return (GUID128) this.create(this.namespace, nameBytes(name), false);
+		return (GUID128) this.create(this.namespace, nameBytes(name));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws IllegalArgumentException if name is null
 	 */
 	public GUID128 create(final GUID128 namespace, final byte[] name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
 
 	/**
@@ -147,7 +147,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws NullPointerException if name is null
 	 */
 	public GUID128 create(final GUID128 namespace, final String name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
 
 	/**
@@ -161,7 +161,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @see InvalidUuidException
 	 */
 	public GUID128 create(final String namespace, final byte[] name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
 
 	/**
@@ -177,7 +177,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @see InvalidUuidException
 	 */
 	public GUID128 create(final String namespace, final String name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
 
 	/**
@@ -189,7 +189,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws NullPointerException if name is null
 	 */
 	public GUID128 create(final UuidNamespace namespace, final byte[] name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
 
 	/**
@@ -203,46 +203,8 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	 * @throws NullPointerException if name is null
 	 */
 	public GUID128 create(final UuidNamespace namespace, final String name) {
-		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name), false);
+		return (GUID128) this.create(namespaceBytes(namespace), nameBytes(name));
 	}
-
-
-
-
-    public GUID nextGUID( final byte[] name ) {
-        return (GUID) this.create(this.namespace, nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final String name ) {
-        return (GUID) this.create(this.namespace, nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final GUID128 namespace, final byte[] name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final GUID128 namespace, final String name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final String namespace, final byte[] name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final String namespace, final String name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final UuidNamespace namespace, final byte[] name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-    public GUID nextGUID( final UuidNamespace namespace, final String name ) {
-        return (GUID) this.create(namespaceBytes(namespace), nameBytes(name), true);
-    }
-
-
-
 
 
 	@Override
@@ -251,21 +213,11 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 	}
 
     @Override
-    public GUID128 nextGUID() {
-        return this.nextGUID(Parameters.builder().build());
-    }
-
-    @Override
 	public GUID128 create(Parameters parameters) {
-		return (GUID128) this.create( parameters.getNamespace(), parameters.getName(), false );
+		return (GUID128) this.create( parameters.getNamespace(), parameters.getName() );
 	}
 
-    @Override
-    public GUID128 nextGUID(Parameters parameters) {
-        return (GUID128) this.create( parameters.getNamespace(), parameters.getName(), true );
-    }
-
-	private Object create( final byte[] namespace, final byte[] name, boolean isGUID ) {
+	private Object create( final byte[] namespace, final byte[] name ) {
 
 		Objects.requireNonNull(name, "Null name");
 
@@ -288,12 +240,7 @@ public abstract class AbstNameBasedFactory extends UuidFactory {
 		final long msb = ByteUtil.toNumber(hash, 0, 8);
 		final long lsb = ByteUtil.toNumber(hash, 8, 16);
 
-		if ( isGUID ) {
-            return this.toGuid(msb, lsb);
-        }
-		else {
-            return this.toUuid(msb, lsb);
-        }
+        return this.toUuid(msb, lsb);
 	}
 
 

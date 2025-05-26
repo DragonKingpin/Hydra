@@ -261,11 +261,6 @@ public final class TimeOrderedEpochFactory extends AbstCombFactory {
 		return toUuid(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
 	/**
 	 * Returns a time-ordered unique identifier (UUIDv7) for a given instant.
 	 * <p>
@@ -279,11 +274,6 @@ public final class TimeOrderedEpochFactory extends AbstCombFactory {
 		Objects.requireNonNull(parameters.getInstant(), "Null instant");
 		UUID uuid = this.uuidFunction.apply(parameters.getInstant());
 		return toUuid(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
 	}
 
 	static abstract class UuidFunction implements Function<Instant, UUID> {

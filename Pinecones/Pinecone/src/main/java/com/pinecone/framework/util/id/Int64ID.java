@@ -27,4 +27,17 @@ public class Int64ID implements NumbernicID {
     public String toString() {
         return Long.toUnsignedString( this.mId );
     }
+
+    @Override
+    public int compareTo( Identification that ) {
+        Int64ID val;
+        if ( that instanceof Int64ID ) {
+            val = (Int64ID) that;
+        }
+        else {
+            throw new IllegalArgumentException( "Not Int64ID" );
+        }
+
+        return Long.compare( this.mId, val.mId );
+    }
 }

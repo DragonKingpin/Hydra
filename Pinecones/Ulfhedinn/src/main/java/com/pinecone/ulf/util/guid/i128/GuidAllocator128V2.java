@@ -2,8 +2,9 @@ package com.pinecone.ulf.util.guid.i128;
 
 import com.pinecone.framework.util.id.GUID;
 
-public class GuidAllocator128V2 extends ArchGuidAllocator128 implements GuidAllocator128{
-    private GuidAllocator128 v1 = new GuidAllocator128V1();
+public class GuidAllocator128V2 extends ArchGuidAllocator128 implements GuidAllocator128 {
+
+    private static final GuidAllocator128 v1 = new GuidAllocator128V1();
 
     private final long MASK_32 = 0x0000_0000_ffff_ffffL;
 
@@ -11,16 +12,16 @@ public class GuidAllocator128V2 extends ArchGuidAllocator128 implements GuidAllo
 
     @Override
     public GUID nextGUID() {
-        return this.v2((byte) 0, (int) 0);
+        return this.nextGUID((byte) 0, (int) 0);
     }
 
-    public GUID v2(byte localDomain, int localIdentifier) {
-        return v2(localDomain, localIdentifier, (GUID128) v1.nextGUID());
+    public GUID nextGUID( byte localDomain, int localIdentifier ) {
+        return this.nextGUID( localDomain, localIdentifier, (GUID128) v1.nextGUID() );
     }
 
-    private GUID v2(byte localDomain, int localIdentifier, GUID128 guid) {
-        final long msb = (guid.getMsb() & MASK_32) | ((localIdentifier & MASK_32) << 32);
-        final long lsb = (guid.getLsb() & 0x3f00_ffff_ffff_ffffL) | ((localDomain & MASK_08) << 48);
+    private GUID nextGUID( byte localDomain, int localIdentifier, GUID128 guid ) {
+        final long msb = (guid.getMostSignificantBits() & MASK_32) | ((localIdentifier & MASK_32) << 32);
+        final long lsb = (guid.getLeastSignificantBits() & 0x3f00_ffff_ffff_ffffL) | ((localDomain & MASK_08) << 48);
         return version(msb, lsb, 2);
     }
 
@@ -31,4 +32,5 @@ public class GuidAllocator128V2 extends ArchGuidAllocator128 implements GuidAllo
         final long lsb = (lo & 0x3fff_ffff_ffff_ffffL) | 0x8000_0000_0000_0000L; // RFC 9562 variant
         return new UUID128(msb, lsb);
     }
+
 }

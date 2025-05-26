@@ -143,8 +143,8 @@ public final class SlugCodec implements GuidCodec<String> {
 
 		UuidValidator.validate(uuid);
 
-		long long1 = uuid.getMsb();
-		long long2 = uuid.getLsb();
+		long long1 = uuid.getMostSignificantBits();
+		long long2 = uuid.getLeastSignificantBits();
 
 		long msb = 0;
 		long lsb = 0;
@@ -176,8 +176,8 @@ public final class SlugCodec implements GuidCodec<String> {
 
 		GUID128 uuid = this.codec.decode(slug);
 
-		long long1 = uuid.getMsb();
-		long long2 = uuid.getLsb();
+		long long1 = uuid.getMostSignificantBits();
+		long long2 = uuid.getLeastSignificantBits();
 
 		long msb = 0;
 		long lsb = 0;

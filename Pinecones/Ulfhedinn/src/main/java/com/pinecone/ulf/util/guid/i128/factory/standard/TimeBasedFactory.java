@@ -24,7 +24,6 @@
 
 package com.pinecone.ulf.util.guid.i128.factory.standard;
 
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.ulf.util.guid.i128.enums.UuidVersion;
 import com.pinecone.ulf.util.guid.i128.factory.AbstTimeBasedFactory;
 
@@ -40,16 +39,6 @@ public final class TimeBasedFactory extends AbstTimeBasedFactory {
 	 */
 	public TimeBasedFactory() {
 		this(builder());
-	}
-
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
 	}
 
 	private TimeBasedFactory(Builder builder) {

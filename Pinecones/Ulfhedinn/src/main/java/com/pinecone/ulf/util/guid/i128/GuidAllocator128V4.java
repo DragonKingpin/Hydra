@@ -9,13 +9,10 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GuidAllocator128V4 extends ArchGuidAllocator128 implements GuidAllocator128 {
+
     @Override
     public GUID nextGUID() {
-        return this.v4();
-    }
-
-    public GUID v4() {
-        return version(TLRandom.nextLong(), TLRandom.nextLong(), 4);
+        return this.version(TLRandom.nextLong(), TLRandom.nextLong(), 4);
     }
 
     /**
@@ -62,4 +59,5 @@ public class GuidAllocator128V4 extends ArchGuidAllocator128 implements GuidAllo
             return ThreadLocalRandom.current().nextLong() ^ JVM_UNIQUE_NUMBER;
         }
     }
+
 }

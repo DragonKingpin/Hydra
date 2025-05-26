@@ -91,4 +91,17 @@ public class GUID64 implements GUID {
     public int hashCode() {
         return Long.hashCode( this.guid );
     }
+
+    @Override
+    public int compareTo( Identification that ) {
+        GUID64 val;
+        if ( that instanceof GUID64 ) {
+            val = (GUID64) that;
+        }
+        else {
+            throw new IllegalArgumentException( "Not GUID64" );
+        }
+
+        return Long.compare( this.guid, val.guid );
+    }
 }

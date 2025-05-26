@@ -91,8 +91,6 @@ public abstract class UuidFactory {
 	 */
 	public abstract GUID128 create();
 
-	public abstract GUID nextGUID();
-
 	/**
 	 * Creates a UUID using parameters.
 	 * 
@@ -100,8 +98,6 @@ public abstract class UuidFactory {
 	 * @return a UUID
 	 */
 	public abstract GUID128 create(Parameters parameters);
-
-    public abstract GUID nextGUID(Parameters parameters);
 
 	/**
 	 * Parameters object to be used with a {@link UuidFactory#create(Parameters)}.
@@ -421,10 +417,4 @@ public abstract class UuidFactory {
 		final long lsb0 = (lsb & 0x3fffffffffffffffL) | 0x8000000000000000L; // set variant
 		return new UUID128(msb0, lsb0);
 	}
-
-    protected GUID toGuid(final long msb, final long lsb) {
-        final long msb0 = (msb & 0xffffffffffff0fffL) | this.versionMask; // set version
-        final long lsb0 = (lsb & 0x3fffffffffffffffL) | 0x8000000000000000L; // set variant
-        return new UUID128( msb0, lsb0 );
-    }
 }

@@ -8,15 +8,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
-public class GuidAllocator128V5 extends ArchGuidAllocator128 implements GuidAllocator128{
+public class GuidAllocator128V5 extends ArchGuidAllocator128 implements GuidAllocator128 {
+
     public final GUID128 NIL = new UUID128(0x0000000000000000L, 0x0000000000000000L);
 
     @Override
     public GUID nextGUID() {
-        return this.v5( this.NIL, "" );
+        return this.nextGUID( this.NIL, "" );
     }
 
-    public GUID v5(GUID128 namespace, String name) {
+    public GUID nextGUID( GUID128 namespace, String name ) {
         return hash(5, "SHA-1", namespace, name);
     }
 
@@ -34,11 +35,11 @@ public class GuidAllocator128V5 extends ArchGuidAllocator128 implements GuidAllo
      * @return a GUID
      * @throws NullPointerException if the byte array is null
      */
-    public GUID v5(GUID128 namespace, byte[] bytes) {
+    public GUID nextGUID( GUID128 namespace, byte[] bytes ) {
         return hash(5, "SHA-1", namespace, bytes);
     }
 
-    private GUID hash(int version, String algorithm, GUID128 namespace, String name) {
+    private GUID hash( int version, String algorithm, GUID128 namespace, String name ) {
         Objects.requireNonNull(name, "Null name");
         return hash(version, algorithm, namespace, name.getBytes(StandardCharsets.UTF_8));
     }
@@ -50,8 +51,8 @@ public class GuidAllocator128V5 extends ArchGuidAllocator128 implements GuidAllo
 
         if (namespace != null) {
             ByteBuffer ns = ByteBuffer.allocate(16);
-            ns.putLong(namespace.getMsb());
-            ns.putLong(namespace.getLsb());
+            ns.putLong(namespace.getMostSignificantBits());
+            ns.putLong(namespace.getLeastSignificantBits());
             hasher.update(ns.array());
         }
 
@@ -79,4 +80,5 @@ public class GuidAllocator128V5 extends ArchGuidAllocator128 implements GuidAllo
         final long lsb = (lo & 0x3fff_ffff_ffff_ffffL) | 0x8000_0000_0000_0000L; // RFC 9562 variant
         return new UUID128(msb, lsb);
     }
+
 }

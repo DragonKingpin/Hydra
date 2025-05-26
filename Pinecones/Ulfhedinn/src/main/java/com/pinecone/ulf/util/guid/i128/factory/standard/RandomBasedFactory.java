@@ -124,13 +124,4 @@ public final class RandomBasedFactory extends AbstRandomBasedFactory {
 		}
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
 }

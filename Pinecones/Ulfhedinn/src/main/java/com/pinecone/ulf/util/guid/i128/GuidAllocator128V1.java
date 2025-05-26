@@ -10,22 +10,22 @@ import java.util.function.LongSupplier;
 
 public class GuidAllocator128V1 extends ArchGuidAllocator128 implements GuidAllocator128{
 
-    private  final long MASK_12 = 0x0000_0000_0000_0fffL;
+    private final long MASK_12 = 0x0000_0000_0000_0fffL;
 
-    private  final long MASK_16 = 0x0000_0000_0000_ffffL;
+    private final long MASK_16 = 0x0000_0000_0000_ffffL;
 
-    private  final long MULTICAST = 0x0000_0100_0000_0000L;
+    private final long MULTICAST = 0x0000_0100_0000_0000L;
 
     @Override
     public GUID nextGUID() {
-        return v1(System::currentTimeMillis, TLRandom::nextLong);
+        return this.nextGUID( System::currentTimeMillis, TLRandom::nextLong );
     }
 
-    public GUID v1(Instant instant, Random random) {
-        return v1(optional(instant), optional(random));
+    public GUID nextGUID( Instant instant, Random random ) {
+        return nextGUID(optional(instant), optional(random));
     }
 
-    private GUID v1(LongSupplier msec, LongSupplier random) {
+    private GUID nextGUID( LongSupplier msec, LongSupplier random ) {
         final long time = gregorian(msec.getAsLong());
         final long msb = (time << 32) | ((time >>> 16) & (MASK_16 << 16)) | ((time >>> 48) & MASK_12);
         final long lsb = random.getAsLong() | MULTICAST;
@@ -40,7 +40,7 @@ public class GuidAllocator128V1 extends ArchGuidAllocator128 implements GuidAllo
         return random == null ? TLRandom::nextLong : random::nextLong;
     }
 
-    private long gregorian(final long millisecons) {
+    private long gregorian( final long millisecons ) {
         // 1582-10-15T00:00:00Z
         final long factor = 10_000L;
         final long offset = 12219292800000L;
@@ -70,4 +70,5 @@ public class GuidAllocator128V1 extends ArchGuidAllocator128 implements GuidAllo
             return ThreadLocalRandom.current().nextLong() ^ JVM_UNIQUE_NUMBER;
         }
     }
+
 }

@@ -131,10 +131,10 @@ public final class DceSecurityFactory extends AbstTimeBasedFactory {
 		GUID128 uuid = super.create();
 
 		// Embed the local domain bits
-		final long lsb = embedLocalDomain(uuid.getLsb(), localDomain, this.counter.incrementAndGet());
+		final long lsb = embedLocalDomain(uuid.getLeastSignificantBits(), localDomain, this.counter.incrementAndGet());
 
 		// Embed the local identifier bits
-		final long msb = emgedLocalIdentifier(uuid.getMsb(), localIdentifier);
+		final long msb = emgedLocalIdentifier(uuid.getMostSignificantBits(), localIdentifier);
 
 		return toUuid(msb, lsb);
 	}
@@ -179,11 +179,6 @@ public final class DceSecurityFactory extends AbstTimeBasedFactory {
 		throw new UnsupportedOperationException("Unsuported operation for DCE Security UUID factory");
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
 	/**
 	 * Returns a DCE Security unique identifier (UUIDv2).
 	 * 
@@ -192,11 +187,6 @@ public final class DceSecurityFactory extends AbstTimeBasedFactory {
 	@Override
 	public GUID128 create(Parameters parameters) {
 		return create(parameters.getLocalDomain(), parameters.getLocalIdentifier());
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
 	}
 
 	/**

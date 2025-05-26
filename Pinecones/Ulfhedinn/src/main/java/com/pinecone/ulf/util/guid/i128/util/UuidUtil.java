@@ -54,7 +54,7 @@ public final class UuidUtil {
 	 * @return a copy of a UUID
 	 */
 	public static GUID128 copy(GUID128 uuid) {
-		return new UUID128(uuid.getMsb(), uuid.getLsb()) {
+		return new UUID128(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits()) {
 		};
 	}
 
@@ -69,7 +69,7 @@ public final class UuidUtil {
 	 */
 	public static boolean isNil(GUID128 uuid) {
 		Objects.requireNonNull(uuid, "Null UUID is not equal to Nil UUID");
-		return uuid.getMsb() == 0L && uuid.getLsb() == 0L;
+		return uuid.getMostSignificantBits() == 0L && uuid.getLeastSignificantBits() == 0L;
 	}
 
 	/**
@@ -83,7 +83,7 @@ public final class UuidUtil {
 	 */
 	public static boolean isMax(GUID128 uuid) {
 		Objects.requireNonNull(uuid, "Null UUID is not equal to Max UUID");
-		return uuid.getMsb() == -1L && uuid.getLsb() == -1L;
+		return uuid.getMostSignificantBits() == -1L && uuid.getLeastSignificantBits() == -1L;
 	}
 
 	/**
@@ -116,8 +116,8 @@ public final class UuidUtil {
 	 * @return a UUID
 	 */
 	public static UUID setVersion(GUID128 uuid, int version) {
-		long msb = uuid.getMsb();
-		long lsb = uuid.getLsb();
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
 		msb = (msb & 0xffffffffffff0fffL) | ((version & 0x0000000f) << 12); // apply version
 		lsb = (lsb & 0x3fffffffffffffffL) | 0x8000000000000000L; // apply variant
 		return new UUID(msb, lsb);
@@ -282,7 +282,7 @@ public final class UuidUtil {
 
 	private static long getUnixTimestamp(GUID128 uuid) {
 		if (UuidUtil.isTimeOrderedEpoch(uuid)) {
-			return getTimeOrderedEpochTimestamp(uuid.getMsb());
+			return getTimeOrderedEpochTimestamp(uuid.getMostSignificantBits());
 		} else {
 			throw new IllegalArgumentException(String.format(MESSAGE_NOT_A_TIME_ORDERED_EPOCH_UUID, uuid.toString()));
 		}
@@ -290,11 +290,11 @@ public final class UuidUtil {
 
 	private static long getGregTimestamp(GUID128 uuid) {
 		if (UuidUtil.isTimeBased(uuid)) {
-			return getTimeBasedTimestamp(uuid.getMsb());
+			return getTimeBasedTimestamp(uuid.getMostSignificantBits());
 		} else if (UuidUtil.isTimeOrdered(uuid)) {
-			return getTimeOrderedTimestamp(uuid.getMsb());
+			return getTimeOrderedTimestamp(uuid.getMostSignificantBits());
 		} else if (UuidUtil.isDceSecurity(uuid)) {
-			return getTimeBasedTimestamp(uuid.getMsb() & 0x00000000ffffffffL);
+			return getTimeBasedTimestamp(uuid.getMostSignificantBits() & 0x00000000ffffffffL);
 		} else {
 			throw new IllegalArgumentException(String.format(MESSAGE_NOT_A_TIME_BASED_UUID, uuid.toString()));
 		}
@@ -314,7 +314,7 @@ public final class UuidUtil {
 			throw new IllegalArgumentException(String.format(MESSAGE_NOT_A_TIME_BASED_UUID, uuid.toString()));
 		}
 
-		return uuid.getLsb() & 0x0000ffffffffffffL;
+		return uuid.getLeastSignificantBits() & 0x0000ffffffffffffL;
 	}
 
 	/**
@@ -332,10 +332,10 @@ public final class UuidUtil {
 		}
 
 		if (UuidUtil.isDceSecurity(uuid)) {
-			return (int) (uuid.getLsb() >>> 56) & 0x0000003f;
+			return (int) (uuid.getLeastSignificantBits() >>> 56) & 0x0000003f;
 		}
 
-		return (int) (uuid.getLsb() >>> 48) & 0x00003fff;
+		return (int) (uuid.getLeastSignificantBits() >>> 48) & 0x00003fff;
 	}
 
 	/**
@@ -351,7 +351,7 @@ public final class UuidUtil {
 			throw new IllegalArgumentException(String.format(MESSAGE_NOT_A_DCE_SECURITY_UUID, uuid.toString()));
 		}
 
-		return (byte) ((uuid.getLsb() & 0x00ff000000000000L) >>> 48);
+		return (byte) ((uuid.getLeastSignificantBits() & 0x00ff000000000000L) >>> 48);
 	}
 
 	/**
@@ -367,7 +367,7 @@ public final class UuidUtil {
 			throw new IllegalArgumentException(String.format(MESSAGE_NOT_A_DCE_SECURITY_UUID, uuid.toString()));
 		}
 
-		return (int) (uuid.getMsb() >>> 32);
+		return (int) (uuid.getMostSignificantBits() >>> 32);
 	}
 
 	/**

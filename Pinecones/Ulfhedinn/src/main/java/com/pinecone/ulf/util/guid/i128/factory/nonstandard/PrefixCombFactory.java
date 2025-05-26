@@ -144,16 +144,6 @@ public final class PrefixCombFactory extends AbstCombFactory {
 		}
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
-
 	private GUID128 make(final long time, final long long1, final long long2) {
 		return toUuid((time << 16) | (long1 & 0x000000000000ffffL), long2);
 	}

@@ -12,7 +12,7 @@ import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
             this.mHydrogen = (Hydrogen) this.mSuperiorProcess.parentSystem();
         }
         this.mMegaVectorDAG = new MagnitudeVectorDAG(null, atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
-        this.mGuidAllocator = new GenericGuidAllocator();
+        this.mGuidAllocator = new GuidAllocator72V2();
         this.mPathResolver = new BasicDAGPathResolver();//后续要使用配置类指定
         this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this.mMegaVectorDAG.getMasterManipulator().getVectorGraphManipulator() );
 

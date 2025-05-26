@@ -15,11 +15,11 @@ public class GuidAllocator128V6 extends ArchGuidAllocator128 implements GuidAllo
 
     @Override
     public GUID nextGUID() {
-        return this.v6();
+        return UuidCreator.getTimeOrdered();
     }
 
-    public GUID v6() {
-        return v6(System::currentTimeMillis, TLRandom::nextLong);
+    public GUID nextSimpleGUID() {
+        return this.nextGUID( System::currentTimeMillis, TLRandom::nextLong );
     }
 
     /**
@@ -39,11 +39,11 @@ public class GuidAllocator128V6 extends ArchGuidAllocator128 implements GuidAllo
      * @param random  a random generator (optional)
      * @return a GUID
      */
-    public GUID v6(Instant instant, Random random) {
-        return v6(optional(instant), optional(random));
+    public GUID nextGUID( Instant instant, Random random ) {
+        return this.nextGUID( optional(instant), optional(random) );
     }
 
-    private GUID v6(LongSupplier msec, LongSupplier random) {
+    private GUID nextGUID( LongSupplier msec, LongSupplier random ) {
         final long time = gregorian(msec.getAsLong());
         final long msb = ((time & ~MASK_12) << 4) | (time & MASK_12);
         final long lsb = random.getAsLong() | MULTICAST;

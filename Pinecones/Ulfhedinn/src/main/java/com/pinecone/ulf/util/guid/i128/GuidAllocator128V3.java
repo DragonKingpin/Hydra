@@ -9,11 +9,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
 public class GuidAllocator128V3 extends ArchGuidAllocator128 implements GuidAllocator128 {
+
     private final GUID128 NIL = new UUID128(0x0000000000000000L, 0x0000000000000000L);
 
     @Override
     public GUID nextGUID() {
-        return this.v3(this.NIL,"");
+        return this.nextGUID(this.NIL,"");
     }
 
     /**
@@ -30,7 +31,7 @@ public class GuidAllocator128V3 extends ArchGuidAllocator128 implements GuidAllo
      * @return a GUID
      * @throws NullPointerException if the name is null
      */
-    public GUID v3(GUID128 namespace, String name) {
+    public GUID nextGUID( GUID128 namespace, String name ) {
         return hash(3, "MD5", namespace, name);
     }
 
@@ -48,7 +49,7 @@ public class GuidAllocator128V3 extends ArchGuidAllocator128 implements GuidAllo
      * @return a GUID
      * @throws NullPointerException if the byte array is null
      */
-    public GUID v3(GUID128 namespace, byte[] bytes) {
+    public GUID nextGUID( GUID128 namespace, byte[] bytes ) {
         return hash(3, "MD5", namespace, bytes);
     }
 
@@ -64,8 +65,8 @@ public class GuidAllocator128V3 extends ArchGuidAllocator128 implements GuidAllo
 
         if (namespace != null) {
             ByteBuffer ns = ByteBuffer.allocate(16);
-            ns.putLong(namespace.getMsb());
-            ns.putLong(namespace.getLsb());
+            ns.putLong(namespace.getMostSignificantBits());
+            ns.putLong(namespace.getLeastSignificantBits());
             hasher.update(ns.array());
         }
 
@@ -93,4 +94,5 @@ public class GuidAllocator128V3 extends ArchGuidAllocator128 implements GuidAllo
         final long lsb = (lo & 0x3fff_ffff_ffff_ffffL) | 0x8000_0000_0000_0000L; // RFC 9562 variant
         return new UUID128(msb, lsb);
     }
+
 }

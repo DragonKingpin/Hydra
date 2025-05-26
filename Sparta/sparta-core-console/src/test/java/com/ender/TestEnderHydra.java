@@ -1,5 +1,7 @@
 package com.ender;
 
+import java.util.UUID;
+
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
@@ -19,6 +21,8 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.kom.ExpressInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.guid.i128.GUID128;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
@@ -47,6 +51,9 @@ class Floki extends EnderHydra {
 
 
         this.testSimple( instrument );
+
+
+        Debug.greenfs( ( (GUID128)(new GuidAllocator128V7()).nextGUID()) );
     }
 
     private void prepareKOMTrees( ExpressInstrument instrument ) {

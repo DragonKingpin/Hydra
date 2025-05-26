@@ -185,16 +185,6 @@ public final class ShortPrefixCombFactory extends AbstCombFactory {
 		}
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
-
 	private GUID128 make(final long time, final long long1, final long long2) {
 		return toUuid((time << 48) | (long1 & 0x0000ffffffffffffL), long2);
 	}

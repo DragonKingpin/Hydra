@@ -1298,15 +1298,7 @@ public final class UuidCreator {
 			return this.get().create();
 		}
 
-        @Override
-        public GUID128 nextGUID() {
-            return (GUID128) this.get().nextGUID();
-        }
 
-        @Override
-        public GUID128 nextGUID( Parameters parameters ) {
-            return (GUID128) this.get().nextGUID(parameters);
-        }
 
         @Override
 		public GUID128 create(Parameters parameters) {

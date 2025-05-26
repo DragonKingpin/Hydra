@@ -59,8 +59,8 @@ public class StandardBinaryCodec implements GuidCodec<byte[]> {
 		UuidValidator.validate(uuid);
 
 		final byte[] bytes = new byte[16];
-		final long msb = uuid.getMsb();
-		final long lsb = uuid.getLsb();
+		final long msb = uuid.getMostSignificantBits();
+		final long lsb = uuid.getLeastSignificantBits();
 
 		bytes[0x0] = (byte) (msb >>> 56);
 		bytes[0x1] = (byte) (msb >>> 48);

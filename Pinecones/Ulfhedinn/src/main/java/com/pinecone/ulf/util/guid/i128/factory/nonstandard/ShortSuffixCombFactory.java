@@ -185,16 +185,6 @@ public final class ShortSuffixCombFactory extends AbstCombFactory {
 		}
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
-
 	private GUID128 make(final long time, final long long1, final long long2) {
 		return toUuid(long1,
 				(((long2 & 0x0000ffff00000000L) << 16) | (time & 0xffffL) << 32) | (long2 & 0x00000000ffffffffL));

@@ -104,8 +104,8 @@ public class StandardStringCodec implements GuidCodec<String> {
 		}
 
 		final char[] chars = new char[36];
-		final long msb = uuid.getMsb();
-		final long lsb = uuid.getLsb();
+		final long msb = uuid.getMostSignificantBits();
+		final long lsb = uuid.getLeastSignificantBits();
 
 		chars[0x00] = ALPHABET.get((int) (msb >>> 0x3c & 0xf));
 		chars[0x01] = ALPHABET.get((int) (msb >>> 0x38 & 0xf));

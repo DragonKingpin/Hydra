@@ -67,7 +67,7 @@ public class TimeOrderedCodec implements GuidCodec<GUID128> {
 				| (timestamp & 0x0000000000000fffL) //
 				| 0x0000000000006000L; // set version 6
 
-		long lsb = uuid.getLsb();
+		long lsb = uuid.getLeastSignificantBits();
 
 		return new UUID128(msb, lsb);
 	}
@@ -98,7 +98,7 @@ public class TimeOrderedCodec implements GuidCodec<GUID128> {
 		// Combine the parts to form the Most Significant Bits (MSB)
 		long msb = timeHigh | timeMid | timeLow | version;
 
-		long lsb = uuid.getLsb();
+		long lsb = uuid.getLeastSignificantBits();
 
 		return new UUID128(msb, lsb);
 	}

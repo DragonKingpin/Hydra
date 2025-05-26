@@ -51,16 +51,6 @@ public final class TimeOrderedFactory extends AbstTimeBasedFactory {
 		this(builder());
 	}
 
-	@Override
-	public GUID nextGUID() {
-		return null;
-	}
-
-	@Override
-	public GUID nextGUID(Parameters parameters) {
-		return null;
-	}
-
 	private TimeOrderedFactory(Builder builder) {
 		super(UuidVersion.VERSION_TIME_ORDERED, builder);
 	}

@@ -2,7 +2,7 @@ package com.pinecone.hydra.storage.bucket.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.i64.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +22,7 @@ public class GenericBucket implements Bucket{
     protected GuidAllocator guidAllocator;
 
     public GenericBucket(){
-        this.guidAllocator = new GenericGuidAllocator();
+        this.guidAllocator = new GuidAllocator72V2();
         this.bucketGuid = this.guidAllocator.nextGUID();
     }
 

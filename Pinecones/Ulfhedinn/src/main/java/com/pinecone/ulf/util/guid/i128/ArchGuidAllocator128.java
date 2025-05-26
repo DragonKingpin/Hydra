@@ -8,13 +8,14 @@ public abstract class ArchGuidAllocator128 implements GuidAllocator128 {
     public static final int GUID_CHARS = 36;
 
     @Override
-    public GUID parse(String hexId ) {
+    public GUID parse( String hexId ) {
         return Parser.parse( hexId );
     }
 
     static final class Parser {
 
         private static final byte[] MAP;
+
         static {
             byte[] mapping = new byte[256];
             Arrays.fill(mapping, (byte) -1);

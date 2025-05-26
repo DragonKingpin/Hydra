@@ -53,8 +53,8 @@ public final class Base16Encoder extends BaseNEncoder {
 	public String apply(GUID128 uuid) {
 
 		final char[] chars = new char[CHAR_LENGTH];
-		final long msb = uuid.getMsb();
-		final long lsb = uuid.getLsb();
+		final long msb = uuid.getMostSignificantBits();
+		final long lsb = uuid.getLeastSignificantBits();
 
 		chars[0x00] = get(msb >>> 0x3c & 0xf);
 		chars[0x01] = get(msb >>> 0x38 & 0xf);

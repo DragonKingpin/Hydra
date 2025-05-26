@@ -8,29 +8,16 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.LongSupplier;
 
-public class GuidAllocator128V7 extends ArchGuidAllocator128 implements GuidAllocator128{
+public class GuidAllocator128V7 extends ArchGuidAllocator128 implements GuidAllocator128 {
     private  final long MASK_12 = 0x0000_0000_0000_0fffL;
 
     @Override
     public GUID nextGUID() {
-        return this.v7();
+        return UuidCreator.getTimeOrderedEpoch();
     }
 
-    /**
-     * Returns a Unix epoch time-based unique identifier (UUIDv7).
-     * <p>
-     * It uses {@link ThreadLocalRandom} as random number generator.
-     * <p>
-     * Usage:
-     *
-     * <pre>{@code
-     * GUID guid = GUID.v7();
-     * }</pre>
-     *
-     * @return a GUID
-     */
-    public GUID v7() {
-        return v7(System::currentTimeMillis, TLRandom::nextLong);
+    public GUID nextSimpleGUID() {
+        return this.nextGUID(System::currentTimeMillis, TLRandom::nextLong);
     }
 
     /**
@@ -47,33 +34,33 @@ public class GuidAllocator128V7 extends ArchGuidAllocator128 implements GuidAllo
      * @param random  a random generator (optional)
      * @return a GUID
      */
-    public GUID v7(Instant instant, Random random) {
-        return v7(optional(instant), optional(random));
+    public GUID nextGUID( Instant instant, Random random ) {
+        return this.nextGUID( optional(instant), optional(random) );
     }
 
-    private GUID v7(LongSupplier msec, LongSupplier random) {
+    private GUID nextGUID( LongSupplier msec, LongSupplier random ) {
         final long time = msec.getAsLong();
         final long msb = (time << 16) | (TLRandom.nextLong() & MASK_12);
         final long lsb = random.getAsLong();
-        return version(msb, lsb, 7);
+        return this.version(msb, lsb, 7);
     }
 
-    private LongSupplier optional(Instant instant) {
+    private LongSupplier optional( Instant instant ) {
         return instant == null ? System::currentTimeMillis : instant::toEpochMilli;
     }
 
-    private LongSupplier optional(Random random) {
+    private LongSupplier optional( Random random ) {
         return random == null ? TLRandom::nextLong : random::nextLong;
     }
 
-    private long gregorian(final long millisecons) {
+    private long gregorian( final long millisecons ) {
         // 1582-10-15T00:00:00Z
         final long factor = 10_000L;
         final long offset = 12219292800000L;
         return ((millisecons + offset) * factor);
     }
 
-    GUID version(long hi, long lo, int version) {
+    GUID version( long hi, long lo, int version ) {
         // set the 4 most significant bits of the 7th byte
         final long msb = (hi & 0xffff_ffff_ffff_0fffL) | (version & 0xfL) << 12; // RFC 9562 version
         // set the 2 most significant bits of the 9th byte to 1 and 0

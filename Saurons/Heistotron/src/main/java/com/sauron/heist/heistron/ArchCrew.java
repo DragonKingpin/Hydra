@@ -37,7 +37,7 @@ public abstract class ArchCrew extends LocalCrewnium implements Crew {
         this.crewInstanceName   = this.className() + this.mnCrewId;
         //this.failureRetryTimes = this.heistCenter.getProtoConfig().getFailureRetryTimes();
 
-        this.logger             = this.getSystem().getTracerScope().newLogger( this.crewInstanceName );
+        this.logger             = this.parentSystem().getTracerScope().newLogger( this.crewInstanceName );
     }
 
     @Override
@@ -131,13 +131,13 @@ public abstract class ArchCrew extends LocalCrewnium implements Crew {
 
 
     @Override
-    public TritiumSystem getSystem() {
-        return (TritiumSystem) super.getSystem();
+    public TritiumSystem parentSystem() {
+        return (TritiumSystem) super.parentSystem();
     }
 
     @Override
     public StorageSystem getStorageSystem() {
-        return this.getSystem().getStorageSystem();
+        return this.parentSystem().getStorageSystem();
     }
 
     public FileSystemManager getDafaultFileSystemManager() {

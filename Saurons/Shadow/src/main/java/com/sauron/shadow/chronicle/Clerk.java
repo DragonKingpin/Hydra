@@ -21,7 +21,7 @@ public interface Clerk extends Raider {
     JSONObject getConfig();
 
     default StereotypicInjector autoInject( Class<?> stereotype ) {
-        return this.getSystem().getPrimaryConfigScope().autoInject(
+        return this.parentSystem().getPrimaryConfigScope().autoInject(
                 stereotype, this.getConfig(), this
         );
     }

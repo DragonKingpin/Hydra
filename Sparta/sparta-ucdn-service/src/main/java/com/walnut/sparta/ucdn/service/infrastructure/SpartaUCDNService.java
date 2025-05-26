@@ -52,16 +52,16 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initSubsystem() {
         this.koiMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiBucketMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiVersionMappingDriver = new VersionMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
 
@@ -89,7 +89,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
 
-                        genericApplicationContext.registerBean("uofsContentDelivery", UOFSContentDelivery.class, () -> (UOFSContentDelivery) SpartaUCDNService.this.getSystem());
+                        genericApplicationContext.registerBean("uofsContentDelivery", UOFSContentDelivery.class, () -> (UOFSContentDelivery) SpartaUCDNService.this.parentSystem());
                     }
                 });
             }
@@ -125,7 +125,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     @Override
-    public Tritium getSystem() {
-        return (Tritium)super.getSystem();
+    public Tritium parentSystem() {
+        return (Tritium)super.parentSystem();
     }
 }

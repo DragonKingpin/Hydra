@@ -1,16 +1,26 @@
 package com.walnut.archcraft.ender;
 
 import com.pinecone.framework.system.CascadeSystem;
+import com.pinecone.framework.system.architecture.Component;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UniformProcessManager;
+import com.pinecone.hydra.proc.image.ImageLoader;
+import com.pinecone.hydra.proc.image.UniformImageLoader;
 import com.pinecone.hydra.system.component.LogStatuses;
 
 import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.system.HydraEmpire;
+import com.walnut.archcraft.ender.system.Hydroxy;
 
 public class EnderHydra extends Tritium implements HydraEmpire {
-    protected GuidAllocator mSystemGuidAllocator;
+
+    protected GuidAllocator  mSystemGuidAllocator;
+    protected ImageLoader    mSystemImageLoader;
+    protected ProcessManager mSystemProcessManager;
+    protected UProcess       mProxiedRootSystemProcess;
 
     public EnderHydra( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
@@ -29,7 +39,17 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     protected void prepare_uniform_system() {
         this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusStart );
 
-        this.mSystemGuidAllocator = GUIDs.newGuidAllocator();
+        this.mSystemGuidAllocator  = GUIDs.newGuidAllocator();
+        this.infoLifecycle( "<Uniform Hydra> System GUIDAllocator Initialization", LogStatuses.StatusDone );
+
+        this.mSystemProcessManager = new UniformProcessManager(
+                this, null, "UniformProcessManager", "", null
+        );
+        this.infoLifecycle( "<Uniform Hydra> System ProcessManager Initialization", LogStatuses.StatusDone );
+
+        this.mSystemImageLoader        = new UniformImageLoader( this );
+        this.mProxiedRootSystemProcess = new Hydroxy( this );
+        this.mSystemProcessManager.register( this.mProxiedRootSystemProcess );
 
         this.init_process_kernel_subsystem();
 
@@ -64,6 +84,12 @@ public class EnderHydra extends Tritium implements HydraEmpire {
 
     @Override
     public ProcessManager processManager() {
-        return null;
+        return this.mSystemProcessManager;
     }
+
+    @Override
+    public ImageLoader imageLoader() {
+        return this.mSystemImageLoader;
+    }
+
 }

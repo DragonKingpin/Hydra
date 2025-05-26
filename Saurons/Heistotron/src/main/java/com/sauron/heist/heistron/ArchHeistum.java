@@ -11,7 +11,7 @@ public abstract class ArchHeistum extends HeistEntity implements Heistum {
     protected ArchHeistum( Heistgram heistgram ) {
         super();
         this.mHeistgram   = heistgram;
-        this.mLogger      = this.getSystem().getTracerScope().newLogger( this.className() );
+        this.mLogger      = this.parentSystem().getTracerScope().newLogger( this.className() );
     }
 
     @Override
@@ -35,8 +35,8 @@ public abstract class ArchHeistum extends HeistEntity implements Heistum {
         return this.mHeistgram;
     }
 
-    public TritiumSystem getSystem() {
-        return (TritiumSystem) this.getHeistgram().getSystem();
+    public TritiumSystem parentSystem() {
+        return (TritiumSystem) this.getHeistgram().parentSystem();
     }
 
     /**

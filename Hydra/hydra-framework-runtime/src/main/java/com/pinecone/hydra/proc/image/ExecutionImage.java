@@ -4,6 +4,7 @@ import java.net.URI;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.proc.ControllableLevel;
+import com.pinecone.hydra.proc.UProcess;
 
 public interface ExecutionImage extends Pinenut {
 
@@ -11,9 +12,11 @@ public interface ExecutionImage extends Pinenut {
 
     URI getResourceURI();
 
-    Class<?> processMainClass();
+    Class<UProcess> processClassType();
 
     EntryPointRunnable getEntryPoint();
+
+    ClassLoader getClassLoader();
 
     ImageLoader getImageLoader();
 

@@ -21,7 +21,7 @@ public class LocalConfigSource implements ConfigSource {
     @SuppressWarnings("unchecked")
     public LocalConfigSource( Servgram gram, PatriarchalConfig setupScope, PatriarchalConfig searchScope ) {
         this.mParentGram        = gram;
-        this.mSystem            = this.mParentGram.getSystem();
+        this.mSystem            = this.mParentGram.parentSystem();
         this.mSearchScopeConf   = searchScope;
 
         Object t = setupScope.get( "PathScopes" );

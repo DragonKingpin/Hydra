@@ -34,8 +34,8 @@ public abstract class WolfNettyServgram extends ArchServgramium {
     }
 
     @Override
-    public Hydrogen getSystem() {
-        return (Hydrogen) super.getSystem();
+    public Hydrogen parentSystem() {
+        return (Hydrogen) super.parentSystem();
     }
 
 

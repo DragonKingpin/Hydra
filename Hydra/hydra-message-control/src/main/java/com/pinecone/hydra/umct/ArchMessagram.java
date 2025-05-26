@@ -76,8 +76,8 @@ public abstract class ArchMessagram extends ArchServgramium implements Messagram
     }
 
     @Override
-    public Hydrogen getSystem() {
-        return (Hydrogen) super.getSystem();
+    public Hydrogen parentSystem() {
+        return (Hydrogen) super.parentSystem();
     }
 
     @Override

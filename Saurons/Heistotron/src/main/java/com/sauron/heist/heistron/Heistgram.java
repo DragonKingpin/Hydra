@@ -7,7 +7,7 @@ import com.pinecone.framework.system.executum.ExclusiveProcessum;
 import com.pinecone.framework.util.config.JSONConfig;
 
 public interface Heistgram extends ExclusiveProcessum, Servgramium {
-    Hydrogen getSystem();
+    Hydrogen parentSystem();
 
     JSONConfig getTemplateHeistSchemeConfig();
 

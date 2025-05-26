@@ -13,7 +13,7 @@ public interface Servgram extends Pinenut {
 
     PatriarchalConfig getConfig();
 
-    RuntimeSystem getSystem();
+    RuntimeSystem parentSystem();
 
     void terminate() ;
 

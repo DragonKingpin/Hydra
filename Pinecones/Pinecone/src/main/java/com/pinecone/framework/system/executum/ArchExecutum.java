@@ -31,7 +31,7 @@ public abstract class ArchExecutum implements Executum {
             this.mParentSystem = (RuntimeSystem) this.mParentProcessum;
         }
         else {
-            this.mParentSystem = this.mParentProcessum.getSystem();
+            this.mParentSystem = this.mParentProcessum.parentSystem();
         }
 
         this.makeNameAndId();
@@ -102,8 +102,16 @@ public abstract class ArchExecutum implements Executum {
     }
 
     @Override
-    public RuntimeSystem  getSystem() {
+    public RuntimeSystem  parentSystem() {
         return this.mParentSystem;
+    }
+
+    @Override
+    public RuntimeSystem revealNearestSystem() {
+        if ( this instanceof RuntimeSystem ) {
+            return (RuntimeSystem) this;
+        }
+        return parentSystem();
     }
 
     @Override

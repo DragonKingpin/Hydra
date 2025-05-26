@@ -205,8 +205,13 @@ public class ArchUProcess implements UProcess {
     }
 
     @Override
-    public RuntimeSystem getSystem() {
-        return this.mLocalSystemProc.getSystem();
+    public RuntimeSystem parentSystem() {
+        return this.mLocalSystemProc.parentSystem();
+    }
+
+    @Override
+    public RuntimeSystem revealNearestSystem() {
+        return this.mLocalSystemProc.revealNearestSystem();
     }
 
     @Override

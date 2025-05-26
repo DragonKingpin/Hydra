@@ -6,6 +6,6 @@ import com.pinecone.hydra.system.Hydrogen;
 public interface MessageNode extends Processum, MessageNodus {
 
     @Override
-    Hydrogen getSystem();
+    Hydrogen parentSystem();
 
 }

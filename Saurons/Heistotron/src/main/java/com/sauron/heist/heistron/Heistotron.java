@@ -67,7 +67,7 @@ public class Heistotron extends ArchServgramium implements Heistgram {
 
         JSONConfig joLocalHeistsConfigList    = this.getLocalHeistsConfigList();
         JSONConfig joLocalConfigs             = this.getConfig().getChild( HeistConfigConstants.KeyConfigScope ).getChild( HeistConfigConstants.KeyLocalConfigs );
-        MapConfigReinterpreter reinterpreter  = this.getSystem().getPrimaryConfigScope().newMapConfigReinterpreter();
+        MapConfigReinterpreter reinterpreter  = this.parentSystem().getPrimaryConfigScope().newMapConfigReinterpreter();
         reinterpreter.addExcludeKey( HeistConfigConstants.KeyTemplatedConfig );
         reinterpreter.reinterpretByLineage( this.getConfig(), null );
 
@@ -82,8 +82,8 @@ public class Heistotron extends ArchServgramium implements Heistgram {
     }
 
     @Override
-    public TritiumSystem getSystem() {
-        return (TritiumSystem) super.getSystem();
+    public TritiumSystem parentSystem() {
+        return (TritiumSystem) super.parentSystem();
     }
 
     @Override
@@ -105,7 +105,7 @@ public class Heistotron extends ArchServgramium implements Heistgram {
     }
 
     protected String queryCmdDesignatedHeist() {
-        Map<String, String[] > map = this.getSystem().getStartupCommandMap();
+        Map<String, String[] > map = this.parentSystem().getStartupCommandMap();
         String[] heists = map.get( "heist" );
         if( heists != null && heists.length > 0 ) {
             return heists[ 0 ];

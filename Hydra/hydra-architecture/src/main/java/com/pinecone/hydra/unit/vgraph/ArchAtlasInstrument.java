@@ -52,7 +52,7 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
             this.mHydrogen = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mHydrogen = (Hydrogen) this.mSuperiorProcess.getSystem();
+            this.mHydrogen = (Hydrogen) this.mSuperiorProcess.parentSystem();
         }
         this.mMegaVectorDAG = new MagnitudeVectorDAG(null, atlasMappingDriver.getMasterManipulator().getVectorGraphMasterManipulator(),vectorGraphConfig);
         this.mGuidAllocator = new GenericGuidAllocator();

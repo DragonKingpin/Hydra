@@ -9,7 +9,7 @@ import com.pinecone.hydra.umb.wolf.UlfBroadcastControlNode;
 
 public interface PrimaryMessageWareStone extends Pinenut {
 
-    RuntimeSystem getSystem();
+    RuntimeSystem parentSystem();
 
     Processum getParentProcess();
 

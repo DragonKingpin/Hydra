@@ -54,12 +54,12 @@ public class ChronicleHeist extends HTTPHeist implements Chronicle {
     protected void initSelf() {
         if( this.isSlave() ) {
             this.mPeriodicHeistKernel     = new ChroniclePeriodicHeistKernel( this );
-            this.getSystem().getPrimaryConfigScope().autoInject( ChronicleHeist.class, this.getConfig(), this );
-            this.mPrimaryDataIbatisClient = (IbatisClient) this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszPrimaryRDBName );
+            this.parentSystem().getPrimaryConfigScope().autoInject( ChronicleHeist.class, this.getConfig(), this );
+            this.mPrimaryDataIbatisClient = (IbatisClient) this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszPrimaryRDBName );
             this.mPrimarySharedSqlSession = this.mPrimaryDataIbatisClient.openSession( true );
             this.prepareChildrenConfig();
             this.prepareScopeDAOManipulator();
-            this.getSystem().getPrimaryConfigScope().autoConstruct( ChronicleHeist.class, this.getConfig(), this );
+            this.parentSystem().getPrimaryConfigScope().autoConstruct( ChronicleHeist.class, this.getConfig(), this );
         }
     }
 
@@ -77,7 +77,7 @@ public class ChronicleHeist extends HTTPHeist implements Chronicle {
     protected void prepareScopeDAOManipulator() {
         this.mPrimaryDataIbatisClient.addDataAccessObjectScope( this.getClass().getPackageName() );
 
-        this.getSystem().getDispenserCenter().getInstanceDispenser().register(
+        this.parentSystem().getDispenserCenter().getInstanceDispenser().register(
                 BasicChronicleManipulator.class,
                 new SoloSessionMapperPool( this.mPrimarySharedSqlSession, BasicChronicleManipulator.class )
         );

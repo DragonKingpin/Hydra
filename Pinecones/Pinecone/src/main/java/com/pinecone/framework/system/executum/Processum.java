@@ -11,7 +11,7 @@ public interface Processum extends Executum {
     }
 
     default boolean        isOnMainThread() {
-        return this.rootThread() == null || this.rootThread() == this.getSystem().getProcessMainThread();
+        return this.rootThread() == null || this.rootThread() == this.parentSystem().getProcessMainThread();
     }
 
     TaskManager            getTaskManager();

@@ -35,7 +35,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
             this.mSystem = (RuntimeSystem) parent;
         }
         else {
-            this.mSystem = parent.getSystem();
+            this.mSystem = parent.parentSystem();
         }
 
         this.mClassLoader = classLoader;

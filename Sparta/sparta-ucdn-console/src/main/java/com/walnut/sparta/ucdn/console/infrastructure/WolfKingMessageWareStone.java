@@ -42,7 +42,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     private void initPrimaryAppointClientSegment() throws Exception {
-        UlfClient embedRPCClient = new WolfMCClient( 2048, "PrimaryWolfMCClient", this.getSystem(), this.getSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
+        UlfClient embedRPCClient = new WolfMCClient( 2048, "PrimaryWolfMCClient", this.parentSystem(), this.parentSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
         this.wolfAppointClient = new WolvesAppointClient( embedRPCClient );
 
         this.wolfAppointClient.compile( ServiceLifecycleIface.class, false );
@@ -50,17 +50,17 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     private void initPrimaryAppointServerSegment() throws Exception {
-        UlfServer embedRPCServer = new WolfMCServer( "WolfKingMCServer", this.getSystem(), new JSONMaptron("{host: \"0.0.0.0\",\n" +
+        UlfServer embedRPCServer = new WolfMCServer( "WolfKingMCServer", this.parentSystem(), new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         this.wolfKingAppointServer = new WolvesAppointServer( embedRPCServer, HuskyDuplexExpress.class );
         //this.serviceManager = new UniformServiceManager( serviceInstrument, wolfServer );
     }
 
     private void initPrimaryBroadcastSegment() throws Exception {
-        this.primaryKafkaClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.getSystem(), WolfMCExpress.class);
+        this.primaryKafkaClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.parentSystem(), WolfMCExpress.class);
         this.primaryKafkaClient.compile( FileMultiDistributionIface.class,false );
 
-        this.primaryRocketClient = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceTransmitGroup), "", this.getSystem(), WolfMCExpress.class);
+        this.primaryRocketClient = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceTransmitGroup), "", this.parentSystem(), WolfMCExpress.class);
         this.primaryRocketClient.compile(SessionValidator.class,false);
     }
 
@@ -101,7 +101,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     @Override
-    public Tritium getSystem() {
-        return (Tritium)this.parentProcess.getSystem();
+    public Tritium parentSystem() {
+        return (Tritium)this.parentProcess.parentSystem();
     }
 }

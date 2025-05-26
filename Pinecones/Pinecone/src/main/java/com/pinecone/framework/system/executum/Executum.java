@@ -24,7 +24,9 @@ public interface Executum extends Executable, Lifecycle {
 
     long                getId();
 
-    RuntimeSystem       getSystem();
+    RuntimeSystem       parentSystem();
+
+    RuntimeSystem       revealNearestSystem();
 
     Executum            parentExecutum();
 
@@ -37,7 +39,7 @@ public interface Executum extends Executable, Lifecycle {
     }
 
     default boolean     isMainThreadExecutum() {
-        return this.getAffiliateThread() == this.getSystem().getProcessMainThread();
+        return this.getAffiliateThread() == this.parentSystem().getProcessMainThread();
     }
 
     boolean             isTerminated();

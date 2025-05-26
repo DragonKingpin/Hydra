@@ -8,6 +8,8 @@ public interface EntryPointRunnable extends Runnable, Executor {
 
     UProcess ownedProcess();
 
+    void applyOwnedProcess( UProcess process );
+
     /**
      * Overriding is discouraged; lifecycle supervision is required in principle.
      * 原则上，请勿重写，需要检察程序生命周期行为。

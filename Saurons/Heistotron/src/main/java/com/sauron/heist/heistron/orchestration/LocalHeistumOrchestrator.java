@@ -66,7 +66,7 @@ public class LocalHeistumOrchestrator extends ArchServgramOrchestrator implement
             this.mPreloadSuffixes.add( "" );
         }
         catch ( Exception e ) {
-            e.printStackTrace( this.getHeistgram().getSystem().console().getErr() );
+            e.printStackTrace( this.getHeistgram().parentSystem().console().getErr() );
         }
     }
 

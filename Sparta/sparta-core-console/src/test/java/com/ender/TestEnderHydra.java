@@ -41,8 +41,8 @@ class Floki extends EnderHydra {
 
         this.prepareKOMTrees( instrument );
 
-        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
-        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
+        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
+        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
         instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
 
 
@@ -87,8 +87,8 @@ class Floki extends EnderHydra {
         Debug.fmp( 2, instrument.queryNode( "dev/deploy/root/test/cluster/vm1" ) );
 
 
-        //EntityNode myf = instrument.queryNode( "mnt/volE/Users" );
-        EntityNode myf = instrument.queryNode( "mnt/volE/MyFiles" );
+        EntityNode myf = instrument.queryNode( "mnt/volE/Users" );
+        //EntityNode myf = instrument.queryNode( "mnt/volE/MyFiles" );
         Debug.fmp( 2, myf );
         NativeMFile myff = (NativeMFile) myf;
 

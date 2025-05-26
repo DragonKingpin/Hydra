@@ -165,7 +165,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     protected void traceWelcomeInfo() {
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31mBean Nuts Pinecone Ursus for Java\u001B[0m\n" );
-        this.pout().print( "\u001B[31mHydra Kingdom Framework (Tritium, Radiative Hydra) \u001B[0m\n" );
+        this.pout().print( "\u001B[31mHydra Kingdom Framework (Tritium, Hydra Empire) \u001B[0m\n" );
         this.pout().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31mDragon King\u001B[0m\n" );

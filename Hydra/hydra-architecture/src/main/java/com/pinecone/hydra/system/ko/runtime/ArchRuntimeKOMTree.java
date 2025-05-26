@@ -61,7 +61,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
                 this.superiorSystem = (RuntimeSystem) this.superiorProcess;
             }
             else  {
-                this.superiorSystem = this.superiorProcess.getSystem();
+                this.superiorSystem = this.superiorProcess.parentSystem();
             }
             if ( this.guidAllocator == null && this.superiorSystem instanceof UniformCentralSystem ) {
                 UniformCentralSystem system = (UniformCentralSystem) this.superiorSystem;

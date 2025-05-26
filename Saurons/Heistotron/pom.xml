@@ -67,11 +67,11 @@
             <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.pinecone.summer</groupId>
-            <artifactId>summer</artifactId>
-            <version>2.1.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.pinecone.summer</groupId>-->
+<!--            <artifactId>summer</artifactId>-->
+<!--            <version>2.1.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>com.pinecone.summer.springram</groupId>
             <artifactId>springram</artifactId>

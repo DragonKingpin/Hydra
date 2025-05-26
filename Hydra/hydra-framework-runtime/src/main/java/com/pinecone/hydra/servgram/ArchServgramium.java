@@ -23,7 +23,7 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
         super( szGramName, parent );
         this.mszGramName     = szGramName;
         this.mTaskManager    = new GenericMasterTaskManager( this );
-        this.mLogger         = this.getSystem().getTracerScope().newLogger( this.className() );
+        this.mLogger         = this.parentSystem().getTracerScope().newLogger( this.className() );
         this.loadConfig();
         this.infoLifecycle( "MeeseekSpawned", "I'm Mr.Meeseek[" + this.className() + "], look at me !" );
     }
@@ -63,7 +63,7 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
                 this.mServgramConf = this.mServgramList.getChildFromPath( Path.of((String) dyServgramConf) );
             }
             catch ( IOException e ) {
-                this.getSystem().handleKillException( e );
+                this.parentSystem().handleKillException( e );
             }
         }
         else {
@@ -88,8 +88,8 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
     }
 
     @Override
-    public Hydrogen getSystem() {
-        return (Hydrogen) super.getSystem();
+    public Hydrogen parentSystem() {
+        return (Hydrogen) super.parentSystem();
     }
 
     @Override

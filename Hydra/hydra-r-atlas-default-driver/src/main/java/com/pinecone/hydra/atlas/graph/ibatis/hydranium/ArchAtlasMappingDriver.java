@@ -35,7 +35,7 @@ public abstract class ArchAtlasMappingDriver implements AtlasMappingDriver {
             this.mSystem                      = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mSystem                      = (Hydrogen) superiorProcess.getSystem();
+            this.mSystem                      = (Hydrogen) superiorProcess.parentSystem();
         }
     }
 

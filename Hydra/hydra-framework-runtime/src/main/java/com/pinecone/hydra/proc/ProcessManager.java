@@ -26,6 +26,8 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
         return nFatality / ( nVitalize + nFatality );
     }
 
+    void register( UProcess that );
+
     void erase( UProcess that );
 
     boolean autopsy( UProcess that );

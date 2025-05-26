@@ -72,19 +72,19 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initKOMSubsystem() throws ComponentInitializationException {
         this.koiMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiBucketMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiVersionMappingDriver = new VersionMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiServiceMappingDriver = new ServiceMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
         JSONConfig selfConfig = (JSONConfig) this.getConfig();
@@ -137,7 +137,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
                         genericApplicationContext.registerBean("primaryService", ServiceInstrument.class, () -> serviceInstrument);
                         genericApplicationContext.registerBean("primaryWolfDuplexAppointClient", DuplexAppointClient.class, () ->  primaryMessageWareStone.getWolfAppointClient());
-                        genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.getSystem());
+                        genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.parentSystem());
                     }
                 });
             }
@@ -181,8 +181,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     @Override
-    public Tritium getSystem() {
-        return (Tritium)super.getSystem();
+    public Tritium parentSystem() {
+        return (Tritium)super.parentSystem();
     }
 
     @Override

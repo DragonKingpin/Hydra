@@ -66,7 +66,7 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
             this.hydrogen = (Hydrogen) this.superiorProcess;
         }
         else {
-            this.hydrogen = (Hydrogen) superiorProcess.getSystem();
+            this.hydrogen = (Hydrogen) superiorProcess.parentSystem();
         }
 
         this.guidAllocator                   = guidAllocator;

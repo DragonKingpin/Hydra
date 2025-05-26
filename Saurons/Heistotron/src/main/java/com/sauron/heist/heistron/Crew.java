@@ -22,7 +22,7 @@ public interface Crew extends Crewnium {
     void startBatchTask();
 
     @Override
-    TritiumSystem getSystem();
+    TritiumSystem parentSystem();
 
     StorageSystem getStorageSystem();
 

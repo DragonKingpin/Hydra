@@ -140,10 +140,10 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
 
 
     public HeistScheme reinterpret( JSONConfig that ) {
-        MultiScopeMap<String, Object > sysGlobalScope  = this.getHeistgram().getSystem().getGlobalConfigScope(); // System runtime global config scope.
+        MultiScopeMap<String, Object > sysGlobalScope  = this.getHeistgram().parentSystem().getGlobalConfigScope(); // System runtime global config scope.
 
         JSONConfig heistParentList = this.getHeistgram().getLocalHeistsConfigList();                   // Parent Scope of the master[e.g. Heist.json5::Heists] config.
-        JSONConfig rootConfig      = (JSONConfig) this.getHeistgram().getSystem().getGlobalConfig();   // Root Scope of the master[e.g. config.json5] config.
+        JSONConfig rootConfig      = (JSONConfig) this.getHeistgram().parentSystem().getGlobalConfig();   // Root Scope of the master[e.g. config.json5] config.
 
         MultiScopeMap<String, Object > keyWords = new MultiScopeMaptron<>( new TreeMap<>() );
         keyWords.put( "this"      , that               );

@@ -57,7 +57,7 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
         this.mHeistum           = heistum;
         this.mIndexId           = new AtomicInteger();
         this.mExclusiveRaiders  = new ArrayList<>();
-        RuntimeSystem system    = heistum.getSystem();
+        RuntimeSystem system    = heistum.parentSystem();
         if( system instanceof TritiumSystem) {
             ( (TritiumSystem) system ).getPrimaryConfigScope().autoInject( ArchPeriodicHeistRehearsal.class, this.mHeistum.getConfig(), this );
         }
@@ -108,7 +108,7 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
             this.mPreloadSuffixes.add( "" );
         }
         catch ( Exception e ) {
-            e.printStackTrace( this.getHeistgram().getSystem().console().getErr() );
+            e.printStackTrace( this.getHeistgram().parentSystem().console().getErr() );
         }
     }
 

@@ -12,6 +12,8 @@ public interface RuntimeSystem extends Pinenut, Systemum, Lifecycle {
 
     Map<String, String[] >     getStartupCommandMap();
 
+    Map<String, String[] >     getEnvironmentVars();
+
     SystemConfig               getGlobalConfig();
 
     String                     getMajorPackagePath();

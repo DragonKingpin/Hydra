@@ -31,6 +31,7 @@ public class Framework extends ArchProcessum implements Pinecore {
     protected String                 mszRuntimeContextPath     ; // System startup command, the 'user.dir'.
     protected String                 mszRuntimePath            ; // System real runtime path.
     protected Map<String, String[]>  mStartupCommandMap        ;
+    protected Map<String, String[]>  mEnvironmentVars          ;
     protected String[]               mStartupCommand           ;
     protected Thread                 mMainThread               ;
     protected InputStream            mIn = System.in           ;
@@ -130,7 +131,7 @@ public class Framework extends ArchProcessum implements Pinecore {
         this.mTaskManager          = new GenericMasterTaskManager( this );
     }
 
-    protected void init(){
+    protected void init() {
         this.traceWelcomeInfo();
 
         this.mszMajorPackagePath   = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -138,6 +139,7 @@ public class Framework extends ArchProcessum implements Pinecore {
         this.mszRuntimePath        = this.mszRuntimeContextPath;
         this.mMainThread           = this.searchMainThread();
         this.mGlobalClassLoader    = this.mMainThread.getContextClassLoader();
+        this.mEnvironmentVars      = StartupCommandParser.DefaultParser.parse( System.getenv() );
 
         this.setThreadAffinity( Thread.currentThread() );
         this.loadConfig();
@@ -145,8 +147,14 @@ public class Framework extends ArchProcessum implements Pinecore {
         this.onlyLoadTaskManager();
     }
 
+    @Override
     public Map<String, String[] > getStartupCommandMap() {
         return this.mStartupCommandMap;
+    }
+
+    @Override
+    public Map<String, String[] > getEnvironmentVars() {
+        return this.mEnvironmentVars;
     }
 
     public Framework(){

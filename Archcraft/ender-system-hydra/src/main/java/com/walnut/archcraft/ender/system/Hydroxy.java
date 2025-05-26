@@ -3,6 +3,8 @@ package com.walnut.archcraft.ender.system;
 import java.util.Map;
 
 import com.pinecone.framework.system.RuntimeSystem;
+import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.config.StartupCommandParser;
 import com.pinecone.hydra.proc.ArchUProcess;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ExecutionImage;
@@ -33,6 +35,8 @@ public class Hydroxy extends ArchUProcess {
                 new HydroxyImage( hostedSystem ), new GenericSegregationSpace(),
                 hostedSystem.getStartupCommandMap(), Map.of()
         );
+
+        Debug.greenfs( StartupCommandParser.DefaultParser.parse( System.getenv() ) );
     }
 
     @Override

@@ -78,5 +78,15 @@ public class UUID128 implements GUID128 {
         return new UUID( this.msb, this.lsb );
     }
 
+    @Override
+    public int version() {
+        return 0;
+    }
+
+    @Override
+    public int variant() {
+        return 0;
+    }
+
 
 }

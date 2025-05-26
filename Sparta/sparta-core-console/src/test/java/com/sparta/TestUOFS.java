@@ -29,8 +29,17 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.GUIDs;
 import com.pinecone.tritium.Tritium;
+import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V1;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V2;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V3;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V4;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V5;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V6;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
+import com.pinecone.ulf.util.guid.i128.GUID128;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,8 +86,23 @@ class Steve extends Tritium {
         //this.testCopy( fileSystem,volumeManager );
 
 
-        this.testClusterPage( fileSystem );
-
+        //this.testClusterPage( fileSystem );
+        GuidAllocator128 guidAllocator128 = new GuidAllocator128V1();
+        Debug.trace("Guid128V1：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V2();
+        Debug.trace("Guid128V2：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V3();
+        Debug.trace("Guid128V3：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V4();
+        Debug.trace("Guid128V4：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V5();
+        Debug.trace("Guid128V5：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V6();
+        Debug.trace("Guid128V6：" + guidAllocator128.nextGUID() );
+        guidAllocator128 = new GuidAllocator128V7();
+        GUID128 g = (GUID128) guidAllocator128.nextGUID();
+        Debug.trace("Guid128V7：" + g, g.toUUID() );
+        Debug.trace( guidAllocator128.parse("019706a0-3f60-708b-b925-03e89e7ad584") );
     }
 
     private void testQuery ( KOMFileSystem fileSystem ){

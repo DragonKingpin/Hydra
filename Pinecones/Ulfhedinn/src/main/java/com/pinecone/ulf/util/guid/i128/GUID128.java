@@ -12,4 +12,8 @@ public interface GUID128 extends GUID {
 
     UUID toUUID();
 
+    int version();
+
+    int variant();
+
 }

@@ -1,0 +1,105 @@
+/*
+ * MIT License
+ * 
+ * Copyright (c) 2018-2025 Fabio Lima
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package com.pinecone.ulf.util.guid.i128.codec.other;
+
+import com.pinecone.ulf.util.guid.i128.GUID128;
+import com.pinecone.ulf.util.guid.i128.UUID128;
+import com.pinecone.ulf.util.guid.i128.codec.GuidCodec;
+import com.pinecone.ulf.util.guid.i128.exception.InvalidUuidException;
+import com.pinecone.ulf.util.guid.i128.util.UuidUtil;
+import com.pinecone.ulf.util.guid.i128.util.UuidValidator;
+
+import java.util.UUID;
+
+/**
+ * Codec for time-ordered UUIDs
+ * <p>
+ * This codec converts time-based UUIDs (UUIDv1) to time-ordered UUIDs (UUIDv6).
+ */
+public class TimeOrderedCodec implements GuidCodec<GUID128> {
+
+	/**
+	 * A shared immutable instance.
+	 */
+	public static final TimeOrderedCodec INSTANCE = new TimeOrderedCodec();
+
+	/**
+	 * Get a time-ordered UUID from a time-based UUID.
+	 * 
+	 * @param uuid a time-based UUID
+	 * @return a time-ordered UUID
+	 * @throws InvalidUuidException if the argument is invalid
+	 */
+	@Override
+	public GUID128 encode(GUID128 uuid) {
+
+		UuidValidator.validate(uuid);
+
+		if (!UuidUtil.isTimeBased(uuid)) {
+			throw new InvalidUuidException("Not a time-based UUID: " + uuid);
+		}
+
+		long timestamp = UuidUtil.getTimestamp(uuid);
+
+		long msb = ((timestamp & 0x0ffffffffffff000L) << 4) //
+				| (timestamp & 0x0000000000000fffL) //
+				| 0x0000000000006000L; // set version 6
+
+		long lsb = uuid.getLsb();
+
+		return new UUID128(msb, lsb);
+	}
+
+	/**
+	 * Get a time-based UUID from a time-ordered UUID.
+	 * 
+	 * @param uuid a time-ordered UUID
+	 * @return a time-based UUID
+	 * @throws InvalidUuidException if the argument is invalid
+	 */
+	@Override
+	public GUID128 decode(GUID128 uuid) {
+
+		UuidValidator.validate(uuid);
+
+		if (!UuidUtil.isTimeOrdered(uuid)) {
+			throw new InvalidUuidException("Not a time-ordered UUID: " + uuid);
+		}
+
+		long timestamp = UuidUtil.getTimestamp(uuid);
+
+		long timeHigh = (timestamp & 0x0fff_0000_00000000L) >>> 48;
+		long timeMid = (timestamp & 0x0000_ffff_00000000L) >>> 16;
+		long timeLow = (timestamp & 0x0000_0000_ffffffffL) << 32;
+		long version = 0x0000000000001000L; // Set version 1
+
+		// Combine the parts to form the Most Significant Bits (MSB)
+		long msb = timeHigh | timeMid | timeLow | version;
+
+		long lsb = uuid.getLsb();
+
+		return new UUID128(msb, lsb);
+	}
+}

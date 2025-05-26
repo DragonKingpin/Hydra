@@ -8,6 +8,8 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
+import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
 import com.pinecone.hydra.deploy.kom.entity.ArchServerElement;
@@ -179,6 +181,12 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
     @Override
     public VirtualMachineElement affirmVirtualMachine(String path) {
         return (VirtualMachineElement) this.affirmTreeNodeByPath( path, GenericVirtualMachineElement.class, GenericNamespace.class );
+    }
+
+    @Override
+    public ContainerElement affirmContainerElement(String path) {
+        return (ContainerElement) this.affirmTreeNodeByPath( path, GenericContainerElement.class, GenericNamespace.class );
+
     }
 
     @Override

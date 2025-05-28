@@ -42,7 +42,7 @@ public class TitanFileExport64 implements FileExport64{
             titanExportStorageObject.setStorageObjectGuid( frame.getSegGuid() );
             String sourceName = frame.getSourceName();
             UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
-            LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+            LogicVolume volume = this.volumeManager.get(GUIDs.GUID128(uniformSourceLocator.getVolumeGuid()));
             //volume.channelExport( titanExportStorageObject, this.channel );
             ExporterEntity exportEntity = null;
             exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
@@ -60,7 +60,7 @@ public class TitanFileExport64 implements FileExport64{
         titanExportStorageObject.setStorageObjectGuid( localCluster.getSegGuid() );
         String sourceName = localCluster.getSourceName();
         UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
-        LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+        LogicVolume volume = this.volumeManager.get(GUIDs.GUID128(uniformSourceLocator.getVolumeGuid()));
         ExporterEntity exportEntity = null;
         exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);
         volume.export( exportEntity );
@@ -82,7 +82,7 @@ public class TitanFileExport64 implements FileExport64{
 
                 String sourceName = frame.getSourceName();
                 UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
-                LogicVolume volume = this.volumeManager.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+                LogicVolume volume = this.volumeManager.get(GUIDs.GUID128(uniformSourceLocator.getVolumeGuid()));
 
                 ExporterEntity exportEntity = null;
                 exportEntity = this.constructor.getExportEntity(volume.getClass(), volumeManager, titanExportStorageObject, this.channel, volume);

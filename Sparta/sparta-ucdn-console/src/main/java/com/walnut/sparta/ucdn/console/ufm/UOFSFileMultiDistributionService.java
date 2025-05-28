@@ -234,7 +234,7 @@ public class UOFSFileMultiDistributionService implements FileMultiDistributionSe
     @Override
     public void test() throws UMBServiceException {
         FileMultiDistributionIface fileDistribution = this.transmitProducer.getIface(FileMultiDistributionIface.class,"testTopic");
-        FileNode fileNode = this.primaryFileSystem.getFileNode(GUIDs.GUID72("1214792-000373-0003-00"));
+        FileNode fileNode = this.primaryFileSystem.getFileNode(GUIDs.GUID128("1214792-000373-0003-00"));
         String path = this.primaryFileSystem.getPath(fileNode.getGuid());
         //fileDistribution.startDistribution( path );
         BroadcastControlConsumer consumer = this.getTransmitConsumer("testTopic", "testGroup");

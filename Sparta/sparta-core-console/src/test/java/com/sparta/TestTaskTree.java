@@ -12,6 +12,7 @@ import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GUID128;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
@@ -38,10 +39,10 @@ class Randy extends Tritium {
         //this.testCategory( ravenTaskInstrument );
 
         //this.testInsert( ravenTaskInstrument );
-        //this.testGet( ravenTaskInstrument );
+        this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
-        this.testInstance( ravenTaskInstrument );
+        //this.testInstance( ravenTaskInstrument );
 
     }
 
@@ -108,11 +109,12 @@ class Randy extends Tritium {
         decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, tasks: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
-        //Debug.trace(deployInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
+//        GUID128 guid128 = GUIDs.GUID128("019714af-e0ec-7f2a-94a3-cd740efccb6c");
+//        Debug.trace(instrument.getPath( GUIDs.GUID128("019714af-e0ec-7f2a-94a3-cd740efccb6c") ));
     }
 
     private void testDelete( TaskInstrument instrument ) {
-        instrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+        instrument.remove( GUIDs.GUID128("181e9e4-000395-0000-d4") );
     }
 
     private void testInstance( TaskInstrument instrument ) {

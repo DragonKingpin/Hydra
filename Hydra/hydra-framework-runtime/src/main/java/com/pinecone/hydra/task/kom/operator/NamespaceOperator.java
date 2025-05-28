@@ -55,7 +55,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         //存元信息
         GUID metadataGUID = guidAllocator.nextGUID();
         ns.setMetaGuid( metadataGUID );
-        this.nodeMetaManipulator.insertNS( ns );
+        //this.nodeMetaManipulator.insertNS( ns );
 
 
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();

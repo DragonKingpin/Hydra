@@ -11,7 +11,7 @@ import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
-import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public abstract class ArchVectorDAG implements VectorDAG {
         this.mVectorGraphConfig                     = vectorGraphConfig;
         this.mVectorGraphManipulator                = this.mMasterManipulator.getVectorGraphManipulator();
         this.mVectorGraphPathCacheManipulator       = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
-        this.mGuidAllocator                         = new GuidAllocator72V2();
+        this.mGuidAllocator                         = GUIDs.newGuidAllocator();
         this.mGraphLayer                            = affliatedLayer;
 
         if ( this.mGraphLayer != null ) {

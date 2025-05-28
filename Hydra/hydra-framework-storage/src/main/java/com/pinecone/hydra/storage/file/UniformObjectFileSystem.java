@@ -344,7 +344,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             String key = DefaultCacheConstants.FilePathCacheNS + path;
             String szGUID = this.globalPathGuidCacheQuerier.get( key );
             if ( StringUtils.isNoneEmpty( szGUID ) ) {
-                return GUIDs.GUID72( szGUID );
+                return GUIDs.GUID128( szGUID );
             }
         }
         GUID guid =  super.queryGUIDByPath( path ); // Into OLTP-RDB
@@ -680,7 +680,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         String[] parts = this.pathResolver.segmentPathParts( path );
         Folder root = this.getFolder(this.queryGUIDByPath(parts[0]));
         if( root.getRelationVolume() == null ){
-            root.applyVolume( GUIDs.GUID72( this.getConfig().getDefaultVolumeGuid() ) );
+            root.applyVolume( GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() ) );
         }
     }
 }

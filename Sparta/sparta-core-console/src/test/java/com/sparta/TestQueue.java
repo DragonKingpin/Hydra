@@ -36,7 +36,7 @@ class Chris extends Tritium {
 
     public void testInsert( MagnitudeDPQueue dpQueue ) {
         GenericQueueElement element = new GenericQueueElement();
-        element.setObjectGuid(GUIDs.GUID72("22989c2-000225-0000-4c"));
+        element.setObjectGuid(GUIDs.GUID128("22989c2-000225-0000-4c"));
         element.setPriority(2);
         dpQueue.pushBack( element );
     }

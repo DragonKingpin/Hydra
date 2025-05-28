@@ -44,7 +44,7 @@ public class CDNFolderController {
      */
     @GetMapping("/folder/listItem")
     public String listItem(@RequestParam String folderGuid ){
-        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(folderGuid));
+        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID128(folderGuid));
         List<FileTreeNode> fileTreeNodes = folder.listItem();
         for ( FileTreeNode fileTreeNode : fileTreeNodes ) {
             if ( this.versionManage.queryIsManage(fileTreeNode.getGuid()) ){
@@ -88,7 +88,7 @@ public class CDNFolderController {
      */
     @GetMapping("/attribute")
     public BasicResultResponse< FileTreeNode > attribute( @RequestParam("nodeGuid") String nodeGuid ){
-        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID72(nodeGuid));
+        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
         return BasicResultResponse.success( fileTreeNode );
     }
 
@@ -109,7 +109,7 @@ public class CDNFolderController {
      */
     @DeleteMapping("/remove/file")
     public BasicResultResponse<String> removeFile( String fileGuid ){
-        this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
+        this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
         return BasicResultResponse.success();
     }
 

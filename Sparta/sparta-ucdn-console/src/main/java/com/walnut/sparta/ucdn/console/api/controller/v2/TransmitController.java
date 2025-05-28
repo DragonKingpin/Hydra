@@ -84,7 +84,7 @@ public class TransmitController {
         String[] guids = parameterMap.get("guid");
         GUID storageObjectGuid = null;
         if( guids != null ){
-            storageObjectGuid = GUIDs.GUID72( guids[0] );
+            storageObjectGuid = GUIDs.GUID128( guids[0] );
         }
 
         ServletOutputStream outputStream = response.getOutputStream();

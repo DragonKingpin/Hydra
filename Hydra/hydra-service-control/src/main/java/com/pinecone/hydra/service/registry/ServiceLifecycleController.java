@@ -28,7 +28,7 @@ public class ServiceLifecycleController {
     public void registerService( RegisterServiceDTO serviceDTO ) {
         Long clientId   = serviceDTO.getClientId();
         String szServId = serviceDTO.getServiceId();
-        GUID serviceId  = GUIDs.GUID72( szServId );
+        GUID serviceId  = GUIDs.GUID128( szServId );
 
         TreeNode node = this.mServiceInstrument.get( serviceId );
         ServiceElement serviceElement = (ServiceElement) node;
@@ -44,7 +44,7 @@ public class ServiceLifecycleController {
 
     @AddressMapping("deregisterServiceByServiceId")
     public void deregisterServiceByServiceId( String serviceId ){
-        this.mServiceManager.removeService( GUIDs.GUID72( serviceId ) );
+        this.mServiceManager.removeService( GUIDs.GUID128( serviceId ) );
     }
 
     @AddressMapping("deregisterServiceByUSII")
@@ -59,7 +59,7 @@ public class ServiceLifecycleController {
 
     @AddressMapping("hasOwnedServiceByServiceId")
     public boolean hasOwnedServiceByServiceId( String serviceId ){
-        return this.mServiceManager.hasOwnedService( GUIDs.GUID72( serviceId ) );
+        return this.mServiceManager.hasOwnedService( GUIDs.GUID128( serviceId ) );
     }
 
     @AddressMapping("hasOwnedServiceInstance")

@@ -76,7 +76,7 @@ class Steve extends Tritium {
         UniformVolumeManager volumeManager = new UniformVolumeManager(koiVolumeMappingDriver, volumeConfig);
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
         //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
-        //this.testInsert( fileSystem );
+        this.testInsert( fileSystem );
         //this.testUpload(fileSystem);
         //this.testDelete( fileSystem );
         //this.testChannelReceive( fileSystem, volumeManager );
@@ -87,22 +87,22 @@ class Steve extends Tritium {
 
 
         //this.testClusterPage( fileSystem );
-        GuidAllocator128 guidAllocator128 = new GuidAllocator128V1();
-        Debug.trace("Guid128V1：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V2();
-        Debug.trace("Guid128V2：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V3();
-        Debug.trace("Guid128V3：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V4();
-        Debug.trace("Guid128V4：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V5();
-        Debug.trace("Guid128V5：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V6();
-        Debug.trace("Guid128V6：" + guidAllocator128.nextGUID() );
-        guidAllocator128 = new GuidAllocator128V7();
-        GUID128 g = (GUID128) guidAllocator128.nextGUID();
-        Debug.trace("Guid128V7：" + g, g.toUUID() );
-        Debug.trace( guidAllocator128.parse("019706a0-3f60-708b-b925-03e89e7ad584") );
+//        GuidAllocator128 guidAllocator128 = new GuidAllocator128V1();
+//        Debug.trace("Guid128V1：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V2();
+//        Debug.trace("Guid128V2：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V3();
+//        Debug.trace("Guid128V3：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V4();
+//        Debug.trace("Guid128V4：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V5();
+//        Debug.trace("Guid128V5：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V6();
+//        Debug.trace("Guid128V6：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V7();
+//        GUID128 g = (GUID128) guidAllocator128.nextGUID();
+//        Debug.trace("Guid128V7：" + g, g.toUUID() );
+//        Debug.trace( guidAllocator128.parse("00000000-0000-0000-0000-000000000000") );
     }
 
     private void testQuery ( KOMFileSystem fileSystem ){
@@ -119,7 +119,7 @@ class Steve extends Tritium {
 
     private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) {
 //        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
-        FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID72("14bc124-00012c-0004-f8"));
+        FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID128("14bc124-00012c-0004-f8"));
         Debug.trace( fileNode.getPath() );
     }
 
@@ -172,7 +172,7 @@ class Steve extends Tritium {
     }
 
     private void testClusterPage( KOMFileSystem fileSystem ){
-        ClusterPage clusterPage = fileSystem.fetchClustersByFileGuid( GUIDs.GUID72( "1632d6e-0001de-0003-e4" ) );
+        ClusterPage clusterPage = fileSystem.fetchClustersByFileGuid( GUIDs.GUID128( "1632d6e-0001de-0003-e4" ) );
         long sum = clusterPage.getClusters();
 
         for ( long i = 0; i < sum; ++i ) {

@@ -34,14 +34,14 @@ class StanMarsh extends Tritium {
 
         //this.testBasicInsert( registry );
         //this.testDeletion( registry );
-        //this.testDataExtends( registry );
+        this.testDataExtends( registry );
         //this.testHardLink( registry );
         //this.testCopy( registry );
         //this.testMove( registry );
         //this.testMisc( registry );
         //this.testSelector( registry );
         //this.testAttributes( registry );
-        this.testMarshaling( registry );
+        //this.testMarshaling( registry );
     }
 
     private void testBasicInsert( KOMRegistry registry ) {
@@ -120,7 +120,7 @@ class StanMarsh extends Tritium {
         //Debug.trace(registry.queryGUIDByPath("game/terraria/mob1"));
 
         //registry.newLinkTag("game/terraria/mob1","game/minecraft","mob1");
-        GUID guid = registry.queryGUIDByPath("game/minecraft/mob1");
+        GUID guid = registry.queryGUIDByPath("game/terraria/mob1");
         Debug.trace(guid);
 
 

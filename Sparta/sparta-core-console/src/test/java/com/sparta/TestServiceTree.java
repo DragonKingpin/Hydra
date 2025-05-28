@@ -94,7 +94,7 @@ class Jesse extends Tritium {
     }
 
     private void testDelete( ServiceInstrument serviceInstrument){
-        serviceInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+        serviceInstrument.remove( GUIDs.GUID128("181e9e4-000395-0000-d4") );
     }
 }
 

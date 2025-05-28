@@ -64,7 +64,7 @@ class Alice extends Tritium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver, null );
+        //KOMFileSystem fileSystem = new UniformObjectFileSystem( koiFileMappingDriver, null );
 
         UniformVolumeManager volumeTree = new UniformVolumeManager( koiMappingDriver, null );
         VolumeAllotment volumeAllotment = volumeTree.getVolumeAllotment();
@@ -75,7 +75,7 @@ class Alice extends Tritium {
         //this.testDirectExport( volumeTree );
         //Debug.trace( volumeTree.queryGUIDByPath( "逻辑卷三/逻辑卷一" ) );
         //volumeTree.get( GUIDs.GUID72( "05e44c4-00022b-0006-20" ) ).build();
-        //this.testStripedInsert( volumeTree );
+        this.testStripedInsert( volumeTree );
         //this.testSpannedInsert( volumeTree );
         //this.testStripedReceive( volumeTree );
         //this.testStripedExport( volumeTree );
@@ -83,7 +83,7 @@ class Alice extends Tritium {
         //this.testSpannedReceive( volumeTree );
         //this.testSpannedExport( volumeTree );
         //this.testSimpleReceive( volumeTree );
-        this.testSimpleExport( volumeTree );
+        //this.testSimpleExport( volumeTree );
         //this.testConsumer( volumeTree );
     }
 
@@ -248,7 +248,7 @@ class Alice extends Tritium {
 
     void testSimpleReceive( UniformVolumeManager volumeManager ) throws IOException {
         GuidAllocator guidAllocator = volumeManager.getGuidAllocator();
-        LogicVolume volume = volumeManager.get(GUIDs.GUID72("12146c0-0000ca-0000-8c"));
+        LogicVolume volume = volumeManager.get(GUIDs.GUID128("12146c0-0000ca-0000-8c"));
         TitanStorageReceiveIORequest titanReceiveStorageObject = new TitanStorageReceiveIORequest();
         File file = new File("C:/Users/29796/OneDrive/图片/R-C.jpg");
         titanReceiveStorageObject.setName( "视频" );
@@ -275,7 +275,7 @@ class Alice extends Tritium {
         TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
         Debug.trace(originalFile.length());
         titanExportStorageObject.setSize( originalFile.length() );
-        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID72("0d96fa2-000013-0001-f0") );
+        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID128("0d96fa2-000013-0001-f0") );
         //titanExportStorageObject.setSourceName("D:/文件系统/簇1/文件夹/视频_0662cf6-0000cd-0001-10.storage");
         //volume.channelExport( titanExportStorageObject, titanFileChannelKChannel);
         UnifiedTransmitConstructor unifiedTransmitConstructor = new UnifiedTransmitConstructor();
@@ -292,7 +292,7 @@ class Alice extends Tritium {
         LogicVolume volume = volumeManager.get(volumeManager.queryGUIDByPath("跨区卷"));
         TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
         titanExportStorageObject.setSize( originalFile.length() );
-        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID72("0dc08ee-000129-0001-d0") );
+        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID128("0dc08ee-000129-0001-d0") );
         //titanExportStorageObject.setSourceName("D:\\文件系统\\簇4\\视频_09ab8ac-0003d7-0001-04.storage");
 
         TitanSpannedExportEntity64 exportEntity = new TitanSpannedExportEntity64( volumeManager, titanExportStorageObject, kChannel, (SpannedVolume) volume);
@@ -304,10 +304,10 @@ class Alice extends Tritium {
         File originalFile = new File( "C:/Users/29796/OneDrive/图片/R-C.jpg" );
 //        FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 //        TitanFileChannelKChannel kChannel = new TitanFileChannelKChannel(channel);
-        LogicVolume volume = volumeManager.get(GUIDs.GUID72("12146c0-0000ca-0000-8c"));
+        LogicVolume volume = volumeManager.get(GUIDs.GUID128("12146c0-0000ca-0000-8c"));
         TitanStorageExportIORequest titanExportStorageObject = new TitanStorageExportIORequest();
         titanExportStorageObject.setSize( originalFile.length() - 1024 * 200 );
-        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID72("1567f8c-000038-0006-ac") );
+        titanExportStorageObject.setStorageObjectGuid( GUIDs.GUID128("1567f8c-000038-0006-ac") );
         titanExportStorageObject.setSourceName( "D:/文件系统/簇1/R-C.jpg_1567f8c-000038-0006-ac.storage" );
 
         FileOutputStream fileOutputStream = new FileOutputStream( file );
@@ -321,13 +321,13 @@ class Alice extends Tritium {
     void testHash( UniformVolumeManager volumeManager ){
         KenVolumeFileSystem kenVolumeFileSystem = new KenVolumeFileSystem(volumeManager);
 //        for( int i = 0; i < 1000000; i++ ){
-//            GUID72 guid72 = GUIDs.Dummy72();
+//            GUID128 guid72 = GUIDs.Dummy72();
 //            int hash = kenVolumeFileSystem.hashStorageObjectID(guid72, 2);
 //            if( hash != 0 && hash != 1 ){
 //                Debug.trace( guid72 );
 //            }
 //        }
-        Debug.trace( kenVolumeFileSystem.hashStorageObjectID( GUIDs.GUID72( "0860ff4-0003ac-0000-cc" ), 2 ) );
+        Debug.trace( kenVolumeFileSystem.hashStorageObjectID( GUIDs.GUID128( "0860ff4-0003ac-0000-cc" ), 2 ) );
     }
 
     void testConsumer( UniformVolumeManager volumeManager )  {

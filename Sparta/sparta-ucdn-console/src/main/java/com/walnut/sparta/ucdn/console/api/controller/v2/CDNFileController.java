@@ -50,7 +50,7 @@ public class CDNFileController {
      */
     @GetMapping("/attribute")
     public BasicResultResponse<FileTreeNode> attribute(@RequestParam("nodeGuid") String nodeGuid ){
-        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID72(nodeGuid));
+        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
         return BasicResultResponse.success( fileTreeNode );
     }
 
@@ -61,8 +61,8 @@ public class CDNFileController {
      */
     @DeleteMapping("/remove")
     public BasicResultResponse<String> removeFile( String fileGuid ){
-        this.fileSystemService.remove( GUIDs.GUID72( fileGuid ) );
-        this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
+        this.fileSystemService.remove( GUIDs.GUID128( fileGuid ) );
+        this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
         return BasicResultResponse.success();
     }
 

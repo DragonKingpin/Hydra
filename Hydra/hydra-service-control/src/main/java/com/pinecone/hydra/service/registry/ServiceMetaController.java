@@ -40,7 +40,7 @@ public class ServiceMetaController implements Pinenut {
     @AddressMapping( "fetchServiceInsMetaByServiceId" )
     public List<ServiceMetaDTO> fetchServiceInsMetaByServiceId( String serviceId ) {
         List<ServiceMetaDTO> serviceMetaDTOS = new ArrayList<>();
-        Collection<ServiceInstance> serviceInstances = this.mServiceManager.fetchServiceInstance(GUIDs.GUID72( serviceId ));
+        Collection<ServiceInstance> serviceInstances = this.mServiceManager.fetchServiceInstance(GUIDs.GUID128( serviceId ));
         for( ServiceInstance serviceInstance : serviceInstances ){
             Service service = serviceInstance.getService();
             serviceMetaDTOS.add( this.toServiceMetaDTO( service ) );

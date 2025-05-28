@@ -26,7 +26,10 @@ public class UUID128 implements GUID128 {
 
     @Override
     public Identification parse( String hexID ) {
-        return ArchGuidAllocator128.Parser.parse( hexID );
+        GUID128 parse = (GUID128)ArchGuidAllocator128.Parser.parse(hexID);
+        this.mostSigBits = parse.getMostSignificantBits();
+        this.leastSigBits = parse.getLeastSignificantBits();
+        return parse;
     }
 
     @Override

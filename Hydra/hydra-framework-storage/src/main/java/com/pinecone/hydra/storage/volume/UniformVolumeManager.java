@@ -417,7 +417,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
         String sourceName = localCluster.getSourceName();
         UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
-        LogicVolume volume = this.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+        LogicVolume volume = this.get(GUIDs.GUID128(uniformSourceLocator.getVolumeGuid()));
 
         VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volume.getGuid());
         operator.removeStorageObject( volume.getGuid(), cluster.getSegGuid(), cluster.getSize() );

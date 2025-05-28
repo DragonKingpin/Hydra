@@ -47,7 +47,7 @@ class LadyGaga extends Tritium {
         UniformServiceInstrument distributedScopeServiceTree = new UniformServiceInstrument(koiMappingDriver);
 
         //Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
-        Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")));
+        Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID128("f83ccfc-0002f9-0000-b4")));
     }
 
     private void testScenario(){
@@ -60,7 +60,7 @@ class LadyGaga extends Tritium {
 //        genericNamespaceNode.setNamespaceNodeMeta(new GenericNamespaceNodeMeta());
 //        genericNamespaceNode.setScenarioCommonData(new GenericScenarioCommonData());
 //        distributedScenarioMetaTree.insert(genericNamespaceNode);
-        distributedScenarioMetaTree.get(GUIDs.GUID72("1f5bced8-000315-0002-70"));
+        distributedScenarioMetaTree.get(GUIDs.GUID128("1f5bced8-000315-0002-70"));
     }
 }
 

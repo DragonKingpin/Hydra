@@ -135,9 +135,9 @@ class Randon extends Tritium {
         virtualMachine.setStatus("OK");
         virtualMachine.setEnable(true);
         virtualMachine.setDescription("testVirtualMachine009");
-        virtualMachine.setMetaGuid(GUIDs.GUID72("2261a1a-000377-0000-78"));
-        virtualMachine.setGuid(GUIDs.GUID72("24e2fc4-00016c-0000-dc"));
-        virtualMachine.setAffiliateHostGuid(GUIDs.GUID72("2261a1a-000377-0000-75"));
+        virtualMachine.setMetaGuid(GUIDs.GUID128("2261a1a-000377-0000-78"));
+        virtualMachine.setGuid(GUIDs.GUID128("24e2fc4-00016c-0000-dc"));
+        virtualMachine.setAffiliateHostGuid(GUIDs.GUID128("2261a1a-000377-0000-75"));
         instrument.update( virtualMachine );
     }
 
@@ -218,15 +218,15 @@ class Randon extends Tritium {
         virtualMachine.setStatus("OK");
         virtualMachine.setEnable(true);
         virtualMachine.setDescription("testVirtualMachine");
-        virtualMachine.setMetaGuid(GUIDs.GUID72("2261a1a-000377-0000-78"));
-        virtualMachine.setGuid(GUIDs.GUID72("2261a1a-000377-0000-76"));
-        virtualMachine.setAffiliateHostGuid(GUIDs.GUID72("2261a1a-000377-0000-75"));
+        virtualMachine.setMetaGuid(GUIDs.GUID128("2261a1a-000377-0000-78"));
+        virtualMachine.setGuid(GUIDs.GUID128("2261a1a-000377-0000-76"));
+        virtualMachine.setAffiliateHostGuid(GUIDs.GUID128("2261a1a-000377-0000-75"));
         instrument.put( virtualMachine );
    /*     GenericVirtualMachineElement virtualMachine = new GenericVirtualMachineElement();
         virtualMachine = (GenericVirtualMachineElement)instrument.get( GUIDs.GUID72("24e2fc4-00016c-0000-dc"));
         Debug.trace(virtualMachine);*/
 
-        instrument.get(GUIDs.GUID72("24b1e50-000044-0000-50"));
+        instrument.get(GUIDs.GUID128("24b1e50-000044-0000-50"));
 
 
       /*  GenericVirtualMachine  virtualMachine = new GenericVirtualMachine();

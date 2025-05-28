@@ -25,7 +25,7 @@ public abstract class ArchStorageConfig extends ArchKernelObjectConfig implement
 
     @Override
     public GUID getLocalHostGuid() {
-        return GUIDs.GUID72(this.mszLocalHostGuid);
+        return GUIDs.GUID128(this.mszLocalHostGuid);
     }
 
     @Override

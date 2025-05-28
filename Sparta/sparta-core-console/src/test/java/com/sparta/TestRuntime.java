@@ -63,7 +63,7 @@ class Rick extends Tritium {
         TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
         taskAtlasNode.setName("这是测试图节点8");
         //uniformRuntimeAtlas.put( GUIDs.GUID72("252386a-0000ca-0001-f0"),taskAtlasNode );
-        uniformRuntimeAtlas.addChild(GUIDs.GUID72("25238b4-0001f4-0001-c4"),GUIDs.GUID72("25238ce-00037b-0001-f8"));
+        uniformRuntimeAtlas.addChild(GUIDs.GUID128("25238b4-0001f4-0001-c4"),GUIDs.GUID128("25238ce-00037b-0001-f8"));
         //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }
 
@@ -74,16 +74,16 @@ class Rick extends Tritium {
 //        List<String> path = uniformRuntimeAtlas.getPath(GUIDs.GUID72("210f43c-000017-0000-64"));
 //        Debug.trace(path);
 
-        GraphNode graphNode = uniformRuntimeAtlas.queryGraphNodeByTaskGuid(GUIDs.GUID72("21164d6-0003e5-000f-50"));
+        GraphNode graphNode = uniformRuntimeAtlas.queryGraphNodeByTaskGuid(GUIDs.GUID128("21164d6-0003e5-000f-50"));
         Debug.trace(graphNode.toJSONString());
 
-        TaskElement taskElement = uniformRuntimeAtlas.queryTaskElementByGuid(GUIDs.GUID72("233e952-000010-0000-c0"));
+        TaskElement taskElement = uniformRuntimeAtlas.queryTaskElementByGuid(GUIDs.GUID128("233e952-000010-0000-c0"));
 
         Debug.trace(taskElement.toJSONObject());
     }
 
     public void testTape(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
-        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID72("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
         GraphStratumTape tapeded = uniformRuntimeAtlas.tapedGraphStratumAdvancer(genericVectorDAG, driver);
         //Debug.trace(tapeded.next().toJSONString());
         Debug.trace(tapeded.fetchNodes(2,1));
@@ -91,7 +91,7 @@ class Rick extends Tritium {
     }
 
     public void testAdvancer( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
-        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID72("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
         QueueTableMeta meta1 = new QueueTableMeta();
         meta1.setQueueTableName( "hydra_queue_nodes" );
         QueueTableMeta meta2 = new QueueTableMeta();

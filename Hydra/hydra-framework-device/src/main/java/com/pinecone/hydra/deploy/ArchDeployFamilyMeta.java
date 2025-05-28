@@ -32,7 +32,7 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
     protected ArchDeployFamilyMeta apply(Map<String, Object > joEntity ) {
         String szGuid = (String) joEntity.get( "guid" );
         if( szGuid != null ) {
-            this.guid = GUIDs.GUID72( (String) joEntity.get( "guid" ) );
+            this.guid = GUIDs.GUID128( (String) joEntity.get( "guid" ) );
         }
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
 

@@ -7,6 +7,7 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.construction.UnifyStructureInjector;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.homotype.StereotypicInjector;
+import com.pinecone.hydra.entity.ibatis.GUID128TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUID72TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUIDTypeHandler;
 import com.pinecone.hydra.entity.ibatis.UOITypeHandler;
@@ -49,6 +50,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
         //SqlSessionTemplate
 
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUID72TypeHandler.class );
+        ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUID128TypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUIDTypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( UOITypeHandler.class );
 

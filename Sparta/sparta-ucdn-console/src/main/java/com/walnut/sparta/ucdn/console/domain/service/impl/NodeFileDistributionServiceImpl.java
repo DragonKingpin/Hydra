@@ -104,7 +104,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
 
     @Override
     public void clusterFileSync( ClusterFileSyncDTO dto ) throws IOException, InterruptedException {
-        Folder folder = this.primaryFileSystem.getFolder( GUIDs.GUID72(dto.getFileGuid()) );
+        Folder folder = this.primaryFileSystem.getFolder( GUIDs.GUID128(dto.getFileGuid()) );
         List<GUID> guids = this.primaryVersion.fetchVersions(folder.getGuid());
         ServiceLifecycleIface lifecycleIface = this.ucdnServiceManager.getLifecycleIface();
         int serviceNum = lifecycleIface.countRegisteredService();

@@ -8,7 +8,7 @@ import com.pinecone.hydra.storage.policy.source.PolicyMasterManipulator;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class TitanPolicyManage implements PolicyManage{
     public TitanPolicyManage(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
        this.hydrogen = hydrogen;
        this.masterManipulator             = (PolicyMasterManipulator) masterManipulator;
-       this.guidAllocator                 = new GuidAllocator72V2();
+       this.guidAllocator                 = GUIDs.newGuidAllocator();
        this.policyManipulator             = this.masterManipulator.getPolicyManipulator();
        this.policyFileMappingManipulator  = this.masterManipulator.getPolicyFileMappingManipulator();
     }

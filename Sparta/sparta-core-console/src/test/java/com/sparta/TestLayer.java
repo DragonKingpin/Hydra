@@ -5,6 +5,8 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
+import com.pinecone.hydra.unit.vgraph.layer.AtlasLayerNamespace;
 import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -29,15 +31,14 @@ class Louis extends Tritium {
     }
 
     public void testInsert(VLayerInstrument vLayerManager) {
-//        AtlasLayer atlasLayer = new AtlasLayer();
-//        atlasLayer.setName("这是测试图层");
-//        atlasLayer.addHandleGuid(GUIDs.GUID72("22610ea-00002d-0000-a0"));
-//        vLayerManager.put(atlasLayer);
+        AtlasLayer atlasLayer = new AtlasLayer();
+        atlasLayer.setName("这是测试图层");
+        vLayerManager.put(atlasLayer);
 
-//        AtlasLayerNamespace atlasLayerNamespace = new AtlasLayerNamespace();
-//        atlasLayerNamespace.setName("这是测试命名空间");
-//        vLayerManager.put( atlasLayerNamespace );
-        vLayerManager.addChild( GUIDs.GUID72("2261a1a-000377-0000-78"), GUIDs.GUID72("2261524-000394-0001-fc") );
+        AtlasLayerNamespace atlasLayerNamespace = new AtlasLayerNamespace();
+        atlasLayerNamespace.setName("这是测试命名空间");
+        vLayerManager.put( atlasLayerNamespace );
+        //vLayerManager.addChild( GUIDs.GUID128("2261a1a-000377-0000-78"), GUIDs.GUID128("2261524-000394-0001-fc") );
 
     }
 

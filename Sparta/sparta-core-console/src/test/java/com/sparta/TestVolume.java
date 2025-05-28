@@ -321,7 +321,7 @@ class Alice extends Tritium {
     void testHash( UniformVolumeManager volumeManager ){
         KenVolumeFileSystem kenVolumeFileSystem = new KenVolumeFileSystem(volumeManager);
 //        for( int i = 0; i < 1000000; i++ ){
-//            GUID128 guid72 = GUIDs.Dummy72();
+//            GUID128 guid72 = GUIDs.Dummy128();
 //            int hash = kenVolumeFileSystem.hashStorageObjectID(guid72, 2);
 //            if( hash != 0 && hash != 1 ){
 //                Debug.trace( guid72 );

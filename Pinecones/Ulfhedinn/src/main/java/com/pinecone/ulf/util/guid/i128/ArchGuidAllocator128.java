@@ -51,6 +51,12 @@ public abstract class ArchGuidAllocator128 implements GuidAllocator128 {
 
 
         public static GUID parse(final String string) {
+            UUID128 neo = new UUID128();
+            parse( string, neo );
+            return neo;
+        }
+
+        public static void parse(final String string, UUID128 that) {
 
             validate(string);
 
@@ -77,7 +83,8 @@ public abstract class ArchGuidAllocator128 implements GuidAllocator128 {
                 lsb = (lsb << 4) | get(string, i);
             }
 
-            return new UUID128(msb, lsb);
+            that.mostSigBits  = msb;
+            that.leastSigBits = lsb;
         }
 
         public static boolean valid(final String guid) {

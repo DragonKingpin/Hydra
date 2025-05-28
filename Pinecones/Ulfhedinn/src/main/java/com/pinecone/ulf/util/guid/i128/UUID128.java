@@ -9,11 +9,15 @@ public class UUID128 implements GUID128 {
     /**
      * The most significant bits.
      */
-    private long mostSigBits;
+    long mostSigBits;
     /**
      * The least significant bits.
      */
-    private long leastSigBits;
+    long leastSigBits;
+
+    public UUID128 () {
+        this( 0, 0  );
+    }
 
     public UUID128( long mostSignificantBits, long leastSignificantBits ) {
         this.mostSigBits = mostSignificantBits;
@@ -21,15 +25,13 @@ public class UUID128 implements GUID128 {
     }
 
     public UUID128( String hexId ) {
-        this.parse( hexId );
+        ArchGuidAllocator128.Parser.parse( hexId, this );
     }
 
     @Override
     public Identification parse( String hexID ) {
-        GUID128 parse = (GUID128)ArchGuidAllocator128.Parser.parse(hexID);
-        this.mostSigBits = parse.getMostSignificantBits();
-        this.leastSigBits = parse.getLeastSignificantBits();
-        return parse;
+        ArchGuidAllocator128.Parser.parse( hexID, this );
+        return this;
     }
 
     @Override

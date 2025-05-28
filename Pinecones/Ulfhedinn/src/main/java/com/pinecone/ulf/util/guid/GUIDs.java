@@ -28,15 +28,18 @@ public final class GUIDs {
         return new GUID72();
     }
 
-    public static GuidAllocator newGuidAllocator(WorkerIdAssigner idAssigner ) {
+    public static UUID128 Dummy128() {
+        return new UUID128();
+    }
+
+    public static GuidAllocator newGuidAllocator( WorkerIdAssigner idAssigner ) {
         if( idAssigner == null ) {
-            return new GuidAllocator128V2();
+            return new GuidAllocator72V2();
         }
         return new GuidAllocator72V2( idAssigner );
     }
 
     public static GuidAllocator newGuidAllocator() {
-        //return GUIDs.newGuidAllocator( null );
         return new GuidAllocator128V7();
     }
 }

@@ -492,7 +492,7 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     protected RegistryTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
-        GUID parentGuid = GUIDs.Dummy72();
+        GUID parentGuid = GUIDs.Dummy128();
 
         RegistryTreeNode node = this.queryElement( path );
         if( node != null ) {

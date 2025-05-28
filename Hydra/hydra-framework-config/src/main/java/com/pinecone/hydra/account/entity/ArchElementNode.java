@@ -5,7 +5,7 @@ import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-public class ArchElementNode implements ElementNode{
+public class ArchElementNode implements ElementNode {
     protected long              enumId;
 
     protected String            name;
@@ -21,7 +21,7 @@ public class ArchElementNode implements ElementNode{
     }
 
     public ArchElementNode(AccountManager accountManager){
-        this.guid = guidAllocator.nextGUID();
+        this.guid = this.guidAllocator.nextGUID();
         this.accountManager = accountManager;
     }
     @Override

@@ -6,7 +6,7 @@
     <!-- UID generator -->
     <bean id="disposableWorkerIdAssigner" class="com.pinecone.ulf.util.guid.i64.worker.GenericDisposableWorkerIdAssigner"/>
 
-    <bean id="defaultUidGenerator" class="com.pinecone.ulf.util.guid.i64.GenericGuidAllocator" lazy-init="false">
+    <bean id="defaultUidGenerator" class="com.pinecone.ulf.util.guid.i64.GuidAllocator72V2" lazy-init="false">
 <!--        <property name="workerIdAssigner" ref="disposableWorkerIdAssigner"/>-->
 
         <!-- Specified bits & epoch as your demand. No specified the default value will be used -->

@@ -51,9 +51,6 @@ class Floki extends EnderHydra {
 
 
         this.testSimple( instrument );
-
-
-        Debug.greenfs( ( (GUID128)(new GuidAllocator128V7()).nextGUID()) );
     }
 
     private void prepareKOMTrees( ExpressInstrument instrument ) {

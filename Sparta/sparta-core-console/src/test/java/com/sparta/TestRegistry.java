@@ -34,12 +34,12 @@ class StanMarsh extends Tritium {
 
         //this.testBasicInsert( registry );
         //this.testDeletion( registry );
-        this.testDataExtends( registry );
+        //this.testDataExtends( registry );
         //this.testHardLink( registry );
         //this.testCopy( registry );
         //this.testMove( registry );
         //this.testMisc( registry );
-        //this.testSelector( registry );
+        this.testSelector( registry );
         //this.testAttributes( registry );
         //this.testMarshaling( registry );
     }

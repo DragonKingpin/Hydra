@@ -1,5 +1,6 @@
 package com.walnut.archcraft.ender.system;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.pinecone.framework.system.RuntimeSystem;
@@ -33,10 +34,8 @@ public class Hydroxy extends ArchUProcess {
         this(
                 hostedSystem, null,
                 new HydroxyImage( hostedSystem ), new GenericSegregationSpace(),
-                hostedSystem.getStartupCommandMap(), Map.of()
+                hostedSystem.getStartupCommandMap(), hostedSystem.getEnvironmentVars()
         );
-
-        Debug.greenfs( StartupCommandParser.DefaultParser.parse( System.getenv() ) );
     }
 
     @Override

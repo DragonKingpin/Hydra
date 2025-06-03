@@ -6,8 +6,10 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
-import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.ArchQueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -27,7 +29,7 @@ class Chris extends Tritium {
         KOIMappingDriver koiMappingDriver = new QueueMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        QueueTableMeta queueTableMeta = new QueueTableMeta();
+        MegaDeflectPriorityQueueMeta queueTableMeta = new ConfigurableMegaDeflectPriorityQueueMeta();
         queueTableMeta.setQueueTableName( "hydra_queue_nodes" );
         MagnitudeDPQueue dpQueue = new MagnitudeDPQueue(koiMappingDriver, 6L, "segment_name", "测试队列", queueTableMeta);
         this.testInsert( dpQueue );

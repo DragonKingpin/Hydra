@@ -9,7 +9,6 @@ import com.pinecone.hydra.atlas.advance.GraphStratumTape;
 import com.pinecone.hydra.atlas.advance.strategy.AtlasPriorityProcessStrategy;
 import com.pinecone.hydra.atlas.advance.strategy.InDegreeFirstStrategy;
 import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
-import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
@@ -17,10 +16,13 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
+import com.pinecone.hydra.unit.iqueue.ConfigurableMegaStratumQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDPStratumQueue;
-import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.ArchQueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
+import com.pinecone.hydra.unit.iqueue.MegaStratumQueueMeta;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -31,7 +33,7 @@ import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
+import com.walnut.odin.conduct.RavenTaskGraphOrchestrator;
 
 class Rick extends Tritium {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -109,9 +111,9 @@ class Rick extends Tritium {
 
     public void testAdvancer(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, LayerInstrument layerInstrument) {
         GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("01972f9b-46e1-7085-83ce-3358352d4659"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
-        QueueTableMeta meta1 = new QueueTableMeta();
+        MegaDeflectPriorityQueueMeta meta1 = new ConfigurableMegaDeflectPriorityQueueMeta();
         meta1.setQueueTableName( "hydra_queue_nodes" );
-        QueueTableMeta meta2 = new QueueTableMeta();
+        MegaStratumQueueMeta meta2 = new ConfigurableMegaStratumQueueMeta();
         meta2.setQueueTableName( "hydra_temporary_queue_nodes" );
         MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta1);
         MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(driver, "segment_name", "测试临时队列", meta2);
@@ -125,7 +127,7 @@ class Rick extends Tritium {
     public void testOrchestrator( LayerInstrument layerInstrument,UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
         Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
         VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
-        RavenCollectiveTaskRegiment ravenTaskGraphOrchestrator = new RavenCollectiveTaskRegiment(atlasVectorDAG, layerInstrument, 0,uniformRuntimeAtlas,driver);
+        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 0,uniformRuntimeAtlas,driver);
         ravenTaskGraphOrchestrator.execute();
 
     }

@@ -3,9 +3,11 @@ package com.pinecone.hydra.atlas.advance;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
-import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.ArchQueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -36,7 +38,8 @@ public class GenericGraphStratumTape implements GraphStratumTape {
             int priorityNum = this.mRuntimeAtlasInstrument.countPriority(vectorDAG.getAffiliateLayerGuid(), (short) i);
             for( int j = 0; j < priorityNum; j++ ) {
                 String segmentName = this.mRuntimeAtlasInstrument.querySegmentName(vectorDAG.getAffiliateLayerGuid(), (short) i, (short) j);
-                QueueTableMeta meta = new QueueTableMeta("hydra_queue_nodes");
+                MegaDeflectPriorityQueueMeta meta = new ConfigurableMegaDeflectPriorityQueueMeta();
+                meta.setQueueTableName("hydra_queue_nodes");
                 MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(queueDrive, 0, "segment_name", segmentName, meta );
                 map.put((short) j, magnitudeDPQueue );
             }

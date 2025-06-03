@@ -4,7 +4,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 import com.pinecone.hydra.unit.iqueue.entity.QueueStratumElement;
 
-public class MegaDPStratumQueue implements MegaStratumQueue{
+public class MegaDPStratumQueue implements MegaStratumQueue {
     private QueueMasterManipulator          mQueueMasterManipulator;
 
     private DPStratumQueueManipulator       mDPStratumQueueManipulator;
@@ -15,8 +15,10 @@ public class MegaDPStratumQueue implements MegaStratumQueue{
 
     private QueueMeta                       mQueueMeta;
 
-    public MegaDPStratumQueue(KOIMappingDriver driver, String shareSegmentField,
-                              String sharedSegmentName, QueueMeta queueMeta ) {
+    public MegaDPStratumQueue(
+            KOIMappingDriver driver, String shareSegmentField,
+            String sharedSegmentName, QueueMeta queueMeta
+    ) {
         this.mQueueMasterManipulator = (QueueMasterManipulator) driver.getMasterManipulator();
         this.mDPStratumQueueManipulator = this.mQueueMasterManipulator.getDPStratumQueueManipulator();
         this.mszSharedSegmentName = sharedSegmentName;

@@ -1,13 +1,13 @@
 package com.pinecone.hydra.unit.iqueue;
 
-public class QueueTableMeta implements QueueMeta {
+public abstract class ArchQueueTableMeta implements QueueMeta {
     protected String  mszQueueTableName;
 
-    public QueueTableMeta( String queueTableName ) {
+    public ArchQueueTableMeta(String queueTableName ) {
         this.mszQueueTableName = queueTableName;
     }
 
-    public QueueTableMeta(){}
+    public ArchQueueTableMeta(){}
 
     public void setQueueTableName( String queueTableName ) {
         this.mszQueueTableName = queueTableName;

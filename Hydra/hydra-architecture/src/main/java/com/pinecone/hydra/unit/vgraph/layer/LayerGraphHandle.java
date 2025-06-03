@@ -8,13 +8,18 @@ import java.time.LocalDateTime;
 public class LayerGraphHandle implements Pinenut {
     private String                  mszName;
 
+    private GUID                    mGraphGuid;
+
     private GUID                    mGuid;
 
     private GUID                    mHandleNodeGuid;
 
+    private GUID                    mEndNodeGuid;
+
     private LocalDateTime           mUpdateTime;
 
     private LocalDateTime           mCreateTime;
+
 
     public String getName() {
         return this.mszName;
@@ -32,12 +37,28 @@ public class LayerGraphHandle implements Pinenut {
         this.mGuid = guid;
     }
 
+    public void setGraphGuid( GUID graphGuid ) {
+        this.mGraphGuid = graphGuid;
+    }
+
+    public GUID getGraphGuid() {
+        return this.mGraphGuid;
+    }
+
     public GUID getHandleNodeGuid() {
         return this.mHandleNodeGuid;
     }
 
     public void setHandleNodeGuid(GUID handleNode) {
         this.mHandleNodeGuid = handleNode;
+    }
+
+    public GUID getEndNodeGuid() {
+        return this.mEndNodeGuid;
+    }
+
+    public void setEndNodeGuid(GUID endNodeGuid) {
+        this.mEndNodeGuid = endNodeGuid;
     }
 
     public LocalDateTime getUpdateTime() {

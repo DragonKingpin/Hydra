@@ -39,7 +39,7 @@ public interface VectorGraphManipulator extends Pinenut {
 
     List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit );
 
-    long countHandleNodes();
+    long countSourceNodes();
 
     List<GUID> fetchDownstreamNodeGuid(GUID nodeGuid, long offset, long limit);
 

@@ -63,26 +63,28 @@ public abstract class ArchVectorDAG implements VectorDAG {
 
 
     @Override
-    public List<GUID> fetchHandleGuids( long offset, long limit ) {
+    public List<GUID> fetchSourceGuids(long offset, long limit ) {
         if( this.mLstHandleNodeGuids == null || this.mLstHandleNodeGuids.isEmpty() ) {
             return this.mVectorGraphManipulator.fetchHandleGuids(offset, limit);
-        }else {
+        }
+        else {
             return this.mLstHandleNodeGuids.subList( (int) offset, (int) (offset+limit) );
         }
     }
 
     @Override
-    public List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit ) {
+    public List<GUID> fetchSourceGuidsByTaskPriority(long offset, long limit ) {
         if( this.mLstHandleNodeGuids == null || this.mLstHandleNodeGuids.isEmpty() ) {
             return this.mVectorGraphManipulator.fetchHandleGuidsByTaskPriority(offset, limit);
-        }else {
+        }
+        else {
             return this.mLstHandleNodeGuids.subList( (int) offset, (int) (offset+limit) );
         }
     }
 
     @Override
-    public long countHandleNodes() {
-        return this.mVectorGraphManipulator.countHandleNodes();
+    public long countSourceNodes() {
+        return this.mVectorGraphManipulator.countSourceNodes();
     }
 
     @Override
@@ -117,7 +119,7 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
 
     @Override
-    public GUID getGuid() {
+    public GUID getAffiliateLayerGuid() {
         return this.mLayerAffiDAGGuid;
     }
 
@@ -127,7 +129,7 @@ public abstract class ArchVectorDAG implements VectorDAG {
     }
 
     @Override
-    public void addHandleNodeGuid( GUID handleNodeGuid ) {
+    public void addSourceNodeGuid(GUID handleNodeGuid ) {
         this.mLstHandleNodeGuids.add(handleNodeGuid);
     }
 
@@ -144,7 +146,7 @@ public abstract class ArchVectorDAG implements VectorDAG {
             this.mGraphLayer.setGuid( this.mLayerAffiDAGGuid );
         }
 
-        this.mGraphLayer.setHandleGuids( this.mLstHandleNodeGuids );
+        this.mGraphLayer.setSourceGuids( this.mLstHandleNodeGuids );
         this.mGraphLayer.setName( name );
 
         if ( node == null ) {

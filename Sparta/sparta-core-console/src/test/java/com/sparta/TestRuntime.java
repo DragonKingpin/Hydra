@@ -11,20 +11,27 @@ import com.pinecone.hydra.atlas.advance.strategy.InDegreeFirstStrategy;
 import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
 import com.pinecone.hydra.atlas.graph.entity.TaskAtlasNode;
 import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
+import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDPStratumQueue;
 import com.pinecone.hydra.unit.iqueue.QueueTableMeta;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
+import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
+import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 
 class Rick extends Tritium {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -48,22 +55,32 @@ class Rick extends Tritium {
         KOIMappingDriver driver = new TaskMappingDriver(
                 this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
         );
+
+        KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
+                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+        );
+        VLayerInstrument vLayerManager = new VLayerInstrument(layerMappingDriver);
         UniformTaskInstrument uniformTaskInstrument = new UniformTaskInstrument( driver );
 
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument);
         //this.testInsert(uniformRuntimeAtlas);
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
-        this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver );
+        //this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,vLayerManager );
+        this.testOrchestrator( vLayerManager, uniformRuntimeAtlas,koiMappingDriver );
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
         GuidAllocator guidAllocator = uniformRuntimeAtlas.getGuidAllocator();
 
-        TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
-        taskAtlasNode.setName("这是测试图节点8");
+//        for( int i = 1; i<=12; i++ ) {
+//            TaskAtlasNode taskAtlasNode = new TaskAtlasNode();
+//            taskAtlasNode.setName("测试图节点" + i);
+//            uniformRuntimeAtlas.put( taskAtlasNode );
+//        }
+
         //uniformRuntimeAtlas.put( GUIDs.GUID72("252386a-0000ca-0001-f0"),taskAtlasNode );
-        uniformRuntimeAtlas.addChild(GUIDs.GUID128("25238b4-0001f4-0001-c4"),GUIDs.GUID128("25238ce-00037b-0001-f8"));
+        uniformRuntimeAtlas.addChild(GUIDs.GUID128("01972f7e-1642-75c5-aa70-82a752fd5e05"),GUIDs.GUID128("01972f7e-164e-7f80-8e67-a22060a3afd7"));
         //uniformRuntimeAtlas.put(GUIDs.GUID72("20dc3d8-00007b-0000-50"), taskAtlasNode);
     }
 
@@ -90,19 +107,27 @@ class Rick extends Tritium {
 
     }
 
-    public void testAdvancer( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
-        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+    public void testAdvancer(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, LayerInstrument layerInstrument) {
+        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("01972f9b-46e1-7085-83ce-3358352d4659"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
         QueueTableMeta meta1 = new QueueTableMeta();
         meta1.setQueueTableName( "hydra_queue_nodes" );
         QueueTableMeta meta2 = new QueueTableMeta();
         meta2.setQueueTableName( "hydra_temporary_queue_nodes" );
         MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta1);
         MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(driver, "segment_name", "测试临时队列", meta2);
-        InDegreeFirstStrategy strategyChain = new InDegreeFirstStrategy(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue);
+        InDegreeFirstStrategy strategyChain = new InDegreeFirstStrategy(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue,layerInstrument);
         AtlasPriorityProcessStrategy atlasPriorityProcessStrategy = new AtlasPriorityProcessStrategy();
         atlasPriorityProcessStrategy.addStrategy( strategyChain );
-        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue,megaDPStratumQueue,atlasPriorityProcessStrategy);
+        GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer(uniformRuntimeAtlas, magnitudeDPQueue,atlasPriorityProcessStrategy);
         advancer.traverse( genericVectorDAG );
+    }
+
+    public void testOrchestrator( LayerInstrument layerInstrument,UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
+        Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
+        VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
+        RavenCollectiveTaskRegiment ravenTaskGraphOrchestrator = new RavenCollectiveTaskRegiment(atlasVectorDAG, layerInstrument, 0,uniformRuntimeAtlas,driver);
+        ravenTaskGraphOrchestrator.execute();
+
     }
 
 

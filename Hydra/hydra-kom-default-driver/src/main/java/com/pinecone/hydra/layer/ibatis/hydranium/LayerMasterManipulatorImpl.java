@@ -1,14 +1,15 @@
 package com.pinecone.hydra.layer.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.hydra.layer.ibatis.LayerHandleMapper;
 import com.pinecone.hydra.layer.ibatis.LayerMapper;
 import com.pinecone.hydra.layer.ibatis.NamespaceMapper;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
+import com.pinecone.hydra.unit.vgraph.layer.source.LayerHandleManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
-import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMasterManipulatorImpl;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -27,6 +28,10 @@ public class LayerMasterManipulatorImpl implements LayerMasterManipulator {
     @Resource
     @Structure( type = LayerMapper.class )
     LayerManipulator layerManipulator;
+
+    @Resource
+    @Structure( type = LayerHandleMapper.class )
+    LayerHandleManipulator layerHandleManipulator;
 
     public LayerMasterManipulatorImpl() {
 
@@ -50,5 +55,10 @@ public class LayerMasterManipulatorImpl implements LayerMasterManipulator {
     @Override
     public NamespaceManipulator getNamespaceManipulator() {
         return this.namespaceManipulator;
+    }
+
+    @Override
+    public LayerHandleManipulator getLayerHandleManipulator() {
+        return this.layerHandleManipulator;
     }
 }

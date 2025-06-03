@@ -3,6 +3,8 @@ package com.pinecone.hydra.layer.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
+import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerTreeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
@@ -95,4 +97,66 @@ public interface LayerTreeMapper extends LayerTreeManipulator {
 
     @Update("UPDATE hydra_atlas_layer_tree SET parent_guid = #{parentGuid} WHERE guid = #{childGuid}")
     void addChild( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+
+
+
+
+    @Override
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_atlas_layer_tree WHERE `guid` = #{guid} AND `linked_type` = #{linkedType}" )
+    long queryLinkedCount( @Param("guid") GUID guid, @Param("linkedType") LinkedType linkedType );
+
+    @Override
+    @Select( "SELECT COUNT( `guid` ) FROM hydra_atlas_layer_tree WHERE `guid` = #{guid}" )
+    long queryAllLinkedCount( @Param("guid") GUID guid );
+
+
+    @Override
+    @Insert(
+            "INSERT INTO `hydra_atlas_layer_tree` (`guid`, `linked_type`,`tag_name`,`tag_guid`,`parent_guid`) " +
+                    "VALUES (#{originalGuid}, #{linkedType}, #{tagName}, #{tagGuid}, #{dirGuid})"
+    )
+    void newLinkTag(
+            @Param("originalGuid") GUID originalGuid, @Param("dirGuid") GUID dirGuid,
+            @Param("tagName") String tagName, @Param("tagGuid") GUID tagGuid, @Param("linkedType") LinkedType linkedType
+    );
+
+    @Override
+    @Update( "UPDATE hydra_atlas_layer_tree SET tag_name = #{tagName} WHERE tag_guid =#{tagGuid}" )
+    void updateLinkTagName( @Param("tagGuid") GUID tagGuid, @Param("tagName") String tagName );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_atlas_layer_tree WHERE tag_name = #{tagName} AND parent_guid = #{dirGuid}" )
+    GUID getOriginalGuid( @Param("tagName") String tagName, @Param("dirGuid") GUID dirGuid );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_atlas_layer_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
+    GUID getOriginalGuidByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
+
+    @Override
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_atlas_layer_tree WHERE tag_name = #{tagName} AND parent_guid = #{parentDirGuid}" )
+    TreeReparseLinkNode getReparseLinkNode(@Param("tagName") String tagName, @Param("parentDirGuid") GUID parentDirGuid );
+
+    @Override
+    @Select( "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, `tag_name` AS tagName, `tag_guid` AS tagGuid FROM hydra_atlas_layer_tree WHERE tag_name = #{tagName} AND guid = #{nodeGuid}" )
+    TreeReparseLinkNode getReparseLinkNodeByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_atlas_layer_tree WHERE `tag_name` = #{tagName}" )
+    List<GUID > fetchOriginalGuid( String tagName );
+
+    @Override
+    @Select( "SELECT `guid` FROM hydra_atlas_layer_tree WHERE `tag_name` = #{tagName} AND `parent_guid` IS NULL" )
+    List<GUID > fetchOriginalGuidRoot( String tagName );
+
+    @Override
+    @Select( "SELECT COUNT(*) FROM `hydra_atlas_layer_tree` WHERE `tag_guid` = #{guid}" )
+    boolean isTagGuid(GUID guid);
+
+    @Override
+    @Delete( "DELETE FROM `hydra_atlas_layer_tree` WHERE `tag_guid` = #{guid}" )
+    void removeReparseLink( GUID guid );
+
+    @Override
+    @Select( "SELECT `guid` FROM `hydra_atlas_layer_tree` WHERE `tag_guid` = #{tagGuid}" )
+    GUID getOriginalGuidByTagGuid(GUID tagGuid);
 }

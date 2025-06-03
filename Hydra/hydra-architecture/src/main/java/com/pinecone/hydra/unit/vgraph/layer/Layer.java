@@ -1,9 +1,6 @@
 package com.pinecone.hydra.unit.vgraph.layer;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.VectorDAG;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,11 +14,15 @@ public interface Layer extends LayerTreeNode {
 
     GUID getParentGuid();
 
-    List<GUID> getHandleGuids();
+    List<GUID> getSourceGuids();
 
-    void setHandleGuids( List<GUID> handleGuids );
+    void setSourceGuids(List<GUID> handleGuids );
 
-    GUID addHandleGuid( GUID handleGuid );
+    List<GUID> getSinkGuids();
+
+    void setSinkGuids(List<GUID> endGuids );
+
+    GUID addSourceeGuid(GUID handleGuid );
 
     LocalDateTime getUpdateTime();
 

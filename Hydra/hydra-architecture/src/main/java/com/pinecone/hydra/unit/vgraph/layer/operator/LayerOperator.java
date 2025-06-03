@@ -4,9 +4,11 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.layer.LayerGraphHandle;
 import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.AtlasLayer;
+import com.pinecone.hydra.unit.vgraph.layer.source.LayerHandleManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 
@@ -16,6 +18,8 @@ import java.util.List;
 public class LayerOperator extends ArchLayerComponentOperator implements LayerComponentOperator{
     protected LayerManipulator          mLayerManipulator;
 
+    protected LayerHandleManipulator    mLayerHandleManipulator;
+
     public LayerOperator( LayerComponentOperatorFactory factory ) {
         this( factory.getMasterManipulator(), factory.getLayerManager() );
         this.mFactory = factory;
@@ -23,7 +27,8 @@ public class LayerOperator extends ArchLayerComponentOperator implements LayerCo
 
     public LayerOperator(LayerMasterManipulator layerMasterManipulator, LayerInstrument layerInstrument) {
         super(layerMasterManipulator, layerInstrument);
-        this.mLayerManipulator = mLayerMasterManipulator.getLayerManipulator();
+        this.mLayerManipulator = this.mLayerMasterManipulator.getLayerManipulator();
+        this.mLayerHandleManipulator = this.mLayerMasterManipulator.getLayerHandleManipulator();
     }
 
     @Override
@@ -34,17 +39,24 @@ public class LayerOperator extends ArchLayerComponentOperator implements LayerCo
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize(atlasLayer);
 
         this.mImperialTree.insert(imperialTreeNode);
-        ArrayList<LayerGraphHandle> layerGraphHandles = new ArrayList<>();
-        for( GUID g : atlasLayer.getHandleGuids()) {
-            LayerGraphHandle layerGraphHandle = new LayerGraphHandle();
-            layerGraphHandle.setGuid(atlasLayer.getGuid());
-            layerGraphHandle.setName(atlasLayer.getName());
-            layerGraphHandle.setUpdateTime(atlasLayer.getUpdateTime());
-            layerGraphHandle.setCreateTime(atlasLayer.getCreateTime());
-            layerGraphHandle.setHandleNodeGuid(g);
-            layerGraphHandles.add(layerGraphHandle);
+
+        LayerGraphHandle layerGraphHandle = new LayerGraphHandle();
+        layerGraphHandle.setGuid(atlasLayer.getGuid());
+        layerGraphHandle.setName(atlasLayer.getName());
+        layerGraphHandle.setUpdateTime(atlasLayer.getUpdateTime());
+        layerGraphHandle.setCreateTime(atlasLayer.getCreateTime());
+
+        this.mLayerManipulator.insertLayer( layerGraphHandle );
+
+        if( atlasLayer.getSourceGuids() != null ) {
+            this.mLayerHandleManipulator.batchInsertSourceNodes( layerGraphHandle.getGuid(), atlasLayer.getSourceGuids() );
         }
-        this.mLayerManipulator.batchInsertLayer(layerGraphHandles);
+
+        if( atlasLayer.getSinkGuids() != null ) {
+            this.mLayerHandleManipulator.batchInsertSinkNodes( layerGraphHandle.getGuid(), atlasLayer.getSinkGuids() );
+        }
+
+
         return guid;
     }
 
@@ -61,7 +73,12 @@ public class LayerOperator extends ArchLayerComponentOperator implements LayerCo
 
     @Override
     public TreeNode get(GUID guid) {
-        return this.mLayerManipulator.queryLayer(guid);
+        Layer layer = this.mLayerManipulator.queryLayer(guid);
+        List<GUID> sourceNodeGuids = this.mLayerHandleManipulator.fetchSourceNodes(layer.getGuid());
+        List<GUID> sinkNodeGuids = this.mLayerHandleManipulator.fetchSinkNodes(layer.getGuid());
+        layer.setSourceGuids( sourceNodeGuids );
+        layer.setSinkGuids( sinkNodeGuids );
+        return layer;
     }
 
     @Override

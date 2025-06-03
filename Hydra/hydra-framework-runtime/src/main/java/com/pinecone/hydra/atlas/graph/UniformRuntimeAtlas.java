@@ -12,6 +12,7 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
+import com.pinecone.hydra.unit.vgraph.GenericClosedVectorDAG;
 import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.ArchAtlasInstrument;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
@@ -111,8 +112,9 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     @Override
     public VectorDAG toVectorDAG( Layer layer ) {
-        List<GUID> handleGuids = layer.getHandleGuids();
-        return new GenericVectorDAG( handleGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );
+        List<GUID> sourceGuids = layer.getSourceGuids();
+        List<GUID> sinkGuids = layer.getSinkGuids();
+        return new GenericClosedVectorDAG( layer.getGuid(), sourceGuids,sinkGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );
     }
 
     @Override

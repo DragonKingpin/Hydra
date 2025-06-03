@@ -9,15 +9,17 @@ import java.util.List;
 
 public interface LayerManipulator extends GUIDNameManipulator {
 
-    void insertStartLayer(  LayerGraphHandle layer );
-
-    void batchInsertLayer( List<LayerGraphHandle> list );
+    void insertLayer(LayerGraphHandle layer );
 
     void remove( GUID guid );
 
     Layer queryLayer( GUID guid );
 
+    List<Layer> fetchLayer( List<GUID> guids );
+
     List<GUID > getGuidsByName(String name );
 
     List<GUID > getGuidsByNameID( String name, GUID guid );
+
+    void batchInsertLayer(List<LayerGraphHandle> list);
 }

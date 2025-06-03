@@ -15,6 +15,8 @@ public class AtlasLayer implements Layer {
 
     private List<GUID>              mLstHandleGuids;
 
+    private List<GUID>              mLstEndGuids;
+
     private LocalDateTime           mUpdateTime;
 
     private LocalDateTime           mCreateTime;
@@ -56,17 +58,27 @@ public class AtlasLayer implements Layer {
     }
 
     @Override
-    public List<GUID> getHandleGuids() {
+    public List<GUID> getSourceGuids() {
         return this.mLstHandleGuids;
     }
 
     @Override
-    public void setHandleGuids(List<GUID> handleGuids) {
+    public void setSourceGuids(List<GUID> handleGuids) {
         this.mLstHandleGuids = handleGuids;
     }
 
     @Override
-    public GUID addHandleGuid(GUID handleGuid) {
+    public List<GUID> getSinkGuids() {
+        return this.mLstEndGuids;
+    }
+
+    @Override
+    public void setSinkGuids(List<GUID> endGuids) {
+        this.mLstEndGuids = endGuids;
+    }
+
+    @Override
+    public GUID addSourceeGuid(GUID handleGuid) {
         this.mLstHandleGuids.add(handleGuid);
         return handleGuid;
     }

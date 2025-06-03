@@ -16,7 +16,7 @@ import java.util.List;
 
 
 @IbatisDataAccessObject
-public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
+public interface RuntimeVGraphMapper extends VectorGraphManipulator {
     @Override
     default void insertHandleNode( GraphNode graphNode ){
         this.insertGraphNode(graphNode);
@@ -72,7 +72,7 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
             "    havn.`id`,\n" +
             "    havn.`guid`,\n" +
             "    havn.`node_name`,\n" +
-            "    havn.`node_description`\n" +
+            "    havn.`node_description`\n," +
             "FROM \n" +
             "    hydra_atlas_vgraph_nodes havn\n" +
             "WHERE \n" +
@@ -123,7 +123,7 @@ public interface RuntimeVectorGraphMapper extends VectorGraphManipulator {
     @Select("SELECT COUNT(havn.guid) " +
             "FROM `hydra_atlas_vgraph_nodes` havn " +
             "WHERE NOT EXISTS (SELECT `id` FROM `hydra_atlas_vgraph_adjacent` `hava` WHERE `hava`.guid = `havn`.guid)")
-    long countHandleNodes( );
+    long countSourceNodes();
 
     @Override
     @Select("SELECT `guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `parent_guid` = #{nodeGuid} LIMIT #{limit} OFFSET #{offset}")

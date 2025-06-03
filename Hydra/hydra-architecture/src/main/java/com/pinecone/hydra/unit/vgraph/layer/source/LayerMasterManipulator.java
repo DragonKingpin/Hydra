@@ -6,4 +6,6 @@ public interface LayerMasterManipulator extends KOIMasterManipulator {
     LayerManipulator            getLayerManipulator();
 
     NamespaceManipulator        getNamespaceManipulator();
+
+    LayerHandleManipulator      getLayerHandleManipulator();
 }

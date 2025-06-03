@@ -38,8 +38,8 @@ class Randy extends Tritium {
 
         //this.testCategory( ravenTaskInstrument );
 
-        //this.testInsert( ravenTaskInstrument );
-        this.testGet( ravenTaskInstrument );
+        this.testInsert( ravenTaskInstrument );
+        //this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
         //this.testInstance( ravenTaskInstrument );
@@ -55,7 +55,7 @@ class Randy extends Tritium {
         Debug.greenfs( categoryService.setCategoryTag( "root/test/job/task", tag ) );
     }
 
-    private void testInsert( TaskInstrument instrument ) {
+    private void testInsert( RavenTaskInstrument instrument ) {
 //        GenericNamespace namespace = new GenericNamespace();
 //        namespace.setName( "Test1" );
 //        instrument.put( namespace );
@@ -70,12 +70,18 @@ class Randy extends Tritium {
 //
 //        applicationNode.apply( new JSONMaptron( "{ name:specialApp2, deploymentMethod:VM }" ) );
 //        instrument.put( applicationNode );
+        for( int i = 1; i <=12; i++ ) {
+            GenericTaskElement taskElement = new GenericTaskElement(
+                    new JSONMaptron( "{ name:'测试服务"+i+"', alias:jesus, serviceType:System, resourceType:human," +
+                            "type:Social, description: 'This is special', extraInformation: 'more', level:'L1', primaryImplLang: java, scenario:'/scenario/dragon/king'  }" )
+            );
+            instrument.put( taskElement );
+        }
 
-        GenericTaskElement taskElement = new GenericTaskElement(
-                new JSONMaptron( "{ name:'特殊服务8', alias:jesus, serviceType:System, resourceType:human," +
-                        "type:Social, description: 'This is special', extraInformation: 'more', level:'L1', primaryImplLang: java, scenario:'/scenario/dragon/king'  }" )
-        );
-        instrument.put( taskElement );
+
+
+          //instrument.affirmOwnedNode( GUIDs.GUID128("01972f5a-7edc-79bd-9655-ea50ae5b0887"),GUIDs.GUID128("01972f5b-4d56-7d1c-811c-b855bfdb5dcb") );
+        //instrument.newHardLink( GUIDs.GUID128("01972f5a-7edc-79bd-9655-ea50ae5b0887"), GUIDs.GUID128("01972f59-4049-77fc-827f-a9976425c01c") );
     }
 
     private void testGet( TaskInstrument instrument ){

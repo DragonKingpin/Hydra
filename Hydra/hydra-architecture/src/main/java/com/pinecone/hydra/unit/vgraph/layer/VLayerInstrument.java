@@ -16,12 +16,17 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.layer.operator.AtlasLayerComponentOperatorFactory;
+import com.pinecone.hydra.unit.vgraph.layer.source.LayerHandleManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     protected LayerMasterManipulator    mLayerMasterManipulator;
@@ -29,6 +34,8 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     protected LayerManipulator          mLayerManipulator;
 
     protected NamespaceManipulator      mNamespaceManipulator;
+
+    protected LayerHandleManipulator    mLayerHandleManipulator;
 
     public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
         super( superiorProcess, masterManipulator, LayerInstrument.LayerConfig, parent, name, superiorPathScope, guidAllocator );
@@ -38,6 +45,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
         this.operatorFactory            = new AtlasLayerComponentOperatorFactory( this, (LayerMasterManipulator) masterManipulator);
         this.mLayerManipulator          = this.mLayerMasterManipulator.getLayerManipulator();
         this.mNamespaceManipulator      = this.mLayerMasterManipulator.getNamespaceManipulator();
+        this.mLayerHandleManipulator    = this.mLayerMasterManipulator.getLayerHandleManipulator();
 
         this.pathSelector = new SimplePathSelector(
                 this.pathResolver, this.imperialTree, this.mNamespaceManipulator,new GUIDNameManipulator[]{ this.mLayerManipulator }
@@ -95,7 +103,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
         if ( node == null ){
             return null;
         }
-        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{this.getClass()}, this );
+        TreeNode newInstance = (TreeNode)node.getType().newInstance( new Class<? >[]{this.getClass()}, null );
         return this.operatorFactory.getOperator( this.getLayerMetaType( newInstance ) );
     }
 
@@ -116,6 +124,25 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     @Override
     public void update( TreeNode treeNode ) {
 
+    }
+
+    @Override
+    public List<Layer> splitGraphLayer(VectorDAG vectorDAG) {
+        Layer layer = this.mLayerManipulator.queryLayer(vectorDAG.getAffiliateLayerGuid());
+        List<TreeNode> children = this.getChildren(layer.getGuid());
+        List<GUID> collect = children.stream().map(TreeNode::getGuid).collect(Collectors.toList());
+        List<Layer> layers = this.mLayerManipulator.fetchLayer(collect);
+        return layers;
+    }
+
+    @Override
+    public long countSourceNode(GUID layerGuid) {
+        return this.mLayerHandleManipulator.countSourceNode( layerGuid );
+    }
+
+    @Override
+    public List<GUID> fetchSourceGuidsByTaskPriority(GUID layerGuid, long offset, long limit) {
+        return this.mLayerHandleManipulator.fetchSourceGuidsByTaskPriority( layerGuid, offset, limit );
     }
 
     protected ImperialTreeNode affirmPreinsertionInitialize(AtlasLayer atlasLayer) {

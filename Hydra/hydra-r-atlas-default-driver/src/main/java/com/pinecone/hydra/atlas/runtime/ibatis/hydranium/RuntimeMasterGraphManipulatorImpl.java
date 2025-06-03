@@ -1,7 +1,7 @@
 package com.pinecone.hydra.atlas.runtime.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.atlas.runtime.ibatis.RuntimeVectorGraphMapper;
+import com.pinecone.hydra.atlas.runtime.ibatis.RuntimeVGraphMapper;
 import com.pinecone.hydra.atlas.runtime.ibatis.RuntimeVectorGraphPathCacheMapper;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class RuntimeMasterGraphManipulatorImpl implements VectorGraphMasterManipulator {
 
     @Resource
-    @Structure( type = RuntimeVectorGraphMapper.class)
+    @Structure( type = RuntimeVGraphMapper.class)
     VectorGraphManipulator mVectorGraphManipulator;
 
     @Resource

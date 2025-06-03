@@ -29,13 +29,13 @@ public class GenericGraphStratumTape implements GraphStratumTape {
         this.mRuntimeAtlasInstrument = runtimeAtlasInstrument;
         this.mVectorDAG = vectorDAG;
         ArrayList<Map<Short, MegaDeflectPriorityQueue>> list = new ArrayList<>();
-        int stratumNum = this.mRuntimeAtlasInstrument.countStratum(vectorDAG.getGuid());
+        int stratumNum = this.mRuntimeAtlasInstrument.countStratum(vectorDAG.getAffiliateLayerGuid());
 
         for( int i = 0; i < stratumNum; i++ ) {
             HashMap<Short, MegaDeflectPriorityQueue> map = new HashMap<>();
-            int priorityNum = this.mRuntimeAtlasInstrument.countPriority(vectorDAG.getGuid(), (short) i);
+            int priorityNum = this.mRuntimeAtlasInstrument.countPriority(vectorDAG.getAffiliateLayerGuid(), (short) i);
             for( int j = 0; j < priorityNum; j++ ) {
-                String segmentName = this.mRuntimeAtlasInstrument.querySegmentName(vectorDAG.getGuid(), (short) i, (short) j);
+                String segmentName = this.mRuntimeAtlasInstrument.querySegmentName(vectorDAG.getAffiliateLayerGuid(), (short) i, (short) j);
                 QueueTableMeta meta = new QueueTableMeta("hydra_queue_nodes");
                 MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(queueDrive, 0, "segment_name", segmentName, meta );
                 map.put((short) j, magnitudeDPQueue );
@@ -190,7 +190,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
 
     @Override
     public int countStratum() {
-        return this.mRuntimeAtlasInstrument.countStratum( this.mVectorDAG.getGuid() );
+        return this.mRuntimeAtlasInstrument.countStratum( this.mVectorDAG.getAffiliateLayerGuid() );
     }
 
     @Override

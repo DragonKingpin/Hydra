@@ -120,9 +120,78 @@ public class UUID128 implements GUID128 {
     }
 
     @Override
+    public byte[] toBytesLE() {
+        byte[] bytes = new byte[16];
+
+        // Least significant bits first (little endian)
+        bytes[0]  = (byte) (this.leastSigBits);
+        bytes[1]  = (byte) (this.leastSigBits >> 8);
+        bytes[2]  = (byte) (this.leastSigBits >> 16);
+        bytes[3]  = (byte) (this.leastSigBits >> 24);
+        bytes[4]  = (byte) (this.leastSigBits >> 32);
+        bytes[5]  = (byte) (this.leastSigBits >> 40);
+        bytes[6]  = (byte) (this.leastSigBits >> 48);
+        bytes[7]  = (byte) (this.leastSigBits >> 56);
+
+        // Then most significant bits (little endian)
+        bytes[8]  = (byte) (this.mostSigBits);
+        bytes[9]  = (byte) (this.mostSigBits >> 8);
+        bytes[10] = (byte) (this.mostSigBits >> 16);
+        bytes[11] = (byte) (this.mostSigBits >> 24);
+        bytes[12] = (byte) (this.mostSigBits >> 32);
+        bytes[13] = (byte) (this.mostSigBits >> 40);
+        bytes[14] = (byte) (this.mostSigBits >> 48);
+        bytes[15] = (byte) (this.mostSigBits >> 56);
+
+        return bytes;
+    }
+
+    @Override
+    public byte[] toBytesBE() {
+        byte[] bytes = new byte[16];
+
+        // Most significant bits first (big endian)
+        bytes[0]  = (byte) (this.mostSigBits >> 56);
+        bytes[1]  = (byte) (this.mostSigBits >> 48);
+        bytes[2]  = (byte) (this.mostSigBits >> 40);
+        bytes[3]  = (byte) (this.mostSigBits >> 32);
+        bytes[4]  = (byte) (this.mostSigBits >> 24);
+        bytes[5]  = (byte) (this.mostSigBits >> 16);
+        bytes[6]  = (byte) (this.mostSigBits >> 8);
+        bytes[7]  = (byte) (this.mostSigBits);
+
+        // Then least significant bits (big endian)
+        bytes[8]  = (byte) (this.leastSigBits >> 56);
+        bytes[9]  = (byte) (this.leastSigBits >> 48);
+        bytes[10] = (byte) (this.leastSigBits >> 40);
+        bytes[11] = (byte) (this.leastSigBits >> 32);
+        bytes[12] = (byte) (this.leastSigBits >> 24);
+        bytes[13] = (byte) (this.leastSigBits >> 16);
+        bytes[14] = (byte) (this.leastSigBits >> 8);
+        bytes[15] = (byte) (this.leastSigBits);
+
+        return bytes;
+    }
+
+    @Override
     public int hashCode() {
         long hilo = this.mostSigBits ^ this.leastSigBits;
         return ((int)(hilo >> 32)) ^ (int) hilo;
+    }
+
+    @Override
+    public long hashCode64() {
+        return this.mostSigBits ^ this.leastSigBits;
+    }
+
+    @Override
+    public int intVal() {
+        return this.hashCode();
+    }
+
+    @Override
+    public long longVal() {
+        return this.hashCode64();
     }
 
     @Override

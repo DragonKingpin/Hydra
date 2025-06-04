@@ -1,6 +1,8 @@
 package com.pinecone.framework.util.id;
 
-public class Int32ID implements NumbernicID {
+import com.pinecone.framework.util.Bytes;
+
+public class Int32ID implements NumericID {
     protected int mId;
 
     public Int32ID( int id ) {
@@ -26,6 +28,21 @@ public class Int32ID implements NumbernicID {
     @Override
     public String toString() {
         return Integer.toUnsignedString( this.mId );
+    }
+
+    @Override
+    public byte[] toBytesLE() {
+        return Bytes.int32ToBytesLE( this.mId );
+    }
+
+    @Override
+    public byte[] toBytesBE() {
+        return Bytes.int32ToBytesBE( this.mId );
+    }
+
+    @Override
+    public int sizeof() {
+        return Integer.BYTES;
     }
 
     @Override

@@ -20,4 +20,9 @@ public interface GUID128 extends GUID {
 
     long node() ;
 
+    @Override
+    default int sizeof() {
+        return 16; // 128 bits = 16 bytes
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.pinecone.ulf.util.guid.i64;
 
+import com.pinecone.framework.util.Bytes;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.framework.util.id.IllegalIdentificationException;
@@ -9,6 +10,7 @@ public class GUID64 implements GUID {
     public static final long TimestampBits = 29;
     public static final long WorkerIdBits  = 21;
     public static final long SequenceBits  = 13;
+    public static final int  Sizeof        = 8;
 
     protected long guid;
 
@@ -90,6 +92,36 @@ public class GUID64 implements GUID {
     @Override
     public int hashCode() {
         return Long.hashCode( this.guid );
+    }
+
+    @Override
+    public long hashCode64() {
+        return this.guid;
+    }
+
+    @Override
+    public int intVal() {
+        return (int) this.guid;
+    }
+
+    @Override
+    public long longVal() {
+        return this.guid;
+    }
+
+    @Override
+    public byte[] toBytesBE() {
+        return Bytes.int64ToBytesBE( this.guid );
+    }
+
+    @Override
+    public byte[] toBytesLE() {
+        return Bytes.int64ToBytesLE( this.guid );
+    }
+
+    @Override
+    public int sizeof() {
+        return Sizeof;
     }
 
     @Override

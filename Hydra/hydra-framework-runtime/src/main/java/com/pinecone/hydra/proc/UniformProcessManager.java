@@ -15,6 +15,7 @@ import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
 import com.pinecone.hydra.proc.image.UniformImageLoader;
+import com.pinecone.hydra.proc.ns.GenericSegregationSpace;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
@@ -24,32 +25,35 @@ import com.pinecone.ulf.util.guid.GUIDs;
 
 public class UniformProcessManager implements ProcessManager {
 
-    protected long                   mnVitalizeCount      = 0;
-    protected long                   mnFatalityCount      = 0;
+    protected long                         mnVitalizeCount      = 0;
+    protected long                         mnFatalityCount      = 0;
 
-    protected String                 mSuperiorPathScope;
-    protected Namespace              mThisNamespace;
-    protected GuidAllocator          mGuidAllocator;
-    protected Processum              mSuperiorProcess;
-    protected RuntimeSystem          mSuperiorSystem;
-    protected CascadeInstrument      mParentInstrument;
-    protected KernelObjectConfig     mKernelObjectConfig;
-    protected DynamicFactory         mDynamicFactory;
-    protected Map<GUID, EntityNode>  mProcessMap;
-    protected ImageLoader            mImageLoader;
+    protected String                       mSuperiorPathScope;
+    protected Namespace                    mThisNamespace;
+    protected GuidAllocator                mGuidAllocator;
+    protected Processum                    mSuperiorProcess;
+    protected UProcess                     mRootUProcess;
+    protected RuntimeSystem                mSuperiorSystem;
+    protected CascadeInstrument            mParentInstrument;
+    protected KernelObjectConfig           mKernelObjectConfig;
+    protected DynamicFactory               mDynamicFactory;
+    protected Map<GUID, EntityNode>        mProcessMap;
+    protected ImageLoader                  mImageLoader;
+    protected ProcessEnvironmentSection    mProcessEnvironmentSection;
 
     public UniformProcessManager (
             Processum superiorProcess, CascadeInstrument parentInstrument, String name, String superiorPathScope,
             KernelObjectConfig config, @Nullable ImageLoader imageLoader, @Nullable GuidAllocator guidAllocator
     ) {
-        this.mSuperiorPathScope   = superiorPathScope;
-        this.mSuperiorProcess     = superiorProcess;
-        this.mParentInstrument    = parentInstrument;
-        this.mProcessMap          = new ConcurrentHashMap<>();
-        this.mKernelObjectConfig  = config;
-        this.mGuidAllocator       = guidAllocator;
-        this.mDynamicFactory      = new GenericDynamicFactory( superiorProcess.getTaskManager().getClassLoader() );
-        this.mImageLoader         = imageLoader;
+        this.mSuperiorPathScope         = superiorPathScope;
+        this.mSuperiorProcess           = superiorProcess;
+        this.mParentInstrument          = parentInstrument;
+        this.mProcessMap                = new ConcurrentHashMap<>();
+        this.mKernelObjectConfig        = config;
+        this.mGuidAllocator             = guidAllocator;
+        this.mDynamicFactory            = new GenericDynamicFactory( superiorProcess.getTaskManager().getClassLoader() );
+        this.mImageLoader               = imageLoader;
+        this.mProcessEnvironmentSection = new LineageProcessEnvironmentSection( this.mSuperiorProcess.parentSystem().getEnvironmentVars() );
 
         if ( this.mSuperiorProcess instanceof RuntimeSystem ) {
             this.mSuperiorSystem = (RuntimeSystem) this.mSuperiorProcess;
@@ -104,6 +108,16 @@ public class UniformProcessManager implements ProcessManager {
     @Override
     public Processum superiorProcess() {
         return this.mSuperiorProcess;
+    }
+
+    @Override
+    public UProcess getRootUProcess() {
+        return this.mRootUProcess;
+    }
+
+    @Override
+    public void applyRootUProcess( UProcess rootUProcess ) {
+        this.mRootUProcess = rootUProcess;
     }
 
     @Override
@@ -191,11 +205,22 @@ public class UniformProcessManager implements ProcessManager {
     public boolean autopsy( UProcess that ) {
         return that.getState() == Thread.State.TERMINATED;
     }
-//
-//    public LocalUProcess createLocalHostedProcess( ExecutionImage image, UProcess parent ) {
-//        Processum hosted = new ArchProcessum( image.getName(), parent ) {};
-//        hosted.setThreadAffinity( new Thread( image.getEntryPoint() ) );
-//
-//        LocalUProcess process = new LocalHostedProcess( hosted )
-//    }
+
+    @Override
+    public LocalUProcess createLocalHostedProcess(
+            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+    ) {
+        Processum hosted = new ArchProcessum( image.getName(), parent ) {};
+        hosted.setThreadAffinity( new Thread( image.getEntryPoint() ) );
+
+        if ( parent == null ) {
+            parent = this.mRootUProcess;
+        }
+        LocalUProcess process = new LocalHostedProcess(
+                hosted, parent, this, image, new GenericSegregationSpace(), startupArgs,
+                this.mProcessEnvironmentSection.extendsFrom( parent, contextEnvironmentVars )
+        );
+
+        return process;
+    }
 }

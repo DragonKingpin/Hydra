@@ -7,6 +7,8 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.deploy.ibatis.hydranium.DeployMappingDriver;
 import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
+import com.pinecone.hydra.proc.LocalHostedProcess;
+import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
@@ -51,6 +53,11 @@ class Floki extends EnderHydra {
 
 
         this.testSimple( instrument );
+    }
+
+    private void testProcess() {
+        ProcessManager manager = this.processManager();
+        
     }
 
     private void prepareKOMTrees( ExpressInstrument instrument ) {

@@ -1,15 +1,22 @@
 package com.pinecone.hydra.proc;
 
+import java.util.Map;
+
 import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.regime.Regiment;
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.system.ko.CascadeKernelObjectInstrument;
 
 public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment, Manager {
 
     Processum superiorProcess();
+
+    UProcess getRootUProcess();
+
+    void applyRootUProcess( UProcess rootUProcess );
 
     RuntimeSystem superiorSystem();
 
@@ -31,5 +38,9 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     void erase( UProcess that );
 
     boolean autopsy( UProcess that );
+
+    LocalUProcess createLocalHostedProcess(
+            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+    );
 
 }

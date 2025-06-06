@@ -25,5 +25,12 @@ public class LocalHostedProcess extends ArchUProcess implements LocalUProcess {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
 
+    public LocalHostedProcess(
+            @Nullable Processum localSystemProc,
+            UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+    ) {
+        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), image.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
+    }
 
 }

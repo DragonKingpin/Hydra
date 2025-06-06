@@ -40,7 +40,10 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusStart );
 
         this.mSystemGuidAllocator  = GUIDs.newGuidAllocator();
-        this.infoLifecycle( "<Uniform Hydra> System GUIDAllocator Initialization", LogStatuses.StatusDone );
+        this.infoLifecycle(
+                "<Uniform Hydra> System GUIDAllocator Initialization [Type: `" + this.mSystemGuidAllocator.getClass().getName() + "`]",
+                LogStatuses.StatusDone
+        );
 
         this.mSystemProcessManager = new UniformProcessManager(
                 this, null, "UniformProcessManager", "", null
@@ -49,6 +52,7 @@ public class EnderHydra extends Tritium implements HydraEmpire {
 
         this.mSystemImageLoader        = new UniformImageLoader( this );
         this.mProxiedRootSystemProcess = new Hydroxy( this );
+        this.mSystemProcessManager.applyRootUProcess( this.mProxiedRootSystemProcess );
         this.mSystemProcessManager.register( this.mProxiedRootSystemProcess );
 
         this.init_process_kernel_subsystem();

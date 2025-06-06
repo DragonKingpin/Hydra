@@ -159,7 +159,7 @@ public class ScopedMapConfigReinterpreter implements MapConfigReinterpreter {
 
     @Override
     public void reinterpretByBasicKeyWordsScope( Map<String, Object> that, MultiScopeMap<String, Object> keyWordsScope ) {
-        // Keyword fields, keyword has should the most highest priority.
+        // Keyword fields, keyword has the highest priority.
         PrecedeMultiMaptron<String, Object > scope = new PrecedeMultiMaptron<>( that );
         //scope.addParent( keyWords.setName( "KeyWords" ) );
         scope.setPrecedeScope( keyWordsScope.setName( this.mszKeyWordsToken ) );

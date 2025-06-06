@@ -6,4 +6,5 @@ public interface MegaPriorityQueue extends Pinenut {
 
     //List<QueueElement> fetchElements( long offset, long pageSize );
 
+
 }

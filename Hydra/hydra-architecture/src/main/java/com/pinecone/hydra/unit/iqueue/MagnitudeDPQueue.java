@@ -141,4 +141,9 @@ public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
     public long currentPosition() {
         return this.mnCurrentPos;
     }
+
+    @Override
+    public QueueMasterManipulator getMasterManipulator() {
+        return this.mQueueMasterManipulator;
+    }
 }

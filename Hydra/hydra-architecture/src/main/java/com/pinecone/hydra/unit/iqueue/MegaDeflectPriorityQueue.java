@@ -35,4 +35,6 @@ public interface MegaDeflectPriorityQueue extends MegaPriorityQueue, SharedSegme
     List<QueueElement> fetchElementByPriority( long priority, long offset, long limit );
 
     String getSegmentName();
+
+    QueueMasterManipulator getMasterManipulator();
 }

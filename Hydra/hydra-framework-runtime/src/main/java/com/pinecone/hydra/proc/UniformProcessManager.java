@@ -253,4 +253,34 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         return process;
     }
 
+    public UProcess getProcess( GUID pid ) {
+        return this.mProcessMap.get( pid );
+    }
+
+    @Override
+    public String getPath( GUID objectGuid ) {
+        return objectGuid.toString();
+        // Process PID is the path in this case.
+        // /proc/${pid}
+    }
+
+    @Override
+    public String querySystemKernelObjectPath( GUID objectGuid ) {
+        String thisScopePath = this.getPath( objectGuid );
+        if ( thisScopePath == null ) {
+            return null;
+        }
+
+        return this.getSuperiorPathScope() + this.getConfig().getPathNameSeparator() + thisScopePath;
+    }
+
+    @Override
+    public GUID queryGUIDByPath( String path ) {
+        return null;
+    }
+
+    @Override
+    public EntityNode queryNode( String path ) {
+        return null;
+    }
 }

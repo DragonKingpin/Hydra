@@ -1,5 +1,7 @@
 package com.pinecone.hydra.proc;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +25,7 @@ import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-public class UniformProcessManager implements ProcessManager {
+public class UniformProcessManager extends ArchProcessManager implements ProcessManager {
 
     protected long                         mnVitalizeCount      = 0;
     protected long                         mnFatalityCount      = 0;
@@ -37,7 +39,7 @@ public class UniformProcessManager implements ProcessManager {
     protected CascadeInstrument            mParentInstrument;
     protected KernelObjectConfig           mKernelObjectConfig;
     protected DynamicFactory               mDynamicFactory;
-    protected Map<GUID, EntityNode>        mProcessMap;
+    protected Map<GUID, UProcess>          mProcessMap;
     protected ImageLoader                  mImageLoader;
     protected ProcessEnvironmentSection    mProcessEnvironmentSection;
 
@@ -116,6 +118,11 @@ public class UniformProcessManager implements ProcessManager {
     }
 
     @Override
+    public ImageLoader getImageLoader() {
+        return this.mImageLoader;
+    }
+
+    @Override
     public void applyRootUProcess( UProcess rootUProcess ) {
         this.mRootUProcess = rootUProcess;
     }
@@ -179,6 +186,16 @@ public class UniformProcessManager implements ProcessManager {
     }
 
     @Override
+    public long    processCount() {
+        return this.mProcessMap.size();
+    }
+
+    @Override
+    public Collection<UProcess> fetchProcesses() {
+        return this.mProcessMap.values();
+    }
+
+    @Override
     public void register( UProcess that ) {
         if( !this.autopsy( that ) ) {
             this.mProcessMap.put( that.getPID(), that );
@@ -192,13 +209,18 @@ public class UniformProcessManager implements ProcessManager {
     @Override
     public void erase( UProcess that ) {
         if( this.autopsy( that ) ) {
-            this.mProcessMap.remove( that.getPID() );
-            ++this.mnFatalityCount;
-            that.triggerUpdateTerminationStatus();
+            this.expunge( that );
         }
         else {
             throw new IllegalStateException( "Process is still alive." );
         }
+    }
+
+    @Override
+    protected void expunge( UProcess that ) {
+        this.mProcessMap.remove( that.getPID() );
+        ++this.mnFatalityCount;
+        that.triggerAfterRunnableTerminationStatus();
     }
 
     @Override
@@ -210,17 +232,25 @@ public class UniformProcessManager implements ProcessManager {
     public LocalUProcess createLocalHostedProcess(
             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
     ) {
+        if ( parent == null ) {
+            parent = this.mRootUProcess;
+        }
         Processum hosted = new ArchProcessum( image.getName(), parent ) {};
         hosted.setThreadAffinity( new Thread( image.getEntryPoint() ) );
 
-        if ( parent == null ) {
-            parent = this.mRootUProcess;
+        if ( startupArgs == null ) {
+            startupArgs = new HashMap<>();
         }
         LocalUProcess process = new LocalHostedProcess(
                 hosted, parent, this, image, new GenericSegregationSpace(), startupArgs,
                 this.mProcessEnvironmentSection.extendsFrom( parent, contextEnvironmentVars )
         );
 
+        // Register the process in the entry-point-runnable for process status surveillance purpose.
+        image.getEntryPoint().applyOwnedProcess( process );
+        this.register( process );
+
         return process;
     }
+
 }

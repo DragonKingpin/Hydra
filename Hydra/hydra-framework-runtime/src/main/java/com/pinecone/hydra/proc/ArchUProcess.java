@@ -40,13 +40,14 @@ public class ArchUProcess implements UProcess {
             UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
             Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
     ) {
-        this.mLocalSystemProc = localSystemProc;
-        this.mProcessManager  = processManager;
-        this.mProcessID       = guid;
-        this.mExecutionImage  = image;
-        this.mProcSpace       = procSpace;
-        this.mStartupArgs     = startupArgs;
-        this.mEnvironmentVars = environmentVars;
+        this.mLocalSystemProc   = localSystemProc;
+        this.mProcessManager    = processManager;
+        this.mProcessID         = guid;
+        this.mExecutionImage    = image;
+        this.mProcSpace         = procSpace;
+        this.mStartupArgs       = startupArgs;
+        this.mEnvironmentVars   = environmentVars;
+        this.mControllableLevel = image.getControllableLevel();
 
         if ( this.mLocalSystemProc == null ) {
             this.mLocalSystemProc = new LocalSystemProcess( szName, parent );
@@ -162,10 +163,14 @@ public class ArchUProcess implements UProcess {
             throw new IllegalStateException( "Bad time to trigger, I am still alive!" );
         }
 
+        this.triggerAfterRunnableTerminationStatus();
+    }
+
+    @Override
+    public void triggerAfterRunnableTerminationStatus() {
         this.mLastUpdateTime = LocalDateTime.now();
         this.mEndTime        = LocalDateTime.now();
     }
-
 
     /** Proxied Processum **/
 

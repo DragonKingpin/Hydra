@@ -10,6 +10,4 @@ public interface RavenTaskElement extends TaskElement {
     void setExtraMeta( RavenTaskMeta meta );
 
     RavenTaskElement from( TaskElement taskElement );
-
-
 }

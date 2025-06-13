@@ -42,6 +42,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     protected Map<GUID, UProcess>          mProcessMap;
     protected ImageLoader                  mImageLoader;
     protected ProcessEnvironmentSection    mProcessEnvironmentSection;
+    protected ProcessConfig                mProcessConfig;
 
     public UniformProcessManager (
             Processum superiorProcess, CascadeInstrument parentInstrument, String name, String superiorPathScope,
@@ -276,11 +277,28 @@ public class UniformProcessManager extends ArchProcessManager implements Process
 
     @Override
     public GUID queryGUIDByPath( String path ) {
-        return null;
+        return this.queryNode( path ).getGuid();
     }
 
     @Override
     public EntityNode queryNode( String path ) {
-        return null;
+        String pathSeparator = this.mProcessConfig.getPathSeparator();
+
+        String prefix = "/porc";
+        if (!path.startsWith(prefix)) {
+            return null;
+        }
+        String remainingPath = path.substring(prefix.length() + 1);
+
+        String[] split = remainingPath.split(pathSeparator);
+        if( split.length == 0 ) {
+            return null;
+        }
+        if( split.length > 1 ) {
+            // 后续补齐查找逻辑
+            return null;
+        } else {
+            return this.mProcessMap.get(split[0]);
+        }
     }
 }

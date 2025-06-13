@@ -1,18 +1,17 @@
 package com.pinecone.hydra.proc;
 
+import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
+
 import java.util.Map;
 
-public class UniformProcessConfig implements ProcessConfig {
-    protected String mPathSeparator = ProcessConstants.PathSeparator;
+public class UniformProcessConfig extends ArchKernelObjectConfig implements ProcessManagerConfig {
 
-    public UniformProcessConfig(){}
-
-    public UniformProcessConfig(Map<String, Object> config) {
-        this.mPathSeparator = (String) config.getOrDefault("PathSeparator", ProcessConstants.PathSeparator);
+    public UniformProcessConfig( Map<String, Object> config ) {
+        super(config);
     }
 
-    @Override
-    public String getPathSeparator() {
-        return this.mPathSeparator;
+    public UniformProcessConfig(){
+        super();
     }
+
 }

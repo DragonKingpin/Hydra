@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public class GenericRavenTask extends ArchTask implements RavenTask {
-    InstanceInstrument      mInstanceInstrument;
+    protected InstanceInstrument      mInstanceInstrument;
 
-    GuidAllocator           mGuidAllocator;
+    protected GuidAllocator           mGuidAllocator;
     public GenericRavenTask(InstanceInstrument instanceInstrument, GuidAllocator guidAllocator, Identification serviceId,
                             TaskElement serviceElement, Map<String, Object> metaDataScope ) {
         super(serviceId, serviceElement, metaDataScope);

@@ -11,6 +11,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
 import com.pinecone.hydra.system.ko.CascadeKernelObjectInstrument;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.QueryableInstrument;
 
 public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment, Manager, QueryableInstrument {
@@ -20,6 +21,8 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     UProcess getRootUProcess();
 
     ImageLoader getImageLoader();
+
+    ProcessManagerConfig getKernelObjectConfig();
 
     void applyRootUProcess( UProcess rootUProcess );
 

@@ -1,5 +1,6 @@
 package com.ender;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.pinecone.Pinecone;
@@ -8,7 +9,15 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.deploy.ibatis.hydranium.DeployMappingDriver;
 import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
 import com.pinecone.hydra.proc.LocalHostedProcess;
+import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.event.ProcessEventHandler;
+import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
+import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.GenericClassImage;
+import com.pinecone.hydra.proc.image.LocalHostedClassImage;
 import com.pinecone.hydra.registry.GenericKOMRegistry;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
@@ -45,19 +54,55 @@ class Floki extends EnderHydra {
         ExpressInstrument instrument = privy.getExpressInstrument();
 
 
-        this.prepareKOMTrees( instrument );
+//        this.prepareKOMTrees( instrument );
+//
+//        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
+//        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
+//        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
+//
+//
+//        this.testSimple( instrument );
 
-        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
-        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
-        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
-
-
-        this.testSimple( instrument );
+        this.testProcess( instrument );
     }
 
-    private void testProcess() {
+    private void testProcess( ExpressInstrument instrument ) throws Exception{
         ProcessManager manager = this.processManager();
-        
+        //instrument.mount( KernelRootMountPoint.Process.getMountPoint(), manager );
+
+
+
+
+        ProcessEventHandler eventHandler = new ProcessEventHandler() {
+            @Override
+            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.bluef( runnable, event );
+            }
+        };
+
+        ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
+            @Override
+            public void execute() {
+                Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+                Debug.greenfs( this.ownedProcess().getPID() );
+                Debug.greenfs( this.ownedProcess().getLocalPID() );
+
+                Debug.greenfs( this.ownedProcess().getEnvironmentVariables() );
+                Debug.greenfs( this.ownedProcess().getStartupArguments() );
+                Debug.bluef( this.ownedProcess().getControllableLevel() );
+                Debug.bluef( this.ownedProcess().getOwnedProcessManager() );
+                Debug.greenfs( this.ownedProcess().parentProcess() );
+            }
+        }, manager );
+        LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", new String[]{ "you", "she", "he", "it" } ) );
+
+        Debug.redfs( manager.fetchProcesses() );
+
+        this.getServgramOrchestrator().add(process);
+        process.start();
+        this.getServgramOrchestrator().syncWaitingTerminated();
+
+        Debug.redfs( manager.fetchProcesses() );
     }
 
     private void prepareKOMTrees( ExpressInstrument instrument ) {

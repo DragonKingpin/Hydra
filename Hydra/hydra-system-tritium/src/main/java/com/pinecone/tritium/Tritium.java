@@ -147,6 +147,9 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         }
     }
 
+    protected void traceSystemBootingInfo() {
+        this.pout().print( "\u001B[34m>>> System Booting...\u001B[0m\n\n" );
+    }
 
     protected void loadTracer() {
         this.mConsole = new Tracerson();
@@ -172,6 +175,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.pout().print( "\u001B[32mWebsit: https://www.dragonking.cn/ \u001B[0m\n" );
 
         this.traceSubsystemWelcomeInfo();
+        this.traceSystemBootingInfo();
         this.prepare_system_log4j_logger();
         this.infoLifecycle( "Initialization", LogStatuses.StatusStart );
     }

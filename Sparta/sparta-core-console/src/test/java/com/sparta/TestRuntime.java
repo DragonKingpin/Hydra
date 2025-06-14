@@ -14,6 +14,7 @@ import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
@@ -69,7 +70,7 @@ class Rick extends Tritium {
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
         //this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,vLayerManager );
-        this.testOrchestrator( vLayerManager, uniformRuntimeAtlas,koiMappingDriver );
+        this.testOrchestrator( vLayerManager, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
@@ -106,7 +107,6 @@ class Rick extends Tritium {
         GraphStratumTape tapeded = uniformRuntimeAtlas.tapedGraphStratumAdvancer(genericVectorDAG, driver);
         //Debug.trace(tapeded.next().toJSONString());
         Debug.trace(tapeded.fetchNodes(2,1));
-
     }
 
     public void testAdvancer(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, LayerInstrument layerInstrument) {
@@ -124,12 +124,11 @@ class Rick extends Tritium {
         advancer.traverse( genericVectorDAG );
     }
 
-    public void testOrchestrator( LayerInstrument layerInstrument,UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
+    public void testOrchestrator(LayerInstrument layerInstrument, UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, TaskInstrument taskInstrument) {
         Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
         VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
-        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 0,uniformRuntimeAtlas,driver);
+        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 5,1,uniformRuntimeAtlas,driver);
         ravenTaskGraphOrchestrator.execute();
-
     }
 
 

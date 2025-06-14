@@ -93,8 +93,8 @@ public class TestBasicTransaction {
         //String szJson = FileUtils.readAll("J:/120KWordsPhonetics.json5");
         Pinecone.init( (Object...cfg )->{
 
-            TestBasicTransaction.testSequential();
-            //TestBasicTransaction.testParallel();
+            //TestBasicTransaction.testSequential();
+            TestBasicTransaction.testParallel();
             //TestBasicTransaction.testGraph();
 
             return 0;

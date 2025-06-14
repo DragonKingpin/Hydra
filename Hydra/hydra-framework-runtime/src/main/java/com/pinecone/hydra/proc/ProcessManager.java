@@ -1,5 +1,6 @@
 package com.pinecone.hydra.proc;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.system.RuntimeSystem;
@@ -8,13 +9,20 @@ import com.pinecone.framework.system.regime.Regiment;
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.ImageLoader;
 import com.pinecone.hydra.system.ko.CascadeKernelObjectInstrument;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.QueryableInstrument;
 
-public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment, Manager {
+public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment, Manager, QueryableInstrument {
 
     Processum superiorProcess();
 
     UProcess getRootUProcess();
+
+    ImageLoader getImageLoader();
+
+    ProcessManagerConfig getKernelObjectConfig();
 
     void applyRootUProcess( UProcess rootUProcess );
 
@@ -25,6 +33,10 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     long     getVitalizeCount();
 
     long     getFatalityCount();
+
+    long     processCount();
+
+    Collection<UProcess> fetchProcesses();
 
     // Object clearance rate, help load balance and dispatch. [e.g. Using priority queue.]
     default double getClearanceRate() {
@@ -42,5 +54,11 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     LocalUProcess createLocalHostedProcess(
             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
     );
+
+    default LocalUProcess createLocalHostedProcess(
+            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs
+    ) {
+        return this.createLocalHostedProcess( image, parent, startupArgs, null );
+    }
 
 }

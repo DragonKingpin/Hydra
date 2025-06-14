@@ -1,13 +1,15 @@
 package com.walnut.odin.conduct;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.pinecone.hydra.atlas.advance.strategy.AtlasPriorityProcessStrategy;
 import com.pinecone.hydra.atlas.advance.strategy.InDegreeFirstStrategy;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
-import com.pinecone.hydra.orchestration.ParallelAction;
+import com.pinecone.hydra.orchestration.SequentialAction;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaStratumQueueMeta;
@@ -20,36 +22,37 @@ import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 
 public class RavenTaskGraphOrchestrator implements TaskGraphOrchestrator {
-    protected VectorDAG                       mVectorDAG;
+    protected VectorDAG                                 mVectorDAG;
 
-    protected LayerInstrument                 mLayerInstrument;
+    protected LayerInstrument                           mLayerInstrument;
 
-    protected RuntimeAtlasInstrument          mRuntimeAtlasInstrument;
+    protected RuntimeAtlasInstrument                    mRuntimeAtlasInstrument;
 
-    protected KOIMappingDriver                mQueueDriver;
+    protected KOIMappingDriver                          mQueueDriver;
 
-    protected ParallelAction                  mParallelAction;
+    protected long                                      mnCurrentPos;
 
-    protected long                            mnCurrentPos;
+    protected int                                       mnTaskBatchSize;
 
-    protected long                            mnBatchSize;
+    protected int                                       mnExecuteBatchSize;
 
-    protected TaskGraphOrchestratorConfig     mConfig;
+    protected TaskGraphOrchestratorConfig               mConfig;
 
 
-    protected List<VectorDAG> mExecuteGraph;
+    protected volatile Deque<VectorDAG>                 mExecuteGraph;
 
     public RavenTaskGraphOrchestrator(
-            VectorDAG vectorDAG, LayerInstrument layerInstrument,
-            long batchSize, RuntimeAtlasInstrument runtimeAtlasInstrument,KOIMappingDriver queueDriver
+            VectorDAG vectorDAG, LayerInstrument layerInstrument, int taskBatchSize,int executeBatchSize,
+            RuntimeAtlasInstrument runtimeAtlasInstrument,KOIMappingDriver queueDriver
     ) {
         this.mVectorDAG                 = vectorDAG;
         this.mLayerInstrument           = layerInstrument;
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
-        this.mParallelAction            = new ParallelAction();
         this.mnCurrentPos               = 0;
-        this.mnBatchSize                = batchSize;
+        this.mnTaskBatchSize            = taskBatchSize;
+        this.mnExecuteBatchSize         = executeBatchSize;
         this.mQueueDriver               = queueDriver;
+        this.mExecuteGraph              = new ArrayDeque<>();
 
         this.mConfig = new ConfigurableTaskGraphOrchestratorConfig();
     }
@@ -65,7 +68,23 @@ public class RavenTaskGraphOrchestrator implements TaskGraphOrchestrator {
         }
 
         // 将队列中生成的节点转换成执行任务加入执行器
+        this.enqueueTasksForExecution();
 
+    }
+
+    private void enqueueTasksForExecution() {
+        for(int i = 0; i < this.mnExecuteBatchSize; i++ ) {
+            VectorDAG vectorDAG = this.mExecuteGraph.pop();
+            SequentialAction action = new SequentialAction();
+            MegaDeflectPriorityQueueMeta meta = new ConfigurableMegaDeflectPriorityQueueMeta();
+            meta.setQueueTableName( this.mConfig.getQueueNodesTableName() );
+            MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(this.mQueueDriver, 0, "segment_name", vectorDAG.getAffiliateLayerGuid().toString(), meta);
+
+            TaskExecuteCallBack callBack = new TaskExecuteCallBack( magnitudeDPQueue, this.mRuntimeAtlasInstrument,this.mConfig,this.mQueueDriver, this.mExecuteGraph,this.mnTaskBatchSize);
+            TaskExertium taskExertium = new TaskExertium( callBack );
+            action.add( taskExertium );
+            action.start();
+        }
     }
 
     private void createExecuteGraph() {
@@ -75,7 +94,7 @@ public class RavenTaskGraphOrchestrator implements TaskGraphOrchestrator {
             VectorDAG vectorDAG = this.mRuntimeAtlasInstrument.toVectorDAG(layer);
             vectorDAGS.add( vectorDAG );
         }
-        this.mExecuteGraph = vectorDAGS;
+        this.mExecuteGraph.addAll( vectorDAGS );
     }
 
     private void createExecuteQueue( VectorDAG vectorDAG ) {

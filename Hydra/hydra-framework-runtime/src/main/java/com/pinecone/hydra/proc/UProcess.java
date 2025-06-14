@@ -35,4 +35,6 @@ public interface UProcess extends Processum, ProcessElement {
 
     void triggerUpdateTerminationStatus();
 
+    void triggerAfterRunnableTerminationStatus();
+
 }

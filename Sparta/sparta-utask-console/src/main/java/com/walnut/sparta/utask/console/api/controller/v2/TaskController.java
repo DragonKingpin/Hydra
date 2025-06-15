@@ -122,6 +122,7 @@ public class TaskController implements Pinenut {
 
         primaryTask.remove(path);
     }
+
     @PutMapping("update/taskElement")
     public String updateTask(@RequestParam("path") String path, @RequestBody TaskChildDto taskChildDto) {
 

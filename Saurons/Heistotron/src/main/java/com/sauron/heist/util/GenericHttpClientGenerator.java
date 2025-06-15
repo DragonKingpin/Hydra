@@ -56,7 +56,7 @@ public class GenericHttpClientGenerator implements HttpClientGenerator {
                 .register("http", PlainConnectionSocketFactory.INSTANCE)
                 .register("https", this.buildSSLConnectionSocketFactory()).build();
         this.connectionManager = new PoolingHttpClientConnectionManager( this.registry );
-        this.connectionManager.setDefaultMaxPerRoute(100);
+        this.connectionManager.setDefaultMaxPerRoute(1000);
         this.connectionManager.setValidateAfterInactivity(10000);
     }
 

@@ -12,7 +12,6 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.utask.console.infrastructure.dto.TaskChildDto;
-import com.walnut.sparta.utask.console.infrastructure.dto.TaskDetailDto;
 import com.walnut.sparta.utask.console.infrastructure.dto.TaskDto;
 import com.walnut.sparta.utask.console.response.BasicResultResponse;
 import com.walnut.sparta.utask.console.server.TaskService;

@@ -52,7 +52,7 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     boolean autopsy( UProcess that );
 
     LocalUProcess createLocalHostedProcess(
-            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
     );
 
     default LocalUProcess createLocalHostedProcess(

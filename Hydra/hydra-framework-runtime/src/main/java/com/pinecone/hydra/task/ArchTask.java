@@ -26,6 +26,10 @@ public abstract class ArchTask implements Task {
     }
 
 
+    public TaskElement getTaskElement() {
+        return this.mTaskElement;
+    }
+
     @Override
     public String getName() {
         return this.mTaskElement.getName();

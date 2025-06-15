@@ -16,7 +16,7 @@ public class LineageProcessEnvironmentSection implements ProcessEnvironmentSecti
     }
 
     @Override
-    public Map<String, String[]> extendsFrom( Map<String, String[]> superiorEnvironmentVars, Map<String, String[]> contextEnvVars ) {
+    public Map<String, String[]> extendsFrom( final Map<String, String[]> superiorEnvironmentVars, final Map<String, String[]> contextEnvVars ) {
         Map<String, String[]> neo = new HashMap<>( this.mSystemEnvironments );
         neo.putAll( superiorEnvironmentVars );
         if ( contextEnvVars != null ) {
@@ -26,7 +26,7 @@ public class LineageProcessEnvironmentSection implements ProcessEnvironmentSecti
     }
 
     @Override
-    public Map<String, String[]> extendsFrom( UProcess superiorProcess, Map<String, String[]> contextEnvVars ) {
+    public Map<String, String[]> extendsFrom( UProcess superiorProcess, final Map<String, String[]> contextEnvVars ) {
         return this.extendsFrom( superiorProcess.getEnvironmentVariables(), contextEnvVars );
     }
 

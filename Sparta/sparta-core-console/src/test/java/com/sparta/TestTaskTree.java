@@ -9,10 +9,11 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
-import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.ulf.util.guid.i128.GUID128;
+import com.walnut.archcraft.ender.EnderHydra;
+import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
@@ -20,7 +21,7 @@ import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 
 
-class Randy extends Tritium {
+class Randy extends EnderHydra {
     public Randy( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -38,11 +39,18 @@ class Randy extends Tritium {
 
         //this.testCategory( ravenTaskInstrument );
 
-        this.testInsert( ravenTaskInstrument );
+        //this.testInsert( ravenTaskInstrument );
         //this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
         //this.testInstance( ravenTaskInstrument );
+
+        CollectiveTaskRegiment taskRegiment = new RavenCollectiveTaskRegiment( this, ravenTaskInstrument );
+        this.testTaskRegimentBase( taskRegiment );
+
+    }
+
+    private void testTaskRegimentBase( CollectiveTaskRegiment regiment ) {
 
     }
 

@@ -297,7 +297,11 @@ public class UniformProcessManager extends ArchProcessManager implements Process
             return null;
         }
         else {
-            return this.mProcessMap.get(split[0]);
+            GUID guid = this.mGuidAllocator.parse( split[0] );
+            if ( guid == null ) {
+                return null;
+            }
+            return this.mProcessMap.get( this.mGuidAllocator.parse( split[0] ) );
         }
     }
 }

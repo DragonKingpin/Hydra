@@ -22,6 +22,7 @@
         <module>sparta-api-uac</module>
         <module>sparta-ucdn-service</module>
         <module>sparta-ucdn-console</module>
+        <module>sparta-utask-console</module>
         <module>sparta-api-uofs</module>
     </modules>
 

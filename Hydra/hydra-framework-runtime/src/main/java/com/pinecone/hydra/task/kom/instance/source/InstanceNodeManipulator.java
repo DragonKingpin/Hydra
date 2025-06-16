@@ -28,5 +28,5 @@ public interface InstanceNodeManipulator extends Pinenut {
 
     long countInstanceByTaskGuid( GUID taskGuid );
 
-
+    void remove( GUID guid );
 }

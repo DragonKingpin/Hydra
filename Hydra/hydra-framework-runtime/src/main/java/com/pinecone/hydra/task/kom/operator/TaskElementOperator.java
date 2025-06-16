@@ -83,6 +83,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
         TaskElement serviceElement = (TaskElement) nodeWideData;
         this.taskNodeManipulator.update( serviceElement );
         this.nodeMetaManipulator.update( serviceElement );
+        this.imperialTree.removeCachePath( serviceElement.getGuid() );
     }
 
     @Override
@@ -94,7 +95,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
         GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
-        this.taskNodeManipulator.remove( node.getGuid() );
+        this.taskNodeManipulator.remove(node.getGuid());
         this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

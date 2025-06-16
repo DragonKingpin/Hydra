@@ -88,4 +88,9 @@ public class KernelInstanceInstrument implements InstanceInstrument {
         }
         return null;
     }
+
+    @Override
+    public void removeInstance(GUID insGuid) {
+        this.mInstanceManipulator.remove( insGuid );
+    }
 }

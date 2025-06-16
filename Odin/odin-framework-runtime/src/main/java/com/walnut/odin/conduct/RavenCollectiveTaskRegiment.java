@@ -1,11 +1,12 @@
 package com.walnut.odin.conduct;
 
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.system.Hydrogen;
-import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.obj.GenericRavenTask;
@@ -22,6 +23,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     protected ProcessManager                mProcessManager;
 
     protected TaskRegimentDomain            mTaskRegimentDomain;
+
 
     public RavenCollectiveTaskRegiment( Hydrogen system, CentralizedTaskInstrument taskInstrument ) {
         this.mSystem         = system;
@@ -69,19 +71,40 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     public RavenTask affirmTask( String path, Identification serviceId, TaskElement metaInfos ) {
-        TaskElement taskElement = this.mTaskInstrument.affirmTask( path );
-
-        taskElement.setActuallyPriority( metaInfos.getActuallyPriority() );
+        TaskElement taskElement = this.mTaskInstrument.affirmTask( path ,metaInfos );
+        Debug.trace(taskElement);
+    /*    taskElement.setActuallyPriority( metaInfos.getActuallyPriority() );
         taskElement.setDeploymentMethod( metaInfos.getDeploymentMethod() );
-        // ....
+        taskElement.setEnable( metaInfos.isEnable());
+        taskElement.setDryRun( metaInfos.isDryRun() );
+        taskElement.setPriority( metaInfos.getPriority() );
+        taskElement.setResourceType( metaInfos.getResourceType() );
+        taskElement.setScheduleCycle( metaInfos.getScheduleCycle() );
+        taskElement.setScheduleType( metaInfos.getScheduleType() );
+        taskElement.setScheduleTypeCode( metaInfos.getScheduleTypeCode() );
+        taskElement.setScheduleCycleCode( metaInfos.getScheduleCycleCode() );
+        taskElement.setType( metaInfos.getType() );
+        taskElement.setImagePath( metaInfos.getImagePath() );
+        taskElement.setName( metaInfos.getName() );
+        taskElement.setGuid( metaInfos.getGuid() );*/
+        /*this.mTaskInstrument.get(  taskElement.getGuid());*/
+        /*this.mTaskInstrument.query(  taskElement.getGuid() );*/
+
+     /*  String newPath = this.mTaskInstrument.getPath(  taskElement.getGuid());
+        Debug.trace(newPath);*/
 
         this.updateTaskMeta( taskElement );
-        RavenTask task = this.constructTask( taskElement, serviceId );
-
-        return task;
+        String newPath = this.mTaskInstrument.getPath( taskElement.getGuid() );
+        Debug.trace(newPath);
+        return this.constructTask( taskElement, serviceId );
     }
 
+
     public void purgeTask( GUID guid ) {
+
+        GenericRavenTask  task = (GenericRavenTask) this.getTaskByGuid( guid );
+        task.removeInstance( guid );
+        this.mTaskInstrument.remove( guid );
 
     }
 

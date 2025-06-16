@@ -40,6 +40,7 @@ public class GenericRavenTask extends ArchTask implements RavenTask {
         GenericInstanceEntry entry = new GenericInstanceEntry();
         entry.setGuid( guid );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
+        entry.setAffiliatedTaskGuid( this.mTaskElement.getGuid());
         entry.setCreateTime( LocalDateTime.now() );
         entry.setKernelScheduleCycle( this.mTaskElement.getScheduleCycle() );
         entry.setKernelScheduleCycleCode( this.mTaskElement.getScheduleCycleCode() );
@@ -76,7 +77,7 @@ public class GenericRavenTask extends ArchTask implements RavenTask {
     }
 
     public void removeInstance( GUID insGuid ) {
-       // this.mInstanceInstrument.makeInstanceEntry()
+       this.mInstanceInstrument.removeInstance( insGuid );
     }
 
     public void updateInstanceMeta( RavenTaskInstance instance ) {

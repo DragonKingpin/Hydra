@@ -4,21 +4,29 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GUID128;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
+import com.walnut.odin.task.entity.GenericRavenTaskElement;
+import com.walnut.odin.task.entity.RavenTaskElement;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
+import com.walnut.odin.task.obj.GenericRavenTask;
 import com.walnut.odin.task.service.CategoryService;
+import com.walnut.odin.ups.RavenTask;
+import com.walnut.odin.ups.RavenTaskInstance;
 
 
 class Randy extends EnderHydra {
@@ -46,12 +54,32 @@ class Randy extends EnderHydra {
         //this.testInstance( ravenTaskInstrument );
 
         CollectiveTaskRegiment taskRegiment = new RavenCollectiveTaskRegiment( this, ravenTaskInstrument );
-        this.testTaskRegimentBase( taskRegiment );
+        this.testTaskRegimentBase( taskRegiment ,ravenTaskInstrument);
 
     }
 
-    private void testTaskRegimentBase( CollectiveTaskRegiment regiment ) {
-
+    private void testTaskRegimentBase( CollectiveTaskRegiment regiment ,  RavenTaskInstrument instrument) {
+/*      TaskElement taskElement = new GenericTaskElement();
+        taskElement.setName("spartaTest00058");
+        taskElement.setType("sparta");
+        taskElement.setResourceType("spartaTest00058");
+        taskElement.setImagePath("spartaTest0005");
+        taskElement.setDeploymentMethod("spartaTest0017");
+        taskElement.setPriority(1);
+        taskElement.setActuallyPriority(1);
+        taskElement.setDryRun(true);
+         RavenTask task = regiment.createTask(  taskElement, taskElement.getGuid());
+          Debug.trace(task);
+      RavenTaskInstance instance = task.createInstance();
+      Debug.trace(instance);
+      Debug.trace(instrument.queryElement("spartaTest00058"));*/
+        TaskElement  taskElement = (GenericRavenTaskElement) instrument.queryElement("spartaTest00058");
+        Debug.trace(taskElement);
+        taskElement.setName("spartaTest00059855");
+        Debug.trace(taskElement);
+        Debug.trace(instrument.getPath( GUIDs.GUID128("01977911-62b1-70f3-bd4f-060e889c088e")));
+     regiment.affirmTask("spartaTest00058", GUIDs.GUID128("01977911-62b1-70f3-bd4f-060e889c088e"), taskElement);
+//regiment.purgeTask(GUIDs.GUID128("019776f2-e80a-7675-ba4b-7d1d415d8088"));
     }
 
     private void testCategory( RavenTaskInstrument instrument ) {

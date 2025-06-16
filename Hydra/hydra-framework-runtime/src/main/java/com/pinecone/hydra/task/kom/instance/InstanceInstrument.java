@@ -39,5 +39,7 @@ public interface InstanceInstrument extends Instrument {
         return this.makeInstanceEntry( taskGuid, null, null );
     }
 
+    void removeInstance( GUID insGuid );
+
 
 }

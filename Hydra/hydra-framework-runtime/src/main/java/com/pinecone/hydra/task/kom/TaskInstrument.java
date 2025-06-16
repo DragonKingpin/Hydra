@@ -17,7 +17,7 @@ public interface TaskInstrument extends ReparseKOMTree {
 
     Namespace          affirmNamespace( String path );
 
-    TaskElement        affirmTask( String path );
+    TaskElement        affirmTask( String path ,TaskElement metaInfos );
 
     ElementNode        queryElement( String path );
 

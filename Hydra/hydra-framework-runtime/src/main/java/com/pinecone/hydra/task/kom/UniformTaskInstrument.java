@@ -160,8 +160,23 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
-    public TaskElement affirmTask( String path ) {
-        return (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+    public TaskElement affirmTask( String path ,TaskElement metaInfos) {
+        TaskElement taskElement =  (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+        taskElement.setActuallyPriority( metaInfos.getActuallyPriority() );
+        taskElement.setDeploymentMethod( metaInfos.getDeploymentMethod() );
+        taskElement.setEnable( metaInfos.isEnable());
+        taskElement.setDryRun( metaInfos.isDryRun() );
+        taskElement.setPriority( metaInfos.getPriority() );
+        taskElement.setResourceType( metaInfos.getResourceType() );
+        taskElement.setScheduleCycle( metaInfos.getScheduleCycle() );
+        taskElement.setScheduleType( metaInfos.getScheduleType() );
+        taskElement.setScheduleTypeCode( metaInfos.getScheduleTypeCode() );
+        taskElement.setScheduleCycleCode( metaInfos.getScheduleCycleCode() );
+        taskElement.setType( metaInfos.getType() );
+        taskElement.setImagePath( metaInfos.getImagePath() );
+        taskElement.setName( metaInfos.getName() );
+        taskElement.setGuid( metaInfos.getGuid() );
+        return taskElement;
     }
 
     @Override

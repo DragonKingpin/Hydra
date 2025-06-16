@@ -43,11 +43,13 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     protected TaskExMetaManipulator      taskExMetaManipulator;
 
+
+
     protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
         this.uniformTaskInstrument      = new UniformTaskInstrument( superiorProcess, driver.getMasterManipulator(), parent, name, guidAllocator ) {
             @Override
-            public RavenTaskElement affirmTask( String path ) {
-                TaskElement taskElement           = super.affirmTask( path );
+            public RavenTaskElement affirmTask( String path ,TaskElement metaInfos ) {
+                TaskElement taskElement           = super.affirmTask( path , metaInfos);
                 if ( taskElement == null ) {
                     return null;
                 }
@@ -231,8 +233,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
-    public RavenTaskElement affirmTask( String path ) {
-        return (RavenTaskElement) this.uniformTaskInstrument.affirmTask( path );
+    public RavenTaskElement affirmTask( String path ,TaskElement metaInfos) {
+        return (RavenTaskElement) this.uniformTaskInstrument.affirmTask( path ,metaInfos);
     }
 
     @Override

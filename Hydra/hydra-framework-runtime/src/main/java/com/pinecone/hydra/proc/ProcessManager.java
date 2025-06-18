@@ -7,6 +7,7 @@ import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.regime.Regiment;
 import com.pinecone.framework.system.regime.arch.Manager;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
@@ -54,6 +55,8 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     LocalUProcess createLocalHostedProcess(
              ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
     );
+
+    UProcess getProcess( GUID pid );
 
     default LocalUProcess createLocalHostedProcess(
             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs

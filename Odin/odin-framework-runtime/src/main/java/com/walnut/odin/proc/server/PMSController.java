@@ -2,6 +2,7 @@ package com.walnut.odin.proc.server;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.odin.proc.RavenRemoteProcess;
@@ -25,6 +26,11 @@ public class PMSController implements Pinenut {
     @AddressMapping("test")
     public void test() {
         Debug.trace("这是测试");
+    }
+
+    @AddressMapping("stopProcess")
+    public void stopProcess( String processId ) {
+        this.mRemoteProcessManagerServer.removeProcess( processId );
     }
 
 }

@@ -76,6 +76,13 @@ public class RavenLocalProcessManagerClient implements LocalProcessManagerClient
     }
 
     @Override
+    public void stopProcess(GUID processId) {
+        UProcess process = this.mProcessManager.getProcess(processId);
+        process.apoptosis();
+        this.mPMCMethodIface.stopProcess( processId.toString() );
+    }
+
+    @Override
     public void test() {
         this.mPMCMethodIface.test();
     }

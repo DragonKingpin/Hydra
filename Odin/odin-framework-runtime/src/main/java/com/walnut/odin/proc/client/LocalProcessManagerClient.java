@@ -15,5 +15,7 @@ public interface LocalProcessManagerClient extends Pinenut {
 
     void start(String processId);
 
+    void stopProcess( GUID processId );
+
     void test();
 }

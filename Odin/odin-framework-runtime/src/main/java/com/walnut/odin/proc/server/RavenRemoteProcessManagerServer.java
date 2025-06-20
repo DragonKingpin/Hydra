@@ -4,7 +4,10 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
@@ -64,6 +67,16 @@ public class RavenRemoteProcessManagerServer implements RemoteProcessManagerServ
         Debug.trace("注册client：" + pmcId);
         this.mPMCMap.put( pmcId, remoteProcess );
         this.mPMCMappingGuid.put( guid, pmcId );
+    }
+
+    @Override
+    public void removeProcess(String processId) {
+        this.mPMCMappingGuid.remove( this.mGuidAllocator.parse(processId) );
+    }
+
+    @Override
+    public void createProcess(ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars) {
+        // 参数太复杂无法传递
     }
 
     @Override

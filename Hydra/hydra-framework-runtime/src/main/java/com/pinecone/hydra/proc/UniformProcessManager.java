@@ -16,8 +16,9 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
-import com.pinecone.hydra.proc.image.UniformImageLoader;
+import com.pinecone.hydra.proc.image.UniformMultiScopeImageLoader;
 import com.pinecone.hydra.proc.ns.GenericSegregationSpace;
+import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
@@ -90,7 +91,14 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         }
 
         if ( this.mImageLoader == null ) {
-            this.mImageLoader = new UniformImageLoader( (Hydrogen) this.superiorSystem() );
+            this.mImageLoader = new UniformMultiScopeImageLoader( (Hydrogen) this.superiorSystem(), (HyComponent) null );
+        }
+
+        if ( this.mSuperiorProcess instanceof UProcess ) {
+            this.applyRootUProcess( (UProcess) this.mSuperiorProcess );
+        }
+        else if ( this.mSuperiorProcess instanceof InstitutionalProcess ) {
+            this.applyRootUProcess( ( (InstitutionalProcess) this.mSuperiorProcess ).ownedUniformProcess() );
         }
     }
 

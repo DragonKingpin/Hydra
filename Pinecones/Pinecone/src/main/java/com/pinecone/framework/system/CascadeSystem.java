@@ -10,6 +10,6 @@ public interface CascadeSystem extends RuntimeSystem {
     }
 
     default boolean isPrimarySystem() {
-        return this.getPrimaryId() == this.getId();
+        return this.getPrimaryId() == this.getSystemId();
     }
 }

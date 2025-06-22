@@ -7,6 +7,8 @@ public enum KernelObjectRootMountPoint {
     TaskMeta      ( "TaskMeta", KernelRootMountPoint.Meta.getConfigSection() + ".Task", KernelRootMountPoint.Meta.getMountPoint() + "/task" ),
     ServiceMeta   ( "ServiceMeta", KernelRootMountPoint.Meta.getConfigSection() + ".Service", KernelRootMountPoint.Meta.getMountPoint() + "/service" ),
     DeployMeta    ( "DeployMeta", KernelRootMountPoint.Meta.getConfigSection() + ".Deploy", KernelRootMountPoint.Device.getMountPoint() + "/deploy" ),
+
+    SysImages     ( "SysImages", KernelRootMountPoint.System.getConfigSection() + ".Images", KernelRootMountPoint.System.getMountPoint() + "/public/global/exe/images" )
     ;
 
 

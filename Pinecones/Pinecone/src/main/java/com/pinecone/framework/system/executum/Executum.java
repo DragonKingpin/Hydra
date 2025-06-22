@@ -22,7 +22,7 @@ public interface Executum extends Executable, Lifecycle {
 
     void                setName( String szName );
 
-    long                getId();
+    long                getExecutumId();
 
     RuntimeSystem       parentSystem();
 

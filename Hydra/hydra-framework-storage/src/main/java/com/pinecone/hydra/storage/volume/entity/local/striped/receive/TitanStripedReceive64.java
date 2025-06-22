@@ -126,7 +126,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
         TitanStripReceiveBufferOutJob bufferOutJob = new TitanStripReceiveBufferOutJob( masterVolumeGram, this.volumeManager, randomAccessChanface, this.storageReceiveIORequest, executor );
         LocalStripedTaskThread taskThread = new LocalStripedTaskThread( "bufferOut",masterVolumeGram, bufferOutJob );
         masterVolumeGram.getTaskManager().add( taskThread );
-        masterVolumeGram.applyBufferOutThreadId( taskThread.getId() );
+        masterVolumeGram.applyBufferOutThreadId( taskThread.getExecutumId() );
         taskThread.start();
 
         int index = 0;
@@ -136,7 +136,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
             LocalStripedTaskThread bufferInThread = new LocalStripedTaskThread(volume.getName(), masterVolumeGram, bufferInJob);
             masterVolumeGram.getTaskManager().add( bufferInThread );
             CacheBlock cacheBlock = masterVolumeGram.getCacheGroup().get(index);
-            cacheBlock.setBufferWriteThreadId( bufferInThread.getId() );
+            cacheBlock.setBufferWriteThreadId( bufferInThread.getExecutumId() );
             bufferInThread.start();
             index++;
         }

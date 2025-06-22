@@ -1,32 +1,51 @@
 package com.walnut.odin.proc;
 
+import com.pinecone.framework.system.ApoptosisRejectSignalException;
+import com.pinecone.framework.system.NotImplementedException;
+import com.pinecone.framework.system.RuntimeSystem;
+import com.pinecone.framework.system.executum.Executum;
+import com.pinecone.framework.system.executum.Lifecycle;
+import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.system.executum.TaskManager;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.proc.ControllableLevel;
+import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.entity.ElementNode;
+import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.system.ko.entity.ObjectTable;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class RavenRemoteProcess implements OdinRemoteProcess {
+public class RavenRemoteProcess implements RemoteProcess {
+
     protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
 
-    protected String                        mName;
+    protected String                        mszName;
 
-    protected long                          mlsPID;
+    protected long                          mnLocalPID;
 
-    protected GUID                          mGUID;
+    protected GUID                          mParentPID;
+
+    protected GUID                          mProcessId;
 
     protected Map<String, String[]>         mStartupArguments;
 
     protected Map<String, String[]>         mEnvironmentVariables;
 
-    public RavenRemoteProcess(RemoteProcessManagerServer server, String name, long pid, GUID guid,
-                              Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables ) {
+    public RavenRemoteProcess(
+            RemoteProcessManagerServer server, String name, long localPID, GUID processId,
+            Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
+    ) {
         this.mRemoteProcessManagerServer = server;
-        this.mName = name;
-        this.mlsPID = pid;
-        this.mGUID = guid;
-        this.mStartupArguments = startupArguments;
-        this.mEnvironmentVariables = environmentVariables;
+        this.mszName                     = name;
+        this.mnLocalPID                  = localPID;
+        this.mProcessId                  = processId;
+        this.mStartupArguments           = startupArguments;
+        this.mEnvironmentVariables       = environmentVariables;
     }
 
     public RavenRemoteProcess( RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
@@ -35,17 +54,77 @@ public class RavenRemoteProcess implements OdinRemoteProcess {
 
     @Override
     public String getName() {
-        return this.mName;
+        return this.mszName;
     }
 
     @Override
-    public long getPID() {
-        return this.mlsPID;
+    public long getLocalPID() {
+        return this.mnLocalPID;
+    }
+
+    @Override
+    public GUID actualParentPID() {
+        return this.mParentPID;
+    }
+
+    @Override
+    public void applyActualParentPID( GUID pid ) {
+        this.mParentPID = pid;
+    }
+
+    @Override
+    public void setName( String szName ) {
+        this.mszName = szName;
+    }
+
+    @Override
+    public long getExecutumId() {
+        return this.mnLocalPID;
+    }
+
+    @Override
+    public RuntimeSystem parentSystem() {
+        return null;
+    }
+
+    @Override
+    public RuntimeSystem revealNearestSystem() {
+        return null;
+    }
+
+    @Override
+    public Executum parentExecutum() {
+        return null;
+    }
+
+    @Override
+    public Executum setThreadAffinity( Thread affinity ) {
+        throw new NotImplementedException( "`RemoteProcess` has no thread affinity, so it cannot be set." );
+    }
+
+    @Override
+    public Thread getAffiliateThread() {
+        return null;
+    }
+
+    @Override
+    public boolean isTerminated() {
+        return false;
     }
 
     @Override
     public GUID getGuid() {
-        return this.mGUID;
+        return this.mProcessId;
+    }
+
+    @Override
+    public GUID getParentProcessId() {
+        return null;
+    }
+
+    @Override
+    public long getParentLocalPID() {
+        return 0;
     }
 
     @Override
@@ -59,6 +138,46 @@ public class RavenRemoteProcess implements OdinRemoteProcess {
     }
 
     @Override
+    public UProcess parentProcess() {
+        return null;
+    }
+
+    @Override
+    public ProcessManager getOwnedProcessManager() {
+        return null;
+    }
+
+    @Override
+    public ProcSpace getProcNamespace() {
+        return null;
+    }
+
+    @Override
+    public ObjectTable getObjectTable() {
+        return null;
+    }
+
+    @Override
+    public ExecutionImage getExecutionImage() {
+        return null;
+    }
+
+    @Override
+    public ControllableLevel getControllableLevel() {
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getLastUpdateTime() {
+        return null;
+    }
+
+    @Override
     public Map<String, String[]> getStartupArguments() {
         return this.mStartupArguments;
     }
@@ -68,8 +187,95 @@ public class RavenRemoteProcess implements OdinRemoteProcess {
         return this.mEnvironmentVariables;
     }
 
+
+    @Override
+    public Processum affinityLocalProcess() {
+        return null;
+    }
+
+    @Override
+    public void triggerUpdateTerminationStatus() {
+
+    }
+
+    @Override
+    public void triggerAfterRunnableTerminationStatus() {
+
+    }
+
     @Override
     public void start() {
 
     }
+
+    @Override
+    public Map<Long, Executum> getOwnThreadGroup() {
+        return null;
+    }
+
+    @Override
+    public TaskManager getTaskManager() {
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getCreateTime() {
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return null;
+    }
+
+    @Override
+    public void apoptosis() throws ApoptosisRejectSignalException {
+
+    }
+
+    @Override
+    public void kill() {
+
+    }
+
+    @Override
+    public void interrupt() {
+
+    }
+
+    @Override
+    public void suspend() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void entreatLive() {
+
+    }
+
+    @Override
+    public Thread.State getState() {
+        return null;
+    }
+
+    @Override
+    public ElementNode getAccount() {
+        return null;
+    }
+
+    @Override
+    public int getExceptionRestartTime() {
+        return 0;
+    }
+
+    @Override
+    public Lifecycle applyExceptionRestartTime(int time) {
+        return null;
+    }
+
 }

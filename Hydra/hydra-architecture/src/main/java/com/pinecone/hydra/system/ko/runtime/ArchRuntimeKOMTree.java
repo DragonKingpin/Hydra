@@ -359,6 +359,9 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
 
         TreeNode treeNode = this.mNodeIndex.get( path );
         if ( treeNode != null ) {
+            if( treeNode instanceof RuntimeTreeNode ) {
+                return ( (RuntimeTreeNode) treeNode).treeNode;
+            }
             return treeNode;
         }
 

@@ -1,5 +1,5 @@
 package com.pinecone.hydra.proc;
 
-public interface RemoteUProcess {
-    void start();
+public interface RemoteUProcess extends UProcess {
+
 }

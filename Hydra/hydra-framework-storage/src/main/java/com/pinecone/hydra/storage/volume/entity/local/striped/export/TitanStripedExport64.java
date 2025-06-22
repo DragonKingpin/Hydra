@@ -138,7 +138,7 @@ public class TitanStripedExport64 implements StripedExport64{
         BufferOutThread.start();
 
         masterVolumeGram.applyBufferOutBlockerLatch( BufferOutLock );
-        masterVolumeGram.applyBufferOutThreadId( BufferOutThread.getId() );
+        masterVolumeGram.applyBufferOutThreadId( BufferOutThread.getExecutumId() );
 
     }
 
@@ -161,7 +161,7 @@ public class TitanStripedExport64 implements StripedExport64{
             TitanStripBufferInJob exportJob = new TitanStripBufferInJob(masterVolumeGram,this, volume, titanStorageExportIORequest,code);
             LocalStripedTaskThread taskThread = new LocalStripedTaskThread(this.stripedVolume.getName() + code, masterVolumeGram, exportJob);
             for( int i = code; i < masterVolumeGram.getCacheGroup().size(); i += masterVolumeGram.getJobCount() ){
-                masterVolumeGram.getCacheGroup().get( i ).setBufferWriteThreadId( taskThread.getId() );
+                masterVolumeGram.getCacheGroup().get( i ).setBufferWriteThreadId( taskThread.getExecutumId() );
             }
             masterVolumeGram.getTaskManager().add(taskThread);
             taskThread.start();

@@ -394,15 +394,15 @@ public class Framework extends ArchProcessum implements Pinecore {
 
     @Override
     public long getPrimaryId() {
-        if( this.getId() == 0 ) {
-            return this.getId();
+        if( this.getSystemId() == 0 ) {
+            return this.getSystemId();
         }
 
         CascadeSystem root   = this.rootSystem();
 
         if( root == null ) {
             this.console().warn( "[PineconeLifecycle] [WARN] Id of primary system should be always 0." );
-            return this.getId();
+            return this.getSystemId();
         }
 
         return root.getPrimaryId();

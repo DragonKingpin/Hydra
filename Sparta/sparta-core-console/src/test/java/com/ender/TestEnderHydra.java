@@ -54,16 +54,16 @@ class Floki extends EnderHydra {
         ExpressInstrument instrument = privy.getExpressInstrument();
 
 
-//        this.prepareKOMTrees( instrument );
-//
-//        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
-//        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
-//        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
-//
-//
-//        this.testSimple( instrument );
+        this.prepareKOMTrees( instrument );
 
-        this.testProcess( instrument );
+        //MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "E:/" );
+        MappingFileSystem mappingFileSystem = new NativeMappingFileSystem( "/" );
+        instrument.directMount( KernelRootMountPoint.Mount.getMountPoint() + "/volE", mappingFileSystem);
+
+
+        this.testSimple( instrument );
+
+//        this.testProcess( instrument );
     }
 
     private void testProcess( ExpressInstrument instrument ) throws Exception{

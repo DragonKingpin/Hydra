@@ -162,7 +162,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
 
     @Override
     public Executum add( Executum that ){
-        this.getExecutumPool().put( that.getId(), that );
+        this.getExecutumPool().put( that.getExecutumId(), that );
         if( that instanceof ExclusiveProcessum ) {
             this.getExclusiveTasks().put( that.getName(), (ExclusiveProcessum) that );
         }
@@ -172,7 +172,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
     @Override
     public void erase( Executum that ){
         if( this.autopsy( that ) ) {
-            this.getExecutumPool().remove( that.getId() );
+            this.getExecutumPool().remove( that.getExecutumId() );
             this.getExclusiveTasks().remove( that.getName() );
             ++this.mnFatalityCount;
         }

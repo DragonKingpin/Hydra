@@ -112,7 +112,7 @@ public class TitanStripedChannelExport64 implements StripedChannelExport64{
         BufferOutThread.start();
 
         masterVolumeGram.applyBufferOutBlockerLatch( BufferOutLock );
-        masterVolumeGram.applyBufferOutThreadId( BufferOutThread.getId() );
+        masterVolumeGram.applyBufferOutThreadId( BufferOutThread.getExecutumId() );
 
     }
 

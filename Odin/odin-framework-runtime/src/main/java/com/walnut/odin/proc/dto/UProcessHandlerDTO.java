@@ -1,0 +1,84 @@
+package com.walnut.odin.proc.dto;
+
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public class UProcessHandlerDTO implements Pinenut {
+
+    private String      mszName;
+
+    private long        mnLocalPID;
+
+    private String      mszParentPID;
+
+    private String      mszProcessId;
+
+    private String      mStartupArguments;
+
+    private String      mEnvironmentVariables;
+
+    public UProcessHandlerDTO( String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
+        this.mszName               = name;
+        this.mnLocalPID            = localPID;
+        this.mszProcessId          = processId;
+        this.mStartupArguments     = startupArguments;
+        this.mEnvironmentVariables = environmentVariables;
+    }
+
+    public UProcessHandlerDTO( String name, long localPID, String processId ) {
+        this( name, localPID, processId, null, null );
+    }
+
+    public UProcessHandlerDTO(){}
+
+
+
+    public String getName() {
+        return mszName;
+    }
+
+    public void setName( String name ) {
+        this.mszName = name;
+    }
+
+    public String getParentPID() {
+        return this.mszParentPID;
+    }
+
+    public void setParentPID( String szParentPID ) {
+        this.mszParentPID = szParentPID;
+    }
+
+    public long getLocalPID() {
+        return mnLocalPID;
+    }
+
+    public void setLocalPID( long pid ) {
+        this.mnLocalPID = pid;
+    }
+
+    public String getPID() {
+        return mszProcessId;
+    }
+
+    public void setPID( String pid ) {
+        this.mszProcessId = pid;
+    }
+
+    public String getStartupArguments() {
+        return mStartupArguments;
+    }
+
+    public void setStartupArguments( String startupArguments ) {
+        this.mStartupArguments = startupArguments;
+    }
+
+    public String getEnvironmentVariables() {
+        return mEnvironmentVariables;
+    }
+
+    public void setEnvironmentVariables( String environmentVariables ) {
+        this.mEnvironmentVariables = environmentVariables;
+    }
+
+
+}

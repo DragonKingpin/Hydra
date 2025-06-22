@@ -3,21 +3,31 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UniformProcessManager;
 import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.LocalHostedClassImage;
-import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
-import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
+import com.pinecone.hydra.proc.image.kom.VirtualExeImageInstrument;
+import com.pinecone.hydra.proc.image.kom.VirtualMappingExeImageInstrument;
+import com.pinecone.hydra.umc.wolf.client.UlfClient;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
+import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.archcraft.ender.EnderHydra;
-import com.walnut.odin.proc.client.RavenLocalProcessManagerClient;
+import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
+import com.walnut.odin.proc.client.RemoteProcessManagerClient;
+import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
+import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
-import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Map;
 
 class Dante extends EnderHydra {
@@ -31,16 +41,59 @@ class Dante extends EnderHydra {
 
     @Override
     public void vitalize () throws Exception {
-        this.testProcess();
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
+                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
+        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager(), wolfKing );
+        server.startService();
+
+
+
+        ProcessManager clientPM = new UniformProcessManager(
+                this, null, "Miao", "", null
+        );
+        UlfClient ulfClient = new WolfMCClient(
+                this.getSystemGuidAllocator72().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+        );
+        RemoteProcessManagerClient client = new RavenRemoteProcessManagerClient( clientPM, ulfClient );
+        client.startService();
+
+
+        //this.testClientProactiveCreation( server, client );
+        this.testServerProactiveCreation( server, client );
+
+        //this.testImageInstrument();
     }
 
-    private void testProcess() throws IOException {
-        GuidAllocator128V7 guidAllocator128V7 = new GuidAllocator128V7();
+    private void testImageInstrument() {
+        VirtualExeImageInstrument imageInstrument = new VirtualMappingExeImageInstrument( this, "" );
+
+        ProcessManager manager = this.processManager();
+        ProcessEventHandler eventHandler = new ProcessEventHandler() {
+            @Override
+            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.bluef( runnable, event );
+            }
+        };
+
+        ExecutionImage image = new LocalHostedClassImage( "image1", new ArchEntryPointRunnable( eventHandler ) {
+            @Override
+            public void execute() {
+                Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+            }
+        }, manager );
+
+
+        imageInstrument.mount( "hola/senorita", image );
+
+        Debug.greenfs( imageInstrument.queryImage( "hola/senorita/image1" ).getName() );
+    }
+
+    private void testClientProactiveCreation( RemoteProcessManagerServer server, RemoteProcessManagerClient client ) throws Exception {
         ProcessManager manager = this.processManager();
 
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
                 Debug.bluef( runnable, event );
             }
         };
@@ -62,13 +115,46 @@ class Dante extends EnderHydra {
 
         //LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", new String[]{ "you", "she", "he", "it" } ) );
 
-        RavenRemoteProcessManagerServer server = new RavenRemoteProcessManagerServer(this, guidAllocator128V7);
 
-        RavenLocalProcessManagerClient client = new RavenLocalProcessManagerClient(this, manager, new GuidAllocator72V2());
+        UProcess process = client.createLocalUProcess(image, null, Map.of("fuck", new String[]{"you", "she", "he", "it"}), null);
+        server.startRemoteUProcess( process.getGuid() );
+    }
 
-        UProcess process = client.createProcess(image, null, Map.of("fuck", new String[]{"you", "she", "he", "it"}), null);
+    private void testServerProactiveCreation( RemoteProcessManagerServer server, RemoteProcessManagerClient client ) throws Exception {
+        ProcessManager manager = this.processManager();
+        ProcessEventHandler eventHandler = new ProcessEventHandler() {
+            @Override
+            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.bluef( runnable, event );
+            }
+        };
 
-        server.start( process.getGuid() );
+        ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
+            @Override
+            public void execute() {
+                Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+            }
+        }, manager );
+
+
+
+
+        client.registerLocalScopeExecutionImage( "hola/senorita", image );
+
+        ExecutionImage ic = client.queryExecutionImage( "hola/senorita/image_c" );
+        ExecutionImage ig = client.queryExecutionImage( "/sys/public/global/exe/images/hola/senorita/image_c" );
+
+        Debug.redfs( ic, ig );
+
+        ic = client.queryExecutionImage( new URI("uofs:///hola/senorita/image_c") );
+        ig = client.queryExecutionImage( new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c") );
+
+        Debug.redfs( ic, ig );
+
+        RemoteVitalizationResponse response = server.vitalizeRemoteUProcess(
+                client.getClientId(), new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c"), this.getPID(),
+                Map.of("fuck", new String[]{"you", "she", "he", "it"}), Map.of("kill", new String[]{"you", "she", "he", "it"})
+        );
     }
 
 }

@@ -17,5 +17,13 @@ public class LocalHostedClassImage extends GenericClassImage {
         this( name, entryPoint, manager.getImageLoader() );
     }
 
+    public LocalHostedClassImage(
+            EntryPointRunnable entryPoint, ProcessManager manager
+    ) throws ImageLoadProcedureException {
+        this( "", entryPoint, manager.getImageLoader() );
+
+        this.mszName = this.getClass().getName();
+    }
+
 
 }

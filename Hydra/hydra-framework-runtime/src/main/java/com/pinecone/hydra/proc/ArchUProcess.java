@@ -17,10 +17,11 @@ import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 
-public class ArchUProcess implements UProcess {
-    protected Processum              mLocalSystemProc;
+public abstract class ArchUProcess implements UProcess {
+    protected Processum              mLocalProcess;
 
     protected GUID                   mProcessID;
+    protected GUID                   mParentPID;
     protected ObjectTable            mObjectTable;
     protected ProcSpace              mProcSpace;
 
@@ -36,11 +37,11 @@ public class ArchUProcess implements UProcess {
     protected LocalDateTime          mLastUpdateTime;
 
     public ArchUProcess(
-            @Nullable Processum localSystemProc, GUID guid, String szName,
-            UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable Processum localProcess, GUID guid, String szName,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
             Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
     ) {
-        this.mLocalSystemProc   = localSystemProc;
+        this.mLocalProcess      = localProcess;
         this.mProcessManager    = processManager;
         this.mProcessID         = guid;
         this.mExecutionImage    = image;
@@ -49,14 +50,18 @@ public class ArchUProcess implements UProcess {
         this.mEnvironmentVars   = environmentVars;
         this.mControllableLevel = image.getControllableLevel();
 
-        if ( this.mLocalSystemProc == null ) {
-            this.mLocalSystemProc = new LocalSystemProcess( szName, parent );
+        if ( this.mLocalProcess == null ) {
+            this.mLocalProcess = new LocalSystemProcess( szName, parent );
+        }
+
+        if ( parent != null ) {
+            this.mParentPID     = parent.getPID();
         }
     }
 
     public ArchUProcess(
             @Nullable Processum localSystemProc, String szName,
-            UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
             Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
@@ -64,15 +69,15 @@ public class ArchUProcess implements UProcess {
 
     public ArchUProcess(
             Processum localSystemProc,
-            UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
             Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
 
     @Override
-    public Processum getCurrentLocalSystemProcess() {
-        return this.mLocalSystemProc;
+    public Processum affinityLocalProcess() {
+        return this.mLocalProcess;
     }
 
     @Override
@@ -82,7 +87,7 @@ public class ArchUProcess implements UProcess {
 
     @Override
     public long getLocalPID() {
-        return this.getId();
+        return this.getExecutumId();
     }
 
     @Override
@@ -93,6 +98,16 @@ public class ArchUProcess implements UProcess {
     @Override
     public UProcess parentProcess() {
         return (UProcess) this.parentExecutum();
+    }
+
+    @Override
+    public GUID actualParentPID() {
+        return this.mParentPID;
+    }
+
+    @Override
+    public void applyActualParentPID( GUID pid ) {
+        this.mParentPID = pid;
     }
 
     @Override
@@ -176,117 +191,117 @@ public class ArchUProcess implements UProcess {
 
     @Override
     public Map<Long, Executum> getOwnThreadGroup() {
-        return this.mLocalSystemProc.getOwnThreadGroup();
+        return this.mLocalProcess.getOwnThreadGroup();
     }
 
     @Override
     public TaskManager getTaskManager() {
-        return this.mLocalSystemProc.getTaskManager();
+        return this.mLocalProcess.getTaskManager();
     }
 
     @Override
     public LocalDateTime getCreateTime() {
-        return this.mLocalSystemProc.getCreateTime();
+        return this.mLocalProcess.getCreateTime();
     }
 
     @Override
     public LocalDateTime getStartTime() {
-        return this.mLocalSystemProc.getStartTime();
+        return this.mLocalProcess.getStartTime();
     }
 
     @Override
     public String getName() {
-        return this.mLocalSystemProc.getName();
+        return this.mLocalProcess.getName();
     }
 
     @Override
     public void setName( String szName ) {
-        this.mLocalSystemProc.setName( szName );
+        this.mLocalProcess.setName( szName );
     }
 
     @Override
-    public long getId() {
-        return this.mLocalSystemProc.getId();
+    public long getExecutumId() {
+        return this.mLocalProcess.getExecutumId();
     }
 
     @Override
     public RuntimeSystem parentSystem() {
-        return this.mLocalSystemProc.parentSystem();
+        return this.mLocalProcess.parentSystem();
     }
 
     @Override
     public RuntimeSystem revealNearestSystem() {
-        return this.mLocalSystemProc.revealNearestSystem();
+        return this.mLocalProcess.revealNearestSystem();
     }
 
     @Override
     public Executum parentExecutum() {
-        return this.mLocalSystemProc.parentExecutum();
+        return this.mLocalProcess.parentExecutum();
     }
 
     @Override
     public Executum setThreadAffinity( Thread affinity ) {
-        return this.mLocalSystemProc.setThreadAffinity( affinity );
+        return this.mLocalProcess.setThreadAffinity( affinity );
     }
 
     @Override
     public Thread getAffiliateThread() {
-        return this.mLocalSystemProc.getAffiliateThread();
+        return this.mLocalProcess.getAffiliateThread();
     }
 
     @Override
     public boolean isTerminated() {
-        return this.mLocalSystemProc.isTerminated();
+        return this.mLocalProcess.isTerminated();
     }
 
     @Override
     public void start() {
-        this.mLocalSystemProc.start();
+        this.mLocalProcess.start();
     }
 
     @Override
     public void apoptosis() throws ApoptosisRejectSignalException {
-        this.mLocalSystemProc.apoptosis();
+        this.mLocalProcess.apoptosis();
     }
 
     @Override
     public void kill() {
-        this.mLocalSystemProc.kill();
+        this.mLocalProcess.kill();
     }
 
     @Override
     public void interrupt() {
-        this.mLocalSystemProc.interrupt();
+        this.mLocalProcess.interrupt();
     }
 
     @Override
     public void suspend() {
-        this.mLocalSystemProc.suspend();
+        this.mLocalProcess.suspend();
     }
 
     @Override
     public void resume() {
-        this.mLocalSystemProc.resume();
+        this.mLocalProcess.resume();
     }
 
     @Override
     public void entreatLive() {
-        this.mLocalSystemProc.entreatLive();
+        this.mLocalProcess.entreatLive();
     }
 
     @Override
     public Thread.State getState() {
-        return this.mLocalSystemProc.getState();
+        return this.mLocalProcess.getState();
     }
 
     @Override
     public int getExceptionRestartTime() {
-        return this.mLocalSystemProc.getExceptionRestartTime();
+        return this.mLocalProcess.getExceptionRestartTime();
     }
 
     @Override
     public Lifecycle applyExceptionRestartTime( int time ) {
-        return this.mLocalSystemProc.applyExceptionRestartTime( time );
+        return this.mLocalProcess.applyExceptionRestartTime( time );
     }
 
     /** Proxied Processum End **/

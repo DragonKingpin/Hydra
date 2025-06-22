@@ -64,7 +64,7 @@ public class GuidAllocator72V2 implements GuidAllocator72, InitializingBean {
     }
 
     @Override
-    public long getGUID64() throws GuidGenerateException {
+    public long nextGUIDi64() throws GuidGenerateException {
         try {
             return this.nextId();
         }
@@ -75,7 +75,7 @@ public class GuidAllocator72V2 implements GuidAllocator72, InitializingBean {
     }
 
     @Override
-    public String parseGUID64( long guid64 ) {
+    public String explain( long guid64 ) {
         long totalBits = BitsAllocator.TOTAL_BITS;
         long signBits = this.bitsAllocator.getSignBits();
         long timestampBits = this.bitsAllocator.getTimestampBits();
@@ -130,7 +130,7 @@ public class GuidAllocator72V2 implements GuidAllocator72, InitializingBean {
     @Override
     public GUID nextGUID72() {
         //先获取GUID64
-        long guid64 = this.getGUID64();
+        long guid64 = this.nextGUIDi64();
         //Debug.trace( guid64 );
 
         //获取纳秒种子
@@ -144,7 +144,7 @@ public class GuidAllocator72V2 implements GuidAllocator72, InitializingBean {
 
     @Override
     public GUID nextGUID64() {
-        return new GUID64( this.getGUID64() );
+        return new GUID64( this.nextGUIDi64() );
     }
 
     /**

@@ -49,7 +49,7 @@ public abstract class ArchExecutum implements Executum {
         this.mnId          = Executum.nextAutoIncrementId();
         if( this.mszName == null ) {
             this.mszName = this.className();
-            long id = this.getId();
+            long id = this.getExecutumId();
             if( this.mParentProcessum != null ) {
                 this.mszName = this.mszName + "-Executum-" + id;
             }
@@ -81,7 +81,7 @@ public abstract class ArchExecutum implements Executum {
     }
 
     @Override
-    public long getId() {
+    public long getExecutumId() {
         return this.mnId;
     }
 

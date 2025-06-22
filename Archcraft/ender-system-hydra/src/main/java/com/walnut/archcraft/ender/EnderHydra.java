@@ -1,26 +1,41 @@
 package com.walnut.archcraft.ender;
 
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.framework.system.architecture.Component;
+import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.framework.util.name.UniNamespace;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UniformProcessManager;
+import com.pinecone.hydra.proc.image.FileSystemMappingImageLoader;
 import com.pinecone.hydra.proc.image.ImageLoader;
-import com.pinecone.hydra.proc.image.UniformImageLoader;
+import com.pinecone.hydra.proc.image.UniformMultiScopeImageLoader;
+import com.pinecone.hydra.proc.image.kom.VirtualExeImageInstrument;
+import com.pinecone.hydra.proc.image.kom.VirtualMappingExeImageInstrument;
+import com.pinecone.hydra.reign.UnixInstitutionalizedMetaImperiumPrivy;
 import com.pinecone.hydra.system.component.LogStatuses;
 
+import com.pinecone.hydra.system.imperium.ImperiumPrivy;
+import com.pinecone.hydra.system.imperium.KernelObjectRootMountPoint;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 import com.walnut.archcraft.ender.system.HydraEmpire;
 import com.walnut.archcraft.ender.system.Hydroxy;
 
 public class EnderHydra extends Tritium implements HydraEmpire {
 
-    protected GuidAllocator  mSystemGuidAllocator;
-    protected ImageLoader    mSystemImageLoader;
-    protected ProcessManager mSystemProcessManager;
-    protected UProcess       mProxiedRootSystemProcess;
+    protected GuidAllocator             mSystemGuidAllocator;
+    protected GuidAllocator72           mSystemGuidAllocator72;
+    protected ImageLoader               mSystemImageLoader;
+    protected ProcessManager            mSystemProcessManager;
+    protected UProcess                  mProxiedRootSystemProcess;
+    protected KernelObjectConfig        mFundamentalKernelObjectConfig;
+    protected VirtualExeImageInstrument mVirtualExeImageInstrument;
+    protected ImperiumPrivy             mImperiumPrivy;
 
     public EnderHydra( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
@@ -36,34 +51,87 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.prepare_uniform_system();
     }
 
+    protected void prepare_uniform_system_process_task_subsystem() {
+        this.mVirtualExeImageInstrument = new VirtualMappingExeImageInstrument( this, "" );
+        this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[1] System VirtualExeImageInstrument Initialization", LogStatuses.StatusDone );
+
+
+        ImageLoader localMappingImageLoader = new FileSystemMappingImageLoader( this, this.mVirtualExeImageInstrument );
+        this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[2] System Scope LocalMappingImageLoader Initialization", LogStatuses.StatusDone );
+        this.mSystemImageLoader         = new UniformMultiScopeImageLoader( this, localMappingImageLoader );
+        this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[3] System Scope UniformMultiScopeImageLoader Initialization", LogStatuses.StatusDone );
+
+
+        this.mSystemProcessManager = new UniformProcessManager(
+                this, null, "SystemUniformProcessManager", "", null
+        );
+        this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[4] System ProcessManager Initialization", LogStatuses.StatusDone );
+
+
+        this.mProxiedRootSystemProcess  = new Hydroxy( this );
+        this.mSystemProcessManager.applyRootUProcess( this.mProxiedRootSystemProcess );
+        this.mSystemProcessManager.register( this.mProxiedRootSystemProcess );
+        this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[5] System Hydroxy Initialization", LogStatuses.StatusDone );
+
+        this.infoLifecycle( "<Uniform Hydra> Uniform System Process/Task Subsystem", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_uniform_system_imperium_privy() {
+        this.mImperiumPrivy = new UnixInstitutionalizedMetaImperiumPrivy( new UniNamespace( "SystemUnixInstitutionalizedMetaImperiumPrivy" ), this, null, this.fundamentalKernelObjectConfig() );
+        this.infoLifecycle(
+                "<Uniform Hydra> System ImperiumPrivy Initialization. (name: `" + this.mImperiumPrivy.getTargetingName() + "`, class: `" + this.mImperiumPrivy.getClass().getName() + "`)",
+                LogStatuses.StatusDone
+        );
+        this.mImperiumPrivy.getExpressInstrument().mount( KernelObjectRootMountPoint.SysImages.getMountPoint(), this.mVirtualExeImageInstrument );
+        this.infoLifecycle(
+                "<Uniform Hydra::Privy> System VirtualExeImageInstrument Mount. (MountPoint: `/" + KernelObjectRootMountPoint.SysImages.getMountPoint() + "`)",
+                LogStatuses.StatusDone
+        );
+
+
+        this.infoLifecycle( "<Uniform Hydra> Uniform Imperium Privy", LogStatuses.StatusDone );
+    }
+
     protected void prepare_uniform_system() {
         this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusStart );
 
-        this.mSystemGuidAllocator  = GUIDs.newGuidAllocator();
+        this.init_uniform_system_configuration();
+
+        this.mSystemGuidAllocator    = GUIDs.newGuidAllocator();
         this.infoLifecycle(
                 "<Uniform Hydra> System GUIDAllocator Initialization [Type: `" + this.mSystemGuidAllocator.getClass().getName() + "`]",
                 LogStatuses.StatusDone
         );
 
-        this.mSystemProcessManager = new UniformProcessManager(
-                this, null, "UniformProcessManager", "", null
+        this.mSystemGuidAllocator72  = new GuidAllocator72V2();
+        this.infoLifecycle(
+                "<Uniform Hydra> System GUIDAllocator72 Initialization [Type: `" + this.mSystemGuidAllocator72.getClass().getName() + "`]",
+                LogStatuses.StatusDone
         );
-        this.infoLifecycle( "<Uniform Hydra> System ProcessManager Initialization", LogStatuses.StatusDone );
 
-        this.mSystemImageLoader        = new UniformImageLoader( this );
-        this.mProxiedRootSystemProcess = new Hydroxy( this );
-        this.mSystemProcessManager.applyRootUProcess( this.mProxiedRootSystemProcess );
-        this.mSystemProcessManager.register( this.mProxiedRootSystemProcess );
 
+        this.prepare_uniform_system_process_task_subsystem();
         this.init_process_kernel_subsystem();
 
         this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusReady );
+        this.getLogger().info( "[Welcome] [<Hydra Empire> Welcome to join the imperial army!]" );
     }
 
     protected void init_process_kernel_subsystem() {
         this.infoLifecycle( "Uniform Process Subsystem", LogStatuses.StatusStart );
 
+        this.prepare_uniform_system_imperium_privy();
+
         this.infoLifecycle( "Uniform Process Subsystem", LogStatuses.StatusDone );
+    }
+
+    protected void init_uniform_system_configuration() {
+        this.infoLifecycle( "Uniform System Configuration", LogStatuses.StatusStart );
+
+        this.mFundamentalKernelObjectConfig = new GenericRuntimeInstrumentConfig();
+        this.infoLifecycle( "<Uniform Hydra> System FundamentalKernelObjectConfig Initialization", LogStatuses.StatusDone );
+
+        this.infoLifecycle( "Uniform System Configuration", LogStatuses.StatusDone );
     }
 
     @Override
@@ -88,6 +156,11 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     }
 
     @Override
+    public GuidAllocator72 getSystemGuidAllocator72() {
+        return this.mSystemGuidAllocator72;
+    }
+
+    @Override
     public ProcessManager processManager() {
         return this.mSystemProcessManager;
     }
@@ -97,4 +170,28 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         return this.mSystemImageLoader;
     }
 
+    @Override
+    public Processum ownedLocalProcess() {
+        return this;
+    }
+
+    @Override
+    public UProcess ownedUniformProcess() {
+        return this.mProxiedRootSystemProcess;
+    }
+
+    @Override
+    public KernelObjectConfig fundamentalKernelObjectConfig() {
+        return this.mFundamentalKernelObjectConfig;
+    }
+
+    @Override
+    public ImperiumPrivy imperiumPrivy() {
+        return this.mImperiumPrivy;
+    }
+
+    @Override
+    public VirtualExeImageInstrument virtualExeImageInstrument() {
+        return this.mVirtualExeImageInstrument;
+    }
 }

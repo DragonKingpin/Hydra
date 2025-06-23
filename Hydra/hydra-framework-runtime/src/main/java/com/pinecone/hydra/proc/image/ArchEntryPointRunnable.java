@@ -1,5 +1,8 @@
 package com.pinecone.hydra.proc.image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 
@@ -9,9 +12,12 @@ public abstract class ArchEntryPointRunnable implements EntryPointRunnable {
 
     protected ProcessEventHandler mProcessEventHandler;
 
+    List<ProcessEventHandler> mSysProcEventHandlers;
+
     public ArchEntryPointRunnable( UProcess ownedProcess, ProcessEventHandler processEventHandler ) {
-        this.mOwnedProcess        = ownedProcess;
-        this.mProcessEventHandler = processEventHandler;
+        this.mOwnedProcess         = ownedProcess;
+        this.mProcessEventHandler  = processEventHandler;
+        this.mSysProcEventHandlers = new ArrayList<>();
     }
 
     public ArchEntryPointRunnable( ProcessEventHandler processEventHandler ) {
@@ -48,4 +54,12 @@ public abstract class ArchEntryPointRunnable implements EntryPointRunnable {
     }
 
 
+    static List<ProcessEventHandler> getSysProcEventHandlers( EntryPointRunnable entryPointRunnable ) {
+        if ( entryPointRunnable instanceof ArchEntryPointRunnable ) {
+            return ((ArchEntryPointRunnable) entryPointRunnable).mSysProcEventHandlers;
+        }
+        else {
+            return null;
+        }
+    }
 }

@@ -14,6 +14,7 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
@@ -149,6 +150,11 @@ public class RavenRemoteProcess implements RemoteProcess {
 
     @Override
     public ProcSpace getProcNamespace() {
+        return null;
+    }
+
+    @Override
+    public RuntimeTombstone getRuntimeTombstone() {
         return null;
     }
 

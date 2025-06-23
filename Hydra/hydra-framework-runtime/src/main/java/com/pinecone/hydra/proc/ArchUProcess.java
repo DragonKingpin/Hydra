@@ -15,6 +15,8 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.entity.ElementNode;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.proc.tomb.ResurgentTombstone;
+import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 
 public abstract class ArchUProcess implements UProcess {
@@ -23,7 +25,8 @@ public abstract class ArchUProcess implements UProcess {
     protected GUID                   mProcessID;
     protected GUID                   mParentPID;
     protected ObjectTable            mObjectTable;
-    protected ProcSpace              mProcSpace;
+    protected ProcSpace              mProcSpace;         // TODO, Namespace, Hydra V3
+    protected RuntimeTombstone       mRuntimeTombstone;  // TODO, Tombstone, Hydra V2.7
 
     protected ProcessManager         mProcessManager;
 
@@ -46,6 +49,7 @@ public abstract class ArchUProcess implements UProcess {
         this.mProcessID         = guid;
         this.mExecutionImage    = image;
         this.mProcSpace         = procSpace;
+        this.mRuntimeTombstone  = new ResurgentTombstone();
         this.mStartupArgs       = startupArgs;
         this.mEnvironmentVars   = environmentVars;
         this.mControllableLevel = image.getControllableLevel();
@@ -135,6 +139,11 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public ProcSpace getProcNamespace() {
         return this.mProcSpace;
+    }
+
+    @Override
+    public RuntimeTombstone getRuntimeTombstone() {
+        return this.mRuntimeTombstone;
     }
 
     @Override

@@ -2,9 +2,10 @@ package com.walnut.odin.proc.dto;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 
-public class RemoteVitalizationResponse implements Pinenut {
+public class RemoteTerminationReport implements Pinenut {
 
     protected long mnLocalPID;
 
@@ -12,12 +13,14 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     protected String mszPID;
 
-    protected int mnStatus;
+    protected int mnTerminationStatus;
+
+    protected int mnExitCode;
 
     protected String mszErrorMsg;
 
-    public RemoteVitalizationResponse() {
-        this.mnStatus = RemoteVitalizationStatus.Vitalized.getCode();
+    public RemoteTerminationReport() {
+        this.mnTerminationStatus = RemoteTerminationStatus.Expected.getCode();
     }
 
     public long getLocalPID() {
@@ -36,12 +39,12 @@ public class RemoteVitalizationResponse implements Pinenut {
         this.mszPID = szPID;
     }
 
-    public void setStatus( int nStatus ) {
-        this.mnStatus = nStatus;
+    public void setTerminationStatus( int nStatus ) {
+        this.mnTerminationStatus = nStatus;
     }
 
-    public int getStatus() {
-        return this.mnStatus;
+    public int getTerminationStatus() {
+        return this.mnTerminationStatus;
     }
 
     public String getErrorMsg() {
@@ -61,12 +64,21 @@ public class RemoteVitalizationResponse implements Pinenut {
         return this.mPID;
     }
 
-    public void setRemoteVitalizationStatus( RemoteVitalizationStatus status ) {
-        this.setStatus( status.getCode() );
+    public int getExitCode() {
+        return this.mnExitCode;
     }
 
-    public RemoteVitalizationStatus optStatus() {
-        return RemoteVitalizationStatus.getByCode( this.getStatus() );
+    public void setExitCode( int nExitCode ) {
+        this.mnExitCode = nExitCode;
+    }
+
+    public void setRemoteTerminationStatus( RemoteTerminationStatus status ) {
+        this.setTerminationStatus( status.getCode() );
+    }
+
+    public RemoteTerminationStatus optStatus() {
+        return RemoteTerminationStatus.getByCode( this.getTerminationStatus() );
     }
 
 }
+

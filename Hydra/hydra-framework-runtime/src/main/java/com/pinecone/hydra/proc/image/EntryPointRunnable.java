@@ -1,5 +1,7 @@
 package com.pinecone.hydra.proc.image;
 
+import java.util.List;
+
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.functions.Executor;
 import com.pinecone.hydra.proc.ArchProcessManager;
@@ -24,12 +26,19 @@ public interface EntryPointRunnable extends Runnable, Executor {
      */
     @Override
     default void run() {
-        ProcessEventHandler processEventHandler = this.processEventHandler();
-
+        ProcessEventHandler processEventHandler        = this.processEventHandler();
+        List<ProcessEventHandler> sysProcEventHandlers = ArchEntryPointRunnable.getSysProcEventHandlers( this );
         try {
+            ProcessEvent vitalEvent = ProcessEvent.Vitalized;
             if ( processEventHandler != null ) {
-                processEventHandler.fired( this, ProcessEvent.Vitalized );
+                processEventHandler.fired( this, vitalEvent );
             }
+            if ( sysProcEventHandlers != null ) {
+                for ( ProcessEventHandler sysHandler : sysProcEventHandlers ) {
+                    sysHandler.fired( this, vitalEvent );
+                }
+            }
+
             this.execute();
         }
         catch ( Exception e ) {
@@ -42,8 +51,14 @@ public interface EntryPointRunnable extends Runnable, Executor {
                 ArchProcessManager.invokeExpunge( (ArchProcessManager) processManager, owned );
             }
 
+            ProcessEvent termEvent = ProcessEvent.Terminated;
             if ( processEventHandler != null ) {
-                processEventHandler.fired( this, ProcessEvent.Terminated );
+                processEventHandler.fired( this, termEvent );
+            }
+            if ( sysProcEventHandlers != null ) {
+                for ( ProcessEventHandler sysHandler : sysProcEventHandlers ) {
+                    sysHandler.fired( this, termEvent );
+                }
             }
         }
     }

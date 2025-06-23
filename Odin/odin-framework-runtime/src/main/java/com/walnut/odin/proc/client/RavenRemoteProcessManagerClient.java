@@ -12,6 +12,7 @@ import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.ArgumentsUtils;
+import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
@@ -27,6 +28,8 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     protected DuplexAppointClient            mDuplexAppointClient;
 
     protected SlaveProcessLifecycleIface     mProcessLifecycleIface;
+
+    protected ProcessLifecycleExaminer       mProcessLifecycleExaminer;
 
     protected long                           mnClientId;
 

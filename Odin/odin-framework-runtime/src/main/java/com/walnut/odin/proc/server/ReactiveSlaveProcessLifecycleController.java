@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
+import com.walnut.odin.proc.dto.RemoteTerminationReport;
 import com.walnut.odin.proc.dto.UProcessHandlerDTO;
 
 
@@ -26,6 +27,11 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
     public long reportClientInitialized( long clientId ) {
         this.mRemoteProcessManagerServer.getLogger().info( "[ClientInitializedRecall] (ClientId: {}) <Done>", clientId );
         return clientId;
+    }
+
+    @AddressMapping( "notifyProcessTerminated" )
+    public void notifyProcessTerminated( long clientId, RemoteTerminationReport terminationReport ) {
+
     }
 
 }

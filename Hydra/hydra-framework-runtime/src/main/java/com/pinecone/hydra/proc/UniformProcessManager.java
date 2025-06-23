@@ -16,6 +16,8 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
+import com.pinecone.hydra.proc.image.ImageModifier;
+import com.pinecone.hydra.proc.image.SafeImageModifier;
 import com.pinecone.hydra.proc.image.UniformMultiScopeImageLoader;
 import com.pinecone.hydra.proc.ns.GenericSegregationSpace;
 import com.pinecone.hydra.system.HyComponent;
@@ -44,6 +46,8 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     protected ImageLoader                  mImageLoader;
     protected ProcessEnvironmentSection    mProcessEnvironmentSection;
 
+    protected ImageModifier                mImageModifier;
+
     public UniformProcessManager (
             Processum superiorProcess, CascadeInstrument parentInstrument, String name, String superiorPathScope,
             KernelObjectConfig config, @Nullable ImageLoader imageLoader, @Nullable GuidAllocator guidAllocator
@@ -57,6 +61,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         this.mDynamicFactory            = new GenericDynamicFactory( superiorProcess.getTaskManager().getClassLoader() );
         this.mImageLoader               = imageLoader;
         this.mProcessEnvironmentSection = new LineageProcessEnvironmentSection( this.mSuperiorProcess.parentSystem().getEnvironmentVars() );
+        this.mImageModifier             = new SafeImageModifier();
 
         if ( this.mSuperiorProcess instanceof RuntimeSystem ) {
             this.mSuperiorSystem = (RuntimeSystem) this.mSuperiorProcess;
@@ -109,6 +114,10 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         this( superiorProcess, parentInstrument, name, superiorPathScope, config, null, null );
     }
 
+    @Override
+    public ImageModifier getImageModifier() {
+        return this.mImageModifier;
+    }
 
     @Override
     public void applyGuidAllocator( GuidAllocator guidAllocator ) {

@@ -11,6 +11,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
+import com.pinecone.hydra.proc.image.ImageModifier;
 import com.pinecone.hydra.system.ko.CascadeKernelObjectInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.QueryableInstrument;
@@ -63,5 +64,7 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     ) {
         return this.createLocalHostedProcess( image, parent, startupArgs, null );
     }
+
+    ImageModifier getImageModifier();
 
 }

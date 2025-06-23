@@ -8,6 +8,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.entity.ProcessElement;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 
 public interface UProcess extends Processum, ProcessElement {
@@ -21,6 +22,8 @@ public interface UProcess extends Processum, ProcessElement {
     ProcessManager getOwnedProcessManager();
 
     ProcSpace getProcNamespace();
+
+    RuntimeTombstone getRuntimeTombstone();
 
     ObjectTable getObjectTable();
 

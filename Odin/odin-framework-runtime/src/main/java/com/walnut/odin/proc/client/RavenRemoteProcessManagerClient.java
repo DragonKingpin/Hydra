@@ -1,6 +1,5 @@
 package com.walnut.odin.proc.client;
 
-import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
@@ -12,12 +11,13 @@ import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.ArgumentsUtils;
+import com.walnut.odin.proc.RemoteProcessLifecycleExaminer;
 import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessHandlerDTO;
+import com.walnut.odin.proc.dto.UProcessMirrorDTO;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,17 +37,23 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
     public RavenRemoteProcessManagerClient( ProcessManager processManager, UlfClient rpcClient ) {
         super( processManager );
-        this.mRPCClient          = rpcClient;
-        this.mnClientId          = rpcClient.getMessageNodeId();
+        this.mRPCClient                = rpcClient;
+        this.mnClientId                = rpcClient.getMessageNodeId();
     }
 
 
     protected void initRPCSubsystem() throws RemoteProcessServiceRPCException {
+        if ( this.mDuplexAppointClient != null && !this.mDuplexAppointClient.getMessageNode().isTerminated() ) {
+            throw new IllegalStateException( "DuplexAppointClient has started." );
+        }
+
         this.mDuplexAppointClient = new WolvesAppointClient( this.mRPCClient );
         try {
             this.mDuplexAppointClient.compile( SlaveProcessLifecycleIface.class,false );
             this.mProcessLifecycleIface = this.mDuplexAppointClient.getIface( SlaveProcessLifecycleIface.class );
             this.mDuplexAppointClient.getRouteDispatcher().registerController( new ReactiveMasterProcessLifecycleController( this ) );
+
+            this.mProcessLifecycleExaminer = new RemoteProcessLifecycleExaminer( this, this.mProcessLifecycleIface );
             this.infoLifecycle( "RPC Subsystem Register Controllers", LogStatuses.StatusDone );
         }
         catch ( Exception e ) {
@@ -88,6 +94,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         }
 
         this.mDuplexAppointClient.terminate();
+        this.mDuplexAppointClient = null;
     }
 
     @Override
@@ -95,8 +102,8 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, parent, startupArgs, contextEnvironmentVars );
 
         if ( this.mProcessLifecycleIface != null ) {
-            UProcessHandlerDTO uProcessHandlerDTO = new UProcessHandlerDTO( localHostedProcess.getName(), localHostedProcess.getLocalPID(), localHostedProcess.getGuid().toString() );
-            this.mProcessLifecycleIface.registerRemoteProcess( this.mnClientId, uProcessHandlerDTO );
+            UProcessMirrorDTO processMirrorDTO = new UProcessMirrorDTO( localHostedProcess.getName(), localHostedProcess.getLocalPID(), localHostedProcess.getGuid().toString() );
+            this.mProcessLifecycleIface.registerRemoteProcess( this.mnClientId, processMirrorDTO);
             this.getLogger().info( "[SuperiorRegister] [createLocalUProcess] <Done>" );
         }
         else {
@@ -106,7 +113,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public RemoteVitalizationResponse vitalizeLocalUProcess( String imageAddress, boolean isURI, UProcessHandlerDTO handlerDTO ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse createLocalUProcess(String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException {
         try {
             RemoteVitalizationResponse response = new RemoteVitalizationResponse();
 
@@ -137,10 +144,15 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
             LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, this.mProcessManager.getRootUProcess(), startupArgs, envVariables );
             localHostedProcess.applyActualParentPID( parentPID );
-            localHostedProcess.start(); // TODO, Process Joint
-
+            response.setName( localHostedProcess.getName() );
             response.setProcessID( localHostedProcess.getPID() );
             response.setLocalPID( localHostedProcess.getLocalPID() );
+            response.setEnvironmentVariables( szEnvironmentVariables );
+            response.setStartupArguments( szStartupArguments );
+
+            if ( lpProcess != null && lpProcess.length > 0 ) {
+                lpProcess[0] = localHostedProcess;
+            }
 
             return response;
         }
@@ -150,12 +162,34 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     }
 
     @Override
+    public RemoteVitalizationResponse vitalizeLocalUProcess( String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException {
+        UProcess[] lpProcess = new UProcess[1];
+        RemoteVitalizationResponse response = this.createLocalUProcess( imageAddress, isURI, handlerDTO, lpProcess );
+        LocalUProcess localHostedProcess = (LocalUProcess) lpProcess[ 0 ];
+
+        // Asynchronous startup may cause consistency errors if local execution finishes before the remote mirror is ready to handle events.
+        // Sync and confirmation are required.
+        // 进程启动为异步过程，若本地执行过快，远端镜像未就绪即本地完成（远端进程可能无法被后续事件清理），将导致一致性错误，需上报并等待同步。
+        // Note: Strong consistency is required. RPC sync must precede remote mirror process initialization.
+        // PS：该过程要求强一致性，必须先通过 RPC 同步，等待远端镜像进程完成创建。
+        String pid = this.mProcessLifecycleIface.reportProcessCreated( this.mnClientId, response );
+        if ( !response.getPID().equals( pid ) ) {
+            throw new RemoteProcessLifecycleException( "An internal error has been happened, whit unmatched remote-process PID." );
+        }
+
+        this.mProcessLifecycleExaminer.startProcess( localHostedProcess );
+
+        return response;
+    }
+
+    @Override
     public void startLocalUProcess( GUID pid ) throws IllegalArgumentException {
         UProcess process = this.mProcessManager.getProcess( pid );
         if ( process == null ) {
             throw new IllegalArgumentException( "No such process, PID => `" + pid + "`" );
         }
-        process.start();
+
+        this.mProcessLifecycleExaminer.startProcess( process );
     }
 
 }

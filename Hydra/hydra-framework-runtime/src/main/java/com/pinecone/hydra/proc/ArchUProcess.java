@@ -27,6 +27,7 @@ public abstract class ArchUProcess implements UProcess {
     protected ObjectTable            mObjectTable;
     protected ProcSpace              mProcSpace;         // TODO, Namespace, Hydra V3
     protected RuntimeTombstone       mRuntimeTombstone;  // TODO, Tombstone, Hydra V2.7
+    protected ProcessActionTape      mActionTape;
 
     protected ProcessManager         mProcessManager;
 
@@ -53,6 +54,7 @@ public abstract class ArchUProcess implements UProcess {
         this.mStartupArgs       = startupArgs;
         this.mEnvironmentVars   = environmentVars;
         this.mControllableLevel = image.getControllableLevel();
+        this.mActionTape        = new GenericProcessActionTape();
 
         if ( this.mLocalProcess == null ) {
             this.mLocalProcess = new LocalSystemProcess( szName, parent );
@@ -82,6 +84,11 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public Processum affinityLocalProcess() {
         return this.mLocalProcess;
+    }
+
+    @Override
+    public ProcessActionTape actionTape() {
+        return this.mActionTape;
     }
 
     @Override

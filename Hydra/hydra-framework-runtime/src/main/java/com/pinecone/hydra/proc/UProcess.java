@@ -13,6 +13,8 @@ import com.pinecone.hydra.system.ko.entity.ObjectTable;
 
 public interface UProcess extends Processum, ProcessElement {
 
+    ProcessActionTape actionTape();
+
     UProcess parentProcess();
 
     GUID actualParentPID();

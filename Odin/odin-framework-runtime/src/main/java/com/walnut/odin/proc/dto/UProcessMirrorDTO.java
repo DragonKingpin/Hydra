@@ -2,7 +2,7 @@ package com.walnut.odin.proc.dto;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 
-public class UProcessHandlerDTO implements Pinenut {
+public class UProcessMirrorDTO implements Pinenut {
 
     private String      mszName;
 
@@ -16,7 +16,7 @@ public class UProcessHandlerDTO implements Pinenut {
 
     private String      mEnvironmentVariables;
 
-    public UProcessHandlerDTO( String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
+    public UProcessMirrorDTO(String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
         this.mszName               = name;
         this.mnLocalPID            = localPID;
         this.mszProcessId          = processId;
@@ -24,11 +24,11 @@ public class UProcessHandlerDTO implements Pinenut {
         this.mEnvironmentVariables = environmentVariables;
     }
 
-    public UProcessHandlerDTO( String name, long localPID, String processId ) {
+    public UProcessMirrorDTO(String name, long localPID, String processId ) {
         this( name, localPID, processId, null, null );
     }
 
-    public UProcessHandlerDTO(){}
+    public UProcessMirrorDTO(){}
 
 
 

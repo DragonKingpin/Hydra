@@ -82,7 +82,7 @@ class Floki extends EnderHydra {
 
         ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public void execute() {
+            public int main( Map<String, String[]> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.greenfs( this.ownedProcess().getPID() );
                 Debug.greenfs( this.ownedProcess().getLocalPID() );
@@ -92,6 +92,7 @@ class Floki extends EnderHydra {
                 Debug.bluef( this.ownedProcess().getControllableLevel() );
                 Debug.bluef( this.ownedProcess().getOwnedProcessManager() );
                 Debug.greenfs( this.ownedProcess().parentProcess() );
+                return 0;
             }
         }, manager );
         LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", new String[]{ "you", "she", "he", "it" } ) );

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.proc.image;
 
 import java.util.List;
+import java.util.Map;
 
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.functions.Executor;
@@ -19,6 +20,14 @@ public interface EntryPointRunnable extends Runnable, Executor {
     ProcessEventHandler processEventHandler();
 
     void applyProcessEventHandler( ProcessEventHandler handler );
+
+    int main( Map<String, String[]> args ) throws Exception;
+
+    @Override
+    default void execute() throws Exception {
+        int c = this.main( this.ownedProcess().getStartupArguments() );
+        this.ownedProcess().actionTape().setExitCode( c );
+    }
 
     /**
      * Overriding is discouraged; lifecycle supervision is required in principle.
@@ -39,9 +48,11 @@ public interface EntryPointRunnable extends Runnable, Executor {
                 }
             }
 
-            this.execute();
+            int c = this.main( this.ownedProcess().getStartupArguments() );
+            this.ownedProcess().actionTape().setExitCode( c );
         }
         catch ( Exception e ) {
+            this.ownedProcess().actionTape().setLastError( e );
             throw new ProvokeHandleException( e );
         }
         finally {

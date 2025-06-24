@@ -6,7 +6,7 @@ import com.pinecone.hydra.umct.stereotype.Controller;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessHandlerDTO;
+import com.walnut.odin.proc.dto.UProcessMirrorDTO;
 
 @Controller
 @AddressMapping( "com.walnut.odin.proc.server.MasterProcessLifecycleIface." )
@@ -24,10 +24,18 @@ public class ReactiveMasterProcessLifecycleController implements Pinenut {
     }
 
     @AddressMapping("vitalizeRemoteUProcess")
-    public RemoteVitalizationResponse vitalizeRemoteUProcess( String imageAddress, boolean isURI, UProcessHandlerDTO handlerDTO ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException {
         this.mRemoteProcessManagerClient.getLogger().info( "[RemoteProcessVitalization] [PRC] (Process: `{}`) <InstructionAccepted>", imageAddress );
         RemoteVitalizationResponse response = this.mRemoteProcessManagerClient.vitalizeLocalUProcess( imageAddress, isURI, handlerDTO );
         this.mRemoteProcessManagerClient.getLogger().info( "[RemoteProcessVitalization] [PRC] (Process: `{}`) <InstructionPerformed>", imageAddress );
+        return response;
+    }
+
+    @AddressMapping("createRemoteUProcess")
+    public RemoteVitalizationResponse createRemoteUProcess( String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException {
+        this.mRemoteProcessManagerClient.getLogger().info( "[RemoteProcessCreation] [PRC] (Process: `{}`) <InstructionAccepted>", imageAddress );
+        RemoteVitalizationResponse response = this.mRemoteProcessManagerClient.createLocalUProcess( imageAddress, isURI, handlerDTO, null );
+        this.mRemoteProcessManagerClient.getLogger().info( "[RemoteProcessCreation] [PRC] (Process: `{}`) <InstructionPerformed>", imageAddress );
         return response;
     }
 

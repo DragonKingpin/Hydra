@@ -1,5 +1,7 @@
 package com.walnut.archcraft.ender.system;
 
+import java.util.Map;
+
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
@@ -21,8 +23,9 @@ public class HydroxyImage extends GenericClassImage {
         this(
                 system, "SystemProcess", new ArchEntryPointRunnable() {
                     @Override
-                    public void execute() {
+                    public int main( Map<String, String[]> args ) {
                         system.start();
+                        return 0;
                     }
                 },
                 Hydroxy.class, system.imageLoader()

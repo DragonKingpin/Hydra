@@ -2,6 +2,7 @@ package com.walnut.odin.proc;
 
 import com.pinecone.framework.system.ApoptosisRejectSignalException;
 import com.pinecone.framework.system.NotImplementedException;
+import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.executum.Executum;
 import com.pinecone.framework.system.executum.Lifecycle;
@@ -9,6 +10,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.executum.TaskManager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.ControllableLevel;
+import com.pinecone.hydra.proc.ProcessActionTape;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
@@ -21,7 +23,7 @@ import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class RavenRemoteProcess implements RemoteProcess {
+public class MediatedRemoteProcess implements RemoteProcess {
 
     protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
 
@@ -37,7 +39,7 @@ public class RavenRemoteProcess implements RemoteProcess {
 
     protected Map<String, String[]>         mEnvironmentVariables;
 
-    public RavenRemoteProcess(
+    public MediatedRemoteProcess(
             RemoteProcessManagerServer server, String name, long localPID, GUID processId,
             Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
     ) {
@@ -49,7 +51,7 @@ public class RavenRemoteProcess implements RemoteProcess {
         this.mEnvironmentVariables       = environmentVariables;
     }
 
-    public RavenRemoteProcess( RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
+    public MediatedRemoteProcess( RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
         this( server, name, pid, guid, null, null );
     }
 
@@ -120,7 +122,7 @@ public class RavenRemoteProcess implements RemoteProcess {
 
     @Override
     public GUID getParentProcessId() {
-        return null;
+        return this.mParentPID;
     }
 
     @Override
@@ -210,8 +212,13 @@ public class RavenRemoteProcess implements RemoteProcess {
     }
 
     @Override
-    public void start() {
-
+    public void start() throws ProvokeHandleException {
+        try {
+            this.mRemoteProcessManagerServer.startRemoteUProcess( this.mProcessId );
+        }
+        catch ( RemoteProcessServiceRPCException e ) {
+            throw new ProvokeHandleException( e );
+        }
     }
 
     @Override
@@ -284,4 +291,8 @@ public class RavenRemoteProcess implements RemoteProcess {
         return null;
     }
 
+    @Override
+    public ProcessActionTape actionTape() {
+        return null;
+    }
 }

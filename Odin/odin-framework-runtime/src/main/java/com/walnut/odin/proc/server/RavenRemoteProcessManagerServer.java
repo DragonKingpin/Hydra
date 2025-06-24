@@ -1,25 +1,24 @@
 package com.walnut.odin.proc.server;
 
-import com.pinecone.framework.system.Nullable;
-import com.pinecone.framework.system.RuntimeSystem;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSON;
+import com.pinecone.hydra.proc.ArchProcessManager;
 import com.pinecone.hydra.proc.ProcessManager;
-import com.pinecone.hydra.proc.image.kom.VirtualExeImageInstrument;
+import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
+import com.walnut.odin.proc.ArgumentsUtils;
 import com.walnut.odin.proc.RemoteProcess;
-import com.walnut.odin.proc.RavenRemoteProcess;
+import com.walnut.odin.proc.MediatedRemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessHandlerDTO;
+import com.walnut.odin.proc.dto.UProcessMirrorDTO;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,8 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNode implements RemoteProcessManagerServer {
 
     protected GuidAllocator                             mGuidAllocator;
-
-    protected Map<Long, RemoteProcess>                  mRemoteProcessMap;
 
     protected Map<GUID, Long>                           mPidClientIdMap;
 
@@ -42,7 +39,6 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     public RavenRemoteProcessManagerServer( ProcessManager localProcessManager, UlfServer ulfServer ) {
         super( localProcessManager );
-        this.mRemoteProcessMap      = new ConcurrentHashMap<>();
         this.mPidClientIdMap        = new ConcurrentHashMap<>();
         this.mLifecycleIfaceCMap    = new ConcurrentHashMap<>();
         this.mGuidAllocator         = localProcessManager.getGuidAllocator();
@@ -50,6 +46,10 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     protected void initRPCSubsystem() throws RemoteProcessServiceRPCException {
+        if ( this.mDuplexAppointServer != null && !this.mDuplexAppointServer.getMessageNode().isTerminated() ) {
+            throw new IllegalStateException( "DuplexAppointServer has started." );
+        }
+
         try {
             this.mDuplexAppointServer = new WolvesAppointServer( this.mRPCServer, HuskyDuplexExpress.class );
             ReactiveSlaveProcessLifecycleController controller = new ReactiveSlaveProcessLifecycleController( this );
@@ -87,21 +87,14 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         }
 
         this.mDuplexAppointServer.terminate();
+        this.mDuplexAppointServer = null;
     }
 
     @Override
-    public void registerProcess( long clientId, UProcessHandlerDTO processDTO ) {
-        String name = processDTO.getName();
-        GUID pid = this.mGuidAllocator.parse( processDTO.getPID() );
-        long localPID = processDTO.getLocalPID();
-        String startupArguments = processDTO.getStartupArguments();
-        String environmentVariables = processDTO.getEnvironmentVariables();
+    public void registerProcess( long clientId, UProcessMirrorDTO processDTO ) {
+        this.createMediatedRemoteProcess( clientId, processDTO );
 
-        RemoteProcess remoteProcess = new RavenRemoteProcess( this, name, localPID, pid );
-        this.mRemoteProcessMap.put( clientId, remoteProcess );
-        this.mPidClientIdMap.put( pid, clientId );
-
-        this.getLogger().info( "[SubordinateRegister] [registerProcess (ClientId: {}, PID: {})] <Done>", clientId, pid );
+        this.getLogger().info( "[SubordinateRegister] [RegisterProcess (ClientId: {}, PID: {})] <Done>", clientId, processDTO.getPID() );
     }
 
     @Override
@@ -121,7 +114,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     @Override
     public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
-        UProcessHandlerDTO handlerDTO = new UProcessHandlerDTO();
+        UProcessMirrorDTO handlerDTO = new UProcessMirrorDTO();
         handlerDTO.setParentPID( parentPID.toString() );
         if ( startupArgs != null ) {
             handlerDTO.setStartupArguments( JSON.stringify( startupArgs ) );
@@ -157,4 +150,73 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.vitalizeRemoteUProcess( clientId, imageURI.toString(), true, parentPID, startupArgs, contextEnvironmentVars );
     }
+
+    @Override
+    public void register( UProcess that ) {
+        this.mProcessManager.register( that );
+    }
+
+    @Override
+    public Long queryClientIdByPID( GUID pid ) {
+        return this.mPidClientIdMap.get( pid );
+    }
+
+    protected void expungeSelf( GUID pid ) {
+        this.mPidClientIdMap.remove( pid );
+    }
+
+    @Override
+    public void erase( UProcess that ) {
+        this.mProcessManager.erase( that );
+        this.expungeSelf( that.getPID() );
+    }
+
+    protected void expunge( UProcess that ) {
+        ArchProcessManager.invokeExpunge( this.mProcessManager, that );
+        this.expungeSelf( that.getPID() );
+    }
+
+    protected UProcess expunge( GUID pid ) {
+        UProcess that = this.mProcessManager.getProcess( pid );
+        if ( that != null ) {
+            this.expunge( that );
+        }
+        return that;
+    }
+
+    protected void registerProcess( long clientId, RemoteProcess process ) {
+        this.mPidClientIdMap.put( process.getPID(), clientId );
+        this.register( process );
+    }
+
+    @Override
+    public RemoteProcess createMediatedRemoteProcess( long clientId, RemoteVitalizationResponse response ) {
+        RemoteProcess process = new MediatedRemoteProcess(
+                this, response.getName(), response.getLocalPID(), this.mGuidAllocator.parse( response.getPID() ),
+                ArgumentsUtils.decode( response.getStartupArguments() ), ArgumentsUtils.decode( response.getEnvironmentVariables() )
+        );
+
+        this.registerProcess( clientId, process );
+        return process;
+    }
+
+    @Override
+    public RemoteProcess createMediatedRemoteProcess( long clientId, UProcessMirrorDTO processDTO ) {
+        RemoteProcess process = new MediatedRemoteProcess(
+                this, processDTO.getName(), processDTO.getLocalPID(), this.mGuidAllocator.parse( processDTO.getPID() ),
+                ArgumentsUtils.decode( processDTO.getStartupArguments() ), ArgumentsUtils.decode( processDTO.getEnvironmentVariables() )
+        );
+
+        this.registerProcess( clientId, process );
+        return process;
+    }
+
+    public static UProcess invokeExpunge(RemoteProcessManagerServer server, String pid ) {
+        if ( server instanceof RavenRemoteProcessManagerServer ) {
+            RavenRemoteProcessManagerServer ravenServer = (RavenRemoteProcessManagerServer) server;
+            return ravenServer.expunge( ravenServer.mGuidAllocator.parse( pid ) );
+        }
+        return null;
+    }
+
 }

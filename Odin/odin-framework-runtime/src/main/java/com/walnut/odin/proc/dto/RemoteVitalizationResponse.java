@@ -8,6 +8,8 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     protected long mnLocalPID;
 
+    protected String mszName;
+
     protected GUID mPID;
 
     protected String mszPID;
@@ -16,8 +18,20 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     protected String mszErrorMsg;
 
+    private String mStartupArguments;
+
+    private String mEnvironmentVariables;
+
     public RemoteVitalizationResponse() {
         this.mnStatus = RemoteVitalizationStatus.Vitalized.getCode();
+    }
+
+    public String getName() {
+        return this.mszName;
+    }
+
+    public void setName( String szName ) {
+        this.mszName = szName;
     }
 
     public long getLocalPID() {
@@ -67,6 +81,22 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     public RemoteVitalizationStatus optStatus() {
         return RemoteVitalizationStatus.getByCode( this.getStatus() );
+    }
+
+    public String getStartupArguments() {
+        return mStartupArguments;
+    }
+
+    public void setStartupArguments( String startupArguments ) {
+        this.mStartupArguments = startupArguments;
+    }
+
+    public String getEnvironmentVariables() {
+        return mEnvironmentVariables;
+    }
+
+    public void setEnvironmentVariables( String environmentVariables ) {
+        this.mEnvironmentVariables = environmentVariables;
     }
 
 }

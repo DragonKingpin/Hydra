@@ -8,4 +8,10 @@ public abstract class ArchProcessManager implements ProcessManager {
         manager.expunge( that );
     }
 
+    public static void invokeExpunge( ProcessManager pm, UProcess that ) {
+        if ( pm instanceof ArchProcessManager ) {
+            ((ArchProcessManager) pm).expunge( that );
+        }
+    }
+
 }

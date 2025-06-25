@@ -24,8 +24,10 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
     RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException;
 
+    @Override
     void register( UProcess that );
 
+    @Override
     void erase( UProcess that );
 
     Long queryClientIdByPID( GUID pid );

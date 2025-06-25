@@ -22,8 +22,27 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     private String mEnvironmentVariables;
 
+    private String mszImageAddress;
+    private boolean mbImageAddressURI;
+
     public RemoteVitalizationResponse() {
         this.mnStatus = RemoteVitalizationStatus.Vitalized.getCode();
+    }
+
+    public String getImageAddress() {
+        return this.mszImageAddress;
+    }
+
+    public void setImageAddress( String szImageAddress ) {
+        this.mszImageAddress = szImageAddress;
+    }
+
+    public void setImageAddressURI( boolean bImageAddressURI ) {
+        this.mbImageAddressURI = bImageAddressURI;
+    }
+
+    public boolean isImageAddressURI() {
+        return this.mbImageAddressURI;
     }
 
     public String getName() {

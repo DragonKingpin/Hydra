@@ -22,12 +22,14 @@ import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
 import com.walnut.odin.proc.client.RemoteProcessManagerClient;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
+import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
 import java.util.Map;
 
 class Dante extends EnderHydra {
@@ -136,6 +138,8 @@ class Dante extends EnderHydra {
             @Override
             public int main( Map<String, String[]> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+                Debug.sleep( 1000 );
+                Debug.greenfs( "Miao~" );
                 return 1984;
             }
         }, manager );
@@ -159,6 +163,13 @@ class Dante extends EnderHydra {
                 client.getClientId(), new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c"), this.getPID(),
                 Map.of("fuck", new String[]{"you", "she", "he", "it"}), Map.of("kill", new String[]{"you", "she", "he", "it"})
         );
+
+        Collection<UProcess> ps = server.searchProcessesByName( "image_c" );
+        UProcess proc = ps.iterator().next();
+        Debug.greenfs( proc.getName() );
+
+        UProcessRuntimeMeta meta = server.queryProcessRuntimeMeta( proc.getPID() );
+        Debug.warn( meta.getName() );
     }
 
 }

@@ -16,7 +16,10 @@ public class UProcessMirrorDTO implements Pinenut {
 
     private String      mEnvironmentVariables;
 
-    public UProcessMirrorDTO(String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
+    private String      mszImageAddress;
+    private boolean     mbImageAddressURI;
+
+    public UProcessMirrorDTO( String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
         this.mszName               = name;
         this.mnLocalPID            = localPID;
         this.mszProcessId          = processId;
@@ -24,13 +27,29 @@ public class UProcessMirrorDTO implements Pinenut {
         this.mEnvironmentVariables = environmentVariables;
     }
 
-    public UProcessMirrorDTO(String name, long localPID, String processId ) {
+    public UProcessMirrorDTO( String name, long localPID, String processId ) {
         this( name, localPID, processId, null, null );
     }
 
     public UProcessMirrorDTO(){}
 
 
+
+    public String getImageAddress() {
+        return this.mszImageAddress;
+    }
+
+    public void setImageAddress( String szImageAddress ) {
+        this.mszImageAddress = szImageAddress;
+    }
+
+    public void setImageAddressURI( boolean bImageAddressURI ) {
+        this.mbImageAddressURI = bImageAddressURI;
+    }
+
+    public boolean isImageAddressURI() {
+        return this.mbImageAddressURI;
+    }
 
     public String getName() {
         return mszName;

@@ -18,6 +18,7 @@ import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
+import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,13 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
 
+    protected ProcessManager                mProcessManager;
+
+    protected ExecutionImage                mExecutionImage;
+
     protected String                        mszName;
+
+    protected long                          mnControlClientId;
 
     protected long                          mnLocalPID;
 
@@ -40,9 +47,10 @@ public class MediatedRemoteProcess implements RemoteProcess {
     protected Map<String, String[]>         mEnvironmentVariables;
 
     public MediatedRemoteProcess(
-            RemoteProcessManagerServer server, String name, long localPID, GUID processId,
+            long controlClientId, RemoteProcessManagerServer server, String name, long localPID, GUID processId,
             Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
     ) {
+        this.mnControlClientId           = controlClientId;
         this.mRemoteProcessManagerServer = server;
         this.mszName                     = name;
         this.mnLocalPID                  = localPID;
@@ -51,13 +59,17 @@ public class MediatedRemoteProcess implements RemoteProcess {
         this.mEnvironmentVariables       = environmentVariables;
     }
 
-    public MediatedRemoteProcess( RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
-        this( server, name, pid, guid, null, null );
+    public MediatedRemoteProcess( long controlClientId, RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
+        this( controlClientId, server, name, pid, guid, null, null );
     }
 
     @Override
     public String getName() {
         return this.mszName;
+    }
+
+    public long getControlClientId() {
+        return this.mnControlClientId;
     }
 
     @Override
@@ -83,6 +95,20 @@ public class MediatedRemoteProcess implements RemoteProcess {
     @Override
     public long getExecutumId() {
         return this.mnLocalPID;
+    }
+
+    @Override
+    public UProcessRuntimeMeta retrieveRemoteRuntimeMeta() throws RemoteProcessLifecycleException {
+        return this.mRemoteProcessManagerServer.queryProcessRuntimeMeta( this.mProcessId );
+    }
+
+    protected UProcessRuntimeMeta optRemoteRuntimeMeta() throws IllegalStateException {
+        try {
+            return this.mRemoteProcessManagerServer.queryProcessRuntimeMeta( this.mProcessId );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override
@@ -112,7 +138,8 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public boolean isTerminated() {
-        return false;
+        UProcessRuntimeMeta meta = this.optRemoteRuntimeMeta();
+        return meta.isTerminated();
     }
 
     @Override
@@ -147,7 +174,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public ProcessManager getOwnedProcessManager() {
-        return null;
+        return this.mProcessManager;
     }
 
     @Override
@@ -167,7 +194,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public ExecutionImage getExecutionImage() {
-        return null;
+        return this.mExecutionImage;
     }
 
     @Override
@@ -287,7 +314,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
-    public Lifecycle applyExceptionRestartTime(int time) {
+    public Lifecycle applyExceptionRestartTime( int time ) {
         return null;
     }
 

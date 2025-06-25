@@ -1,7 +1,9 @@
 package com.pinecone.hydra.proc;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -277,6 +279,33 @@ public class UniformProcessManager extends ArchProcessManager implements Process
 
     public UProcess getProcess( GUID pid ) {
         return this.mProcessMap.get( pid );
+    }
+
+    @Override
+    public Collection<UProcess> searchProcessesByName( String procName ) {
+        Collection<UProcess> li = new ArrayList<>();
+        for( UProcess process : this.mProcessMap.values() ) {
+            if ( process.getName().equals( procName ) ) {
+                li.add( process );
+            }
+        }
+        return li;
+    }
+
+    @Override
+    public Collection<UProcess> searchProcessesByNameNoCase( String procName ) {
+        Collection<UProcess> li = new ArrayList<>();
+        for( UProcess process : this.mProcessMap.values() ) {
+            if ( process.getName().equalsIgnoreCase( procName ) ) {
+                li.add( process );
+            }
+        }
+        return li;
+    }
+
+    @Override
+    public boolean containProcess( GUID pid ) {
+        return this.mProcessMap.containsKey( pid );
     }
 
     @Override

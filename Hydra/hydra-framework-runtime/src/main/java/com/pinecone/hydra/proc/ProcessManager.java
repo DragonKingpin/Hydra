@@ -59,6 +59,12 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
 
     UProcess getProcess( GUID pid );
 
+    Collection<UProcess> searchProcessesByName( String procName );
+
+    Collection<UProcess> searchProcessesByNameNoCase( String procName );
+
+    boolean containProcess( GUID pid );
+
     default LocalUProcess createLocalHostedProcess(
             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs
     ) {

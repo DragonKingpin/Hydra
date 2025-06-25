@@ -22,8 +22,8 @@ public interface RemoteProcessManagerClient extends RemoteProcessManagerNode {
 
     long getClientId();
 
-    RemoteVitalizationResponse createLocalUProcess(String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException;
+    RemoteVitalizationResponse createLocalUProcess( UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException;
 
-    RemoteVitalizationResponse vitalizeLocalUProcess( String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException;
+    RemoteVitalizationResponse vitalizeLocalUProcess( UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException;
 
 }

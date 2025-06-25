@@ -278,6 +278,7 @@ class Jeff extends JesusChrist {
 
         Rabbit rabbit = new Rabbit();
         rabbit.name = "rabbit";
+        rabbit.bool = true;
         rabbit.bytes = new byte[] { 1,2,3 };
         Monkey monkey = new Monkey();
         monkey.name = "monkey";

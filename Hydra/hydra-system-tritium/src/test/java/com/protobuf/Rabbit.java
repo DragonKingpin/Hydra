@@ -13,6 +13,16 @@ public class Rabbit {
 
     public Rabbit sub;
 
+    public boolean bool;
+
+    public boolean isBool() {
+        return this.bool;
+    }
+
+    public void setBool( boolean bool ) {
+        this.bool = bool;
+    }
+
     public Rabbit getSub() {
         return this.sub;
     }

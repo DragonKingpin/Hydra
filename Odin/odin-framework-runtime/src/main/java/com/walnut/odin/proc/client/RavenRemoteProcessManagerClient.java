@@ -10,7 +10,8 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
-import com.walnut.odin.proc.ArgumentsUtils;
+import com.walnut.odin.proc.ProcessesUtils;
+import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleExaminer;
 import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
@@ -18,6 +19,7 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
 import com.walnut.odin.proc.dto.UProcessMirrorDTO;
+import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -113,8 +115,10 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public RemoteVitalizationResponse createLocalUProcess(String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse createLocalUProcess( UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException {
         try {
+            String imageAddress = handlerDTO.getImageAddress();
+            boolean isURI       = handlerDTO.isImageAddressURI();
             RemoteVitalizationResponse response = new RemoteVitalizationResponse();
 
             ExecutionImage image;
@@ -135,8 +139,8 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             String szEnvironmentVariables  = handlerDTO.getEnvironmentVariables();
             String szParentPID             = handlerDTO.getParentPID();
 
-            Map<String, String[]> startupArgs  = ArgumentsUtils.decode( szStartupArguments );
-            Map<String, String[]> envVariables = ArgumentsUtils.decode( szEnvironmentVariables );
+            Map<String, String[]> startupArgs  = ProcessesUtils.decode( szStartupArguments );
+            Map<String, String[]> envVariables = ProcessesUtils.decode( szEnvironmentVariables );
             GUID parentPID = null;
             if ( szParentPID != null ) {
                 parentPID = this.mProcessManager.getGuidAllocator().parse( szParentPID );
@@ -150,6 +154,9 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             response.setEnvironmentVariables( szEnvironmentVariables );
             response.setStartupArguments( szStartupArguments );
 
+            response.setImageAddress(imageAddress);
+            response.setImageAddressURI(isURI);
+
             if ( lpProcess != null && lpProcess.length > 0 ) {
                 lpProcess[0] = localHostedProcess;
             }
@@ -162,10 +169,14 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public RemoteVitalizationResponse vitalizeLocalUProcess( String imageAddress, boolean isURI, UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse vitalizeLocalUProcess( UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException {
         UProcess[] lpProcess = new UProcess[1];
-        RemoteVitalizationResponse response = this.createLocalUProcess( imageAddress, isURI, handlerDTO, lpProcess );
+        RemoteVitalizationResponse response = this.createLocalUProcess( handlerDTO, lpProcess );
         LocalUProcess localHostedProcess = (LocalUProcess) lpProcess[ 0 ];
+
+        if ( response.getStatus() != RemoteVitalizationStatus.Vitalized.getCode() ) {
+            return response;
+        }
 
         // Asynchronous startup may cause consistency errors if local execution finishes before the remote mirror is ready to handle events.
         // Sync and confirmation are required.
@@ -190,6 +201,33 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         }
 
         this.mProcessLifecycleExaminer.startProcess( process );
+    }
+
+    @Override
+    public void register( UProcess that ) {
+        this.mProcessManager.register( that );
+    }
+
+    @Override
+    public void erase( UProcess that ) {
+        this.mProcessManager.erase( that );
+    }
+
+    @Override
+    public UProcessRuntimeMeta queryProcessRuntimeMeta( GUID pid ) throws RemoteProcessLifecycleException {
+        UProcess process = this.mProcessManager.getProcess( pid );
+        if ( process instanceof RemoteProcess ) {
+            RemoteProcess remoteProcess = (RemoteProcess) process;
+            return remoteProcess.retrieveRemoteRuntimeMeta(); // Cascading retrieval of runtime meta information
+        }
+
+        if ( process == null ) {
+            return null;
+        }
+
+        UProcessRuntimeMeta meta = ProcessesUtils.extractProcessMeta( process );
+        // 不要直接return 老子好打断点.
+        return meta;
     }
 
 }

@@ -405,7 +405,19 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                 try {
 
                     String szGetterMethod = JavaBeans.MethodMajorKeyGet + JavaBeans.methodKeyNameUpperCaseNormalize( fieldName );
-                    Method         getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    Method         getter ;
+                    try {
+                        getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    }
+                    catch ( NoSuchMethodException e ) {
+                        getter = null;
+                    }
+
+                    if ( getter == null && fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.BOOL ) {
+                        szGetterMethod = JavaBeans.MethodMajorKeyIs + JavaBeans.methodKeyNameUpperCaseNormalize( fieldName );
+                        getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    }
+
                     if ( getter != null ) {
                         Object value = getter.invoke( dynamicObject );
 

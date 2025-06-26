@@ -17,6 +17,8 @@
         <module>odin</module>
         <module>zeus</module>
         <module>archcraft</module>
+        <module>RedQueen</module>
+        <module>Skynet</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->
         <!--<module>file</module>-->
@@ -153,10 +155,10 @@
 
     <dependencies>
         <!--tomcat-->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tomcat.embed</groupId>-->
+<!--            <artifactId>tomcat-embed-core</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>

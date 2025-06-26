@@ -27,6 +27,18 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.acorn.redqueen.kernel</groupId>
+            <artifactId>redqueen-system</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.acorn.skynet.kernel</groupId>
+            <artifactId>skynet-system</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

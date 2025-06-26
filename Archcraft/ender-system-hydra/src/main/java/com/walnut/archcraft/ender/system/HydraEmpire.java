@@ -1,5 +1,8 @@
 package com.walnut.archcraft.ender.system;
 
+import com.acorn.redqueen.system.RedQueenSubsystem;
+import com.acorn.skynet.system.SkynetSubsystem;
+import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.hydra.proc.InstitutionalProcess;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.image.ImageLoader;
@@ -15,5 +18,13 @@ public interface HydraEmpire extends Centrum, HydraKingdom, Slf4jTraceable, Inst
     ImageLoader imageLoader();
 
     VirtualExeImageInstrument virtualExeImageInstrument();
+
+    RedQueenSubsystem redQueen();
+
+    SkynetSubsystem skynet();
+
+    Lord getEmpireLordsByName( String lordName );
+
+    int countEmpireLords();
 
 }

@@ -17,5 +17,6 @@
     <modules>
 
         <module>skynet-architecture</module>
+        <module>skynet-system</module>
     </modules>
 </project>

@@ -1,7 +1,16 @@
 package com.walnut.archcraft.ender;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.acorn.redqueen.RedQueen;
+import com.acorn.redqueen.system.RedQueenSubsystem;
+import com.acorn.skynet.Skynet;
+import com.acorn.skynet.system.SkynetSubsystem;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.name.UniNamespace;
 import com.pinecone.hydra.proc.ProcessManager;
@@ -36,6 +45,12 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     protected KernelObjectConfig        mFundamentalKernelObjectConfig;
     protected VirtualExeImageInstrument mVirtualExeImageInstrument;
     protected ImperiumPrivy             mImperiumPrivy;
+
+
+    protected Map<String, Lord>        mEmpireLords;   // Domain subsystem.
+    protected SkynetSubsystem          mSkynetSubsystem;
+    protected RedQueenSubsystem        mRedQueenSubsystem;
+
 
     public EnderHydra( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
@@ -113,8 +128,27 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.prepare_uniform_system_process_task_subsystem();
         this.init_process_kernel_subsystem();
 
+        this.prepare_modularized_subsystem();
+
         this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusReady );
         this.getLogger().info( "[Welcome] [<Hydra Empire> Welcome to join the imperial army!]" );
+    }
+
+    protected void prepare_modularized_subsystem() {
+        this.infoLifecycle( "<Hydra Empire> [SummoningLords] Modularized Subsystem Initialization", LogStatuses.StatusStart );
+        this.mEmpireLords = new HashMap<>();
+
+
+        this.mSkynetSubsystem = new Skynet( this, "KernelSkynetLord" );
+        this.mSkynetSubsystem.vitalize();
+        this.mEmpireLords.put( this.mSkynetSubsystem.getName(), this.mSkynetSubsystem );
+
+        this.mRedQueenSubsystem = new RedQueen( this, "KernelRedQueenLord" );
+        this.mRedQueenSubsystem.vitalize();
+        this.mEmpireLords.put( this.mRedQueenSubsystem.getName(), this.mRedQueenSubsystem );
+
+        this.getLogger().info( "[ActionReport] <Hydra Empire> [SummoningLords] Empire now has {} lords.", this.countEmpireLords() );
+        this.infoLifecycle( "<Hydra Empire> [SummoningLords] Modularized Subsystem Initialization", LogStatuses.StatusDone );
     }
 
     protected void init_process_kernel_subsystem() {
@@ -188,6 +222,26 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     @Override
     public ImperiumPrivy imperiumPrivy() {
         return this.mImperiumPrivy;
+    }
+
+    @Override
+    public RedQueenSubsystem redQueen() {
+        return this.mRedQueenSubsystem;
+    }
+
+    @Override
+    public SkynetSubsystem skynet() {
+        return this.mSkynetSubsystem;
+    }
+
+    @Override
+    public Lord getEmpireLordsByName( String lordName ) {
+        return this.mEmpireLords.get( lordName );
+    }
+
+    @Override
+    public int countEmpireLords() {
+        return this.mEmpireLords.size();
     }
 
     @Override

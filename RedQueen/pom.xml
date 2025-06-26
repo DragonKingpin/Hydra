@@ -17,5 +17,6 @@
     <modules>
         <module>redqueen-architecture</module>
         <module>redqueen-computation-suit</module>
+        <module>redqueen-system</module>
     </modules>
 </project>

@@ -9,7 +9,7 @@ import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import org.slf4j.Logger;
 
-public class ArchSystemAutoAssembleComponent extends ArchSystemCascadeComponent implements Slf4jTraceable {
+public abstract class ArchSystemAutoAssembleComponent extends ArchSystemCascadeComponent implements Slf4jTraceable {
     protected Logger                             mLogger;
     protected ObjectOverrider<String, Object >   mObjectOverrider        ;
     protected DynamicFactory                     mUniformFactory         ;

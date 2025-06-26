@@ -2,7 +2,7 @@ package com.pinecone.hydra.system;
 
 import com.pinecone.framework.system.architecture.ArchCascadeComponentManager;
 
-public class ArchSystemCascadeComponentManager extends ArchCascadeComponentManager implements SystemCascadeComponentManager {
+public abstract class ArchSystemCascadeComponentManager extends ArchCascadeComponentManager implements SystemCascadeComponentManager {
     protected Hydrogen mSystem;
 
     protected ArchSystemCascadeComponentManager( Hydrogen system ){

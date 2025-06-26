@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.walnut.odin</groupId>
-    <artifactId>odin</artifactId>
+    <groupId>com.acorn.skynet</groupId>
+    <artifactId>skynet</artifactId>
     <packaging>pom</packaging>
     <version>2.5.1</version>
 
     <modules>
-        <module>odin-architecture</module>
-        <module>odin-framework-runtime</module>
+
+        <module>skynet-architecture</module>
     </modules>
 </project>

@@ -120,7 +120,7 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.odin</groupId>
+            <groupId>com.walnut.odin</groupId>
             <artifactId>odin-framework-runtime</artifactId>
             <version>2.5.1</version>
             <scope>test</scope>

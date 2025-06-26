@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.walnut.odin</groupId>
-    <artifactId>odin</artifactId>
+    <groupId>com.acorn.redqueen</groupId>
+    <artifactId>redqueen</artifactId>
     <packaging>pom</packaging>
     <version>2.5.1</version>
 
     <modules>
-        <module>odin-architecture</module>
-        <module>odin-framework-runtime</module>
+        <module>redqueen-architecture</module>
+        <module>redqueen-computation-suit</module>
     </modules>
 </project>

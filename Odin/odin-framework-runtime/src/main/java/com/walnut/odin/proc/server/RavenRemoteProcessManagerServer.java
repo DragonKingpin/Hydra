@@ -206,28 +206,36 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         this.register( process );
     }
 
-    @Override
-    public RemoteProcess createMediatedRemoteProcess( long clientId, RemoteVitalizationResponse response ) {
+    protected RemoteProcess createMediatedRemoteProcess(
+            long clientId, String name, long localPID, GUID processId,
+            String szStartupArguments, String szEnvironmentVariables, String imageAddress, boolean isURI
+    ) {
         MediatedRemoteProcess process = new MediatedRemoteProcess(
-                clientId,this, response.getName(), response.getLocalPID(), this.mGuidAllocator.parse( response.getPID() ),
-                ProcessesUtils.decode( response.getStartupArguments() ), ProcessesUtils.decode( response.getEnvironmentVariables() )
+                clientId,this, name, localPID, processId,
+                ProcessesUtils.decode( szStartupArguments ), ProcessesUtils.decode( szEnvironmentVariables )
         );
 
-        this.afterMediatedRemoteProcess( process, response.getImageAddress(), response.isImageAddressURI() );
+        this.afterMediatedRemoteProcess( process, imageAddress, isURI );
         this.registerProcess( clientId, process );
         return process;
     }
 
     @Override
-    public RemoteProcess createMediatedRemoteProcess( long clientId, UProcessMirrorDTO processDTO ) {
-        MediatedRemoteProcess process = new MediatedRemoteProcess(
-                clientId, this, processDTO.getName(), processDTO.getLocalPID(), this.mGuidAllocator.parse( processDTO.getPID() ),
-                ProcessesUtils.decode( processDTO.getStartupArguments() ), ProcessesUtils.decode( processDTO.getEnvironmentVariables() )
+    public RemoteProcess createMediatedRemoteProcess( long clientId, RemoteVitalizationResponse response ) {
+        return this.createMediatedRemoteProcess(
+                clientId, response.getName(), response.getLocalPID(), this.mGuidAllocator.parse( response.getPID() ),
+                response.getStartupArguments(), response.getEnvironmentVariables(),
+                response.getImageAddress(), response.isImageAddressURI()
         );
+    }
 
-        this.afterMediatedRemoteProcess( process, processDTO.getImageAddress(), processDTO.isImageAddressURI() );
-        this.registerProcess( clientId, process );
-        return process;
+    @Override
+    public RemoteProcess createMediatedRemoteProcess( long clientId, UProcessMirrorDTO processDTO ) {
+        return this.createMediatedRemoteProcess(
+                clientId, processDTO.getName(), processDTO.getLocalPID(), this.mGuidAllocator.parse( processDTO.getPID() ),
+                processDTO.getStartupArguments(), processDTO.getEnvironmentVariables(),
+                processDTO.getImageAddress(), processDTO.isImageAddressURI()
+        );
     }
 
     public static UProcess invokeExpunge( RemoteProcessManagerServer server, String pid ) {

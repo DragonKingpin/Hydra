@@ -9,14 +9,14 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 
 public abstract class ArchTask implements Task {
 
-    protected Identification            mTaskId;
+    protected Identification            mServiceId;
 
     protected TaskElement               mTaskElement;
 
     protected Map<String, Object >      mMetaDataScope;
 
     public ArchTask( Identification serviceId, TaskElement serviceElement, Map<String, Object > metaDataScope ){
-        this.mTaskId        = serviceId;
+        this.mServiceId     = serviceId;
         this.mTaskElement   = serviceElement;
         this.mMetaDataScope = metaDataScope;
     }

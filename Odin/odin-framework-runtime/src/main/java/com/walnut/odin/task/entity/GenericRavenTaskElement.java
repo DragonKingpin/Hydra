@@ -16,6 +16,8 @@ import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericRavenTaskElement implements RavenTaskElement {
 
+    protected GUID deploySchemeId;
+
     protected TaskElement taskElement;
 
     protected RavenTaskMeta ravenTaskMeta;

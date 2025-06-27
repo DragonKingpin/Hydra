@@ -10,8 +10,8 @@ import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.task.CentralizedTaskInstrument;
-import com.walnut.odin.ups.RavenTaskInstance;
-import com.walnut.odin.ups.RavenTask;
+import com.walnut.odin.task.RavenTaskInstance;
+import com.walnut.odin.task.RavenTask;
 
 import java.time.LocalDateTime;
 import java.util.Map;

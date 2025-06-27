@@ -4,7 +4,7 @@ import com.pinecone.framework.system.regime.Regiment;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.walnut.odin.ups.RavenTask;
+import com.walnut.odin.task.RavenTask;
 
 public interface CollectiveTaskRegiment extends Regiment {
 

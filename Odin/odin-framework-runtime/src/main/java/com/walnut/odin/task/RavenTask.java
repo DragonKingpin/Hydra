@@ -1,4 +1,4 @@
-package com.walnut.odin.ups;
+package com.walnut.odin.task;
 
 import com.pinecone.hydra.system.ups.UniformPyramidTask;
 import com.pinecone.hydra.task.Task;

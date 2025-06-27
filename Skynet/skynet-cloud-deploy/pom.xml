@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>redqueen</artifactId>
-        <groupId>com.acorn.redqueen</groupId>
+        <artifactId>skynet</artifactId>
+        <groupId>com.acorn.skynet</groupId>
         <version>2.5.1</version>
     </parent>
     <build>
@@ -21,8 +21,8 @@
     </build>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.acorn.redqueen.kernel</groupId>
-    <artifactId>redqueen-architecture</artifactId>
+    <groupId>com.acorn.skynet.deploy</groupId>
+    <artifactId>skynet-cloud-deploy</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>
     <modules>
@@ -51,12 +51,6 @@
         <dependency>
             <groupId>com.pinecone.hydra.kernel</groupId>
             <artifactId>hydra-framework-runtime</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-framework-service</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

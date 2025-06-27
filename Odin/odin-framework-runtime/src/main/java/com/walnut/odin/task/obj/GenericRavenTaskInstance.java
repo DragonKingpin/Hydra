@@ -1,9 +1,10 @@
 package com.walnut.odin.task.obj;
 
+import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.task.ArchTaskInstance;
 import com.pinecone.hydra.task.Task;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
-import com.walnut.odin.ups.RavenTaskInstance;
+import com.walnut.odin.task.RavenTaskInstance;
 
 public class GenericRavenTaskInstance extends ArchTaskInstance implements RavenTaskInstance {
 
@@ -12,10 +13,6 @@ public class GenericRavenTaskInstance extends ArchTaskInstance implements RavenT
     }
 
 
-    @Override
-    public void start() {
-        // 首先要判断任务执行参数是否完全
-    }
 
     @Override
     public Object getProcessObject() {
@@ -27,4 +24,28 @@ public class GenericRavenTaskInstance extends ArchTaskInstance implements RavenT
         return null;
     }
 
+    @Override
+    public UProcess affinityProcess() {
+        return null;
+    }
+
+    @Override
+    public void startLocalProcess() {
+
+    }
+
+    @Override
+    public void startRemoteProcess() {
+
+    }
+
+    @Override
+    public void startRemoteProcess( boolean bDirectlyVitalize ) {
+
+    }
+
+    @Override
+    public void startRemoteProcess( boolean bDirectlyVitalize, long processClientId ) {
+
+    }
 }

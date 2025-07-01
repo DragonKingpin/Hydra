@@ -8,7 +8,7 @@ import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.task.CentralizedTaskInstrument;
-import com.walnut.odin.task.obj.GenericRavenTask;
+import com.walnut.odin.task.troll.GenericRavenTask;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.ups.conduct.TaskRegimentDomain;
 

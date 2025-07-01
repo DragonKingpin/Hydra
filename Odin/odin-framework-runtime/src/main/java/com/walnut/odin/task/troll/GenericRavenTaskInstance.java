@@ -1,4 +1,4 @@
-package com.walnut.odin.task.obj;
+package com.walnut.odin.task.troll;
 
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.task.ArchTaskInstance;
@@ -6,7 +6,7 @@ import com.pinecone.hydra.task.Task;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.walnut.odin.task.RavenTaskInstance;
 
-public class GenericRavenTaskInstance extends ArchTaskInstance implements RavenTaskInstance {
+public class GenericRavenTaskInstance extends ArchRavenTaskInstance implements RavenTaskInstance {
 
     public GenericRavenTaskInstance( InstanceEntry instanceEntry ) {
         super( instanceEntry );

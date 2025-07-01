@@ -1,4 +1,4 @@
-package com.walnut.odin.task.obj;
+package com.walnut.odin.task.troll;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;

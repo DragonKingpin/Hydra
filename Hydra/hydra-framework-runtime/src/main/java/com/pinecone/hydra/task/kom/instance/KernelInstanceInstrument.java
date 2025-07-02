@@ -34,7 +34,7 @@ public class KernelInstanceInstrument implements InstanceInstrument {
 
     @Override
     public void addInstance( GUID taskGuid, InstanceEntry instanceEntry ) {
-        instanceEntry.setAffiliatedTaskGuid( taskGuid );
+        instanceEntry.setTaskGuid( taskGuid );
         if ( instanceEntry.getGuid() == null ) {
             instanceEntry.setGuid( this.mTaskInstrument.getGuidAllocator().nextGUID() );
         }
@@ -70,8 +70,8 @@ public class KernelInstanceInstrument implements InstanceInstrument {
         TreeNode tn = this.mTaskInstrument.get( taskGuid );
         if ( tn instanceof TaskElement ) {
             TaskElement taskElement = (TaskElement) tn;
-            InstanceEntry instanceEntry = new GenericInstanceEntry( this.mTaskInstrument);
-            instanceEntry.setAffiliatedTaskGuid( taskGuid );
+            InstanceEntry instanceEntry = new GenericInstanceEntry( this.mTaskInstrument, taskElement );
+            instanceEntry.setTaskGuid( taskGuid );
             instanceEntry.setGuid( this.mTaskInstrument.getGuidAllocator().nextGUID() );
             instanceEntry.setPriority( taskElement.getPriority() );
             instanceEntry.setActuallyPriority( taskElement.getPriority() );

@@ -85,7 +85,7 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
         }
 
         if ( this.guidAllocator == null ) {
-            this.guidAllocator = GUIDs.newGuidAllocator();
+            throw new IllegalArgumentException( "GUIDAllocator is undefined." );
         }
     }
 

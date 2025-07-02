@@ -8,6 +8,7 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -45,10 +46,10 @@ class Randy extends EnderHydra {
         //this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
-        //this.testInstance( ravenTaskInstrument );
+        this.testInstance( ravenTaskInstrument );
 
-        CollectiveTaskRegiment taskRegiment = new RavenCollectiveTaskRegiment( this, ravenTaskInstrument );
-        this.testTaskRegimentBase( taskRegiment ,ravenTaskInstrument);
+        //CollectiveTaskRegiment taskRegiment = new RavenCollectiveTaskRegiment( this, ravenTaskInstrument );
+        //this.testTaskRegimentBase( taskRegiment ,ravenTaskInstrument);
 
     }
 
@@ -163,7 +164,12 @@ class Randy extends EnderHydra {
 
         //Debug.fmp( 2, instanceEntry );
 
-        Debug.fmp( 2, instanceInstrument.makeInstanceEntry( taskGuid ) );
+//        TaskElement taskElement = (TaskElement) instrument.queryElement( "root/test/job/task" );
+//        taskElement.setImagePath( "uofs:///sys/public/global/exe/images/hola/senorita/image_c" );
+//        instrument.update( taskElement );
+
+        InstanceEntry instanceEntry = instanceInstrument.makeInstanceEntry( taskGuid );
+        Debug.fmp( 2, instanceEntry );
     }
 }
 

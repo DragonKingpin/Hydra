@@ -16,21 +16,22 @@ import com.walnut.odin.task.source.TaskExMetaManipulator;
 
 @Mapper
 @IbatisDataAccessObject
-public interface TastExMetaMapper extends TaskExMetaManipulator {
+public interface TaskExMetaMapper extends TaskExMetaManipulator {
 
     @Override
     @Insert("INSERT INTO `odin_task_task_node` " +
-            "(`guid`, `task_version`, `is_root`) " +
-            "VALUES (#{guid}, #{taskName}, #{taskVersion}, #{rootTask})")
+            "(`guid`, `task_version`, `is_root`, `deploy_scheme_id`) " +
+            "VALUES (#{guid}, #{taskName}, #{taskVersion}, #{rootTask}, #{deploySchemeId})")
     void insert( RavenTaskMeta taskMeta );
 
     @Override
     @Delete("DELETE FROM `odin_task_task_node` WHERE `guid` = #{guid}")
     void remove( @Param("guid") GUID guid );
 
-    @Select("SELECT `guid`, `task_version`, `is_root` AS `rootTask` " +
+    @Select("SELECT `guid`, `task_version`, `is_root` AS `rootTask`, " +
+            "`deploy_scheme_id` AS `deploySchemeId`" +
             "FROM `odin_task_task_node` WHERE `guid` = #{guid}")
-    GenericRavenTaskMeta getTaskExMeta0(@Param("guid") GUID guid );
+    GenericRavenTaskMeta getTaskExMeta0( @Param("guid") GUID guid );
 
     @Override
     default RavenTaskMeta getTaskExMeta( GUID guid, TaskFamilyMeta kernelMeta ) {
@@ -44,7 +45,8 @@ public interface TastExMetaMapper extends TaskExMetaManipulator {
     @Override
     @Update("UPDATE `odin_task_task_node` SET " +
             "`task_version` = #{taskVersion}, " +
-            "`is_root` = #{rootTask} " +
+            "`is_root` = #{rootTask}," +
+            "`deploy_scheme_id` = #{deploySchemeId} " +
             "WHERE `guid` = #{guid}")
     void update( RavenTaskMeta taskMeta );
 

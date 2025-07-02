@@ -7,6 +7,7 @@ import com.pinecone.hydra.task.TaskInstanceMeta;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.EntryNode;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
@@ -17,9 +18,13 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
           return this.getInstanceName();
      }
 
+     String getTaskName();
+
+     TaskElement taskElement();
+
      void setGuid ( GUID guid );
 
-     void setAffiliatedTaskGuid ( GUID affiliatedTaskGuid );
+     void setTaskGuid ( GUID affiliatedTaskGuid );
 
      void setInstanceName ( String instanceName );
 

@@ -112,7 +112,7 @@ public class EnderHydra extends Tritium implements HydraEmpire {
 
         this.init_uniform_system_configuration();
 
-        this.mSystemGuidAllocator    = GUIDs.newGuidAllocator();
+        this.mSystemGuidAllocator    = GUIDs.newGuidAllocator( 1984 ); // TODO MachineId allocation.
         this.infoLifecycle(
                 "<Uniform Hydra> System GUIDAllocator Initialization [Type: `" + this.mSystemGuidAllocator.getClass().getName() + "`]",
                 LogStatuses.StatusDone

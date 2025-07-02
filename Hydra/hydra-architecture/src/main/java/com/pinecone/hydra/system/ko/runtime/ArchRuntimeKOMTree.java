@@ -70,7 +70,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         }
 
         if ( this.guidAllocator == null ) {
-            this.guidAllocator = GUIDs.newGuidAllocator();
+            throw new IllegalArgumentException( "GUIDAllocator is undefined." );
         }
     }
 

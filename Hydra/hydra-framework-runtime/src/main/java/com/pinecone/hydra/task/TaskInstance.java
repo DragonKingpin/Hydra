@@ -30,7 +30,7 @@ public interface TaskInstance extends Pinenut {
 
     GUID getGuid();
 
-    GUID getAffiliatedTaskGuid();
+    GUID getTaskGuid();
 
     String getInstanceName();
 

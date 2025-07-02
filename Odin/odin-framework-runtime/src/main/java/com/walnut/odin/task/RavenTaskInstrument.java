@@ -26,6 +26,7 @@ import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.task.entity.GenericRavenTaskElement;
+import com.walnut.odin.task.entity.GenericRavenTaskMeta;
 import com.walnut.odin.task.entity.RavenTaskElement;
 import com.walnut.odin.task.entity.RavenTaskMeta;
 import com.walnut.odin.task.service.CategoryService;
@@ -54,14 +55,14 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
                     return null;
                 }
 
-                return RavenTaskInstrument.this.transformTaskElement( taskElement );
+                return RavenTaskInstrument.this.transformTaskElement( taskElement, true );
             }
 
             @Override
             public ElementNode queryElement( String path ) {
                 ElementNode proto = super.queryElement( path );
                 if ( proto instanceof TaskElement ) {
-                    return RavenTaskInstrument.this.transformTaskElement( (TaskElement) proto );
+                    return RavenTaskInstrument.this.transformTaskElement( (TaskElement) proto, false );
                 }
 
                 return proto;
@@ -70,19 +71,19 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
             @Override
             public TaskTreeNode get( GUID guid ) {
                 TaskTreeNode treeNode = super.get( guid );
-                return RavenTaskInstrument.this.transformTreeNode( treeNode );
+                return RavenTaskInstrument.this.transformTreeNode( treeNode, false );
             }
 
             @Override
             public TreeNode get( GUID guid, int depth ) {
                 TreeNode treeNode = super.get( guid, depth );
-                return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode );
+                return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode, false );
             }
 
             @Override
             public TreeNode getAsRootDepth( GUID guid ) {
                 TreeNode treeNode =  super.getAsRootDepth( guid );
-                return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode );
+                return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode, false );
             }
         };
     }
@@ -204,19 +205,26 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
 
 
-    protected RavenTaskElement transformTaskElement ( TaskElement that ) {
+    protected RavenTaskElement transformTaskElement ( TaskElement that, boolean isAffirmed ) {
         RavenTaskMeta ravenTaskMeta       = this.taskExMetaManipulator.getTaskExMeta( that.getGuid(), null );
         RavenTaskElement ravenTaskElement = new GenericRavenTaskElement( that, ravenTaskMeta );
         if ( ravenTaskMeta != null ) {
             ravenTaskMeta.setKernelMeta( ravenTaskElement );
         }
+        else {
+            if ( isAffirmed ) {
+                ravenTaskMeta = new GenericRavenTaskMeta();
+                ravenTaskMeta.setGuid( that.getGuid() );
+                this.taskExMetaManipulator.insert( ravenTaskMeta );
+            }
+        }
 
         return ravenTaskElement;
     }
 
-    protected TaskTreeNode transformTreeNode( TaskTreeNode that ) {
+    protected TaskTreeNode transformTreeNode( TaskTreeNode that, boolean isAffirmed ) {
         if ( that instanceof TaskElement ) {
-            return this.transformTaskElement( (TaskElement) that );
+            return this.transformTaskElement( (TaskElement) that, isAffirmed );
         }
 
         return that;

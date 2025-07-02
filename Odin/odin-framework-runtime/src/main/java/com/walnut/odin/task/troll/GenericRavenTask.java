@@ -16,7 +16,7 @@ import com.walnut.odin.task.RavenTask;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class GenericRavenTask extends ArchTask implements RavenTask {
+public class GenericRavenTask extends ArchRavenTask implements RavenTask {
     protected CentralizedTaskInstrument  mTaskInstrument;
 
     protected InstanceInstrument         mInstanceInstrument;
@@ -40,7 +40,7 @@ public class GenericRavenTask extends ArchTask implements RavenTask {
         GenericInstanceEntry entry = new GenericInstanceEntry();
         entry.setGuid( guid );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
-        entry.setAffiliatedTaskGuid( this.mTaskElement.getGuid());
+        entry.setTaskGuid( this.mTaskElement.getGuid());
         entry.setCreateTime( LocalDateTime.now() );
         entry.setKernelScheduleCycle( this.mTaskElement.getScheduleCycle() );
         entry.setKernelScheduleCycleCode( this.mTaskElement.getScheduleCycleCode() );

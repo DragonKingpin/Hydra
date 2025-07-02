@@ -11,6 +11,8 @@ public class GenericRavenTaskMeta implements RavenTaskMeta {
     protected int taskVersion;
     protected boolean rootTask;
 
+    protected GUID deploySchemeId;
+
     protected GUID guid;
 
     // For bean initialization.
@@ -20,6 +22,16 @@ public class GenericRavenTaskMeta implements RavenTaskMeta {
 
     public GenericRavenTaskMeta( TaskFamilyMeta kernelMeta ) {
         this.kernelMeta = kernelMeta;
+    }
+
+    @Override
+    public GUID getDeploySchemeId() {
+        return deploySchemeId;
+    }
+
+    @Override
+    public void setDeploySchemeId( GUID deploySchemeId ) {
+        this.deploySchemeId = deploySchemeId;
     }
 
     @Override

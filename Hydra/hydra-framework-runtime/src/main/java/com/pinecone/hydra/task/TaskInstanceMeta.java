@@ -10,7 +10,7 @@ import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 public interface TaskInstanceMeta extends Pinenut {
     GUID getGuid();
 
-    GUID getAffiliatedTaskGuid();
+    GUID getTaskGuid();
 
     String getInstanceName();
 

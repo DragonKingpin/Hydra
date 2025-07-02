@@ -261,6 +261,17 @@ public final class TimeOrderedEpochFactory extends AbstCombFactory {
 		return toUuid(uuid.getMostSignificantBits(), uuid.getLeastSignificantBits());
 	}
 
+	public GUID128 createXorUint64LSB( long xorMask ) {
+		UUID uuid = this.uuidFunction.apply(null);
+
+		long msb = uuid.getMostSignificantBits();
+		long lsb = uuid.getLeastSignificantBits();
+
+		long modifiedLsb = lsb ^ xorMask;
+
+		return toUuid(msb, modifiedLsb);
+	}
+
 	/**
 	 * Returns a time-ordered unique identifier (UUIDv7) for a given instant.
 	 * <p>

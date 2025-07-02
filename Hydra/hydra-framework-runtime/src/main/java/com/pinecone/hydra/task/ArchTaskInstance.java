@@ -42,8 +42,8 @@ public abstract class ArchTaskInstance implements TaskInstance {
     }
 
     @Override
-    public GUID getAffiliatedTaskGuid() {
-        return this.mInstanceEntry.getAffiliatedTaskGuid();
+    public GUID getTaskGuid() {
+        return this.mInstanceEntry.getTaskGuid();
     }
 
     @Override

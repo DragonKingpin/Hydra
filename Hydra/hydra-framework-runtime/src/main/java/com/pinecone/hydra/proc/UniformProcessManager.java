@@ -94,7 +94,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         }
 
         if ( this.mGuidAllocator == null ) {
-            this.mGuidAllocator = GUIDs.newGuidAllocator();
+            throw new IllegalArgumentException( "GUIDAllocator is undefined." );
         }
 
         if ( this.mImageLoader == null ) {

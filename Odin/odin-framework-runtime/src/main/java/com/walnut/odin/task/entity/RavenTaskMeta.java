@@ -1,5 +1,6 @@
 package com.walnut.odin.task.entity;
 
+import java.net.URI;
 import java.util.Set;
 
 import com.pinecone.framework.util.id.GUID;
@@ -30,5 +31,9 @@ public interface RavenTaskMeta extends TaskExtraMeta {
 
     @Override
     String getTaskName();
+
+    GUID getDeploySchemeId() ;
+
+    void setDeploySchemeId( GUID deploySchemeId ) ;
 
 }

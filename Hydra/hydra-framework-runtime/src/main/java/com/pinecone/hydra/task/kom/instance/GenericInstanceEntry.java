@@ -3,6 +3,7 @@ package com.pinecone.hydra.task.kom.instance;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
@@ -11,6 +12,7 @@ import com.pinecone.hydra.task.ArchInstanceMeta;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.EntryNode;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
@@ -19,6 +21,8 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     protected long enumId;
 
     protected TaskInstrument taskInstrument;
+
+    protected TaskElement taskElement;
 
     public GenericInstanceEntry() {
         super();
@@ -32,12 +36,17 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericInstanceEntry( Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+    public GenericInstanceEntry( Map<String, Object > joEntity, TaskInstrument taskInstrument ) {
         this.apply(taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
     public GenericInstanceEntry( TaskInstrument taskInstrument ) {
+        this( taskInstrument, null );
+    }
+
+    public GenericInstanceEntry( TaskInstrument taskInstrument, @Nullable TaskElement taskElement ) {
+        this.taskElement = taskElement;
         this.apply(taskInstrument);
     }
 
@@ -49,6 +58,10 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
             this.createTime = LocalDateTime.now();
             this.updateTime = LocalDateTime.now();
         }
+
+        if ( this.taskElement == null && this.getTaskGuid() != null ) {
+            this.taskElement = (TaskElement) this.taskInstrument.get( this.getTaskGuid() );
+        }
     }
 
     @Override
@@ -57,13 +70,23 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public String getTaskName() {
+        return this.taskElement.getName();
+    }
+
+    @Override
+    public TaskElement taskElement() {
+        return this.taskElement;
+    }
+
+    @Override
     public void setGuid ( GUID guid ) {
         this.guid = guid;
     }
 
     @Override
-    public void setAffiliatedTaskGuid ( GUID affiliatedTaskGuid ) {
-        this.affiliatedTaskGuid = affiliatedTaskGuid;
+    public void setTaskGuid ( GUID taskGuid ) {
+        this.taskGuid = taskGuid;
     }
 
     @Override

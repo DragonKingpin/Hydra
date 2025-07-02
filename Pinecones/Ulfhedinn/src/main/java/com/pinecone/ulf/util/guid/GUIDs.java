@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.i128.GUID128;
 import com.pinecone.ulf.util.guid.i128.GuidAllocator128V2;
 import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
+import com.pinecone.ulf.util.guid.i128.GuidAllocatorHC128V7;
 import com.pinecone.ulf.util.guid.i128.UUID128;
 import com.pinecone.ulf.util.guid.i64.GUID64;
 import com.pinecone.ulf.util.guid.i64.GUID72;
@@ -40,6 +41,13 @@ public final class GUIDs {
     }
 
     public static GuidAllocator newGuidAllocator() {
-        return new GuidAllocator128V7();
+        return newGuidAllocator( 0 );
+    }
+
+    public static GuidAllocator newGuidAllocator( int machineId ) {
+        if ( machineId <= 0 ) {
+            return new GuidAllocator128V7();
+        }
+        return new GuidAllocatorHC128V7( machineId );
     }
 }

@@ -8,7 +8,7 @@ import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
 public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected GUID guid;
-    protected GUID affiliatedTaskGuid;
+    protected GUID taskGuid;
     protected String instanceName;
     protected LocalDateTime businessTime;
     protected short priority;
@@ -30,8 +30,8 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     }
 
     @Override
-    public GUID getAffiliatedTaskGuid() {
-        return this.affiliatedTaskGuid;
+    public GUID getTaskGuid() {
+        return this.taskGuid;
     }
 
     @Override

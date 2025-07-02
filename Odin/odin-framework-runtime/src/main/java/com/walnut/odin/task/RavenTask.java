@@ -1,13 +1,21 @@
 package com.walnut.odin.task;
 
+import java.net.URI;
+
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ups.UniformPyramidTask;
 import com.pinecone.hydra.task.Task;
-import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.walnut.odin.task.entity.RavenTaskElement;
+import com.walnut.odin.task.entity.RavenTaskMeta;
 
 public interface RavenTask extends Task, UniformPyramidTask {
 
     RavenTaskInstance createInstance();
 
-    TaskElement getTaskElement();
+    RavenTaskElement getTaskElement();
+
+    RavenTaskMeta getExtraMeta();
+
+    GUID getDeploySchemeId() ;
 
 }

@@ -39,7 +39,7 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     protected CategoryMappingManipulator categoryMappingManipulator;
 
     @Resource
-    @Structure( type = TastExMetaMapper.class )
+    @Structure( type = TaskExMetaMapper.class )
     protected TaskExMetaManipulator taskExMetaManipulator;
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {

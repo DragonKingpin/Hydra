@@ -11,6 +11,7 @@ import com.pinecone.hydra.entity.ibatis.GUID128TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUID72TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUIDTypeHandler;
 import com.pinecone.hydra.entity.ibatis.UOITypeHandler;
+import com.pinecone.hydra.entity.ibatis.URITypeHandler;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -53,6 +54,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUID128TypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUIDTypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( UOITypeHandler.class );
+        ibatisClient.getConfiguration().getTypeHandlerRegistry().register( URITypeHandler.class );
 
         this.mMapperCandidates = ibatisClient.addDataAccessObjectScope( szPackageName );
 

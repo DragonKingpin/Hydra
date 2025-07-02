@@ -2,7 +2,6 @@ package com.walnut.odin.task.entity;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Set;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONObject;
@@ -15,8 +14,6 @@ import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericRavenTaskElement implements RavenTaskElement {
-
-    protected GUID deploySchemeId;
 
     protected TaskElement taskElement;
 

@@ -11,6 +11,13 @@ public interface TaskExecutionElevator extends Manager {
 
     UProcess launch( RavenTaskInstance instance );
 
-    void elevate( RavenTaskInstance instance );
+    UProcess launchLocally( RavenTaskInstance instance );
 
+    UProcess launchRemotely( RavenTaskInstance instance, long pmClientId );
+
+    UProcess elevate( RavenTaskInstance instance );
+
+    UProcess elevateLocally( RavenTaskInstance instance );
+
+    UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId );
 }

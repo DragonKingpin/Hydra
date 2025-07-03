@@ -15,19 +15,19 @@ public class GuidAllocatorHC128V7 extends ArchGuidAllocator128 implements GuidAl
 
     protected TimeOrderedEpochFactory mUuidFactory;
 
-    protected int mnMachineId;
+    protected int mnNodeId;
 
-    public GuidAllocatorHC128V7( int machineId ) {
-        this.mnMachineId = machineId;
+    public GuidAllocatorHC128V7( int nodeId ) {
+        this.mnNodeId = nodeId;
 
         this.mUuidFactory = new TimeOrderedEpochFactory() ;
 
-        this.log.info( "[GuidAllocatorHC128V7] <machineId: {}>, firstGuid: {}>", machineId, this.nextGUID() );
+        this.log.info( "[GuidAllocatorHC128V7] <nodeId: {}>, firstGuid: {}>", nodeId, this.nextGUID() );
     }
 
     @Override
     public GUID nextGUID() {
-        long xorMask = ((long) this.mnMachineId & 0xFFFFFFFFL) << 16; // 32 ~ 48
+        long xorMask = ((long) this.mnNodeId & 0xFFFFFFFFL) << 16; // 32 ~ 48
         return this.mUuidFactory.createXorUint64LSB( xorMask );
     }
 

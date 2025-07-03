@@ -2,15 +2,18 @@ package com.walnut.odin.task.troll;
 
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public class TrollTaskExecutionElevator implements TaskExecutionElevator {
 
+    protected RemoteProcessManagerServer mRemoteProcessManagerServer;
 
+    protected ProcessManager mProcessManager;
 
     @Override
     public ProcessManager processManager() {
-        return null;
+        return this.mProcessManager;
     }
 
     @Override
@@ -26,9 +29,28 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator {
     }
 
     @Override
-    public void elevate( RavenTaskInstance instance ) {
-
+    public UProcess launchLocally( RavenTaskInstance instance ) {
+        return null;
     }
 
+    @Override
+    public UProcess launchRemotely( RavenTaskInstance instance, long pmClientId ) {
+        return null;
+    }
+
+    @Override
+    public UProcess elevate( RavenTaskInstance instance ) {
+        return null;
+    }
+
+    @Override
+    public UProcess elevateLocally( RavenTaskInstance instance ) {
+        return null;
+    }
+
+    @Override
+    public UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId ) {
+        return null;
+    }
 
 }

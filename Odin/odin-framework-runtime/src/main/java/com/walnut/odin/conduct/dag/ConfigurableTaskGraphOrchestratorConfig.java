@@ -1,4 +1,4 @@
-package com.walnut.odin.conduct;
+package com.walnut.odin.conduct.dag;
 
 public class ConfigurableTaskGraphOrchestratorConfig implements TaskGraphOrchestratorConfig {
 

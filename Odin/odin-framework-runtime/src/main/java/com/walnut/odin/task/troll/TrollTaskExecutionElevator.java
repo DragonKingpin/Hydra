@@ -2,6 +2,7 @@ package com.walnut.odin.task.troll;
 
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.RavenTaskInstance;
 
@@ -10,6 +11,15 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator {
     protected RemoteProcessManagerServer mRemoteProcessManagerServer;
 
     protected ProcessManager mProcessManager;
+
+    public TrollTaskExecutionElevator( CollectiveTaskRegiment taskRegiment ) {
+        this( taskRegiment.remoteProcessManagerServer(), taskRegiment.processManager() );
+    }
+
+    public TrollTaskExecutionElevator( RemoteProcessManagerServer remoteProcessManagerServer, ProcessManager processManager ) {
+        this.mRemoteProcessManagerServer = remoteProcessManagerServer;
+        this.mProcessManager = processManager;
+    }
 
     @Override
     public ProcessManager processManager() {

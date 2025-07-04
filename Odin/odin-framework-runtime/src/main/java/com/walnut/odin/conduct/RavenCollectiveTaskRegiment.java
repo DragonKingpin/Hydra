@@ -7,6 +7,7 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.troll.GenericRavenTask;
 import com.walnut.odin.task.RavenTask;
@@ -21,12 +22,24 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected ProcessManager                mProcessManager;
 
+    protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
+
     protected TaskRegimentDomain            mTaskRegimentDomain;
 
 
     public RavenCollectiveTaskRegiment( Hydrogen system, CentralizedTaskInstrument taskInstrument ) {
         this.mSystem         = system;
         this.mTaskInstrument = taskInstrument;
+    }
+
+    @Override
+    public RemoteProcessManagerServer remoteProcessManagerServer() {
+        return this.mRemoteProcessManagerServer;
+    }
+
+    @Override
+    public ProcessManager processManager() {
+        return this.mProcessManager;
     }
 
     public RavenTask queryTaskByPath( String path ) {

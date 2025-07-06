@@ -46,8 +46,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
 
 
-    protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
-        this.uniformTaskInstrument      = new UniformTaskInstrument( superiorProcess, driver.getMasterManipulator(), parent, name, guidAllocator ) {
+    protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
+        this.uniformTaskInstrument      = new UniformTaskInstrument( superiorProcess, driver.getMasterManipulator(), parent, name, config, guidAllocator ) {
             @Override
             public RavenTaskElement affirmTask( String path ,TaskElement metaInfos ) {
                 TaskElement taskElement           = super.affirmTask( path , metaInfos);
@@ -88,25 +88,25 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         };
     }
 
-    public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+    public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
         this.ravenTaskMasterManipulator = (RavenTaskMasterManipulator) masterManipulator;
         TaskMappingDriver driver        = this.ravenTaskMasterManipulator.getTaskMappingDriver();
-        this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, guidAllocator );
+        this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, config, guidAllocator );
 
         this.categoryService            = new RavenCategoryService( this );
         this.taskExMetaManipulator      = this.ravenTaskMasterManipulator.getTaskExMetaManipulator();
     }
 
-    public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, CentralizedTaskInstrument.class.getSimpleName(), null );
+    public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig config ) {
+        this( superiorProcess, masterManipulator, null, CentralizedTaskInstrument.class.getSimpleName(), config, null );
     }
 
-    public RavenTaskInstrument( KOIMappingDriver driver, CentralizedTaskInstrument parent, String name ){
-        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name, null );
+    public RavenTaskInstrument( KOIMappingDriver driver, CentralizedTaskInstrument parent, String name, KernelObjectConfig config ){
+        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), parent, name, config, null );
     }
 
-    public RavenTaskInstrument( KOIMappingDriver driver ) {
-        this( driver.getSuperiorProcess(), driver.getMasterManipulator() );
+    public RavenTaskInstrument( KOIMappingDriver driver, KernelObjectConfig config ) {
+        this( driver.getSuperiorProcess(), driver.getMasterManipulator(), config );
     }
 
     @Override

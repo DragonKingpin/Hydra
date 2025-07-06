@@ -3,6 +3,7 @@ package com.walnut.odin.task.troll;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.ArchTask;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
@@ -37,7 +38,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
     @Override
     public RavenTaskInstance createInstance() {
         GUID guid = this.mGuidAllocator.nextGUID();
-        GenericInstanceEntry entry = new GenericInstanceEntry();
+        GenericInstanceEntry entry = new GenericInstanceEntry( this.mTaskInstrument );
         entry.setGuid( guid );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
         entry.setTaskGuid( this.mTaskElement.getGuid());
@@ -46,13 +47,13 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setKernelScheduleCycleCode( this.mTaskElement.getScheduleCycleCode() );
         entry.setKernelScheduleType( this.mTaskElement.getScheduleType() );
         entry.setKernelScheduleTypeCode( this.mTaskElement.getScheduleTypeCode() );
-        entry.setRunCount( 0 );
+        entry.setRunCount( 1 );
+        entry.setSequenceCnt( 1 );
+        entry.setRetryCnt( 0 );
         entry.setTaskType( this.mTaskElement.getType() );
         entry.setInstanceStatus( TaskInstanceStatus.New );
 
-        GenericRavenTaskInstance instance = new GenericRavenTaskInstance(entry);
-
-        this.mTaskInstrument.getInstanceInstrument().addInstance( entry );
+        GenericRavenTaskInstance instance = new GenericRavenTaskInstance( entry, this );
         return instance;
     }
 
@@ -80,11 +81,11 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
        this.mInstanceInstrument.removeInstance( insGuid );
     }
 
-    public void updateInstanceMeta( RavenTaskInstance instance ) {
+    public void updateInstanceMeta( RavenTaskInstance instance ) throws MetaPersistenceException {
         this.updateTaskMeta( instance.getInstanceEntry() );
     }
 
-    public void updateTaskMeta( InstanceEntry instanceEntry ) {
+    public void updateTaskMeta( InstanceEntry instanceEntry ) throws MetaPersistenceException {
         this.mInstanceInstrument.updateInstance( instanceEntry );
     }
 

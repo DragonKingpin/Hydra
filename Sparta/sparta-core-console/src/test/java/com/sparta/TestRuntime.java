@@ -34,6 +34,7 @@ import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
+import com.walnut.odin.task.GenericRavenTaskConfig;
 
 class Rick extends Tritium {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -62,7 +63,7 @@ class Rick extends Tritium {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         VLayerInstrument vLayerManager = new VLayerInstrument(layerMappingDriver);
-        UniformTaskInstrument uniformTaskInstrument = new UniformTaskInstrument( driver );
+        UniformTaskInstrument uniformTaskInstrument = new UniformTaskInstrument( driver, new GenericRavenTaskConfig() );
 
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument);
         //this.testInsert(uniformRuntimeAtlas);

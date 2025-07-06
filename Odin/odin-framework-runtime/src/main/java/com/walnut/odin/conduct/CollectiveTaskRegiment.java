@@ -4,11 +4,14 @@ import com.pinecone.framework.system.regime.Regiment;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 
-public interface CollectiveTaskRegiment extends Regiment {
+public interface CollectiveTaskRegiment extends Regiment, Slf4jTraceable {
 
     RavenTask createTask( TaskElement taskElement, Identification serviceId );
 
@@ -16,10 +19,18 @@ public interface CollectiveTaskRegiment extends Regiment {
 
     RavenTask affirmTask( String path, Identification serviceId, TaskElement metaInfos );
 
+    RavenTask queryTaskByPath( String path ) ;
+
+    RavenTask getTaskByGuid( GUID taskGuid ) ;
 
 
 
     RemoteProcessManagerServer remoteProcessManagerServer();
 
     ProcessManager processManager();
+
+    CentralizedTaskInstrument taskInstrument();
+
+    void startRemoteProcessServer() throws RemoteProcessServiceRPCException;
+
 }

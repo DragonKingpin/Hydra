@@ -4,10 +4,10 @@ import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
 public class KernelTaskConfig extends ArchKernelObjectConfig implements TaskConfig {
 
-    protected String mszBusinessTimeFormat = TaskMetaConstants.BusinessTimeFormat;
+    protected String mszInstanceTitleTimeFormat = TaskMetaConstants.InstanceTitleTimeFormat;
 
     @Override
-    public String getBusinessTimeFormat() {
-        return this.mszBusinessTimeFormat;
+    public String getInstanceTitleTimeFormat() {
+        return this.mszInstanceTitleTimeFormat;
     }
 }

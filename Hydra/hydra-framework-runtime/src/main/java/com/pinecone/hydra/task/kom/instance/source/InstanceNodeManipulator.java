@@ -20,6 +20,7 @@ public interface InstanceNodeManipulator extends Pinenut {
     long countInstanceByName( String name );
 
     List<InstanceEntry> fetchInstances( TaskInstrument instrument, long offset, long pageSize );
+
     default List<InstanceEntry> fetchInstances( TaskInstrument instrument ) {
         return this.fetchInstances( instrument, 0, this.countInstance() );
     }
@@ -29,4 +30,7 @@ public interface InstanceNodeManipulator extends Pinenut {
     long countInstanceByTaskGuid( GUID taskGuid );
 
     void remove( GUID guid );
+
+    InstanceEntry findLastExecuted( GUID taskGuid, TaskInstrument instrument, String bizTime );
+
 }

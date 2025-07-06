@@ -1,7 +1,5 @@
 package com.walnut.odin.task;
 
-import java.net.URI;
-
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ups.UniformPyramidTask;
 import com.pinecone.hydra.task.Task;

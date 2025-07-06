@@ -1,5 +1,7 @@
 package com.walnut.odin.task.troll;
 
+import java.time.LocalDateTime;
+
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
@@ -9,15 +11,29 @@ public interface TaskExecutionElevator extends Manager {
 
     ProcessManager processManager();
 
-    UProcess launch( RavenTaskInstance instance );
+    LocalDateTime evalBusinessTime( RavenTaskInstance instance, LocalDateTime biz ) ;
 
-    UProcess launchLocally( RavenTaskInstance instance );
+    LocalDateTime evalBusinessTime( RavenTaskInstance instance ) ;
 
-    UProcess launchRemotely( RavenTaskInstance instance, long pmClientId );
+    String evalBusinessTimeLabel( RavenTaskInstance instance, LocalDateTime biz ) ;
 
-    UProcess elevate( RavenTaskInstance instance );
+    String evalBusinessTimeLabel( RavenTaskInstance instance ) ;
 
-    UProcess elevateLocally( RavenTaskInstance instance );
+    String evalInstanceName( RavenTaskInstance instance, LocalDateTime now, LocalDateTime bizTimeEpoch ) ;
 
-    UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId );
+    String evalInstanceName( RavenTaskInstance instance, LocalDateTime bizTimeEpoch ) ;
+
+
+    UProcess launch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess launchRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
+
+
+    UProcess elevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess elevateLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
 }

@@ -18,6 +18,8 @@ public interface TaskInstanceMeta extends Pinenut {
 
     short getPriority();
 
+    String getImagePath();
+
     short getActuallyPriority();
 
     TaskInstanceStatus getInstanceStatus ();
@@ -25,6 +27,12 @@ public interface TaskInstanceMeta extends Pinenut {
     String getTaskType ();
 
     int getRunCount ();
+
+    int getSequenceCnt();
+
+    int getRetryCnt();
+
+    String getErrorCause();
 
     boolean isDryRun() ;
 

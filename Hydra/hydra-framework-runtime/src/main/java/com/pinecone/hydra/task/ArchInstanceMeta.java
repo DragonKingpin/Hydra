@@ -12,10 +12,14 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected String instanceName;
     protected LocalDateTime businessTime;
     protected short priority;
+    protected String imagePath;
     protected short actuallyPriority;
     protected TaskInstanceStatus instanceStatus;
     protected String taskType;
     protected int runCount;
+    protected int sequenceCnt;
+    protected int retryCnt;
+    protected String errorCause;
     protected boolean dryRun;
     protected KernelTaskScheduleCycle kernelScheduleCycle;
     protected KernelTaskScheduleType kernelScheduleType;
@@ -50,6 +54,11 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     }
 
     @Override
+    public String getImagePath() {
+        return this.imagePath;
+    }
+
+    @Override
     public short getActuallyPriority() {
         return this.actuallyPriority;
     }
@@ -67,6 +76,21 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public int getRunCount() {
         return this.runCount;
+    }
+
+    @Override
+    public int getSequenceCnt() {
+        return this.sequenceCnt;
+    }
+
+    @Override
+    public int getRetryCnt() {
+        return this.retryCnt;
+    }
+
+    @Override
+    public String getErrorCause() {
+        return this.errorCause;
     }
 
     @Override

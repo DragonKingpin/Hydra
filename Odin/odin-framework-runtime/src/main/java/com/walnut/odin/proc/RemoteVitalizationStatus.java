@@ -1,10 +1,11 @@
 package com.walnut.odin.proc;
 
 public enum RemoteVitalizationStatus {
-    Vitalized        ( 0x00 ),
-    NoImage          ( 0x01 ),
-    Error            ( 0x02 ),
-    AuthorityDenial  ( 0x03 ),
+    New              ( 0x00 ),
+    Vitalized        ( 0x01 ),
+    NoImage          ( 0x02 ),
+    Error            ( 0x03 ),
+    AuthorityDenial  ( 0x04 ),
     ;
 
     private final int code;

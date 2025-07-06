@@ -22,29 +22,32 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface InstanceNodeMapper extends InstanceNodeManipulator {
 
+    String BASE_FIELDS =
+            "guid, task_guid, name, business_time, priority, image_path, " + // 已有 image_path
+                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
+                    "task_type, dry_run, run_count, sequence_cnt, retry_cnt, " +
+                    "latest_start_time, latest_end_time, error_cause, create_time, update_time";
+
+    String BASE_COLUMNS =
+            "#{guid}, #{taskGuid}, #{instanceName}, #{businessTime}, #{priority}, #{imagePath}, " + // ← 补充 #{imagePath}
+                    "#{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
+                    "#{taskType}, #{dryRun}, #{runCount}, #{sequenceCnt}, #{retryCnt}, " +
+                    "#{lastStartTime}, #{lastEndTime}, #{errorCause}, #{createTime}, #{updateTime}";
+
     @Override
     @Insert(
-            "INSERT INTO hydra_task_instances (" +
-                    "guid, task_guid, name, business_time, priority, " +
-                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
-                    "task_type, dry_run, run_count, latest_start_time, latest_end_time, " +
-                    "create_time, update_time" +
-                    ") VALUES (" +
-                    "#{guid}, #{affiliatedTaskGuid}, #{instanceName}, #{businessTime}, #{priority}, " +
-                    "#{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
-                    "#{taskType}, #{dryRun}, #{runCount}, #{lastStartTime}, #{lastEndTime}, " +
-                    "#{createTime}, #{updateTime}" +
-                    ")"
+            "INSERT INTO hydra_task_instances ( " + BASE_FIELDS + " ) VALUES ( " + BASE_COLUMNS + " )"
     )
     void insert( InstanceEntry instance );
 
     @Override
     @Update(
             "UPDATE hydra_task_instances SET " +
-                    "task_guid = #{affiliatedTaskGuid}, " +
+                    "task_guid = #{taskGuid}, " +
                     "name = #{instanceName}, " +
                     "business_time = #{businessTime}, " +
                     "priority = #{priority}, " +
+                    "image_path = #{imagePath}, " +  // ← 增加 image_path 字段
                     "actually_priority = #{actuallyPriority}, " +
                     "run_status = #{runStatus}, " +
                     "schedule_cycle_code = #{kernelScheduleCycleCode}, " +
@@ -52,27 +55,26 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
                     "task_type = #{taskType}, " +
                     "dry_run = #{dryRun}, " +
                     "run_count = #{runCount}, " +
+                    "sequence_cnt = #{sequenceCnt}, " +
+                    "retry_cnt = #{retryCnt}, " +
                     "latest_start_time = #{lastStartTime}, " +
                     "latest_end_time = #{lastEndTime}, " +
+                    "error_cause = #{errorCause}, " +
                     "update_time = #{updateTime} " +
                     "WHERE guid = #{guid}"
     )
     void update( InstanceEntry instance );
 
     @Select(
-            "SELECT " +
-                    "guid, task_guid, name, business_time, priority, " +
-                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
-                    "task_type, dry_run, run_count, latest_start_time, latest_end_time, " +
-                    "create_time, update_time " +
-                    "FROM hydra_task_instances WHERE guid = #{guid}"
+            "SELECT " + BASE_FIELDS + " FROM hydra_task_instances WHERE guid = #{guid}"
     )
     @Results(id = "InstanceResultMap", value = {
             @Result(property = "guid", column = "guid"),
-            @Result(property = "affiliatedTaskGuid", column = "task_guid"),
+            @Result(property = "taskGuid", column = "task_guid"),
             @Result(property = "instanceName", column = "name"),
             @Result(property = "businessTime", column = "business_time"),
             @Result(property = "priority", column = "priority"),
+            @Result(property = "imagePath", column = "image_path"),
             @Result(property = "actuallyPriority", column = "actually_priority"),
             @Result(property = "runStatus", column = "run_status"),
             @Result(property = "kernelScheduleCycleCode", column = "schedule_cycle_code"),
@@ -80,8 +82,11 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             @Result(property = "taskType", column = "task_type"),
             @Result(property = "dryRun", column = "dry_run"),
             @Result(property = "runCount", column = "run_count"),
+            @Result(property = "sequenceCnt", column = "sequence_cnt"),
+            @Result(property = "retryCnt", column = "retry_cnt"),
             @Result(property = "lastStartTime", column = "latest_start_time"),
             @Result(property = "lastEndTime", column = "latest_end_time"),
+            @Result(property = "errorCause", column = "error_cause"),
             @Result(property = "createTime", column = "create_time"),
             @Result(property = "updateTime", column = "update_time")
     })
@@ -105,12 +110,8 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     long countInstanceByName( String name );
 
     @Select(
-            "SELECT " +
-                    "guid, task_guid, name, business_time, priority, " +
-                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
-                    "task_type, dry_run, run_count, latest_start_time, latest_end_time, " +
-                    "create_time, update_time " +
-                    "FROM hydra_task_instances LIMIT #{offset}, #{pageSize}"
+            "SELECT " + BASE_FIELDS +
+                    " FROM hydra_task_instances LIMIT #{offset}, #{pageSize}"
     )
     @ResultMap("InstanceResultMap")
     List<GenericInstanceEntry> fetchInstances0( @Param("offset") long offset, @Param("pageSize") long pageSize );
@@ -126,13 +127,9 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     }
 
     @Select(
-            "SELECT " +
-                    "guid, task_guid, name, business_time, priority, " +
-                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
-                    "task_type, dry_run, run_count, latest_start_time, latest_end_time, " +
-                    "create_time, update_time " +
-                    "FROM hydra_task_instances " +
-                    "WHERE task_guid = #{taskGuid}" +
+            "SELECT " + BASE_FIELDS +
+                    " FROM hydra_task_instances " +
+                    "WHERE task_guid = #{taskGuid} " +
                     "LIMIT #{offset}, #{pageSize}"
     )
     @ResultMap("InstanceResultMap")
@@ -143,7 +140,7 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     default List<InstanceEntry> queryByTaskGuid( TaskInstrument instrument, GUID taskGuid, long offset, long pageSize ) {
         List<GenericInstanceEntry> list = this.queryByTaskGuid0( taskGuid, offset, pageSize );
         for ( GenericInstanceEntry entry : list ) {
-            entry.apply(instrument);
+            entry.apply( instrument );
         }
         return (List) list;
     }
@@ -151,4 +148,22 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     @Select("SELECT COUNT(*) FROM `hydra_task_instances` WHERE task_guid = #{taskGuid}")
     long countInstanceByTaskGuid( GUID taskGuid );
 
+    @Select(
+            "SELECT " + BASE_FIELDS +
+                    " FROM hydra_task_instances " +
+                    "WHERE task_guid = #{taskGuid} and business_time = #{bizTime} " +
+                    "ORDER BY run_count DESC LIMIT 1"
+    )
+    @ResultMap("InstanceResultMap")
+    GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );
+
+    @Override
+    default InstanceEntry findLastExecuted( GUID taskGuid, TaskInstrument instrument, String bizTime ) {
+        GenericInstanceEntry entry = this.findLastExecuted0( taskGuid, bizTime );
+        if ( entry == null ) {
+            return null;
+        }
+        entry.apply( instrument );
+        return entry;
+    }
 }

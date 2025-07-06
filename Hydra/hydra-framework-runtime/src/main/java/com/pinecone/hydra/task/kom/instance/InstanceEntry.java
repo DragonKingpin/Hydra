@@ -24,13 +24,15 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setGuid ( GUID guid );
 
-     void setTaskGuid ( GUID affiliatedTaskGuid );
+     void setTaskGuid ( GUID taskGuid );
 
      void setInstanceName ( String instanceName );
 
      void setBusinessTime ( LocalDateTime businessTime );
 
      void setPriority ( int priority );
+
+     void setImagePath( String imagePath );
 
      void setActuallyPriority ( int actuallyPriority );
 
@@ -40,7 +42,13 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setRunCount ( int runCount );
 
+     void setSequenceCnt( int sequenceCnt );
+
+     void setRetryCnt( int retryCnt );
+
      void setDryRun ( boolean dryRun );
+
+     void setErrorCause( String errorCause );
 
      void setKernelScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) ;
 

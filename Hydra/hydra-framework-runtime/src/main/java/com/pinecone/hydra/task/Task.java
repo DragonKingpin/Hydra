@@ -2,7 +2,11 @@ package com.pinecone.hydra.task;
 
 import java.util.Map;
 
+import com.pinecone.hydra.task.kom.entity.TaskElement;
+
 public interface Task extends TaskFamilyMeta {
+
+    TaskElement getTaskElement();
 
     String getName();        // Service Name, e.g. WpnService
 

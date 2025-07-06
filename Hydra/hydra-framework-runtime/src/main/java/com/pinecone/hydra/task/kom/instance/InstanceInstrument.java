@@ -3,6 +3,7 @@ package com.pinecone.hydra.task.kom.instance;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,9 @@ public interface InstanceInstrument extends Instrument {
 
     void addInstance( GUID taskGuid, InstanceEntry instanceEntry );
 
-    void updateInstance( InstanceEntry instanceEntry );
+    void updateInstance( InstanceEntry instanceEntry ) throws MetaPersistenceException;
+
+    InstanceEntry getInstanceEntry( GUID insGuid );
 
     List<InstanceEntry> queryInstances( String taskTreePath, long offset, long pageSize );
 
@@ -40,6 +43,8 @@ public interface InstanceInstrument extends Instrument {
     }
 
     void removeInstance( GUID insGuid );
+
+    InstanceEntry findLastExecuted( GUID taskGuid, String bizTime );
 
 
 }

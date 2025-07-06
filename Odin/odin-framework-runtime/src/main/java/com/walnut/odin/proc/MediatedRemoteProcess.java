@@ -14,6 +14,8 @@ import com.pinecone.hydra.proc.ProcessActionTape;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
+import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
@@ -22,29 +24,33 @@ import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class MediatedRemoteProcess implements RemoteProcess {
 
-    protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
+    protected RemoteProcessManagerServer          mRemoteProcessManagerServer;
 
-    protected ProcessManager                mProcessManager;
+    protected ProcessManager                      mProcessManager;
 
-    protected ExecutionImage                mExecutionImage;
+    protected ExecutionImage                      mExecutionImage;
 
-    protected String                        mszName;
+    protected String                              mszName;
 
-    protected long                          mnControlClientId;
+    protected long                                mnControlClientId;
 
-    protected long                          mnLocalPID;
+    protected long                                mnLocalPID;
 
-    protected GUID                          mParentPID;
+    protected GUID                                mParentPID;
 
-    protected GUID                          mProcessId;
+    protected GUID                                mProcessId;
 
-    protected Map<String, String[]>         mStartupArguments;
+    protected Map<String, String[]>               mStartupArguments;
 
-    protected Map<String, String[]>         mEnvironmentVariables;
+    protected Map<String, String[]>               mEnvironmentVariables;
+
+    protected List<ProcessRemoteEventHandler>     mRemoteEventHandlers;
 
     public MediatedRemoteProcess(
             long controlClientId, RemoteProcessManagerServer server, String name, long localPID, GUID processId,
@@ -57,10 +63,33 @@ public class MediatedRemoteProcess implements RemoteProcess {
         this.mProcessId                  = processId;
         this.mStartupArguments           = startupArguments;
         this.mEnvironmentVariables       = environmentVariables;
+        this.mRemoteEventHandlers        = new ArrayList<>();
     }
 
     public MediatedRemoteProcess( long controlClientId, RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
         this( controlClientId, server, name, pid, guid, null, null );
+    }
+
+    @Override
+    public void addRemoteEventHandler( ProcessRemoteEventHandler handler ) {
+        this.mRemoteEventHandlers.add( handler );
+    }
+
+    @Override
+    public void removeRemoteEventHandler( ProcessRemoteEventHandler handler ) {
+        this.mRemoteEventHandlers.remove( handler );
+    }
+
+    @Override
+    public int remoteEventHandlerSize() {
+        return this.mRemoteEventHandlers.size();
+    }
+
+    @Override
+    public void notifyRemoteEvent( long pmClientId, ProcessEvent event, Object caused ) {
+        for ( ProcessRemoteEventHandler handler : this.mRemoteEventHandlers ) {
+            handler.fired( pmClientId, event, caused );
+        }
     }
 
     @Override

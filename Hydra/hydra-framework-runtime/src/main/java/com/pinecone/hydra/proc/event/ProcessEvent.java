@@ -7,6 +7,8 @@ public enum ProcessEvent {
 
     Terminated ( 0x02, "Terminated" ),
 
+    Error      ( 0x03, "Error" ),
+
     ;
 
     private final int code;

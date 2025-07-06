@@ -1,12 +1,19 @@
 package com.walnut.odin.conduct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.ProcessManagerSystema;
 import com.pinecone.hydra.system.Hydrogen;
+import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.troll.GenericRavenTask;
@@ -18,6 +25,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected Hydrogen                      mSystem;
 
+    protected Logger                        mLogger;
+
     protected CentralizedTaskInstrument     mTaskInstrument;
 
     protected ProcessManager                mProcessManager;
@@ -27,9 +36,37 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     protected TaskRegimentDomain            mTaskRegimentDomain;
 
 
-    public RavenCollectiveTaskRegiment( Hydrogen system, CentralizedTaskInstrument taskInstrument ) {
-        this.mSystem         = system;
-        this.mTaskInstrument = taskInstrument;
+    protected void traceWelcomeInfo() {
+        Tracer console = this.mSystem.console();
+        console.getOut().print( "---------------------------------------------------------------\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin\u001B[0m\n" );
+        console.getOut().print( "\u001B[31mMassive Task Orchestration System \u001B[0m\n" );
+        console.getOut().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
+        console.getOut().print( "---------------------------------------------------------------\n" );
+        console.getOut().print( "\u001B[34mRaven Odin Collective Task Regiment\u001B[0m\n" );
+        console.getOut().print( "\u001B[34mCentralized task lifecycle management and deployment system.\u001B[0m\n" );
+        console.getOut().print( "---------------------------------------------------------------\n" );
+
+        this.infoLifecycle( "Welcome to use Odin task orchestration system.", LogStatuses.StatusReady );
+    }
+
+    public RavenCollectiveTaskRegiment( Hydrogen system, CentralizedTaskInstrument taskInstrument, ProcessManager processManager, RemoteProcessManagerServer remoteProcessManagerServer ) {
+        this.mSystem                      = system;
+        this.mTaskInstrument              = taskInstrument;
+        this.mProcessManager              = processManager;
+        this.mRemoteProcessManagerServer  = remoteProcessManagerServer;
+        this.mLogger                      = LoggerFactory.getLogger( "OdinCollectiveTaskRegiment" );
+
+        this.traceWelcomeInfo();
+    }
+
+    public RavenCollectiveTaskRegiment( ProcessManagerSystema system, CentralizedTaskInstrument taskInstrument, RemoteProcessManagerServer remoteProcessManagerServer ) {
+        this( system, taskInstrument, system.processManager(), remoteProcessManagerServer );
+    }
+
+    @Override
+    public Logger getLogger() {
+        return this.mLogger;
     }
 
     @Override
@@ -38,10 +75,21 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     @Override
+    public void startRemoteProcessServer() throws RemoteProcessServiceRPCException {
+        this.mRemoteProcessManagerServer.startService();
+    }
+
+    @Override
     public ProcessManager processManager() {
         return this.mProcessManager;
     }
 
+    @Override
+    public CentralizedTaskInstrument taskInstrument() {
+        return this.mTaskInstrument;
+    }
+
+    @Override
     public RavenTask queryTaskByPath( String path ) {
         GUID objGuid = this.mTaskInstrument.queryGUIDByPath( path );
         if ( objGuid == null ) {
@@ -51,6 +99,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         return this.getTaskByGuid( objGuid );
     }
 
+    @Override
     public RavenTask getTaskByGuid( GUID taskGuid ) {
         TreeNode treeNode = this.mTaskInstrument.get( taskGuid );
         if ( !(treeNode instanceof TaskElement) ) {
@@ -74,6 +123,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         return task;
     }
 
+    @Override
     public RavenTask createTask( TaskElement taskElement, Identification serviceId ) {
         this.mTaskInstrument.put( taskElement );
         RavenTask task = this.constructTask( taskElement, serviceId );
@@ -82,6 +132,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         return task;
     }
 
+    @Override
     public RavenTask affirmTask( String path, Identification serviceId, TaskElement metaInfos ) {
         TaskElement taskElement = this.mTaskInstrument.affirmTask( path ,metaInfos );
         Debug.trace(taskElement);
@@ -111,7 +162,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         return this.constructTask( taskElement, serviceId );
     }
 
-
+    @Override
     public void purgeTask( GUID guid ) {
 
         GenericRavenTask  task = (GenericRavenTask) this.getTaskByGuid( guid );

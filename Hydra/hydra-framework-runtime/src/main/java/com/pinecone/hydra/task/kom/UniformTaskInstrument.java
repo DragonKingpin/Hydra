@@ -7,6 +7,7 @@ import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.task.kom.entity.JobElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericJobElement;
@@ -56,7 +57,10 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected InstanceInstrument          instanceInstrument;
 
-    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+    public UniformTaskInstrument(
+            Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, KernelObjectConfig config,
+            @Nullable GuidAllocator guidAllocator
+    ) {
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
@@ -77,29 +81,32 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         );
         this.mReparseKOM                 = new GenericReparseKOMTreeAddition( this );
         this.instanceInstrument          = new KernelInstanceInstrument( this, this.taskMasterManipulator.getInstanceNodeManipulator() );
+        this.kernelObjectConfig          = config;
     }
 
-    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), null );
+    public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig config ) {
+        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), config, null );
     }
 
 //    public UniformTaskInstrument( Hydrogen hydrogen ) {
 //        this.hydrogen = hydrogen;
 //    }
 
-    public UniformTaskInstrument( KOIMappingDriver driver ) {
+    public UniformTaskInstrument( KOIMappingDriver driver, KernelObjectConfig config ) {
         this(
                 driver.getSuperiorProcess(),
-                driver.getMasterManipulator()
+                driver.getMasterManipulator(),
+                config
         );
     }
 
-    public UniformTaskInstrument( KOIMappingDriver driver, TaskInstrument parent, String name ) {
+    public UniformTaskInstrument( KOIMappingDriver driver, TaskInstrument parent, String name, KernelObjectConfig config ) {
         this(
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
                 parent,
                 name,
+                config,
                 null
         );
     }

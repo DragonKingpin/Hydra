@@ -20,6 +20,7 @@ public abstract class ArchKernelObjectConfig implements KernelObjectConfig {
     }
 
     public ArchKernelObjectConfig( @Nullable Map<String, Object> config ){
+        this();
         if ( config == null ) {
             return;
         }

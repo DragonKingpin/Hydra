@@ -11,6 +11,7 @@ import com.pinecone.hydra.system.ko.runtime.GenericRuntimeInstrumentConfig;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
@@ -28,7 +29,7 @@ class Loki extends Tritium {
         OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
+        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver, new GenericRavenTaskConfig() );
 
 
         KernelExpressInstrument kernelExpressInstrument = new KernelExpressInstrument( this, "", new GenericRuntimeInstrumentConfig());

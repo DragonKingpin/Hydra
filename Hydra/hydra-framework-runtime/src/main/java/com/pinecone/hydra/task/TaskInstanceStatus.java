@@ -3,6 +3,7 @@ package com.pinecone.hydra.task;
 public enum TaskInstanceStatus {
     New                        ( "New"               ),
     WaitingDependency          ( "WaitingDependency" ),
+    Standby                    ( "Standby"           ), // Process spawned.
     Running                    ( "Running"           ),
     Suspended                  ( "Suspended"         ),
     Finished                   ( "Finished"          ), // Finished termination.

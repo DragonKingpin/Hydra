@@ -18,7 +18,7 @@ public interface TaskInstance extends Pinenut {
 
     Object getProcessObject();
 
-    Task getAffiliatedTask();
+    Task getOwnedTask();
 
     TaskInstrument getTaskInstrument();
 
@@ -38,6 +38,8 @@ public interface TaskInstance extends Pinenut {
 
     short getPriority();
 
+    String getImagePath();
+
     short getActuallyPriority();
 
     TaskInstanceStatus getInstanceStatus ();
@@ -46,7 +48,13 @@ public interface TaskInstance extends Pinenut {
 
     int getRunCount ();
 
+    int getSequenceCnt();
+
+    int getRetryCnt();
+
     boolean isDryRun() ;
+
+    String getErrorCause();
 
     KernelTaskScheduleCycle getKernelScheduleCycle ();
 

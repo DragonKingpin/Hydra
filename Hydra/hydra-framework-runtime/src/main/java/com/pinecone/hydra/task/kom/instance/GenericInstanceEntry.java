@@ -105,6 +105,11 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public void setImagePath( String imagePath ) {
+        this.imagePath = imagePath;
+    }
+
+    @Override
     public void setActuallyPriority ( int actuallyPriority ) {
         this.actuallyPriority = (short) actuallyPriority;
     }
@@ -125,8 +130,23 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public void setSequenceCnt( int sequenceCnt ) {
+        this.sequenceCnt = sequenceCnt;
+    }
+
+    @Override
+    public void setRetryCnt( int retryCnt ) {
+        this.retryCnt = retryCnt;
+    }
+
+    @Override
     public void setDryRun ( boolean dryRun ) {
         this.dryRun = dryRun;
+    }
+
+    @Override
+    public void setErrorCause( String errorCause ) {
+        this.errorCause = errorCause;
     }
 
     @Override

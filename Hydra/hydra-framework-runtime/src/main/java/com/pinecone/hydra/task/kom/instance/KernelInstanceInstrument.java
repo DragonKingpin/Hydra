@@ -2,6 +2,7 @@ package com.pinecone.hydra.task.kom.instance;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
@@ -42,8 +43,18 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
-    public void updateInstance( InstanceEntry instanceEntry ) {
-        this.mInstanceManipulator.update( instanceEntry );
+    public void updateInstance( InstanceEntry instanceEntry ) throws MetaPersistenceException {
+        try {
+            this.mInstanceManipulator.update( instanceEntry );
+        }
+        catch ( Exception e ) {
+            throw new MetaPersistenceException( e );
+        }
+    }
+
+    @Override
+    public InstanceEntry getInstanceEntry( GUID insGuid ) {
+        return this.mInstanceManipulator.queryByGuid( insGuid, this.mTaskInstrument );
     }
 
     @Override
@@ -90,7 +101,13 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
-    public void removeInstance(GUID insGuid) {
+    public void removeInstance( GUID insGuid ) {
         this.mInstanceManipulator.remove( insGuid );
     }
+
+    @Override
+    public InstanceEntry findLastExecuted( GUID taskGuid, String bizTime ) {
+        return this.mInstanceManipulator.findLastExecuted( taskGuid, this.mTaskInstrument, bizTime );
+    }
+
 }

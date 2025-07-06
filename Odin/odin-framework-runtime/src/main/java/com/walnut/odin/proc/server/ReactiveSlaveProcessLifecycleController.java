@@ -2,6 +2,7 @@ package com.walnut.odin.proc.server;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.odin.proc.RemoteProcess;
@@ -41,6 +42,8 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
         String procName = "NonExistent";
         if ( that != null ) {
             procName = that.getName();
+            RemoteProcess remoteProcess = (RemoteProcess) that;
+            remoteProcess.notifyRemoteEvent( clientId, ProcessEvent.Terminated, terminationReport );
         }
 
         this.mRemoteProcessManagerServer.getLogger().info(
@@ -50,7 +53,7 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
 
     @AddressMapping( "reportProcessCreated" )
     public String reportProcessCreated( long clientId, RemoteVitalizationResponse vitalizationResponse ) {
-        String pid = null;;
+        String pid = null;
 
         RemoteProcess remoteProcess = this.mRemoteProcessManagerServer.createMediatedRemoteProcess( clientId, vitalizationResponse );
         if ( remoteProcess != null ) {

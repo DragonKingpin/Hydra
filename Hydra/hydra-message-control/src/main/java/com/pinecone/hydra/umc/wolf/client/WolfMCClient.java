@@ -432,7 +432,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         });
 
         this.syncSpawnChannels();
-        this.infoLifecycle( "Wolf<\uD83D\uDC3A>::initNettySubsystem", "Successfully" );
+        this.infoLifecycle( "Wolf<\uD83D\uDC3A>::initNettySubsystem", "Ready" );
     }
 
     public void                           connect() throws IOException, UMCServiceException {

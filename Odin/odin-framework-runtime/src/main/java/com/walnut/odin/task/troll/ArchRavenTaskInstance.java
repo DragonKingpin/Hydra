@@ -4,19 +4,23 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.pinecone.hydra.task.ArchTaskInstance;
+import com.pinecone.hydra.task.Task;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public abstract class ArchRavenTaskInstance extends ArchTaskInstance implements RavenTaskInstance {
 
     protected URI processImageURI;
 
-    public ArchRavenTaskInstance( InstanceEntry instanceEntry ) {
-        super( instanceEntry );
+    protected InstanceInstrument instanceInstrument;
+
+    public ArchRavenTaskInstance( InstanceEntry instanceEntry, Task ownedTask ) {
+        super( instanceEntry, ownedTask );
 
         try {
-            TaskElement taskElement = this.getInstanceEntry().taskElement();
+            TaskElement taskElement = ownedTask.getTaskElement();
             if ( taskElement != null ) {
                 String imagePath = taskElement.getImagePath();
                 if ( imagePath != null ) {
@@ -27,6 +31,8 @@ public abstract class ArchRavenTaskInstance extends ArchTaskInstance implements 
         catch ( IllegalArgumentException e ) {
             this.processImageURI = null;
         }
+
+        this.instanceInstrument = instanceEntry.getTaskInstrument().getInstanceInstrument();
     }
 
     @Override
@@ -34,4 +40,8 @@ public abstract class ArchRavenTaskInstance extends ArchTaskInstance implements 
         return this.processImageURI;
     }
 
+    @Override
+    public InstanceInstrument instanceInstrument() {
+        return this.instanceInstrument;
+    }
 }

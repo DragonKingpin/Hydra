@@ -4,6 +4,6 @@ import com.pinecone.hydra.system.ko.KernelObjectConfig;
 
 public interface TaskConfig extends KernelObjectConfig {
 
-    String getBusinessTimeFormat();
+    String getInstanceTitleTimeFormat();
 
 }

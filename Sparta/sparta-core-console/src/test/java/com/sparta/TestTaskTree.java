@@ -1,27 +1,53 @@
 package com.sparta;
 
+import java.util.Map;
+
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UniformProcessManager;
+import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.event.ProcessEventHandler;
+import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
+import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.LocalHostedClassImage;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
+import com.pinecone.hydra.umc.wolf.client.UlfClient;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
+import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
+import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
+import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
+import com.walnut.odin.proc.client.RemoteProcessManagerClient;
+import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
+import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.task.CentralizedTaskInstrument;
+import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTask;
+import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
 import com.walnut.odin.task.entity.GenericRavenTaskElement;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
+import com.walnut.odin.task.troll.LaunchFeature;
+import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TrollTaskExecutionElevator;
 
 
 class Randy extends EnderHydra {
@@ -38,7 +64,7 @@ class Randy extends EnderHydra {
         OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
+        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver, new GenericRavenTaskConfig() );
 
         //this.testCategory( ravenTaskInstrument );
 
@@ -46,11 +72,13 @@ class Randy extends EnderHydra {
         //this.testGet( ravenTaskInstrument );
         //this.testDelete( instrument );
 
-        this.testInstance( ravenTaskInstrument );
+        //this.testInstance( ravenTaskInstrument );
 
         //CollectiveTaskRegiment taskRegiment = new RavenCollectiveTaskRegiment( this, ravenTaskInstrument );
         //this.testTaskRegimentBase( taskRegiment ,ravenTaskInstrument);
 
+
+        this.testInstanceElevate( ravenTaskInstrument );
     }
 
     private void testTaskRegimentBase( CollectiveTaskRegiment regiment ,  RavenTaskInstrument instrument) {
@@ -171,6 +199,80 @@ class Randy extends EnderHydra {
         InstanceEntry instanceEntry = instanceInstrument.makeInstanceEntry( taskGuid );
         Debug.fmp( 2, instanceEntry );
     }
+
+
+
+
+
+    private void testInstanceElevate( TaskInstrument instrument ) throws Exception {
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
+                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
+        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager(), wolfKing );
+        CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) instrument, server );
+        regiment.startRemoteProcessServer();
+
+
+
+
+
+        ProcessManager clientPM = new UniformProcessManager(
+                this, null, "Miao", "", null
+        );
+        UlfClient ulfClient = new WolfMCClient(
+                this.getSystemGuidAllocator72().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+        );
+        RemoteProcessManagerClient client = new RavenRemoteProcessManagerClient( clientPM, ulfClient );
+        client.startService();
+
+
+
+
+
+
+
+
+        TaskExecutionElevator elevator = new TrollTaskExecutionElevator( regiment );
+
+        GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
+        RavenTask task = regiment.getTaskByGuid( taskGuid );
+        RavenTaskInstance instance = task.createInstance();
+
+
+        ProcessManager manager = this.processManager();
+        ProcessEventHandler eventHandler = new ProcessEventHandler() {
+            @Override
+            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.bluef( runnable, event );
+            }
+        };
+
+        ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
+            @Override
+            public int main( Map<String, String[]> args ) {
+                Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+                Debug.sleep( 1000 );
+                Debug.greenfs( "Miao~" );
+                return 1984;
+            }
+        }, manager );
+        manager.getImageLoader().registerLocalScopeExecutionImage( "hola/senorita", image );
+
+
+
+        LaunchFeature feature = new LaunchFeature();
+        //UProcess uProcess = elevator.launchLocally( instance, feature );
+        //UProcess uProcess = elevator.launchRemotely( instance, client.getClientId(), feature );
+
+        //uProcess.start();
+
+        elevator.elevateRemotely( instance, client.getClientId(), feature );
+        //elevator.elevateLocally( instance, feature );
+    }
+
+
+
+
+
 }
 
 public class TestTaskTree {

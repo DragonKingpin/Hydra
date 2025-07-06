@@ -35,6 +35,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.i128.GUID128;
 import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 import com.walnut.archcraft.ender.EnderHydra;
+import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
@@ -110,7 +111,7 @@ class Floki extends EnderHydra {
         OdinUniformTaskMappingDriver categoryMappingDriver = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver );
+        RavenTaskInstrument ravenTaskInstrument = new RavenTaskInstrument( categoryMappingDriver, new GenericRavenTaskConfig() );
 
 
         KOIMappingDriver koiMappingDriver = new RegistryMappingDriver(

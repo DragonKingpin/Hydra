@@ -17,6 +17,7 @@ import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.MediatedRemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
 import com.walnut.odin.proc.dto.UProcessMirrorDTO;
 import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
@@ -119,10 +120,16 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         }
     }
 
-    @Override
-    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+    protected RemoteVitalizationResponse vitalizeRemoteUProcess0(
+            long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars,
+            boolean directStart
+    ) throws RemoteProcessLifecycleException {
         UProcessMirrorDTO handlerDTO = new UProcessMirrorDTO();
-        handlerDTO.setParentPID( parentPID.toString() );
+        String szParentPID = this.mProcessManager.getRootUProcess().getPID().toString();
+        if ( parentPID != null ) {
+            szParentPID = parentPID.toString();
+        }
+        handlerDTO.setParentPID( szParentPID );
         if ( startupArgs != null ) {
             handlerDTO.setStartupArguments( JSON.stringify( startupArgs ) );
         }
@@ -134,10 +141,21 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         handlerDTO.setImageAddressURI( isURI );
 
         try {
-            Object ret = this.mDuplexAppointServer.invokeInform(
-                    clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.vitalizeRemoteUProcess",
-                    handlerDTO
-            );
+            Object ret;
+
+            if ( directStart ) {
+                ret = this.mDuplexAppointServer.invokeInform(
+                        clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.vitalizeRemoteUProcess",
+                        handlerDTO
+                );
+            }
+            else {
+                ret = this.mDuplexAppointServer.invokeInform(
+                        clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.createRemoteUProcess",
+                        handlerDTO
+                );
+            }
+
 
             RemoteVitalizationResponse response = (RemoteVitalizationResponse) ret;
             if ( response.getPID() != null ) {
@@ -152,6 +170,11 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     @Override
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+       return this.vitalizeRemoteUProcess0( clientId, imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars, true );
+    }
+
+    @Override
     public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.vitalizeRemoteUProcess( clientId, imagePath, false, parentPID, startupArgs, contextEnvironmentVars );
     }
@@ -160,6 +183,47 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.vitalizeRemoteUProcess( clientId, imageURI.toString(), true, parentPID, startupArgs, contextEnvironmentVars );
     }
+
+
+
+    @Override
+    public RemoteCreationResult createRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+        RemoteVitalizationResponse response = this.vitalizeRemoteUProcess0( clientId, imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars, false );
+        RemoteCreationResult result = new RemoteCreationResult();
+        result.response = response;
+        if ( response.getStatus() != RemoteVitalizationStatus.New.getCode() ) {
+            return result;
+        }
+
+        RemoteProcess remoteProcess = this.createMediatedRemoteProcess( clientId, response );
+        if ( remoteProcess != null ) {
+            String pid = remoteProcess.getPID().toString();
+            this.getLogger().info(
+                    "[RemoteProcessCreated] [New::PendingVitalization] [MirrorHooked] (ClientId: `{}`, PID: `{}`) <Done>", clientId, pid
+            );
+        }
+        else {
+            this.getLogger().warn(
+                    "[RemoteProcessCreated] [New::PendingVitalization] [MirrorHooked] (ClientId: `{}`, ClientProvidedPID: `{}`) <Failure>", clientId, response.getPID()
+            );
+        }
+
+        result.process  = remoteProcess;
+        return result;
+    }
+
+    @Override
+    public RemoteCreationResult createRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+        return this.createRemoteUProcess( clientId, imagePath, false, parentPID, startupArgs, contextEnvironmentVars );
+    }
+
+    @Override
+    public RemoteCreationResult createRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+        return this.createRemoteUProcess( clientId, imageURI.toString(), true, parentPID, startupArgs, contextEnvironmentVars );
+    }
+
+
+
 
     @Override
     public void register( UProcess that ) {

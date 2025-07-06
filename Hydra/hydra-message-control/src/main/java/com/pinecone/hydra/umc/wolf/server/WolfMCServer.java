@@ -433,7 +433,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
 
         this.joinOuterThread();
         if( !this.isShutdown() ) {
-            this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Successfully" );
+            this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Ready" );
         }
 
         try {

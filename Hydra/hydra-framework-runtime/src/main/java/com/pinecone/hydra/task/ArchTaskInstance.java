@@ -12,8 +12,16 @@ public abstract class ArchTaskInstance implements TaskInstance {
 
     protected InstanceEntry             mInstanceEntry;
 
-    public ArchTaskInstance( InstanceEntry instanceEntry ) {
+    protected Task                      mOwnedTask;
+
+    public ArchTaskInstance( InstanceEntry instanceEntry, Task ownedTask ) {
         this.mInstanceEntry = instanceEntry;
+        this.mOwnedTask     = ownedTask;
+    }
+
+    @Override
+    public Task getOwnedTask() {
+        return this.mOwnedTask;
     }
 
     @Override
@@ -62,6 +70,11 @@ public abstract class ArchTaskInstance implements TaskInstance {
     }
 
     @Override
+    public String getImagePath() {
+        return this.mInstanceEntry.getImagePath();
+    }
+
+    @Override
     public short getActuallyPriority() {
         return this.mInstanceEntry.getActuallyPriority();
     }
@@ -79,6 +92,21 @@ public abstract class ArchTaskInstance implements TaskInstance {
     @Override
     public int getRunCount() {
         return this.mInstanceEntry.getRunCount();
+    }
+
+    @Override
+    public int getRetryCnt() {
+        return this.mInstanceEntry.getRetryCnt();
+    }
+
+    @Override
+    public int getSequenceCnt() {
+        return this.mInstanceEntry.getSequenceCnt();
+    }
+
+    @Override
+    public String getErrorCause() {
+        return this.mInstanceEntry.getErrorCause();
     }
 
     @Override

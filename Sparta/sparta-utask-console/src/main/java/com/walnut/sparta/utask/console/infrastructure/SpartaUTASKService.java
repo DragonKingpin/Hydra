@@ -29,6 +29,7 @@ import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
 import com.pinecone.tritium.Tritium;
+import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.sparta.utask.console.SpartaBoot;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -58,7 +59,7 @@ public class SpartaUTASKService extends Springron implements UTASKService{
                 this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
-        this.mUniformTaskInstrument = new UniformTaskInstrument( this.koiTaskMappingDriver );
+        this.mUniformTaskInstrument = new UniformTaskInstrument( this.koiTaskMappingDriver, new GenericRavenTaskConfig() );
 
     }
 

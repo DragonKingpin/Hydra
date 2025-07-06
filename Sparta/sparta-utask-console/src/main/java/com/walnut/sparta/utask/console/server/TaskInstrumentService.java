@@ -4,7 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.walnut.sparta.utask.console.infrastructure.dto.TaskChildDto;
 import com.walnut.sparta.utask.console.infrastructure.dto.TaskDto;
 
-public interface TaskService extends Pinenut {
+public interface TaskInstrumentService extends Pinenut {
 
     String addTask( TaskDto taskDto );
 

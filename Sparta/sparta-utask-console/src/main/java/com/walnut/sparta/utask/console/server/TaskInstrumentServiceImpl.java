@@ -4,13 +4,13 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.KernelObjectConstants;
-import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.sparta.utask.console.infrastructure.UTaskConstants;
 import com.walnut.sparta.utask.console.infrastructure.dto.NodeVo;
 import com.walnut.sparta.utask.console.infrastructure.dto.TaskChildDto;
@@ -20,16 +20,15 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
-public class TaskServiceImpl implements TaskService {
+public class TaskInstrumentServiceImpl implements TaskInstrumentService {
 
     @Resource
-    protected UniformTaskInstrument primaryTask;
+    protected CentralizedTaskInstrument primaryTask;
 
 
     @Override
@@ -95,7 +94,7 @@ public class TaskServiceImpl implements TaskService {
 
         }
         else{
-            List<TreeNode> taskNamespaceChildren = primaryTask.getChildren(guid1);
+            Collection<TreeNode> taskNamespaceChildren = primaryTask.getChildren(guid1);
             List<ElementNode> taskNamespaceChildrenList = new ArrayList<>();
             for( TreeNode treeNamespaceChildrenNode : taskNamespaceChildren) {
 
@@ -146,7 +145,7 @@ public class TaskServiceImpl implements TaskService {
         String parentPath = path.contains(KernelObjectConstants.FullNameSeparator) ? path.substring(0, path.lastIndexOf(KernelObjectConstants.FullNameSeparator)) : "";
         String newPath = parentPath.isEmpty() ? name : parentPath + KernelObjectConstants.FullNameSeparator + name;
         Debug.info("updateTaskNamespace newPath:" + newPath);
-        List<TreeNode> taskTreeNodes = primaryTask.getChildren(guid);
+        Collection<TreeNode> taskTreeNodes = primaryTask.getChildren(guid);
         for (TreeNode treeNode1 : taskTreeNodes) {
             primaryTask.update(treeNode1);
             primaryTask.queryElement(newPath+KernelObjectConstants.FullNameSeparator+treeNode1.getName());
@@ -174,7 +173,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private List<NodeVo> buildChildNodes(GUID parentGuid) {
-        List<TreeNode> children = primaryTask.getChildren(parentGuid);
+        Collection<TreeNode> children = primaryTask.getChildren(parentGuid);
         List<NodeVo> childVos = new ArrayList<>();
         for (TreeNode child : children) {
             NodeVo childVo = buildNodeVo(child);

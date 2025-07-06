@@ -29,7 +29,10 @@ import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
 import com.pinecone.tritium.Tritium;
+import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTaskInstrument;
+import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.sparta.utask.console.SpartaBoot;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -38,7 +41,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class SpartaUTASKService extends Springron implements UTASKService{
+public class SpartaUTASKService extends Springron implements TaskService{
 
     protected KOIMappingDriver koiFileMappingDriver;
 
@@ -47,7 +50,7 @@ public class SpartaUTASKService extends Springron implements UTASKService{
 
     protected KOMFileSystem fileSystem;
 
-    protected UniformTaskInstrument  mUniformTaskInstrument;
+    protected CentralizedTaskInstrument mUniformTaskInstrument;
 
     protected void initKOMSubsystem() throws ComponentInitializationException {
 
@@ -55,11 +58,11 @@ public class SpartaUTASKService extends Springron implements UTASKService{
                 this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
-        this.koiTaskMappingDriver  = new TaskMappingDriver(
+        this.koiTaskMappingDriver  = new OdinUniformTaskMappingDriver(
                 this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
-        this.mUniformTaskInstrument = new UniformTaskInstrument( this.koiTaskMappingDriver, new GenericRavenTaskConfig() );
+        this.mUniformTaskInstrument = new RavenTaskInstrument( this.koiTaskMappingDriver, new GenericRavenTaskConfig() );
 
     }
 
@@ -73,7 +76,7 @@ public class SpartaUTASKService extends Springron implements UTASKService{
                     public void initialize( ConfigurableApplicationContext applicationContext ) {
                         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
                         genericApplicationContext.registerBean("primaryFileSystem", UniformObjectFileSystem.class, () -> (UniformObjectFileSystem) fileSystem);
-                        genericApplicationContext.registerBean("primaryTask", UniformTaskInstrument.class, () -> (UniformTaskInstrument) mUniformTaskInstrument);
+                        genericApplicationContext.registerBean("primaryTask", CentralizedTaskInstrument.class, () -> (CentralizedTaskInstrument) mUniformTaskInstrument);
                     }
                 });
             }

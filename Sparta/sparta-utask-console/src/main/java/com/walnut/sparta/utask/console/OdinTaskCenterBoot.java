@@ -1,13 +1,13 @@
 package com.walnut.sparta.utask.console;
 
 import com.pinecone.Pinecone;
-import com.walnut.sparta.utask.console.infrastructure.UTASKContentDelivery;
+import com.walnut.sparta.utask.console.infrastructure.TaskContentDelivery;
 
-public class UTASKBoot {
+public class OdinTaskCenterBoot {
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
-            UTASKContentDelivery utask = (UTASKContentDelivery) Pinecone.sys().getTaskManager().add(
-                    new UTASKContentDelivery( args, Pinecone.sys() )
+            TaskContentDelivery utask = (TaskContentDelivery) Pinecone.sys().getTaskManager().add(
+                    new TaskContentDelivery( args, Pinecone.sys() )
             );
             utask.vitalize();
             return 0;

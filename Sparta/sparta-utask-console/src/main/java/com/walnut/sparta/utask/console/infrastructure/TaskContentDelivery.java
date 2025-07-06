@@ -1,16 +1,18 @@
 package com.walnut.sparta.utask.console.infrastructure;
 
 import com.pinecone.framework.system.CascadeSystem;
+import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.tritium.Tritium;
+import com.walnut.archcraft.ender.EnderHydra;
 
-public class UTASKContentDelivery extends Tritium implements UTASKContentDeliveryService {
+public class TaskContentDelivery extends EnderHydra implements Pinenut {
     protected SpartaUTASKService spartaUTASKService;
 
-    public UTASKContentDelivery(String[] args, CascadeSystem parent ) {
+    public TaskContentDelivery(String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
 
-    public UTASKContentDelivery(String[] args, String szName, CascadeSystem parent ){
+    public TaskContentDelivery(String[] args, String szName, CascadeSystem parent ){
         super( args, szName, parent );
     }
 

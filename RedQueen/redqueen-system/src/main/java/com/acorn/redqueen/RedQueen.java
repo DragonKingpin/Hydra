@@ -1,12 +1,12 @@
 package com.acorn.redqueen;
 
-import com.acorn.redqueen.system.RedQueenSubsystem;
+import com.acorn.redqueen.system.ServiceCentralControl;
 import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.LogStatuses;
 
-public class RedQueen extends ArchModularizedSubsystem implements RedQueenSubsystem {
+public class RedQueen extends ArchModularizedSubsystem implements ServiceCentralControl {
 
     public RedQueen( Hydrogen primarySystem, String name ) {
         super( primarySystem, name );

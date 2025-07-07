@@ -1,6 +1,6 @@
 package com.walnut.archcraft.ender.system;
 
-import com.acorn.redqueen.system.RedQueenSubsystem;
+import com.acorn.redqueen.system.ServiceCentralControl;
 import com.acorn.skynet.system.SkynetSubsystem;
 import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.hydra.proc.InstitutionalProcess;
@@ -20,7 +20,7 @@ public interface HydraEmpire extends Centrum, HydraKingdom, Slf4jTraceable, Inst
 
     VirtualExeImageInstrument virtualExeImageInstrument();
 
-    RedQueenSubsystem redQueen();
+    ServiceCentralControl redQueen();
 
     SkynetSubsystem skynet();
 

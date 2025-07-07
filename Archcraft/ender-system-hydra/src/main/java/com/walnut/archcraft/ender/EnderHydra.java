@@ -1,11 +1,10 @@
 package com.walnut.archcraft.ender;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.acorn.redqueen.RedQueen;
-import com.acorn.redqueen.system.RedQueenSubsystem;
+import com.acorn.redqueen.system.ServiceCentralControl;
 import com.acorn.skynet.Skynet;
 import com.acorn.skynet.system.SkynetSubsystem;
 import com.pinecone.framework.system.CascadeSystem;
@@ -49,7 +48,7 @@ public class EnderHydra extends Tritium implements HydraEmpire {
 
     protected Map<String, Lord>        mEmpireLords;   // Domain subsystem.
     protected SkynetSubsystem          mSkynetSubsystem;
-    protected RedQueenSubsystem        mRedQueenSubsystem;
+    protected ServiceCentralControl mServiceCentralControl;
 
 
     public EnderHydra( String[] args, CascadeSystem parent ) {
@@ -143,9 +142,9 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.mSkynetSubsystem.vitalize();
         this.mEmpireLords.put( this.mSkynetSubsystem.getName(), this.mSkynetSubsystem );
 
-        this.mRedQueenSubsystem = new RedQueen( this, "KernelRedQueenLord" );
-        this.mRedQueenSubsystem.vitalize();
-        this.mEmpireLords.put( this.mRedQueenSubsystem.getName(), this.mRedQueenSubsystem );
+        this.mServiceCentralControl = new RedQueen( this, "KernelRedQueenLord" );
+        this.mServiceCentralControl.vitalize();
+        this.mEmpireLords.put( this.mServiceCentralControl.getName(), this.mServiceCentralControl);
 
         this.getLogger().info( "[ActionReport] <Hydra Empire> [SummoningLords] Empire now has {} lords.", this.countEmpireLords() );
         this.infoLifecycle( "<Hydra Empire> [SummoningLords] Modularized Subsystem Initialization", LogStatuses.StatusDone );
@@ -225,8 +224,8 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     }
 
     @Override
-    public RedQueenSubsystem redQueen() {
-        return this.mRedQueenSubsystem;
+    public ServiceCentralControl redQueen() {
+        return this.mServiceCentralControl;
     }
 
     @Override

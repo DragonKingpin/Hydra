@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.acorn.redqueen.kernel</groupId>
-    <artifactId>redqueen-application-suit</artifactId>
+    <artifactId>redqueen-framework-service</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>
     <modules>
@@ -57,6 +57,12 @@
         <dependency>
             <groupId>com.acorn.redqueen.kernel</groupId>
             <artifactId>redqueen-architecture</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-service-control</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

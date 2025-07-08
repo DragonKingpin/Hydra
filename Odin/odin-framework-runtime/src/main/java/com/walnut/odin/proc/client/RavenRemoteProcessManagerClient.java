@@ -175,7 +175,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         RemoteVitalizationResponse response = this.createLocalUProcess( handlerDTO, lpProcess );
         LocalUProcess localHostedProcess = (LocalUProcess) lpProcess[ 0 ];
 
-        if ( response.getStatus() != RemoteVitalizationStatus.New.getCode() || response.getStatus() != RemoteVitalizationStatus.Vitalized.getCode() ) {
+        if ( response.getStatus() != RemoteVitalizationStatus.New.getCode() && response.getStatus() != RemoteVitalizationStatus.Vitalized.getCode() ) {
             return response;
         }
 

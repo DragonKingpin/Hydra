@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
@@ -15,7 +14,7 @@ import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.kom.entity.ServiceInstanceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.entity.ServoElement;
 import com.pinecone.hydra.service.kom.operator.GenericElementOperatorFactory;
@@ -247,17 +246,17 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
-    public void createServiceInstance(ServiceInstanceElement serviceInstanceElement) {
-        this.serviceInstanceManipulator.initServiceInstance( serviceInstanceElement );
+    public void createServiceInstance(ServiceInstanceEntry serviceInstanceEntry) {
+        this.serviceInstanceManipulator.initServiceInstance(serviceInstanceEntry);
     }
 
     @Override
-    public ServiceInstanceElement queryServiceInstance(GUID serviceId) {
+    public ServiceInstanceEntry queryServiceInstance(GUID serviceId) {
         return this.serviceInstanceManipulator.queryServiceInstance( serviceId );
     }
 
     @Override
-    public void updateServiceInstance(ServiceInstanceElement element) {
+    public void updateServiceInstance(ServiceInstanceEntry element) {
         this.serviceInstanceManipulator.updateServiceInstance( element );
     }
 }

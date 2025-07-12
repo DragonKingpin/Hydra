@@ -1,10 +1,11 @@
-package com.pinecone.hydra.service;
+package com.pinecone.hydra.service.registry;
 
 import java.util.Collection;
 
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;

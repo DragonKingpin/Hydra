@@ -7,9 +7,9 @@ import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
 import com.pinecone.hydra.service.registry.dao.ServiceInstanceDO;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
-import com.pinecone.hydra.service.registry.exception.ClientRegisterServiceException;
-import com.pinecone.hydra.service.registry.exception.CreateServiceInstanceException;
-import com.pinecone.hydra.service.registry.exception.RpcInitException;
+import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.ServiceInstanceCreationException;
+import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
@@ -42,7 +42,7 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
     }
 
     @Override
-    public void startService() throws RpcInitException {
+    public void startService() throws ServiceControlRPCException {
         this.initRPCSubsystem();
     }
 
@@ -56,7 +56,7 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
         this.mDuplexAppointClient = null;
     }
 
-    protected void initRPCSubsystem() throws RpcInitException {
+    protected void initRPCSubsystem() throws ServiceControlRPCException {
         if ( this.mDuplexAppointClient != null && !this.mDuplexAppointClient.getMessageNode().isTerminated() ) {
             throw new IllegalStateException( "DuplexAppointClient has started." );
         }
@@ -67,28 +67,30 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
             this.mDuplexAppointClient.compile( ServiceLifecycleIface.class, false );
             this.mServiceLifecycleIface = this.mDuplexAppointClient.getIface( ServiceLifecycleIface.class );
             this.mLogger.info( "RPC initialization successful" );
-        } catch ( Exception e ) {
+        }
+        catch ( Exception e ) {
             this.mServiceLifecycleIface = null;
-            throw new RpcInitException( e );
+            throw new ServiceControlRPCException( e );
         }
     }
 
     @Override
-    public GUID registerService( GUID serviceId, GUID deployGuid ) throws CreateServiceInstanceException, ClientRegisterServiceException {
+    public GUID registerService( GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException, ClientServiceRegisterException {
         this.createServiceInstance( serviceId, deployGuid );
         RegisterServiceDTO serviceDTO = new RegisterServiceDTO();
         serviceDTO.setServiceId( serviceId.toString() );
         serviceDTO.setClientId( this.mRPCClient.getMessageNodeId() );
         try {
             this.mServiceLifecycleIface.registerService( serviceDTO );
-        }catch (Exception e) {
+        }
+        catch (Exception e) {
             this.mLogger.info( "Register Service {} failed", serviceDTO.getServiceId() );
-            throw new ClientRegisterServiceException( e );
+            throw new ClientServiceRegisterException( e );
         }
         return null;
     }
 
-    protected GUID createServiceInstance( GUID serviceId, GUID deployGuid ) throws CreateServiceInstanceException {
+    protected GUID createServiceInstance( GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException {
         GUID guid = this.mGuidAllocator.nextGUID();
         ServiceInstanceDO instanceDO = new ServiceInstanceDO();
 
@@ -101,8 +103,9 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
         try {
             this.mServiceInstrument.createServiceInstance( instanceDO );
             this.mLogger.info( "ServiceInstance create successfully" );
-        }catch (Exception e) {
-            throw new CreateServiceInstanceException( e );
+        }
+        catch ( Exception e ) {
+            throw new ServiceInstanceCreationException( e );
         }
 
         return guid;

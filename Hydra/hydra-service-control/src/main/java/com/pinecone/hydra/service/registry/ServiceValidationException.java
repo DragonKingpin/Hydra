@@ -1,6 +1,7 @@
-package com.pinecone.hydra.service.registry.exception;
+package com.pinecone.hydra.service.registry;
 
-public class ServiceValidationException extends Exception {
+public class ServiceValidationException extends ServiceControlException {
+
     public ServiceValidationException() {
         super();
     }
@@ -16,4 +17,5 @@ public class ServiceValidationException extends Exception {
     public ServiceValidationException( Throwable cause ) {
         super(cause);
     }
+
 }

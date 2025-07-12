@@ -3,7 +3,6 @@ package com.pinecone.hydra.service.registry;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
-import com.pinecone.hydra.service.ServiceManager;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.uma.DuplexAppointServer;

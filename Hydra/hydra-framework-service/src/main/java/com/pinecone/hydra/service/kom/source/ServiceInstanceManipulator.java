@@ -2,12 +2,12 @@ package com.pinecone.hydra.service.kom.source;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.kom.entity.ServiceInstanceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 
 public interface ServiceInstanceManipulator extends Pinenut {
-    void initServiceInstance( ServiceInstanceElement element );
+    void initServiceInstance( ServiceInstanceEntry element );
 
-    ServiceInstanceElement queryServiceInstance( GUID serviceId );
+    ServiceInstanceEntry queryServiceInstance(GUID serviceId );
 
-    void updateServiceInstance( ServiceInstanceElement element );
+    void updateServiceInstance( ServiceInstanceEntry element );
 }

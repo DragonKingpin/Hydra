@@ -2,14 +2,12 @@ package com.pinecone.hydra.service.registry;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.service.ServiceManager;
 import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.kom.entity.ServiceInstanceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
-import com.pinecone.hydra.service.registry.exception.ServiceValidationException;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -44,7 +42,7 @@ public class ServiceLifecycleController {
             String szServId = serviceDTO.getServiceId();
             GUID serviceId  = GUIDs.GUID128( szServId );
 
-            ServiceInstanceElement element = this.mServiceInstrument.queryServiceInstance(serviceId);
+            ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance(serviceId);
             TreeNode node = this.mServiceInstrument.get( serviceId );
             ServiceElement serviceElement = (ServiceElement) node;
             WolfServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
@@ -96,7 +94,7 @@ public class ServiceLifecycleController {
     }
 
     protected boolean ValidationServiceInstance( GUID serviceId ) throws ServiceValidationException {
-        ServiceInstanceElement element = this.mServiceInstrument.queryServiceInstance(serviceId);
+        ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance(serviceId);
         if( element == null ) {
             throw new ServiceValidationException( "The serviceInstance is not exist" );
         }
@@ -110,7 +108,7 @@ public class ServiceLifecycleController {
         return true;
     }
 
-    protected void successRegisterServiceInstance( ServiceInstanceElement element ) {
+    protected void successRegisterServiceInstance( ServiceInstanceEntry element ) {
         element.setStatus( ServiceStatus.SERVICE_RUNNING.getCode() );
         element.setRunCount( element.getRunCount() + 1 );
 

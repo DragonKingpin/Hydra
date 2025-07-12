@@ -2,7 +2,7 @@ package com.acorn.redqueen.service.conduct;
 
 import org.slf4j.Logger;
 
-import com.pinecone.hydra.service.ServiceManager;
+import com.pinecone.hydra.service.registry.ServiceManager;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.system.Hydrogen;
 

@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 
 import java.time.LocalDateTime;
 
-public interface ServiceInstanceElement extends Pinenut {
+public interface ServiceInstanceEntry extends Pinenut {
     void setGuid( GUID guid );
 
     GUID getGuid();

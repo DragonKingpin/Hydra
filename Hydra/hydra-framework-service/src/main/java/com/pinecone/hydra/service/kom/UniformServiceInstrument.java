@@ -15,10 +15,12 @@ import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.entity.ServoElement;
 import com.pinecone.hydra.service.kom.operator.GenericElementOperatorFactory;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
@@ -39,19 +41,21 @@ import com.pinecone.ulf.util.guid.GUIDs;
 
 public class UniformServiceInstrument extends ArchReparseKOMTree implements ServiceInstrument {
     //GenericDistributedScopeTree
-    protected ImperialTree                imperialTree;
+    protected ImperialTree                  imperialTree;
 
-    protected ServiceMasterManipulator    serviceMasterManipulator;
+    protected ServiceMasterManipulator      serviceMasterManipulator;
 
-    protected ServiceNamespaceManipulator serviceNamespaceManipulator;
+    protected ServiceNamespaceManipulator   serviceNamespaceManipulator;
 
-    protected ApplicationNodeManipulator  applicationNodeManipulator;
+    protected ApplicationNodeManipulator    applicationNodeManipulator;
 
-    protected ServiceNodeManipulator      serviceNodeManipulator;
+    protected ServiceNodeManipulator        serviceNodeManipulator;
 
-    protected List<GUIDNameManipulator >  folderManipulators;
+    protected ServiceInstanceManipulator    serviceInstanceManipulator;
 
-    protected List<GUIDNameManipulator >  fileManipulators;
+    protected List<GUIDNameManipulator >    folderManipulators;
+
+    protected List<GUIDNameManipulator >    fileManipulators;
 
 
 
@@ -62,6 +66,7 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         this.serviceNamespaceManipulator = this.serviceMasterManipulator.getNamespaceManipulator();
         this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
+        this.serviceInstanceManipulator  = this.serviceMasterManipulator.getServiceInstanceManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
@@ -239,5 +244,20 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     @Override
     public List<ServiceElement> fetchAllService() {
         return this.serviceNodeManipulator.fetchAllService();
+    }
+
+    @Override
+    public void createServiceInstance(ServiceInstanceElement serviceInstanceElement) {
+        this.serviceInstanceManipulator.initServiceInstance( serviceInstanceElement );
+    }
+
+    @Override
+    public ServiceInstanceElement queryServiceInstance(GUID serviceId) {
+        return this.serviceInstanceManipulator.queryServiceInstance( serviceId );
+    }
+
+    @Override
+    public void updateServiceInstance(ServiceInstanceElement element) {
+        this.serviceInstanceManipulator.updateServiceInstance( element );
     }
 }

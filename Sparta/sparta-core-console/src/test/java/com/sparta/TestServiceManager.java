@@ -5,6 +5,7 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
@@ -16,6 +17,7 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
+import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.tritium.Tritium;
@@ -43,6 +45,11 @@ class Brian extends Tritium {
 
 
 
+
+
+    }
+
+    private void oldTest(ServiceInstrument servicesTree) throws Exception {
         WolfMCServer          wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         WolvesAppointServer wolfServer = new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class );
@@ -59,7 +66,6 @@ class Brian extends Tritium {
         wolf.compile( ServiceLifecycleIface.class, false );
         wolf.compile( ServiceMetaManipulationIface.class, false );
         this.testServiceRegister( wolf );
-
     }
 
     public void testServiceRegister( DuplexAppointClient client ) {

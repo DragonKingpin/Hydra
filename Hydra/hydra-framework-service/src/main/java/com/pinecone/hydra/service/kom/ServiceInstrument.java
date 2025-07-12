@@ -5,6 +5,7 @@ import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -27,5 +28,11 @@ public interface ServiceInstrument extends ReparseKOMTree {
     void               update            ( TreeNode treeNode );
 
     List<ServiceElement> fetchAllService();
+
+    void createServiceInstance( ServiceInstanceElement serviceInstanceElement );
+
+    ServiceInstanceElement queryServiceInstance( GUID serviceId );
+
+    void updateServiceInstance( ServiceInstanceElement element );
 
 }

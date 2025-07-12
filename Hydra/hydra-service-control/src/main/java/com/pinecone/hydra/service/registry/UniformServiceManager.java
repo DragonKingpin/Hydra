@@ -1,5 +1,6 @@
 package com.pinecone.hydra.service.registry;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.ServiceManager;
@@ -22,7 +23,6 @@ public class UniformServiceManager implements ServiceManager {
     protected ServiceInstrument             mServiceInstrument;
 
     protected DuplexAppointServer           mAppointServer;
-
 
     protected final ConcurrentMap<Long, ServiceInstance > mInstanceRegistry;
 
@@ -123,6 +123,13 @@ public class UniformServiceManager implements ServiceManager {
             ins.put( clientId, instance );
             return ins;
         } );
+
+
+    }
+
+    @Override
+    public void destroyServiceInstance( GUID serviceId, GUID instanceGuid ) {
+
     }
 
     @Override

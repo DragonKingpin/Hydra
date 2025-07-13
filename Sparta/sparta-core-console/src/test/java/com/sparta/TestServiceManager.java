@@ -19,7 +19,6 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
-import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;

@@ -12,6 +12,8 @@ import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 
 public interface ServiceManager extends Manager {
 
+    void startService ();
+
     void registerService( ServiceInstance instance );
 
     void destroyServiceInstance( GUID serviceId, GUID instanceGuid );

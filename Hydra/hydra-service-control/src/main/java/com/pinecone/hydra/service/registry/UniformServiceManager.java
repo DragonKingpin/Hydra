@@ -19,15 +19,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class UniformServiceManager implements ServiceManager {
-    protected ServiceInstrument             mServiceInstrument;
+    protected ServiceInstrument                                                             mServiceInstrument;
 
-    protected DuplexAppointServer           mAppointServer;
+    protected DuplexAppointServer                                                           mAppointServer;
 
-    protected final ConcurrentMap<Long, ServiceInstance > mInstanceRegistry;
+    protected final ConcurrentMap<Long, ServiceInstance >                                   mInstanceRegistry;
 
-    protected final ConcurrentMap<Identification, ConcurrentMap<Long, ServiceInstance> > mServiceRegistry;
+    protected final ConcurrentMap<Identification, ConcurrentMap<Long, ServiceInstance> >    mServiceRegistry;
 
-    protected final ConcurrentMap<Long, ConcurrentMap<Object, Object > > mClientRegistry;
+    protected final ConcurrentMap<Long, ConcurrentMap<Object, Object > >                    mClientRegistry;
 
     private static final Object PRESENT = new Object();
 
@@ -89,12 +89,14 @@ public class UniformServiceManager implements ServiceManager {
         this.mInstanceRegistry   = new ConcurrentHashMap<>();
         this.mClientRegistry     = new ConcurrentHashMap<>();
 
+    }
+
+    @Override
+    public void startService() {
         this.initRPCSubsystem();
     }
 
-
-
-//    @Override
+    //    @Override
 //    public void registerService( ServiceInstance instance ) {
 //        USII primaryKey = instance.getUSII();
 //        Long clientId   = primaryKey.getClientId();

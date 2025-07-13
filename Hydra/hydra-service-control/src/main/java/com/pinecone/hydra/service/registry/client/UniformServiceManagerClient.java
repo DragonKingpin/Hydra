@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
-import com.pinecone.hydra.service.registry.dao.ServiceInstanceDO;
+import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.ServiceInstanceCreationException;
@@ -76,7 +76,7 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
 
     @Override
     public GUID registerService( GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException, ClientServiceRegisterException {
-        this.createServiceInstance( serviceId, deployGuid );
+        this.createServiceInstanceMeta( serviceId, deployGuid );
         RegisterServiceDTO serviceDTO = new RegisterServiceDTO();
         serviceDTO.setServiceId( serviceId.toString() );
         serviceDTO.setClientId( this.mRPCClient.getMessageNodeId() );
@@ -90,9 +90,9 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
         return null;
     }
 
-    protected GUID createServiceInstance( GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException {
+    protected GUID createServiceInstanceMeta(GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException {
         GUID guid = this.mGuidAllocator.nextGUID();
-        ServiceInstanceDO instanceDO = new ServiceInstanceDO();
+        GenericServiceInstanceEntity instanceDO = new GenericServiceInstanceEntity();
 
         instanceDO.setDeployGuid( deployGuid );
         instanceDO.setStatus( ServiceStatus.SERVICE_NEW.getCode() );

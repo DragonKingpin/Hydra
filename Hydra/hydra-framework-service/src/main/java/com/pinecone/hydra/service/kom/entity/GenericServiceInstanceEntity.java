@@ -1,11 +1,11 @@
-package com.pinecone.hydra.service.registry.dao;
+package com.pinecone.hydra.service.kom.entity;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 
 import java.time.LocalDateTime;
 
-public class ServiceInstanceDO implements ServiceInstanceEntry {
+public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     protected GUID mGuid;
 
     protected GUID mServiceGuid;

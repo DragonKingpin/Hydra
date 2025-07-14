@@ -10,6 +10,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
+import com.pinecone.hydra.deploy.kom.entity.GenericDeployInsMapping;
 import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
 import com.pinecone.hydra.deploy.kom.entity.ArchServerElement;
@@ -18,6 +19,7 @@ import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.QuickElement;
 import com.pinecone.hydra.deploy.kom.entity.ServerElement;
 import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
+import com.pinecone.hydra.deploy.kom.source.DeployServiceInsMappingManipulator;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
@@ -48,25 +50,27 @@ import com.pinecone.ulf.util.guid.GUIDs;
 
 public class UniformDeployInstrument extends ArchReparseKOMTree implements DeployInstrument {
     //GenericDistributedScopeTree
-    protected ImperialTree                imperialTree;
+    protected ImperialTree                          imperialTree;
 
-    protected DeployMasterManipulator     deployMasterManipulator;
+    protected DeployMasterManipulator               deployMasterManipulator;
 
-    protected DeployNamespaceManipulator  deployNamespaceManipulator;
+    protected DeployNamespaceManipulator            deployNamespaceManipulator;
 
-    protected ClusterNodeManipulator      clusterNodeManipulator;
+    protected ClusterNodeManipulator                clusterNodeManipulator;
 
-    protected DeployNodeManipulator       deployNodeManipulator;
+    protected DeployNodeManipulator                 deployNodeManipulator;
 
-    protected List<GUIDNameManipulator >  folderManipulators;
+    protected List<GUIDNameManipulator >            folderManipulators;
 
-    protected List<GUIDNameManipulator >  fileManipulators;
+    protected List<GUIDNameManipulator >            fileManipulators;
 
-    protected PhysicalHostManipulator     physicalHostManipulator;
+    protected PhysicalHostManipulator               physicalHostManipulator;
 
-    protected VirtualMachineManipulator   virtualMachineManipulator;
+    protected VirtualMachineManipulator             virtualMachineManipulator;
 
-    protected QuickElementManipulator     quickElementManipulator;
+    protected QuickElementManipulator               quickElementManipulator;
+
+    protected DeployServiceInsMappingManipulator    DeployServiceInsMappingManipulator;
 
     public UniformDeployInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, DeployInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
         super( superiorProcess, masterManipulator, DeployInstrument.KERNEL_DEPLOY_CONFIG, parent, name, guidAllocator );
@@ -83,6 +87,7 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         this.virtualMachineManipulator   = this.deployMasterManipulator.getVirtualMachineManipulator();
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
         this.quickElementManipulator     = this.deployMasterManipulator.getQuickElementManipulator();
+        this.DeployServiceInsMappingManipulator = this.deployMasterManipulator.getDeployServiceInsMappingManipulator();
         // TODO for customize service tree architecture.
         this.folderManipulators          = new ArrayList<>( List.of( this.deployNamespaceManipulator, this.clusterNodeManipulator) );
         this.fileManipulators            = new ArrayList<>( List.of( this.clusterNodeManipulator, this.physicalHostManipulator, this.virtualMachineManipulator, this.quickElementManipulator) );
@@ -265,4 +270,11 @@ public class UniformDeployInstrument extends ArchReparseKOMTree implements Deplo
         super.remove( guid );
     }
 
+    @Override
+    public void createDeployServiceInsMapping(GUID deployGuid, GUID serviceInsGuid) {
+        GenericDeployInsMapping insMapping = new GenericDeployInsMapping();
+        insMapping.setServiceInsGuid( serviceInsGuid );
+        insMapping.setDeployGuid( deployGuid );
+        this.DeployServiceInsMappingManipulator.insert( insMapping );
+    }
 }

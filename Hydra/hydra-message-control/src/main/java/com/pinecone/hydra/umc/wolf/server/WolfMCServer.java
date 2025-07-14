@@ -409,6 +409,11 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
 
     @Override
     public void execute() throws UMCServiceException {
+        if ( !this.isShutdown() ) {
+            this.mLogger.info( "WolfMCServer [{}:{}] is already started. <Pass>", this.getName(), this.hashCode() );
+            return;
+        }
+
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override

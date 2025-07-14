@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
@@ -51,6 +52,16 @@ public class ServiceLifecycleController {
             this.successRegisterServiceInstance( element );
         }
 
+    }
+
+    @AddressMapping("createInstanceMeta")
+    boolean createInstanceMeta( GenericServiceInstanceEntity instanceEntity ) throws ServiceInstanceCreationException {
+        try {
+            this.mServiceInstrument.createServiceInstance( instanceEntity );
+        } catch (Exception e) {
+            throw new ServiceInstanceCreationException( e );
+        }
+        return true;
     }
 
     @AddressMapping("deregisterServiceByClientId")

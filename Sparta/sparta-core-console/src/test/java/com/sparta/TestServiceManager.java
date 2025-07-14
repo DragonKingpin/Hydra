@@ -52,12 +52,11 @@ class Brian extends Tritium {
         UlfClient ulfClient = new WolfMCClient(
                 new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
         );
-        UniformServiceManagerClient managerClient = new UniformServiceManagerClient(servicesTree, ulfClient, servicesTree.getGuidAllocator(), "127.0.0.0");
+        UniformServiceManagerClient managerClient = new UniformServiceManagerClient(ulfClient, servicesTree.getGuidAllocator(), "127.0.0.0");
 
         RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager, managerClient);
 
         serviceRegiment.startServiceManage();
-
     }
 
     private void oldTest(ServiceInstrument servicesTree) throws Exception {

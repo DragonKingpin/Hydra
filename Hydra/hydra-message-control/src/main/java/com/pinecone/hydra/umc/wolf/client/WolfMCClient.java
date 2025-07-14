@@ -461,6 +461,11 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public void                           execute() throws UMCServiceException {
+        if ( !this.isShutdown() ) {
+            this.mLogger.info( "WolfMCClient [{}:{}] is already started. <Pass>", this.getName(), this.hashCode() );
+            return;
+        }
+
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override

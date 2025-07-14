@@ -16,11 +16,7 @@ public interface CollectiveServiceRegiment extends Regiment, Slf4jTraceable {
 
     ServiceManager serviceManager();
 
-    ServiceManagerClient serviceManagerClient();
-
     ServiceInstrument serviceInstrument();
 
     void startServiceManage() throws ServiceControlException;
-
-    void registerService( GUID serviceId, GUID deployGuid ) throws ServiceControlException;
 }

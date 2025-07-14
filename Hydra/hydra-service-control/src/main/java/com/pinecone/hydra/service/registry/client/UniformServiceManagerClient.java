@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 
 public class UniformServiceManagerClient implements ServiceManagerClient {
-    protected UniformServiceInstrument      mServiceInstrument;
-
     protected DuplexAppointClient           mDuplexAppointClient;
 
     protected Logger                        mLogger;
@@ -33,8 +31,7 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
 
     protected String                        mIp;
 
-    public UniformServiceManagerClient( UniformServiceInstrument serviceInstrument, UlfClient ulfClient, GuidAllocator guidAllocator, String ip ) {
-        this.mServiceInstrument     = serviceInstrument;
+    public UniformServiceManagerClient( UlfClient ulfClient, GuidAllocator guidAllocator, String ip ) {
         this.mLogger                = LoggerFactory.getLogger( this.getClass() );
         this.mRPCClient             = ulfClient;
         this.mGuidAllocator         = guidAllocator;
@@ -101,9 +98,15 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
         instanceDO.setGuid( guid );
         instanceDO.setServiceGuid( serviceId );
         try {
-            this.mServiceInstrument.createServiceInstance( instanceDO );
-            this.mLogger.info( "ServiceInstance create successfully" );
-        }
+            boolean isSuccess = this.mServiceLifecycleIface.createInstanceMeta(instanceDO);
+            if( isSuccess ) {
+                this.mLogger.info( "ServiceInstance create successfully" );
+            }
+            else {
+                throw new ServiceInstanceCreationException( "ServiceInstance create fail" );
+            }
+            }
+
         catch ( Exception e ) {
             throw new ServiceInstanceCreationException( e );
         }

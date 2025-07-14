@@ -5,6 +5,9 @@ import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
+import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
+import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
+import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
@@ -12,11 +15,16 @@ import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class UniformServiceManager implements ServiceManager {
     protected ServiceInstrument                                                             mServiceInstrument;
@@ -29,8 +37,18 @@ public class UniformServiceManager implements ServiceManager {
 
     protected final ConcurrentMap<Long, ConcurrentMap<Object, Object > >                    mClientRegistry;
 
+    protected List<ServiceRegisterEventHandler>                                             mRegisterEventHandlers;
+
     private static final Object PRESENT = new Object();
 
+    private final Logger mLogger;
+
+    private final ReadWriteLock mEventHandlerLock = new ReentrantReadWriteLock();
+
+    @Override
+    public Logger getLogger() {
+        return this.mLogger;
+    }
 
     protected void initRPCSubsystem() {
         this.mAppointServer.registerController( new ServiceLifecycleController( this ) );
@@ -65,6 +83,16 @@ public class UniformServiceManager implements ServiceManager {
         });
     }
 
+    protected void vitalizeRPCSubsystem() throws ServiceControlRPCException {
+        try {
+            this.mAppointServer.execute();
+            this.infoLifecycle( "RPC Subsystem Service Vitalization", LogStatuses.StatusDone );
+        }
+        catch ( Exception e ) {
+            throw new ServiceControlRPCException( e );
+        }
+    }
+
     protected void afterChannelDetach( Long clientId, Object channelId ) {
         synchronized ( this.mClientRegistry ) {
             ConcurrentMap<Object, Object > channelSet = this.mClientRegistry.get( clientId );
@@ -83,18 +111,67 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     public UniformServiceManager( ServiceInstrument serviceInstrument, DuplexAppointServer server ){
-        this.mServiceInstrument = serviceInstrument;
-        this.mAppointServer      = server;
-        this.mServiceRegistry    = new ConcurrentHashMap<>();
-        this.mInstanceRegistry   = new ConcurrentHashMap<>();
-        this.mClientRegistry     = new ConcurrentHashMap<>();
-
+        this.mServiceInstrument     = serviceInstrument;
+        this.mAppointServer         = server;
+        this.mServiceRegistry       = new ConcurrentHashMap<>();
+        this.mInstanceRegistry      = new ConcurrentHashMap<>();
+        this.mClientRegistry        = new ConcurrentHashMap<>();
+        this.mLogger                = LoggerFactory.getLogger( this.getClass() );
+        this.mRegisterEventHandlers = new ArrayList<>();
     }
 
     @Override
-    public void startService() {
+    public void startService() throws ServiceControlRPCException {
         this.initRPCSubsystem();
+        this.vitalizeRPCSubsystem();
     }
+
+    @Override
+    public void addRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+        try {
+            this.mEventHandlerLock.writeLock().lock();
+            this.mRegisterEventHandlers.add( handler );
+        }
+        finally {
+            this.mEventHandlerLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void removeRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+        try {
+            this.mEventHandlerLock.readLock().lock();
+            this.mRegisterEventHandlers.remove( handler );
+        }
+        finally {
+            this.mEventHandlerLock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int registerEventHandlerSize() {
+        try {
+            this.mEventHandlerLock.readLock().lock();
+            return this.mRegisterEventHandlers.size();
+        }
+        finally {
+            this.mEventHandlerLock.readLock().unlock();
+        }
+    }
+
+    protected void triggerServiceEvent(long clientId, Identification insId, ServiceRegisterEvent event, Object caused ) {
+        ServiceInstance instance = this.mInstanceRegistry.get( clientId );
+        if ( instance == null ) {
+            return;
+        }
+        GUID serviceId = (GUID) instance.getUSII().getServiceId();
+
+        for ( ServiceRegisterEventHandler handler : this.mRegisterEventHandlers ) {
+            handler.fired( clientId, (GUID) insId, serviceId, event, caused );
+        }
+    }
+
+
 
     //    @Override
 //    public void registerService( ServiceInstance instance ) {
@@ -125,7 +202,7 @@ public class UniformServiceManager implements ServiceManager {
             return ins;
         } );
 
-
+        this.triggerServiceEvent( clientId, instance.getId(), ServiceRegisterEvent.Registered, instance );
     }
 
     @Override

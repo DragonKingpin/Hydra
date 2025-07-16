@@ -3,17 +3,27 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.deploy.PhysicalHost;
+import com.pinecone.hydra.deploy.entity.GenericPhysicalHost;
 import com.pinecone.hydra.deploy.ibatis.hydranium.DeployMappingDriver;
 import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
+import com.pinecone.hydra.deploy.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericVirtualMachineElement;
+import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.marshaling.DeployJSONDecoder;
+import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
+import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128;
+import com.walnut.archcraft.ender.EnderHydra;
 
 
-class Randon extends Tritium {
+class Randon extends EnderHydra {
     public Randon( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -24,76 +34,12 @@ class Randon extends Tritium {
 
     @Override
     public void vitalize () throws Exception {
-        DeployMappingDriver deployMappingDriver = new DeployMappingDriver(
+        KOIMappingDriver koiMappingDriver = new DeployMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        UniformDeployInstrument deployInstrument = new UniformDeployInstrument( deployMappingDriver );
-        /*this.testInsert( deployInstrument );*/
-        /*this.testUpdate( deployInstrument );*/
-        //  this.testInsertPhysicalHost( deployInstrument );
-        /*this.testUpdate( deployInstrument );*/
-/*         deployInstrument.affirmNamespace( "testNamespace").addChild(new GenericNamespace( new JSONMaptron( "{ name: weapon002, description: d1 }" )));
-         GenericQuickElement quickElement = new GenericQuickElement();
-         quickElement.setName("weapon005");
-         quickElement.setTypeName("weapon");
-         deployInstrument.put(quickElement);*/
-        /*TreeNode roodNode = deployInstrument.queryElement("testNamespace/weapon001" );*/
-        /*Debug.greenfs("根节点信息: " + roodNode.evinceTreeNode().toJSONString());*/
-     /*   GenericNamespace namespace = new GenericNamespace();
-        namespace.setName("testNamespace007");
-        namespace.setDescription("testNamespace007");
-        deployInstrument.put(namespace);
-        TreeNode roodNode1 = deployInstrument.queryElement("testNamespace006" );
-        Debug.greenfs("根节点信息: " + roodNode1.evinceTreeNode().toJSONString());*/
-/*       GenericQuickElement  quickElement = new GenericQuickElement();
-        quickElement.setName("quick0067889");
-        quickElement.setTypeName("quick123889");
-        deployInstrument.put(quickElement);
-        TreeNode  quickElementNode = deployInstrument.queryElement("testNamespace006" );*/
-/*
-        Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "quick0067889" ));
-         Debug.fmp( 2, deployInstrument.queryElement( "testNamespace/weapon001" ).evinceNamespace().toJSONDetails() );
 
-*/
-/*       GenericDeployElement  deployElement = new GenericDeployElement();
-       deployElement.setName("deployElement004");
-       deployElement.setEnable( true);
-       deployInstrument.put(deployElement);*/
-        /*Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "VirtualMachine1" ));*/
 
-/*        GenericPhysicalHostElement physicalHost = new GenericPhysicalHostElement();
-        physicalHost.setName("testPhysicalHost00123");
-        physicalHost.setIpAddress("127.0.0.1");
-        physicalHost.setHardwareSpecs("Intel i7-7700HQ");
-        physicalHost.setLocalDomain("localhost");
-        physicalHost.setWideDomain("wideDomain");
-        physicalHost.setStatus("OK");
-        physicalHost.setEnable(true);
-        deployInstrument.put(physicalHost);
-        Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "testPhysicalHost00123" ));*/
-
-/*        TreeNode node = deployInstrument.queryElement("deployElement002" );
-        Debug.greenfs("根节点信息: " + node.evinceTreeNode().toJSONString());*/
-/*        GenericVirtualMachineElement  virtualMachine = new GenericVirtualMachineElement();
-        virtualMachine.setName("testVirtualMachine009");
-        virtualMachine.setIpAddress("127.0.0.9");
-        virtualMachine.setStatus("OK");
-        virtualMachine.setEnable(true);
-        deployInstrument.put(virtualMachine);
-        Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "testVirtualMachine009" ));*/
-/*        GenericQuickElement  quickElement = new GenericQuickElement();
-        quickElement.setName("quickElement009");
-        quickElement.setTypeName("quickElement009");
-        deployInstrument.put(quickElement);*/
-       // Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "quickElement009" ));
-        //deployInstrument.affirmQuick("quickElement003").addChild(new GenericQuickElement( new JSONMaptron( "{ name: 'deployElement002', description: 'd1' }" )));
-/*        GenericDeployElement deployElement = new GenericDeployElement();
-        deployElement.setName("deployElement004");
-        deployElement.setEnable(true);
-        deployInstrument.put(deployElement);
-        Debug.greenfs("根节点信息: " + deployInstrument.queryElement( "deployElement004" ));
-        deployInstrument.affirmDeployNode("deployElement004").addChild(new GenericDeployElement( new JSONMaptron( "{ name: 'deployElement003', description: 'd1' }" )));*/
-
+        UniformDeployInstrument deployInstrument = new UniformDeployInstrument( koiMappingDriver );
 
         this.testGet( deployInstrument );
 
@@ -118,12 +64,22 @@ class Randon extends Tritium {
     }
 
     private void testGet( UniformDeployInstrument instrument ){
-        DeployJSONDecoder decoder = new DeployJSONDecoder( instrument );
+/*        DeployJSONDecoder decoder = new DeployJSONDecoder( instrument );
         decoder.decode( new JSONMaptron( "{ root: { test: { cluster: { metaType: ClusterElement, type:Physic, deployments: { vm1: { metaType: VirtualMachineElement, ipAddress: 192.168.1.1, status: 12222s } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
 
-        Debug.greenfs( instrument.queryElement( "root/test/cluster/vm1" ) );
+        Debug.greenfs( instrument.queryElement( "root/test/cluster/vm1" ) );*/
+
+        PhysicalHostElement physicalHost = new GenericPhysicalHostElement();
+        physicalHost.setName("testPhysicalHost");
+        physicalHost.setIpAddress("127.0.0.1");
+        physicalHost.setHardwareSpecs("Intel i7-7700HQ");
+        physicalHost.setLocalDomain("localhost");
+        physicalHost.setWideDomain("wideDomain");
+        physicalHost.setStatus("OK");
+        physicalHost.setEnable(true);
+        instrument.put(physicalHost);
         //Debug.trace(deployInstrument.getPath( GUIDs.GUID72("181e9e4-000395-0000-d4") ));
     }
 

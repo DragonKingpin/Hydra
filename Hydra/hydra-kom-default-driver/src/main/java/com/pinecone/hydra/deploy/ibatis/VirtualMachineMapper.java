@@ -22,16 +22,16 @@ import org.apache.ibatis.annotations.Select;
 @IbatisDataAccessObject
 public interface VirtualMachineMapper extends VirtualMachineManipulator {
 
-    @Insert("INSERT INTO `hydra_deploy_virtual_machine` (`guid`, `name`, `ip_address`, `status`,`affiliate_host_guid`) VALUES (#{guid},#{name},#{ipAddress},#{status},#{affiliateHostGuid})")
+    @Insert("INSERT INTO `hydra_deploy_virtual_machine` (`guid`, `name`,  `status`,`affiliate_host_guid`) VALUES (#{guid},#{name},#{status},#{affiliateHostGuid})")
     void insert( VirtualMachineElement virtualMachineElement );
 
-    @Insert( "UPDATE `hydra_deploy_virtual_machine` SET `name` = #{name}, `ip_address` = #{ipAddress}, `status` = #{status}, `affiliate_host_guid` = #{affiliateHostGuid} WHERE `guid` = #{guid}")
+    @Insert( "UPDATE `hydra_deploy_virtual_machine` SET `name` = #{name},  `status` = #{status}, `affiliate_host_guid` = #{affiliateHostGuid} WHERE `guid` = #{guid}")
     void update( VirtualMachineElement serviceElement );
 
     @Delete("DELETE FROM `hydra_deploy_virtual_machine` WHERE `guid` = #{guid}")
     void remove( GUID guid );
 
-    @Select("SELECT `guid`, `name`, `ip_address` as ipAddress, `status`, `affiliate_host_guid` FROM `hydra_deploy_virtual_machine` WHERE `guid` = #{guid}")
+    @Select("SELECT `guid`, `name` , `status`, `affiliate_host_guid` FROM `hydra_deploy_virtual_machine` WHERE `guid` = #{guid}")
     GenericVirtualMachineElement getDeployNode0( GUID guid );
 
     @Override

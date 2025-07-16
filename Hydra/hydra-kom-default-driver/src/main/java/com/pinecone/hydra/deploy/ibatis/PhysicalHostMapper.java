@@ -20,18 +20,18 @@ import java.util.List;
 public interface PhysicalHostMapper extends PhysicalHostManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_deploy_physical_host` (`guid`, `name`, `ip_address`, `hardware_specs`, `status`) VALUES (#{guid},#{name},#{ipAddress},#{hardwareSpecs},#{status})")
+    @Insert("INSERT INTO `hydra_deploy_physical_host` (`guid`, `name`, `hardware_specs`, `status`) VALUES (#{guid},#{name},#{hardwareSpecs},#{status})")
     void insert( PhysicalHostElement physicalHostElement );
 
     @Override
-    @Insert("UPDATE `hydra_deploy_physical_host` SET `name` = #{name}, `ip_address` = #{ipAddress}, `hardware_specs` = #{hardwareSpecs}, `status` = #{status} WHERE `guid` = #{guid}")
+    @Insert("UPDATE `hydra_deploy_physical_host` SET `name` = #{name},  `hardware_specs` = #{hardwareSpecs}, `status` = #{status} WHERE `guid` = #{guid}")
     void update( PhysicalHostElement serviceElement );
 
     @Override
     @Delete("DELETE FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
     void remove(GUID guid);
 
-    @Select("SELECT `guid`, `name`, `ip_address` as ipAddress, `hardware_specs` as hardwareSpecs, `status` FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
+    @Select("SELECT `guid`, `name` as ipAddress, `hardware_specs` as hardwareSpecs, `status` FROM `hydra_deploy_physical_host` WHERE `guid` = #{guid}")
     GenericPhysicalHostElement getPhysicalHostElement0( GUID guid );
 
     @Override

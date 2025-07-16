@@ -13,7 +13,6 @@ public class GenericPhysicalHost extends ArchElementNode implements PhysicalHost
 
     protected String hardwareSpecs;
 
-    protected String ipAddress;
 
     protected String name;
 
@@ -67,15 +66,7 @@ public class GenericPhysicalHost extends ArchElementNode implements PhysicalHost
             this.name = name;
     }
 
-    @Override
-    public String getIpAddress() {
-        return this.ipAddress ;
-    }
 
-    @Override
-    public void setIpAddress( String ipAddress ) {
-            this.ipAddress = ipAddress;
-    }
 
     @Override
     public String toJSONString() {

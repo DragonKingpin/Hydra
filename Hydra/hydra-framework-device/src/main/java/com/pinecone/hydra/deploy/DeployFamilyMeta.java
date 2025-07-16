@@ -15,6 +15,8 @@ public interface DeployFamilyMeta extends Pinenut  {
 
     String getExtraInformation();
 
+    String getIpAddress();
+
     String getDescription();
 
 }

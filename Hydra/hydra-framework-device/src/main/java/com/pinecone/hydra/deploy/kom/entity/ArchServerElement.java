@@ -10,7 +10,7 @@ import java.util.Map;
 
 public abstract class ArchServerElement extends ArchElementNode implements ServerElement {
 
-    protected String ipAddress;
+
 
     protected String localDomain;
 
@@ -48,15 +48,6 @@ public abstract class ArchServerElement extends ArchElementNode implements Serve
         super();
     }
 
-    @Override
-    public String getIpAddress() {
-        return this.ipAddress;
-    }
-
-    @Override
-    public void setIpAddress(String ipAddress) {
-       this.ipAddress = ipAddress;
-    }
 
     @Override
     public String getLocalDomain() {
@@ -102,7 +93,6 @@ public abstract class ArchServerElement extends ArchElementNode implements Serve
     public DeployElement getAffiliateDeployment() {
         return this.affiliateDeployment;
     }
-
 
 
 }

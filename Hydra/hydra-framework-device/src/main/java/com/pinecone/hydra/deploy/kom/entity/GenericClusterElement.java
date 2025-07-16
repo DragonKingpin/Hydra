@@ -31,6 +31,16 @@ public class GenericClusterElement extends ArchElementNode implements ClusterEle
     public GenericClusterElement(DeployInstrument deployInstrument) {
         super(deployInstrument);
     }
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
 
     @Override
     public String getType() {

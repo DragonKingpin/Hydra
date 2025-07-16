@@ -32,7 +32,7 @@ public interface ContainerElementMapper extends ContainerElementManipulator {
     void remove( GUID guid );
 
     @Select("SELECT `guid`, `status` AS status FROM `hydra_deploy_container` WHERE `guid` = #{guid}")
-    GenericContainerElement getContainerElement0(GUID guid );
+    GenericContainerElement getContainerElement0( GUID guid );
 
     @Override
     default GenericContainerElement getContainerElement(GUID guid, DeployInstrument instrument ){

@@ -15,6 +15,8 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
 
     protected String extraInformation;
 
+    protected String ipAddress;
+
     protected String szElementaryConfig;
 
     protected Map<String, Object > elementaryConfig;
@@ -39,7 +41,6 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
         return this;
     }
 
-
     public GUID getGuid() {
         return this.guid;
     }
@@ -57,6 +58,10 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
     @Override
     public String getExtraInformation() {
         return this.extraInformation;
+    }
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
     }
 
     @Override

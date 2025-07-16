@@ -18,11 +18,11 @@ import org.apache.ibatis.annotations.Update;
 public interface DeployNodeMetaMapper extends NodeMetaManipulator {
 
     @Override
-    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`) VALUES (#{guid}, #{description}, #{extraInformation},#{name})")
+    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`,`ip_address`) VALUES (#{guid}, #{description}, #{extraInformation},#{name},#{ipAddress})")
     void insert( DeployFamilyNode node );
 
     @Override
-    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`) VALUES (#{guid}, #{description}, #{extraInformation},#{name})")
+    @Insert( "INSERT INTO `hydra_deploy_node_meta` (`guid`,`description`,`extra_information`,`name`,`ip_address`) VALUES (#{guid}, #{description}, #{extraInformation},#{name},#{ipAddress})")
     void insertNS( Namespace node );
 
     @Override
@@ -30,11 +30,11 @@ public interface DeployNodeMetaMapper extends NodeMetaManipulator {
     void remove( GUID guid );
 
     @Override
-    @Select("SELECT `id` AS `enumId`, `guid`, `description` AS Description, `extra_information` AS ExtraInformation FROM `hydra_deploy_node_meta` WHERE `guid` = #{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `description` AS Description, `extra_information` AS ExtraInformation ,`ip_address` AS ipAddress FROM `hydra_deploy_node_meta` WHERE `guid` = #{guid}")
     GenericCommonMeta getNodeCommonMeta(@Param("guid") GUID guid );
 
     @Override
-    @Update( "UPDATE `hydra_deploy_node_meta` SET `description` = #{description} , `extra_information` = #{extraInformation} WHERE guid = #{guid}")
+    @Update( "UPDATE `hydra_deploy_node_meta` SET `description` = #{description} , `extra_information` = #{extraInformation},`ip_address` = #{ipAddress} WHERE guid = #{guid}")
     void update( DeployFamilyNode node );
 
 

@@ -115,6 +115,14 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
     public void setExtraInformation( String extraInformation ) {
         this.extraInformation = extraInformation;
     }
+    @Override
+    public void setIpAddress( String ipAddress ) {
+        this.ipAddress = ipAddress;
+    }
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
 
     @Override
     public void setDescription( String description ) {

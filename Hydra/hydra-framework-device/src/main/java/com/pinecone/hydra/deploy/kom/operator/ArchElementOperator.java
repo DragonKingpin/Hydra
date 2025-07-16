@@ -35,6 +35,7 @@ public abstract class ArchElementOperator implements ElementOperator {
             ele.setGuid                     ( commonMeta.getGuid()                     );
             ele.setExtraInformation         ( commonMeta.getExtraInformation()         );
             ele.setDescription              ( commonMeta.getDescription()              );
+            ele.setIpAddress                ( commonMeta.getIpAddress()                );
         }
     }
 }

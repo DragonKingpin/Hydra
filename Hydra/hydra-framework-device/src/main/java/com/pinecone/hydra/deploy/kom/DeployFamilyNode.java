@@ -30,5 +30,9 @@ public interface DeployFamilyNode extends DeployFamilyMeta {
 
     void setDescription(String description);
 
+     String getIpAddress();
+
+     void setIpAddress( String ipAddress );
+
     DeployFamilyNode apply(Map<String, Object> joEntity) ;
 }

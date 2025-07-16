@@ -87,4 +87,14 @@ public class GenericContainerElement extends ArchElementNode implements Containe
     public DeployElement getAffiliateDeployment() {
         return null;
     }
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
 }

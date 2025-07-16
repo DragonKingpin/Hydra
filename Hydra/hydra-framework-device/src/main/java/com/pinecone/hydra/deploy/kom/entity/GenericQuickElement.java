@@ -90,6 +90,15 @@ public class GenericQuickElement extends ArchElementNode implements QuickElement
         super.addChild( child );
     }
 
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
 
 
 }

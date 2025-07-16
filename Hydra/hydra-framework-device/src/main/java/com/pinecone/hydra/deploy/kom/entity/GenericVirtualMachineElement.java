@@ -120,4 +120,6 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
     public DeployElement getAffiliateDeployment() {
         return null;
     }
+
+
 }

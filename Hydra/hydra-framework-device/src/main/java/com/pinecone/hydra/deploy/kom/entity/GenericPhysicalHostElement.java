@@ -57,4 +57,15 @@ public class GenericPhysicalHostElement extends ArchServerElement implements Phy
     public String getStatus() {
         return this.status;
     }
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+
 }

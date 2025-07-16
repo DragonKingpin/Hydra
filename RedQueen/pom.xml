@@ -18,6 +18,6 @@
         <module>redqueen-architecture</module>
         <module>redqueen-computation-suit</module>
         <module>redqueen-system</module>
-        <module>redqueen-application-suit</module>
+        <module>redqueen-framework-service</module>
     </modules>
 </project>

@@ -6,6 +6,7 @@ import com.pinecone.hydra.deploy.ibatis.DeployNamespaceMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeMetaMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeOwnerMapper;
+import com.pinecone.hydra.deploy.ibatis.DeployServiceInsMappingMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployTreeMapper;
 import com.pinecone.hydra.deploy.ibatis.ClusterNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.NamespaceRulesMapper;
@@ -16,6 +17,7 @@ import com.pinecone.hydra.deploy.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
+import com.pinecone.hydra.deploy.kom.source.DeployServiceInsMappingManipulator;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
@@ -77,6 +79,10 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Resource
     @Structure( type = ContainerElementMapper.class )
     ContainerElementManipulator containerElementManipulator;
+
+    @Resource
+    @Structure( type = DeployServiceInsMappingMapper.class )
+    DeployServiceInsMappingManipulator deployServiceInsMappingManipulator;
 
 
     @Resource( type = DeployMasterTreeManipulatorImpl.class )
@@ -151,5 +157,10 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Override
     public ContainerElementManipulator getContainerElementManipulator() {
         return this.containerElementManipulator;
+    }
+
+    @Override
+    public DeployServiceInsMappingManipulator getDeployServiceInsMappingManipulator() {
+        return this.deployServiceInsMappingManipulator;
     }
 }

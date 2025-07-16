@@ -15,7 +15,7 @@ public class TitanOutputStreamChanface implements Chanface {
 
     protected final ReentrantLock reentrantLock;
 
-    public TitanOutputStreamChanface(OutputStream stream ){
+    public TitanOutputStreamChanface(OutputStream stream ) {
         this.stream = stream;
         this.reentrantLock = new ReentrantLock();
     }

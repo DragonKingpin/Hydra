@@ -19,6 +19,8 @@ public interface ServiceMasterManipulator extends KOIMasterManipulator {
 
     ServiceNamespaceManipulator getNamespaceManipulator();
 
+    ServiceInstanceManipulator getServiceInstanceManipulator();
+
     NamespaceRulesManipulator getNamespaceRulesManipulator();
 
     TireOwnerManipulator getTireOwnerManipulator();

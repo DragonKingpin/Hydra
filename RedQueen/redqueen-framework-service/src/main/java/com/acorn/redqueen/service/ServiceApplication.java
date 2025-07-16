@@ -1,4 +1,4 @@
-package com.acorn.redqueen.app;
+package com.acorn.redqueen.service;
 
 public interface ServiceApplication extends RedApplication {
 }

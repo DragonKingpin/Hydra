@@ -16,7 +16,7 @@ public class UCDNCentralServiceManager implements UCDNServiceManager {
 
     protected UniformServiceManager            serviceManager;
 
-    protected ServiceInstrument serviceInstrument;
+    protected ServiceInstrument                serviceInstrument;
 
     protected ServiceLifecycleIface            serviceRegistryLifecycleIface;
 

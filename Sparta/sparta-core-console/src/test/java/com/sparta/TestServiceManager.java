@@ -1,14 +1,17 @@
 package com.sparta;
 
+import com.acorn.redqueen.service.conduct.RedCollectiveServiceRegiment;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
+import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
+import com.pinecone.hydra.service.registry.client.UniformServiceManagerClient;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -16,10 +19,12 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
+import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 
 import java.util.List;
 
@@ -40,9 +45,21 @@ class Brian extends Tritium {
 
         UniformServiceInstrument servicesTree = new UniformServiceInstrument( koiMappingDriver );
 
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
+                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
 
+        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree, new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class ) );
+        UlfClient ulfClient = new WolfMCClient(
+                new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+        );
+        UniformServiceManagerClient managerClient = new UniformServiceManagerClient(ulfClient, servicesTree.getGuidAllocator(), "127.0.0.0");
 
+        RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager, managerClient);
 
+        serviceRegiment.startServiceManage();
+    }
+
+    private void oldTest(ServiceInstrument servicesTree) throws Exception {
         WolfMCServer          wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         WolvesAppointServer wolfServer = new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class );
@@ -59,7 +76,6 @@ class Brian extends Tritium {
         wolf.compile( ServiceLifecycleIface.class, false );
         wolf.compile( ServiceMetaManipulationIface.class, false );
         this.testServiceRegister( wolf );
-
     }
 
     public void testServiceRegister( DuplexAppointClient client ) {

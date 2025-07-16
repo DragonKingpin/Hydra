@@ -37,5 +37,5 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     void                    update( TreeNode treeNode );
 
-
+    void                    createDeployServiceInsMapping( GUID deployGuid, GUID serviceInsGuid );
 }

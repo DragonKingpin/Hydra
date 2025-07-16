@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.service.ibatis.AppNodeMetaMapper;
 import com.pinecone.hydra.service.ibatis.ApplicationNodeMapper;
+import com.pinecone.hydra.service.ibatis.ServiceInstanceMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper;
 import com.pinecone.hydra.service.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeMetaMapper;
@@ -12,6 +13,7 @@ import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServiceTreeMapper;
 import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.service.kom.source.NodeMetaManipulator;
@@ -60,6 +62,10 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     @Resource
     @Structure( type = ServiceNamespaceMapper.class )
     ServiceNamespaceManipulator serviceNamespaceManipulator;
+
+    @Resource
+    @Structure( type = ServiceInstanceMapper.class )
+    ServiceInstanceManipulator serviceInstanceManipulator;
 
     @Resource
     @Structure( type = NamespaceRulesMapper.class )
@@ -126,5 +132,10 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     @Override
     public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
         return this.skeletonMasterManipulator;
+    }
+
+    @Override
+    public ServiceInstanceManipulator getServiceInstanceManipulator() {
+        return this.serviceInstanceManipulator;
     }
 }

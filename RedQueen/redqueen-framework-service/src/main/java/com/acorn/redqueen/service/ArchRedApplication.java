@@ -1,4 +1,4 @@
-package com.acorn.redqueen.app;
+package com.acorn.redqueen.service;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;

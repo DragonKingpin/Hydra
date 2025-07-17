@@ -54,7 +54,7 @@ class Brian extends Tritium {
         );
         UniformServiceManagerClient managerClient = new UniformServiceManagerClient(ulfClient, servicesTree.getGuidAllocator(), "127.0.0.0");
 
-        RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager, managerClient);
+        RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
 
         serviceRegiment.startServiceManage();
     }

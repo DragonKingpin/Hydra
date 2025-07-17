@@ -20,11 +20,14 @@ public class RedCollectiveServiceRegiment implements CollectiveServiceRegiment {
     protected Logger                            mLogger;
 
 
-    public RedCollectiveServiceRegiment( Hydrogen system, ServiceInstrument serviceInstrument,
-                                         ServiceManager serviceManager, ServiceManagerClient serviceManagerClient ) {
+    public RedCollectiveServiceRegiment(
+            Hydrogen system, ServiceInstrument serviceInstrument,
+            ServiceManager serviceManager
+    ) {
         this.mSystem                    = system;
         this.mServiceInstrument         = serviceInstrument;
         this.mLogger                    = LoggerFactory.getLogger( "RedCollectiveServiceRegiment" );
+        this.mServiceManager            = serviceManager;
     }
 
     @Override
@@ -34,10 +37,6 @@ public class RedCollectiveServiceRegiment implements CollectiveServiceRegiment {
 
     @Override
     public void startServiceManage() throws ServiceControlException {
-        // 这里有个问题，红后作为一个总管，若存在于客户端，客户端没有serviceManager，那要如何初始化，会出现报错
-        if( mServiceManager == null ) {
-            throw new RedQueenServiceControllerException( "serviceManage or serviceManageClient is null" );
-        }
         this.mServiceManager.startService();
 
         this.mLogger.info( "RPC init success" );

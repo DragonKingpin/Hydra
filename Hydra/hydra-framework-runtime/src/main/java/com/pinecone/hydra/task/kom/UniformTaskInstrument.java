@@ -38,6 +38,7 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 
 public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskInstrument {
     //GenericDistributedScopeTree
@@ -85,7 +86,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     public UniformTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig config ) {
-        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), config, null );
+        this( superiorProcess, masterManipulator, null, TaskInstrument.class.getSimpleName(), config, new GuidAllocator128V7());
     }
 
 //    public UniformTaskInstrument( Hydrogen hydrogen ) {

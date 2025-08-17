@@ -22,6 +22,7 @@ import com.pinecone.hydra.unit.vgraph.layer.source.LayerHandleManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, LayerInstrument parent, String name ) {
-        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope, null );
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope, new GuidAllocator128V7());
     }
 
     public VLayerInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {

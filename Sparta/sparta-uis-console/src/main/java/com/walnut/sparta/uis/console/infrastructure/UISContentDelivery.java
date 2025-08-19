@@ -20,7 +20,7 @@ public class UISContentDelivery extends Tritium implements UISContentDeliverySer
 
     @Override
     public void vitalize () throws Exception {
-        this.spartaUISService = new SpartaUISService( "SpartaUOFSService", this );
+        this.spartaUISService = new SpartaUISService("SpartaUISService", this );
         this.spartaUISService.execute();
 
 

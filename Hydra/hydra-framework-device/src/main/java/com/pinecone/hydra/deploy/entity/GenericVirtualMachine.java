@@ -11,6 +11,7 @@ public class GenericVirtualMachine implements VirtualMachine {
 
     protected String name;
 
+    protected String ipAddress;
 
     protected String status;
 
@@ -26,6 +27,15 @@ public class GenericVirtualMachine implements VirtualMachine {
         this.name = name;
     }
 
+    @Override
+    public String getIpAddress() {
+        return this.ipAddress;
+    }
+
+    @Override
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
 
     @Override
     public String getStatus() {

@@ -5,7 +5,7 @@ import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.TitanVersionMapping;
 import com.pinecone.hydra.storage.version.entity.VersionMapping;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.archcraft.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,8 +23,8 @@ public class VersionController {
     private VersionManage versionManage;
 
     @PutMapping("/create/VersionMapping")
-    public BasicResultResponse<String> createVersionMapping(@RequestParam("fileGuid") String fileGuid,
-                                                            @RequestParam("enableVersionGuid") String enableVersionGuid
+    public GenericResultResponse<String> createVersionMapping(@RequestParam("fileGuid") String fileGuid,
+                                                              @RequestParam("enableVersionGuid") String enableVersionGuid
     ) {
         TitanVersion titanVersion = this.versionManage.queryByTargetStorageObjectGuid(GUIDs.GUID128(enableVersionGuid));
         TitanVersionMapping versionMapping = new TitanVersionMapping();
@@ -36,7 +36,7 @@ public class VersionController {
         }
         else
             this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
     @GetMapping("/query/VersionMapping")
     public String queryVersionMapping(@RequestParam("fileGuid") String fileGuid) {
@@ -45,16 +45,16 @@ public class VersionController {
         if (versionMapping != null){
             version=this.versionManage.queryByTargetStorageObjectGuid(versionMapping.getEnableVersionGuid());
         }
-        return BasicResultResponse.success(version).toJSONString();
+        return GenericResultResponse.success(version).toJSONString();
     }
     @PutMapping("/update/VersionMapping")
-    public BasicResultResponse<String> updateVersionMapping(
+    public GenericResultResponse<String> updateVersionMapping(
             @RequestParam("fileGuid") String fileGuid,
             @RequestParam("enableVersionGuid") String enableVersionGuid) {
         VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID128(fileGuid));
         versionMapping.setEnableVersionGuid(GUIDs.GUID128(enableVersionGuid));
         this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
 

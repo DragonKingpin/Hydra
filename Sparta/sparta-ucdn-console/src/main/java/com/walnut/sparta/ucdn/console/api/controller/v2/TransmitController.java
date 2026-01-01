@@ -24,7 +24,7 @@ import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.TitanVersionMapping;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.archcraft.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
@@ -106,11 +106,11 @@ public class TransmitController {
      * @return 返回操作结果
      */
     @PostMapping("/upload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
+    public GenericResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
         if( site == null ){
-            return BasicResultResponse.error("站点不存在");
+            return GenericResultResponse.error("站点不存在");
         }
         int dotIndex = filePath.lastIndexOf(UCDNConsoleContents.PERIOD);
         String baseName = filePath.substring(0, dotIndex);
@@ -151,7 +151,7 @@ public class TransmitController {
             throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
 
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
     /**
      * 使用文件路径下载文件

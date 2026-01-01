@@ -4,7 +4,7 @@ import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.archcraft.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.FileSystemService;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.RenameDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateFileNameDTO;
@@ -38,9 +38,9 @@ public class CDNFileController {
      * @return 返回操作状态
      */
     @GetMapping("/create")
-    public BasicResultResponse<String> createFile(@RequestParam String filePath ){
+    public GenericResultResponse<String> createFile(@RequestParam String filePath ){
         this.primaryFileSystem.affirmFileNode( filePath );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -49,9 +49,9 @@ public class CDNFileController {
      * @return 返回属性信息
      */
     @GetMapping("/attribute")
-    public BasicResultResponse<FileTreeNode> attribute(@RequestParam("nodeGuid") String nodeGuid ){
+    public GenericResultResponse<FileTreeNode> attribute(@RequestParam("nodeGuid") String nodeGuid ){
         FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
-        return BasicResultResponse.success( fileTreeNode );
+        return GenericResultResponse.success( fileTreeNode );
     }
 
     /**
@@ -60,10 +60,10 @@ public class CDNFileController {
      * @return 返回操作结果
      */
     @DeleteMapping("/remove")
-    public BasicResultResponse<String> removeFile( String fileGuid ){
+    public GenericResultResponse<String> removeFile(String fileGuid ){
         this.fileSystemService.remove( GUIDs.GUID128( fileGuid ) );
         this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -72,9 +72,9 @@ public class CDNFileController {
      * @return 返回操作信息
      */
     @PostMapping("/rename")
-    public BasicResultResponse<String> renameFile(@RequestBody RenameDTO dto){
+    public GenericResultResponse<String> renameFile(@RequestBody RenameDTO dto){
         this.primaryFileSystem.renameFile( dto.getPath(), dto.getNewName() );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -83,8 +83,8 @@ public class CDNFileController {
      * @return
      */
     @PostMapping("/updateFileName")
-    public BasicResultResponse<String> updateFileName(@RequestBody UpdateFileNameDTO dto){
+    public GenericResultResponse<String> updateFileName(@RequestBody UpdateFileNameDTO dto){
         this.primaryFileSystem.renameFile( dto.getFilePath(), dto.getNewFileName() );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 }

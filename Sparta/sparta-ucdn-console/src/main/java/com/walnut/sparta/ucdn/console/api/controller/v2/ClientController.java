@@ -1,6 +1,6 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
-import com.walnut.archcraft.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ public class ClientController {
      * @return
      */
     @PostMapping("/upload")
-    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file,@RequestParam("topic") String topic ) throws IOException, InterruptedException {
+    public GenericResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file, @RequestParam("topic") String topic ) throws IOException, InterruptedException {
         File tempFile = new File(majorTemporaryClusterFileDirectory+ UUID.randomUUID()+temporaryFileExtends);
         if( !tempFile.createNewFile() ){
             throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
@@ -47,7 +47,7 @@ public class ClientController {
         if( !tempFile.delete() ){
             throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     @GetMapping("/testDistribution")

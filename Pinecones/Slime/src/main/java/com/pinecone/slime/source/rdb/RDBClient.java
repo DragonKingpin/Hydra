@@ -20,6 +20,8 @@ public interface RDBClient extends Pinenut {
 
     List<Class<? > > addDataAccessObjectScope( String szPacketName, boolean bIgnoreOwnedChecked );
 
+    List<Class<? > > addDataAccessObjectScopeNoneSync( String szPacketName, boolean bIgnoreOwnedChecked );
+
     default boolean hasOwnDataAccessObject( Class<?> clazz ) {
         Annotation[] annotations = clazz.getAnnotations();
         for( Annotation annotation : annotations ) {

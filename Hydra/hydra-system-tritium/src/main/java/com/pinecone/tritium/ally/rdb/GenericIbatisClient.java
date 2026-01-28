@@ -30,6 +30,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class GenericIbatisClient extends ArchRelationalDatabase implements IbatisClient, UniformRDBClient {
     protected String               mszInstanceName       ;
@@ -90,6 +92,8 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     protected Collection<String >  mScannerScopes        ;
 
     protected DAOScanner           mDAOScanner           ;
+
+    protected final ReadWriteLock  mAddScopeLock         = new ReentrantReadWriteLock();
 
 
     public GenericIbatisClient( RDBManager manager, String szInstanceName ) {
@@ -344,24 +348,49 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
         return false;
     }
 
+
+    private List<Class<?> > addDataAccessObjectScope0(
+            String szPacketName, boolean bIgnoreOwnedChecked, List<String > candidates, ClassLoader classLoader
+    ) throws IOException, ClassNotFoundException {
+        this.mScannerScopes.add( szPacketName );
+        this.mDAOScanner.scan( szPacketName, true, candidates );
+
+        List<Class<?> > candidateClasses = new ArrayList<>();
+        for( String sz : candidates ) {
+            Class<?> clazz = classLoader.loadClass( sz );
+            if( bIgnoreOwnedChecked || this.hasOwnDataAccessObject( clazz ) ){
+                candidateClasses.add( clazz );
+                this.addMapper( clazz );
+            }
+        }
+        return candidateClasses;
+    }
+
     @Override
     public List<Class<?> > addDataAccessObjectScope( String szPacketName, boolean bIgnoreOwnedChecked ) {
         ClassLoader classLoader = this.getRDBManager().getSystem().getTaskManager().getClassLoader();
         try{
             List<String > candidates = new ArrayList<>();
-            this.mScannerScopes.add( szPacketName );
-            this.mDAOScanner.scan( szPacketName, true, candidates );
+            this.mAddScopeLock.writeLock().lock();
 
-            List<Class<?> > candidateClasses = new ArrayList<>();
-            for( String sz : candidates ) {
-                Class<?> clazz = classLoader.loadClass( sz );
-                if( bIgnoreOwnedChecked || this.hasOwnDataAccessObject( clazz ) ){
-                    candidateClasses.add( clazz );
-                    this.addMapper( clazz );
-                }
+            try {
+                return this.addDataAccessObjectScope0( szPacketName, bIgnoreOwnedChecked, candidates, classLoader );
             }
+            finally {
+                this.mAddScopeLock.writeLock().unlock();
+            }
+        }
+        catch ( IOException | ClassNotFoundException e ) {
+            throw new ProxyProvokeHandleException( e );
+        }
+    }
 
-            return candidateClasses;
+    @Override
+    public List<Class<?> > addDataAccessObjectScopeNoneSync( String szPacketName, boolean bIgnoreOwnedChecked ) {
+        ClassLoader classLoader = this.getRDBManager().getSystem().getTaskManager().getClassLoader();
+        try{
+            List<String > candidates = new ArrayList<>();
+            return this.addDataAccessObjectScope0( szPacketName, bIgnoreOwnedChecked, candidates, classLoader );
         }
         catch ( IOException | ClassNotFoundException e ) {
             throw new ProxyProvokeHandleException( e );

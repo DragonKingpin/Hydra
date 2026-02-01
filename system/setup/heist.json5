@@ -14,13 +14,20 @@
 
     "ServgramScopes": [
       "com.sauron.shadow.heists",
-      "com.sauron.shadow.chronicle",
-      "com.sauron.crusade.heists"
+      "com.sauron.zeron.chronicle",
+      "com.sauron.crusade.heists",
+      "com.sauron.zeron.heists"
     ],
 
     "Transactions": [
+      //{ "Name": "sauron.zeron.intel.news.PersonageNews", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+
+
+      { "Name": "TradingChronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "FestivalEvent", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "FiscalEvent", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Chronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
-      { "Name": "Prometheus", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "Prometheus", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ }
@@ -233,20 +240,15 @@
       }
     },
 
-    "NewsChronicle"     : {
-      "HeistType"           : "Period",
-      "InfoTracer"          : "./Heist/Chronicle/News/info.log",
-      "ChronicPerAcc"       : 2, // Sec
-      "ChronicPeriods"      : [
-        [00, 00], [06, 00], [12, 00], [18, 00], [21, 00]
-      ],
-      "AjaxBasedNews"       : [
-        { "ObjectName": "JinRiTouTiaoTops", "Api": "https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc" },
-        { "ObjectName": "BaiduIndex",  "Api": "https://index.baidu.com/Interface/homePage/wiseConfig" }
-      ]
-    },
+    "Prometheus"        : "${SystemConfRoot}/heists/Prometheus.json5",
 
-    "Prometheus"        : "${SystemConfRoot}/heists/Prometheus.json5"
+    "FiscalEvent"       : "${SystemConfRoot}/heists/FiscalEvent.json5",
+
+    "FestivalEvent"     : "${SystemConfRoot}/heists/FestivalEvent.json5",
+
+
+
+    "TradingChronicle"  : "${SystemConfRoot}/heists/TradingChronicle.json5",
   },
 
   "Components"       : {

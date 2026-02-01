@@ -18,6 +18,7 @@ import com.pinecone.hydra.servgram.OrchestrateInterruptException;
 import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
 import com.pinecone.tritium.util.ConfigHelper;
+import com.sauron.heist.heistron.orchestration.ChildHeistInstanceModifier;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
 import com.sauron.heist.heistron.orchestration.Hierarchy;
@@ -34,17 +35,20 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
     //@Autowired
     //private Harbor harbor;  //港口，负责和master结点进行通信
 
-    protected Hierarchy         mHierarchy;
-    protected Namespace         mHeistName;
-    protected CascadeHeist      mParent          = null;
+    protected Hierarchy                    mHierarchy;
+    protected Namespace                    mHeistName;
+    protected CascadeHeist                 mParent          = null;
 
-    protected JSONConfig        mjoProtoConfig ;  // 当前Heist的JSON原型配置项，等待被子Heist继承和重写
-    protected JSONConfig        mjoInstanceConfig;
+    protected JSONConfig                   mjoProtoConfig ;  // 当前Heist的JSON原型配置项，等待被子Heist继承和重写
+    protected JSONConfig                   mjoInstanceConfig;
 
-    protected HeistScheme       heistScheme;
+    protected HeistScheme                  heistScheme;
 
-    protected RangedPage        mMasterHeistTaskPage;
-    protected Heistium          mHeistium;       // The affiliated process, which is using for executing specific heist.
+    protected RangedPage                   mMasterHeistTaskPage;
+    protected Heistium                     mHeistium;       // The affiliated process, which is using for executing specific heist.
+
+
+    protected ChildHeistInstanceModifier   mChildHeistInstanceModifier;
 
     protected Heist( Heistgram heistgram, @Nullable JSONConfig joConfig, @Nullable CascadeHeist parent, Namespace heistName ) {
         super( heistgram );
@@ -194,8 +198,15 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
         }
     }
 
+    @Override
+    public ChildHeistInstanceModifier getChildHeistInstanceModifier() {
+        return this.mChildHeistInstanceModifier;
+    }
 
-
+    @Override
+    public void applyChildHeistInstanceModifier( ChildHeistInstanceModifier modifier ) {
+        this.mChildHeistInstanceModifier = modifier;
+    }
 
     @Override
     public String heistName(){

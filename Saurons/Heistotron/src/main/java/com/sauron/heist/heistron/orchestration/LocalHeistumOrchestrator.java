@@ -62,8 +62,12 @@ public class LocalHeistumOrchestrator extends ArchServgramOrchestrator implement
                 this.mPreloadSuffixes = new ArrayList<>();
             }
 
-            this.mPreloadPrefixes.add( "" );
-            this.mPreloadSuffixes.add( "" );
+            if ( !this.mPreloadPrefixes.contains( "" ) ) {
+                this.mPreloadPrefixes.add( "" );
+            }
+            if ( !this.mPreloadSuffixes.contains( "" ) ) {
+                this.mPreloadSuffixes.add( "" );
+            }
         }
         catch ( Exception e ) {
             e.printStackTrace( this.getHeistgram().parentSystem().console().getErr() );

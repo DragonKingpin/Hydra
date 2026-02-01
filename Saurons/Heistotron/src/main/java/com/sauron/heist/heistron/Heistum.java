@@ -2,6 +2,7 @@ package com.sauron.heist.heistron;
 
 import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.Servgramlet;
+import com.sauron.heist.heistron.orchestration.ChildHeistInstanceModifier;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
 import com.sauron.system.Saunut;
@@ -25,6 +26,10 @@ public interface Heistum extends Saunut, Servgramlet {
     default String taskName() {
         return this.getHeistium().getName();
     }
+
+    ChildHeistInstanceModifier getChildHeistInstanceModifier();
+
+    void applyChildHeistInstanceModifier( ChildHeistInstanceModifier modifier );
 
     ChildHeistOrchestrator getThisHeistletOrchestrator();
 

@@ -46,6 +46,9 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
     @JSONGet( "RaiderMarshaling.UsingSedation" )
     protected boolean             mbUsingSedation;
 
+    @JSONGet( "RaiderMarshaling.UsingUniformFeast" )
+    protected boolean             mbUsingUniformFeast;
+
     protected List<Raider >       mExclusiveRaiders;
     protected List                mPreloadPrefixes;
     protected List                mPreloadSuffixes;
@@ -71,8 +74,6 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
         this.mPrimaryAutomatron = new PeriodicAutomaton(
                 Heists.getCriterionNomenclatureName( this.mHeistum ), heistum.getHeistium(), this.mnChronicPerAcc, bDaemon
         );
-
-        this.getAutomatron().command( new FeastInstructation( this ) );
     }
 
 
@@ -104,8 +105,12 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
                 this.mPreloadSuffixes = (List) jDirectlyLoad.getOrDefault( "Suffix", new ArrayList<>() );
             }
 
-            this.mPreloadPrefixes.add( "" );
-            this.mPreloadSuffixes.add( "" );
+            if ( !this.mPreloadSuffixes.contains( "" ) ) {
+                this.mPreloadSuffixes.add( "" );
+            }
+            if ( !this.mPreloadPrefixes.contains( "" ) ) {
+                this.mPreloadPrefixes.add( "" );
+            }
         }
         catch ( Exception e ) {
             e.printStackTrace( this.getHeistgram().parentSystem().console().getErr() );
@@ -169,6 +174,10 @@ public abstract class ArchPeriodicHeistRehearsal implements PeriodicHeistRehears
         for( String szRaider : this.mMarshalingList ) {
             List<Raider > list = this.popping( szRaider );
             this.mExclusiveRaiders.addAll( list );
+        }
+
+        if ( this.mbUsingUniformFeast ) {
+            this.getAutomatron().command( new FeastInstructation( this ) );
         }
 
         for( Raider raider : this.mExclusiveRaiders ) {

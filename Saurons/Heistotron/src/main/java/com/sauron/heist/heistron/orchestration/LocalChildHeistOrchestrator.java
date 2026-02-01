@@ -65,6 +65,12 @@ public class LocalChildHeistOrchestrator extends ArchServgramOrchestrator implem
                         this.getHeistgram(), this.getHeist(), szName
                 );
 
+                ChildHeistInstanceModifier modifier = this.getHeist().getChildHeistInstanceModifier();
+                if ( modifier != null ) {
+                    heistum.applyChildHeistInstanceModifier( modifier );
+                    modifier.modify( heistum );
+                }
+
                 this.infoLifecycle(  "Child contrived -> " + heistum.getInstanceFullName() ) ;
                 list.add( heistum );
             }

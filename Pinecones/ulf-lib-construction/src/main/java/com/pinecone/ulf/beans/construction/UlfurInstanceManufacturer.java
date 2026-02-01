@@ -7,6 +7,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Scope;
 
@@ -14,14 +15,18 @@ import com.pinecone.framework.system.construction.InstanceManufacturer;
 import com.pinecone.framework.util.Assert;
 
 public class UlfurInstanceManufacturer implements UlfInstanceManufacturer {
-    private final AnnotationConfigApplicationContext context;
+    private final ConfigurableApplicationContext context;
 
     public UlfurInstanceManufacturer() {
-        this.context = new AnnotationConfigApplicationContext();
+        this( new AnnotationConfigApplicationContext() );
+    }
+
+    public UlfurInstanceManufacturer( ConfigurableApplicationContext context ) {
+        this.context = context;
     }
 
     public UlfurInstanceManufacturer( Class<?>... componentClasses ) {
-        this.context = new AnnotationConfigApplicationContext();
+        this();
 
         for( Class<?> cc : componentClasses ) {
             this.onlyRegister( cc );
@@ -147,7 +152,7 @@ public class UlfurInstanceManufacturer implements UlfInstanceManufacturer {
     }
 
     @Override
-    public AnnotationConfigApplicationContext getApplicationContext() {
+    public ConfigurableApplicationContext getApplicationContext() {
         return this.context;
     }
 }

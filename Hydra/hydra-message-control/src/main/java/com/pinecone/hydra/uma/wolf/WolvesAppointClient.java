@@ -14,6 +14,7 @@ import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
+import com.pinecone.hydra.umc.msg.MediumTerminationException;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.UlfChannel;
@@ -63,7 +64,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
 
     @Override
-    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+    protected boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
         UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
         Channel channel = cb.getChannel().getNativeHandle();
         Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
@@ -72,7 +73,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
             if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
                 try {
-                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
                     Channel newChannel = cb.getChannel().getNativeHandle();
                     WolvesAppointClient.copyDuplexAttrs( channel, newChannel );
 
@@ -81,6 +82,9 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
                     cb.sendAsynMsg( instructMessage, true );
 
                     WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+                }
+                catch ( MediumTerminationException e ) {
+                    WolvesAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
                 }
                 catch ( IOException e ) {
                     WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
@@ -92,7 +96,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             express.afterChannelInactive( cb );
             return true; // Blocking next inactive sequence.
         }
-        return super.afterChannelInactive( ccb );
+        return super.afterChannelInactive( ccb, context );
     }
 
     private void initSelf() {

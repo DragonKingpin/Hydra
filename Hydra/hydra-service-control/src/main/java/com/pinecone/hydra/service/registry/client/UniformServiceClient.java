@@ -1,14 +1,13 @@
 package com.pinecone.hydra.service.registry.client;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.service.kom.UniformServiceInstrument;
+import com.pinecone.hydra.service.Service;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
-import com.pinecone.hydra.service.registry.constant.ServiceStatus;
-import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
+import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
-import com.pinecone.hydra.service.registry.ServiceInstanceCreationException;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
@@ -16,9 +15,7 @@ import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-
-public class UniformServiceManagerClient implements ServiceManagerClient {
+public class UniformServiceClient implements ServiceClient {
     protected DuplexAppointClient           mDuplexAppointClient;
 
     protected Logger                        mLogger;
@@ -27,15 +24,23 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
 
     protected ServiceLifecycleIface         mServiceLifecycleIface;
 
+    protected ServiceMetaManipulationIface  mServiceMetaManipulationIface;
+
     protected GuidAllocator                 mGuidAllocator;
 
-    protected String                        mIp;
+    protected GUID                          mServiceId;
 
-    public UniformServiceManagerClient( UlfClient ulfClient, GuidAllocator guidAllocator, String ip ) {
+    protected GUID                          mInstanceId;
+
+    public UniformServiceClient( @Nullable GUID serviceId, UlfClient ulfClient, GuidAllocator guidAllocator ) {
         this.mLogger                = LoggerFactory.getLogger( this.getClass() );
         this.mRPCClient             = ulfClient;
         this.mGuidAllocator         = guidAllocator;
-        this.mIp                    = ip;
+        this.mServiceId             = serviceId;
+    }
+
+    public UniformServiceClient( UlfClient ulfClient, GuidAllocator guidAllocator ) {
+        this( null, ulfClient, guidAllocator );
     }
 
     @Override
@@ -49,8 +54,19 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
             throw new IllegalStateException( "RPCClient dose not started yet." );
         }
 
+        this.deregister();
         this.mDuplexAppointClient.terminate();
         this.mDuplexAppointClient = null;
+    }
+
+    @Override
+    public DuplexAppointClient getDuplexAppointClient() {
+        return this.mDuplexAppointClient;
+    }
+
+    @Override
+    public GuidAllocator getGuidAllocator() {
+        return this.mGuidAllocator;
     }
 
     protected void initRPCSubsystem() throws ServiceControlRPCException {
@@ -61,8 +77,11 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
         this.mDuplexAppointClient = new WolvesAppointClient( this.mRPCClient );
 
         try {
+            this.mDuplexAppointClient.execute();
             this.mDuplexAppointClient.compile( ServiceLifecycleIface.class, false );
+            this.mDuplexAppointClient.compile( ServiceMetaManipulationIface.class, false );
             this.mServiceLifecycleIface = this.mDuplexAppointClient.getIface( ServiceLifecycleIface.class );
+            this.mServiceMetaManipulationIface = this.mDuplexAppointClient.getIface( ServiceMetaManipulationIface.class );
             this.mLogger.info( "RPC initialization successful" );
         }
         catch ( Exception e ) {
@@ -72,45 +91,33 @@ public class UniformServiceManagerClient implements ServiceManagerClient {
     }
 
     @Override
-    public GUID registerService( GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException, ClientServiceRegisterException {
-        this.createServiceInstanceMeta( serviceId, deployGuid );
+    public GUID registerService( GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
         RegisterServiceDTO serviceDTO = new RegisterServiceDTO();
         serviceDTO.setServiceId( serviceId.toString() );
         serviceDTO.setClientId( this.mRPCClient.getMessageNodeId() );
-        try {
-            this.mServiceLifecycleIface.registerService( serviceDTO );
+        if ( deployGuid != null ) {
+            serviceDTO.setDeployId( deployGuid.toString() );
         }
-        catch (Exception e) {
-            this.mLogger.info( "Register Service {} failed", serviceDTO.getServiceId() );
+        this.mServiceId = serviceId;
+
+        try {
+            String insId = this.mServiceLifecycleIface.registerService( serviceDTO );
+            if ( insId != null ) {
+                this.mInstanceId = this.mGuidAllocator.parse( insId );
+                this.mLogger.info( "Successfully register service : {}, instanceId: {}", serviceDTO.getServiceId(), insId );
+            }
+        }
+        catch ( Exception e ) {
+            this.mLogger.error( "Register Service {} failed", serviceDTO.getServiceId() );
             throw new ClientServiceRegisterException( e );
         }
-        return null;
+        return this.mInstanceId;
     }
 
-    protected GUID createServiceInstanceMeta(GUID serviceId, GUID deployGuid ) throws ServiceInstanceCreationException {
-        GUID guid = this.mGuidAllocator.nextGUID();
-        GenericServiceInstanceEntity instanceDO = new GenericServiceInstanceEntity();
-
-        instanceDO.setDeployGuid( deployGuid );
-        instanceDO.setStatus( ServiceStatus.SERVICE_NEW.getCode() );
-        instanceDO.setLatestStartTime( LocalDateTime.now() );
-        instanceDO.setIp( this.mIp );
-        instanceDO.setGuid( guid );
-        instanceDO.setServiceGuid( serviceId );
-        try {
-            boolean isSuccess = this.mServiceLifecycleIface.createInstanceMeta(instanceDO);
-            if( isSuccess ) {
-                this.mLogger.info( "ServiceInstance create successfully" );
-            }
-            else {
-                throw new ServiceInstanceCreationException( "ServiceInstance create fail" );
-            }
-            }
-
-        catch ( Exception e ) {
-            throw new ServiceInstanceCreationException( e );
+    @Override
+    public void deregister() {
+        if ( this.mInstanceId != null ) {
+            this.mServiceLifecycleIface.deregisterServiceByInstanceId( this.mInstanceId.toString() );
         }
-
-        return guid;
     }
 }

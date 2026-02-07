@@ -14,9 +14,9 @@ public interface ServiceInstanceEntry extends Pinenut {
 
     GUID getServiceGuid();
 
-    int getStatus();
+    String getStatus();
 
-    void setStatus( int status );
+    void setStatus( String status );
 
     LocalDateTime getLatestStartTime();
 

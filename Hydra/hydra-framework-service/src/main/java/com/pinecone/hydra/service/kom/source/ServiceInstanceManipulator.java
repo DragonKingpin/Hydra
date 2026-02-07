@@ -7,7 +7,7 @@ import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 public interface ServiceInstanceManipulator extends Pinenut {
     void initServiceInstance( ServiceInstanceEntry element );
 
-    ServiceInstanceEntry queryServiceInstance(GUID serviceId );
+    ServiceInstanceEntry queryServiceInstance( GUID instanceId );
 
     void updateServiceInstance( ServiceInstanceEntry element );
 }

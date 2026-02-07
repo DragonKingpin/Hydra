@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 public interface ServiceInstance extends Pinenut {
     Identification getId();
 
+    Identification getServiceId();
+
     USII getUSII();
 
     Object getProcessObject();

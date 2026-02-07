@@ -11,21 +11,22 @@ import com.pinecone.hydra.umct.stereotype.Iface;
 @Iface
 public interface ServiceLifecycleIface extends Pinenut {
 
-    void registerService( RegisterServiceDTO serviceDTO );
+    /**
+     * @return with service-instance-guid
+     */
+    String registerService( RegisterServiceDTO serviceDTO );
 
     boolean createInstanceMeta( ServiceInstanceEntry serviceInstanceEntry );
 
     void deregisterServiceByClientId( Long clientId );
 
-    void deregisterServiceByServiceId( String serviceId );
-
-    void deregisterServiceByUSII( BindUSII usii);
-
-    boolean hasOwnedServiceByUSII( BindUSII usii );
+    void deregisterServiceByInstanceId( String instanceId );
 
     boolean hasOwnedServiceByServiceId( String serviceId );
 
     boolean hasOwnedServiceInstance( Long clientId );
+
+    boolean hasOwnedServiceInstance( String instanceId );
 
     boolean hasOwnedServiceClient( Long clientId );
 

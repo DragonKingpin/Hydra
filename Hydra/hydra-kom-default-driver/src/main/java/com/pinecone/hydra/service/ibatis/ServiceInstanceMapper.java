@@ -14,17 +14,17 @@ import org.apache.ibatis.annotations.Update;
 @IbatisDataAccessObject
 public interface ServiceInstanceMapper extends ServiceInstanceManipulator {
     @Override
-    @Insert("INSERT INTO `hydra_service_service_instance` " +
+    @Insert("INSERT INTO `hydra_service_instances` " +
             "(`service_guid`, `guid`, `status`, `latest_start_time`, `latest_end_time`, `error_cause`, `run_count`, `deploy_guid`, `ip`) VALUES " +
             "(#{serviceGuid}, #{guid}, #{status}, #{latestStartTime}, #{latestEndTime}, #{errorCause}, #{runCount}, #{deployGuid}, #{ip})")
     void initServiceInstance(ServiceInstanceEntry element);
 
     @Override
     @Select("SELECT `id`, `service_guid`, `guid`, `status`, `latest_start_time`, `latest_end_time`, `error_cause`, `run_count`, `deploy_guid`, `ip`" +
-            " FROM `hydra_service_service_instance` WHERE guid = #{serviceId}")
-    GenericServiceInstanceEntity queryServiceInstance(GUID serviceId);
+            " FROM `hydra_service_instances` WHERE guid = #{instanceId}")
+    GenericServiceInstanceEntity queryServiceInstance( GUID instanceId );
 
     @Override
-    @Update("UPDATE `hydra_service_service_instance` SET status = #{status}, run_count = #{runCount} WHERE guid = #{guid}")
+    @Update("UPDATE `hydra_service_instances` SET status = #{status}, run_count = #{runCount} WHERE guid = #{guid}")
     void updateServiceInstance(ServiceInstanceEntry element);
 }

@@ -2,6 +2,7 @@ package com.pinecone.hydra.umc.wolf.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -172,9 +173,9 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
 
-    protected void notifyDataArrivedEventHandlers( RecipientChannelControlBlock block ) {
+    protected void notifyDataArrivedEventHandlers( RecipientChannelControlBlock block, ChannelHandlerContext ctx ) {
         for( ChannelEventHandler h : this.mDataArrivedEventHandlers ) {
-            h.afterEventTriggered( block );
+            h.afterEventTriggered( block, ctx );
         }
     }
 
@@ -186,11 +187,12 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     @Override
     public void close() throws ProvokeHandleException {
         this.mStateMutex.lock();
-        try{
+        try {
             if( this.mMasterEventGroup != null ) {
                 this.mMasterEventGroup.shutdownGracefully();
+                this.mMasterEventGroup = null;
                 //this.clear();
-                this.mShutdown = true;
+                //this.mShutdown = true;
             }
 
             if( this.mWorkersEventGroup != null ) {
@@ -201,7 +203,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             this.mStateMutex.unlock();
         }
 
-        try{
+        try {
             synchronized ( this.mPrimaryThreadJoinMutex ) {
                 WolfMCServer.this.mPrimaryThreadJoinMutex.notify();
             }
@@ -222,7 +224,23 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         }
     }
 
-    protected void handleArrivedMessage( UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
+    @Override
+    public boolean isShutdown() {
+        if ( this.mMasterEventGroup == null ) {
+            return true;
+        }
+        return this.mMasterEventGroup.isShutdown();
+    }
+
+    @Override
+    public boolean isTerminated() {
+        if ( this.mMasterEventGroup == null ) {
+            return true;
+        }
+        return this.mMasterEventGroup.isTerminated();
+    }
+
+    protected void handleArrivedMessage(UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
         if( this.getErrorMessageAudit().isErrorMessage( msg ) ) {
             handle.onErrorMsgReceived( medium, block, msg, ctx, msg );
         }
@@ -259,7 +277,18 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                                 AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
                         ).set( ccb );
 
-                        WolfMCServer.this.getLogger().info( "[MessengerConnected] <id:`{}`>", ctx.channel().id() );
+
+                        Channel channel = ctx.channel();
+                        SocketAddress remote = channel.remoteAddress();
+                        String ipInfo = "??";
+                        if ( remote instanceof InetSocketAddress ) {
+                            InetSocketAddress inet = (InetSocketAddress) remote;
+                            String ip   = inet.getAddress().getHostAddress();
+                            int port    = inet.getPort();
+
+                            ipInfo = ip + ":" + port;
+                        }
+                        WolfMCServer.this.getLogger().info( "[MessengerConnected] <id:`{}`, ip: `{}`>", ctx.channel().id(), ipInfo );
 
                         ccb.afterConnectionArrive(
                                 new AsyncUlfMedium( ctx, null, WolfMCServer.this ),  false
@@ -285,7 +314,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                                     WolfMCServer.this.mRecipientMsgHandler, medium, channelControlBlock, message, ctx, msg
                             );
 
-                            WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock );
+                            WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock, ctx );
                         }
 
                         medium.release();
@@ -302,7 +331,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                         if ( !WolfMCServer.this.mChannelInactiveHandlers.isEmpty() ) {
                             boolean bBlocked = false;
                             for ( ChannelInactiveHandler handler : WolfMCServer.this.mChannelInactiveHandlers ) {
-                                if ( handler.afterChannelInactive( ccb ) ) {
+                                if ( handler.afterChannelInactive( ccb, ctx ) ) {
                                     bBlocked = true;
                                 }
                             }
@@ -350,9 +379,9 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             @Override
             public void operationComplete( ChannelFuture channelFuture ) throws Exception {
                 synchronized ( WolfMCServer.this.mPrimaryThreadJoinMutex ) {
-                    if ( WolfMCServer.this.mShutdown ) {
-                        WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
-                    }
+//                    if ( WolfMCServer.this.isShutdown() ) {
+//                        WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
+//                    }
                     WolfMCServer.this.mPrimaryThreadJoinMutex.notify();
                 }
             }
@@ -361,7 +390,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         synchronized ( this.mPrimaryThreadJoinMutex ) {
             try {
                 this.mPrimaryThreadJoinMutex.wait( this.getConnectionArguments().getSocketTimeout() );
-                if( this.mShutdown ) {
+                if( this.isShutdown() ) {
                     throw new BindException( String.format( "%s [Serve], binding `%s` compromised.", this.className(), this.mPrimaryBindAddress.toString() ) );
                 }
             }

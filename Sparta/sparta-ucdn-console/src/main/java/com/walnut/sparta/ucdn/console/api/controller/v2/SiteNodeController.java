@@ -62,7 +62,7 @@ public class SiteNodeController {
     public GenericResultResponse<String> removeSiteNode(@RequestParam("siteNodeGuid") String siteNodeGuid ){
         ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
         SiteNode siteNode = this.bucketInstrument.querySiteNode(GUIDs.GUID128(siteNodeGuid));
-        lifecycleIface.deregisterServiceByServiceId( siteNode.getRelatedService().toString() );
+        lifecycleIface.deregisterServiceByInstanceId( siteNode.getRelatedService().toString() );
         this.bucketInstrument.removeSiteNode( GUIDs.GUID128( siteNodeGuid ) );
         return GenericResultResponse.success();
     }

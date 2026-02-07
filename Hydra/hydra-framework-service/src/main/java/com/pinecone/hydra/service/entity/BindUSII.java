@@ -7,9 +7,12 @@ public class BindUSII implements USII {
 
     protected Identification serviceId;
 
-    public BindUSII( Long clientId, Identification serviceId ) {
+    protected Identification instanceId;
+
+    public BindUSII( Long clientId, Identification serviceId, Identification instanceId ) {
         this.clientId  = clientId;
         this.serviceId = serviceId;
+        this.instanceId = instanceId;
     }
 
     public BindUSII(){}
@@ -25,8 +28,13 @@ public class BindUSII implements USII {
     }
 
     @Override
+    public Identification getInstanceId() {
+        return this.instanceId;
+    }
+
+    @Override
     public String getFullKey() {
-        return this.serviceId + ":" + this.clientId;
+        return this.serviceId + ":" + this.instanceId + ":" + this.clientId;
     }
 
     @Override
@@ -53,7 +61,7 @@ public class BindUSII implements USII {
         return this.clientId.hashCode() ^ this.serviceId.hashCode();
     }
 
-    public static USII wrap(Long clientId, Identification serviceId ) {
-        return new BindUSII( clientId, serviceId );
+    public static USII wrap(Long clientId, Identification serviceId, Identification instanceId ) {
+        return new BindUSII( clientId, serviceId, instanceId );
     }
 }

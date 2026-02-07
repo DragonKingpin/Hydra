@@ -54,7 +54,7 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
     protected void initUlfServerEventHandlers( UlfServer server ) {
         server.registerDataArrivedEventHandlers(new ChannelEventHandler() {
             @Override
-            public void afterEventTriggered( ChannelControlBlock block ) {
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
                 if ( block.getChannel().getChannelStatus() == UlfChannelStatus.WAITING_PASSIVE_RECEIVE ) {
                     ChannelPool pool = WolvesAppointServer.this.getUMCTExpress().getPoolByClientId( block.getChannel().getIdentityID() );
                     if ( pool != null ) {
@@ -71,8 +71,8 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
 
         this.mRecipient.registerChannelInactiveHandler(new ChannelInactiveHandler() {
             @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-                this.afterEventTriggered( ccb );
+            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb, context );
 
                 DuplexExpress express = (DuplexExpress) WolvesAppointServer.this.mRouteDispatcher.getUMCTExpress();
                 express.afterChannelInactive( ccb );

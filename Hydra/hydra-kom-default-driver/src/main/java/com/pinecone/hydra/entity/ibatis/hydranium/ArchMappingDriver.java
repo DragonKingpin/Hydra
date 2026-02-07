@@ -72,7 +72,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
     @Override
     public StereotypicInjector autoConstruct( Class<?> stereotype, Map config, Object instance ) {
         UnifyStructureInjector injector = new UnifyStructureInjector( stereotype, this.mResourceDispenserCenter.getInstanceDispenser() );
-        try{
+        try {
             injector.inject( config, instance );
         }
         catch ( Exception e ){

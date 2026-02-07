@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.hydra.service.Service;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
@@ -16,13 +17,17 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
 
     void startService () throws ServiceControlRPCException;
 
-    void registerService( ServiceInstance instance );
+    void registerServiceInstance( ServiceInstance instance );
+
+    GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException;
 
     void destroyServiceInstance( GUID serviceId, GUID instanceGuid );
 
     Collection<ServiceInstance >  fetchServiceInstance( Long clientId );
 
     Collection<ServiceInstance >  fetchServiceInstance( Identification serviceId );
+
+    Collection<ServiceInstance >  fetchServiceInstanceByIId( Identification instanceId );
 
     Collection<ServiceInstance >  fetchServiceInstance( USII usii );
 
@@ -35,6 +40,8 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
 
 
     boolean hasOwnedService( Identification serviceId );
+
+    boolean hasOwnedInstance( Identification instanceId );
 
     boolean hasOwnedService( USII usii );
 
@@ -69,11 +76,15 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
     }
 
 
-    Collection<ServiceInstance >  removeService ( Long clientId );
 
-    Collection<ServiceInstance >  removeService( Identification serviceId );
+    ServiceInstance getInstance( Identification instanceId ) ;
 
-    Collection<ServiceInstance >  removeService( USII usii );
+    Collection<ServiceInstance >  deregisterServiceInstance ( Long clientId );
+
+    Collection<ServiceInstance > deregisterServiceInstance( Identification instanceId );
+
+    Collection<ServiceInstance >  deregisterService( Identification serviceId );
+
 
 
     ServiceInstrument getServicesInstrument();

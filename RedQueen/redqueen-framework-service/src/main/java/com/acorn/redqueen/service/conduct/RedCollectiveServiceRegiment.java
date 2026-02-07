@@ -4,7 +4,7 @@ import com.acorn.redqueen.service.RedQueenServiceControllerException;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceControlException;
 import com.pinecone.hydra.service.registry.ServiceManager;
-import com.pinecone.hydra.service.registry.client.ServiceManagerClient;
+import com.pinecone.hydra.service.registry.client.ServiceClient;
 import com.pinecone.hydra.system.Hydrogen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

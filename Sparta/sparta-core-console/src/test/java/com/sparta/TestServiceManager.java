@@ -11,7 +11,7 @@ import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.UniformServiceManager;
-import com.pinecone.hydra.service.registry.client.UniformServiceManagerClient;
+import com.pinecone.hydra.service.registry.client.UniformServiceClient;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -49,15 +49,44 @@ class Brian extends Tritium {
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
 
         UniformServiceManager serviceManager = new UniformServiceManager( servicesTree, new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class ) );
-        UlfClient ulfClient = new WolfMCClient(
-                new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
-        );
-        UniformServiceManagerClient managerClient = new UniformServiceManagerClient(ulfClient, servicesTree.getGuidAllocator(), "127.0.0.0");
-
         RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
 
         serviceRegiment.startServiceManage();
+
+
+        UlfClient ulfClient = new WolfMCClient(
+                new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+        );
+        UniformServiceClient managerClient = new UniformServiceClient( ulfClient, servicesTree.getGuidAllocator() );
+        managerClient.startService();
+
+        this.testUniformServiceRegister_Proactive( managerClient );
+
+        //this.oldTest( servicesTree );
     }
+
+    public void testUniformServiceRegister_Proactive( UniformServiceClient managerClient ) throws Exception {
+        DuplexAppointClient client = managerClient.getDuplexAppointClient();
+        ServiceMetaManipulationIface metaIface = client.getIface(ServiceMetaManipulationIface.class);
+        ServiceMetaDTO meta = metaIface.queryServiceMetaByPath( "root/test/app/ser" );
+        Debug.greenfs( meta );
+
+        String guid = metaIface.evalCreationStatement( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { test1: { metaType: ServiceElement, type: Microservice } } } } } }" );
+        ServiceMetaDTO meta1 = metaIface.queryServiceMetaByPath( "root/test/app/test1" );
+        Debug.greenfs( meta1 );
+
+        managerClient.registerService( managerClient.getGuidAllocator().parse(meta1.getGuid()), null );
+
+        List<ServiceMetaDTO> serviceMetaDTOS = metaIface.fetchServiceInsMetaByServiceId( meta1.getGuid() );
+        Debug.bluefs( serviceMetaDTOS );
+
+        //managerClient.deregister();
+        client.close();
+
+        //Debug.trace(iface.hasOwnedServiceByServiceId( "181e9e6-000395-0000-94" ));
+    }
+
+
 
     private void oldTest(ServiceInstrument servicesTree) throws Exception {
         WolfMCServer          wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
@@ -96,7 +125,7 @@ class Brian extends Tritium {
         List<ServiceMetaDTO> serviceMetaDTOS = metaIface.fetchServiceInsMetaByServiceId( "1769872-0002d2-0003-cc" );
         Debug.trace( serviceMetaDTOS );
 
-        iface.deregisterServiceByServiceId( "181e9e6-000395-0000-94" );
+        iface.deregisterServiceByInstanceId( "181e9e6-000395-0000-94" );
 //
         Debug.trace(iface.hasOwnedServiceByServiceId( "181e9e6-000395-0000-94" ));
 

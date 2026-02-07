@@ -2,8 +2,13 @@ package com.pinecone.hydra.service.registry.dto;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
+import com.pinecone.hydra.service.Service;
+import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
+import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +16,8 @@ public class ServiceMetaDTO implements Pinenut {
    private String guid;
 
    private String name;
+
+   private String type;
 
    private String displayName;
 
@@ -29,6 +36,14 @@ public class ServiceMetaDTO implements Pinenut {
    private String extraInformation;
 
    private String level;
+
+    public String getType() {
+        return this.type;
+    }
+
+    public void setType( String type ) {
+        this.type = type;
+    }
 
     public String getGuid() {
         return this.guid;
@@ -126,4 +141,53 @@ public class ServiceMetaDTO implements Pinenut {
     public String toString() {
         return this.toJSONString();
     }
+
+
+    public static ServiceMetaDTO from( Service service ){
+        ServiceMetaDTO serviceMetaDTO = new ServiceMetaDTO();
+        serviceMetaDTO.setGuid( service.getId().toString() );
+        serviceMetaDTO.setName(service.getName());
+        serviceMetaDTO.setDescription( service.getDescription() );
+        serviceMetaDTO.setDisplayName( service.getDisplayName() );
+        serviceMetaDTO.setFullName( service.getFullName() );
+        serviceMetaDTO.setExtraInformation( service.getExtraInformation() );
+        serviceMetaDTO.setLevel( service.getLevel() );
+        serviceMetaDTO.setScenario( service.getScenario() );
+        serviceMetaDTO.setPrimaryImplLang( service.getPrimaryImplLang() );
+        serviceMetaDTO.setGroupName( service.getGroupName() );
+        serviceMetaDTO.setType( service.getType() );
+        return serviceMetaDTO;
+    }
+
+    public static ServiceMetaDTO from( ServiceElement service ){
+        ServiceMetaDTO serviceMetaDTO = new ServiceMetaDTO();
+        serviceMetaDTO.setGuid( service.getId().toString() );
+        serviceMetaDTO.setName(service.getName());
+        serviceMetaDTO.setDescription( service.getDescription() );
+        serviceMetaDTO.setDisplayName( service.getName() );
+        serviceMetaDTO.setFullName( service.getPath() );
+        serviceMetaDTO.setExtraInformation( service.getExtraInformation() );
+        serviceMetaDTO.setLevel( service.getLevel() );
+        serviceMetaDTO.setScenario( service.getScenario() );
+        serviceMetaDTO.setPrimaryImplLang( service.getPrimaryImplLang() );
+        serviceMetaDTO.setGroupName( null );
+        serviceMetaDTO.setType( service.getType() );
+        return serviceMetaDTO;
+    }
+
+    public static ServiceElement toServiceElement( ServiceMetaDTO meta, GuidAllocator guidAllocator ) {
+        ServiceElement element = new GenericServiceElement();
+        if ( meta.getGuid() != null ) {
+            element.setGuid( guidAllocator.parse(meta.getGuid()) );
+        }
+        element.setName( meta.getName());
+        element.setDescription( meta.getDescription() );
+        element.setExtraInformation( meta.getExtraInformation() );
+        element.setLevel( meta.getLevel() );
+        element.setScenario( meta.getScenario() );
+        element.setPrimaryImplLang( meta.getPrimaryImplLang() );
+        element.setType( meta.getType() );
+        return element;
+    }
+
 }

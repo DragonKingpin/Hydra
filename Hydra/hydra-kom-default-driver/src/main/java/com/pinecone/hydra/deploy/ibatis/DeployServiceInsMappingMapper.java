@@ -4,11 +4,16 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.entity.DeployInsMapping;
 import com.pinecone.hydra.deploy.kom.entity.GenericDeployInsMapping;
 import com.pinecone.hydra.deploy.kom.source.DeployServiceInsMappingManipulator;
+import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+@Mapper
+@IbatisDataAccessObject
 public interface DeployServiceInsMappingMapper extends DeployServiceInsMappingManipulator {
     @Override
     @Insert("INSERT INTO `hydra_deploy_service_ins_mapping` (`deploy_guid`, `service_ins_guid`) VALUES (#{deployGuid}, #{serviceInsGuid})")

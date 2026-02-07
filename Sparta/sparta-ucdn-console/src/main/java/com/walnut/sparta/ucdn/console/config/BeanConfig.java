@@ -43,7 +43,7 @@ public class BeanConfig {
     @Bean
     public UCDNServiceManager ucdnServiceManager() throws Exception {
         UCDNCentralServiceManager ucdnServiceManager = new UCDNCentralServiceManager(this.UCDNContentDelivery);
-        ucdnServiceManager.getLifecycleIface().registerService( new RegisterServiceDTO( UCDNConstants.clientId, UCDNConstants.serviceId ));
+        ucdnServiceManager.getLifecycleIface().registerService( new RegisterServiceDTO( UCDNConstants.clientId, UCDNConstants.serviceId, UCDNConstants.deployId ));
         return ucdnServiceManager;
     }
 }

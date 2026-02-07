@@ -1,11 +1,14 @@
 package com.pinecone.hydra.umc.wolf.client;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
+import io.netty.channel.EventLoop;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.umc.msg.AsyncMessenger;
 import com.pinecone.hydra.umc.msg.ChannelAllocateException;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.MediumTerminationException;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
@@ -17,6 +20,10 @@ import com.pinecone.hydra.umc.wolf.WolfMCNode;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -110,6 +117,23 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
     public static void reconnect( ChannelControlBlock block, Messenger messenger ) throws IOException {
         long mils = ArchAsyncMessenger.getSyncWaitingMillis( messenger );
         ArchAsyncMessenger.reconnect( block, mils );
+    }
+
+    public static void reconnect( ChannelControlBlock block, Messenger messenger, Object context ) throws IOException, MediumTerminationException {
+        if ( context instanceof ChannelHandlerContext ) {
+            ChannelHandlerContext ctx = (ChannelHandlerContext) context;
+            EventLoop loop = ctx.channel().eventLoop();
+
+            if ( !loop.isShuttingDown() ) {
+                reconnect( block, messenger );
+            }
+            else {
+                throw new MediumTerminationException( "Medium has already terminated." );
+            }
+        }
+        else {
+            reconnect( block, messenger );
+        }
     }
 
 }

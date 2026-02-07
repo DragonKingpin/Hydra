@@ -28,102 +28,75 @@ public class ServiceLifecycleController {
 
     protected Logger              mLogger;
 
-    public ServiceLifecycleController( ServiceManager mServiceManager ){
+    public ServiceLifecycleController( ServiceManager mServiceManager ) {
         this.mServiceManager        = mServiceManager;
         this.mServiceInstrument     = mServiceManager.getServicesInstrument();
         this.mGuidAllocator         = this.mServiceInstrument.getGuidAllocator();
         this.mLogger                = LoggerFactory.getLogger( this.getClass() );
     }
 
-    @AddressMapping("registerService")
-    public void registerService( RegisterServiceDTO serviceDTO ) throws ServiceValidationException {
-        // 进行参数校验
-        if( this.ValidationServiceInstance( this.mGuidAllocator.parse( serviceDTO.getServiceId() ) ) ) {
-            Long clientId   = serviceDTO.getClientId();
-            String szServId = serviceDTO.getServiceId();
-            GUID serviceId  = GUIDs.GUID128( szServId );
-
-            ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance(serviceId);
-            TreeNode node = this.mServiceInstrument.get( serviceId );
-            ServiceElement serviceElement = (ServiceElement) node;
-            WolfServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
-
-            this.mServiceManager.registerService( serviceInstance );
-            this.successRegisterServiceInstance( element );
+    @AddressMapping( "registerService" )
+    public String registerService( RegisterServiceDTO serviceDTO ) throws ClientServiceRegisterException {
+        Long clientId   = serviceDTO.getClientId();
+        String szServId = serviceDTO.getServiceId();
+        GUID serviceId  = this.mGuidAllocator.parse( szServId );
+        GUID deployId   = null;
+        if ( serviceDTO.getDeployId() != null ) {
+            deployId = this.mGuidAllocator.parse( serviceDTO.getDeployId() );
         }
 
+        GUID insId = this.mServiceManager.registerService( clientId, serviceId, deployId );
+
+        if ( insId != null ) {
+            return insId.toString();
+        }
+        return null;
     }
 
     @AddressMapping("createInstanceMeta")
     boolean createInstanceMeta( GenericServiceInstanceEntity instanceEntity ) throws ServiceInstanceCreationException {
         try {
             this.mServiceInstrument.createServiceInstance( instanceEntity );
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ServiceInstanceCreationException( e );
         }
         return true;
     }
 
     @AddressMapping("deregisterServiceByClientId")
-    public void deregisterServiceByClientId( Long clientId ){
-        this.mServiceManager.removeService( clientId );
+    public void deregisterServiceByClientId( Long clientId ) {
+        this.mServiceManager.deregisterServiceInstance( clientId );
     }
 
-    @AddressMapping("deregisterServiceByServiceId")
-    public void deregisterServiceByServiceId( String serviceId ){
-        this.mServiceManager.removeService( GUIDs.GUID128( serviceId ) );
-    }
-
-    @AddressMapping("deregisterServiceByUSII")
-    public void deregisterServiceByUSII( BindUSII usii ){
-        this.mServiceManager.removeService( usii );
-    }
-
-    @AddressMapping("hasOwnedServiceByUSII")
-    public boolean hasOwnedServiceByUSII( BindUSII usii ){
-        return this.mServiceManager.hasOwnedService( usii );
+    @AddressMapping("deregisterServiceByInstanceId")
+    public void deregisterServiceByInstanceId( String instanceId ) {
+        this.mServiceManager.deregisterServiceInstance( this.mGuidAllocator.parse( instanceId ) );
     }
 
     @AddressMapping("hasOwnedServiceByServiceId")
-    public boolean hasOwnedServiceByServiceId( String serviceId ){
-        return this.mServiceManager.hasOwnedService( GUIDs.GUID128( serviceId ) );
+    public boolean hasOwnedServiceByServiceId( String serviceId ) {
+        return this.mServiceManager.hasOwnedService( this.mGuidAllocator.parse( serviceId ) );
     }
 
     @AddressMapping("hasOwnedServiceInstance")
-    public boolean hasOwnedServiceInstance( Long clientId ){
+    public boolean hasOwnedServiceInstance( Long clientId ) {
         return this.mServiceManager.hasOwnedServiceInstance( clientId );
     }
 
     @AddressMapping("hasOwnedServiceClient")
-    public boolean hasOwnedServiceClient( Long clientId ){
+    public boolean hasOwnedServiceClient( Long clientId ) {
         return this.mServiceManager.hasOwnedServiceClient( clientId );
     }
 
+    @AddressMapping("hasOwnedServiceClient")
+    public boolean hasOwnedServiceInstance( String instanceId ) {
+        return this.mServiceManager.hasOwnedInstance( this.mGuidAllocator.parse( instanceId ) );
+    }
+
     @AddressMapping("countRegisteredService")
-    public Integer countRegisteredService(){
+    public Integer countRegisteredService() {
         return this.mServiceManager.countRegisteredService();
     }
 
-    protected boolean ValidationServiceInstance( GUID serviceId ) throws ServiceValidationException {
-        ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance(serviceId);
-        if( element == null ) {
-            throw new ServiceValidationException( "The serviceInstance is not exist" );
-        }
-
-        if( element.getStatus() != ServiceStatus.SERVICE_NEW.getCode() ) {
-            element.setStatus( ServiceStatus.SERVICE_ERROR.getCode() );
-            this.mServiceInstrument.updateServiceInstance( element );
-            throw new ServiceValidationException( "The serviceInstance status is incorrect" );
-        }
-
-        return true;
-    }
-
-    protected void successRegisterServiceInstance( ServiceInstanceEntry element ) {
-        element.setStatus( ServiceStatus.SERVICE_RUNNING.getCode() );
-        element.setRunCount( element.getRunCount() + 1 );
-
-        this.mServiceInstrument.updateServiceInstance( element );
-        this.mLogger.info( "serviceInstance {} register success", element.getGuid());
-    }
 }

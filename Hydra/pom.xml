@@ -34,5 +34,6 @@
         <module>hydra-r-atlas-default-driver</module>
         <module>hydra-system-reign</module>
         <module>hydra-service-control</module>
+        <module>hydra-architecture-message</module>
     </modules>
 </project>

@@ -10,7 +10,7 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
 
     protected GUID mServiceGuid;
 
-    protected int mnStatus;
+    protected String mszStatus;
 
     protected LocalDateTime mLatestStartTime;
 
@@ -45,13 +45,13 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     }
 
     @Override
-    public int getStatus(){
-        return this.mnStatus;
+    public String getStatus(){
+        return this.mszStatus;
     }
 
     @Override
-    public void setStatus( int status ){
-        this.mnStatus = status;
+    public void setStatus( String status ){
+        this.mszStatus = status;
     }
 
     @Override

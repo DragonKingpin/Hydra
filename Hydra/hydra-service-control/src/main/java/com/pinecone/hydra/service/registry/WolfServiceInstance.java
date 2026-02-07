@@ -9,20 +9,23 @@ import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.entity.USII;
 
 public class WolfServiceInstance implements Servicium {
-    protected GUID                      mGuid;
 
     protected USII                      mUSII;
 
     protected Service                   mService;
 
-    public WolfServiceInstance( long clientId, Service service, GUID guid ){
-        this.mUSII            = BindUSII.wrap( clientId, service.getId() );
+    public WolfServiceInstance( long clientId, Service service, GUID guid ) {
+        this.mUSII            = BindUSII.wrap( clientId, service.getId(), guid );
         this.mService         = service;
-        this.mGuid            = guid;
     }
 
     @Override
     public Identification getId() {
+        return this.mUSII.getInstanceId();
+    }
+
+    @Override
+    public Identification getServiceId() {
         return this.mUSII.getServiceId();
     }
 

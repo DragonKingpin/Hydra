@@ -8,13 +8,16 @@ public class RegisterServiceDTO implements Pinenut {
 
     protected String serviceId;
 
+    protected String deployId;
+
     public RegisterServiceDTO() {
 
     }
 
-    public RegisterServiceDTO(Long clientId, String serviceId) {
+    public RegisterServiceDTO( Long clientId, String serviceId, String deployId ) {
         this.clientId = clientId;
         this.serviceId = serviceId;
+        this.deployId = deployId;
     }
 
     public Long getClientId() {
@@ -32,4 +35,13 @@ public class RegisterServiceDTO implements Pinenut {
     public void setServiceId( String serviceId ) {
         this.serviceId = serviceId;
     }
+
+    public String getDeployId() {
+        return this.deployId;
+    }
+
+    public void setDeployId(String deployId) {
+        this.deployId = deployId;
+    }
+
 }

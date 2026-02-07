@@ -32,6 +32,11 @@ public abstract class ArchService implements Service {
     }
 
     @Override
+    public String getType() {
+        return this.mServiceMetaData.getType();
+    }
+
+    @Override
     public String getDisplayName() {
         return this.mServiceMetaData.getName();
     }

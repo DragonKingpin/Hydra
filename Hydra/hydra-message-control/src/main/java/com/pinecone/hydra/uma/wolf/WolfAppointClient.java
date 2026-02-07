@@ -17,6 +17,7 @@ import com.pinecone.hydra.servgram.Servgramium;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.MediumTerminationException;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
@@ -58,16 +59,19 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
 
     protected HeartbeatControl       mHeartbeatControl;
 
-    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+    protected boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
         UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
         Channel channel = cb.getChannel().getNativeHandle();
         WolfAppointClient.this.getLogger().info( "Proactive channel ({}), has detached.", channel.id() );
         UlfClient wrappedClient = WolfAppointClient.this.getMessageNode();
         if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
             try {
-                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
 
                 WolfAppointClient.this.getLogger().info( "Proactive Channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+            }
+            catch ( MediumTerminationException e ) {
+                WolfAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
             }
             catch ( IOException e ) {
                 WolfAppointClient.this.getLogger().error( "Proactive channel ({}), attempted to reconnect but failed.", channel.id(), e );
@@ -81,10 +85,10 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
     protected void registerChannelInactiveHandler () {
         this.mMessenger.registerChannelInactiveHandler(new ChannelInactiveHandler() {
             @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-                this.afterEventTriggered( ccb );
+            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb, context );
 
-                return WolfAppointClient.this.afterChannelInactive( ccb );
+                return WolfAppointClient.this.afterChannelInactive( ccb, context );
             }
         });
     }
@@ -93,7 +97,7 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
         ClientConnectArguments arguments = WolfAppointClient.this.getMessageNode().getConnectionArguments();
         this.mMessenger.registerChannelConnectedHandler(new ChannelEventHandler() {
             @Override
-            public void afterEventTriggered( ChannelControlBlock block ) {
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
                 if ( arguments.isEnableHeartbeat() ) {
                     WolfAppointClient.this.mHeartbeatControl.registerChannel( block, arguments.getHeartbeatInterval() );
                 }

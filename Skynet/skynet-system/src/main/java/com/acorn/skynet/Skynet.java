@@ -1,6 +1,7 @@
 package com.acorn.skynet;
 
 import com.acorn.skynet.system.SkynetSubsystem;
+import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
 import com.pinecone.hydra.system.Hydrogen;
@@ -8,8 +9,8 @@ import com.pinecone.hydra.system.component.LogStatuses;
 
 public class Skynet extends ArchModularizedSubsystem implements SkynetSubsystem {
 
-    public Skynet( Hydrogen primarySystem, String name ) {
-        super( primarySystem, name );
+    public Skynet( Hydrogen primarySystem, String name, PatriarchalConfig config ) {
+        super( primarySystem, name, config );
     }
 
     @Override

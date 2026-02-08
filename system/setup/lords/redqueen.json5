@@ -1,4 +1,5 @@
 {
   "Name"     : "KernelRedQueenLord",
-  "MainClass": "com.acorn.redqueen.RedQueen"
+  "MainClass": "com.acorn.redqueen.RedQueen",
+  "LifecycleWithPrimarySystem" : true
 }

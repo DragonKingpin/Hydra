@@ -64,6 +64,14 @@ public abstract class ArchSubsystemDirector extends ArchSystemCascadeComponent i
                     continue;
                 }
 
+                if ( dy instanceof Map ) {
+                    Map tm = (Map) dy;
+                    Boolean lifecycleWithPrimarySystem = (Boolean) tm.get( "LifecycleWithPrimarySystem" );
+                    if ( lifecycleWithPrimarySystem != null && !lifecycleWithPrimarySystem) {
+                        continue;
+                    }
+                }
+
                 this.prepare_each_sub( kv.getKey(), dy );
             }
         }

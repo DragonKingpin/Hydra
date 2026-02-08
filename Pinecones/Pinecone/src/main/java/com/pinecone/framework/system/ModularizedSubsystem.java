@@ -8,4 +8,6 @@ public interface ModularizedSubsystem extends Subsystem {
 
     void terminate();
 
+    void release();
+
 }

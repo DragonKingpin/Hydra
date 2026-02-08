@@ -1,4 +1,4 @@
-package com.pinecone.hydra.system.minister;
+package com.pinecone.hydra.system.subsystem;
 
 import com.pinecone.hydra.system.Hydrogen;
 

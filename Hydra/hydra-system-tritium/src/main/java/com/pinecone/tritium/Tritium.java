@@ -1,5 +1,7 @@
 package com.pinecone.tritium;
 
+import com.pinecone.framework.util.lang.DynamicFactory;
+import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.hydra.Hydra;
 import com.pinecone.hydra.Hydradom;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
@@ -80,6 +82,8 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     protected InterWareDirector                    mMiddlewareDirector       ;
     protected ResourceDispenserCenter              mDispenserCenter          ;
 
+    protected DynamicFactory                       mShardDynamicFactory      ;
+
     protected void prepare_system_log4j_logger() {
         this.mLogger = LoggerFactory.getLogger( this.className() + "<PrimarySystem>" );
         this.pout().print( "[System] [TracerReassignment] <Transfer console -> Slf4j>\n" );
@@ -158,6 +162,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     @Override
     protected void onlyLoadTaskManager() {
         this.mTaskManager = new MasterServgramOrchestrator( this );
+        this.mShardDynamicFactory = new GenericDynamicFactory( this.mTaskManager.getClassLoader() );
     }
 
     protected void traceSubsystemWelcomeInfo() {
@@ -302,6 +307,11 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
 
     public ServgramOrchestrator getServgramOrchestrator() {
         return (ServgramOrchestrator) this.mTaskManager;
+    }
+
+    @Override
+    public DynamicFactory getShardDynamicFactory() {
+        return this.mShardDynamicFactory;
     }
 
     public Path getPrimaryConfigsPath() {

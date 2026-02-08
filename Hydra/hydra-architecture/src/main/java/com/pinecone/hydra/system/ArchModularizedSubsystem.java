@@ -34,4 +34,9 @@ public abstract class ArchModularizedSubsystem implements ModularizedSubsystem {
 
     protected abstract void traceWelcomeInfo() ;
 
+    @Override
+    public void release() {
+
+    }
+
 }

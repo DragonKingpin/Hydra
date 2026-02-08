@@ -3,13 +3,10 @@ package com.pinecone.hydra.system.subsystem;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
-import com.pinecone.framework.system.regime.arch.Director;
 import com.pinecone.framework.util.ClassUtils;
 import com.pinecone.framework.util.config.PatriarchalConfig;
-import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
@@ -43,6 +40,8 @@ public abstract class ArchSubsystemDirector extends ArchSystemCascadeComponent i
     protected abstract void prepare_segment();
 
     protected abstract void prepare_each_sub( String key, Object dy );
+
+    protected abstract Object instantiate( Map config, String name ) throws ClassNotFoundException ;
 
     @SuppressWarnings( "unchecked" )
     protected void prepare_init_subsystem_config( PatriarchalConfig seg ) {
@@ -85,6 +84,21 @@ public abstract class ArchSubsystemDirector extends ArchSystemCascadeComponent i
     @Override
     public PatriarchalConfig getSegmentConfig() {
         return this.mSegmentConfig;
+    }
+
+    @Override
+    public Object instantiate( String fullName ) {
+        try {
+            Object c = this.mSegmentConfig.get( fullName );
+            if ( c instanceof Map ) {
+                Map tm = (Map) c;
+                return this.instantiate( tm, fullName );
+            }
+        }
+        catch ( ClassNotFoundException e ) {
+            return null;
+        }
+        return null;
     }
 
 }

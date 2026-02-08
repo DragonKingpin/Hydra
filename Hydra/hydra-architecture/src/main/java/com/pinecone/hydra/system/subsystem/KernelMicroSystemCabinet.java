@@ -3,8 +3,6 @@ package com.pinecone.hydra.system.subsystem;
 import java.util.Map;
 import java.util.Set;
 
-import com.pinecone.hydra.system.HyComponent;
-
 public interface KernelMicroSystemCabinet extends SubsystemDirector, Cabinet {
     String KeyMainClass = "MainClass";
 
@@ -19,4 +17,7 @@ public interface KernelMicroSystemCabinet extends SubsystemDirector, Cabinet {
     Set<Map.Entry<String, MicroSystem > > entrySet();
 
     int size();
+
+    MicroSystem instantiate( String fullName );
+
 }

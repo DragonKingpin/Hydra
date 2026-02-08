@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.regime.arch.Lord;
-import com.pinecone.framework.util.config.PatriarchalConfig;
+import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
@@ -47,7 +47,7 @@ public class CentralKernelLordFederation extends ArchSubsystemDirector implement
             return;
         }
 
-        if( dy instanceof Map) {
+        if( dy instanceof Map ) {
             try {
                 Map tm = (Map) dy;
                 String name = (String) tm.get( "Name" );
@@ -55,12 +55,10 @@ public class CentralKernelLordFederation extends ArchSubsystemDirector implement
                     name = key;
                 }
 
-                Class<? > clazz = this.mDynamicFactory.getClassLoader().loadClass( (String)tm.get( KernelLordFederation.KeyMainClass ) );
-                Object      ins = this.mDynamicFactory.optNewInstance( clazz, new Object[] { this.getSystem(), name } );
+                Lord lord = this.instantiate( tm, name );
+                this.register( name, lord );
 
-                this.register( name, (Lord) ins );
-
-                if( ins == null ) {
+                if( lord == null ) {
                     throw new IllegalArgumentException( "Instancing Lord compromised with illegal arguments." );
                 }
             }
@@ -72,6 +70,29 @@ public class CentralKernelLordFederation extends ArchSubsystemDirector implement
             throw new IllegalArgumentException( "Lord config should be map or json format." );
         }
     }
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    protected Lord instantiate( Map config, String name ) throws ClassNotFoundException {
+        Class<? > clazz = this.mDynamicFactory.getClassLoader().loadClass( (String)config.get( KernelLordFederation.KeyMainClass ) );
+
+        JSONConfig p = null;
+        if ( this.mSegmentConfig instanceof JSONConfig ) {
+            p = (JSONConfig) this.mSegmentConfig;
+        }
+        Object      ins = this.mDynamicFactory.optNewInstance( clazz, new Object[] {
+                this.getSystem(), name, new JSONConfig( (Map<String, Object>) config, p )
+        } );
+        return (Lord) ins;
+    }
+
+    @Override
+    public Lord instantiate( String fullName ) {
+        Lord ms = (Lord) super.instantiate( fullName );
+        this.register( fullName, ms );
+        return ms;
+    }
+
 
     @Override
     public void register( String name, Lord system ) {

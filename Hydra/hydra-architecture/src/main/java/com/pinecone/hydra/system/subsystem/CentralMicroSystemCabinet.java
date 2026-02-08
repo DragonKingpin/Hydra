@@ -1,18 +1,13 @@
 package com.pinecone.hydra.system.subsystem;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
+import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.config.PatriarchalConfig;
-import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.framework.util.lang.DynamicFactory;
-import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
-import com.pinecone.hydra.system.ArchSystemCascadeComponent;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
 
@@ -56,12 +51,10 @@ public class CentralMicroSystemCabinet extends ArchSubsystemDirector implements 
                     name = key;
                 }
 
-                Class<? > clazz = this.mDynamicFactory.getClassLoader().loadClass( (String)tm.get( KernelMicroSystemCabinet.KeyMainClass ) );
-                Object      ins = this.mDynamicFactory.optNewInstance( clazz, new Object[] { name, this.getSystem() } );
+                MicroSystem is = this.instantiate( tm, name );
+                this.register( name, is );
 
-                this.register( name, (MicroSystem)ins );
-
-                if( ins == null ) {
+                if( is == null ) {
                     throw new IllegalArgumentException( "Instancing MicroSystem compromised with illegal arguments." );
                 }
             }
@@ -72,6 +65,28 @@ public class CentralMicroSystemCabinet extends ArchSubsystemDirector implements 
         else {
             throw new IllegalArgumentException( "MicroSystem config should be map or json format." );
         }
+    }
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    protected MicroSystem instantiate( Map config, String name ) throws ClassNotFoundException {
+        Class<? > clazz = this.mDynamicFactory.getClassLoader().loadClass( (String)config.get( KernelMicroSystemCabinet.KeyMainClass ) );
+
+        JSONConfig p = null;
+        if ( this.mSegmentConfig instanceof JSONConfig ) {
+            p = (JSONConfig) this.mSegmentConfig;
+        }
+        Object      ins = this.mDynamicFactory.optNewInstance( clazz, new Object[] {
+                name, this.getSystem(), new JSONConfig( (Map<String, Object>) config, p )
+        } );
+        return (MicroSystem) ins;
+    }
+
+    @Override
+    public MicroSystem instantiate( String fullName ) {
+        MicroSystem ms = (MicroSystem) super.instantiate( fullName );
+        this.register( fullName, ms );
+        return ms;
     }
 
     @Override

@@ -240,6 +240,11 @@ public class EnderHydra extends Tritium implements HydraEmpire {
     }
 
     @Override
+    public KernelLordFederation getLordFederation() {
+        return this.mLordFederation;
+    }
+
+    @Override
     public int countEmpireLords() {
         return this.mLordFederation.size();
     }

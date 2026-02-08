@@ -21,4 +21,6 @@ public interface KernelLordFederation extends SubsystemDirector, Federation {
 
     int size();
 
+    Lord instantiate( String fullName );
+
 }

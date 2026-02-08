@@ -10,4 +10,6 @@ public interface SubsystemDirector extends Director, HyComponent {
 
     PatriarchalConfig getSegmentConfig();
 
+    Object instantiate( String fullName );
+
 }

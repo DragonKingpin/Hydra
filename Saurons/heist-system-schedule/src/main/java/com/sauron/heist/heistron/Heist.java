@@ -108,7 +108,7 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
     public Heist apply( @Nullable JSONConfig joProtoConfig ) {
         if( joProtoConfig != null ) {
             this.mjoProtoConfig = joProtoConfig;
-            this.heistScheme    = new HeistScheme( this );
+            this.heistScheme    = new PatriarchalHeistScheme( this );
 
             this.mjoInstanceConfig = this.getHeistScheme().getInstanceConfigByName( null, true );
             this.getHeistScheme().reinterpret( this.mjoInstanceConfig );

@@ -9,33 +9,26 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sauron.shadow</groupId>
-    <artifactId>shadow</artifactId>
-    <version>1.2.7</version>
-    <packaging>jar</packaging>
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <includeSystemScope>true</includeSystemScope>
-                    <mainClass>com.sauron.shadow.ShadowBoot</mainClass>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <groupId>com.sauron.heist</groupId>
+    <artifactId>heist-http-client-okhttp-suit</artifactId>
+    <version>2.1.0</version>
+    <packaging>jar</packaging>
+    <modules>
+
+    </modules>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -60,21 +53,10 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.slime</groupId>
-            <artifactId>slime</artifactId>
-            <version>2.1.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.pinecone.ulf</groupId>
             <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.pinecone.ulf</groupId>
-            <artifactId>ulf-lib-oltp-rdb</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-
         <dependency>
             <groupId>com.sauron.core</groupId>
             <artifactId>sauron-core</artifactId>
@@ -82,8 +64,28 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.4</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/us.codecraft/webmagic-core -->
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-core</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/us.codecraft/webmagic-extension -->
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-extension</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.sauron.heist</groupId>
-            <artifactId>heist-system-schedule</artifactId>
+            <artifactId>heist-framework-architecture</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

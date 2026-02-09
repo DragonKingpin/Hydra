@@ -1,7 +1,6 @@
 package com.sauron.heist.heistron;
 
 import com.pinecone.framework.system.Nullable;
-import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.unit.MultiScopeMap;
 import com.pinecone.framework.unit.MultiScopeMaptron;
 import com.pinecone.framework.unit.TreeMap;
@@ -15,7 +14,7 @@ import com.pinecone.hydra.config.ScopedMapConfigReinterpreter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class HeistScheme extends RecursiveUnitOverrider<String, Object > implements Pinenut {
+public class PatriarchalHeistScheme extends RecursiveUnitOverrider<String, Object > implements HeistScheme {
     protected Heistum                           mParentHeist;
     protected Heistgram                         mHeistron;
     protected JSONConfig                        mjoTemplateHeistSchemeConfig;
@@ -27,7 +26,7 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
     protected MapConfigReinterpreter            mReinterpreter;
 
 
-    public HeistScheme( Heistum heist ) {
+    public PatriarchalHeistScheme( Heistum heist ) {
         this.mParentHeist                 = heist;
         this.mHeistron                    = this.mParentHeist.getHeistgram();
         this.mjoTemplateHeistSchemeConfig = this.mHeistron.getTemplateHeistSchemeConfig();
@@ -42,11 +41,12 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
         this.mReinterpreter               = new ScopedMapConfigReinterpreter( null );
     }
 
-    protected HeistScheme applyInstanceScope( Map<String, Object > instance ) {
+    protected PatriarchalHeistScheme applyInstanceScope( Map<String, Object > instance ) {
         this.getHeistScope().setThisScope( instance );
         return this;
     }
 
+    @Override
     public JSONConfig getInstanceConfigByName( String name ) {
         return this.getInstanceConfigByName( name, false );
     }
@@ -58,6 +58,7 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
      * @param bRecursive ( Override all object and list, if that key which its child doesnt`t had. )
      * @return Instance Config
      */
+    @Override
     public JSONConfig getInstanceConfigByName( @Nullable String name, boolean bRecursive ) {
         Map<String, Object > selfProto = null;
         Map<String, Object > selfCopy ;
@@ -127,6 +128,7 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
         neo.put( Heistum.ConfigOrchestrationKey, copy );
     }
 
+    @Override
     public void overrideSegment ( Map<String, Object > parentProto, Map<String, Object > instance ) {
         if( parentProto == this.getHeistScope() ) {
             this.getHeistScope().overrideTo( instance );
@@ -139,7 +141,8 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
     }
 
 
-    public HeistScheme reinterpret( JSONConfig that ) {
+    @Override
+    public PatriarchalHeistScheme reinterpret( JSONConfig that ) {
         MultiScopeMap<String, Object > sysGlobalScope  = this.getHeistgram().parentSystem().getGlobalConfigScope(); // System runtime global config scope.
 
         JSONConfig heistParentList = this.getHeistgram().getLocalHeistsConfigList();                   // Parent Scope of the master[e.g. Heist.json5::Heists] config.
@@ -156,22 +159,27 @@ public class HeistScheme extends RecursiveUnitOverrider<String, Object > impleme
         return this;
     }
 
+    @Override
     public MultiScopeMap<String, Object > getHeistScope() {
         return this.mHeistScope;
     }
 
+    @Override
     public JSONConfig getProtoConfig() {
         return this.mjoProtoConfig;
     }
 
+    @Override
     public Heistgram getHeistgram() {
         return this.mHeistron;
     }
 
+    @Override
     public Heistum getParentHeist() {
         return this.mParentHeist;
     }
 
+    @Override
     public JSONConfig getTemplateHeistSchemeConfig() {
         return this.mjoTemplateHeistSchemeConfig;
     }

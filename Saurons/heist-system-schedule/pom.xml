@@ -22,8 +22,8 @@
         </plugins>
     </build>
 
-    <groupId>com.sauron.heistotron</groupId>
-    <artifactId>heistotron</artifactId>
+    <groupId>com.sauron.heist</groupId>
+    <artifactId>heist-system-schedule</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>
     <modules>
@@ -195,6 +195,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sauron.heist</groupId>
+            <artifactId>heist-framework-architecture</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

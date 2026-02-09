@@ -1,4 +1,4 @@
-package com.sauron.heist.util;
+package com.sauron.heist.http;
 
 import java.io.IOException;
 import java.security.KeyManagementException;

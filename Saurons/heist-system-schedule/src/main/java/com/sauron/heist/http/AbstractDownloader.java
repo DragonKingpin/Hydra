@@ -1,4 +1,4 @@
-package com.sauron.heist.util;
+package com.sauron.heist.http;
 
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;

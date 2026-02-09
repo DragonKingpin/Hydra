@@ -4,8 +4,8 @@ import com.pinecone.framework.system.NonNull;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.config.JSONConfig;
-import com.sauron.heist.util.HttpBrowserConf;
-import com.sauron.heist.util.HttpBrowserDownloader;
+import com.sauron.heist.http.HttpBrowserConf;
+import com.sauron.heist.http.HttpBrowserDownloader;
 import com.pinecone.framework.util.json.JSONObject;
 
 import us.codecraft.webmagic.Page;
@@ -28,10 +28,10 @@ public abstract class HTTPHeist extends Heist {
     protected String                 heistURL;     // 爬虫的主链接
 
     protected Site                   site;
-    protected HttpBrowserConf browserConf;
+    protected HttpBrowserConf        browserConf;
     protected Spider                 majorSpider;
     protected CrewPageProcessor      pageProcessor;
-    protected HttpBrowserDownloader httpBrowser;
+    protected HttpBrowserDownloader  httpBrowser;
     protected ReentrantReadWriteLock requestLock = new ReentrantReadWriteLock();
 
     public HTTPHeist( Heistgram heistron ){

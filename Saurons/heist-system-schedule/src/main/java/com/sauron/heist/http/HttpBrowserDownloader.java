@@ -1,4 +1,4 @@
-package com.sauron.heist.util;
+package com.sauron.heist.http;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 

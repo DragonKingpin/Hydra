@@ -1,6 +1,6 @@
 package com.sauron.heist.heistron;
 
-import com.sauron.heist.util.HttpBrowserConf;
+import com.sauron.heist.http.HttpBrowserConf;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;

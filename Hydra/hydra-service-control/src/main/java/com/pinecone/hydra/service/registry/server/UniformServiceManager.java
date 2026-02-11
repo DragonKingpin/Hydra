@@ -42,20 +42,17 @@ public class UniformServiceManager implements ServiceManager {
     protected final ServiceInstrument                                                       mServiceInstrument;
 
     protected final ConcurrentMap<Long, ServiceAppointServer >                              mServerPoolMap;  // ServerId => Node
-
-    protected final ConcurrentMap<Long, ServiceInstance >                                   mCIdInstanceRegistry;
-
+    protected final ConcurrentMap<Long, ServiceInstance >                                   mCIdInstanceRegistry; // ClientId => Instance
     protected final ConcurrentMap<Identification, ConcurrentMap<Long, ServiceInstance> >    mServiceRegistry;  // ServiceId => <CId, Instance>
-
     protected final ConcurrentMap<Identification, ClientInstance >                          mInstanceRegistry; // InstanceId => Instance
-
-    protected final ConcurrentMap<Long, RegisteredServiceClient>                            mClientRegistry;
+    protected final ConcurrentMap<Long, RegisteredServiceClient>                            mClientRegistry; // ClientId => Client
 
     protected final List<ServiceRegisterEventHandler>                                       mRegisterEventHandlers;
-
     protected final GuidAllocator                                                           mGuidAllocator;
-
     protected final ServiceEventHooker                                                      mServiceEventHooker;
+
+    protected final ServiceLifecycleService                                                 mServiceLifecycleService;
+    protected final ServiceMetaService                                                      mServiceMetaService;
 
     private final Logger mLogger;
 
@@ -82,16 +79,21 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     public UniformServiceManager( ServiceInstrument serviceInstrument ) {
-        this.mServiceInstrument     = serviceInstrument;
-        this.mServerPoolMap         = new ConcurrentHashMap<>();
-        this.mServiceRegistry       = new ConcurrentHashMap<>();
-        this.mCIdInstanceRegistry   = new ConcurrentHashMap<>();
-        this.mInstanceRegistry      = new ConcurrentHashMap<>();
-        this.mClientRegistry        = new ConcurrentHashMap<>();
-        this.mLogger                = LoggerFactory.getLogger( this.getClass() );
-        this.mRegisterEventHandlers = new ArrayList<>();
-        this.mGuidAllocator         = serviceInstrument.getGuidAllocator();
-        this.mServiceEventHooker    = new UniformServiceEventHooker( this );
+        this.mServiceInstrument         = serviceInstrument;
+        this.mServerPoolMap             = new ConcurrentHashMap<>();
+        this.mServiceRegistry           = new ConcurrentHashMap<>();
+        this.mCIdInstanceRegistry       = new ConcurrentHashMap<>();
+        this.mInstanceRegistry          = new ConcurrentHashMap<>();
+        this.mClientRegistry            = new ConcurrentHashMap<>();
+        this.mLogger                    = LoggerFactory.getLogger( this.getClass() );
+        this.mRegisterEventHandlers     = new ArrayList<>();
+        this.mGuidAllocator             = serviceInstrument.getGuidAllocator();
+        this.mServiceEventHooker        = new UniformServiceEventHooker( this );
+
+
+        this.mServiceLifecycleService   = new ServiceLifecycleService( this );
+        this.mServiceMetaService        = new ServiceMetaService( this );
+
     }
 
     @Override
@@ -110,6 +112,18 @@ public class UniformServiceManager implements ServiceManager {
         this.addAppointServer( appointServer );
         appointServer.hookServiceManager( this );
         return this;
+    }
+
+    @Override
+    public ServiceManager vitalizeAppointServer( ServiceAppointServer appointServer ) throws ServiceControlRPCException {
+        try {
+            this.hookAppointServer( appointServer );
+            appointServer.execute();
+            return this;
+        }
+        catch ( Exception e ) {
+            throw new ServiceControlRPCException( e );
+        }
     }
 
     @Override
@@ -140,8 +154,15 @@ public class UniformServiceManager implements ServiceManager {
 
 
 
+    @Override
+    public ServiceLifecycleService serviceLifecycleService() {
+        return this.mServiceLifecycleService;
+    }
 
-
+    @Override
+    public ServiceMetaService getServiceMetaService() {
+        return this.mServiceMetaService;
+    }
 
     @Override
     public void startService() throws ServiceControlRPCException {
@@ -181,7 +202,7 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected void triggerServiceEvent(long clientId, Identification insId, ServiceRegisterEvent event, Object caused ) {
+    protected void triggerServiceEvent( long clientId, Identification insId, ServiceRegisterEvent event, Object caused ) {
         ServiceInstance instance = this.mCIdInstanceRegistry.get( clientId );
         if ( instance == null ) {
             return;
@@ -379,6 +400,8 @@ public class UniformServiceManager implements ServiceManager {
                 else {
                     throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
                 }
+
+                this.triggerServiceEvent( clientId, eliminated.getId(), ServiceRegisterEvent.Deregistered, eliminated );
             }
             return null;
         }

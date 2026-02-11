@@ -14,10 +14,8 @@ import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UniformServiceClient implements ServiceClient {
+public class HuskyServiceClient extends ArchServiceClient implements ServiceClient {
     protected DuplexAppointClient           mDuplexAppointClient;
-
-    protected Logger                        mLogger;
 
     protected UlfClient                     mRPCClient;
 
@@ -25,20 +23,12 @@ public class UniformServiceClient implements ServiceClient {
 
     protected ServiceMetaManipulationIface  mServiceMetaManipulationIface;
 
-    protected GuidAllocator                 mGuidAllocator;
-
-    protected GUID                          mServiceId;
-
-    protected GUID                          mInstanceId;
-
-    public UniformServiceClient( @Nullable GUID serviceId, UlfClient ulfClient, GuidAllocator guidAllocator ) {
-        this.mLogger                = LoggerFactory.getLogger( this.getClass() );
+    public HuskyServiceClient( @Nullable GUID serviceId, UlfClient ulfClient, GuidAllocator guidAllocator ) {
+        super( serviceId, guidAllocator );
         this.mRPCClient             = ulfClient;
-        this.mGuidAllocator         = guidAllocator;
-        this.mServiceId             = serviceId;
     }
 
-    public UniformServiceClient( UlfClient ulfClient, GuidAllocator guidAllocator ) {
+    public HuskyServiceClient( UlfClient ulfClient, GuidAllocator guidAllocator ) {
         this( null, ulfClient, guidAllocator );
     }
 
@@ -59,7 +49,7 @@ public class UniformServiceClient implements ServiceClient {
     }
 
     @Override
-    public DuplexAppointClient getDuplexAppointClient() {
+    public DuplexAppointClient getAppointNodus() {
         return this.mDuplexAppointClient;
     }
 

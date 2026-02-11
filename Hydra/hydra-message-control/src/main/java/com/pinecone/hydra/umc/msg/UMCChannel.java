@@ -9,7 +9,12 @@ import java.net.SocketAddress;
 public interface UMCChannel extends Pinenut {
     Thread         getAffiliateThread();
 
+    // Target address.
     SocketAddress  getAddress();
+
+    SocketAddress  remoteAddress();
+
+    SocketAddress  localAddress();
 
     void           reconnect() throws IOException;
 

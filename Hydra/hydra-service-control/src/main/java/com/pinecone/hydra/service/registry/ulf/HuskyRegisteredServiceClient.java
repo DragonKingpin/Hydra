@@ -17,7 +17,7 @@ public class HuskyRegisteredServiceClient implements RegisteredServiceClient {
 
     protected final ServiceAppointServer              mServiceAppointServer;
 
-    protected SocketAddress                           mRemoteAddress;
+    protected volatile SocketAddress                  mRemoteAddress;
 
     public HuskyRegisteredServiceClient( ServiceAppointServer serviceAppointServer ) {
         this.mServiceChannels      = new ConcurrentHashMap<>();
@@ -64,9 +64,10 @@ public class HuskyRegisteredServiceClient implements RegisteredServiceClient {
 
     @Override
     public void afterNewConnectionInbound( Long clientId, Object connectId, Object connection, Object context ) {
-        UMCChannel channel = (UMCChannel) connection;
+        UMCChannel channel  = (UMCChannel) connection;
         this.mServiceChannels.put( connectId, channel );
-        this.mClientId     = clientId;
+        this.mClientId      = clientId;
+        this.mRemoteAddress = channel.remoteAddress();
     }
 
     @Override

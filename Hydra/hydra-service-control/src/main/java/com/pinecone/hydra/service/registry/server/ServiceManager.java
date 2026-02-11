@@ -29,6 +29,11 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
      */
     ServiceManager hookAppointServer( ServiceAppointServer appointServer );
 
+    /**
+     * Add, hook, and start.
+     */
+    ServiceManager vitalizeAppointServer( ServiceAppointServer appointServer ) throws ServiceControlRPCException;
+
     ServiceAppointServer getAppointServerById( Long appointNodeId );
 
     ServiceAppointServer evictAppointServerById( Long appointNodeId );
@@ -122,4 +127,12 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
     void removeRegisterEventHandler( ServiceRegisterEventHandler handler ) ;
 
     int registerEventHandlerSize(  ) ;
+
+
+
+
+    ServiceLifecycleService serviceLifecycleService();
+
+    ServiceMetaService getServiceMetaService();
+
 }

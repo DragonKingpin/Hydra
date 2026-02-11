@@ -11,7 +11,7 @@ import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.server.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
-import com.pinecone.hydra.service.registry.client.UniformServiceClient;
+import com.pinecone.hydra.service.registry.client.HuskyServiceClient;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.service.registry.ulf.HuskyServiceAppointServer;
@@ -59,7 +59,7 @@ class Brian extends Tritium {
         UlfClient ulfClient = new WolfMCClient(
                 new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
         );
-        UniformServiceClient managerClient = new UniformServiceClient( ulfClient, servicesTree.getGuidAllocator() );
+        HuskyServiceClient managerClient = new HuskyServiceClient( ulfClient, servicesTree.getGuidAllocator() );
         managerClient.startService();
 
         this.testUniformServiceRegister_Proactive( managerClient );
@@ -67,8 +67,8 @@ class Brian extends Tritium {
         //this.oldTest( servicesTree );
     }
 
-    public void testUniformServiceRegister_Proactive( UniformServiceClient managerClient ) throws Exception {
-        DuplexAppointClient client = managerClient.getDuplexAppointClient();
+    public void testUniformServiceRegister_Proactive( HuskyServiceClient managerClient ) throws Exception {
+        DuplexAppointClient client = managerClient.getAppointNodus();
         ServiceMetaManipulationIface metaIface = client.getIface(ServiceMetaManipulationIface.class);
         ServiceMetaDTO meta = metaIface.queryServiceMetaByPath( "root/test/app/ser" );
         Debug.greenfs( meta );

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.registry.server;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GUID;
@@ -10,10 +11,33 @@ import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
+import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 
 public interface ServiceManager extends Manager, Slf4jTraceable {
+
+    Collection<ServiceAppointServer> getServers();
+
+    /**
+     * Add server only.
+     */
+    ServiceManager addAppointServer( ServiceAppointServer appointServer );
+
+    /**
+     * Add, and hook.
+     */
+    ServiceManager hookAppointServer( ServiceAppointServer appointServer );
+
+    ServiceAppointServer getAppointServerById( Long appointNodeId );
+
+    ServiceAppointServer evictAppointServerById( Long appointNodeId );
+
+    int serverSize();
+
+    ServiceEventHooker serviceEventHooker();
+
+
 
     void startService () throws ServiceControlRPCException;
 

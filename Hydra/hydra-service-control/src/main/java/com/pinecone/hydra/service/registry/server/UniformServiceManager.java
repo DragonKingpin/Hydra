@@ -14,13 +14,14 @@ import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.UniformService;
 import com.pinecone.hydra.service.registry.WolfServiceInstance;
+import com.pinecone.hydra.service.registry.appoint.RegisteredServiceClient;
+import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
 import com.pinecone.hydra.service.registry.ulf.ServiceLifecycleController;
 import com.pinecone.hydra.service.registry.ulf.ServiceMetaController;
 import com.pinecone.hydra.system.component.LogStatuses;
-import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.MessageNode;
@@ -44,11 +45,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 public class UniformServiceManager implements ServiceManager {
-    protected ServiceInstrument                                                             mServiceInstrument;
+    protected final ServiceInstrument                                                       mServiceInstrument;
 
-    protected DuplexAppointServer                                                           mAppointServer;
+    protected final ConcurrentMap<Long, ServiceAppointServer >                              mServerPoolMap;  // ServerId => Node
 
     protected final ConcurrentMap<Long, ServiceInstance >                                   mCIdInstanceRegistry;
 
@@ -56,11 +58,13 @@ public class UniformServiceManager implements ServiceManager {
 
     protected final ConcurrentMap<Identification, ClientInstance >                          mInstanceRegistry; // InstanceId => Instance
 
-    protected final ConcurrentMap<Long, ConcurrentMap<Object, Object > >                    mClientRegistry;
+    protected final ConcurrentMap<Long, RegisteredServiceClient>                            mClientRegistry;
 
-    protected List<ServiceRegisterEventHandler>                                             mRegisterEventHandlers;
+    protected final List<ServiceRegisterEventHandler>                                       mRegisterEventHandlers;
 
-    protected GuidAllocator                                                                 mGuidAllocator;
+    protected final GuidAllocator                                                           mGuidAllocator;
+
+    protected final ServiceEventHooker                                                      mServiceEventHooker;
 
     private final Logger mLogger;
 
@@ -71,42 +75,14 @@ public class UniformServiceManager implements ServiceManager {
         return this.mLogger;
     }
 
-    protected void initRPCSubsystem() {
-        this.mAppointServer.registerController( new ServiceLifecycleController( this ) );
-        this.mAppointServer.registerController( new ServiceMetaController( this ) );
-
-        MessageNode messageNode = this.mAppointServer.getMessageNode();
-        UlfServer   ulfServer   = (UlfServer) messageNode;
-        ulfServer.registerDataArrivedEventHandlers(new ChannelEventHandler() {
-            @Override
-            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
-                long clientId    = block.getChannel().getIdentityID();
-                Object channelId = block.getChannel().getChannelID();
-                UniformServiceManager.this.mClientRegistry.compute( clientId, ( key, ins ) -> {
-                    if ( ins == null ) {
-                        ins = new ConcurrentHashMap<>();
-                    }
-                    ins.put( channelId, block.getChannel() );
-                    return ins;
-                } );
-            }
-        });
-
-        ulfServer.registerChannelInactiveHandler(new ChannelInactiveHandler() {
-            @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
-                Long clientId    = ccb.getChannel().getIdentityID();
-                Object channelId = ccb.getChannel().getChannelID();
-
-                UniformServiceManager.this.afterChannelDetach( clientId, channelId );
-                return false;
-            }
-        });
-    }
 
     protected void vitalizeRPCSubsystem() throws ServiceControlRPCException {
         try {
-            this.mAppointServer.execute();
+            for ( Map.Entry<Long, ServiceAppointServer> entry : this.mServerPoolMap.entrySet() ) {
+                if ( !entry.getValue().isStarted() ) {
+                    entry.getValue().execute();
+                }
+            }
             this.infoLifecycle( "RPC Subsystem Service Vitalization", LogStatuses.StatusDone );
         }
         catch ( Exception e ) {
@@ -114,26 +90,9 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected void afterChannelDetach( Long clientId, Object channelId ) {
-        synchronized ( this.mClientRegistry ) {
-            ConcurrentMap<Object, Object > channelSet = this.mClientRegistry.get( clientId );
-            // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
-            // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
-            if ( channelSet != null ) {
-                if ( channelSet.size() > 1 ) {
-                    channelSet.remove( channelId );
-                }
-                else {
-                    this.mClientRegistry.remove( clientId );
-                    this.deregisterServiceInstance( clientId );
-                }
-            }
-        }
-    }
-
-    public UniformServiceManager( ServiceInstrument serviceInstrument, DuplexAppointServer server ){
+    public UniformServiceManager( ServiceInstrument serviceInstrument ) {
         this.mServiceInstrument     = serviceInstrument;
-        this.mAppointServer         = server;
+        this.mServerPoolMap         = new ConcurrentHashMap<>();
         this.mServiceRegistry       = new ConcurrentHashMap<>();
         this.mCIdInstanceRegistry   = new ConcurrentHashMap<>();
         this.mInstanceRegistry      = new ConcurrentHashMap<>();
@@ -141,11 +100,60 @@ public class UniformServiceManager implements ServiceManager {
         this.mLogger                = LoggerFactory.getLogger( this.getClass() );
         this.mRegisterEventHandlers = new ArrayList<>();
         this.mGuidAllocator         = serviceInstrument.getGuidAllocator();
+        this.mServiceEventHooker    = new UniformServiceEventHooker( this );
     }
 
     @Override
+    public Collection<ServiceAppointServer> getServers() {
+        return this.mServerPoolMap.values();
+    }
+
+    @Override
+    public ServiceManager addAppointServer( ServiceAppointServer appointServer ) {
+        this.mServerPoolMap.put( appointServer.getMessageNodeId(), appointServer );
+        return this;
+    }
+
+    @Override
+    public ServiceManager hookAppointServer( ServiceAppointServer appointServer ) {
+        this.addAppointServer( appointServer );
+        appointServer.hookServiceManager( this );
+        return this;
+    }
+
+    @Override
+    public ServiceAppointServer getAppointServerById( Long appointNodeId ) {
+        return this.mServerPoolMap.get( appointNodeId );
+    }
+
+    @Override
+    public ServiceAppointServer evictAppointServerById( Long appointNodeId ) {
+        ServiceAppointServer legacy = this.mServerPoolMap.remove( appointNodeId );
+        if ( legacy != null ) {
+            legacy.close(); // In principle, all connections will be closed cascadingly.
+            return legacy;
+        }
+        return null;
+    }
+
+    @Override
+    public int serverSize() {
+        return this.mServerPoolMap.size();
+    }
+
+    @Override
+    public ServiceEventHooker serviceEventHooker() {
+        return this.mServiceEventHooker;
+    }
+
+
+
+
+
+
+
+    @Override
     public void startService() throws ServiceControlRPCException {
-        this.initRPCSubsystem();
         this.vitalizeRPCSubsystem();
     }
 
@@ -232,14 +240,12 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
         synchronized ( this.mServiceRegistry ) {
-            ConcurrentMap<Object, Object > map = this.mClientRegistry.get( clientId );
-            if ( map == null || map.isEmpty() ) {
+            RegisteredServiceClient client = this.mClientRegistry.get( clientId );
+            if ( client == null ) {
                 throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
             }
 
-            Object first = map.entrySet().iterator().next().getValue();
-            UlfChannel channel = (UlfChannel) first;
-            SocketAddress remote = channel.getNativeHandle().remoteAddress();
+            SocketAddress remote = client.getRemoteAddress();
             String ip = "";
             if ( remote instanceof InetSocketAddress) {
                 InetSocketAddress inet = (InetSocketAddress) remote;

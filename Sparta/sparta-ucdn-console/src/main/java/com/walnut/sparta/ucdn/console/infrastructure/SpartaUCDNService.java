@@ -11,6 +11,7 @@ import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
+import com.pinecone.hydra.service.registry.ulf.HuskyServiceAppointServer;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -103,9 +104,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     protected void initModules() throws ComponentInitializationException {
-        this.serviceManager = new UniformServiceManager(
-                this.serviceInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
-        );
+        this.serviceManager = new UniformServiceManager( this.serviceInstrument );
+        this.serviceManager.hookAppointServer( new HuskyServiceAppointServer( this.primaryMessageWareStone.getWolfKingAppointServer() ) );
 
         JSONConfig selfConfig = (JSONConfig) this.getConfig();
         this.clusterFileSynchronizationConfig = new UCFMConfig( selfConfig.queryJSONObject( "service.ClusterFileSynchronizationConfig" ) );

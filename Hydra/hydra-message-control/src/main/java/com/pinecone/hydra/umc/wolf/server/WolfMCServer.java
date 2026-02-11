@@ -115,7 +115,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, Map<String, Object> joConf ) {
-        this( -1, szName, parentProcess, null, joConf );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf );
     }
 
     protected WolfMCServer( Builder builder ){

@@ -14,6 +14,7 @@ import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.hydra.service.registry.client.UniformServiceClient;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
+import com.pinecone.hydra.service.registry.ulf.HuskyServiceAppointServer;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
@@ -48,7 +49,8 @@ class Brian extends Tritium {
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
 
-        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree, new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class ) );
+        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree );
+        serviceManager.hookAppointServer( new HuskyServiceAppointServer( new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class ) ));
         RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
 
         serviceRegiment.startServiceManage();
@@ -92,7 +94,8 @@ class Brian extends Tritium {
         WolfMCServer          wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         WolvesAppointServer wolfServer = new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class );
-        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree, wolfServer );
+        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree );
+        serviceManager.hookAppointServer( new HuskyServiceAppointServer( wolfServer ) );
         wolfKing.execute();
 
         Debug.sleep( 500 );

@@ -1,6 +1,5 @@
 package com.pinecone.hydra.service.registry.server;
 
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
 import com.pinecone.hydra.service.registry.appoint.RegisteredServiceClient;

@@ -8,7 +8,7 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
@@ -43,11 +43,11 @@ public class WolfMCRocketClient extends RocketMQClient implements UlfRocketClien
     }
 
     public WolfMCRocketClient( String nameSrvAddr, String groupName, ExtraHeadCoder extraHeadCoder ) {
-        this( MessageNodus.nextLocalId(), nameSrvAddr, groupName, extraHeadCoder );
+        this( Messagus.nextLocalId(), nameSrvAddr, groupName, extraHeadCoder );
     }
 
     public WolfMCRocketClient( String nameSrvAddr, String groupName ) {
-        this( MessageNodus.nextLocalId(), nameSrvAddr, groupName, new GenericExtraHeadCoder() );
+        this( Messagus.nextLocalId(), nameSrvAddr, groupName, new GenericExtraHeadCoder() );
     }
 
     public WolfMCRocketClient( long nodeId, Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
@@ -55,7 +55,7 @@ public class WolfMCRocketClient extends RocketMQClient implements UlfRocketClien
     }
 
     public WolfMCRocketClient( Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
-        this( MessageNodus.nextLocalId(), config, extraHeadCoder );
+        this( Messagus.nextLocalId(), config, extraHeadCoder );
     }
 
 

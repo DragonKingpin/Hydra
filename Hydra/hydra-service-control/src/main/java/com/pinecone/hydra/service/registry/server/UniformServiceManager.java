@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.registry;
+package com.pinecone.hydra.service.registry.server;
 
 import com.mysql.cj.exceptions.AssertionFailedException;
 import com.pinecone.framework.util.id.GUID;
@@ -10,9 +10,15 @@ import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.ServiceControlRPCException;
+import com.pinecone.hydra.service.registry.UniformService;
+import com.pinecone.hydra.service.registry.WolfServiceInstance;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
+import com.pinecone.hydra.service.registry.ulf.ServiceLifecycleController;
+import com.pinecone.hydra.service.registry.ulf.ServiceMetaController;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
@@ -224,31 +230,33 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException  {
-        ConcurrentMap<Object, Object > map = this.mClientRegistry.get( clientId );
-        if ( map == null || map.isEmpty() ) {
-            throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
+    public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
+        synchronized ( this.mServiceRegistry ) {
+            ConcurrentMap<Object, Object > map = this.mClientRegistry.get( clientId );
+            if ( map == null || map.isEmpty() ) {
+                throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
+            }
+
+            Object first = map.entrySet().iterator().next().getValue();
+            UlfChannel channel = (UlfChannel) first;
+            SocketAddress remote = channel.getNativeHandle().remoteAddress();
+            String ip = "";
+            if ( remote instanceof InetSocketAddress) {
+                InetSocketAddress inet = (InetSocketAddress) remote;
+                ip  = inet.getAddress().getHostAddress();
+            }
+
+            ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceId, deployGuid, ip ); // new
+            ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceStatus.SERVICE_RUNNING );
+
+            TreeNode node = this.mServiceInstrument.get( serviceId );
+            ServiceElement serviceElement = (ServiceElement) node;
+            ServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
+            this.registerServiceInstance( serviceInstance );
+            this.mLogger.info( "Remote serviceInstance {} register success. <IP:{}>", element.getGuid(), ip );
+
+            return element.getGuid();
         }
-
-        Object first = map.entrySet().iterator().next().getValue();
-        UlfChannel channel = (UlfChannel) first;
-        SocketAddress remote = channel.getNativeHandle().remoteAddress();
-        String ip = "";
-        if ( remote instanceof InetSocketAddress) {
-            InetSocketAddress inet = (InetSocketAddress) remote;
-            ip  = inet.getAddress().getHostAddress();
-        }
-
-        ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceId, deployGuid, ip ); // new
-        ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceStatus.SERVICE_RUNNING );
-
-        TreeNode node = this.mServiceInstrument.get( serviceId );
-        ServiceElement serviceElement = (ServiceElement) node;
-        ServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
-        this.registerServiceInstance( serviceInstance );
-        this.mLogger.info( "Remote serviceInstance {} register success. <IP:{}>", element.getGuid(), ip );
-
-        return element.getGuid();
     }
 
     protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceStatus status ) {

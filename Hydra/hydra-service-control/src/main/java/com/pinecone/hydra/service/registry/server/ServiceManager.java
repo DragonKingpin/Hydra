@@ -1,17 +1,17 @@
-package com.pinecone.hydra.service.registry;
+package com.pinecone.hydra.service.registry.server;
 
 import java.util.Collection;
 
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
-import com.pinecone.hydra.service.Service;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
-import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 
 public interface ServiceManager extends Manager, Slf4jTraceable {
 

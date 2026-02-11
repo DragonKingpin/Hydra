@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.registry;
+package com.pinecone.hydra.service.registry.server;
 
 
 import com.pinecone.framework.system.prototype.Pinenut;

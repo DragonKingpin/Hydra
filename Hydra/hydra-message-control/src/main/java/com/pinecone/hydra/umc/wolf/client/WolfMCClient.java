@@ -19,7 +19,7 @@ import io.netty.util.AttributeKey;
 import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolf.AsyncUlfMedium;
@@ -82,7 +82,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ){
-        super( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
+        super( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
 
         this.apply( joConf );
     }
@@ -92,7 +92,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, Map<String, Object>  joConf, ExtraHeadCoder extraHeadCoder ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
     }
 
     public WolfMCClient( long nodeId, String szName, Processum parentProcess, Map<String, Object>  joConf ){
@@ -100,7 +100,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, Map<String, Object>  joConf ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, joConf, null );
     }
 
     public WolfMCClient( long nodeId, String szName, UlfMessageNode parent, Processum parentProcess, Map<String, Object>  joConf ){
@@ -108,7 +108,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, UlfMessageNode parent, Processum parentProcess, Map<String, Object>  joConf ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, null );
     }
 
     protected WolfMCClient( Builder builder ){

@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.hydra.service.kom.ServiceInstrument;
-import com.pinecone.hydra.service.registry.UniformServiceManager;
+import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.version.TitanVersionManage;

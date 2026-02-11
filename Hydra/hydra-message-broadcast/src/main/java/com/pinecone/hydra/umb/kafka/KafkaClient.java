@@ -5,7 +5,7 @@ import com.pinecone.hydra.umb.broadcast.BroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
 import com.pinecone.hydra.umb.broadcast.converter.GenericResultBytesConverter;
 import com.pinecone.hydra.umb.broadcast.converter.ResultBytesConverter;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 import java.util.Map;
@@ -44,11 +44,11 @@ public class KafkaClient implements KClient {
     }
 
     public KafkaClient( String server ) {
-        this( MessageNodus.nextLocalId(), server );
+        this( Messagus.nextLocalId(), server );
     }
 
     public KafkaClient( Map<String, Object> config ){
-        this( MessageNodus.nextLocalId(), new KafkaConfig( config ) );
+        this( Messagus.nextLocalId(), new KafkaConfig( config ) );
     }
 
     @Override

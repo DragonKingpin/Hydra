@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.console.domain.service.impl;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;

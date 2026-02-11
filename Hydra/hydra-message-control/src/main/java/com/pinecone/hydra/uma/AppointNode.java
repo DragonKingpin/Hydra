@@ -1,5 +1,6 @@
 package com.pinecone.hydra.uma;
 
+import com.pinecone.hydra.appoints.AppointNodus;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umct.UMCTNode;
 import com.pinecone.hydra.umct.husky.compiler.ClassDigest;
@@ -9,7 +10,7 @@ import com.pinecone.hydra.umct.husky.machinery.PMCTContextMachinery;
 import com.pinecone.ulf.util.protobuf.FieldProtobufDecoder;
 import com.pinecone.ulf.util.protobuf.FieldProtobufEncoder;
 
-public interface AppointNode extends UMCTNode {
+public interface AppointNode extends UMCTNode, AppointNodus {
     MessageNode getMessageNode();
 
     default long getMessageNodeId() {

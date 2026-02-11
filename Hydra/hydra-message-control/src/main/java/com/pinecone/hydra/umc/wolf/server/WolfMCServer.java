@@ -20,7 +20,7 @@ import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
@@ -91,7 +91,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
@@ -99,7 +99,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf ) {
@@ -107,7 +107,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, null );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, Map<String, Object> joConf ) {

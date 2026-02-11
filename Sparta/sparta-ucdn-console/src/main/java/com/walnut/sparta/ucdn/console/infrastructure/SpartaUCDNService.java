@@ -10,7 +10,7 @@ import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
-import com.pinecone.hydra.service.registry.UniformServiceManager;
+import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;

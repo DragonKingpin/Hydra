@@ -3,7 +3,7 @@ package com.pinecone.hydra.umb.kafka;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
@@ -28,7 +28,7 @@ public class WolfMCKafkaClient extends KafkaClient implements UlfKafkaClient{
     }
 
     public WolfMCKafkaClient( String nameSrvAddr ) {
-        this( MessageNodus.nextLocalId(), nameSrvAddr, new GenericExtraHeadCoder() );
+        this( Messagus.nextLocalId(), nameSrvAddr, new GenericExtraHeadCoder() );
     }
 
     public WolfMCKafkaClient( long nodeId, Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
@@ -36,7 +36,7 @@ public class WolfMCKafkaClient extends KafkaClient implements UlfKafkaClient{
     }
 
     public WolfMCKafkaClient( Map<String, Object> config, ExtraHeadCoder extraHeadCoder ){
-        this( MessageNodus.nextLocalId(), config, extraHeadCoder );
+        this( Messagus.nextLocalId(), config, extraHeadCoder );
     }
 
 

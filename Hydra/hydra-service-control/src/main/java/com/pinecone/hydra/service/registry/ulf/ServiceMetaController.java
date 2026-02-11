@@ -1,4 +1,4 @@
-package com.pinecone.hydra.service.registry;
+package com.pinecone.hydra.service.registry.ulf;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.json.JSONMaptron;
@@ -9,20 +9,20 @@ import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.marshaling.ServiceJSONDecoder;
+import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Controller
-@AddressMapping("com.pinecone.hydra.service.registry.ServiceMetaManipulationIface.")
+@AddressMapping("com.pinecone.hydra.service.registry.server.ServiceMetaManipulationIface.")
 public class ServiceMetaController implements Pinenut {
-    protected ServiceManager          mServiceManager;
+    protected ServiceManager mServiceManager;
 
     protected ServiceInstrument       mServiceInstrument;
 

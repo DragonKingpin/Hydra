@@ -4,7 +4,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.GenericSiteNode;

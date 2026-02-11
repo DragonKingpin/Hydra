@@ -1,26 +1,24 @@
-package com.pinecone.hydra.service.registry;
+package com.pinecone.hydra.service.registry.ulf;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.service.entity.BindUSII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
-import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
-import com.pinecone.hydra.service.registry.constant.ServiceStatus;
+import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.ServiceInstanceCreationException;
+import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
-import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.ulf.util.guid.GUIDs;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
-@AddressMapping("com.pinecone.hydra.service.registry.ServiceLifecycleIface.")
+@AddressMapping("com.pinecone.hydra.service.registry.server.ServiceLifecycleIface.")
 public class ServiceLifecycleController {
 
-    protected ServiceManager      mServiceManager;
+    protected ServiceManager mServiceManager;
 
     protected ServiceInstrument   mServiceInstrument;
 

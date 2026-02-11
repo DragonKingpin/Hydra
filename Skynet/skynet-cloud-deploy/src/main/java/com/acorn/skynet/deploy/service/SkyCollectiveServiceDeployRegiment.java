@@ -2,7 +2,7 @@ package com.acorn.skynet.deploy.service;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.service.registry.ServiceManager;
+import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
 import org.slf4j.Logger;

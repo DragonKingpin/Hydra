@@ -5,21 +5,21 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.pinecone.hydra.service.registry.appoint.RegisteredServiceClient;
+import com.pinecone.hydra.service.registry.appoint.ServiceClientile;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.umc.msg.UMCChannel;
 
-public class HuskyRegisteredServiceClient implements RegisteredServiceClient {
-
+public class HuskyServiceClientile implements ServiceClientile {
     protected long                                    mClientId = -1;
 
+    // connectionId => channel
     protected final ConcurrentMap<Object, UMCChannel> mServiceChannels;
 
     protected final ServiceAppointServer              mServiceAppointServer;
 
-    protected volatile SocketAddress                  mRemoteAddress;
+    protected SocketAddress                           mMainRemoteAddress;
 
-    public HuskyRegisteredServiceClient( ServiceAppointServer serviceAppointServer ) {
+    public HuskyServiceClientile( ServiceAppointServer serviceAppointServer ) {
         this.mServiceChannels      = new ConcurrentHashMap<>();
         this.mServiceAppointServer = serviceAppointServer;
     }
@@ -64,10 +64,10 @@ public class HuskyRegisteredServiceClient implements RegisteredServiceClient {
 
     @Override
     public void afterNewConnectionInbound( Long clientId, Object connectId, Object connection, Object context ) {
-        UMCChannel channel  = (UMCChannel) connection;
+        UMCChannel channel      = (UMCChannel) connection;
         this.mServiceChannels.put( connectId, channel );
-        this.mClientId      = clientId;
-        this.mRemoteAddress = channel.remoteAddress();
+        this.mClientId          = clientId;
+        this.mMainRemoteAddress = channel.remoteAddress();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class HuskyRegisteredServiceClient implements RegisteredServiceClient {
 
     @Override
     public SocketAddress getRemoteAddress() {
-        return this.mRemoteAddress;
+        return this.mMainRemoteAddress;
     }
 
 }

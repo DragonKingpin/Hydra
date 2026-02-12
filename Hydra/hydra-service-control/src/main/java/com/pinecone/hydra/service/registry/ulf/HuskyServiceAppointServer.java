@@ -51,7 +51,7 @@ public class HuskyServiceAppointServer implements ServiceAppointServer {
 
                 mServiceManager.serviceEventHooker().afterNewConnectionInbound(
                         clientId, channelId, block.getChannel(), context,
-                        () -> new HuskyRegisteredServiceClient( HuskyServiceAppointServer.this )
+                        () -> new HuskyServiceClientile( HuskyServiceAppointServer.this )
                 );
             }
         });

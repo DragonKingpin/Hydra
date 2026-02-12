@@ -13,29 +13,29 @@ import com.pinecone.ulf.util.guid.GUIDs;
 import java.time.LocalDateTime;
 
 public class ServiceMetaDTO implements Pinenut {
-   private String guid;
+    private String guid;
 
-   private String name;
+    private String name;
 
-   private String type;
+    private String type;
 
-   private String displayName;
+    private String displayName;
 
-   private String description;
+    private String description;
 
-   private String fullName;
+    private String fullName;
 
-   private Namespace groupNamespace;
+    private String groupNamespace;
 
-   private String groupName;
+    private String groupName;
 
-   private String scenario;
+    private String scenario;
 
-   private String primaryImplLang;
+    private String primaryImplLang;
 
-   private String extraInformation;
+    private String extraInformation;
 
-   private String level;
+    private String level;
 
     public String getType() {
         return this.type;
@@ -85,11 +85,11 @@ public class ServiceMetaDTO implements Pinenut {
         this.fullName = fullName;
     }
 
-    public Namespace getGroupNamespace() {
+    public String getGroupNamespace() {
         return this.groupNamespace;
     }
 
-    public void setGroupNamespace(Namespace groupNamespace) {
+    public void setGroupNamespace(String groupNamespace) {
         this.groupNamespace = groupNamespace;
     }
 

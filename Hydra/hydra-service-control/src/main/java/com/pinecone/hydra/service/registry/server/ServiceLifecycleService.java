@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
@@ -35,7 +36,7 @@ public class ServiceLifecycleService implements Pinenut {
         String szServId = serviceDTO.getServiceId();
         GUID serviceId  = this.mGuidAllocator.parse( szServId );
         GUID deployId   = null;
-        if ( serviceDTO.getDeployId() != null ) {
+        if ( StringUtils.isNotBlank(serviceDTO.getDeployId()) ) {
             deployId = this.mGuidAllocator.parse( serviceDTO.getDeployId() );
         }
 

@@ -14,7 +14,7 @@ import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.UniformService;
 import com.pinecone.hydra.service.registry.WolfServiceInstance;
-import com.pinecone.hydra.service.registry.appoint.RegisteredServiceClient;
+import com.pinecone.hydra.service.registry.appoint.ServiceClientile;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.constant.ServiceStatus;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
 
 public class UniformServiceManager implements ServiceManager {
     protected final ServiceInstrument                                                       mServiceInstrument;
@@ -45,7 +44,7 @@ public class UniformServiceManager implements ServiceManager {
     protected final ConcurrentMap<Long, ServiceInstance >                                   mCIdInstanceRegistry; // ClientId => Instance
     protected final ConcurrentMap<Identification, ConcurrentMap<Long, ServiceInstance> >    mServiceRegistry;  // ServiceId => <CId, Instance>
     protected final ConcurrentMap<Identification, ClientInstance >                          mInstanceRegistry; // InstanceId => Instance
-    protected final ConcurrentMap<Long, RegisteredServiceClient>                            mClientRegistry; // ClientId => Client
+    protected final ConcurrentMap<Long, ServiceClientile>                                   mClientRegistry; // ClientId => Client
 
     protected final List<ServiceRegisterEventHandler>                                       mRegisterEventHandlers;
     protected final GuidAllocator                                                           mGuidAllocator;
@@ -252,16 +251,16 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
         synchronized ( this.mServiceRegistry ) {
-            RegisteredServiceClient client = this.mClientRegistry.get( clientId );
+            ServiceClientile client = this.mClientRegistry.get( clientId );
             if ( client == null ) {
                 throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
             }
 
             SocketAddress remote = client.getRemoteAddress();
             String ip = "";
-            if ( remote instanceof InetSocketAddress) {
+            if ( remote instanceof InetSocketAddress ) {
                 InetSocketAddress inet = (InetSocketAddress) remote;
-                ip  = inet.getAddress().getHostAddress();
+                ip = inet.getAddress().getHostAddress();
             }
 
             ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceId, deployGuid, ip ); // new

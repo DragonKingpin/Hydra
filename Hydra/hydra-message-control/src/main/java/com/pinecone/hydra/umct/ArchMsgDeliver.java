@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,27 +25,42 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
     protected String                                      mszName;
     protected MessageExpress                              mExpress;
     protected MessageJunction                             mJunction;
-    protected TrieMap<String, MessageHandler>             mRoutingTable;
+    protected Map<String, MessageHandler>                 mRoutingTable;
     protected HeaderDecipher                              mHeaderDecipher;
     protected String                                      mszServicePathKey;
     protected Logger                                      mLogger;
 
-    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey ) {
+    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey, Supplier<Map<String, MessageHandler>> routingTableSupplier ) {
         this.mszName           = szName;
         this.mExpress          = express;
         this.mJunction         = this.mExpress.getJunction();
         this.mHeaderDecipher   = headerDecipher;
         this.mszServicePathKey = szServicePathKey;
         this.mLogger           = LoggerFactory.getLogger( this.getClass() );
-        this.mRoutingTable     = new UniTrieMaptron<>(HashMap::new, new TrieSegmentor() {
-            @Override
-            public String[] segments( String szPathKey ) {
-                return szPathKey.split( "\\.|\\/" );
-            }
+        this.mRoutingTable     = routingTableSupplier.get();
+    }
 
-            @Override
-            public String getSeparator() {
-                return StringUtils.FOLDER_SEPARATOR;
+    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey ) {
+        this( szName, express, headerDecipher, szServicePathKey, HashMap::new );
+    }
+
+    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey, boolean usingTrie ) {
+        this( szName, express, headerDecipher, szServicePathKey, () -> {
+            if ( usingTrie ) {
+                return new UniTrieMaptron<>( HashMap::new, new TrieSegmentor() {
+                    @Override
+                    public String[] segments( String szPathKey ) {
+                        return szPathKey.split( "\\.|\\/" );
+                    }
+
+                    @Override
+                    public String getSeparator() {
+                        return StringUtils.FOLDER_SEPARATOR;
+                    }
+                });
+            }
+            else {
+                return new HashMap<>();
             }
         });
     }

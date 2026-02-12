@@ -4,6 +4,9 @@ import com.pinecone.hydra.express.Package;
 import com.pinecone.hydra.umct.decipher.JSONHeaderDecipher;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class JSONLetMsgDeliver extends ArchMsgDeliver {
 
@@ -11,8 +14,12 @@ public class JSONLetMsgDeliver extends ArchMsgDeliver {
         this( name, express, ArchMessagram.DefaultServiceKey );
     }
 
+    public JSONLetMsgDeliver( String name, MessageExpress express, String szServiceKey, Supplier<Map<String, MessageHandler>> routingTableSupplier ) {
+        super( name, express, new JSONHeaderDecipher( szServiceKey ), szServiceKey, routingTableSupplier );
+    }
+
     public JSONLetMsgDeliver( String name, MessageExpress express, String szServiceKey ) {
-        super( name, express, new JSONHeaderDecipher( szServiceKey ), szServiceKey );
+        this( name, express, szServiceKey, HashMap::new );
     }
 
     public JSONLetMsgDeliver( MessageExpress express ) {

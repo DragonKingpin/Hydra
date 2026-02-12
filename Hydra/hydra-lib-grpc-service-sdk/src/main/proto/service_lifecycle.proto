@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.pinecone.hydra.service.registry.grpc.server.lifecycle";
+option java_outer_classname = "ServiceLifecycleProto";
+
+service ServiceLifecycle {
+
+  rpc RegisterService (RegisterServiceRequest) returns (RegisterServiceReply);
+
+  rpc CreateInstanceMeta (CreateInstanceMetaRequest) returns (BoolReply);
+
+  rpc DeregisterServiceByClientId (ClientIdRequest) returns (EmptyReply);
+
+  rpc DeregisterServiceByInstanceId (InstanceIdRequest) returns (EmptyReply);
+
+  rpc HasOwnedServiceByServiceId (ServiceIdRequest) returns (BoolReply);
+
+  rpc HasOwnedServiceInstanceByClientId (ClientIdRequest) returns (BoolReply);
+
+  rpc HasOwnedServiceInstanceByInstanceId (InstanceIdRequest) returns (BoolReply);
+
+  rpc HasOwnedServiceClient (ClientIdRequest) returns (BoolReply);
+
+  rpc CountRegisteredService (EmptyRequest) returns (CountReply);
+}
+
+message RegisterServiceRequest {
+  int64 clientId = 1;
+  string serviceId = 2;
+  string deployId = 3;
+}
+
+message RegisterServiceReply {
+  string instanceId = 1;
+}
+
+message CreateInstanceMetaRequest {
+  string instanceGuid = 1;
+}
+
+message ClientIdRequest {
+  int64 clientId = 1;
+}
+
+message InstanceIdRequest {
+  string instanceId = 1;
+}
+
+message ServiceIdRequest {
+  string serviceId = 1;
+}
+
+message BoolReply {
+  bool value = 1;
+}
+
+message CountReply {
+  int32 value = 1;
+}
+
+message EmptyRequest {}
+message EmptyReply {}

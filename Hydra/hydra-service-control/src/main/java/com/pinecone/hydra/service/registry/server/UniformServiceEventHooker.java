@@ -2,7 +2,7 @@ package com.pinecone.hydra.service.registry.server;
 
 import java.util.function.Supplier;
 
-import com.pinecone.hydra.service.registry.appoint.RegisteredServiceClient;
+import com.pinecone.hydra.service.registry.appoint.ServiceClientile;
 
 public class UniformServiceEventHooker implements ServiceEventHooker {
 
@@ -16,7 +16,7 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
     @Override
     public void afterNewConnectionInbound(
             Long clientId, Object connectId, Object connection, Object context,
-            Supplier<RegisteredServiceClient> constructor
+            Supplier<ServiceClientile> constructor
     ) {
         this.mUniformServiceManager.mClientRegistry.compute( clientId, (key, ins ) -> {
             if ( ins == null ) {
@@ -30,7 +30,7 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
     @Override
     public void afterConnectionDetach( Long clientId, Object channelId, Object connection ) {
         synchronized ( this.mUniformServiceManager.mClientRegistry ) {
-            RegisteredServiceClient client = this.mUniformServiceManager.mClientRegistry.get( clientId );
+            ServiceClientile client = this.mUniformServiceManager.mClientRegistry.get( clientId );
             // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
             // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
             if ( client != null ) {

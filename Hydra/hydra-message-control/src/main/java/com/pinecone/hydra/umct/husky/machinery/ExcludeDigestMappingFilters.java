@@ -10,13 +10,13 @@ import com.pinecone.ulf.util.lang.HierarchyClassInspector;
 
 import javassist.NotFoundException;
 
-public class ExcludeHuskyMappingFilters implements TypeFilter {
+public class ExcludeDigestMappingFilters implements TypeFilter {
     protected HierarchyClassInspector mClassInspector;
-    protected PMCTContextMachinery mPMCTContextMachinery;
+    protected MCTContextMachinery     mMCTContextMachinery;
 
-    public ExcludeHuskyMappingFilters( HierarchyClassInspector inspector, PMCTContextMachinery marshal ) {
+    public ExcludeDigestMappingFilters(HierarchyClassInspector inspector, MCTContextMachinery marshal ) {
         this.mClassInspector = inspector;
-        this.mPMCTContextMachinery = marshal;
+        this.mMCTContextMachinery = marshal;
     }
 
     @Override
@@ -31,9 +31,9 @@ public class ExcludeHuskyMappingFilters implements TypeFilter {
     }
 
     protected boolean scanIface( String szClassName, Object pool ) throws IOException {
-        ClassDigest classDigest = this.mPMCTContextMachinery.getInterfacialCompiler().compile( szClassName, false );
+        ClassDigest classDigest = this.mMCTContextMachinery.getInterfacialCompiler().compile( szClassName, false );
         if ( classDigest != null ) {
-            this.mPMCTContextMachinery.addClassDigest( classDigest );
+            this.mMCTContextMachinery.addClassDigest( classDigest );
             return true;
         }
         return false;
@@ -41,9 +41,9 @@ public class ExcludeHuskyMappingFilters implements TypeFilter {
 
     protected boolean scanController( String szClassName, Object pool ) throws IOException {
         try{
-            List<MappingDigest > mappingDigests = this.mPMCTContextMachinery.getControllerInspector().characterize( szClassName );
+            List<MappingDigest > mappingDigests = this.mMCTContextMachinery.getControllerInspector().characterize( szClassName );
             if ( mappingDigests != null && !mappingDigests.isEmpty() ) {
-                this.mPMCTContextMachinery.addAll( mappingDigests );
+                this.mMCTContextMachinery.addAll( mappingDigests );
                 return true;
             }
         }

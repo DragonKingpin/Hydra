@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.hydra.uma.AppointServer;
-import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
+import com.pinecone.hydra.uma.UlfDuplexAppointClient;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
@@ -28,12 +28,13 @@ import com.pinecone.hydra.umct.MessageJunction;
 import com.pinecone.hydra.umct.UMCTExpress;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
 import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcherFabricator;
+import com.pinecone.hydra.umct.husky.machinery.ProtoRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
@@ -51,7 +52,7 @@ import javassist.ClassPool;
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolvesAppointClient extends WolfAppointClient implements DuplexAppointClient {
+public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexAppointClient {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {
             throw new IllegalArgumentException( "`" + expressType.getSimpleName() + "` is not DuplexExpress calibre qualified." );
@@ -103,14 +104,14 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
     }
 
-    protected WolvesAppointClient( UlfClient messenger, RouteDispatcher dispatcher ) {
+    protected WolvesAppointClient( UlfClient messenger, ProtoRouteDispatcher dispatcher ) {
         super( messenger, dispatcher.getInterfacialCompiler(), dispatcher.getContextMachinery().getControllerInspector() );
         this.initSelf();
         this.mRouteDispatcher = dispatcher;
         this.mInstructedChannels = new LinkedTreeMap<>();
     }
 
-    public WolvesAppointClient( UlfClient messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+    public WolvesAppointClient( UlfClient messenger, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
         this( messenger, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
         this.apply( express );
     }
@@ -135,7 +136,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
             this.mRouteDispatcher = new HuskyRouteDispatcher( express, messenger.getTaskManager().getClassLoader() );
             HuskyRouteDispatcherFabricator.afterConstructed( (HuskyRouteDispatcher)this.mRouteDispatcher, express );
-            this.mPMCTContextMachinery = new HuskyContextMachinery( new BytecodeIfacCompiler(
+            this.mMCTContextMachinery = new HuskyContextMachinery( new BytecodeIfaceCompiler(
                     ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
             ), new BytecodeControllerInspector(
                     ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()

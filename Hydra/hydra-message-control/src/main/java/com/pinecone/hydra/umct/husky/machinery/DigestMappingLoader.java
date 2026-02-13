@@ -10,23 +10,23 @@ import com.pinecone.ulf.util.lang.PooledClassCandidateScanner;
 import javassist.ClassPool;
 import javassist.bytecode.annotation.Annotation;
 
-public class HuskyMappingLoader extends ArchMultiScopeLoader implements MultiMappingLoader {
-    protected PMCTContextMachinery mPMCTContextMachinery;
+public class DigestMappingLoader extends ArchMultiScopeLoader implements MultiMappingLoader {
+    protected MCTContextMachinery mMCTContextMachinery;
 
-    protected HuskyMappingLoader( ClassScope classScope, ClassLoader classLoader, ClassPool classPool, PMCTContextMachinery machinery ) {
+    protected DigestMappingLoader( ClassScope classScope, ClassLoader classLoader, ClassPool classPool, MCTContextMachinery machinery ) {
         super( classScope, classLoader, classPool, null, null );
 
-        this.mPMCTContextMachinery = machinery;
+        this.mMCTContextMachinery = machinery;
         this.mClassScanner         = new PooledClassCandidateScanner( new HuskyMappingScopeSet( this.mClassLoader ), this.mClassLoader, this.mClassPool );
         this.mClassInspector       = new GenericPreloadClassInspector( this.mClassPool );
-        this.mClassScanner.addExcludeFilter( new ExcludeDigestMappingFilters( this.mClassInspector, this.mPMCTContextMachinery) );
+        this.mClassScanner.addExcludeFilter( new ExcludeDigestMappingFilters( this.mClassInspector, this.mMCTContextMachinery) );
     }
 
-    protected HuskyMappingLoader( ClassScope classScope, ClassLoader classLoader, PMCTContextMachinery marshal ) {
+    protected DigestMappingLoader( ClassScope classScope, ClassLoader classLoader, MCTContextMachinery marshal ) {
         this( classScope, classLoader, ClassPool.getDefault(), marshal );
     }
 
-    public HuskyMappingLoader( DynamicFactory factory, PMCTContextMachinery marshal ) {
+    public DigestMappingLoader( DynamicFactory factory, MCTContextMachinery marshal ) {
         this( factory.getClassScope(), factory.getClassLoader(), marshal );
     }
 

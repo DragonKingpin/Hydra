@@ -24,7 +24,7 @@ import com.pinecone.hydra.umct.husky.machinery.HuskyMappingLoader;
 import com.pinecone.hydra.umct.husky.machinery.MultiMappingLoader;
 import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.MappingDigest;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
 import com.pinecone.hydra.umct.husky.compiler.MethodDigest;
 import com.pinecone.tritium.messagron.Messagron;
@@ -66,7 +66,7 @@ class Jeff extends JesusChrist {
         WolfAppointServer wolf = new WolfAppointServer( wolf1 );
 
 
-        BytecodeIfacCompiler inspector = new BytecodeIfacCompiler( ClassPool.getDefault() );
+        BytecodeIfaceCompiler inspector = new BytecodeIfaceCompiler( ClassPool.getDefault() );
         List<MethodDigest> digests = inspector.compile( Raccoon.class, false ).getMethodDigests();
         MethodDigest digest = digests.get( 0 );
         DynamicMethodPrototype prototype = (DynamicMethodPrototype) digest;
@@ -216,7 +216,7 @@ class Jeff extends JesusChrist {
         WolfAppointServer wolf = new WolfAppointServer( wolf1 );
 
         factory.getClassScope().addScope( "com.protobuf" );
-        MultiMappingLoader mappingLoader = new HuskyMappingLoader( factory, wolf.getPMCTTransformer() );
+        MultiMappingLoader mappingLoader = new HuskyMappingLoader( factory, wolf.getMCTTransformer() );
         mappingLoader.updateScope();
 
         Debug.trace( wolf );
@@ -340,7 +340,7 @@ class Jeff extends JesusChrist {
         rabbit.setMonkey( monkey );
         //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratchA", "DP you!", 5202123, rabbit ) );
 
-        //Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
+        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5202 ) );
 
 //        Debug.sleep( 3500 );
 //        Debug.bluef( wolf.invokeInform( "com.protobuf.Raccoon.scratch", "DP you!", 5201 ) );

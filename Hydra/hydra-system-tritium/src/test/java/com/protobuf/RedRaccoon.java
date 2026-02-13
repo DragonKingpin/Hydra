@@ -9,7 +9,7 @@ import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.pinecone.framework.lang.field.FieldEntity;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.MethodDigest;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.function.ArgumentRequest;
@@ -63,7 +63,7 @@ public class RedRaccoon implements Raccoon {
     @Override
     public String scratch( String target, int time ) {
         try{
-            BytecodeIfacCompiler inspector = new BytecodeIfacCompiler( ClassPool.getDefault() );
+            BytecodeIfaceCompiler inspector = new BytecodeIfaceCompiler( ClassPool.getDefault() );
             List<MethodDigest> digests = inspector.compile( Raccoon.class, false ).getMethodDigests();
             MethodPrototype methodPrototype = (MethodPrototype)digests.get(0);
             Descriptors.Descriptor argDes = methodPrototype.getArgumentsDescriptor();

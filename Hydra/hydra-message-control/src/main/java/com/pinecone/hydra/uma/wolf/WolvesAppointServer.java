@@ -10,6 +10,7 @@ import com.pinecone.hydra.uma.AsynMsgHandler;
 import com.pinecone.hydra.uma.AsynReturnHandler;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
+import com.pinecone.hydra.uma.UlfDuplexAppointServer;
 import com.pinecone.hydra.uma.proxy.GenericPassiveClientIfaceProxyFactory;
 import com.pinecone.hydra.uma.proxy.PassiveClientIfaceProxyFactory;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
@@ -28,7 +29,7 @@ import com.pinecone.hydra.umct.IlleagalResponseException;
 import com.pinecone.hydra.umct.UMCTExpress;
 import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
@@ -41,7 +42,7 @@ import com.pinecone.hydra.umct.mapping.ControllerInspector;
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolvesAppointServer extends WolfAppointServer implements DuplexAppointServer {
+public class WolvesAppointServer extends WolfAppointServer implements UlfDuplexAppointServer {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {
             throw new IllegalArgumentException( "`" + expressType.getSimpleName() + "` is not DuplexExpress calibre qualified." );
@@ -86,7 +87,7 @@ public class WolvesAppointServer extends WolfAppointServer implements DuplexAppo
         this.initSelf( server );
     }
 
-    public WolvesAppointServer( UlfServer server, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+    public WolvesAppointServer( UlfServer server, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
         this( server, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
     }
 

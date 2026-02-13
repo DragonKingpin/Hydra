@@ -7,8 +7,8 @@ import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.ProvokeHandleException;
-import com.pinecone.hydra.uma.AppointClient;
-import com.pinecone.hydra.uma.ArchAppointNode;
+import com.pinecone.hydra.uma.UlfAppointClient;
+import com.pinecone.hydra.uma.ArchUlfAppointNode;
 import com.pinecone.hydra.uma.AsynMsgHandler;
 import com.pinecone.hydra.uma.AsynReturnHandler;
 import com.pinecone.hydra.uma.proxy.GenericIfaceProxyFactory;
@@ -31,9 +31,9 @@ import com.pinecone.hydra.umc.wolf.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umct.IlleagalResponseException;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.heartbeat.HuskyHeartbeatControl;
 import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
@@ -52,7 +52,7 @@ import javassist.ClassPool;
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolfAppointClient extends ArchAppointNode implements AppointClient {
+public class WolfAppointClient extends ArchUlfAppointNode implements UlfAppointClient {
     protected UlfClient              mMessenger;
 
     protected IfaceProxyFactory      mIfaceProxyFactory;
@@ -138,14 +138,14 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
         this.initSelf( messenger );
     }
 
-    public WolfAppointClient( UlfClient messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector ){
+    public WolfAppointClient( UlfClient messenger, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector ){
         this( messenger, true );
-        this.mPMCTContextMachinery = new HuskyContextMachinery( compiler, controllerInspector, new GenericFieldProtobufDecoder() );
+        this.mMCTContextMachinery = new HuskyContextMachinery( compiler, controllerInspector, new GenericFieldProtobufDecoder() );
         this.initSelf( messenger );
     }
 
     public WolfAppointClient( UlfClient messenger, CompilerEncoder encoder ){
-        this( messenger, new BytecodeIfacCompiler(
+        this( messenger, new BytecodeIfaceCompiler(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader(), encoder
         ), new BytecodeControllerInspector(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
@@ -153,7 +153,7 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
     }
 
     public WolfAppointClient( UlfClient messenger ){
-        this( messenger, new BytecodeIfacCompiler(
+        this( messenger, new BytecodeIfaceCompiler(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
         ), new BytecodeControllerInspector(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()

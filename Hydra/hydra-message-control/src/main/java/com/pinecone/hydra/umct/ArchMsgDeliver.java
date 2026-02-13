@@ -1,6 +1,5 @@
 package com.pinecone.hydra.umct;
 
-import com.pinecone.framework.unit.trie.TrieMap;
 import com.pinecone.framework.unit.trie.TrieSegmentor;
 import com.pinecone.framework.unit.trie.UniTrieMaptron;
 
@@ -44,9 +43,9 @@ public abstract class ArchMsgDeliver implements MessageDeliver {
         this( szName, express, headerDecipher, szServicePathKey, HashMap::new );
     }
 
-    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey, boolean usingTrie ) {
+    public ArchMsgDeliver( String szName, MessageExpress express, HeaderDecipher headerDecipher, String szServicePathKey, boolean bUsingTrie ) {
         this( szName, express, headerDecipher, szServicePathKey, () -> {
-            if ( usingTrie ) {
+            if ( bUsingTrie ) {
                 return new UniTrieMaptron<>( HashMap::new, new TrieSegmentor() {
                     @Override
                     public String[] segments( String szPathKey ) {

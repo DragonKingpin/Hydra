@@ -7,16 +7,16 @@ import com.pinecone.hydra.umct.mapping.MappingDigest;
 
 import javassist.ClassPool;
 
-public class BytecodeIfacCompiler extends ArchIfacCompiler implements InterfacialCompiler {
-    public BytecodeIfacCompiler( ClassPool classPool, ClassLoader classLoader, CompilerEncoder encoder ) {
+public class BytecodeIfaceCompiler extends ArchProtoIfaceCompiler implements ProtoInterfacialCompiler {
+    public BytecodeIfaceCompiler(ClassPool classPool, ClassLoader classLoader, CompilerEncoder encoder ) {
         super( classPool, classLoader, encoder );
     }
 
-    public BytecodeIfacCompiler( ClassPool classPool, ClassLoader classLoader ) {
+    public BytecodeIfaceCompiler(ClassPool classPool, ClassLoader classLoader ) {
         super( classPool, classLoader );
     }
 
-    public BytecodeIfacCompiler( ClassPool classPool ) {
+    public BytecodeIfaceCompiler(ClassPool classPool ) {
         super( classPool, Thread.currentThread().getContextClassLoader() );
     }
 

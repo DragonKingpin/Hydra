@@ -26,7 +26,7 @@ import com.pinecone.hydra.umc.wolf.UlfInformMessage;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.hydra.umct.WolfMCExpress;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.function.GenericArgumentRequest;
 import com.pinecone.ulf.util.protobuf.GenericBeanProtobufDecoder;
 import com.pinecone.ulf.util.protobuf.GenericBeanProtobufEncoder;
@@ -457,7 +457,7 @@ class Appleby extends JesusChrist {
     }
 
     protected void testIfacInspector() throws Exception {
-        BytecodeIfacCompiler inspector = new BytecodeIfacCompiler( ClassPool.getDefault() );
+        BytecodeIfaceCompiler inspector = new BytecodeIfaceCompiler( ClassPool.getDefault() );
 
         Debug.trace( inspector.compile( Raccoon.class, false ).getMethodDigests() );
     }

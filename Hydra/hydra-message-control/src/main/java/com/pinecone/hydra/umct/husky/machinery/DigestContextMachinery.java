@@ -5,26 +5,22 @@ import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.lang.ScopedPackage;
 import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
-import com.pinecone.ulf.util.protobuf.FieldProtobufDecoder;
 
 
 /**
- *  Pinecone Ursus For Java Hydra Ulfar, Husky Machinery
+ *  Pinecone Ursus For Java Hydra Ulfar, DigestContextMachinery
  *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
- *  *****************************************************************************************
- *  Husky Transformer | Husky Machinery
- *  *****************************************************************************************
  */
-public class HuskyContextMachinery extends HuskyTransformer implements PMCTContextMachinery {
+public class DigestContextMachinery extends DigestTransformer implements MCTContextMachinery {
     protected DynamicFactory       mIfaceFactory;
     protected MultiMappingLoader   mMultiMappingLoader;
 
-    public HuskyContextMachinery( ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, FieldProtobufDecoder decoder ) {
-        super( compiler, controllerInspector, decoder );
+    public DigestContextMachinery( ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector ) {
+        super( compiler, controllerInspector );
 
         this.mIfaceFactory       = new GenericDynamicFactory( controllerInspector.getClassLoader() );
-        this.mMultiMappingLoader = new HuskyMappingLoader( this.mIfaceFactory, this );
+        this.mMultiMappingLoader = new DigestMappingLoader( this.mIfaceFactory, this );
     }
 
     @Override
@@ -33,13 +29,13 @@ public class HuskyContextMachinery extends HuskyTransformer implements PMCTConte
     }
 
     @Override
-    public PMCTContextMachinery addScope ( String szPackageName ) {
+    public MCTContextMachinery addScope ( String szPackageName ) {
         this.mIfaceFactory.getClassScope().addScope( szPackageName );
         return this;
     }
 
     @Override
-    public PMCTContextMachinery addScope ( ScopedPackage scope ) {
+    public MCTContextMachinery addScope ( ScopedPackage scope ) {
         this.mIfaceFactory.getClassScope().addScope( scope );
         return this;
     }

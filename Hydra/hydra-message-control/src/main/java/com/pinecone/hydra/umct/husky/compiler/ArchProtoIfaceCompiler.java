@@ -2,51 +2,34 @@ package com.pinecone.hydra.umct.husky.compiler;
 
 import java.util.List;
 
-import com.pinecone.hydra.umct.stereotype.Iface;
-import com.pinecone.hydra.umct.stereotype.IfaceUtils;
 import javassist.ClassPool;
-import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
 
-public abstract class ArchIfacCompiler extends ArchIfaceInspector implements IfaceCompiler {
+public abstract class ArchProtoIfaceCompiler extends ArchIfaceCompiler implements ProtoIfaceCompiler {
     protected CompilerEncoder mCompilerEncoder;
 
-    public ArchIfacCompiler( ClassPool classPool, ClassLoader classLoader, CompilerEncoder encoder ) {
+    public ArchProtoIfaceCompiler(ClassPool classPool, ClassLoader classLoader, CompilerEncoder encoder ) {
         super( classPool, classLoader );
 
         this.mCompilerEncoder = encoder;
     }
 
-    public ArchIfacCompiler( ClassPool classPool, ClassLoader classLoader ) {
+    public ArchProtoIfaceCompiler(ClassPool classPool, ClassLoader classLoader ) {
         this( classPool, classLoader, CompilerEncoder.DefaultMethodArgumentsCompilerEncoder );
     }
 
     protected MethodDigest compile ( ClassDigest classDigest, CtMethod method, CompilerEncoder encoder ) {
-        try{
-            Class<? >[] parameters = this.getParameters( method );
+        try {
 
+            IfaceMethodSignature signature = this.resolveMethodSignature( method );
 
-            CtClass retType;
-            try{
-                retType = method.getReturnType();
-            }
-            catch ( NotFoundException e ) {
-                retType = null;
-            }
-
-
-            Class<? > returnType;
-            if( retType != null ) {
-                returnType = this.reinterpretClass( retType.getName() );
-            }
-            else {
-                returnType = null;
-            }
+            Class<? >[] parameters  = signature.getParameters();
+            Class<? >   returnType  = signature.getReturnType();
+            String[] parameterTypes = signature.getParameterGenericTypes();
+            String   returnGType    = signature.getReturnGenericType();
 
             MethodDigest ret;
-            String[] parameterTypes = ArchIfacCompiler.evalGenericParameterTypes( method );
-            String   returnGType    = ArchIfacCompiler.evalGenericReturnType( method );
             if( encoder != null ) {
                 ret = new DynamicMethodPrototype(
                         classDigest, this.getIfaceMethodName( method ), method.getName(), parameters, parameterTypes, returnType, returnGType, encoder, null
@@ -66,6 +49,7 @@ public abstract class ArchIfacCompiler extends ArchIfaceInspector implements Ifa
             throw new CompileException( e );
         }
     }
+
 
     @Override
     public ClassDigest compile ( String className, boolean bAsIface ) {
@@ -94,22 +78,13 @@ public abstract class ArchIfacCompiler extends ArchIfaceInspector implements Ifa
 
     @Override
     public ClassDigest compile( String className, boolean bAsIface, CompilerEncoder encoder ) {
-        try{
+        try {
             List<CtMethod > ifaceMethods = this.inspect( className, bAsIface );
             if ( ifaceMethods.isEmpty() ) {
                 return null;
             }
 
-            String szLogicClassName = className;
-            CtClass ctClass = this.mClassPool.get( className );
-            if ( ctClass != null ) {
-                Iface cIface     = this.getAnnotation( ctClass, Iface.class );
-                String szLogicCN = IfaceUtils.queryIfaceLogicClassName( cIface );
-                if ( szLogicCN != null ) {
-                    szLogicClassName = szLogicCN;
-                }
-            }
-
+            String szLogicClassName = this.evalLogicClassName( className );
             ClassDigest classDigest = new GenericClassDigest( szLogicClassName, className );
             for ( CtMethod ctMethod : ifaceMethods ) {
                 MethodDigest methodDigest = this.compile( classDigest, ctMethod, encoder );
@@ -127,4 +102,5 @@ public abstract class ArchIfacCompiler extends ArchIfaceInspector implements Ifa
     public CompilerEncoder getCompilerEncoder() {
         return this.mCompilerEncoder;
     }
+
 }

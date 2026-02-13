@@ -9,12 +9,11 @@ import com.google.protobuf.DynamicMessage;
 import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.UlfMBInformMessage;
 import com.pinecone.hydra.umb.broadcast.BroadcastControlNode;
-import com.pinecone.hydra.umb.broadcast.BroadcastControlProducer;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 
-public class WolfMCBProducer extends ArchBroadcastControlAgent implements BroadcastControlProducer {
+public class WolfMCBProducer extends ArchUlfBroadcastControlAgent implements UlfBroadcastControlProducer {
     protected UMCBroadcastProducer          mBroadcastProducer;
 
     protected IfaceProxyFactory             mIfaceProxyFactory;

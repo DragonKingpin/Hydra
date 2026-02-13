@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.hydra.express.Deliver;
 import com.pinecone.hydra.servgram.Servgramium;
-import com.pinecone.hydra.uma.AppointServer;
-import com.pinecone.hydra.uma.ArchAppointNode;
+import com.pinecone.hydra.uma.UlfAppointServer;
+import com.pinecone.hydra.uma.ArchUlfAppointNode;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
@@ -28,7 +28,7 @@ import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcherFabricator;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -39,7 +39,7 @@ import io.netty.channel.ChannelHandlerContext;
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolfAppointServer extends ArchAppointNode implements AppointServer {
+public class WolfAppointServer extends ArchUlfAppointNode implements UlfAppointServer {
     protected UlfServer                     mRecipient;
     protected RouteDispatcher               mRouteDispatcher;
     protected HeartbeatFeedbackor           mHeartbeatFeedbackor;
@@ -77,7 +77,7 @@ public class WolfAppointServer extends ArchAppointNode implements AppointServer 
         this.initSelf( server );
     }
 
-    public WolfAppointServer( UlfServer server, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+    public WolfAppointServer( UlfServer server, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
         this( server, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
         this.apply( express );
     }

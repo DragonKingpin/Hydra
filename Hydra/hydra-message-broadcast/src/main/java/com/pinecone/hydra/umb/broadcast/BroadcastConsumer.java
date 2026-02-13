@@ -9,4 +9,9 @@ public interface BroadcastConsumer extends Pinenut {
     void close();
 
     void start( UlfPackageMessageHandler handler ) throws UMBServiceException;
+
+    String topic();
+
+    String tag();
+
 }

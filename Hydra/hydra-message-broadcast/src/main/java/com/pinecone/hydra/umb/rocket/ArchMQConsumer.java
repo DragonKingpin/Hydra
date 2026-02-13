@@ -17,4 +17,15 @@ public abstract class ArchMQConsumer implements PushConsumer {
         this.mszTopic          = topic;
         this.mszTag            = tag;
     }
+
+    @Override
+    public String topic() {
+        return this.mszTopic;
+    }
+
+    @Override
+    public String tag() {
+        return this.mszTag;
+    }
+
 }

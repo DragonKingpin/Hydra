@@ -78,6 +78,7 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
                 UlfBroadcastPollConsumer.newDefaultProperties( kafkaClient.getKafkaConfig(), group )
         );
     }
+
     @Override
     public void close() {
         if ( this.wrappedConsumer != null ) {
@@ -102,6 +103,15 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
         }
     }
 
+    @Override
+    public String topic() {
+        return this.topic;
+    }
+
+    @Override
+    public String tag() {
+        return this.group;
+    }
 
     @Override
     public List<PollResult > startPull(long mils ) {

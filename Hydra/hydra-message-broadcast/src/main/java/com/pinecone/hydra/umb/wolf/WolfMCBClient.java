@@ -99,6 +99,10 @@ public class WolfMCBClient extends ArchServgramium implements UlfBroadcastContro
         HuskyRouteDispatcherFabricator.afterConstructed( (HuskyRouteDispatcher)this.mRouteDispatcher, express );
     }
 
+    @Override
+    public UMCBroadcastNode asUMCBroadcastNode() {
+        return this.mUMCBroadcastNode;
+    }
 
     @Override
     public long getMessageNodeId() {

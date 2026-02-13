@@ -16,7 +16,7 @@ import java.util.TreeMap;
 
 /**
  *  Pinecone For Java JPlusCursorParser [ Bean Nuts Almond Dragon, JSON+ For Pinecone Java ]
- *  Copyright © 2008 - 2024 Bean Nuts Foundation ( Dragon King ) All rights reserved. [Harold.E / JH.W]
+ *  Copyright © 2008 - 2024 Bean Nuts Foundation ( Dragon King ) All rights reserved. [Harald.E / JH.W]
  *  *****************************************************************************************
  *  Author: undefined
  *  Last Modified Date: 2024-02-17

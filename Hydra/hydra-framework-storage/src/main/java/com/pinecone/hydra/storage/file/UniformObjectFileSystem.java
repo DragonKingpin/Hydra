@@ -69,7 +69,7 @@ import java.util.TreeMap;
 
 /**
  *  Pinecone Ursus For Java UniformObjectFileSystem
- *  Author: Ken, Harold.E (Dragon King)
+ *  Author: Ken, Harald.E (Dragon King)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Uniform Object File System (Ken`s OFS / KOFS)

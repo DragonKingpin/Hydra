@@ -11,7 +11,7 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 /**
  *  Pinecone Ursus For Java RuntimeAtlas
- *  Author: Ken, Harold.E (Dragon King)
+ *  Author: Ken, Harald.E (Dragon King)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Runtime Orchestration Atlas

@@ -2,7 +2,7 @@ package com.pinecone.hydra.system.centrum;
 
 /**
  *  Pinecone Ursus For Java, Uniformity Centralized Metasystem
- *  Author: Harold.E (Dragon King)
+ *  Author: Harald.E (Dragon King)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Uniformity Centralized Metasystem

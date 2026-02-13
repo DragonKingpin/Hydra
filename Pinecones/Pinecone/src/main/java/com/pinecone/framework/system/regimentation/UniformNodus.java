@@ -4,7 +4,7 @@ import com.pinecone.framework.util.name.Namespace;
 
 /**
  *  Pinecone Framework For Java (Bean Nuts Pinecone Ursus for Java)
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  UniformNodus

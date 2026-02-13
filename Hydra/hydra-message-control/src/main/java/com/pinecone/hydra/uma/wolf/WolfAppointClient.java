@@ -48,7 +48,7 @@ import javassist.ClassPool;
 /**
  *  Pinecone Ursus For Java WolfAppointClient [ Ulfhedinn Wolf RPC Client ]
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */

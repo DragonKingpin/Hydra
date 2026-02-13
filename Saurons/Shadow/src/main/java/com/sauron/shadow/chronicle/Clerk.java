@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  *  Bean Nuts Hazelnut Sauron Tritium - Sauron`s Shadow For Java, Clerk [史官, 书记]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Cooperate with the chronicle system for periodic crawler to retrieve data.

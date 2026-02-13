@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  *  Pinecone Ursus For Java Imperial Tree
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Imperium (Imperial Tree)

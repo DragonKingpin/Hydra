@@ -16,7 +16,7 @@ import com.pinecone.hydra.umc.msg.handler.GenericErrorMessageAudit;
 
 /**
  *  Pinecone Ursus For Java Wolf-UMC-RocketMQ [ Wolf, Uniform Message Control Protocol Client ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
  *  Uniform Message Control Protocol for RocketMQ Client

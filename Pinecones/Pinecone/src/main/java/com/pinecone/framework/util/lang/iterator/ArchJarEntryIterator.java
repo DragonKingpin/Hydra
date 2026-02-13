@@ -65,12 +65,12 @@ public abstract class ArchJarEntryIterator implements Pinenut {
                     }
 
                     bUsingFile = false;
-                    // [@Harold Notice] Using a temporary enumeration to prevent unexpected resource leaks.
+                    // [@Harald Notice] Using a temporary enumeration to prevent unexpected resource leaks.
                     this.mEntries = JarUtils.fetchEnumeration( jarInputStream );
                 }
                 finally {
                     JarInputStream t;
-                    // [@Harold Notice] All `JarInputStream` should be close and release in the nested scenario.
+                    // [@Harald Notice] All `JarInputStream` should be close and release in the nested scenario.
                     while ( ( t = streamStack.peek() ) != null ) {
                         t.close();
                         streamStack.pop();

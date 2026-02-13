@@ -58,7 +58,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *  Pinecone Ursus For Java WolfServer [ Wolf, Uniform Message Control Protocol Server ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.

@@ -23,13 +23,13 @@ import java.util.Map;
 
 /**
  *  Bean Nuts Hazelnut Sauron Heistotron
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Heistotron Spider for PB-Level Automatic Crawler
  *
  *  *****************************************************************************************
- *  DragonKing.cn of Harold
+ *  DragonKing.cn of Harald
  */
 @Gram( "Heist" )
 public class Heistotron extends ArchServgramium implements Heistgram {

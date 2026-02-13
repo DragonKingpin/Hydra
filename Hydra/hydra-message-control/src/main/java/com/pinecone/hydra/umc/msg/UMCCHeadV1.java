@@ -17,7 +17,7 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 /**
  *  Pinecone Ursus For Java UMCC[ Uniform Message Control - Compacted ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
  *  Uniform Message Control Protocol - Base-Mutable - Compacted [UMC-C]

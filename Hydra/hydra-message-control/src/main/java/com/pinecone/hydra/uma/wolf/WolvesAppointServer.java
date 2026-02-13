@@ -37,7 +37,7 @@ import com.pinecone.hydra.umct.mapping.ControllerInspector;
 /**
  *  Pinecone Ursus For Java WolfAppointServer [ Ulfhedinn Wolf Duplex RPC Server ]
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */

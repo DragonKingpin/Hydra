@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  *  Pinecone Ursus For Java
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Uniform Distributed Trie Tree (UDTT)

@@ -35,7 +35,7 @@ public class JarClassCollectorAdapter implements PathNamespaceCollectum {
                 JarEntry jarEntry = entries.nextElement ();
                 String entryName = jarEntry.getName ();
                 if ( entryName.endsWith ( ".class" ) ) {
-                    if ( bCollectChildren && classNames != null ) { // [@Harold Notice] No need for recursion, for JAR files, this flag is usually processed in a tiled manner
+                    if ( bCollectChildren && classNames != null ) { // [@Harald Notice] No need for recursion, for JAR files, this flag is usually processed in a tiled manner
                         if ( entryName.startsWith ( packagePath ) ) {
                             entryName = entryName.replace ( NamespaceCollector.RESOURCE_NAME_SEPARATOR, "." ).substring ( 0, entryName.lastIndexOf ( "." ) );
                             classNames.add ( entryName );

@@ -5,7 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 
 /**
  *  Pinecone Ursus For Java, InstitutionalProcess
- *  Author: Harold.E (Dragon King)
+ *  Author: Harald.E (Dragon King)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Institutional Uniform Process

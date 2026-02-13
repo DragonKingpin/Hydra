@@ -50,7 +50,7 @@ import java.util.Objects;
 
 /**
  *  Pinecone Ursus For Java Uniform KOMRegistry
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Uniform Distribute Kernel Object Model Registry (Config KOM Registry)

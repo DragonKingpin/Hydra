@@ -39,7 +39,7 @@ import java.util.Map;
 
 /**
  *  Bean Nuts Pinecone Hydra Tritium
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Hydra - Tritium Kingdom - Pyramid Hierarchy - Centralized Architecture
@@ -50,7 +50,7 @@ import java.util.Map;
  *  Tritium    | 氚 | Hierarchy    | 九头龙第三帝国
  *  *****************************************************************************************
  *  Tritium Hydra | 氚
- *  DragonKing.cn of Harold
+ *  DragonKing.cn of Harald
  */
 public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra";

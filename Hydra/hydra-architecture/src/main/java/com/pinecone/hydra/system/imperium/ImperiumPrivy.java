@@ -5,7 +5,7 @@ import com.pinecone.hydra.system.ko.runtime.CentralizedRuntimeInstrument;
 
 /**
  *  Pinecone Ursus For Java Imperium Privy Council
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Imperium Privy Council

@@ -4,7 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 
 /**
  *  Pinecone Ursus For Java - Uniform Pyramid Task Scheduling
- *  Author: Harold.E (Dragon King)
+ *  Author: Harald.E (Dragon King)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation. All rights reserved.
  *  *****************************************************************************************
  *  Uniform Pyramid Task Scheduling

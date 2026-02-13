@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 /**
  *  Pinecone Ursus For Java MessageExpress [Archetype]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  MessageExpress vs Messenger

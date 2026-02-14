@@ -2,14 +2,44 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Archcraft/ender-system-hydra/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Archcraft/redstone-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Archcraft/redstone-message-stones/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Archcraft/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Archcraft/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Console" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Console/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/File" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/File/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-architecture-conduct/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-architecture-message/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-architecture-storage/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-framework-config/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-framework-device/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-framework-runtime/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-framework-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-framework-storage/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-kom-default-driver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-lib-grpc-service-sdk/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-lib-thrift-sdk/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-lib-uofs-cache/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-message-broadcast/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-message-control/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-r-atlas-default-driver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-service-control/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-system-reign/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/hydra-system-tritium/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Hydra/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Logger" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Logger/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Messenger" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Messenger/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Odin/odin-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Odin/odin-framework-runtime/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Odin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Odin/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Hydra" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/Hydra/src/main/java" charset="UTF-8" />
@@ -27,6 +57,14 @@
     <file url="file://$PROJECT_DIR$/Pinecones/Ulfhedinn/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Pinecones/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/ulf-lib-construction/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Pinecones/ulf-lib-oltp-rdb/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/redqueen-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/redqueen-computation-suit/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/redqueen-framework-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/redqueen-system/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RedQueen/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Radium" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Radium/src/main/java" charset="UTF-8" />
@@ -34,13 +72,34 @@
     <file url="file://$PROJECT_DIR$/Saurons/Saurye/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Shadow" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/Shadow/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/heist-framework-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/heist-http-client-okhttp-suit/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/heist-system-schedule/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Saurons/sauron-core/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Saurons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Skynet/skynet-architecture/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Skynet/skynet-cloud-deploy/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Skynet/skynet-system/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Skynet/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Skynet/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-api-uac/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-api-uofs/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-core-console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-uac-console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-ucdn-console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-ucdn-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-uofs-console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-uofs-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/sparta-utask-console/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Sparta/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TaskJuggler" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TaskJuggler/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts/Sparta/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Walnuts/sailor-stream-distribute-sdk/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Walnuts/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />

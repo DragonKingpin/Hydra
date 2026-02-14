@@ -83,6 +83,11 @@ public class UlfPushConsumer extends ArchMQConsumer implements PushConsumer {
         }
     }
 
+    @Override
+    public boolean isClosed() {
+        return this.wrappedConsumer == null;
+    }
+
     public RocketClient getRocketClient() {
         return this.mRocketClient;
     }

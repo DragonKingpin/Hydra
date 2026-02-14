@@ -7,7 +7,7 @@ import com.pinecone.hydra.umct.mapping.MappingDigest;
 
 import javassist.ClassPool;
 
-public class DigestIfaceCompiler extends ArchProtoIfaceCompiler implements InterfacialCompiler {
+public class DigestIfaceCompiler extends ArchIfaceCompiler implements InterfacialCompiler {
 
     public DigestIfaceCompiler( ClassPool classPool, ClassLoader classLoader ) {
         super( classPool, classLoader );
@@ -19,7 +19,7 @@ public class DigestIfaceCompiler extends ArchProtoIfaceCompiler implements Inter
 
     @Override
     public IfaceMappingDigest compile( MappingDigest digest ) {
-        return new GenericIfaceMappingDigest( digest, this.mCompilerEncoder );
+        return new GenericIfaceMappingDigest( digest, CompilerEncoder.DefaultMethodArgumentsCompilerEncoder );
     }
 
     @Override

@@ -12,6 +12,7 @@ import org.apache.rocketmq.client.producer.MQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class UlfBroadcastProducer implements BroadcastProducer {
@@ -28,6 +29,8 @@ public class UlfBroadcastProducer implements BroadcastProducer {
     protected MQProducer mWrappedProducer;
 
     protected RocketClient mRocketClient;
+
+    protected AtomicBoolean mStart = new AtomicBoolean( false );
 
 
     public UlfBroadcastProducer( RocketClient client, Supplier<DefaultMQProducer> producerSupplier ) {
@@ -82,15 +85,22 @@ public class UlfBroadcastProducer implements BroadcastProducer {
     public void close() {
         this.mWrappedProducer.shutdown();
         this.mRocketClient.deregister( this );
+        this.mStart.compareAndSet( true, false );
     }
 
     @Override
     public void start() throws UMBServiceException {
-        try{
+        try {
             this.mWrappedProducer.start();
+            this.mStart.compareAndSet( false, true );
         }
         catch ( MQClientException e ) {
             throw new UMBServiceException( e );
         }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return !this.mStart.get();
     }
 }

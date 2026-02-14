@@ -50,7 +50,7 @@ public abstract class ArchUlfBroadcastControlAgent extends ArchBroadcastControlA
         return this.getInterfacialCompiler().getCompilerEncoder();
     }
 
-    protected DynamicMessage reinterpretMsg(MethodPrototype prototype, Object[] args ) {
+    protected DynamicMessage reinterpretMsg( MethodPrototype prototype, Object[] args ) {
         FieldProtobufEncoder encoder = this.getFieldProtobufEncoder();
         Descriptors.Descriptor descriptor = prototype.getArgumentsDescriptor();
 

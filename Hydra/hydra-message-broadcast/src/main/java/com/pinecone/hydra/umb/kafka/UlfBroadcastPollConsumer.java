@@ -104,6 +104,11 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
     }
 
     @Override
+    public boolean isClosed() {
+        return this.wrappedConsumer == null;
+    }
+
+    @Override
     public String topic() {
         return this.topic;
     }

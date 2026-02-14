@@ -52,7 +52,7 @@ public abstract class ArchUlfAppointNode extends ArchAppointNode implements UlfA
         return this.getInterfacialCompiler().getCompilerEncoder();
     }
 
-    protected DynamicMessage reinterpretMsg(MethodPrototype prototype, Object[] args ) {
+    protected DynamicMessage reinterpretMsg( MethodPrototype prototype, Object[] args ) {
         FieldProtobufEncoder encoder = this.getFieldProtobufEncoder();
         Descriptors.Descriptor descriptor = prototype.getArgumentsDescriptor();
 

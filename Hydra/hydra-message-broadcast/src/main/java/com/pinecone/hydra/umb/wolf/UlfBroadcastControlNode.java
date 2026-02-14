@@ -17,8 +17,6 @@ public interface UlfBroadcastControlNode extends BroadcastControlNode {
 
     RouteDispatcher createHuskyRoute( UMCTExpress express ) ;
 
-    UMCBroadcastNode asUMCBroadcastNode();
-
     @Override
     PMCTContextMachinery getMCTTransformer();
 

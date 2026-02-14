@@ -3,7 +3,7 @@ package com.pinecone.hydra.umct.husky.machinery;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.lang.ScopedPackage;
-import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 
 
@@ -16,7 +16,7 @@ public class DigestContextMachinery extends DigestTransformer implements MCTCont
     protected DynamicFactory       mIfaceFactory;
     protected MultiMappingLoader   mMultiMappingLoader;
 
-    public DigestContextMachinery( ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector ) {
+    public DigestContextMachinery( InterfacialCompiler compiler, ControllerInspector controllerInspector ) {
         super( compiler, controllerInspector );
 
         this.mIfaceFactory       = new GenericDynamicFactory( controllerInspector.getClassLoader() );

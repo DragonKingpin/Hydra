@@ -1,6 +1,5 @@
 package com.walnut.odin.task.troll;
 
-import java.net.URI;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;

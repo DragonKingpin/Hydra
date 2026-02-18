@@ -50,7 +50,4 @@ public interface IbatisClient extends RDBClient {
 
     SqlSession        openSession( ExecutorType execType, Connection connection );
 
-    void              free( SqlSession sqlSession );
-
-    int               sqlSessionSize();
 }

@@ -17,6 +17,7 @@ import com.pinecone.hydra.servgram.GramTransaction;
 import com.pinecone.hydra.servgram.OrchestrateInterruptException;
 import com.pinecone.hydra.servgram.AutoOrchestrator;
 import com.pinecone.hydra.servgram.ServgramOrchestrator;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.tritium.util.ConfigHelper;
 import com.sauron.heist.heistron.orchestration.ChildHeistInstanceModifier;
 import com.sauron.heist.heistron.orchestration.ChildHeistOrchestrator;
@@ -246,55 +247,85 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
     }
 
     @Override
-    public void toEmbezzle(){
+    public void toEmbezzle() {
         this.infoLifecycle( Heistum.StatusStart );
     }
 
-    protected void executeSlaveMission() {
-        this.infoLifecycle(  "It`s time to feast" );
+    protected void executeSlaveMission() throws HeistExecutionException {
+        try {
+            this.infoLifecycle(  "It`s time to feast" );
 
-        switch ( this.metier ) {
-            case REAVER : {
-                this.toRavage();
-                break;
+            switch ( this.metier ) {
+                case REAVER : {
+                    this.toRavage();
+                    break;
+                }
+                case STALKER : {
+                    this.toStalk();
+                    break;
+                }
+                case EMBEZZLER : {
+                    this.toEmbezzle();
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
-            case STALKER : {
-                this.toStalk();
-                break;
-            }
-            case EMBEZZLER : {
-                this.toEmbezzle();
-                break;
-            }
-            default: {
-                break;
-            }
+
+            this.infoLifecycle( Heistum.StatusDone );
         }
-
-        this.infoLifecycle( Heistum.StatusDone );
+        catch ( ProxyProvokeHandleException e ) {
+            throw new HeistExecutionException( e.getCause() );
+        }
+        catch ( RuntimeException e ) {
+            throw new HeistExecutionException( e );
+        }
     }
 
-    protected void executeMasterMission() throws ProxyProvokeHandleException {
+    protected void executeMasterMission() throws HeistOrchestrateException {
         this.infoLifecycle( "orchestrating transactions" );
 
-        try{
+        try {
             this.getHeistium().getHeistletOrchestrator().orchestrate();
         }
         catch ( OrchestrateInterruptException e ) {
-            throw new ProxyProvokeHandleException( e );
+            throw new HeistOrchestrateException( e );
         }
 
         this.infoLifecycle( Heistum.StatusDone );
     }
 
     @Override
-    public void toHeist() throws ProxyProvokeHandleException {
-        if( this.getHierarchy() == Hierarchy.Slave ) {
-            this.executeSlaveMission();
+    public void toHeist() throws HeistException {
+        Hierarchy hierarchy = this.getHierarchy();
+        this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Running, hierarchy );
+        try {
+            if( hierarchy == Hierarchy.Slave ) {
+                this.executeSlaveMission();
+            }
+            else {
+                this.executeMasterMission();
+            }
         }
-        else {
-            this.executeMasterMission();
+        catch ( HeistExecutionException e ) {
+            Throwable cause = e.getCause();
+            if ( cause instanceof RuntimeException ) {
+                if ( e.getCause() != null ) {
+                    cause = e.getCause();
+                }
+            }
+
+            if ( cause instanceof InterruptedException ) {
+                this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Terminated, hierarchy );
+            }
+            throw e;
         }
+        catch ( HeistException e ) {
+            this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Error, hierarchy );
+            throw e;
+        }
+        this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Finished, hierarchy );
     }
 
 }

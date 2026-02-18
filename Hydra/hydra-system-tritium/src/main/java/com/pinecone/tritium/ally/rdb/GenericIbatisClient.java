@@ -3,7 +3,7 @@ package com.pinecone.tritium.ally.rdb;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.unit.LinkedTreeSet;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.framework.util.json.homotype.JSONGet;
+import com.pinecone.framework.util.json.homotype.MapStructure;
 import com.pinecone.framework.util.lang.ClassScope;
 import com.pinecone.framework.util.lang.GenericClassScopeSet;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -13,6 +13,7 @@ import com.pinecone.slime.source.DataAccessObject;
 import com.pinecone.slime.source.rdb.ArchRelationalDatabase;
 
 import org.apache.ibatis.binding.BindingException;
+import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.*;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.sql.Connection;
 
+import javax.el.ELClass;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Set;
@@ -38,60 +40,60 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
 
     protected SqlSessionFactory    mSqlSessionFactory    ;
 
-    protected Set<SqlSession >     mSqlSessionPool       ;
-
     protected Configuration        mConfiguration        ;
 
     protected DataSource           mDataSource           ;
 
     protected Environment          mEnvironment          ;
 
-    @JSONGet( "Ibatis" )
+    @MapStructure( "Ibatis" )
     protected JSONObject           mjoIbatisConf         ;
 
-    @JSONGet( "JDBC.Driver" )
+    @MapStructure( "JDBC.Driver" )
     protected String               mszJDBCDriverName     ;
 
-    @JSONGet( "JDBC.ExURL" )
+    @MapStructure( "JDBC.ExURL" )
     protected String               mszJDBCExURL          ;
 
     protected JSONObject           mjoClientConf         ;
 
     protected RDBManager           mRDBManager           ;
 
-    @JSONGet( "Ibatis.Environment" )
+    @MapStructure( "Ibatis.Environment" )
     protected String               mszEnvironment        ;
 
-    @JSONGet( "Ibatis.DataSource" )
+    @MapStructure( "Ibatis.DataSource" )
     protected String               mszDataSource         ;
 
-    @JSONGet( "Ibatis.TransactionFactory" )
+    @MapStructure( "Ibatis.TransactionFactory" )
     protected String               mszTransactionFactory ;
 
     protected Logger               mLogger               ;
 
-    @JSONGet( "Ibatis.PooledConfig.InitialSize" )
+    @MapStructure( "Ibatis.PooledConfig.InitialSize" )
     protected int                  mnInitialSize = 0     ;
 
-    @JSONGet( "Ibatis.PooledConfig.MaxActive" )
+    @MapStructure( "Ibatis.PooledConfig.MaxActive" )
     protected int                  mnMaxActive = 20      ;
 
-    @JSONGet( "Ibatis.PooledConfig.MaxIdle" )
+    @MapStructure( "Ibatis.PooledConfig.MaxIdle" )
     protected int                  mnMaxIdle = 20        ;
 
-    @JSONGet( "Ibatis.PooledConfig.MinIdle" )
+    @MapStructure( "Ibatis.PooledConfig.MinIdle" )
     protected int                  mnMinIdle  =  1       ;
 
-    @JSONGet( "Ibatis.PooledConfig.MaxWait" )
+    @MapStructure( "Ibatis.PooledConfig.MaxWait" )
     protected int                  mnMaxWait = 60000     ;
 
-    @JSONGet( "Ibatis.DataAccessObject.Scanner" )
+    @MapStructure( "Ibatis.DataAccessObject.Scanner" )
     protected String               mszDAOScanner         ;
 
-    @JSONGet( "Ibatis.DataAccessObject.ScanScopes" )
+    @MapStructure( "Ibatis.DataAccessObject.ScanScopes" )
     protected Collection<String >  mScannerScopes        ;
 
     protected DAOScanner           mDAOScanner           ;
+
+    protected DataSourceFactory    mDataSourceFactory    ;
 
     protected final ReadWriteLock  mAddScopeLock         = new ReentrantReadWriteLock();
 
@@ -103,7 +105,6 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
         this.mjoClientConf   = this.mRDBManager.getDatabases().optJSONObject( szInstanceName );
         this.mRDBManager.getSystem().getPrimaryConfigScope().autoInject( ArchRelationalDatabase.class, this.mjoClientConf, this );
         this.mRDBManager.getSystem().getPrimaryConfigScope().autoInject( GenericIbatisClient.class, this.mjoClientConf, this );
-        this.mSqlSessionPool = new LinkedHashSet<>();
         this.mLogger         = this.getRDBManager().getSystem().getTracerScope().newLogger( this.className() );
 
         this.prepareIbatisSubsystem();
@@ -144,22 +145,36 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     protected void prepareIbatisSubsystem() {
         this.mLogger.info( "[Lifecycle] [RDBClient::PrepareIbatisSubsystem::" + this.mszInstanceName + "] <Start>" );
 
-        String szJDBCUrl = this.toJDBCURL();
+        String szJDBCUrl = this.getJDBCURL();
         Object ds = this.getRDBManager().getSharedUniformFactory().optLoadInstance(
-                this.mszDataSource, new Object[] { this.mszJDBCDriverName, szJDBCUrl, this.getUsername(), this.getPassword() }
+                this.mszDataSource, new Object[] { this }
         );
-        if( ds instanceof DataSource ){
-            this.mDataSource = (DataSource) ds;
-            if( ds instanceof PooledDataSource ) {
-                PooledDataSource pds = (PooledDataSource) ds;
-                pds.setPoolMaximumActiveConnections( this.mnMaxActive );
-                pds.setPoolMaximumIdleConnections( this.mnMaxIdle );
-                pds.setPoolTimeToWait( this.mnMaxWait );
+        if ( ds == null ) {
+            ds = this.getRDBManager().getSharedUniformFactory().optLoadInstance(
+                    this.mszDataSource, new Object[] { this.mszJDBCDriverName, szJDBCUrl, this.getUsername(), this.getPassword() }
+            );
+            if( ds instanceof DataSource ){
+                this.mDataSource = (DataSource) ds;
+                if( ds instanceof PooledDataSource ) {
+                    PooledDataSource pds = (PooledDataSource) ds;
+                    pds.setPoolMaximumActiveConnections( this.mnMaxActive );
+                    pds.setPoolMaximumIdleConnections( this.mnMaxIdle );
+                    pds.setPoolTimeToWait( this.mnMaxWait );
+                }
+            }
+            else {
+                ds = null;
             }
         }
         else {
-            throw new IllegalArgumentException( "Illegal data source, should be `DataSource`: " + this.mszJDBCDriverName );
+            this.mDataSourceFactory = (DataSourceFactory) ds;
+            this.mDataSource = this.mDataSourceFactory.getDataSource();
         }
+
+        if ( ds == null ) {
+            throw new IllegalArgumentException( "Illegal data source, should be `DataSource` / `DataSourceFactory`: " + this.mszJDBCDriverName );
+        }
+
 
         TransactionFactory transactionFactory;
         Object tf = this.getRDBManager().getSharedUniformFactory().optLoadInstance( this.mszTransactionFactory, null );
@@ -180,14 +195,14 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     }
 
     @Override
-    public String toJDBCURL() {
+    public String getJDBCURL() {
         if( this.mszJDBCExURL == null ) {
             this.mszJDBCExURL = "";
         }
         if( !this.mszJDBCExURL.startsWith( "&" ) ) {
             this.mszJDBCExURL = "&" + this.mszJDBCExURL;
         }
-        return super.toJDBCURL() + this.mszJDBCExURL;
+        return super.getJDBCURL() + this.mszJDBCExURL;
     }
 
     @Override
@@ -249,73 +264,54 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     @Override
     public SqlSession openSession() {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession();
-        this.mSqlSessionPool.add( sqlSession );
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( boolean autoCommit ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(autoCommit);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( Connection connection ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(connection);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( TransactionIsolationLevel level ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(level);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( ExecutorType execType ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(execType);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( ExecutorType execType, boolean autoCommit ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(execType, autoCommit);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( ExecutorType execType, TransactionIsolationLevel level ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession(execType, level);
-        this.mSqlSessionPool.add(sqlSession);
         return sqlSession;
     }
 
     @Override
     public SqlSession openSession( ExecutorType execType, Connection connection ) {
         SqlSession sqlSession = this.mSqlSessionFactory.openSession( execType, connection );
-        this.mSqlSessionPool.add( sqlSession );
         return sqlSession;
     }
 
     protected void free0( SqlSession sqlSession ){
         sqlSession.commit();
         sqlSession.close();
-    }
-
-    @Override
-    public void free( SqlSession sqlSession ) {
-        this.free0( sqlSession );
-        this.mSqlSessionPool.remove( sqlSession );
-    }
-
-    @Override
-    public int sqlSessionSize() {
-        return this.mSqlSessionPool.size();
     }
 
     @Override
@@ -404,21 +400,10 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
 
     @Override
     public void close() throws ProxyProvokeHandleException {
-        for( SqlSession sqlSession : this.mSqlSessionPool ) {
-            this.free0( sqlSession );
-        }
-
-        try{
-            if( this.mDataSource != null ) {
-                if( this.mDataSource instanceof PooledDataSource ) {
-                    ((PooledDataSource) this.mDataSource).forceCloseAll();
-                }
-
-                this.mDataSource.getConnection().close();
+        if( this.mDataSource != null ) {
+            if( this.mDataSource instanceof PooledDataSource ) {
+                ((PooledDataSource) this.mDataSource).forceCloseAll();
             }
-        }
-        catch ( SQLException e ) {
-            throw new ProxyProvokeHandleException( e );
         }
     }
 

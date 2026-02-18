@@ -14,6 +14,7 @@ import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.framework.unit.MultiScopeMap;
 import com.pinecone.framework.util.config.JSONSystemConfig;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.hydra.system.component.TracerConfigurator;
 import com.pinecone.hydra.umb.rabbit.RabbitMQClient;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.io.Tracerson;
@@ -22,6 +23,7 @@ import com.pinecone.tritium.system.ConfigScope;
 import com.pinecone.tritium.system.Hierarchy;
 import com.pinecone.tritium.system.InterWareDirector;
 import com.pinecone.tritium.system.KnittedMiddlewareDirector;
+import com.pinecone.hydra.system.component.LoggingConfigurator;
 import com.pinecone.tritium.system.TritiumConfigScope;
 import com.pinecone.tritium.system.TritiumSystem;
 import com.pinecone.tritium.system.ServersScope;
@@ -77,6 +79,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     protected ServersScope                         mServersScope             ;
     protected StorageSystem                        mStorageSystem            ;
     protected Slf4jTracerScope                     mTracerScope              ;
+    protected TracerConfigurator                   mTracerConfigurator       ;
     protected SystemDaemon                         mSystemPrimaryDaemon      ;
     protected ConfigScope                          mPrimaryConfigScope       ; // Program runtime global variable retrieving config-scope.
     protected InterWareDirector                    mMiddlewareDirector       ;
@@ -97,7 +100,10 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.mObjectInjector.inject( this.mjoSystemConfig, Tritium.class, this );
         this.mObjectInjector.inject( this.mjoSystemConfig, Hydra.class, this );
 
-        this.mServiceHierarchy = Hierarchy.queryHierarchy( this.mjoSystemConfig.optString( "ServiceArch" ) );
+        this.mServiceHierarchy   = Hierarchy.queryHierarchy( this.mjoSystemConfig.optString( "ServiceArch" ) );
+
+        this.mTracerConfigurator = new LoggingConfigurator( this );
+        this.mTracerConfigurator.apply();
     }
 
     protected void prepare_system_skeleton() {

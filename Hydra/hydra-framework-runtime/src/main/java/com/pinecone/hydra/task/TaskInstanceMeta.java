@@ -14,6 +14,8 @@ public interface TaskInstanceMeta extends Pinenut {
 
     String getInstanceName();
 
+    String getTaskName();
+
     LocalDateTime getBusinessTime ();
 
     short getPriority();

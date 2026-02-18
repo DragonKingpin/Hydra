@@ -4,7 +4,6 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
-import com.pinecone.hydra.task.ArchTask;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
@@ -38,7 +37,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
     @Override
     public RavenTaskInstance createInstance() {
         GUID guid = this.mGuidAllocator.nextGUID();
-        GenericInstanceEntry entry = new GenericInstanceEntry( this.mTaskInstrument );
+        GenericInstanceEntry entry = new GenericInstanceEntry( this.mTaskInstrument, this.mTaskElement );
         entry.setGuid( guid );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
         entry.setTaskGuid( this.mTaskElement.getGuid());
@@ -52,6 +51,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setRetryCnt( 0 );
         entry.setTaskType( this.mTaskElement.getType() );
         entry.setInstanceStatus( TaskInstanceStatus.New );
+        entry.setTaskName( this.mTaskElement.getName() );
 
         GenericRavenTaskInstance instance = new GenericRavenTaskInstance( entry, this );
         return instance;

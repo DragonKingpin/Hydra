@@ -23,13 +23,13 @@ import java.util.List;
 public interface InstanceNodeMapper extends InstanceNodeManipulator {
 
     String BASE_FIELDS =
-            "guid, task_guid, name, business_time, priority, image_path, " + // 已有 image_path
+            "guid, task_guid, name, task_name, business_time, priority, image_path, " +
                     "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
                     "task_type, dry_run, run_count, sequence_cnt, retry_cnt, " +
                     "latest_start_time, latest_end_time, error_cause, create_time, update_time";
 
     String BASE_COLUMNS =
-            "#{guid}, #{taskGuid}, #{instanceName}, #{businessTime}, #{priority}, #{imagePath}, " + // ← 补充 #{imagePath}
+            "#{guid}, #{taskGuid}, #{instanceName}, #{taskName}, #{businessTime}, #{priority}, #{imagePath}, " +
                     "#{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
                     "#{taskType}, #{dryRun}, #{runCount}, #{sequenceCnt}, #{retryCnt}, " +
                     "#{lastStartTime}, #{lastEndTime}, #{errorCause}, #{createTime}, #{updateTime}";
@@ -45,9 +45,10 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             "UPDATE hydra_task_instances SET " +
                     "task_guid = #{taskGuid}, " +
                     "name = #{instanceName}, " +
+                    "task_name = #{taskName}," +
                     "business_time = #{businessTime}, " +
                     "priority = #{priority}, " +
-                    "image_path = #{imagePath}, " +  // ← 增加 image_path 字段
+                    "image_path = #{imagePath}, " +
                     "actually_priority = #{actuallyPriority}, " +
                     "run_status = #{runStatus}, " +
                     "schedule_cycle_code = #{kernelScheduleCycleCode}, " +
@@ -72,6 +73,7 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             @Result(property = "guid", column = "guid"),
             @Result(property = "taskGuid", column = "task_guid"),
             @Result(property = "instanceName", column = "name"),
+            @Result(property = "taskName", column = "task_name"),
             @Result(property = "businessTime", column = "business_time"),
             @Result(property = "priority", column = "priority"),
             @Result(property = "imagePath", column = "image_path"),

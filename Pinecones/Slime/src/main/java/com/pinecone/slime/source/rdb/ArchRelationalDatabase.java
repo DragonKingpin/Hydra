@@ -126,7 +126,7 @@ public abstract class ArchRelationalDatabase implements RelationalDatabase {
 
 
     @Override
-    public String toJDBCURL() {
+    public String getJDBCURL() {
         String url = "jdbc:" + this.mDBType + "://" + this.mHost + ":" + this.mPort + "/" + this.mDatabase;
         if( this.mCharset.toLowerCase().startsWith( "utf" ) )  { // utf-8, utf8, etc...
             url = url +"?useUnicode=true&characterEncoding=" + this.mCharset;

@@ -10,6 +10,7 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected GUID guid;
     protected GUID taskGuid;
     protected String instanceName;
+    protected String taskName;
     protected LocalDateTime businessTime;
     protected short priority;
     protected String imagePath;
@@ -41,6 +42,11 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public String getInstanceName() {
         return this.instanceName;
+    }
+
+    @Override
+    public String getTaskName() {
+        return this.taskName;
     }
 
     @Override

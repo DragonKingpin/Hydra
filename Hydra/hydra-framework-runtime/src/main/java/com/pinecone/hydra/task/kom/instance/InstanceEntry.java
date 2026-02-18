@@ -30,6 +30,8 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setBusinessTime ( LocalDateTime businessTime );
 
+     void setTaskName ( String taskName );
+
      void setPriority ( int priority );
 
      void setImagePath( String imagePath );

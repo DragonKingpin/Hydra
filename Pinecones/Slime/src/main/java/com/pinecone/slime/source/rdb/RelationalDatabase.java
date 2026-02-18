@@ -30,6 +30,6 @@ public interface RelationalDatabase extends Pinenut {
     String getDBType();
     void setDBType( String dbType );
 
-    String toJDBCURL();
+    String getJDBCURL();
     void fromJDBCURL( String jdbcUrl );
 }

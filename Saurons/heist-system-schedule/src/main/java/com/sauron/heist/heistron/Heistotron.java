@@ -3,8 +3,11 @@ package com.sauron.heist.heistron;
 import com.pinecone.hydra.config.MapConfigReinterpreter;
 import com.pinecone.hydra.servgram.Gram;
 import com.pinecone.hydra.servgram.OrchestrateInterruptException;
+import com.pinecone.hydra.task.TaskInstanceStatus;
+import com.sauron.heist.heistron.event.HeistLifecycleEventInterceptor;
 import com.sauron.heist.heistron.orchestration.Heistlet;
 import com.pinecone.tritium.system.TritiumSystem;
+import com.sauron.heist.heistron.orchestration.Hierarchy;
 import com.sauron.heist.heistron.orchestration.LocalHeistumOrchestrator;
 import com.sauron.heist.heistron.orchestration.HeistletOrchestrator;
 import com.pinecone.framework.util.config.JSONConfig;
@@ -18,6 +21,8 @@ import com.pinecone.framework.util.json.JSONObject;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,20 +38,23 @@ import java.util.Map;
  */
 @Gram( "Heist" )
 public class Heistotron extends ArchServgramium implements Heistgram {
-    protected boolean              mbEnableCmdCall    = true;
+    protected boolean                                      mbEnableCmdCall    = true;
 
-    protected ConfigSource         mUnifyConfigSource;
-    protected JSONConfig           mLocalHeistsConfigList;
-    protected JSONConfig           mTemplateHeistSchemeConfig;
-    protected JSONConfig           mComponents;
+    protected ConfigSource                                 mUnifyConfigSource;
+    protected JSONConfig                                   mLocalHeistsConfigList;
+    protected JSONConfig                                   mTemplateHeistSchemeConfig;
+    protected JSONConfig                                   mComponents;
 
-    protected HeistletOrchestrator mHeistletOrchestrator;
+    protected HeistletOrchestrator                         mHeistletOrchestrator;
+
+    protected Collection<HeistLifecycleEventInterceptor>   mLifecycleEventInterceptors;
 
     public Heistotron( String szName, Processum parent ) {
         super( szName, parent );
 
         this.mHeistletOrchestrator = new LocalHeistumOrchestrator( this, this.getConfig()  );
         this.loadHeistronScopeConfig();
+        this.mLifecycleEventInterceptors = new ArrayList<>();
     }
 
     protected void prepareTemplateHeistScheme() {
@@ -74,6 +82,18 @@ public class Heistotron extends ArchServgramium implements Heistgram {
         this.mUnifyConfigSource               = new LocalConfigSource( this, joLocalConfigs, joLocalHeistsConfigList ); // TODO, to implements UnifyConfigSource
 
         this.prepareTemplateHeistScheme();
+    }
+
+    @Override
+    public Heistgram addLifecycleEventInterceptors( HeistLifecycleEventInterceptor interceptor ) {
+        this.mLifecycleEventInterceptors.add( interceptor );
+        return this;
+    }
+
+    @Override
+    public Heistgram removeLifecycleEventInterceptors( HeistLifecycleEventInterceptor interceptor ) {
+        this.mLifecycleEventInterceptors.remove( interceptor );
+        return this;
     }
 
     @Override
@@ -145,7 +165,7 @@ public class Heistotron extends ArchServgramium implements Heistgram {
         return this.mComponents;
     }
 
-    protected void dispatch() throws OrchestrateInterruptException {
+    protected void dispatch() throws HeistException {
         String szDesignatedHeist = this.queryCmdDesignatedHeist();
         //szDesignatedHeist = "Void";
         if( szDesignatedHeist.length() != 0 ) {
@@ -157,12 +177,17 @@ public class Heistotron extends ArchServgramium implements Heistgram {
         }
         else {
             this.infoLifecycle( "Into orchestrator mode" );
-            this.mHeistletOrchestrator.orchestrate();
+            try {
+                this.mHeistletOrchestrator.orchestrate();
+            }
+            catch ( OrchestrateInterruptException e ) {
+                throw new HeistOrchestrateException( e );
+            }
         }
     }
 
     @Override
-    public void execute() throws OrchestrateInterruptException  {
+    public void execute() throws HeistException  {
         this.infoLifecycle( "Can do !" );
         this.dispatch();
     }
@@ -195,6 +220,13 @@ public class Heistotron extends ArchServgramium implements Heistgram {
         }
 
         return szClassName;
+    }
+
+    @Override
+    public void notifyLifecycleEvent( Heistum heist, TaskInstanceStatus instanceStatus, Hierarchy hierarchy ) {
+        for ( HeistLifecycleEventInterceptor interceptor : this.mLifecycleEventInterceptors ) {
+            interceptor.afterLifecycleEventTriggered( heist.getName(), heist, instanceStatus, hierarchy );
+        }
     }
 
 }

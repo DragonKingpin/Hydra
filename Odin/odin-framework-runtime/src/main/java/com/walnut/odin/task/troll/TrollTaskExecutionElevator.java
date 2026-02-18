@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.datetime.DatePattern;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;

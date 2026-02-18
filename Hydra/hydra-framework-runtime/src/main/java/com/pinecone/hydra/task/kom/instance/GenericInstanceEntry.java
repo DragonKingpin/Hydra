@@ -71,7 +71,12 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
 
     @Override
     public String getTaskName() {
-        return this.taskElement.getName();
+        if ( this.taskName == null ) {
+            if ( this.taskElement != null ) {
+                this.taskName = this.taskElement.getName();
+            }
+        }
+        return this.taskName;
     }
 
     @Override
@@ -92,6 +97,11 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     @Override
     public void setInstanceName ( String instanceName ) {
         this.instanceName = instanceName;
+    }
+
+    @Override
+    public void setTaskName( String taskName ) {
+        this.taskName = taskName;
     }
 
     @Override

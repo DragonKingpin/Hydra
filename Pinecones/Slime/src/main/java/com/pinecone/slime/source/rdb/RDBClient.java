@@ -34,4 +34,6 @@ public interface RDBClient extends Pinenut {
         }
         return false;
     }
+
+    String getJDBCURL();
 }

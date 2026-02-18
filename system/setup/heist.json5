@@ -20,15 +20,15 @@
     ],
 
     "Transactions": [
-      //{ "Name": "sauron.zeron.intel.news.PersonageNews", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "heist_intel_personage_news", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
 
-
-      { "Name": "TradingChronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "FuturesDelivery", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      //{ "Name": "TradingChronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "FestivalEvent", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "FiscalEvent", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Chronicle", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Prometheus", "Type": "Parallel" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
-      //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
+      { "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ },
       //{ "Name": "Void", "Type": "Sequential" /* Enum: { Sequential, Parallel, SequentialActions, ParallelActions, LoopActions }*/ }
     ]
@@ -249,6 +249,8 @@
 
 
     "TradingChronicle"  : "${SystemConfRoot}/heists/TradingChronicle.json5",
+
+    "FuturesDelivery"   : "${SystemConfRoot}/heists/FuturesDelivery.json5"
   },
 
   "Components"       : {

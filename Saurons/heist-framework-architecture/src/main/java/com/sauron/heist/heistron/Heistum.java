@@ -67,7 +67,7 @@ public interface Heistum extends Saunut, Servgramlet {
 
     void toEmbezzle();
 
-    void toHeist();
+    void toHeist() throws HeistException;
 
 
 

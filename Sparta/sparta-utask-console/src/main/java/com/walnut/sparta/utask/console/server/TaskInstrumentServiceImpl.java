@@ -90,7 +90,7 @@ public class TaskInstrumentServiceImpl implements TaskInstrumentService {
         TreeNode treeNode = primaryTask.get(guid1);
         if (treeNode instanceof TaskElement) {
 
-            return BasicResultResponse.success((GenericTaskElement) primaryTask.get(guid1)).toJSONString();
+            return BasicResultResponse.success(primaryTask.get(guid1)).toJSONString();
 
         }
         else{

@@ -1,8 +1,8 @@
 package com.pinecone.hydra.servgram;
 
-import com.pinecone.framework.system.PineRuntimeException;
+import com.pinecone.framework.system.prototype.Pinenut;
 
-public class OrchestrateInterruptException extends Exception {
+public class OrchestrateInterruptException extends Exception implements Pinenut {
     public OrchestrateInterruptException    () {
         super();
     }

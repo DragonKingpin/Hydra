@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 
-import com.pinecone.framework.system.Experimental;
-
 public final class JSON {
     public static final Object NULL      = new JSON.Null();
 
@@ -40,20 +38,16 @@ public final class JSON {
         return classType.cast( unmarshal.nextValue() ) ;
     }
 
-    @Experimental
     @SuppressWarnings( "unchecked" )
-    public static <T> T unmarshal ( String szJsonString, TypeReference<T > type ) {
-        Class<T > classType = (Class<T>) type.getType().getClass();
-        ObjectJSONCursorUnmarshal unmarshal = new ObjectJSONCursorUnmarshal( szJsonString, classType );
-        return classType.cast( unmarshal.nextValue() ) ;
+    public static <T> T unmarshal( String json, TypeReference<T> typeRef ) {
+        ObjectJSONCursorUnmarshal u = new ObjectJSONCursorUnmarshal( json, typeRef.getType() );
+        return (T) u.nextValue();
     }
 
-    @Experimental
     @SuppressWarnings( "unchecked" )
-    public static <T> T unmarshal ( Reader reader, TypeReference<T > type ) {
-        Class<T > classType = (Class<T>) type.getType().getClass();
-        ObjectJSONCursorUnmarshal unmarshal = new ObjectJSONCursorUnmarshal( reader, classType );
-        return classType.cast( unmarshal.nextValue() ) ;
+    public static <T> T unmarshal ( Reader reader, TypeReference<T > typeRef ) {
+        ObjectJSONCursorUnmarshal u = new ObjectJSONCursorUnmarshal( reader, typeRef.getType() );
+        return (T) u.nextValue();
     }
 
 

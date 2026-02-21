@@ -13,19 +13,19 @@ public final class JSON {
     }
 
     public static String stringify ( Object that ) {
-        return JSON.decode( that, JSONEncoder.BASIC_JSON_ENCODER );
+        return JSON.encode( that, JSONEncoder.BASIC_JSON_ENCODER );
     }
 
     public static String stringify ( Object that, int nIndentFactor ) {
-        return JSON.decode( that, nIndentFactor, JSONEncoder.BASIC_JSON_ENCODER );
+        return JSON.encode( that, nIndentFactor, JSONEncoder.BASIC_JSON_ENCODER );
     }
 
     public static String marshal   ( Object that ) {
-        return JSON.decode( that, JSONEncoder.BASIC_JSON_MARSHAL );
+        return JSON.encode( that, JSONEncoder.BASIC_JSON_MARSHAL );
     }
 
     public static String marshal   ( Object that, boolean bOnlyMarshalAnnotated ) {
-        return JSON.decode( that, new JSONMarshal( bOnlyMarshalAnnotated ) );
+        return JSON.encode( that, new JSONMarshal( bOnlyMarshalAnnotated ) );
     }
 
     public static <T> T unmarshal ( String szJsonString, Class<T > classType ) {
@@ -38,11 +38,11 @@ public final class JSON {
         return classType.cast( unmarshal.nextValue() ) ;
     }
 
-    public static String decode    ( Object that, JSONEncoder encoder ) {
-        return JSON.decode( that, 0, encoder );
+    public static String encode    ( Object that, JSONEncoder encoder ) {
+        return JSON.encode( that, 0, encoder );
     }
 
-    public static String decode    ( Object that, int nIndentFactor, JSONEncoder encoder ) {
+    public static String encode    ( Object that, int nIndentFactor, JSONEncoder encoder ) {
         StringWriter w = new StringWriter();
         try {
             synchronized( w.getBuffer() ) {

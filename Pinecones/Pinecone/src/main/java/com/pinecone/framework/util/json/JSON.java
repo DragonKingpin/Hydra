@@ -24,8 +24,16 @@ public final class JSON {
         return JSON.encode( that, JSONEncoder.BASIC_JSON_MARSHAL );
     }
 
-    public static String marshal   ( Object that, boolean bOnlyMarshalAnnotated ) {
-        return JSON.encode( that, new JSONMarshal( bOnlyMarshalAnnotated ) );
+    public static String marshal   ( Object that, long mode ) {
+        return JSON.encode( that, new GenericJSONMarshal( mode ) );
+    }
+
+    public static String render    ( Object that ) {
+        return JSON.encode( that, JSONEncoder.COMMON_JSON_MARSHAL );
+    }
+
+    public static String unbean    ( Object that ) {
+        return JSON.encode( that, JSONEncoder.BEAN_JSON_MARSHAL );
     }
 
     public static <T> T unmarshal ( String szJsonString, Class<T > classType ) {

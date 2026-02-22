@@ -15,6 +15,8 @@ public interface BeanJSONEncoder extends Pinenut {
 
     void encode( Object bean, Writer writer, int nIndentFactor ) throws IOException;
 
+    void encode( Object bean, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException;
+
     default void encode( Object bean, Writer writer ) throws IOException {
         this.encode( bean, writer, 0 );
     }

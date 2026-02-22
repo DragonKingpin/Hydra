@@ -35,12 +35,12 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
         Method[] methods = includeSuperClass ? klass.getMethods() : klass.getDeclaredMethods();
 
         StringBuilder sb = new StringBuilder( "{" );
-        for( int i = 0; i < methods.length; ++i ) {
+        for ( int i = 0; i < methods.length; ++i ) {
             try {
                 Method method = methods[i];
                 if ( Modifier.isPublic( method.getModifiers() ) ) {
                     String key = JavaBeans.getGetterMethodKeyName( method );
-                    if( !StringUtils.isEmpty( key ) ) {
+                    if ( !StringUtils.isEmpty( key ) ) {
                         if ( Character.isUpperCase( key.charAt(0) ) && method.getParameterTypes().length == 0 ) {
                             key = JavaBeans.methodKeyNameLowerCaseNormalize( key );
 
@@ -95,10 +95,11 @@ public class GenericBeanJSONEncoder implements BeanJSONEncoder {
 
     @Override
     public void encode( Object bean, Writer writer, int nIndentFactor ) throws IOException {
-        this.encode0( bean, writer, nIndentFactor, 0 );
+        this.encode( bean, writer, nIndentFactor, 0 );
     }
 
-    protected void encode0( Object bean, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
+    @Override
+    public void encode( Object bean, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException {
         Class<?> klass = bean.getClass();
         boolean includeSuperClass = klass.getClassLoader() != null;
         Method[] methods = includeSuperClass ? klass.getMethods() : klass.getDeclaredMethods();

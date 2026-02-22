@@ -8,6 +8,8 @@ import com.pinecone.hydra.umb.broadcast.converter.ResultBytesConverter;
 import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -153,4 +155,16 @@ public class KafkaClient implements KClient {
     protected ExecutorService getPollConsumerThreadPool() {
         return this.pollConsumerThreadPool;
     }
+
+
+    @Override
+    public Collection<BroadcastConsumer> viewConsumerRegister() {
+        return Collections.unmodifiableSet(this.consumerRegister.keySet());
+    }
+
+    @Override
+    public Collection<BroadcastProducer> viewProducerRegister() {
+        return Collections.unmodifiableSet(this.producerRegister.keySet());
+    }
+
 }

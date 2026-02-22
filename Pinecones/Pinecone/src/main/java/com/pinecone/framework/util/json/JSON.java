@@ -69,7 +69,7 @@ public final class JSON {
     }
 
 
-    private static final class Null {
+    public static final class Null {
         private Null() {
         }
 

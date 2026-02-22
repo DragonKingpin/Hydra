@@ -214,7 +214,7 @@ public class GenericMasterTaskManager implements EventedTaskManager {
                 }
 
                 synchronized ( this.mTerminationLock ) {
-                    this.mTerminationLock.wait( 10 );
+                    this.mTerminationLock.wait( 30 );
                 }
             }
         }

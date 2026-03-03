@@ -17,5 +17,6 @@
     <modules>
         <module>odin-architecture</module>
         <module>odin-framework-runtime</module>
+        <module>odin-framework-dispatch</module>
     </modules>
 </project>

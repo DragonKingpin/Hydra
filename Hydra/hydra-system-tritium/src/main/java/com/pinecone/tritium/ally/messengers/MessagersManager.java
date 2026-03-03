@@ -121,11 +121,12 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
             this.mObjectOverrider.override( val, this.mjoComponentConf, false );
 
             try{
-                String szEngine = val.optString( "Engine" );
-                String szInsNam = (String) kv.getKey();
+                String szEngine        = val.optString( "Engine" );
+                String szInsNam        = (String) kv.getKey();
 
-                boolean bEnable = val.optBoolean( "Enable" );
-                if( bEnable ) {
+                boolean bEnable        = val.optBoolean( "Enable" );
+                boolean bCentralManage = val.optBoolean( "CentralManage" );
+                if( bEnable && bCentralManage ) {
                     Object node = this.mUniformFactory.loadInstance( szEngine, null, new Object[] { szInsNam, this.getSystem(), val } );
                     if( node instanceof MessageNode ){
                         this.mMessagerComponent.put( szInsNam, (MessageNode)node );

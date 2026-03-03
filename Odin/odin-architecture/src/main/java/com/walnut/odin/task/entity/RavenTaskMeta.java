@@ -1,6 +1,5 @@
 package com.walnut.odin.task.entity;
 
-import java.net.URI;
 import java.util.Set;
 
 import com.pinecone.framework.util.id.GUID;

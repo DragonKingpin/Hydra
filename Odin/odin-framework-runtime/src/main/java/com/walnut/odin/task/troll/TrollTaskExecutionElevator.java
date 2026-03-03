@@ -30,7 +30,6 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.proc.ProcessRemoteEventHandler;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;

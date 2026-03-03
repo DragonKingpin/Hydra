@@ -4,11 +4,10 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
-import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessMirrorDTO;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 @Controller
 @AddressMapping( "com.walnut.odin.proc.server.MasterProcessLifecycleIface." )

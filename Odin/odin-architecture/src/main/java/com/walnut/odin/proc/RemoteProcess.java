@@ -2,8 +2,7 @@ package com.walnut.odin.proc;
 
 import com.pinecone.hydra.proc.RemoteUProcess;
 import com.pinecone.hydra.proc.event.ProcessEvent;
-import com.pinecone.hydra.proc.event.ProcessEventHandler;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 import java.time.LocalDateTime;
 

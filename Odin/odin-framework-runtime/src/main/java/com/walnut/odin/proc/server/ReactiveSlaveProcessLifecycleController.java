@@ -6,9 +6,9 @@ import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.odin.proc.RemoteProcess;
-import com.walnut.odin.proc.dto.RemoteTerminationReport;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessMirrorDTO;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 
 
 @Controller

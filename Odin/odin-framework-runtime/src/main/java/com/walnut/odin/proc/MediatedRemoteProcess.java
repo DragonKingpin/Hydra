@@ -15,12 +15,11 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
 import com.pinecone.hydra.proc.event.ProcessEvent;
-import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
 import java.time.LocalDateTime;

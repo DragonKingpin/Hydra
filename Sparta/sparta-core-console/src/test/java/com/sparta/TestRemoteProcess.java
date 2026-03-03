@@ -21,8 +21,8 @@ import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
 import com.walnut.odin.proc.client.RemoteProcessManagerClient;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 

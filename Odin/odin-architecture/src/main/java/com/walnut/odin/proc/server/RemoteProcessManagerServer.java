@@ -9,8 +9,8 @@ import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessMirrorDTO;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 
 public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 

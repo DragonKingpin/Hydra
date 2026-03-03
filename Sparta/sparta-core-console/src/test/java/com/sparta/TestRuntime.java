@@ -126,12 +126,12 @@ class Rick extends EnderHydra {
     }
 
     public void testOrchestrator(LayerInstrument layerInstrument, UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, TaskInstrument taskInstrument) {
-//        Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
-//        VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
-//        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 5,1,uniformRuntimeAtlas,driver);
-//        ravenTaskGraphOrchestrator.execute();
+        Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
+        VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
+        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 5,1,uniformRuntimeAtlas,driver);
+        ravenTaskGraphOrchestrator.execute();
 
-        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
+//        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
     }
 
 

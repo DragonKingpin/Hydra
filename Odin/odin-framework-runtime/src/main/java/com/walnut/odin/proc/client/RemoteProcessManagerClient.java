@@ -5,8 +5,8 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessMirrorDTO;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 
 import java.util.Map;
 

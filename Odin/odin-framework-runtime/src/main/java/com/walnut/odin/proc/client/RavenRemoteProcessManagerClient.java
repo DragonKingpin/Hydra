@@ -17,9 +17,9 @@ import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
-import com.walnut.odin.proc.dto.RemoteVitalizationResponse;
-import com.walnut.odin.proc.dto.UProcessMirrorDTO;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 import java.net.URI;
 import java.net.URISyntaxException;

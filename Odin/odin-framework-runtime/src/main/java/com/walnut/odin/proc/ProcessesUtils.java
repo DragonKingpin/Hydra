@@ -10,7 +10,7 @@ import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.proc.UProcess;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 public final class ProcessesUtils {
 

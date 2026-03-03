@@ -6,7 +6,7 @@ import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
 import com.walnut.odin.proc.RemoteTerminationStatus;
-import com.walnut.odin.proc.dto.RemoteTerminationReport;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
 
 public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
 

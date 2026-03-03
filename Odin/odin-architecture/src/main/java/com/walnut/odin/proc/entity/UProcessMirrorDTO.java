@@ -1,4 +1,4 @@
-package com.walnut.odin.proc.dto;
+package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 

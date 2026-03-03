@@ -11,7 +11,7 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.URLImageLoader;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
-import com.walnut.odin.proc.dto.UProcessRuntimeMeta;
+import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 public interface RemoteProcessManagerNode extends Slf4jTraceable {
 

@@ -1,6 +1,4 @@
-package com.walnut.odin.proc.dto;
-
-import java.time.LocalDateTime;
+package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 

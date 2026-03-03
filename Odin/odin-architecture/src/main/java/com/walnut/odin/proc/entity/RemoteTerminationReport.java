@@ -1,9 +1,8 @@
-package com.walnut.odin.proc.dto;
+package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.proc.RemoteTerminationStatus;
-import com.walnut.odin.proc.RemoteVitalizationStatus;
 
 public class RemoteTerminationReport implements Pinenut {
 

@@ -6,20 +6,21 @@ import com.pinecone.hydra.atlas.advance.GraphStratumTape;
 import com.pinecone.hydra.atlas.graph.entity.TaskGraphNode;
 import com.pinecone.hydra.atlas.graph.source.QueueStratumManipulator;
 import com.pinecone.hydra.atlas.graph.source.RuntimeMasterManipulator;
-import com.pinecone.hydra.atlas.graph.source.VgraphTaskMappingManipulator;
+import com.pinecone.hydra.atlas.graph.source.TaskGraphManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
 import com.pinecone.hydra.unit.vgraph.GenericClosedVectorDAG;
-import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
 import com.pinecone.hydra.unit.vgraph.ArchAtlasInstrument;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
+import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
+import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 
 import java.util.List;
 
@@ -29,30 +30,36 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     private RuntimeMasterManipulator        mRuntimeMasterManipulator;
 
-    private VgraphTaskMappingManipulator    mVgraphTaskMappingManipulator;
+    private VectorGraphMasterManipulator    mVectorGraphMasterManipulator;
+
+    private TaskGraphManipulator            mTaskGraphManipulator;
 
     private QueueStratumManipulator         mQueueStratumManipulator;
 
-    public UniformRuntimeAtlas( List<GraphNode> parent,TaskInstrument taskInstrument, AtlasMappingDriver driver, VectorGraphConfig config ) {
-        super(parent,driver,config);
+    protected void init( TaskInstrument taskInstrument ) {
         this.mTaskInstrument = taskInstrument;
         this.mRuntimeMasterManipulator = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
-        this.mVgraphTaskMappingManipulator = this.mRuntimeMasterManipulator.getVgraphTaskMappingManipulator();
         this.mQueueStratumManipulator = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
+        this.mVectorGraphMasterManipulator = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
+        this.mTaskGraphManipulator = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
+    }
+
+    public UniformRuntimeAtlas( List<GraphNode> parent,TaskInstrument taskInstrument, AtlasMappingDriver driver, VectorGraphConfig config ) {
+        super(parent, driver, config);
+        this.init( taskInstrument );
     }
 
     public UniformRuntimeAtlas( AtlasMappingDriver driver, TaskInstrument taskInstrument ) {
         super(driver);
-        this.mTaskInstrument = taskInstrument;
-        this.mRuntimeMasterManipulator = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
-        this.mVgraphTaskMappingManipulator = this.mRuntimeMasterManipulator.getVgraphTaskMappingManipulator();
-        this.mQueueStratumManipulator = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
+        this.init( taskInstrument );
     }
 
+    @Override
     public GUID put( GraphNode graphNode ) {
         return super.put(graphNode);
     }
 
+    @Override
     public void remove( GUID guid ) {
         super.remove(guid);
     }
@@ -62,21 +69,15 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public GUID putMappingTask( GraphNode graphNode, GUID TaskGuid ) {
-        GUID guid = this.put(graphNode);
-        this.mVgraphTaskMappingManipulator.insert( TaskGuid, guid );
-        return guid;
-    }
-
-    @Override
     public GraphNode queryGraphNodeByTaskGuid( GUID taskGuid ) {
-        GUID guid = this.mVgraphTaskMappingManipulator.queryVgraphNodeGuid( taskGuid );
+        TaskGraphNode taskGraphNode = this.mTaskGraphManipulator.getNodeByTaskGuid( taskGuid );
+        GUID guid = taskGraphNode.getId();
         return this.query(guid);
     }
 
     @Override
     public TaskElement queryTaskElementByGuid( GUID graphNodeGuid ) {
-        GUID guid = this.mVgraphTaskMappingManipulator.queryTaskGuid(graphNodeGuid);
+        GUID guid = this.mTaskGraphManipulator.queryTaskGuidByNodeId( graphNodeGuid );
         TaskTreeNode taskTreeNode = (TaskTreeNode) this.mTaskInstrument.get( guid );
         ElementNode elementNode = taskTreeNode.evinceElementNode();
         if ( elementNode != null ) {
@@ -86,7 +87,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public GraphStratumTape tapedGraphStratumAdvancer(VectorDAG vectorDAG, KOIMappingDriver driver) {
+    public GraphStratumTape tapedGraphStratumAdvancer( VectorDAG vectorDAG, KOIMappingDriver driver ) {
         return new GenericGraphStratumTape( this, vectorDAG, driver );
     }
 

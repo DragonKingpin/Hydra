@@ -19,7 +19,6 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
  *  *****************************************************************************************
  */
 public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
-    GUID putMappingTask(GraphNode graphNode, GUID taskGuid );
 
     GraphNode queryGraphNodeByTaskGuid( GUID taskGuid );
 

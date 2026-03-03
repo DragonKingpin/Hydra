@@ -10,6 +10,8 @@ public class TaskAtlasNode implements TaskGraphNode {
 
     private GUID            guid;
 
+    private GUID            taskGuid;
+
     private String          name;
 
     private List<GUID>      parentIds;
@@ -42,6 +44,16 @@ public class TaskAtlasNode implements TaskGraphNode {
     @Override
     public void setId(GUID guid) {
         this.guid = guid;
+    }
+
+    @Override
+    public GUID getTaskGuid() {
+        return this.taskGuid;
+    }
+
+    @Override
+    public void setTaskGuid( GUID taskGuid ) {
+        this.taskGuid = taskGuid;
     }
 
     @Override

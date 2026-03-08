@@ -126,13 +126,13 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
 
                 boolean bEnable        = val.optBoolean( "Enable" );
                 boolean bCentralManage = val.optBoolean( "CentralManage" );
-                if( bEnable && bCentralManage ) {
+                if ( bEnable ) {
                     Object node = this.mUniformFactory.loadInstance( szEngine, null, new Object[] { szInsNam, this.getSystem(), val } );
-                    if( node instanceof MessageNode ){
+                    if ( node instanceof MessageNode ) {
                         this.mMessagerComponent.put( szInsNam, (MessageNode)node );
                         this.prepareMessagersMsgHandler( szInsNam, (MessageNode)node, val );
                     }
-                    else if( node instanceof Messagram ){
+                    else if ( node instanceof Messagram ) {
                         this.mMessagerComponent.put( szInsNam, (Messagram)node );
                     }
                     else {
@@ -140,7 +140,9 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
                     }
 
                     this.prepareInstanceProcessum( node );
-                    this.executeInnerServgram( node, val );
+                    if ( bCentralManage ) {
+                        this.executeInnerServgram( node, val );
+                    }
                 }
             }
             catch ( Exception e ) {

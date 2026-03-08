@@ -67,14 +67,21 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected void vitalizeRPCSubsystem() throws RemoteProcessServiceRPCException {
         try {
-            this.mDuplexAppointServer.execute();
-            this.infoLifecycle( "RPC Subsystem Service Vitalization", LogStatuses.StatusDone );
+            if ( this.mDuplexAppointServer.getMessageNode().isTerminated() ) {
+                this.mDuplexAppointServer.execute();
+                this.infoLifecycle( "RPC Subsystem Service Vitalization", LogStatuses.StatusDone );
+            }
         }
         catch ( Exception e ) {
             throw new RemoteProcessServiceRPCException( e );
         }
     }
 
+
+    @Override
+    public DuplexAppointServer duplexAppointServer() {
+        return this.mDuplexAppointServer;
+    }
 
     @Override
     public void startService() throws RemoteProcessServiceRPCException {

@@ -7,16 +7,6 @@ public interface TaskQueueMeta extends Pinenut {
 
     String getName();
 
-    Server getDeployClusterServer();
-
-    String getClusterPath();
-
-    String getClusterName();
-
-    int getControlClientId();
-
-    int getCapacity();
-
     int getMaxCapacity();
 
     int getMinCapacity();

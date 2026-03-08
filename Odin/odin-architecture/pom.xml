@@ -21,9 +21,9 @@
     </build>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.walnut.odin.kernel</groupId>
+    <groupId>com.walnut.odin</groupId>
     <artifactId>odin-architecture</artifactId>
-    <version>2.1.0</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
     <modules>
 
@@ -51,6 +51,12 @@
         <dependency>
             <groupId>com.pinecone.hydra.kernel</groupId>
             <artifactId>hydra-framework-runtime</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-message-control</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

@@ -16,7 +16,9 @@
 
     <modules>
         <module>odin-architecture</module>
+        <module>odin-framework-atlas</module>
         <module>odin-framework-runtime</module>
-        <module>odin-framework-dispatch</module>
+        <module>odin-framework-conduct</module>
+        <module>odin-mapper-driver</module>
     </modules>
 </project>

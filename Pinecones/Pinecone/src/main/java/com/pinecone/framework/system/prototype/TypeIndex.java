@@ -14,27 +14,16 @@ package com.pinecone.framework.system.prototype;
  *  *****************************************************************************************
  */
 public class TypeIndex {
-    private Class<?> mStereotype      = null;
+    private Class<?> mClass      = null;
 
     private Class<?> mParent          = null;
 
     private Object   mThis            = null;
 
-    private Object   mNext            = null;
-
     public TypeIndex( Object that ) {
         this.mParent   = that.getClass().getSuperclass();
         this.mThis     = that;
-        this.mStereotype = that.getClass();
-    }
-
-    public TypeIndex setNext( Object that ){
-        this.mNext = that;
-        return this;
-    }
-
-    public Object getNext(){
-        return this.mNext;
+        this.mClass    = that.getClass();
     }
 
     public TypeIndex prototype(){
@@ -49,20 +38,20 @@ public class TypeIndex {
         return this.mParent;
     }
 
-    public Class<?> stereotype() {
-        return this.mStereotype;
+    public Class<?> classType() {
+        return this.mClass;
     }
 
     public String namespace()     {
-        return Prototype.namespace( this.mStereotype );
+        return Prototype.namespace( this.mClass );
     }
 
     public String name()     {
-        return this.mStereotype.getSimpleName();
+        return this.mClass.getSimpleName();
     }
 
     public String typeName(){
-        return this.mStereotype.getName();
+        return this.mClass.getName();
     }
 
     @Override
@@ -74,7 +63,7 @@ public class TypeIndex {
     public boolean equals( Object that ) {
         if( that instanceof TypeIndex ){
             TypeIndex realThat = (TypeIndex)that;
-            return this.mStereotype.equals( realThat.mStereotype ) ;
+            return this.mClass.equals( realThat.mClass ) ;
         }
         return false;
     }

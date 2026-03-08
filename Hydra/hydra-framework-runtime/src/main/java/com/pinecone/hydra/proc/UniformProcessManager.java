@@ -260,7 +260,8 @@ public class UniformProcessManager extends ArchProcessManager implements Process
             parent = this.mRootUProcess;
         }
         Processum hosted = new ArchProcessum( image.getName(), parent ) {};
-        hosted.setThreadAffinity( new Thread( image.getEntryPoint() ) );
+        Thread primaryThread = new Thread( image.getEntryPoint(), ( image.getName() + "-main" ).toLowerCase() );
+        hosted.setThreadAffinity( primaryThread );
 
         if ( startupArgs == null ) {
             startupArgs = new HashMap<>();

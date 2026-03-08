@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
@@ -13,6 +14,8 @@ import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 
 public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
+
+    DuplexAppointServer duplexAppointServer();
 
     void registerProcess( long clientId, UProcessMirrorDTO processDTO );
 

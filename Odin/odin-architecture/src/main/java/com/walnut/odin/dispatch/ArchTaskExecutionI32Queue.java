@@ -11,17 +11,11 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.pinecone.framework.util.id.Identification;
-import com.pinecone.hydra.deploy.Server;
 
 public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
 
     protected String mszName;
-    protected Server mDeployClusterServer;
-    protected String mszClusterPath;
-    protected String mszClusterName;
-    protected int    mnControlClientId;
 
-    protected volatile int mnCapacity;
     protected volatile int mnMaxCapacity;
     protected volatile int mnMinCapacity;
     protected volatile int mnUsedCapacity;
@@ -39,9 +33,29 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
     }
 
 
-    public void offer( Collection<TaskLaunchContext> contexts ) {
+    protected void assertOfferCapacityLocked( int nIncoming ) throws QueueBadAllocatedException {
+        if ( nIncoming <= 0 ) {
+            return;
+        }
+
+        int nFuture = this.mnUsedCapacity + this.mWaitingQueue.size() + nIncoming;
+
+        if ( nFuture > this.mnMaxCapacity ) {
+            throw new QueueBadAllocatedException(
+                    "Queue capacity exceeded. incoming=" + nIncoming +
+                            ", used=" + this.mnUsedCapacity +
+                            ", waiting=" + this.mWaitingQueue.size() +
+                            ", max=" + this.mnMaxCapacity
+            );
+        }
+    }
+
+
+    @Override
+    public void offer( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
         this.mLock.lock();
         try {
+            this.assertOfferCapacityLocked( contexts.size() );
             for ( TaskLaunchContext context : contexts ) {
                 this.mWaitingQueue.addLast( context );
             }
@@ -51,9 +65,11 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
-    public void offer( TaskLaunchContext context ) {
+    @Override
+    public void offer( TaskLaunchContext context ) throws TaskDispatchException {
         this.mLock.lock();
         try {
+            this.assertOfferCapacityLocked( 1 );
             this.mWaitingQueue.addLast( context );
         }
         finally {
@@ -61,7 +77,8 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
-    public Collection<TaskLaunchContext> consume( int n, boolean bForce ) {
+    @Override
+    public Collection<TaskLaunchContext> consume( int n, boolean bForce, TaskInstanceConsumer consumer ) throws TaskConsumeException {
         this.mLock.lock();
         try {
             if ( n <= 0 ) {
@@ -97,6 +114,31 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
                     break;
                 }
 
+                try {
+                    consumer.tryConsume( context );
+                }
+                catch ( TaskConsumeException e ) {
+                    ConsumeCompromisedPolice police = consumer.compromisedPolice();
+
+                    switch ( police ) {
+                        case EvictionIgnore: {
+                            // 丢弃任务，不重新入队
+                            --nConsume;
+                            continue;
+                        }
+                        case EvictionException: {
+                            e.setEvictionTask( context );
+                            throw e;
+                        }
+                        case BreakException:
+                        default: {
+                            // 恢复任务到原队列位置（队头）
+                            this.mWaitingQueue.addFirst( context );
+                            throw e;
+                        }
+                    }
+                }
+
                 Identification id = context.getTaskInstance().getId();
 
                 this.mRunningInstances.put( id, context );
@@ -113,20 +155,38 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
-    public Collection<TaskLaunchContext> consume( int n ) {
-        return this.consume( n, false );
+    @Override
+    public Collection<TaskLaunchContext> consume( int n, TaskInstanceConsumer consumer ) throws TaskConsumeException {
+        return this.consume( n, false, consumer );
     }
 
-    public Collection<TaskLaunchContext> consume() {
-        return this.consume( this.mnRuntimeInstanceCapacity, false );
+    @Override
+    public Collection<TaskLaunchContext> consume( TaskInstanceConsumer consumer ) throws TaskConsumeException {
+        return this.consume( this.mnRuntimeInstanceCapacity, false, consumer );
     }
 
-    public Collection<TaskLaunchContext> pipeConsume( Collection<TaskLaunchContext> products ) {
+    protected void addRemain( Collection<TaskLaunchContext> products, TaskLaunchContext context ) {
+        boolean bSkipCurrent = true;
+        for ( TaskLaunchContext remain : products ) {
+            if ( bSkipCurrent ) {
+                if ( remain == context ) {
+                    bSkipCurrent = false;
+                }
+                continue;
+            }
+            this.mWaitingQueue.addLast( remain );
+        }
+    }
+
+    @Override
+    public Collection<TaskLaunchContext> pipeConsume( Collection<TaskLaunchContext> products, TaskInstanceConsumer consumer ) throws TaskDispatchException, TaskConsumeException {
         this.mLock.lock();
         try {
             if ( products == null || products.isEmpty() ) {
                 return Collections.emptyList();
             }
+
+            this.assertOfferCapacityLocked( products.size() );
 
             int nFreeCapacity = this.pendingCapacity();
             if ( nFreeCapacity <= 0 ) {
@@ -136,7 +196,9 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
                 return Collections.emptyList();
             }
 
-            int nAllowedByRuntime = this.mnRuntimeInstanceCapacity > 0 ? this.mnRuntimeInstanceCapacity : products.size();
+            int nAllowedByRuntime = this.mnRuntimeInstanceCapacity > 0
+                    ? this.mnRuntimeInstanceCapacity : products.size();
+
             int nConsume = Math.min(
                     Math.min( products.size(), nAllowedByRuntime ),
                     nFreeCapacity
@@ -150,10 +212,35 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
             }
 
             List<TaskLaunchContext> consumed = new ArrayList<>( nConsume );
-
             int nIndex = 0;
             for ( TaskLaunchContext context : products ) {
                 if ( nIndex < nConsume ) {
+                    try {
+                        consumer.tryConsume( context );
+                    }
+                    catch ( TaskConsumeException e ) {
+                        ConsumeCompromisedPolice police = consumer.compromisedPolice();
+                        switch ( police ) {
+                            case EvictionIgnore: {
+                                --nConsume;
+                                continue;
+                            }
+                            case EvictionException: {
+                                this.addRemain( products, context );
+                                e.setEvictionTask( context );
+                                throw e;
+                            }
+                            case BreakException:
+                            default: {
+                                // 当前任务未消费，重新入 waiting 队尾
+                                this.mWaitingQueue.addLast( context );
+
+                                // 剩余未遍历的 products 全部入队
+                                this.addRemain( products, context );
+                                throw e;
+                            }
+                        }
+                    }
 
                     Identification id = context.getTaskInstance().getId();
 
@@ -175,6 +262,7 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
+    @Override
     public Collection<TaskLaunchContext> runningInstances() {
         this.mLock.lock();
         try {
@@ -185,6 +273,7 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
+    @Override
     public void markTerminated( Identification id ) {
         this.mLock.lock();
         try {
@@ -198,6 +287,7 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
+    @Override
     public Collection<TaskLaunchContext> recycleTerminated( Collection<Identification> terminatedIds ) {
         this.mLock.lock();
         try {
@@ -224,11 +314,13 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
-    public Collection<TaskLaunchContext> consumePending() {
-        return this.consume( this.mnRuntimeInstanceCapacity, false );
+    @Override
+    public Collection<TaskLaunchContext> consumePending( TaskInstanceConsumer consumer ) throws TaskConsumeException {
+        return this.consume( this.mnRuntimeInstanceCapacity, false, consumer );
     }
 
-    public Collection<TaskLaunchContext> shiftPipeline( Collection<Identification> terminatedIds ) {
+    @Override
+    public Collection<TaskLaunchContext> shiftPipeline( Collection<Identification> terminatedIds, TaskInstanceConsumer consumer ) throws TaskConsumeException {
         // Recycle terminated instances first to release capacity.
         // The returned collection only represents newly consumed contexts.
         // Recycled instances are intentionally not part of the return value,
@@ -236,14 +328,26 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         // Callers must not rely on the return value to infer recycle results.
         this.recycleTerminated( terminatedIds );
 
-        return this.consumePending();
+        return this.consumePending( consumer );
     }
 
+    @Override
     public int pendingCapacity() {
-        return this.mnCapacity - this.mnUsedCapacity;
+        return this.mnMaxCapacity - this.mnUsedCapacity;
     }
 
+    @Override
+    public TaskLaunchContext getRunningContextById( Identification id ) {
+        this.mLock.lock();
+        try {
+            return this.mRunningInstances.get( id );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
 
+    @Override
     public int waitingSize() {
         this.mLock.lock();
         try {
@@ -254,6 +358,7 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
+    @Override
     public int runningSize() {
         this.mLock.lock();
         try {
@@ -264,16 +369,18 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
         }
     }
 
+    @Override
     public boolean isFull() {
         this.mLock.lock();
         try {
-            return this.mnUsedCapacity >= this.mnCapacity;
+            return this.mnUsedCapacity >= this.mnMaxCapacity;
         }
         finally {
             this.mLock.unlock();
         }
     }
 
+    @Override
     public boolean isIdle() {
         this.mLock.lock();
         try {
@@ -285,6 +392,7 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
     }
 
 
+    @Override
     public Collection<TaskLaunchContext> drainAllWaiting() {
         this.mLock.lock();
         try {
@@ -309,10 +417,10 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
 
 
     @Override
-    public void applyCapacity( int nCapacity ) {
+    public boolean isUsageCriticalCapacity() {
         this.mLock.lock();
         try {
-            this.mnCapacity = (int) nCapacity;
+            return this.mnUsedCapacity >= this.mnMinCapacity;
         }
         finally {
             this.mLock.unlock();
@@ -358,31 +466,6 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
     @Override
     public String getName() {
         return this.mszName;
-    }
-
-    @Override
-    public Server getDeployClusterServer() {
-        return this.mDeployClusterServer;
-    }
-
-    @Override
-    public String getClusterPath() {
-        return this.mszClusterPath;
-    }
-
-    @Override
-    public String getClusterName() {
-        return this.mszClusterName;
-    }
-
-    @Override
-    public int getControlClientId() {
-        return this.mnControlClientId;
-    }
-
-    @Override
-    public int getCapacity() {
-        return this.mnCapacity;
     }
 
     @Override

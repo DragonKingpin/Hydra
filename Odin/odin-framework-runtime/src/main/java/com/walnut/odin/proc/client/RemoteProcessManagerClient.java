@@ -3,6 +3,7 @@ package com.walnut.odin.proc.client;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
@@ -25,5 +26,7 @@ public interface RemoteProcessManagerClient extends RemoteProcessManagerNode {
     RemoteVitalizationResponse createLocalUProcess( UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException;
 
     RemoteVitalizationResponse vitalizeLocalUProcess( UProcessMirrorDTO handlerDTO ) throws RemoteProcessLifecycleException;
+
+    DuplexAppointClient duplexAppointClient();
 
 }

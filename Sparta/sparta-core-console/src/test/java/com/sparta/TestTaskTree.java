@@ -9,7 +9,6 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.UniformProcessManager;
 import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
@@ -25,16 +24,14 @@ import com.pinecone.hydra.task.kom.marshaling.TaskJSONDecoder;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
-import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.CollectiveTaskLegionary;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
-import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
-import com.walnut.odin.proc.client.RemoteProcessManagerClient;
-import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
-import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.conduct.RavenCollectiveTaskLegionary;
+import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.odin.task.RavenTask;
@@ -47,7 +44,6 @@ import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionElevator;
-import com.walnut.odin.task.troll.TrollTaskExecutionElevator;
 
 
 class Randy extends EnderHydra {
@@ -207,38 +203,32 @@ class Randy extends EnderHydra {
     private void testInstanceElevate( TaskInstrument instrument ) throws Exception {
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager(), wolfKing );
-        CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) instrument, server );
+        CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) instrument, wolfKing );
         regiment.startRemoteProcessServer();
 
 
 
-
-
-        ProcessManager clientPM = new UniformProcessManager(
-                this, null, "Miao", "", null
-        );
         UlfClient ulfClient = new WolfMCClient(
                 this.getSystemGuidAllocator72().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
         );
-        RemoteProcessManagerClient client = new RavenRemoteProcessManagerClient( clientPM, ulfClient );
-        client.startService();
+        CollectiveTaskLegionary regimentClient = new RavenCollectiveTaskLegionary( "jesus", this, ulfClient );
+        regimentClient.startService();
+        regimentClient.joinRegiment();
 
 
 
 
 
 
-
-
-        TaskExecutionElevator elevator = new TrollTaskExecutionElevator( regiment );
+        TaskExecutionElevator elevator = regiment.taskExecutionElevator();
 
         GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
         RavenTask task = regiment.getTaskByGuid( taskGuid );
         RavenTaskInstance instance = task.createInstance();
 
 
-        ProcessManager manager = this.processManager();
+        //ProcessManager manager = this.processManager();
+        ProcessManager manager = regimentClient.processManager();
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
             public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
@@ -265,8 +255,30 @@ class Randy extends EnderHydra {
 
         //uProcess.start();
 
-        elevator.elevateRemotely( instance, client.getClientId(), feature );
+        //elevator.elevateRemotely( instance, client.getClientId(), feature );
         //elevator.elevateLocally( instance, feature );
+
+
+
+
+//        // Test processor
+//        GenericTaskProcessorEntity processorEntity = new GenericTaskProcessorEntity(
+//                new JSONMaptron("{name:r1, clusterPath:'/r1', clusterName: 'r1', local: false, priority: 100, queueMeta: {" +
+//                        "name: r1_q, maxCapacity: 100, minCapacity: 100, runtimeInstanceCapacity: 50}}" +
+//                        "}}")
+//        );
+//        processorEntity.setControlClientId( client.getClientId() );
+//
+//        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(processorEntity, elevator);
+//        processor.pipeElevate( List.of( TaskLaunchContext.of( feature, instance ) ) );
+
+
+
+        TaskDispatcher taskDispatcher = regiment.taskDispatcher();
+
+        UProcess process = taskDispatcher.elevate( instance, feature );
+        Debug.greenfs( process.getPID() );
+
     }
 
 

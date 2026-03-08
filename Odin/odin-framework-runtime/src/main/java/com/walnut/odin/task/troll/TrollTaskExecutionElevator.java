@@ -3,10 +3,12 @@ package com.walnut.odin.task.troll;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pinecone.framework.util.CollectionUtils;
 import com.pinecone.framework.util.datetime.DatePattern;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
@@ -152,17 +154,6 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
 
 
 
-    @Override
-    public UProcess launch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
-        UProcess process = instance.affinityProcess();
-        if ( process == null ) {
-            instance.startLocalProcess();
-            process = instance.affinityProcess();
-        }
-
-
-        return process;
-    }
 
     protected void initializeInstance( RavenTaskInstance instance, LaunchFeature feature ) {
         LocalDateTime now = LocalDateTime.now();
@@ -242,6 +233,16 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         return imageURI;
     }
 
+    protected UProcess prepareProcessHandle( UProcess process, LaunchFeature feature ) {
+        List<ProcessEventHandler> handlers = feature.getSysProcEventHandlers();
+        if ( CollectionUtils.isNoneEmpty(handlers) ) {
+            for ( ProcessEventHandler handler : handlers ) {
+                this.mImageModifier.addSystemProcessEventHandler( process.getExecutionImage().getEntryPoint(), handler );
+            }
+        }
+        return process;
+    }
+
     @Override
     public UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         try {
@@ -269,6 +270,8 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
                 );
             }
 
+
+            this.prepareProcessHandle( process, feature );
             this.afterProcessLaunched( instance, process );
             return process;
         }
@@ -302,7 +305,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
                 instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.RemoteProcessCreationFailure );
             }
 
-
+            this.prepareProcessHandle( process, feature );
             this.afterProcessLaunched( instance, process );
             return process;
         }
@@ -337,10 +340,6 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         }
     }
 
-    @Override
-    public UProcess elevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
-        return null;
-    }
 
     @Override
     public UProcess elevateLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {

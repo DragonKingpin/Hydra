@@ -2,11 +2,14 @@ package com.walnut.odin.task.troll;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.event.ProcessEventHandler;
 
 public class LaunchFeature implements Pinenut {
 
@@ -23,6 +26,8 @@ public class LaunchFeature implements Pinenut {
     private Map<String, String[]> contextEnvironmentVars;
 
     private LocalDateTime bizTimeEpoch;
+
+    private List<ProcessEventHandler> sysProcEventHandlers;
 
     public LaunchFeature() {
         this.bizTimeEpoch = LocalDateTime.now().minusDays( 1 ); // dtm
@@ -50,6 +55,10 @@ public class LaunchFeature implements Pinenut {
 
     public GUID getParentPid() {
         return this.parentPid;
+    }
+
+    public List<ProcessEventHandler> getSysProcEventHandlers() {
+        return this.sysProcEventHandlers;
     }
 
     public LaunchFeature withParentPid( GUID pid ) {
@@ -88,6 +97,19 @@ public class LaunchFeature implements Pinenut {
 
     public LaunchFeature withContextEnvironmentVars( Map<String, String[]> contextEnvironmentVars ) {
         this.contextEnvironmentVars = contextEnvironmentVars;
+        return this;
+    }
+
+    public LaunchFeature withSysProcEventHandlers( List<ProcessEventHandler> sysProcEventHandlers ) {
+        this.sysProcEventHandlers = sysProcEventHandlers;
+        return this;
+    }
+
+    public LaunchFeature withSysProcEventHandlers( ProcessEventHandler handler ) {
+        if ( this.sysProcEventHandlers == null ) {
+            this.sysProcEventHandlers = new ArrayList<>();
+        }
+        this.sysProcEventHandlers.add( handler );
         return this;
     }
 

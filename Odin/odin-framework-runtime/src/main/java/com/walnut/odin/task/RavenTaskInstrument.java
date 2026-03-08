@@ -90,7 +90,7 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
         this.ravenTaskMasterManipulator = (RavenTaskMasterManipulator) masterManipulator;
-        TaskMappingDriver driver        = this.ravenTaskMasterManipulator.getTaskMappingDriver();
+        TaskMappingDriver driver        = (TaskMappingDriver) this.ravenTaskMasterManipulator.getTaskMappingDriver();
         this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, config, guidAllocator );
 
         this.categoryService            = new RavenCategoryService( this );

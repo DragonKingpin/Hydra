@@ -1,5 +1,5 @@
 # 编码规范
-本skills 对 C/C++、Java、ECMAScript 都生效，以下是核心风格规范：
+本 Skill 对 C/C++、Java、ECMAScript 都生效，以下是核心风格规范：
 
 1. 不要省略任何 this，无论是函数调用还是成员变量访问等。
 2. 不要省略任何括号，例如：
@@ -21,7 +21,7 @@
         doSomething();
     }
 ```
-4. 对于代码单行不超过140行时，不要换行（字符串场景除外）
+4. 对于代码单行不超过140字符时，不要换行（字符串场景除外）
 5. 对于 C/C++、Java使用如下匈牙利命名法（除非上下文禁用）：
 5.1. 成员变量(基本数据类型需要叠加): mMember，mszString，mnNumber，mbFlag
 5.2. 字符串: szString，const char*: lpszString
@@ -47,3 +47,5 @@
     }
     
 ```
+8. 单词：
+8.1 接口默认实现使用 Generic，除非明确给出。

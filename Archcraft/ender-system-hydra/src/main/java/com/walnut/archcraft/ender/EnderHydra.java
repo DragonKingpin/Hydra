@@ -103,11 +103,12 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.infoLifecycle( "<Uniform Hydra> Uniform Imperium Privy", LogStatuses.StatusDone );
     }
 
-    protected void prepare_uniform_system() {
-        this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusStart );
+    @Override
+    protected void prepare_system_skeleton_before() {
+        this.prepare_uniform_system_guid_system();
+    }
 
-        this.init_uniform_system_configuration();
-
+    protected void prepare_uniform_system_guid_system() {
         this.mSystemGuidAllocator    = GUIDs.newGuidAllocator( 1984 ); // TODO MachineId allocation.
         this.infoLifecycle(
                 "<Uniform Hydra> System GUIDAllocator Initialization [Type: `" + this.mSystemGuidAllocator.getClass().getName() + "`]",
@@ -119,7 +120,12 @@ public class EnderHydra extends Tritium implements HydraEmpire {
                 "<Uniform Hydra> System GUIDAllocator72 Initialization [Type: `" + this.mSystemGuidAllocator72.getClass().getName() + "`]",
                 LogStatuses.StatusDone
         );
+    }
 
+    protected void prepare_uniform_system() {
+        this.infoLifecycle( "<Hydra Empire> Uniform Operation System", LogStatuses.StatusStart );
+
+        this.init_uniform_system_configuration();
 
         this.prepare_uniform_system_process_task_subsystem();
         this.init_process_kernel_subsystem();

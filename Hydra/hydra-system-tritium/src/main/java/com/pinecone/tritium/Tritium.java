@@ -106,8 +106,15 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.mTracerConfigurator.apply();
     }
 
+    protected void prepare_system_skeleton_before() {
+
+    }
+
     protected void prepare_system_skeleton() {
         this.infoLifecycle( "<Hydra Kingdom> Skeleton Initialization", LogStatuses.StatusStart );
+
+        this.prepare_system_skeleton_before();
+
         this.mTracerScope            = new GenericTracerScope( this );
         this.mPrimaryConfigScope     = new TritiumConfigScope( ConfigScope.KeyGlobal, this, this.getGlobalConfig() );
         this.mMiddlewareDirector     = new KnittedMiddlewareDirector( this );

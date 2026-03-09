@@ -10,6 +10,7 @@ import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.JSONGet;
 import com.pinecone.framework.util.name.Namespace;
+import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.umct.MessageExpress;
 import com.pinecone.hydra.umct.Messagram;
 import com.pinecone.hydra.servgram.Servgram;
@@ -104,12 +105,12 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
     }
 
     protected void prepareInstanceMessagers() {
-        for( Object o : this.mjoMessagers.entrySet() ) {
+        for ( Object o : this.mjoMessagers.entrySet() ) {
             Map.Entry kv   = (Map.Entry) o;
 
             Object ov = kv.getValue();
-            if( ov instanceof String ) {
-                try{
+            if ( ov instanceof String ) {
+                try {
                     ov = this.mjoMessagers.fromPath( Path.of( (String) ov ) );
                 }
                 catch ( IOException e ) {
@@ -120,14 +121,27 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
             JSONObject val = (JSONObject) ov;
             this.mObjectOverrider.override( val, this.mjoComponentConf, false );
 
-            try{
+            try {
                 String szEngine        = val.optString( "Engine" );
                 String szInsNam        = (String) kv.getKey();
 
                 boolean bEnable        = val.optBoolean( "Enable" );
                 boolean bCentralManage = val.optBoolean( "CentralManage" );
                 if ( bEnable ) {
-                    Object node = this.mUniformFactory.loadInstance( szEngine, null, new Object[] { szInsNam, this.getSystem(), val } );
+                    TritiumSystem system = this.getSystem();
+                    Object node = null;
+                    if ( system instanceof UniformCentralSystem ) {
+                        UniformCentralSystem uSystem = (UniformCentralSystem) system;
+                        long nodeId = uSystem.getSystemGuidAllocator72().nextGUIDi64();
+                        node = this.mUniformFactory.loadInstance( szEngine, null,
+                                new Object[] { nodeId, szInsNam, this.getSystem(), val }
+                        );
+                    }
+
+                    if ( node == null ) {
+                        node = this.mUniformFactory.loadInstance( szEngine, null, new Object[] { szInsNam, this.getSystem(), val } );
+                    }
+
                     if ( node instanceof MessageNode ) {
                         this.mMessagerComponent.put( szInsNam, (MessageNode)node );
                         this.prepareMessagersMsgHandler( szInsNam, (MessageNode)node, val );

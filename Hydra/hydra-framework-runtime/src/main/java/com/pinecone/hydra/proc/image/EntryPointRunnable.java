@@ -37,6 +37,7 @@ public interface EntryPointRunnable extends Runnable, Executor {
     default void run() {
         ProcessEventHandler processEventHandler        = this.processEventHandler();
         List<ProcessEventHandler> sysProcEventHandlers = ArchEntryPointRunnable.getSysProcEventHandlers( this );
+        ProcessEvent termEvent                         = null;
         try {
             ProcessEvent vitalEvent = ProcessEvent.Vitalized;
             if ( processEventHandler != null ) {
@@ -53,6 +54,7 @@ public interface EntryPointRunnable extends Runnable, Executor {
         }
         catch ( Exception e ) {
             this.ownedProcess().actionTape().setLastError( e );
+            termEvent = ProcessEvent.Error;
             throw new ProvokeHandleException( e );
         }
         finally {
@@ -62,7 +64,9 @@ public interface EntryPointRunnable extends Runnable, Executor {
                 ArchProcessManager.invokeExpunge( (ArchProcessManager) processManager, owned );
             }
 
-            ProcessEvent termEvent = ProcessEvent.Terminated;
+            if ( termEvent == null ) {
+                termEvent = ProcessEvent.Terminated;
+            }
             if ( processEventHandler != null ) {
                 processEventHandler.fired( this, termEvent );
             }

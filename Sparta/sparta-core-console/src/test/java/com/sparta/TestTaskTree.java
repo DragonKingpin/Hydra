@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
+import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
@@ -11,6 +12,7 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
+import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
@@ -215,6 +217,13 @@ class Randy extends EnderHydra {
         regimentClient.startService();
         regimentClient.joinRegiment();
 
+        regimentClient.remoteProcessManagerClient().addProcessLifecycleHandler(new ProcessLifecycleHandler() {
+            @Override
+            public void fired( String imageAddress, EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.greenfs( imageAddress, event );
+            }
+        });
+
 
 
 
@@ -242,6 +251,8 @@ class Randy extends EnderHydra {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.sleep( 1000 );
                 Debug.greenfs( "Miao~" );
+
+                //throw new IrrationalProvokedException();
                 return 1984;
             }
         }, manager );

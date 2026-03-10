@@ -1,6 +1,7 @@
 package com.walnut.odin.dispatch;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.LaunchFeature;
@@ -10,6 +11,15 @@ public interface TaskLaunchContext extends Pinenut {
     LaunchFeature getLaunchFeature();
 
     RavenTaskInstance getTaskInstance();
+
+    default Identification getTaskId() {
+        return this.getTaskInstance().getOwnedTask().getId();
+    }
+
+    default Identification getTaskInstanceId() {
+        return this.getTaskInstance().getId();
+    }
+
 
     String getAffinityProcessorName();
 

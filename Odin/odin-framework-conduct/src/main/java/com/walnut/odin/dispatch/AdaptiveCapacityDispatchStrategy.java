@@ -35,8 +35,8 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
     @Override
     public Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> dispatch(
             Collection<TaskExecutionProcessor> processors,
-            Collection<TaskLaunchContext> contexts
-    ) {
+            Collection<TaskLaunchContext> contexts, TaskDispatcher dispatcher
+    ) throws TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new HashMap<>();
 
         if ( processors == null || processors.isEmpty() ) {
@@ -67,6 +67,13 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         // 先处理 affinity
         for ( TaskLaunchContext context : contexts ) {
             String szAffinity = context.getAffinityProcessorName();
+            if ( szAffinity == null ) {
+                TaskExecutionProcessor processor = dispatcher.getAffinityTasks( context.getTaskId() );
+                if ( processor != null ) {
+                    szAffinity = processor.getName();
+                }
+            }
+
             if ( szAffinity == null ) {
                 normalContexts.add( context );
                 continue;

@@ -19,6 +19,8 @@ public class LaunchFeature implements Pinenut {
 
     private UProcess parentProcess;
 
+    private String processorName;
+
     private GUID parentPid;
 
     private Map<String, String[]> startupArgs;
@@ -59,6 +61,15 @@ public class LaunchFeature implements Pinenut {
 
     public List<ProcessEventHandler> getSysProcEventHandlers() {
         return this.sysProcEventHandlers;
+    }
+
+    public String getProcessorName() {
+        return this.processorName;
+    }
+
+    public LaunchFeature withProcessorName( String processorName ) {
+        this.processorName = processorName;
+        return this;
     }
 
     public LaunchFeature withParentPid( GUID pid ) {

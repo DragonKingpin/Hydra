@@ -3,6 +3,7 @@ package com.walnut.odin.dispatch;
 import java.util.Collection;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
@@ -23,6 +24,8 @@ public interface TaskDispatcher extends Pinenut {
 
 
     void setProcessorAffinity( String szProcessorName, TaskLaunchContext launchContext );
+
+    TaskExecutionProcessor getAffinityTasks( Identification taskId );
 
     Collection<TaskLaunchContext> queryAffinityTasks( String szProcessorName );
 

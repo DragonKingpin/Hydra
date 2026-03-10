@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
@@ -33,7 +34,9 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     protected final Map<Long, TaskExecutionProcessor>    mClientProcessorsIndex;
 
-    protected final Map<String, List<TaskLaunchContext>> mAffinityTable;
+    protected final Map<Identification, TaskProcPair>    mAffinityTable;
+
+
 
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
 
@@ -89,7 +92,12 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mLock.lock();
         try {
             this.mProcessors.remove( szProcessorName );
-            this.mAffinityTable.remove( szProcessorName );
+            this.mAffinityTable.entrySet().removeIf( entry -> {
+                if ( entry.getValue().processor.getName().equals( szProcessorName ) ) {
+                    return true;
+                }
+                return false;
+            } );
             this.log.info( "Unregistered processor, name:`{}`", szProcessorName );
         }
         finally {
@@ -131,11 +139,11 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     public void setProcessorAffinity( String szProcessorName, TaskLaunchContext launchContext ) {
         this.mLock.lock();
         try {
-            List<TaskLaunchContext> list =
-                    this.mAffinityTable.computeIfAbsent(
-                            szProcessorName, k -> new ArrayList<>()
-                    );
-            list.add( launchContext );
+            TaskExecutionProcessor processor = this.mProcessors.get( szProcessorName );
+            if ( processor == null ) {
+                throw new IllegalArgumentException( "Processor not found: " + szProcessorName );
+            }
+            this.mAffinityTable.put( launchContext.getTaskId(), new TaskProcPair( processor, launchContext ) );
         }
         finally {
             this.mLock.unlock();
@@ -143,14 +151,25 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
+    public TaskExecutionProcessor getAffinityTasks( Identification taskId ) {
+        TaskProcPair pair = this.mAffinityTable.get( taskId );
+        if ( pair != null ) {
+            return pair.processor;
+        }
+        return null;
+    }
+
+    @Override
     public Collection<TaskLaunchContext> queryAffinityTasks( String szProcessorName ) {
         this.mLock.lock();
         try {
-            List<TaskLaunchContext> list = this.mAffinityTable.get( szProcessorName );
-            if ( list == null || list.isEmpty() ) {
-                return Collections.emptyList();
+            Collection<TaskLaunchContext> result = new ArrayList<>();
+            for ( TaskProcPair pair : this.mAffinityTable.values() ) {
+                if ( pair.processor.getName().equals( szProcessorName ) ) {
+                    result.add( pair.launchContext );
+                }
             }
-            return new ArrayList<>( list );
+            return result;
         }
         finally {
             this.mLock.unlock();
@@ -164,7 +183,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mLock.lock();
         try {
             plan = this.mDispatchStrategy.dispatch(
-                    new ArrayList<>( this.mProcessors.values() ), contexts
+                    new ArrayList<>( this.mProcessors.values() ), contexts, this
             );
         }
         finally {
@@ -181,7 +200,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mLock.lock();
         try {
             plan = this.mDispatchStrategy.dispatch(
-                    new ArrayList<>( this.mProcessors.values() ), contexts
+                    new ArrayList<>( this.mProcessors.values() ), contexts, this
             );
         }
         finally {
@@ -238,4 +257,14 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         return context.getLaunchedProcess();
     }
 
+
+    protected static class TaskProcPair {
+        public TaskExecutionProcessor processor;
+        public TaskLaunchContext launchContext;
+
+        public TaskProcPair( TaskExecutionProcessor processor, TaskLaunchContext launchContext ) {
+            this.processor = processor;
+            this.launchContext = launchContext;
+        }
+    }
 }

@@ -37,4 +37,13 @@ public interface MultiScopeFactory extends DynamicFactory {
 
     List popping( Name name, Object... args );
 
+
+
+
+    <T> void putInstanceSingleton     ( Class<T> clazz, T obj );
+
+    <T> void removeInstanceSingleton  ( Class<T> clazz );
+
+    int instanceSingletonSize();
+
 }

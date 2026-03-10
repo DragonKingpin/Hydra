@@ -34,6 +34,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     protected long                            mnControlClientId;
     protected boolean                         mbLocal;
     protected int                             mnPriority;
+    protected boolean                         mbExclusive;
 
     protected TaskExecutionQueue              mTaskExecutionQueue;
     protected TaskExecutionElevator           mTaskExecutionElevator;
@@ -51,6 +52,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mnControlClientId           = processorEntity.getControlClientId();
         this.mbLocal                     = processorEntity.isLocal();
         this.mnPriority                  = processorEntity.getPriority();
+        this.mbExclusive                 = processorEntity.isExclusive();
         this.mTaskExecutionQueue         = queue;
         this.mTaskExecutionElevator      = elevator;
         this.mRunningProcesses           = new ConcurrentHashMap<>();
@@ -99,6 +101,11 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     @Override
     public int getPriority() {
         return this.mnPriority;
+    }
+
+    @Override
+    public boolean isExclusive() {
+        return this.mbExclusive;
     }
 
     @Override

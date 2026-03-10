@@ -23,6 +23,8 @@ public interface TaskProcessorEntity extends Pinenut {
 
     boolean isLocal();
 
+    boolean isExclusive();
+
     int getPriority();
 
     boolean isEnable();

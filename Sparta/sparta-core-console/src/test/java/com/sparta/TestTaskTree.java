@@ -33,6 +33,7 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.CollectiveTaskLegionary;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskLegionary;
+import com.walnut.odin.conduct.entity.LaunchedContext;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
@@ -229,11 +230,10 @@ class Randy extends EnderHydra {
 
 
 
-        TaskExecutionElevator elevator = regiment.taskExecutionElevator();
-
-        GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
-        RavenTask task = regiment.getTaskByGuid( taskGuid );
-        RavenTaskInstance instance = task.createInstance();
+//        TaskExecutionElevator elevator = regiment.taskExecutionElevator();
+//        GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
+//        RavenTask task = regiment.getTaskByGuid( taskGuid );
+//        RavenTaskInstance instance = task.createInstance();
 
 
         //ProcessManager manager = this.processManager();
@@ -285,10 +285,10 @@ class Randy extends EnderHydra {
 
 
 
-        TaskDispatcher taskDispatcher = regiment.taskDispatcher();
-
-        UProcess process = taskDispatcher.elevate( instance, feature );
-        Debug.greenfs( process.getPID() );
+        //TaskDispatcher taskDispatcher = regiment.taskDispatcher();
+        //UProcess process = taskDispatcher.elevate( instance, feature );
+        LaunchedContext context = regiment.elevate( "root/test/job/task", feature );
+        Debug.greenfs( context.getProcess().getPID() );
 
     }
 

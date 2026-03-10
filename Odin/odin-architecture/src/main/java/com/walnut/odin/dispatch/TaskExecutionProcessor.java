@@ -29,6 +29,8 @@ public interface TaskExecutionProcessor extends Pinenut {
 
     int getPriority();
 
+    boolean isExclusive();
+
     TaskLaunchContext getTaskLaunchContextByPID( GUID pid );
 
 

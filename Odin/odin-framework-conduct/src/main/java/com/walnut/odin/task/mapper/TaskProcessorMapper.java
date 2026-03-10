@@ -26,17 +26,20 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path` AS clusterPath, " +
         "  `cluster_name` AS clusterName, " +
         "  `is_local` AS `local`, " +
+        "  `is_exclusive` AS exclusive, " +
         "  `priority`, " +
         "  `queue_name` AS queueName, " +
         "  `queue_max_capacity` AS queueMaxCapacity, " +
         "  `queue_min_capacity` AS queueMinCapacity, " +
         "  `queue_runtime_instance_capacity` AS queueRuntimeInstanceCapacity, " +
+        "  `enable`, " +
         "  `create_time` AS createTime, " +
         "  `update_time` AS updateTime " +
         "FROM `odin_task_processor` " +
-        "WHERE `processor_name` = #{name} "
+        "WHERE `processor_name` = #{name}"
     )
     GenericTaskProcessorEntity selectByProcessorName( @Param("name") String szProcessorName );
+
 
     @Select(
         "SELECT " +
@@ -46,11 +49,13 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path` AS clusterPath, " +
         "  `cluster_name` AS clusterName, " +
         "  `is_local` AS `local`, " +
+        "  `is_exclusive` AS exclusive, " +
         "  `priority`, " +
         "  `queue_name` AS queueName, " +
         "  `queue_max_capacity` AS queueMaxCapacity, " +
         "  `queue_min_capacity` AS queueMinCapacity, " +
         "  `queue_runtime_instance_capacity` AS queueRuntimeInstanceCapacity, " +
+        "  `enable`, " +
         "  `create_time` AS createTime, " +
         "  `update_time` AS updateTime " +
         "FROM `odin_task_processor` " +
@@ -58,6 +63,7 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
     )
     GenericTaskProcessorEntity selectByGuid( @Param("guid") GUID guid );
 
+
     @Select(
         "SELECT " +
         "  `id`, " +
@@ -66,11 +72,13 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path` AS clusterPath, " +
         "  `cluster_name` AS clusterName, " +
         "  `is_local` AS `local`, " +
+        "  `is_exclusive` AS exclusive, " +
         "  `priority`, " +
         "  `queue_name` AS queueName, " +
         "  `queue_max_capacity` AS queueMaxCapacity, " +
         "  `queue_min_capacity` AS queueMinCapacity, " +
         "  `queue_runtime_instance_capacity` AS queueRuntimeInstanceCapacity, " +
+        "  `enable`, " +
         "  `create_time` AS createTime, " +
         "  `update_time` AS updateTime " +
         "FROM `odin_task_processor` " +
@@ -78,11 +86,13 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
     )
     List<GenericTaskProcessorEntity> selectByClusterName0( @Param("clusterName") String clusterName );
 
+
     @Override
     @SuppressWarnings("unchecked")
     default List<TaskProcessorEntity> selectByClusterName( @Param("clusterName") String clusterName ) {
         return (List) this.selectByClusterName0( clusterName );
     }
+
 
     @Select(
         "SELECT " +
@@ -92,22 +102,26 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path` AS clusterPath, " +
         "  `cluster_name` AS clusterName, " +
         "  `is_local` AS `local`, " +
+        "  `is_exclusive` AS exclusive, " +
         "  `priority`, " +
         "  `queue_name` AS queueName, " +
         "  `queue_max_capacity` AS queueMaxCapacity, " +
         "  `queue_min_capacity` AS queueMinCapacity, " +
         "  `queue_runtime_instance_capacity` AS queueRuntimeInstanceCapacity, " +
+        "  `enable`, " +
         "  `create_time` AS createTime, " +
         "  `update_time` AS updateTime " +
         "FROM `odin_task_processor`"
     )
     List<GenericTaskProcessorEntity> selectAll0();
 
+
     @Override
     @SuppressWarnings("unchecked")
     default List<TaskProcessorEntity> selectAll() {
         return (List) this.selectAll0();
     }
+
 
     @Insert(
         "INSERT INTO `odin_task_processor` ( " +
@@ -116,6 +130,7 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path`, " +
         "  `cluster_name`, " +
         "  `is_local`, " +
+        "  `is_exclusive`, " +
         "  `priority`, " +
         "  `queue_name`, " +
         "  `queue_max_capacity`, " +
@@ -127,6 +142,7 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  #{entity.clusterPath}, " +
         "  #{entity.clusterName}, " +
         "  #{entity.isLocal}, " +
+        "  #{entity.isExclusive}, " +
         "  #{entity.priority}, " +
         "  #{entity.queueName}, " +
         "  #{entity.queueMaxCapacity}, " +
@@ -134,9 +150,7 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  #{entity.queueRuntimeInstanceCapacity} " +
         ")"
     )
-    int insert(
-        @Param("entity") TaskProcessorEntity entity
-    );
+    int insert( @Param("entity") TaskProcessorEntity entity );
 
 
     @Update(
@@ -144,17 +158,16 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  `cluster_path` = #{entity.clusterPath}, " +
         "  `cluster_name` = #{entity.clusterName}, " +
         "  `is_local` = #{entity.isLocal}, " +
+        "  `is_exclusive` = #{entity.isExclusive}, " +
         "  `priority` = #{entity.priority}, " +
         "  `queue_name` = #{entity.queueName}, " +
         "  `queue_max_capacity` = #{entity.queueMaxCapacity}, " +
         "  `queue_min_capacity` = #{entity.queueMinCapacity}, " +
-        "  `queue_runtime_instance_capacity` = #{entity.queueRuntimeInstanceCapacity}," +
-        "  `enable` = #{entity.enable}" +
+        "  `queue_runtime_instance_capacity` = #{entity.queueRuntimeInstanceCapacity}, " +
+        "  `enable` = #{entity.enable} " +
         "WHERE `guid` = #{entity.guid}"
     )
-    int updateByGuid(
-        @Param("entity") GenericTaskProcessorEntity entity
-    );
+    int updateByGuid( @Param("entity") GenericTaskProcessorEntity entity );
 
 
     @Update(
@@ -165,35 +178,28 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "WHERE `guid` = #{guid}"
     )
     int updateQueueCapacity(
-        @Param("guid") GUID guid,
-        @Param("maxCapacity") int maxCapacity,
-        @Param("minCapacity") int minCapacity,
-        @Param("runtimeCapacity") int runtimeCapacity
+            @Param("guid") GUID guid,
+            @Param("maxCapacity") int maxCapacity,
+            @Param("minCapacity") int minCapacity,
+            @Param("runtimeCapacity") int runtimeCapacity
     );
 
 
     @Update(
-        "DELETE FROM `odin_task_processor` " +
-        "WHERE `guid` = #{guid}"
+        "DELETE FROM `odin_task_processor` WHERE `guid` = #{guid}"
     )
-    int deleteByGuid(
-        @Param("guid") GUID guid
-    );
+    int deleteByGuid( @Param("guid") GUID guid );
+
 
     @Update(
-            "UPDATE `odin_task_processor` SET `enable` = 1 " +
-                    "WHERE `guid` = #{guid}"
+        "UPDATE `odin_task_processor` SET `enable` = 1 WHERE `guid` = #{guid}"
     )
-    int enable(
-            @Param("guid") GUID guid
-    );
+    int enable( @Param("guid") GUID guid );
+
 
     @Update(
-            "UPDATE `odin_task_processor` SET `enable` = 0 " +
-                    "WHERE `guid` = #{guid}"
+        "UPDATE `odin_task_processor` SET `enable` = 0 WHERE `guid` = #{guid}"
     )
-    int disable(
-            @Param("guid") GUID guid
-    );
+    int disable( @Param("guid") GUID guid );
 
 }

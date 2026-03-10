@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import com.walnut.odin.task.troll.LaunchFeature;
+
 public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
 
     protected static final int DEFAULT_HEAP_THRESHOLD = 16;
@@ -32,10 +34,103 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         this.mnHeapThreshold = nHeapThreshold > 0 ? nHeapThreshold : DEFAULT_HEAP_THRESHOLD;
     }
 
+    protected Map<String, ProcessorSlot> buildProcessorSlots( Collection<TaskExecutionProcessor> processors ) {
+        Map<String, ProcessorSlot> slotMap = new HashMap<>();
+
+        for ( TaskExecutionProcessor processor : processors ) {
+            if ( processor.isExclusive() ) {
+                continue;
+            }
+
+            int nPending = processor.getTaskExecutionQueue().pendingCapacity();
+            if ( nPending <= 0 ) {
+                continue;
+            }
+            ProcessorSlot slot = new ProcessorSlot( processor, nPending );
+            slotMap.put( processor.getName(), slot );
+        }
+        return slotMap;
+    }
+
+    protected List<TaskLaunchContext> handleBindingContexts(
+            Collection<TaskLaunchContext> contexts,
+            Map<String, ProcessorSlot> slotMap,
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan,
+            TaskDispatcher dispatcher
+    ) throws TaskDispatchException {
+
+        List<TaskLaunchContext> remaining = new ArrayList<>();
+
+        for ( TaskLaunchContext context : contexts ) {
+            String szTarget = null;
+            boolean bStrong = false;
+
+            LaunchFeature feature = context.getLaunchFeature();
+            if ( feature != null && feature.getProcessorDesignated() != null ) {
+                szTarget = feature.getProcessorDesignated();
+                bStrong = true;
+            }
+            else {
+                szTarget = context.getAffinityProcessorName();
+                if ( szTarget == null ) {
+                    TaskExecutionProcessor p = dispatcher.getAffinityTasks( context.getTaskId() );
+                    if ( p != null ) {
+                        szTarget = p.getName();
+                    }
+                }
+            }
+
+            if ( szTarget == null ) {
+                remaining.add( context );
+                continue;
+            }
+
+            ProcessorSlot slot = slotMap.get( szTarget );
+            if ( slot == null ) {
+                if ( bStrong ) {
+                    throw new TaskDispatchException(
+                            "Designated processor `" + szTarget + "` not available."
+                    );
+                }
+                remaining.add( context );
+                continue;
+            }
+
+            if ( slot.mnRemaining <= 0 ) {
+                if ( bStrong ) {
+                    throw new TaskDispatchException(
+                            "Designated processor `" + szTarget + "` capacity exceeded."
+                    );
+                }
+                remaining.add( context );
+                continue;
+            }
+
+            plan.computeIfAbsent( slot.mProcessor, k -> new ArrayList<>() ).add( context );
+            --slot.mnRemaining;
+        }
+
+        return remaining;
+    }
+
+    protected void dispatchNormal(
+            Map<String, ProcessorSlot> slotMap,
+            List<TaskLaunchContext> contexts,
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan
+    ) {
+        if ( slotMap.size() <= this.mnHeapThreshold ) {
+            this.dispatchLinear( slotMap, contexts, plan );
+        }
+        else {
+            this.dispatchHeap( slotMap, contexts, plan );
+        }
+    }
+
     @Override
     public Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> dispatch(
             Collection<TaskExecutionProcessor> processors,
-            Collection<TaskLaunchContext> contexts, TaskDispatcher dispatcher
+            Collection<TaskLaunchContext> contexts,
+            TaskDispatcher dispatcher
     ) throws TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new HashMap<>();
 
@@ -46,61 +141,17 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
             return plan;
         }
 
-        Map<String, ProcessorSlot> slotMap = new HashMap<>();
-        List<TaskExecutionProcessor> availableProcessors = new ArrayList<>();
-
-        for ( TaskExecutionProcessor processor : processors ) {
-            int nPending = processor.getTaskExecutionQueue().pendingCapacity();
-            if ( nPending > 0 ) {
-                ProcessorSlot slot = new ProcessorSlot( processor, nPending );
-                slotMap.put( processor.getName(), slot );
-                availableProcessors.add( processor );
-            }
-        }
-
+        Map<String, ProcessorSlot> slotMap = this.buildProcessorSlots( processors );
         if ( slotMap.isEmpty() ) {
             return plan;
         }
 
-        List<TaskLaunchContext> normalContexts = new ArrayList<>();
-
-        // 先处理 affinity
-        for ( TaskLaunchContext context : contexts ) {
-            String szAffinity = context.getAffinityProcessorName();
-            if ( szAffinity == null ) {
-                TaskExecutionProcessor processor = dispatcher.getAffinityTasks( context.getTaskId() );
-                if ( processor != null ) {
-                    szAffinity = processor.getName();
-                }
-            }
-
-            if ( szAffinity == null ) {
-                normalContexts.add( context );
-                continue;
-            }
-
-            ProcessorSlot slot = slotMap.get( szAffinity );
-            if ( slot != null && slot.mnRemaining > 0 ) {
-                plan.computeIfAbsent( slot.mProcessor, k -> new ArrayList<>() ).add( context );
-                --slot.mnRemaining;
-            }
-            else {
-                normalContexts.add( context );
-            }
-        }
-
-        if ( normalContexts.isEmpty() ) {
+        List<TaskLaunchContext> remaining = this.handleBindingContexts( contexts, slotMap, plan, dispatcher );
+        if ( remaining.isEmpty() ) {
             return plan;
         }
 
-        // 再走普通调度
-        if ( availableProcessors.size() <= this.mnHeapThreshold ) {
-            this.dispatchLinear( slotMap, normalContexts, plan );
-        }
-        else {
-            this.dispatchHeap( slotMap, normalContexts, plan );
-        }
-
+        this.dispatchNormal( slotMap, remaining, plan );
         return plan;
     }
 

@@ -15,6 +15,7 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     protected String         mszClusterName;
     protected long           mnControlClientId;
     protected boolean        mbLocal;
+    protected boolean        mbExclusive;
     protected int            mnPriority;
     protected TaskQueueMeta  mTaskQueueMeta;
     protected boolean        mbEnable;
@@ -105,6 +106,11 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     }
 
     @Override
+    public boolean isExclusive() {
+        return this.mbExclusive;
+    }
+
+    @Override
     public int getPriority() {
         return this.mnPriority;
     }
@@ -121,6 +127,10 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
 
     public void setEnable( boolean enable ) {
         this.mbEnable = enable;
+    }
+
+    public void setExclusive( boolean exclusive ) {
+        this.mbExclusive = exclusive;
     }
 
     public void setGuid( GUID guid ) {

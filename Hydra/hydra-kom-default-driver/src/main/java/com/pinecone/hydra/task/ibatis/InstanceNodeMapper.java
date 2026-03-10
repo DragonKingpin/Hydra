@@ -152,9 +152,9 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
 
     @Select(
             "SELECT " + BASE_FIELDS +
-                    " FROM hydra_task_instances " +
-                    "WHERE task_guid = #{taskGuid} and business_time = #{bizTime} " +
-                    "ORDER BY run_count DESC LIMIT 1"
+            " FROM hydra_task_instances " +
+            "WHERE task_guid = #{taskGuid} and business_time = #{bizTime} " +
+            "ORDER BY run_count DESC LIMIT 1"
     )
     @ResultMap("InstanceResultMap")
     GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );

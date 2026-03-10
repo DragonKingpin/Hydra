@@ -39,8 +39,17 @@ public abstract class ArchDynamicFactory implements DynamicFactory {
     }
 
 
+    protected Object beforeInstantiate( Class<? > that, Class<?>[] stereotypes, Object[] args ) {
+        return null;
+    }
+
     @Override
     public Object newInstance ( Class<? > that, Class<?>[] stereotypes, Object[] args ) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Object s = this.beforeInstantiate( that, stereotypes, args );
+        if ( s != null ) {
+            return s;
+        }
+
         Constructor<?>[] constructors = that.getConstructors();
         boolean bUsingSetAccess = false;
         if( constructors.length == 0 ) {

@@ -65,6 +65,11 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
     }
 
     @Override
+    public RemoteProcessManagerClient remoteProcessManagerClient() {
+        return this.mRemoteProcessManagerClient;
+    }
+
+    @Override
     public void startService () throws RemoteProcessServiceRPCException {
         this.mRemoteProcessManagerClient.startService();
 

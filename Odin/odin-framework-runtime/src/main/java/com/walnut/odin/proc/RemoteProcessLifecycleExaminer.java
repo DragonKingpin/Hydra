@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageModifier;
 import com.walnut.odin.proc.client.RPCRecallSysProcessEventHandler;
@@ -27,6 +28,11 @@ public class RemoteProcessLifecycleExaminer implements ProcessLifecycleExaminer 
     }
 
     @Override
+    public ImageModifier imageModifier() {
+        return this.mImageModifier;
+    }
+
+    @Override
     public void startProcess( UProcess process ) {
         this.mLogger.info( "[RemoteProcessVitalization] (Process: `{}`, PID: `{}`) <InstructionAccepted>", process.getName(), process.getPID() );
         ExecutionImage image = process.getExecutionImage();
@@ -35,6 +41,10 @@ public class RemoteProcessLifecycleExaminer implements ProcessLifecycleExaminer 
         ) );
 
         process.start(); // TODO, Process Joint
+
+        this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
+                process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), ProcessEvent.Vitalized
+        );
 
         this.mLogger.info( "[RemoteProcessVitalization] (Process: `{}`, PID: `{}`) <InstructionPerformed>", process.getName(), process.getPID() );
     }

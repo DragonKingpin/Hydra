@@ -35,6 +35,7 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
                 this.notifyProcessTerminated( runnable );
                 break;
             }
+            case Prepare:
             case Created:
             case Vitalized:
             default: {
@@ -55,6 +56,14 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
         if ( lastError != null ) {
             report.setErrorMsg( lastError.getMessage() );
             report.setRemoteTerminationStatus( RemoteTerminationStatus.Error );
+            this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
+                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), ProcessEvent.Error
+            );
+        }
+        else {
+            this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
+                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), ProcessEvent.Terminated
+            );
         }
 
         this.mSlaveProcessLifecycleIface.reportProcessTerminated( this.mnClientId, report );

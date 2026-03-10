@@ -12,6 +12,8 @@ public interface ExecutionImage extends Pinenut {
 
     URI getResourceURI();
 
+    String getImageAddress();
+
     Class<UProcess> processClassType();
 
     EntryPointRunnable getEntryPoint();

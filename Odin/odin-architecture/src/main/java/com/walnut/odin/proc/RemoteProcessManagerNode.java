@@ -4,10 +4,14 @@ import java.net.URI;
 import java.util.Collection;
 
 import com.pinecone.framework.system.RuntimeSystem;
+import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.URLImageLoader;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
@@ -58,4 +62,15 @@ public interface RemoteProcessManagerNode extends Slf4jTraceable {
     Collection<UProcess> searchProcessesByNameNoCase( String procName );
 
 
+
+
+
+    RemoteProcessManagerNode addProcessLifecycleHandler( ProcessLifecycleHandler handler );
+
+    RemoteProcessManagerNode removeProcessLifecycleHandler( ProcessLifecycleHandler handler );
+
+    int getProcessLifecycleHandlersSize();
+
+    @Unsafe
+    void notifyProcessLifecycleHandlers( String imageAddress, EntryPointRunnable runnable, ProcessEvent event );
 }

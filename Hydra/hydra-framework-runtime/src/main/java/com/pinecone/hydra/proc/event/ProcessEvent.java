@@ -1,13 +1,15 @@
 package com.pinecone.hydra.proc.event;
 
 public enum ProcessEvent {
-    Created    ( 0x00, "Created" ),
+    Prepare    ( 0x00, "Prepare" ), // Prepare to start, no image loaded.
 
-    Vitalized  ( 0x01, "Vitalized" ),
+    Created    ( 0x01, "Created" ),
 
-    Terminated ( 0x02, "Terminated" ),
+    Vitalized  ( 0x02, "Vitalized" ),
 
-    Error      ( 0x03, "Error" ),
+    Terminated ( 0x03, "Terminated" ),
+
+    Error      ( 0x04, "Error" ),
 
     ;
 

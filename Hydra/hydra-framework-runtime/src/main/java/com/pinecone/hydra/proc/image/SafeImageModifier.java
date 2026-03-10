@@ -1,5 +1,6 @@
 package com.pinecone.hydra.proc.image;
 
+import java.net.URI;
 import java.util.List;
 
 import com.pinecone.framework.system.Unsafe;
@@ -38,4 +39,16 @@ public class SafeImageModifier implements ImageModifier {
         List<ProcessEventHandler> those = this.retrieveSysProcEventHandlers( runnable );
         return those.size();
     }
+
+    @Override
+    @Unsafe
+    public void  applyImageAddress( ExecutionImage image, String address ) {
+        if ( image instanceof ArchExecutionImage ) {
+            ((ArchExecutionImage) image). applyImageAddress( address );
+            return;
+        }
+
+        throw new IllegalArgumentException( "Unable to modify `image-uri`." );
+    }
+
 }

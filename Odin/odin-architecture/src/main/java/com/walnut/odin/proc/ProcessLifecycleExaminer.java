@@ -2,6 +2,7 @@ package com.walnut.odin.proc;
 
 import com.pinecone.framework.system.regime.Examiner;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.image.ImageModifier;
 
 /**
  * ProcessLifecycleExaminer
@@ -12,5 +13,7 @@ import com.pinecone.hydra.proc.UProcess;
 public interface ProcessLifecycleExaminer extends Examiner {
 
     void startProcess( UProcess process );
+
+    ImageModifier imageModifier();
 
 }

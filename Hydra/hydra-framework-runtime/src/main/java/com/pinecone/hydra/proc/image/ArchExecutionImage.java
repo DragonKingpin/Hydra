@@ -9,6 +9,7 @@ public abstract class ArchExecutionImage implements ExecutionImage {
 
     protected String                        mszName;
     protected URI                           mResourceURI;
+    protected String                        mszImageAddress;
     protected Class<? extends UProcess>     mProcessClassType;
     protected ClassLoader                   mClassLoader;
     protected EntryPointRunnable            mEntryPoint;
@@ -52,6 +53,15 @@ public abstract class ArchExecutionImage implements ExecutionImage {
     @Override
     public URI getResourceURI() {
         return this.mResourceURI;
+    }
+
+    protected void  applyImageAddress( String address ) {
+        this.mszImageAddress = address;
+    }
+
+    @Override
+    public String getImageAddress() {
+        return this.mszImageAddress;
     }
 
     @Override

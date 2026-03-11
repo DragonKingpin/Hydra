@@ -125,6 +125,8 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
     }
 
     protected void afterMediatedRemoteProcess( MediatedRemoteProcess process, String imageAddress, boolean isURI ) {
+        this.notifyProcessLifecycleHandlers( imageAddress, null, ProcessEvent.Prepare );
+
         ExecutionImage image;
         if ( isURI ) {
             image = this.queryExecutionImage( URI.create( imageAddress ) );
@@ -132,11 +134,12 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
         else {
             image = this.queryExecutionImage( imageAddress );
         }
-        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
 
         if ( image == null ) {
             throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
         }
+
+        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
 
         process.mExecutionImage = image;
         process.mProcessManager = this.mProcessManager;

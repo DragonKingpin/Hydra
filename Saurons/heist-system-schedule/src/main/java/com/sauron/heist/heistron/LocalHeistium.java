@@ -51,7 +51,7 @@ public class LocalHeistium extends HeistTask implements Heistium {
 
     protected void verifyIsTerminated() {
         if( this.mTaskProducer.isFinished() || this.mTerminateSignal.get() ) {
-            throw new IllegalStateException( "Mission is already terminated." );
+            throw new HeistStatusTerminatedException( "Mission is already terminated." );
         }
     }
 

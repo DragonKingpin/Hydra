@@ -11,10 +11,6 @@ public interface TaskProcessorEntity extends Pinenut {
 
     String getName();
 
-    void setName( String name );
-
-    void setGuid( GUID guid);
-
     Server getDeployClusterServer();
 
     String getClusterPath();

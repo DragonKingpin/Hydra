@@ -113,6 +113,16 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         return this.mRunningProcesses.get( pid );
     }
 
+    @Override
+    public int getRunningSize() {
+        return  this.mRunningProcesses.size();
+    }
+
+    @Override
+    public int getWaitingSize() {
+        return this.mTaskExecutionQueue.waitingSize();
+    }
+
     protected void prepareSysEventHandle( LaunchFeature feature ) {
         feature.withSysProcEventHandlers(new ProcessEventHandler() {
             @Override

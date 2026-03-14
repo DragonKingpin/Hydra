@@ -29,4 +29,8 @@ public interface TaskProcessorManipulator extends Pinenut {
 
     int deleteByGuid( GUID guid );
 
+    int disable(  GUID guid );
+
+    int enable(  GUID guid );
+
 }

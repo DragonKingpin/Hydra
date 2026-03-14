@@ -34,6 +34,10 @@ public interface TaskExecutionProcessor extends Pinenut {
     TaskLaunchContext getTaskLaunchContextByPID( GUID pid );
 
 
+    int getRunningSize();
+
+
+    int getWaitingSize();
 
 
     UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;

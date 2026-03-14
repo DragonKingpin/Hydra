@@ -141,8 +141,8 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
         "  #{entity.name}, " +
         "  #{entity.clusterPath}, " +
         "  #{entity.clusterName}, " +
-        "  #{entity.isLocal}, " +
-        "  #{entity.isExclusive}, " +
+        "  #{entity.local}, " +
+        "  #{entity.exclusive}, " +
         "  #{entity.priority}, " +
         "  #{entity.queueName}, " +
         "  #{entity.queueMaxCapacity}, " +
@@ -155,19 +155,20 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
 
     @Update(
         "UPDATE `odin_task_processor` SET " +
-        "  `cluster_path` = #{entity.clusterPath}, " +
-        "  `cluster_name` = #{entity.clusterName}, " +
-        "  `is_local` = #{entity.isLocal}, " +
-        "  `is_exclusive` = #{entity.isExclusive}, " +
-        "  `priority` = #{entity.priority}, " +
-        "  `queue_name` = #{entity.queueName}, " +
-        "  `queue_max_capacity` = #{entity.queueMaxCapacity}, " +
-        "  `queue_min_capacity` = #{entity.queueMinCapacity}, " +
-        "  `queue_runtime_instance_capacity` = #{entity.queueRuntimeInstanceCapacity}, " +
-        "  `enable` = #{entity.enable} " +
-        "WHERE `guid` = #{entity.guid}"
+        "  `cluster_path` = #{clusterPath}, " +
+        "  `cluster_name` = #{clusterName}, " +
+        "  `is_local` = #{local}, " +
+        "  `is_exclusive` = #{exclusive}, " +
+        "  `priority` = #{priority}, " +
+                " `processor_name` = #{name}, " +
+        "  `queue_name` = #{queueName}, " +
+        "  `queue_max_capacity` = #{queueMaxCapacity}, " +
+        "  `queue_min_capacity` = #{queueMinCapacity}, " +
+        "  `queue_runtime_instance_capacity` = #{queueRuntimeInstanceCapacity}, " +
+        "  `enable` = #{enable} " +
+        "WHERE `guid` = #{guid}"
     )
-    int updateByGuid( @Param("entity") GenericTaskProcessorEntity entity );
+    int updateByGuid( GenericTaskProcessorEntity entity );
 
 
     @Update(

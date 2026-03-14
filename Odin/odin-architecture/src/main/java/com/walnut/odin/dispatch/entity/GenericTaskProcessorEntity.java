@@ -141,6 +141,22 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
         this.mszName = name;
     }
 
+    public String getQueueName() {
+        return this.mTaskQueueMeta != null ? this.asTaskQueueMeta().getName() : null;
+    }
+
+    public Integer getQueueMaxCapacity() {
+        return this.mTaskQueueMeta != null ? this.asTaskQueueMeta().getMaxCapacity() : null;
+    }
+
+    public Integer getQueueMinCapacity() {
+        return this.mTaskQueueMeta != null ? this.asTaskQueueMeta().getMinCapacity() : null;
+    }
+
+    public Integer getQueueRuntimeInstanceCapacity() {
+        return this.mTaskQueueMeta != null ? this.asTaskQueueMeta().getRuntimeInstanceCapacity() : null;
+    }
+
     public void setDeployClusterServer( Server server ) {
         this.mDeployClusterServer = server;
     }

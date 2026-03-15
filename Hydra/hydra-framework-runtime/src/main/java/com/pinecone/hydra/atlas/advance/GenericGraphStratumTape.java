@@ -5,8 +5,7 @@ import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
-import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
-import com.pinecone.hydra.unit.iqueue.ArchQueueTableMeta;
+import com.pinecone.hydra.unit.iqueue.DeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
@@ -21,20 +20,20 @@ public class GenericGraphStratumTape implements GraphStratumTape {
     protected RuntimeAtlasInstrument                          mRuntimeAtlasInstrument;
 
     // StratumId => RuntimePriority => MegaDeflectPriorityQueue
-    protected List<Map<Short, MegaDeflectPriorityQueue>>      mMegaDeflectPriorityQueues;
+    protected List<Map<Short, DeflectPriorityQueue>>      mMegaDeflectPriorityQueues;
 
-    protected MegaDeflectPriorityQueue                        mExecutionPriorityQueue;
+    protected DeflectPriorityQueue mExecutionPriorityQueue;
 
     protected VectorDAG                                       mVectorDAG;
 
-    public GenericGraphStratumTape(RuntimeAtlasInstrument runtimeAtlasInstrument, VectorDAG vectorDAG, KOIMappingDriver queueDrive ) {
+    public GenericGraphStratumTape( RuntimeAtlasInstrument runtimeAtlasInstrument, VectorDAG vectorDAG, KOIMappingDriver queueDrive ) {
         this.mRuntimeAtlasInstrument = runtimeAtlasInstrument;
         this.mVectorDAG = vectorDAG;
-        ArrayList<Map<Short, MegaDeflectPriorityQueue>> list = new ArrayList<>();
+        ArrayList<Map<Short, DeflectPriorityQueue>> list = new ArrayList<>();
         int stratumNum = this.mRuntimeAtlasInstrument.countStratum(vectorDAG.getAffiliateLayerGuid());
 
         for( int i = 0; i < stratumNum; i++ ) {
-            HashMap<Short, MegaDeflectPriorityQueue> map = new HashMap<>();
+            HashMap<Short, DeflectPriorityQueue> map = new HashMap<>();
             int priorityNum = this.mRuntimeAtlasInstrument.countPriority(vectorDAG.getAffiliateLayerGuid(), (short) i);
             for( int j = 0; j < priorityNum; j++ ) {
                 String segmentName = this.mRuntimeAtlasInstrument.querySegmentName(vectorDAG.getAffiliateLayerGuid(), (short) i, (short) j);
@@ -53,7 +52,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
     public GraphNode queryNodeByIndex( long index ) {
         long currentNum = 0;
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); i++ ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= index ) {
                     QueueElement queueElement = queue.getByIndex(index);
@@ -68,7 +67,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
     public GUID queryNodeGuidByIndex( long index ) {
         long currentNum = 0;
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); i++ ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= index ) {
                     return queue.getByIndex( index ).getObjectGuid();
@@ -94,7 +93,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
 
         ArrayList<GraphNode> graphNodes = new ArrayList<>();
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); ++i ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= offset ) {
                     List<QueueElement> queueElements = queue.fetchElements(offset, limit);
@@ -120,7 +119,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
 
         ArrayList<GraphNode> graphNodes = new ArrayList<>();
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); ++i ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= offset ) {
                     List<QueueElement> queueElements = queue.fetchElementByPriority( queuePriority, offset, limit );
@@ -146,7 +145,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
 
         ArrayList<GUID> graphNodes = new ArrayList<>();
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); ++i ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= offset ) {
                     List<QueueElement> queueElements = queue.fetchElements(offset, limit);
@@ -172,7 +171,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
 
         ArrayList<GUID> graphNodes = new ArrayList<>();
         for( int i = 0; i < this.mMegaDeflectPriorityQueues.size(); ++i ) {
-            for( MegaDeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
+            for( DeflectPriorityQueue queue : this.mMegaDeflectPriorityQueues.get(i).values() ) {
                 currentNum += queue.size();
                 if( currentNum >= offset ) {
                     List<QueueElement> queueElements = queue.fetchElementByPriority( queuePriority, offset, limit );
@@ -197,8 +196,8 @@ public class GenericGraphStratumTape implements GraphStratumTape {
     }
 
     @Override
-    public MegaDeflectPriorityQueue query( int stratumId, short runtimePriority ) {
-        Map<Short, MegaDeflectPriorityQueue> queueMap = this.mMegaDeflectPriorityQueues.get( stratumId );
+    public DeflectPriorityQueue query(int stratumId, short runtimePriority ) {
+        Map<Short, DeflectPriorityQueue> queueMap = this.mMegaDeflectPriorityQueues.get( stratumId );
         if ( queueMap != null ) {
             return queueMap.get( runtimePriority );
         }
@@ -207,7 +206,7 @@ public class GenericGraphStratumTape implements GraphStratumTape {
     }
 
     @Override
-    public MegaDeflectPriorityQueue getExecutionPriorityQueue() {
+    public DeflectPriorityQueue getExecutionPriorityQueue() {
         return this.mExecutionPriorityQueue;
     }
 }

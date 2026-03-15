@@ -6,7 +6,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
-import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
+import com.pinecone.hydra.unit.iqueue.DeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
@@ -22,7 +22,7 @@ public class TaskExecuteCallBack implements ExecuteCallBack {
 
     private TaskGraphOrchestratorConfig     mConfig;
 
-    private MegaDeflectPriorityQueue        mMegaDeflectPriorityQueue;
+    private DeflectPriorityQueue mDeflectPriorityQueue;
 
     private Deque<VectorDAG>                mExecuteVectorDAG;
 
@@ -30,9 +30,9 @@ public class TaskExecuteCallBack implements ExecuteCallBack {
 
     private int                             mnCurrentPos;
 
-    public TaskExecuteCallBack(MegaDeflectPriorityQueue megaDeflectPriorityQueue, RuntimeAtlasInstrument runtimeAtlasInstrument,TaskGraphOrchestratorConfig config,
-                               KOIMappingDriver driver,Deque<VectorDAG> vectorDAGDeque, int taskBatchSize ) {
-        this.mMegaDeflectPriorityQueue      = megaDeflectPriorityQueue;
+    public TaskExecuteCallBack(DeflectPriorityQueue deflectPriorityQueue, RuntimeAtlasInstrument runtimeAtlasInstrument, TaskGraphOrchestratorConfig config,
+                               KOIMappingDriver driver, Deque<VectorDAG> vectorDAGDeque, int taskBatchSize ) {
+        this.mDeflectPriorityQueue = deflectPriorityQueue;
         this.mRuntimeAtlasInstrument        = runtimeAtlasInstrument;
         this.mQueueDriver                   = driver;
         this.mConfig                        = config;
@@ -42,7 +42,7 @@ public class TaskExecuteCallBack implements ExecuteCallBack {
 
     @Override
     public List<TaskElement> introduceTask() {
-        List<QueueElement> queueElements = this.mMegaDeflectPriorityQueue.fetchElements(mnCurrentPos, mnTaskBatchSize);
+        List<QueueElement> queueElements = this.mDeflectPriorityQueue.fetchElements(mnCurrentPos, mnTaskBatchSize);
         mnCurrentPos += queueElements.size();
         // todo 目前不知道那边的逻辑先写成多次io的形式
         ArrayList<TaskElement> taskElements = new ArrayList<>();

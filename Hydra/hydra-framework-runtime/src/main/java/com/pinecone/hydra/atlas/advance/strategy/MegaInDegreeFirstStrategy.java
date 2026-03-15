@@ -3,7 +3,7 @@ package com.pinecone.hydra.atlas.advance.strategy;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
+import com.pinecone.hydra.unit.iqueue.DeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.MegaStratumQueue;
 import com.pinecone.hydra.unit.iqueue.entity.GenericQueueElement;
 import com.pinecone.hydra.unit.iqueue.entity.GenericStratumQueueElement;
@@ -14,10 +14,10 @@ import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 
 import java.util.List;
 
-public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
+public class MegaInDegreeFirstStrategy implements GraphPriorityProcessStrategy {
     private RuntimeAtlasInstrument      mRuntimeAtlasInstrument;
 
-    private MegaDeflectPriorityQueue    mMegaDeflectPriorityQueue;
+    private DeflectPriorityQueue        mDeflectPriorityQueue;
 
     private MegaStratumQueue            mTempMegaStratumQueue;
 
@@ -25,10 +25,12 @@ public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
 
     private int mnPriority = 0;
 
-    public InDegreeFirstStrategy(RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue,
-                                 MegaStratumQueue megaStratumQueue, LayerInstrument layerInstrument ) {
+    public MegaInDegreeFirstStrategy(
+            RuntimeAtlasInstrument runtimeAtlasInstrument, DeflectPriorityQueue deflectPriorityQueue,
+            MegaStratumQueue megaStratumQueue, LayerInstrument layerInstrument
+    ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
-        this.mMegaDeflectPriorityQueue  = megaDeflectPriorityQueue;
+        this.mDeflectPriorityQueue = deflectPriorityQueue;
         this.mTempMegaStratumQueue      = megaStratumQueue;
         this.mLayerInstrument           = layerInstrument;
     }
@@ -41,12 +43,12 @@ public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
         long offset = 0;
 
         //todo 后面记得将这个每次遍历的节点数量改成配置
-        for( long i = 0; i < handNodeNums; i += 1000 ) {
+        for ( long i = 0; i < handNodeNums; i += 1000 ) {
             List<GUID> handleGuids = this.mLayerInstrument.fetchSourceGuidsByTaskPriority(vectorDAG.getAffiliateLayerGuid(),offset, 1000);
             for (GUID handleGuid : handleGuids) {
                 TaskElement taskElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid(handleGuid);
                 if (taskElement.getPriority() > this.mnPriority) {
-                    this.bfsGraph(vectorDAG,this.mnPriority,layer.getSinkGuids());
+                    this.bfsGraph(vectorDAG, this.mnPriority, layer.getSinkGuids());
                     ++this.mnPriority;
                 }
                 GenericStratumQueueElement element = new GenericStratumQueueElement();
@@ -60,8 +62,8 @@ public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
         this.bfsGraph( vectorDAG, 10,layer.getSinkGuids() );
     }
 
-    protected void bfsGraph(VectorDAG vectorDAG, int priority, List<GUID> sinkNodes) {
-        while (!this.mTempMegaStratumQueue.isEmpty()) {
+    protected void bfsGraph( VectorDAG vectorDAG, int priority, List<GUID> sinkNodes ) {
+        while ( !this.mTempMegaStratumQueue.isEmpty() ) {
             QueueStratumElement pop = this.mTempMegaStratumQueue.popFront();
             GUID currentNodeGuid = pop.getObjectGuid();
 
@@ -69,13 +71,13 @@ public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
             GenericQueueElement element = new GenericQueueElement();
             element.setObjectGuid(currentNodeGuid);
             element.setPriority(taskElement.getPriority());
-            this.mMegaDeflectPriorityQueue.pushBack(element);
+            this.mDeflectPriorityQueue.pushBack(element);
 
             this.mRuntimeAtlasInstrument.putStratumMeta(
                     vectorDAG.getAffiliateLayerGuid(),
                     (short) pop.getStratum(),
                     (short) element.getPriority(),
-                    this.mMegaDeflectPriorityQueue.getSegmentName()
+                    this.mDeflectPriorityQueue.getSegmentName()
             );
 
             if (sinkNodes != null && sinkNodes.contains(currentNodeGuid)) {
@@ -85,7 +87,7 @@ public class InDegreeFirstStrategy implements GraphPriorityProcessStrategy {
             long childNodeNum = vectorDAG.countChildNodeNum(currentNodeGuid);
             long childOffset = 0;
 
-            for (int i = 0; i < childNodeNum; i += 1000) {
+            for ( int i = 0; i < childNodeNum; i += 1000 ) {
                 List<GUID> guids = vectorDAG.fetchChildNodeGuids(childOffset, 1000, currentNodeGuid);
                 for (GUID guid : guids) {
                     TaskElement childtaskElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid(guid);

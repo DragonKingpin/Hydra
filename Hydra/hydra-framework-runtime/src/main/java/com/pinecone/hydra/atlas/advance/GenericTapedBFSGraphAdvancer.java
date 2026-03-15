@@ -2,7 +2,7 @@ package com.pinecone.hydra.atlas.advance;
 
 import com.pinecone.hydra.atlas.advance.strategy.PriorityProcessStrategy;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
-import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
+import com.pinecone.hydra.unit.iqueue.DeflectPriorityQueue;
 import com.pinecone.hydra.unit.iqueue.QueueExistManipulator;
 import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
@@ -14,14 +14,14 @@ public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvance
 
     private QueueExistManipulator           mQueueExistManipulator;
 
-    private MegaDeflectPriorityQueue        mMegaDeflectPriorityQueue;
+    private DeflectPriorityQueue            mDeflectPriorityQueue;
 
     private PriorityProcessStrategy         mStrategy;
 
-    public GenericTapedBFSGraphAdvancer(RuntimeAtlasInstrument runtimeAtlasInstrument, MegaDeflectPriorityQueue megaDeflectPriorityQueue, PriorityProcessStrategy strategy ) {
+    public GenericTapedBFSGraphAdvancer(RuntimeAtlasInstrument runtimeAtlasInstrument, DeflectPriorityQueue deflectPriorityQueue, PriorityProcessStrategy strategy ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
-        this.mMegaDeflectPriorityQueue  = megaDeflectPriorityQueue;
-        this.mQueueExistManipulator     = megaDeflectPriorityQueue.getMasterManipulator().getQueueExistManipulator();
+        this.mDeflectPriorityQueue      = deflectPriorityQueue;
+        this.mQueueExistManipulator     = deflectPriorityQueue.getMasterManipulator().getQueueExistManipulator();
         this.mStrategy = strategy;
     }
 
@@ -34,7 +34,7 @@ public class GenericTapedBFSGraphAdvancer implements TapedBFSGraphStratumAdvance
     }
 
     @Override
-    public List<QueueElement> fetchExecuteNode(long offset, long limit) {
-        return this.mMegaDeflectPriorityQueue.fetchElements( offset, limit );
+    public List<QueueElement> fetchExecuteNode( long offset, long limit ) {
+        return this.mDeflectPriorityQueue.fetchElements( offset, limit );
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.pinecone.hydra.atlas.advance.strategy.AtlasPriorityProcessStrategy;
-import com.pinecone.hydra.atlas.advance.strategy.InDegreeFirstStrategy;
+import com.pinecone.hydra.atlas.advance.strategy.MegaInDegreeFirstStrategy;
 import com.pinecone.hydra.atlas.graph.RuntimeAtlasInstrument;
 import com.pinecone.hydra.orchestration.SequentialAction;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -109,7 +109,7 @@ public class RavenTaskGraphOrchestrator implements TaskGraphOrchestrator {
         MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(this.mQueueDriver, "segment_name", vectorDAG.getAffiliateLayerGuid().toString(), meta2);
 
         AtlasPriorityProcessStrategy strategy = new AtlasPriorityProcessStrategy();
-        strategy.addStrategy( new InDegreeFirstStrategy( this.mRuntimeAtlasInstrument, magnitudeDPQueue, megaDPStratumQueue,this.mLayerInstrument ) );
+        strategy.addStrategy( new MegaInDegreeFirstStrategy( this.mRuntimeAtlasInstrument, magnitudeDPQueue, megaDPStratumQueue,this.mLayerInstrument ) );
         GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer( this.mRuntimeAtlasInstrument, magnitudeDPQueue,strategy );
         advancer.traverse( vectorDAG );
     }

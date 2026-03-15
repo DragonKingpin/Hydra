@@ -6,7 +6,7 @@ import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 
 import java.util.List;
 
-public class MagnitudeDPQueue implements MegaDeflectPriorityQueue, Cloneable {
+public class MagnitudeDPQueue implements DeflectPriorityQueue, Cloneable {
     private QueueMasterManipulator      mQueueMasterManipulator;
 
     private DPQueueManipulator          mDPQueueManipulator;

@@ -19,7 +19,6 @@ import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 
 import java.util.List;
@@ -37,11 +36,11 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     private QueueStratumManipulator         mQueueStratumManipulator;
 
     protected void init( TaskInstrument taskInstrument ) {
-        this.mTaskInstrument = taskInstrument;
-        this.mRuntimeMasterManipulator = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
-        this.mQueueStratumManipulator = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
+        this.mTaskInstrument               = taskInstrument;
+        this.mRuntimeMasterManipulator     = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
+        this.mQueueStratumManipulator      = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
         this.mVectorGraphMasterManipulator = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
-        this.mTaskGraphManipulator = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
+        this.mTaskGraphManipulator         = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
     }
 
     public UniformRuntimeAtlas( List<GraphNode> parent,TaskInstrument taskInstrument, AtlasMappingDriver driver, VectorGraphConfig config ) {
@@ -92,17 +91,17 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public String querySegmentName(GUID vgraphGuid, short stratumId, short runtimePriority) {
+    public String querySegmentName( GUID vgraphGuid, short stratumId, short runtimePriority ) {
         return this.mQueueStratumManipulator.querySegmentName( vgraphGuid, stratumId, runtimePriority );
     }
 
     @Override
-    public int countStratum(GUID vgraphGuid) {
+    public int countStratum( GUID vgraphGuid ) {
         return this.mQueueStratumManipulator.countStratum( vgraphGuid );
     }
 
     @Override
-    public int countPriority(GUID vgraphGuid, short stratumId) {
+    public int countPriority( GUID vgraphGuid, short stratumId ) {
         return this.mQueueStratumManipulator.countPriority( vgraphGuid, stratumId );
     }
 

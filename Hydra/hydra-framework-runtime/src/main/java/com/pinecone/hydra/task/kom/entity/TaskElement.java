@@ -40,6 +40,12 @@ public interface TaskElement extends ElementNode {
     boolean isDryRun() ;
     void setDryRun( boolean dryRun ) ;
 
+    boolean isManual() ;
+    void setManual( boolean manual ) ;
+
+    String getScheduleCron();
+    void setScheduleCron( String scheduleCron ) ;
+
     int getScheduleCycleCode();
     void setScheduleCycleCode ( int code ) ;
 

@@ -99,6 +99,26 @@ public class GenericRavenTaskElement implements RavenTaskElement {
 
 
     @Override
+    public boolean isManual() {
+        return this.taskElement.isManual();
+    }
+
+    @Override
+    public void setManual( boolean manual ) {
+        this.taskElement.setManual( manual );
+    }
+
+    @Override
+    public String getScheduleCron() {
+        return this.taskElement.getScheduleCron();
+    }
+
+    @Override
+    public void setScheduleCron( String scheduleCron ) {
+        this.taskElement.setScheduleCron( scheduleCron );
+    }
+
+    @Override
     public KernelTaskScheduleCycle getScheduleCycle() {
         return this.taskElement.getScheduleCycle();
     }

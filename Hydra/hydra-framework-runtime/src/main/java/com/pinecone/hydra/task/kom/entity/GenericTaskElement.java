@@ -12,23 +12,18 @@ import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected String                   taskType;
-
     protected String                   imagePath;
-
     protected String                   resourceType;
-
     protected String                   deploymentMethod;
 
     protected short                    priority;
-
     protected short                    actuallyPriority;
-
     protected boolean                  dryRun;
+    protected boolean                  manual;
 
+    protected String                   scheduleCron;
     protected KernelTaskScheduleCycle  kernelScheduleCycle;
-
     protected KernelTaskScheduleType   kernelScheduleType;
-
     protected boolean                  enable;
 
 
@@ -126,6 +121,29 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setDryRun( boolean dryRun ) {
         this.dryRun = dryRun;
+    }
+
+
+    @Override
+    public boolean isManual() {
+        return this.manual;
+    }
+
+    @Override
+    public void setManual( boolean manual ) {
+        this.manual = manual;
+    }
+
+
+
+    @Override
+    public String getScheduleCron() {
+        return this.scheduleCron;
+    }
+
+    @Override
+    public void setScheduleCron( String scheduleCron ) {
+        this.scheduleCron = scheduleCron;
     }
 
 

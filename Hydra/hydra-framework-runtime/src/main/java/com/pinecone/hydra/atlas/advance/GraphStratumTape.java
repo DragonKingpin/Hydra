@@ -2,7 +2,7 @@ package com.pinecone.hydra.atlas.advance;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueue;
+import com.pinecone.hydra.unit.iqueue.DeflectPriorityQueue;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 
 import java.util.List;
@@ -26,9 +26,9 @@ public interface GraphStratumTape extends Pinenut {
 
     int countStratum();
 
-    MegaDeflectPriorityQueue query( int stratumId, short runtimePriority );
+    DeflectPriorityQueue query(int stratumId, short runtimePriority );
 
-    MegaDeflectPriorityQueue getExecutionPriorityQueue();
+    DeflectPriorityQueue getExecutionPriorityQueue();
 
 }
 

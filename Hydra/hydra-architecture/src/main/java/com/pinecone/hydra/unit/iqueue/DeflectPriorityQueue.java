@@ -5,7 +5,7 @@ import com.pinecone.hydra.unit.iqueue.entity.QueueElement;
 
 import java.util.List;
 
-public interface MegaDeflectPriorityQueue extends MegaPriorityQueue, SharedSegmentIQueue {
+public interface DeflectPriorityQueue extends MegaPriorityQueue, SharedSegmentIQueue {
     void pushBack( QueueElement queueElement );
 
     void pushFront( QueueElement queueElement );

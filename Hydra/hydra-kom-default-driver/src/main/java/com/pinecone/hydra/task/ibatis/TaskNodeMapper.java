@@ -20,24 +20,27 @@ import java.util.List;
 public interface TaskNodeMapper extends TaskNodeManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_task_task_node` " +
-            "(`guid`, `name`, `image_path`, `type`, `resource_type`, `deployment_method`, `priority`, `actually_priority`, " +
-            "`dry_run`, `schedule_cycle_code`, `schedule_type_code`, `enable`, " +
-            "`create_time`, `update_time`) " +
-            "VALUES (#{guid}, #{name}, #{imagePath}, #{type}, #{resourceType}, #{deploymentMethod}, #{priority}, #{actuallyPriority}, " +
-            "#{dryRun}, #{scheduleCycleCode}, #{scheduleTypeCode}, #{enable}, " +
-            "#{createTime}, #{updateTime})")
+    @Insert(
+            "INSERT INTO `hydra_task_task_node` " +
+            "(`guid`, `name`, `schedule_cron`, `manual`, `image_path`, `type`, `resource_type`, `deployment_method`, `priority`, `actually_priority`, " +
+            "`dry_run`, `schedule_cycle_code`, `schedule_type_code`, `enable`, `create_time`, `update_time`) " +
+            "VALUES (#{guid}, #{name}, #{scheduleCron}, #{manual}, #{imagePath}, #{type}, #{resourceType}, #{deploymentMethod}, #{priority}, #{actuallyPriority}, " +
+            "#{dryRun}, #{scheduleCycleCode}, #{scheduleTypeCode}, #{enable}, #{createTime}, #{updateTime})"
+    )
     void insert( TaskElement taskElement );
 
     @Override
     @Delete("DELETE FROM `hydra_task_task_node` WHERE `guid`=#{guid}")
     void remove( @Param("guid") GUID guid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `image_path` AS `imagePath`, `type`, " +
-            "`resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, `priority`, `actually_priority` as actuallyPriority, " +
-            "`dry_run` AS `dryRun`, `schedule_cycle_code` AS `scheduleCycleCode`, `schedule_type_code` AS `scheduleTypeCode`, `enable` AS `enable`, " +
-            "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
-            "FROM `hydra_task_task_node` WHERE `guid` = #{guid}")
+    @Select(
+        "SELECT `id` AS `enumId`, `guid`, `name`, `schedule_cron` AS `scheduleCron`, `manual` AS `manual`, " +
+        "`image_path` AS `imagePath`, `type`, `resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, " +
+        "`priority`, `actually_priority` AS actuallyPriority, `dry_run` AS `dryRun`, " +
+        "`schedule_cycle_code` AS `scheduleCycleCode`, `schedule_type_code` AS `scheduleTypeCode`, `enable`, " +
+        "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
+        "FROM `hydra_task_task_node` WHERE `guid` = #{guid}"
+    )
     GenericTaskElement getTaskNode0( @Param("guid") GUID guid );
 
     @Override
@@ -48,28 +51,35 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     }
 
     @Override
-    @Update("UPDATE `hydra_task_task_node` SET " +
-            "`name` = #{name}, " +
-            "`image_path` = #{imagePath}, " +
-            "`type` = #{type}, " +
-            "`resource_type` = #{resourceType}, " +
-            "`deployment_method` = #{deploymentMethod}, " +
-            "`priority` = #{priority}, " +
-            "`actually_priority` = #{actuallyPriority}, " +
-            "`dry_run` = #{dryRun}, " +
-            "`schedule_cycle_code` = #{scheduleCycleCode}, " +
-            "`schedule_type_code` = #{scheduleTypeCode}, " +
-            "`enable` = #{enable}, " +
-            "`create_time` = #{createTime}, " +
-            "`update_time` = #{updateTime} " +
-            "WHERE `guid` = #{guid}")
+    @Update(
+        "UPDATE `hydra_task_task_node` SET " +
+        "`name` = #{name}, " +
+        "`schedule_cron` = #{scheduleCron}, " +
+        "`manual` = #{manual}, " +
+        "`image_path` = #{imagePath}, " +
+        "`type` = #{type}, " +
+        "`resource_type` = #{resourceType}, " +
+        "`deployment_method` = #{deploymentMethod}, " +
+        "`priority` = #{priority}, " +
+        "`actually_priority` = #{actuallyPriority}, " +
+        "`dry_run` = #{dryRun}, " +
+        "`schedule_cycle_code` = #{scheduleCycleCode}, " +
+        "`schedule_type_code` = #{scheduleTypeCode}, " +
+        "`enable` = #{enable}, " +
+        "`create_time` = #{createTime}, " +
+        "`update_time` = #{updateTime} " +
+        "WHERE `guid` = #{guid}"
+    )
     void update( TaskElement taskElement );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `image_path` AS `imagePath`, `type`, " +
-            "`resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, `priority`, `actually_priority` as actuallyPriority, " +
-            "`dry_run` AS `dryRun`, `schedule_cycle_code` AS `scheduleCycleCode`, `schedule_type_code` AS `scheduleTypeCode`, `enable` AS `enable`, " +
-            "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
-            "FROM `hydra_task_task_node` WHERE `name` = #{name}")
+    @Select(
+        "SELECT `id` AS `enumId`, `guid`, `name`, `schedule_cron` AS `scheduleCron`, `manual` AS `manual`, " +
+        "`image_path` AS `imagePath`, `type`, `resource_type` AS `resourceType`, `deployment_method` AS `deploymentMethod`, " +
+        "`priority`, `actually_priority` AS actuallyPriority, `dry_run` AS `dryRun`, " +
+        "`schedule_cycle_code` AS `scheduleCycleCode`, `schedule_type_code` AS `scheduleTypeCode`, `enable`, " +
+        "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
+        "FROM `hydra_task_task_node` WHERE `name` = #{name}"
+    )
     List<GenericTaskElement> fetchTaskNodeByName0( @Param("name") String name );
 
     @Override

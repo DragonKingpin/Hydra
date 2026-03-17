@@ -7,7 +7,7 @@ import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import java.util.List;
 
 public class MagnitudeVectorDAG extends ArchVectorDAG implements MegaVectorDAG {
-    public MagnitudeVectorDAG( List<GUID> handleNodeGuids,VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig) {
+    public MagnitudeVectorDAG( List<GUID> handleNodeGuids, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
         super(handleNodeGuids,masterManipulator, vectorGraphConfig);
     }
 

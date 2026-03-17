@@ -6,16 +6,17 @@ import com.pinecone.hydra.atlas.graph.entity.TaskGraphNode;
 import com.pinecone.hydra.atlas.graph.source.TaskGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.pinecone.slime.meta.TableIndex64Meta;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import java.util.ArrayList;
 import java.util.List;
 
-
+@SuppressWarnings("unchecked")
 @IbatisDataAccessObject
 public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     @Override
@@ -86,7 +87,6 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     @Select("SELECT `parent_guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `guid` = #{guid}")
     List<GUID> fetchParentIds( @Param("guid") GUID guid );
 
-    @Override
     @Select("SELECT " +
             "    havn.`id`, " +
             "    havn.`guid`, " +
@@ -97,13 +97,23 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
             "JOIN `hydra_atlas_vgraph_adjacent` hava " +
             "    ON havn.`guid` = hava.`guid` " +
             "WHERE hava.`parent_guid` = #{guid}")
-    List<GraphNode> fetchChildNodes(  @Param("guid") GUID guid );
+    List<TaskAtlasNode> fetchChildNodes0( @Param("guid") GUID guid );
+
+    @Override
+    default List<GraphNode> fetchChildNodes( GUID guid ) {
+        return (List) this.fetchChildNodes0( guid );
+    }
 
     @Override
     @Select("SELECT havn.`guid` FROM `hydra_atlas_vgraph_nodes` havn, `hydra_atlas_vgraph_adjacent` hava WHERE hava.`parent_guid` = #{guid} ")
     List<GUID> fetchChildNodeGuids(GUID guid);
 
+
     @Override
+    default List<GraphNode> fetchRootNodes() {
+        return (List) this.fetchRootNodes0();
+    }
+
     @Select("SELECT " +
             "    havn.`id`, " +
             "    havn.`guid`, " +
@@ -116,7 +126,7 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
             "    FROM hydra_atlas_vgraph_adjacent hava " +
             "    WHERE hava.`guid` = havn.`guid` " +
             ")")
-    List<GraphNode> fetchRootNodes();
+    List<TaskAtlasNode> fetchRootNodes0();
 
     @Override
     @Select("SELECT `guid` FROM `hydra_atlas_vgraph_adjacent` WHERE `parent_guid` = #{parentGuid}")
@@ -133,10 +143,10 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
             "WHERE `node_name` = #{name}")
     List<TaskAtlasNode> fetchNodesByName0(  @Param("name") String name );
 
+
     @Override
     default List<GraphNode> fetchNodesByName( String name ) {
-        List<TaskAtlasNode> taskAtlasNodes = this.fetchNodesByName0(name);
-        return new ArrayList<>(taskAtlasNodes);
+        return (List) this.fetchNodesByName0( name );
     }
 
     @Override
@@ -218,4 +228,76 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     @Override
     @Insert("INSERT INTO `hydra_atlas_vgraph_adjacent` (guid, linked_type, parent_guid) VALUES (#{childGuid},'weak',#{parentGuid})")
     void addChild(GUID parentGuid, GUID childGuid);
+
+
+
+
+
+
+    @Select(
+        "SELECT " +
+        "`id` AS enumId, " +
+        "`guid` AS guid, " +
+        "`task_guid` AS taskGuid, " +
+        "`node_name` AS name, " +
+        "`node_description` AS description, " +
+        "`is_isolated` AS isolated, " +
+        "`create_time` AS createTime, " +
+        "`update_time` AS updateTime " +
+        "FROM `hydra_atlas_vgraph_nodes` " +
+        "WHERE `is_isolated` = 1 " +
+        "ORDER BY `id` ASC " +
+        "LIMIT #{limit} OFFSET #{offset}"
+    )
+    List<TaskAtlasNode> fetchIsolatedNodes0(
+        @Param("offset") long offset,
+        @Param("limit") long limit
+    );
+
+    @Override
+    default List<GraphNode> fetchIsolatedNodes( long offset, long limit ) {
+        return ( List ) this.fetchIsolatedNodes0( offset, limit );
+    }
+
+
+    @Select(
+        "SELECT " +
+        "`id` AS enumId, " +
+        "`guid` AS guid, " +
+        "`task_guid` AS taskGuid, " +
+        "`node_name` AS name, " +
+        "`node_description` AS description, " +
+        "`is_isolated` AS isolated, " +
+        "`create_time` AS createTime, " +
+        "`update_time` AS updateTime " +
+        "FROM `hydra_atlas_vgraph_nodes` " +
+        "WHERE `is_isolated` = 1 " +
+        "AND `id` >= #{idStart} AND `id` <= #{idEnd} " +
+        "ORDER BY `id` ASC"
+    )
+    List<TaskAtlasNode> fetchIsolatedNodesById0(
+        @Param("idStart") long idStart, @Param("idEnd") long idEnd
+    );
+
+    @Override
+    default List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd ) {
+        return ( List ) this.fetchIsolatedNodesById0( idStart, idEnd );
+    }
+
+    @Override
+    @Select(
+        "SELECT COUNT( * ) " +
+        "FROM `hydra_atlas_vgraph_nodes` WHERE `is_isolated` = 1"
+    )
+    long countIsolatedNodes();
+
+    @Override
+    @Select(
+        "SELECT " +
+        "COALESCE( MIN(`id`), 0 ) AS minId, " +
+        "COALESCE( MAX(`id`), 0 ) AS maxId " +
+        "FROM `hydra_atlas_vgraph_nodes` " +
+        "WHERE `is_isolated` = 1"
+    )
+    TableIndex64Meta selectIsolatedNodeIndexMeta();
 }

@@ -6,6 +6,7 @@ import com.pinecone.framework.util.id.GUID;
 import java.util.List;
 
 public interface LayerHandleManipulator extends Pinenut {
+
     void insertSourceNode( GUID layerGuid, GUID handleGuid );
 
     void insertSinkNode( GUID layerGuid, GUID handleGuid );
@@ -20,5 +21,6 @@ public interface LayerHandleManipulator extends Pinenut {
 
     long countSourceNode( GUID layerGuid );
 
-    List<GUID> fetchSourceGuidsByTaskPriority(GUID layerGuid, long offset, long limit);
+    List<GUID> fetchSourceGuidsByTaskPriority( GUID layerGuid, long offset, long limit );
+
 }

@@ -12,6 +12,8 @@ import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
+import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
+import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;
@@ -34,18 +36,24 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
 
     protected DAGPathResolver                   mPathResolver;
 
-    protected DAGPathSelector                    mPathSelector;
+    protected DAGPathSelector                   mPathSelector;
 
     protected AtlasMasterManipulator            mAtlasMasterManipulator;
+
+    protected VectorGraphMasterManipulator      mVectorGraphMasterManipulator;
+
+    protected VectorGraphManipulator            mVectorGraphManipulator;
 
     protected VectorGraphConfig                 mVectorGraphConfig;
 
     public ArchAtlasInstrument(
-            List<GraphNode> parent, AtlasMappingDriver atlasMappingDriver, VectorGraphConfig vectorGraphConfig
+            AtlasMappingDriver atlasMappingDriver, VectorGraphConfig vectorGraphConfig
     ){
-        this.mVectorGraphConfig = vectorGraphConfig;
-        this.mSuperiorProcess = atlasMappingDriver.getSuperiorProcess();
-        this.mAtlasMasterManipulator = atlasMappingDriver.getMasterManipulator();
+        this.mVectorGraphConfig            = vectorGraphConfig;
+        this.mSuperiorProcess              = atlasMappingDriver.getSuperiorProcess();
+        this.mAtlasMasterManipulator       = atlasMappingDriver.getMasterManipulator();
+        this.mVectorGraphMasterManipulator = this.mAtlasMasterManipulator.getVectorGraphMasterManipulator();
+        this.mVectorGraphManipulator       = this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
 
 
         if ( this.mSuperiorProcess instanceof Hydrogen) {
@@ -61,8 +69,8 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
 
     }
 
-    public ArchAtlasInstrument(AtlasMappingDriver driver) {
-        this(null,driver,null);
+    public ArchAtlasInstrument( AtlasMappingDriver driver ) {
+        this( driver, null );
     }
 
     @Override
@@ -176,17 +184,17 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument {
     }
 
     @Override
-    public List<GraphNode> getChildren(GUID guid) {
-        return this.mMegaVectorDAG.getChildren(guid);
+    public List<GraphNode> getChildren( GUID guid ) {
+        return this.mMegaVectorDAG.getChildren( guid );
     }
 
     @Override
-    public List<GUID> fetchChildrenIds(GUID guid) {
-        return this.mMegaVectorDAG.fetchChildrenIds( guid );
+    public List<GUID> fetchChildrenIds( GUID guid ) {
+        return this.mVectorGraphManipulator.fetchChildNodeIds( guid );
     }
 
     @Override
-    public void rename(GUID guid, String name) {
+    public void rename( GUID guid, String name ) {
 
     }
 

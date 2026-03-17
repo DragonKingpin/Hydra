@@ -1,6 +1,7 @@
 package com.pinecone.hydra.unit.vgraph.layer;
 
 import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
@@ -22,6 +23,7 @@ import com.pinecone.hydra.unit.vgraph.layer.source.LayerHandleManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.LayerMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
+import com.pinecone.slime.meta.TableIndexMeta;
 import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 
 import java.time.LocalDateTime;
@@ -76,7 +78,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public Hydrogen getHydrogen() {
+    public Hydrogen getSystem() {
         return this.hydrogen;
     }
 
@@ -86,7 +88,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public GUID put(TreeNode treeNode ) {
+    public GUID put( TreeNode treeNode ) {
         TreeNodeOperator operator = this.operatorFactory.getOperator( this.getLayerMetaType( treeNode ) );
         return operator.insert( treeNode );
     }
@@ -109,7 +111,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public Layer get(GUID guid) {
+    public Layer get( GUID guid ) {
         TreeNodeOperator operator = this.getOperatorByGuid( guid );
         if( operator == null ) {
             return null;
@@ -118,7 +120,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public void addChild(GUID parentGuid, GUID childGuid) {
+    public void addChild( GUID parentGuid, GUID childGuid ) {
         this.imperialTree.affirmOwnedNode(childGuid, parentGuid);
     }
 
@@ -128,23 +130,71 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public List<Layer> splitGraphLayer(VectorDAG vectorDAG) {
-        Layer layer = this.mLayerManipulator.queryLayer(vectorDAG.getAffiliateLayerGuid());
-        List<TreeNode> children = this.getChildren(layer.getGuid());
+    public List<Layer> splitGraphLayer( VectorDAG vectorDAG ) {
+        Layer layer = this.mLayerManipulator.queryLayer( vectorDAG.getAffiliateLayerGuid() );
+        List<TreeNode> children = this.getChildren( layer.getGuid() );
         List<GUID> collect = children.stream().map(TreeNode::getGuid).collect(Collectors.toList());
         List<Layer> layers = this.mLayerManipulator.fetchLayer(collect);
         return layers;
     }
 
     @Override
-    public long countSourceNode(GUID layerGuid) {
+    public long countSourceNode( GUID layerGuid ) {
         return this.mLayerHandleManipulator.countSourceNode( layerGuid );
     }
 
     @Override
-    public List<GUID> fetchSourceGuidsByTaskPriority(GUID layerGuid, long offset, long limit) {
+    public List<GUID> fetchSourceGuidsByTaskPriority( GUID layerGuid, long offset, long limit ) {
         return this.mLayerHandleManipulator.fetchSourceGuidsByTaskPriority( layerGuid, offset, limit );
     }
+
+
+
+
+
+    @Override
+    public List<Layer> fetchLayers( long offset, long limit, boolean anyNode, @Nullable GUID parentGuid ) {
+        return this.mLayerManipulator.fetchLayerPage( offset, limit, anyNode, parentGuid );
+    }
+
+    @Unsafe( "TestOnly" )
+    @Override
+    public List<Layer> fetchLayersAll() {
+        TableIndexMeta meta = this.getLayerIndexMeta();
+        return this.fetchLayersById( meta.getMinId(), meta.getMaxId() );
+    }
+
+    @Override
+    public List<Layer> fetchLayersById( long idStart, long idEnd, boolean anyNode, @Nullable GUID parentGuid ) {
+        return this.mLayerManipulator.fetchLayerPageById( idStart, idEnd, anyNode, parentGuid );
+    }
+
+    @Override
+    public TableIndexMeta getLayerIndexMeta( boolean anyNode, @Nullable GUID parentGuid ) {
+        return this.mLayerManipulator.selectLayerIndexMeta( anyNode, parentGuid );
+    }
+
+    @Override
+    public long queryMaxLayerPage( long limit, boolean anyNode, @Nullable GUID parentGuid ) {
+        if ( limit <= 0 ) {
+            throw new IllegalArgumentException( "Limit must be greater than zero." );
+        }
+
+        long nTotal = this.mLayerManipulator.countLayer( anyNode, parentGuid );
+        if ( nTotal == 0 ) {
+            return 0;
+        }
+
+        long nPage = nTotal / limit;
+        if ( nTotal % limit != 0 ) {
+            ++nPage;
+        }
+
+        return nPage;
+    }
+
+
+
 
     protected ImperialTreeNode affirmPreinsertionInitialize(AtlasLayer atlasLayer) {
         GUID guid = atlasLayer.getGuid();

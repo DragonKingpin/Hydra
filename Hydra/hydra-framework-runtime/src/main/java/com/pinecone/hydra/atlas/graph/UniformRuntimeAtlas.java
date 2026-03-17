@@ -1,5 +1,6 @@
 package com.pinecone.hydra.atlas.graph;
 
+import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.atlas.advance.GenericGraphStratumTape;
 import com.pinecone.hydra.atlas.advance.GraphStratumTape;
@@ -18,14 +19,18 @@ import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
+import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.util.List;
 
 public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeAtlasInstrument {
 
     private TaskInstrument                  mTaskInstrument;
+
+    private LayerInstrument                 mLayerInstrument;
 
     private RuntimeMasterManipulator        mRuntimeMasterManipulator;
 
@@ -35,23 +40,38 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     private QueueStratumManipulator         mQueueStratumManipulator;
 
-    protected void init( TaskInstrument taskInstrument ) {
+    protected void init( TaskInstrument taskInstrument, LayerInstrument layerInstrument ) {
         this.mTaskInstrument               = taskInstrument;
+        this.mLayerInstrument              = layerInstrument;
         this.mRuntimeMasterManipulator     = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
         this.mQueueStratumManipulator      = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
         this.mVectorGraphMasterManipulator = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
         this.mTaskGraphManipulator         = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
     }
 
-    public UniformRuntimeAtlas( List<GraphNode> parent,TaskInstrument taskInstrument, AtlasMappingDriver driver, VectorGraphConfig config ) {
-        super(parent, driver, config);
-        this.init( taskInstrument );
+    public UniformRuntimeAtlas(
+            TaskInstrument taskInstrument, LayerInstrument layerInstrument, AtlasMappingDriver driver, VectorGraphConfig config
+    ) {
+        super( driver, config );
+        this.init( taskInstrument, layerInstrument );
     }
 
-    public UniformRuntimeAtlas( AtlasMappingDriver driver, TaskInstrument taskInstrument ) {
-        super(driver);
-        this.init( taskInstrument );
+    public UniformRuntimeAtlas( AtlasMappingDriver driver, TaskInstrument taskInstrument, LayerInstrument layerInstrument ) {
+        super( driver );
+        this.init( taskInstrument, layerInstrument );
     }
+
+    @Override
+    public TaskInstrument taskInstrument() {
+        return this.mTaskInstrument;
+    }
+
+    @Override
+    public LayerInstrument layerInstrument() {
+        return this.mLayerInstrument;
+    }
+
+
 
     @Override
     public GUID put( GraphNode graphNode ) {
@@ -106,7 +126,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public void putStratumMeta(GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName) {
+    public void putStratumMeta( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName ) {
         this.mQueueStratumManipulator.put( vgraphGuid, stratumId, runtimePriority, segmentName );
     }
 
@@ -118,7 +138,50 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
-    public void addChild(GUID parentGuid, GUID childGuid) {
+    public void addChild( GUID parentGuid, GUID childGuid ) {
         this.mMegaVectorDAG.addChild( parentGuid,childGuid );
     }
+
+
+    @Unsafe( "TestOnly" )
+    @Override
+    public List<GraphNode> fetchIsolatedNodesAll() {
+        TableIndexMeta meta = this.getIsolatedNodeIndexMeta();
+        return this.fetchIsolatedNodesById( meta.getMinId(), meta.getMaxId() );
+    }
+
+    @Override
+    public List<GraphNode> fetchIsolatedNodes( long offset, long limit ) {
+        return this.mTaskGraphManipulator.fetchIsolatedNodes( offset, limit );
+    }
+
+    @Override
+    public List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd ) {
+        return this.mTaskGraphManipulator.fetchIsolatedNodesById( idStart, idEnd );
+    }
+
+    @Override
+    public TableIndexMeta getIsolatedNodeIndexMeta() {
+        return this.mTaskGraphManipulator.selectIsolatedNodeIndexMeta();
+    }
+
+    @Override
+    public long queryMaxIsolatedNodePage( long limit ) {
+        if ( limit <= 0 ) {
+            throw new IllegalArgumentException( "Limit must be greater than zero." );
+        }
+
+        long nTotal = this.mTaskGraphManipulator.countIsolatedNodes();
+        if ( nTotal == 0 ) {
+            return 0;
+        }
+
+        long nPage = nTotal / limit;
+        if ( nTotal % limit != 0 ) {
+            nPage++;
+        }
+
+        return nPage;
+    }
+
 }

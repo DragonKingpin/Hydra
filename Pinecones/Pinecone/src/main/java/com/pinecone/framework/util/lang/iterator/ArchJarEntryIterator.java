@@ -20,8 +20,10 @@ public abstract class ArchJarEntryIterator implements Pinenut {
     protected String                   mPackagePath;
     protected String                   mClassesScopePath = null;  // e.g. BOOT-INF/lib/
     protected JarEntry                 mCurrentEntry;
+    protected String                   mszSuffix      ;
 
-    public ArchJarEntryIterator( String szResourcePath ) throws IOException {
+    public ArchJarEntryIterator( String szResourcePath, String szSuffix ) throws IOException {
+        this.mszSuffix     = szSuffix;
         String[] jarInfo   = szResourcePath.split ( "!" );
         String jarFilePath = jarInfo[0].substring ( jarInfo[0].indexOf ( NamespaceCollector.RESOURCE_NAME_SEPARATOR ) );
 

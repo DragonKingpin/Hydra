@@ -26,7 +26,7 @@ public class JarClassCollectorAdapter implements PathNamespaceCollectum {
 
     public String collect0 ( String szResourcePath, String szPackageName, List<String > classNames, boolean bCollectChildren ) {
         try {
-            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath );
+            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath, ".class" );
             Enumeration<JarEntry> entries    = iterator.entries ();
             String packagePath               = iterator.getPackagePath();
             String classesScopePath          = iterator.getClassesScopePath();

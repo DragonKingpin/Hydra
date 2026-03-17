@@ -12,6 +12,7 @@ import org.apache.ibatis.session.TransactionIsolationLevel;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.List;
 
 public interface IbatisClient extends RDBClient {
     Configuration     getConfiguration();
@@ -49,5 +50,11 @@ public interface IbatisClient extends RDBClient {
     SqlSession        openSession( ExecutorType execType, TransactionIsolationLevel level );
 
     SqlSession        openSession( ExecutorType execType, Connection connection );
+
+
+
+    void addXMLObjectScope( String szPacketName );
+
+    void addXMLObjectScopeNoneSync( String szPacketName );
 
 }

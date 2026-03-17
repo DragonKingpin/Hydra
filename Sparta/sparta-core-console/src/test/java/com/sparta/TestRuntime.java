@@ -4,12 +4,11 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.atlas.advance.GenericTapedBFSGraphAdvancer;
-import com.pinecone.hydra.atlas.advance.GraphStratumTape;
-import com.pinecone.hydra.atlas.advance.strategy.AtlasPriorityProcessStrategy;
-import com.pinecone.hydra.atlas.advance.strategy.MegaInDegreeFirstStrategy;
-import com.pinecone.hydra.atlas.graph.UniformRuntimeAtlas;
-import com.pinecone.hydra.atlas.runtime.ibatis.hydranium.RuntimeMappingDriver;
+import com.walnut.odin.atlas.advance.GenericTapedBFSGraphAdvancer;
+import com.walnut.odin.atlas.advance.strategy.AtlasPriorityProcessStrategy;
+import com.walnut.odin.atlas.advance.strategy.MegaInDegreeFirstStrategy;
+import com.walnut.odin.atlas.graph.UniformRuntimeAtlas;
+import com.walnut.odin.atlas.mapper.OdinAtlasMappingDriver;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -26,7 +25,6 @@ import com.pinecone.hydra.unit.iqueue.MegaStratumQueueMeta;
 import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
-import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
@@ -47,7 +45,7 @@ class Rick extends EnderHydra {
 
     @Override
     public void vitalize () throws Exception {
-        AtlasMappingDriver atlasMappingDriver = new RuntimeMappingDriver(
+        AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
                 this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
         );
 
@@ -69,8 +67,8 @@ class Rick extends EnderHydra {
         //this.testInsert(uniformRuntimeAtlas);
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
-        this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,layerInstrument );
-        //this.testOrchestrator( layerInstrument, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
+        //this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,layerInstrument );
+        this.testOrchestrator( layerInstrument, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {

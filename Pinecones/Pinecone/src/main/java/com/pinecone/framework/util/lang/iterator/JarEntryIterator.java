@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 
 public class JarEntryIterator extends ArchJarEntryIterator implements Iterator<JarEntry > {
-    public JarEntryIterator( String szResourcePath ) throws IOException {
-        super( szResourcePath );
+    public JarEntryIterator( String szResourcePath, String szSuffix ) throws IOException {
+        super( szResourcePath, szSuffix );
     }
 
     @Override

@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.jar.JarEntry;
 
-public class JarPackageIterator extends JarClassIterator {
-    public JarPackageIterator( String szResourcePath ) throws IOException {
-        super( szResourcePath );
+public class JarPackageIterator extends JarFileIterator {
+    public JarPackageIterator( String szResourcePath, String szSuffix ) throws IOException {
+        super( szResourcePath, szSuffix );
     }
 
     @Override

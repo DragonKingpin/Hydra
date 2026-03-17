@@ -49,6 +49,12 @@
             <version>2.5.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.walnut.odin</groupId>
+            <artifactId>odin-framework-atlas</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>

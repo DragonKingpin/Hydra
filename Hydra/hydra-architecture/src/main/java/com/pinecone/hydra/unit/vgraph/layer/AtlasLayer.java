@@ -48,7 +48,7 @@ public class AtlasLayer implements Layer {
     }
 
     @Override
-    public void setParentGuid(GUID parentGuid) {
+    public void setParentGuid( GUID parentGuid ) {
         this.parentGuid = parentGuid;
     }
 
@@ -63,7 +63,7 @@ public class AtlasLayer implements Layer {
     }
 
     @Override
-    public void setSourceGuids(List<GUID> handleGuids) {
+    public void setSourceGuids( List<GUID> handleGuids ) {
         this.mLstHandleGuids = handleGuids;
     }
 

@@ -22,7 +22,7 @@ public class TaskExecuteCallBack implements ExecuteCallBack {
 
     private TaskGraphOrchestratorConfig     mConfig;
 
-    private DeflectPriorityQueue mDeflectPriorityQueue;
+    private DeflectPriorityQueue            mDeflectPriorityQueue;
 
     private Deque<VectorDAG>                mExecuteVectorDAG;
 

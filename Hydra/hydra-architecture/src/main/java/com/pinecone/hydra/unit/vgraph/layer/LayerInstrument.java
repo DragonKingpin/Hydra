@@ -22,7 +22,7 @@ public interface LayerInstrument extends KOMInstrument {
 
     void update( TreeNode treeNode );
 
-    List<Layer> splitGraphLayer(VectorDAG vectorDAG );
+    List<Layer> splitGraphLayer( VectorDAG vectorDAG );
 
     long countSourceNode( GUID layerGuid );
 

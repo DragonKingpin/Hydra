@@ -12,6 +12,7 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ArchKOMTree;
+import com.pinecone.hydra.system.ko.kom.SimpleMultiFolderPathSelector;
 import com.pinecone.hydra.system.ko.kom.SimplePathSelector;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
@@ -50,8 +51,10 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
         this.mNamespaceManipulator      = this.mLayerMasterManipulator.getNamespaceManipulator();
         this.mLayerHandleManipulator    = this.mLayerMasterManipulator.getLayerHandleManipulator();
 
-        this.pathSelector = new SimplePathSelector(
-                this.pathResolver, this.imperialTree, this.mNamespaceManipulator,new GUIDNameManipulator[]{ this.mLayerManipulator }
+        this.pathSelector = new SimpleMultiFolderPathSelector(
+                this.pathResolver, this.imperialTree,
+                new GUIDNameManipulator[]{ this.mNamespaceManipulator, this.mLayerManipulator },
+                new GUIDNameManipulator[]{ this.mLayerManipulator }
         );
     }
 
@@ -73,8 +76,13 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
-        return null;
+    public Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) {
+        if( szTargetSep != null ) {
+            path = path.replace( szBadSep, szTargetSep );
+        }
+
+        String[] parts = this.pathResolver.segmentPathParts( path );
+        return this.pathSelector.searchGUID( parts );
     }
 
     @Override
@@ -94,7 +102,7 @@ public class VLayerInstrument extends ArchKOMTree implements LayerInstrument {
     }
 
     @Override
-    public void remove(GUID guid ) {
+    public void remove( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         TreeNode newInstance = (TreeNode)node.getType().newInstance();
         TreeNodeOperator operator = this.operatorFactory.getOperator( this.getLayerMetaType( newInstance ) );

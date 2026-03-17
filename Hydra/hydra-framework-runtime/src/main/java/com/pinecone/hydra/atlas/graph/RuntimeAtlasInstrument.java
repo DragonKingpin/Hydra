@@ -28,8 +28,6 @@ public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
 
     TaskInstrument taskInstrument();
 
-    LayerInstrument layerInstrument();
-
     GraphNode queryGraphNodeByTaskGuid( GUID taskGuid );
 
     TaskElement queryTaskElementByGuid( GUID graphNodeGuid );
@@ -44,7 +42,9 @@ public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
 
     void putStratumMeta( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName );
 
+    VectorDAG getByLayerGuid( GUID layerGuid );
 
+    VectorDAG queryByPath( String path );
 
 
 

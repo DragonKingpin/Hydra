@@ -23,7 +23,7 @@ import com.pinecone.hydra.unit.iqueue.MagnitudeDPQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDPStratumQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MegaStratumQueueMeta;
-import com.pinecone.hydra.unit.vgraph.GenericVectorDAG;
+import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
@@ -62,15 +62,15 @@ class Rick extends EnderHydra {
         KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        VLayerInstrument vLayerManager = new VLayerInstrument(layerMappingDriver);
+        VLayerInstrument layerInstrument = new VLayerInstrument(layerMappingDriver);
         UniformTaskInstrument uniformTaskInstrument = new UniformTaskInstrument( driver, new GenericRavenTaskConfig() );
 
-        UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument);
+        UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument, layerInstrument);
         //this.testInsert(uniformRuntimeAtlas);
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
-        //this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,vLayerManager );
-        this.testOrchestrator( vLayerManager, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
+        this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,layerInstrument );
+        //this.testOrchestrator( layerInstrument, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
@@ -102,32 +102,32 @@ class Rick extends EnderHydra {
         Debug.trace(taskElement.toJSONObject());
     }
 
-    public void testTape(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
-        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("22610ea-00002d-0000-a0"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
-        GraphStratumTape tapeded = uniformRuntimeAtlas.tapedGraphStratumAdvancer(genericVectorDAG, driver);
-        //Debug.trace(tapeded.next().toJSONString());
-        Debug.trace(tapeded.fetchNodes(2,1));
+    public void testTape( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver ) {
+//        MagnitudeVectorDAG magnitudeVectorDAG = new MagnitudeVectorDAG( GUIDs.GUID128("22610ea-00002d-0000-a0"),uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+//        GraphStratumTape tapeded = uniformRuntimeAtlas.tapedGraphStratumAdvancer(magnitudeVectorDAG, driver);
+//        //Debug.trace(tapeded.next().toJSONString());
+//        Debug.trace(tapeded.fetchNodes(2,1));
     }
 
-    public void testAdvancer(UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, LayerInstrument layerInstrument) {
-        GenericVectorDAG genericVectorDAG = new GenericVectorDAG( GUIDs.GUID128("01972f9b-46e1-7085-83ce-3358352d4659"), null,uniformRuntimeAtlas.getMasterManipulator().getVectorGraphMasterManipulator(), uniformRuntimeAtlas.getConfig()  );
+    public void testAdvancer( UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, LayerInstrument layerInstrument ) {
+        MagnitudeVectorDAG magnitudeVectorDAG = (MagnitudeVectorDAG) uniformRuntimeAtlas.queryByPath( "l1/l11" );
         MegaDeflectPriorityQueueMeta meta1 = new ConfigurableMegaDeflectPriorityQueueMeta();
         meta1.setQueueTableName( "hydra_queue_nodes" );
         MegaStratumQueueMeta meta2 = new ConfigurableMegaStratumQueueMeta();
         meta2.setQueueTableName( "hydra_temporary_queue_nodes" );
         MagnitudeDPQueue magnitudeDPQueue = new MagnitudeDPQueue(driver, 0, "segment_name", "测试队列", meta1);
         MegaDPStratumQueue megaDPStratumQueue = new MegaDPStratumQueue(driver, "segment_name", "测试临时队列", meta2);
+
         MegaInDegreeFirstStrategy strategyChain = new MegaInDegreeFirstStrategy(uniformRuntimeAtlas, magnitudeDPQueue, megaDPStratumQueue,layerInstrument);
         AtlasPriorityProcessStrategy atlasPriorityProcessStrategy = new AtlasPriorityProcessStrategy();
         atlasPriorityProcessStrategy.addStrategy( strategyChain );
         GenericTapedBFSGraphAdvancer advancer = new GenericTapedBFSGraphAdvancer( uniformRuntimeAtlas, magnitudeDPQueue,atlasPriorityProcessStrategy );
-        advancer.traverse( genericVectorDAG );
+        advancer.traverse(magnitudeVectorDAG);
     }
 
     public void testOrchestrator(LayerInstrument layerInstrument, UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, TaskInstrument taskInstrument) {
-        Layer layer = (Layer)layerInstrument.get(GUIDs.GUID128("01972f9a-d77e-7336-b52d-c6517ba834ca"));
-        VectorDAG atlasVectorDAG = uniformRuntimeAtlas.toVectorDAG(layer);
-        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator(atlasVectorDAG, layerInstrument, 5,1,uniformRuntimeAtlas,driver);
+        VectorDAG vector = uniformRuntimeAtlas.queryByPath( "l1" );
+        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator( vector, layerInstrument, 5,1,uniformRuntimeAtlas,driver );
         ravenTaskGraphOrchestrator.execute();
 
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );

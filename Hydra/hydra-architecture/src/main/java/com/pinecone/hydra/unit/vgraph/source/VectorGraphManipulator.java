@@ -10,6 +10,8 @@ import java.util.List;
 public interface VectorGraphManipulator extends Pinenut {
     void insertHandleNode( GraphNode graphNode );
 
+    void insertGraphNode( GraphNode graphNode );
+
     void insertNodeByEdge( GUID parentGuid, GraphNode graphNode );
 
 
@@ -30,7 +32,7 @@ public interface VectorGraphManipulator extends Pinenut {
     long countChildNodeNums( GUID guid );
 
 
-    List<GUID> fetchChildNodeIds(GUID guid );
+    List<GUID> fetchChildNodeIds( GUID guid );
 
     List<GraphNode> fetchNodesByName( String name );
 
@@ -42,13 +44,13 @@ public interface VectorGraphManipulator extends Pinenut {
 
     long countSourceNodes();
 
-    List<GUID> fetchDownstreamNodeGuid(GUID nodeGuid, long offset, long limit);
+    List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit );
 
-    List<GUID> fetchUpstreamNodeGuid(GUID nodeGuid, long offset, long limit);
+    List<GUID> fetchUpstreamNodeGuid( GUID nodeGuid, long offset, long limit );
 
-    long queryInDegree(GUID nodeGuid);
+    long queryInDegree( GUID nodeGuid );
 
-    long queryOutDegree(GUID nodeGuid);
+    long queryOutDegree( GUID nodeGuid );
 
     long getPriorityByInDegree( GUID guid );
 

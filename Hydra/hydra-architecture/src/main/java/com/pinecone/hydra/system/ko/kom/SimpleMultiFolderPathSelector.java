@@ -8,7 +8,7 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 public class SimpleMultiFolderPathSelector extends MultiFolderPathSelector {
-    public SimpleMultiFolderPathSelector(PathResolver pathResolver, ImperialTree trieTree, GUIDNameManipulator[] dirMans, GUIDNameManipulator[] fileMans ) {
+    public SimpleMultiFolderPathSelector( PathResolver pathResolver, ImperialTree trieTree, GUIDNameManipulator[] dirMans, GUIDNameManipulator[] fileMans ) {
         super( pathResolver, trieTree, dirMans, fileMans );
     }
 

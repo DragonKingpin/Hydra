@@ -15,13 +15,13 @@ public class AtlasPriorityProcessStrategy implements PriorityProcessStrategy {
 
     @Override
     public void process( VectorDAG vectorDAG ) {
-        for( GraphPriorityProcessStrategy strategy : this.mStrategyPipeline ) {
+        for ( GraphPriorityProcessStrategy strategy : this.mStrategyPipeline ) {
             strategy.process( vectorDAG );
         }
     }
 
     @Override
-    public void addStrategy(GraphPriorityProcessStrategy strategy) {
+    public void addStrategy( GraphPriorityProcessStrategy strategy ) {
         this.mStrategyPipeline.add( strategy );
     }
 }

@@ -13,8 +13,10 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
-import com.pinecone.hydra.unit.vgraph.GenericClosedVectorDAG;
+import com.pinecone.hydra.unit.imperium.entity.EntityNode;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.ArchAtlasInstrument;
+import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -28,47 +30,39 @@ import java.util.List;
 
 public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeAtlasInstrument {
 
-    private TaskInstrument                  mTaskInstrument;
+    private TaskInstrument                       mTaskInstrument;
 
-    private LayerInstrument                 mLayerInstrument;
+    private RuntimeMasterManipulator             mRuntimeMasterManipulator;
 
-    private RuntimeMasterManipulator        mRuntimeMasterManipulator;
+    private VectorGraphMasterManipulator         mVectorGraphMasterManipulator;
 
-    private VectorGraphMasterManipulator    mVectorGraphMasterManipulator;
+    private TaskGraphManipulator                 mTaskGraphManipulator;
 
-    private TaskGraphManipulator            mTaskGraphManipulator;
+    private QueueStratumManipulator              mQueueStratumManipulator;
 
-    private QueueStratumManipulator         mQueueStratumManipulator;
-
-    protected void init( TaskInstrument taskInstrument, LayerInstrument layerInstrument ) {
-        this.mTaskInstrument               = taskInstrument;
-        this.mLayerInstrument              = layerInstrument;
-        this.mRuntimeMasterManipulator     = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
-        this.mQueueStratumManipulator      = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
-        this.mVectorGraphMasterManipulator = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
-        this.mTaskGraphManipulator         = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
+    protected void init( TaskInstrument taskInstrument ) {
+        this.mTaskInstrument                   = taskInstrument;
+        this.mRuntimeMasterManipulator         = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
+        this.mQueueStratumManipulator          = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
+        this.mVectorGraphMasterManipulator     = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
+        this.mTaskGraphManipulator             = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
     }
 
     public UniformRuntimeAtlas(
             TaskInstrument taskInstrument, LayerInstrument layerInstrument, AtlasMappingDriver driver, VectorGraphConfig config
     ) {
-        super( driver, config );
-        this.init( taskInstrument, layerInstrument );
+        super( driver, config, layerInstrument );
+        this.init( taskInstrument );
     }
 
     public UniformRuntimeAtlas( AtlasMappingDriver driver, TaskInstrument taskInstrument, LayerInstrument layerInstrument ) {
-        super( driver );
-        this.init( taskInstrument, layerInstrument );
+        super( driver, layerInstrument );
+        this.init( taskInstrument );
     }
 
     @Override
     public TaskInstrument taskInstrument() {
         return this.mTaskInstrument;
-    }
-
-    @Override
-    public LayerInstrument layerInstrument() {
-        return this.mLayerInstrument;
     }
 
 
@@ -132,15 +126,41 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     @Override
     public VectorDAG toVectorDAG( Layer layer ) {
-        List<GUID> sourceGuids = layer.getSourceGuids();
-        List<GUID> sinkGuids = layer.getSinkGuids();
-        return new GenericClosedVectorDAG( layer.getGuid(), sourceGuids,sinkGuids, this.mMegaVectorDAG.getMasterManipulator(), this.mMegaVectorDAG.getConfig() );
+        return new MagnitudeVectorDAG(
+                layer,
+                this.mVectorGraphMasterManipulator,
+                this.mVectorGraphConfig
+        );
+    }
+
+    @Override
+    public VectorDAG getByLayerGuid( GUID layerGuid ) {
+        TreeNode treeNode = this.mLayerInstrument.get( layerGuid );
+        if ( !( treeNode instanceof Layer ) ) {
+            return null;
+        }
+        Layer layer = (Layer) treeNode;
+        return this.toVectorDAG( layer );
+    }
+
+    @Override
+    public VectorDAG queryByPath( String path ) {
+        EntityNode entityNode = this.mLayerInstrument.queryNode( path );
+        if ( !( entityNode instanceof Layer ) ) {
+            return null;
+        }
+        Layer layer = (Layer) entityNode;
+        return this.toVectorDAG( layer );
     }
 
     @Override
     public void addChild( GUID parentGuid, GUID childGuid ) {
-        this.mMegaVectorDAG.addChild( parentGuid,childGuid );
+        this.mVectorGraphManipulator.addChild( parentGuid,childGuid );
     }
+
+
+
+
 
 
     @Unsafe( "TestOnly" )

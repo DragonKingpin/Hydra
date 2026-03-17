@@ -24,12 +24,13 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
         this.insertGraphNode(graphNode);
     }
 
+    @Override
     @Insert("INSERT INTO `hydra_atlas_vgraph_nodes` " +
             "(`guid`, `task_guid`, `node_name`, `node_description`) " +
             "VALUES " +
             "(#{graphNode.guid}, #{graphNode.taskGuid}, #{graphNode.name}, #{graphNode.description})"
     )
-    void insertGraphNode(  @Param("graphNode") GraphNode graphNode );
+    void insertGraphNode( @Param("graphNode") GraphNode graphNode );
 
     @Insert("INSERT INTO `hydra_atlas_vgraph_adjacent` (`guid`, `linked_type`, `parent_guid`) VALUES (#{childGuid},'weak',#{parentGuid})")
     void insertNodeAdjacent( @Param("parentGuid") GUID parentGuid, @Param("childGuid") GUID childGuid );

@@ -27,11 +27,11 @@ public interface DPQueueManipulator extends Pinenut {
 
     QueueElement query( long enumId, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 
-    List<QueueElement> fetchElementByPriority( long priority, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta,long limit, long offset );
+    List<QueueElement> fetchElementByPriority( long priority, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta, long limit, long offset );
 
-    List<QueueElement> fetchElement( String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta,long limit, long offset );
+    List<QueueElement> fetchElement( String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta, long limit, long offset );
 
-    List<GUID> fetchElementGuid( String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta,long limit, long offset );
+    List<GUID> fetchElementGuid( String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta, long limit, long offset );
 
     QueueElement getByIndex( long index, String sharedSegmentField, String sharedSegmentName, QueueMeta queueMeta );
 

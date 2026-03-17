@@ -16,13 +16,13 @@ public interface Layer extends LayerTreeNode {
 
     List<GUID> getSourceGuids();
 
-    void setSourceGuids(List<GUID> handleGuids );
+    void setSourceGuids( List<GUID> handleGuids );
 
     List<GUID> getSinkGuids();
 
-    void setSinkGuids(List<GUID> endGuids );
+    void setSinkGuids( List<GUID> endGuids );
 
-    GUID addSourceeGuid(GUID handleGuid );
+    GUID addSourceeGuid( GUID handleGuid );
 
     LocalDateTime getUpdateTime();
 

@@ -9,17 +9,17 @@ import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
 import java.util.List;
 
 public interface VectorDAG extends Pinenut {
+    GUID getGraphGuid();
+
     GUID getAffiliateLayerGuid();
 
     Layer getAffiliateLayer();
 
-    default boolean isPersistenceGraph() {
-        return this.getAffiliateLayer() != null;
-    }
+    boolean isPersistenceGraph();
 
-    List<GUID> fetchSourceGuids(long offset, long limit );
+    List<GUID> fetchSourceGuids( long offset, long limit );
 
-    List<GUID> fetchSourceGuidsByTaskPriority(long offset, long limit );
+    List<GUID> fetchSourceGuidsByTaskPriority( long offset, long limit );
 
     long countSourceNodes();
 
@@ -31,11 +31,7 @@ public interface VectorDAG extends Pinenut {
 
     long queryOutDegree( GUID nodeGuid );
 
-    void addSourceNodeGuid(GUID handleNodeGuid );
-
     VectorGraphConfig getConfig();
-
-    Layer persistenceAsLayer( LayerInstrument layerInstrument, String name );
 
     List<GraphNode> fetchChildNodes( GUID guid );
 

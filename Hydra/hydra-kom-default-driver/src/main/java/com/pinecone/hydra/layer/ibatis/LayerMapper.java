@@ -22,7 +22,7 @@ public interface LayerMapper extends LayerManipulator {
     @Override
     @Insert(
         "INSERT INTO `hydra_atlas_layer_layers` " +
-        "(`layer_guid`, `parent_guid`, `layer_name`, `update_time`, `create_time`) " +
+        "(`layer_guid`, `layer_name`, `update_time`, `create_time`) " +
         "VALUES (#{mGuid}, #{parentGuid}, #{mszName}, #{mUpdateTime}, #{mCreateTime})"
     )
     void insertLayer( LayerGraphHandle layer );
@@ -31,7 +31,7 @@ public interface LayerMapper extends LayerManipulator {
     @Insert(
         "<script>" +
         "INSERT INTO `hydra_atlas_layer_layers` " +
-        "(`layer_guid`, `parent_guid`, `layer_name`, `update_time`, `create_time`) VALUES " +
+        "(`layer_guid`, `layer_name`, `update_time`, `create_time`) VALUES " +
         "<foreach collection='list' item='item' separator=','>" +
         "(#{item.mGuid}, #{item.parentGuid}, #{item.mszName}, #{item.mUpdateTime}, #{item.mCreateTime})" +
         "</foreach>" +
@@ -50,14 +50,15 @@ public interface LayerMapper extends LayerManipulator {
 
     @Select(
         "SELECT " +
-        "`id` AS id, " +
-        "`layer_guid` AS guid, " +
-        "`parent_guid` AS parentGuid, " +
-        "`layer_name` AS name, " +
-        "`update_time` AS updateTime, " +
-        "`create_time` AS createTime " +
-        "FROM `hydra_atlas_layer_layers` " +
-        "WHERE `layer_guid` = #{guid}"
+        "l.`id` AS id, " +
+        "l.`layer_guid` AS guid, " +
+        "t.`parent_guid` AS parentGuid, " +
+        "l.`layer_name` AS name, " +
+        "l.`update_time` AS updateTime, " +
+        "l.`create_time` AS createTime " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
+        "WHERE l.`layer_guid` = #{guid}"
     )
     AtlasLayer queryLayer0( GUID guid );
 
@@ -95,16 +96,17 @@ public interface LayerMapper extends LayerManipulator {
     @Select(
         "<script>" +
         "SELECT " +
-        "`id` AS id, " +
-        "`layer_guid` AS guid, " +
-        "`parent_guid` AS parentGuid, " +
-        "`layer_name` AS name, " +
-        "`update_time` AS updateTime, " +
-        "`create_time` AS createTime " +
-        "FROM `hydra_atlas_layer_layers` " +
+        "l.`id` AS id, " +
+        "l.`layer_guid` AS guid, " +
+        "t.`parent_guid` AS parentGuid, " +
+        "l.`layer_name` AS name, " +
+        "l.`update_time` AS updateTime, " +
+        "l.`create_time` AS createTime " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
         "<where>" +
         "<if test='guids != null and guids.size() > 0'>" +
-        "`layer_guid` IN " +
+        "l.`layer_guid` IN " +
         "<foreach item='guid' collection='guids' open='(' separator=',' close=')'>" +
         "#{guid}" +
         "</foreach>" +
@@ -125,19 +127,20 @@ public interface LayerMapper extends LayerManipulator {
     @Select(
         "<script>" +
         "SELECT " +
-        "`id` AS id, " +
-        "`layer_guid` AS guid, " +
-        "`parent_guid` AS parentGuid, " +
-        "`layer_name` AS name, " +
-        "`update_time` AS updateTime, " +
-        "`create_time` AS createTime " +
-        "FROM `hydra_atlas_layer_layers` " +
+        "l.`id` AS id, " +
+        "l.`layer_guid` AS guid, " +
+        "t.`parent_guid` AS parentGuid, " +
+        "l.`layer_name` AS name, " +
+        "l.`update_time` AS updateTime, " +
+        "l.`create_time` AS createTime " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
         "<where>" +
         "<if test=\"anyNode == false\">" +
-        "`parent_guid` = #{parentGuid} " +
+        "t.`parent_guid` = #{parentGuid} " +
         "</if>" +
         "</where>" +
-        "ORDER BY `id` ASC " +
+        "ORDER BY l.`id` ASC " +
         "LIMIT #{limit} OFFSET #{offset}" +
         "</script>"
     )
@@ -163,20 +166,21 @@ public interface LayerMapper extends LayerManipulator {
     @Select(
         "<script>" +
         "SELECT " +
-        "`id` AS id, " +
-        "`layer_guid` AS guid, " +
-        "`parent_guid` AS parentGuid, " +
-        "`layer_name` AS name, " +
-        "`update_time` AS updateTime, " +
-        "`create_time` AS createTime " +
-        "FROM `hydra_atlas_layer_layers` " +
+        "l.`id` AS id, " +
+        "l.`layer_guid` AS guid, " +
+        "t.`parent_guid` AS parentGuid, " +
+        "l.`layer_name` AS name, " +
+        "l.`update_time` AS updateTime, " +
+        "l.`create_time` AS createTime " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
         "<where>" +
-        "`id` &gt;= #{idStart} AND `id` &lt;= #{idEnd} " +
+        "l.`id` &gt;= #{idStart} AND l.`id` &lt;= #{idEnd} " +
         "<if test=\"anyNode == false\">" +
-        "AND `parent_guid` = #{parentGuid} " +
+        "AND t.`parent_guid` = #{parentGuid} " +
         "</if>" +
         "</where>" +
-        "ORDER BY `id` ASC" +
+        "ORDER BY l.`id` ASC" +
         "</script>"
     )
     List<AtlasLayer> fetchLayerPageById0(
@@ -201,12 +205,13 @@ public interface LayerMapper extends LayerManipulator {
     @Select(
         "<script>" +
         "SELECT " +
-        "COALESCE( MIN(`id`), 0 ) AS minId, " +
-        "COALESCE( MAX(`id`), 0 ) AS maxId " +
-        "FROM `hydra_atlas_layer_layers` " +
+        "COALESCE( MIN(l.`id`), 0 ) AS minId, " +
+        "COALESCE( MAX(l.`id`), 0 ) AS maxId " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
         "<where>" +
         "<if test=\"anyNode == false\">" +
-        "`parent_guid` = #{parentGuid} " +
+        "t.`parent_guid` = #{parentGuid} " +
         "</if>" +
         "</where>" +
         "</script>"
@@ -220,10 +225,11 @@ public interface LayerMapper extends LayerManipulator {
     @Select(
         "<script>" +
         "SELECT COUNT( * ) " +
-        "FROM `hydra_atlas_layer_layers` " +
+        "FROM `hydra_atlas_layer_layers` l " +
+        "LEFT JOIN `hydra_atlas_layer_tree` t ON t.`guid` = l.`layer_guid` " +
         "<where>" +
         "<if test=\"anyNode == false\">" +
-        "`parent_guid` = #{parentGuid} " +
+        "t.`parent_guid` = #{parentGuid} " +
         "</if>" +
         "</where>" +
         "</script>"

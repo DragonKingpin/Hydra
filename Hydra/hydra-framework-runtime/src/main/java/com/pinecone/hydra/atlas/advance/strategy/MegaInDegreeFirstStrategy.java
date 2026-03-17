@@ -30,7 +30,7 @@ public class MegaInDegreeFirstStrategy implements GraphPriorityProcessStrategy {
             MegaStratumQueue megaStratumQueue, LayerInstrument layerInstrument
     ) {
         this.mRuntimeAtlasInstrument    = runtimeAtlasInstrument;
-        this.mDeflectPriorityQueue = deflectPriorityQueue;
+        this.mDeflectPriorityQueue      = deflectPriorityQueue;
         this.mTempMegaStratumQueue      = megaStratumQueue;
         this.mLayerInstrument           = layerInstrument;
     }

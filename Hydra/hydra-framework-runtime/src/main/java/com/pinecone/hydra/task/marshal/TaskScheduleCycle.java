@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task.marshal;
 
-public enum KernelTaskScheduleCycle {
+public enum TaskScheduleCycle {
     Undefined      ( 0x00, "Undefined" ),
     Minute         ( 0x01, "Minute" ),
     Hour           ( 0x02, "Hour" ),
@@ -20,7 +20,7 @@ public enum KernelTaskScheduleCycle {
 
     private final String name;
 
-    KernelTaskScheduleCycle( int code, String name ) {
+    TaskScheduleCycle(int code, String name ) {
         this.code = code;
         this.name = name;
     }
@@ -33,9 +33,19 @@ public enum KernelTaskScheduleCycle {
         return this.code;
     }
 
-    public static KernelTaskScheduleCycle getByCode( int code ) {
-        for ( KernelTaskScheduleCycle cycle : KernelTaskScheduleCycle.values() ) {
+    public static TaskScheduleCycle getByCode( int code ) {
+        for ( TaskScheduleCycle cycle : TaskScheduleCycle.values() ) {
             if ( cycle.code == code ) {
+                return cycle;
+            }
+        }
+
+        return null;
+    }
+
+    public static TaskScheduleCycle getByName( String name ) {
+        for ( TaskScheduleCycle cycle : TaskScheduleCycle.values() ) {
+            if ( cycle.name == name ) {
                 return cycle;
             }
         }

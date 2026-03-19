@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public interface TaskInstanceMeta extends Pinenut {
     GUID getGuid();
@@ -38,9 +38,9 @@ public interface TaskInstanceMeta extends Pinenut {
 
     boolean isDryRun() ;
 
-    KernelTaskScheduleCycle getKernelScheduleCycle ();
+    TaskScheduleCycle getKernelScheduleCycle ();
 
-    KernelTaskScheduleType getKernelScheduleType ();
+    TaskScheduleType getKernelScheduleType ();
 
     LocalDateTime getLastStartTime ();
 

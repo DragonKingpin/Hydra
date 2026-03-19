@@ -8,8 +8,8 @@ import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.EntryNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
@@ -52,9 +52,9 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setErrorCause( String errorCause );
 
-     void setKernelScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) ;
+     void setScheduleCycle ( TaskScheduleCycle kernelScheduleCycle ) ;
 
-     void setKernelScheduleType ( KernelTaskScheduleType kernelScheduleType ) ;
+     void setScheduleType ( TaskScheduleType kernelScheduleType ) ;
 
      void setLastStartTime ( LocalDateTime lastStartTime );
 
@@ -70,7 +70,4 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      String getRunStatus ();
 
-     int getKernelScheduleCycleCode () ;
-
-     int getKernelScheduleTypeCode () ;
 }

@@ -9,8 +9,8 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.hydra.task.kom.TaskFamilyNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericRavenTaskElement implements RavenTaskElement {
@@ -96,18 +96,6 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
 
-
-
-    @Override
-    public boolean isManual() {
-        return this.taskElement.isManual();
-    }
-
-    @Override
-    public void setManual( boolean manual ) {
-        this.taskElement.setManual( manual );
-    }
-
     @Override
     public String getScheduleCron() {
         return this.taskElement.getScheduleCron();
@@ -119,51 +107,34 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
     @Override
-    public KernelTaskScheduleCycle getScheduleCycle() {
+    public TaskScheduleCycle getScheduleCycle() {
         return this.taskElement.getScheduleCycle();
     }
 
     @Override
-    public void setScheduleCycle( KernelTaskScheduleCycle kernelScheduleCycle ) {
+    public void setScheduleCycle( TaskScheduleCycle kernelScheduleCycle ) {
         this.taskElement.setScheduleCycle( kernelScheduleCycle );
     }
 
     @Override
-    public KernelTaskScheduleType getScheduleType() {
+    public TaskScheduleType getScheduleType() {
         return this.taskElement.getScheduleType();
     }
 
     @Override
-    public void setScheduleType( KernelTaskScheduleType kernelScheduleType ) {
+    public void setScheduleType( TaskScheduleType kernelScheduleType ) {
         this.taskElement.setScheduleType( kernelScheduleType );
     }
 
-
-
-
-
     @Override
-    public int getScheduleCycleCode() {
-        return this.taskElement.getScheduleCycleCode();
+    public LocalDateTime getNextScheduleTime() {
+        return this.taskElement.getNextScheduleTime();
     }
 
     @Override
-    public void setScheduleCycleCode( int code ) {
-        this.taskElement.setScheduleCycleCode( code );
+    public void setNextScheduleTime( LocalDateTime nextScheduleTime ) {
+        this.taskElement.setNextScheduleTime( nextScheduleTime );
     }
-
-    @Override
-    public int getScheduleTypeCode() {
-        return this.taskElement.getScheduleTypeCode();
-    }
-
-    @Override
-    public void setScheduleTypeCode( int scheduleTypeCode ) {
-        this.taskElement.setScheduleTypeCode( scheduleTypeCode );
-    }
-
-
-
 
 
     @Override

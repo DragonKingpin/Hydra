@@ -13,8 +13,8 @@ import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.EntryNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEntry, EntryNode {
 
@@ -160,13 +160,13 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
-    public void setKernelScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) {
-        this.kernelScheduleCycle = kernelScheduleCycle;
+    public void setScheduleCycle ( TaskScheduleCycle kernelScheduleCycle ) {
+        this.scheduleCycle = kernelScheduleCycle;
     }
 
     @Override
-    public void setKernelScheduleType ( KernelTaskScheduleType kernelScheduleType ) {
-        this.kernelScheduleType = kernelScheduleType;
+    public void setScheduleType ( TaskScheduleType kernelScheduleType ) {
+        this.scheduleType = kernelScheduleType;
     }
 
     @Override
@@ -205,32 +205,6 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
 
     public void setRunStatus ( String status ) {
         this.instanceStatus = TaskInstanceStatus.getByName( status );
-    }
-
-    public void setKernelScheduleCycleCode ( int code ) {
-        this.kernelScheduleCycle = KernelTaskScheduleCycle.getByCode( code );
-    }
-
-    @Override
-    public int getKernelScheduleCycleCode() {
-        if ( this.kernelScheduleCycle == null ) {
-            return KernelTaskScheduleCycle.Undefined.getCode();
-        }
-
-        return this.kernelScheduleCycle.getCode();
-    }
-
-    public void setKernelScheduleTypeCode ( int code ) {
-        this.kernelScheduleType = KernelTaskScheduleType.getByCode( code );
-    }
-
-    @Override
-    public int getKernelScheduleTypeCode() {
-        if ( this.kernelScheduleType == null ) {
-            return KernelTaskScheduleType.Undefined.getCode();
-        }
-
-        return this.kernelScheduleType.getCode();
     }
 
     @Override

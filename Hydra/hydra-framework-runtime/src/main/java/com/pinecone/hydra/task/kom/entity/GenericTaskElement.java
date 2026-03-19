@@ -8,8 +8,8 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.TaskExtraMeta;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected String                   taskType;
@@ -20,16 +20,15 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected short                    priority;
     protected short                    actuallyPriority;
     protected boolean                  dryRun;
-    protected boolean                  manual;
 
     protected String                   scheduleCron;
-    protected KernelTaskScheduleCycle  kernelScheduleCycle;
-    protected KernelTaskScheduleType   kernelScheduleType;
+    protected TaskScheduleCycle        scheduleCycle;
+    protected TaskScheduleType         scheduleType;
     protected boolean                  enable;
 
     protected LocalDateTime            scheduleStartTime;
     protected LocalDateTime            scheduleEndTime;
-
+    protected LocalDateTime            nextScheduleTime;
 
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
@@ -129,18 +128,6 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
 
 
     @Override
-    public boolean isManual() {
-        return this.manual;
-    }
-
-    @Override
-    public void setManual( boolean manual ) {
-        this.manual = manual;
-    }
-
-
-
-    @Override
     public String getScheduleCron() {
         return this.scheduleCron;
     }
@@ -150,56 +137,34 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         this.scheduleCron = scheduleCron;
     }
 
-
-
     @Override
-    public void setScheduleCycleCode ( int code ) {
-        this.kernelScheduleCycle = KernelTaskScheduleCycle.getByCode( code );
+    public LocalDateTime getNextScheduleTime() {
+        return this.nextScheduleTime;
     }
 
     @Override
-    public int getScheduleCycleCode() {
-        if ( this.kernelScheduleCycle == null ) {
-            return KernelTaskScheduleCycle.Undefined.getCode();
-        }
-
-        return this.kernelScheduleCycle.getCode();
+    public void setNextScheduleTime( LocalDateTime nextScheduleTime ) {
+        this.nextScheduleTime = nextScheduleTime;
     }
 
     @Override
-    public void setScheduleTypeCode ( int code ) {
-        this.kernelScheduleType = KernelTaskScheduleType.getByCode( code );
+    public void setScheduleCycle ( TaskScheduleCycle kernelScheduleCycle ) {
+        this.scheduleCycle = kernelScheduleCycle;
     }
 
     @Override
-    public int getScheduleTypeCode() {
-        if ( this.kernelScheduleType == null ) {
-            return KernelTaskScheduleType.Undefined.getCode();
-        }
-
-        return this.kernelScheduleType.getCode();
-    }
-
-
-
-    @Override
-    public void setScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) {
-        this.kernelScheduleCycle = kernelScheduleCycle;
+    public TaskScheduleCycle getScheduleCycle() {
+        return this.scheduleCycle;
     }
 
     @Override
-    public KernelTaskScheduleCycle getScheduleCycle() {
-        return this.kernelScheduleCycle;
+    public void setScheduleType ( TaskScheduleType kernelScheduleType ) {
+        this.scheduleType = kernelScheduleType;
     }
 
     @Override
-    public void setScheduleType ( KernelTaskScheduleType kernelScheduleType ) {
-        this.kernelScheduleType = kernelScheduleType;
-    }
-
-    @Override
-    public KernelTaskScheduleType getScheduleType() {
-        return this.kernelScheduleType;
+    public TaskScheduleType getScheduleType() {
+        return this.scheduleType;
     }
 
 
@@ -220,7 +185,7 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     }
 
     @Override
-    public void setScheduleStartTime(LocalDateTime scheduleStartTime) {
+    public void setScheduleStartTime( LocalDateTime scheduleStartTime ) {
             this.scheduleStartTime = scheduleStartTime;
     }
 
@@ -230,8 +195,8 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     }
 
     @Override
-    public void setScheduleEndTime(LocalDateTime scheduleEndTime) {
-                 this.scheduleEndTime = scheduleEndTime;
+    public void setScheduleEndTime( LocalDateTime scheduleEndTime ) {
+        this.scheduleEndTime = scheduleEndTime;
     }
 
 

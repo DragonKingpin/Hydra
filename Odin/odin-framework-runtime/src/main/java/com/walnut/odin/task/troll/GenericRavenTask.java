@@ -42,10 +42,8 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
         entry.setTaskGuid( this.mTaskElement.getGuid());
         entry.setCreateTime( LocalDateTime.now() );
-        entry.setKernelScheduleCycle( this.mTaskElement.getScheduleCycle() );
-        entry.setKernelScheduleCycleCode( this.mTaskElement.getScheduleCycleCode() );
-        entry.setKernelScheduleType( this.mTaskElement.getScheduleType() );
-        entry.setKernelScheduleTypeCode( this.mTaskElement.getScheduleTypeCode() );
+        entry.setScheduleCycle( this.mTaskElement.getScheduleCycle() );
+        entry.setScheduleType( this.mTaskElement.getScheduleType() );
         entry.setRunCount( 1 );
         entry.setSequenceCnt( 1 );
         entry.setRetryCnt( 0 );

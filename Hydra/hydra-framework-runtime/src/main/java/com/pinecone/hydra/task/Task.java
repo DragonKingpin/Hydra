@@ -29,8 +29,6 @@ public interface Task extends TaskFamilyMeta {
 
     boolean isDryRun() ;
 
-    int getScheduleTypeCode() ;
-
     boolean isEnable() ;
 
 

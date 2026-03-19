@@ -90,8 +90,8 @@ public class KernelInstanceInstrument implements InstanceInstrument {
 //            instanceEntry.setInstanceName( taskElement.getName() );
 //            instanceEntry.setBusinessTime( taskElement.getBusinessTime() );
 //            instanceEntry.setScheduleCycleCode( taskElement.getScheduleCycleCode() );
-            instanceEntry.setKernelScheduleCycle( taskElement.getScheduleCycle() );
-            instanceEntry.setKernelScheduleType( taskElement.getScheduleType() );
+            instanceEntry.setScheduleCycle( taskElement.getScheduleCycle() );
+            instanceEntry.setScheduleType( taskElement.getScheduleType() );
             instanceEntry.setRunCount( 0 );
             instanceEntry.setDryRun( taskElement.isDryRun() );
             instanceEntry.setInstanceStatus( TaskInstanceStatus.New );

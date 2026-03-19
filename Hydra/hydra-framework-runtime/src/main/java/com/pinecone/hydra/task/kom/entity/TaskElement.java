@@ -1,8 +1,8 @@
 package com.pinecone.hydra.task.kom.entity;
 
 import com.pinecone.hydra.task.TaskExtraMeta;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 import java.time.LocalDateTime;
 
@@ -32,27 +32,18 @@ public interface TaskElement extends ElementNode {
     void setActuallyPriority( int priority );
 
 
-    KernelTaskScheduleCycle getScheduleCycle();
-    void setScheduleCycle ( KernelTaskScheduleCycle kernelScheduleCycle ) ;
+    TaskScheduleCycle getScheduleCycle();
+    void setScheduleCycle ( TaskScheduleCycle kernelScheduleCycle ) ;
 
-    KernelTaskScheduleType getScheduleType();
-    void setScheduleType ( KernelTaskScheduleType kernelScheduleType ) ;
+    TaskScheduleType getScheduleType();
+    void setScheduleType ( TaskScheduleType kernelScheduleType ) ;
 
 
     boolean isDryRun() ;
     void setDryRun( boolean dryRun ) ;
 
-    boolean isManual() ;
-    void setManual( boolean manual ) ;
-
     String getScheduleCron();
     void setScheduleCron( String scheduleCron ) ;
-
-    int getScheduleCycleCode();
-    void setScheduleCycleCode ( int code ) ;
-
-    int getScheduleTypeCode() ;
-    void setScheduleTypeCode( int scheduleTypeCode ) ;
 
     boolean isEnable() ;
     void setEnable( boolean enable ) ;
@@ -62,6 +53,9 @@ public interface TaskElement extends ElementNode {
 
     LocalDateTime getScheduleEndTime();
     void setScheduleEndTime( LocalDateTime scheduleEndTime );
+
+    LocalDateTime getNextScheduleTime();
+    void setNextScheduleTime( LocalDateTime nextScheduleTime );
 
     TaskExtraMeta getExtraMeta();
 

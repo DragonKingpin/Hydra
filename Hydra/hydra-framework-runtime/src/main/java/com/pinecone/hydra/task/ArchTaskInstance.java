@@ -3,8 +3,8 @@ package com.pinecone.hydra.task;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 import java.time.LocalDateTime;
 
@@ -32,16 +32,6 @@ public abstract class ArchTaskInstance implements TaskInstance {
     @Override
     public String getRunStatus() {
         return this.mInstanceEntry.getRunStatus();
-    }
-
-    @Override
-    public int getKernelScheduleCycleCode() {
-        return this.mInstanceEntry.getKernelScheduleCycleCode();
-    }
-
-    @Override
-    public int getKernelScheduleTypeCode() {
-        return this.mInstanceEntry.getKernelScheduleTypeCode();
     }
 
     @Override
@@ -115,12 +105,12 @@ public abstract class ArchTaskInstance implements TaskInstance {
     }
 
     @Override
-    public KernelTaskScheduleCycle getKernelScheduleCycle() {
+    public TaskScheduleCycle getKernelScheduleCycle() {
         return this.mInstanceEntry.getKernelScheduleCycle();
     }
 
     @Override
-    public KernelTaskScheduleType getKernelScheduleType() {
+    public TaskScheduleType getKernelScheduleType() {
         return this.mInstanceEntry.getKernelScheduleType();
     }
 

@@ -32,7 +32,11 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
+import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
+import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTaskInstrument;
+import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
 class Rick extends EnderHydra {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -53,7 +57,7 @@ class Rick extends EnderHydra {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOIMappingDriver driver = new TaskMappingDriver(
+        KOIMappingDriver driver = new OdinUniformTaskMappingDriver(
                 this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
         );
 
@@ -61,7 +65,7 @@ class Rick extends EnderHydra {
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
         VLayerInstrument layerInstrument = new VLayerInstrument(layerMappingDriver);
-        UniformTaskInstrument uniformTaskInstrument = new UniformTaskInstrument( driver, new GenericRavenTaskConfig() );
+        CentralizedTaskInstrument uniformTaskInstrument = new RavenTaskInstrument( driver, new GenericRavenTaskConfig() );
 
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument, layerInstrument);
         //this.testInsert(uniformRuntimeAtlas);
@@ -124,11 +128,14 @@ class Rick extends EnderHydra {
     }
 
     public void testOrchestrator(LayerInstrument layerInstrument, UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, TaskInstrument taskInstrument) {
-        VectorDAG vector = uniformRuntimeAtlas.queryByPath( "l1" );
-        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator( vector, layerInstrument, 5,1,uniformRuntimeAtlas,driver );
-        ravenTaskGraphOrchestrator.execute();
+//        VectorDAG vector = uniformRuntimeAtlas.queryByPath( "l1" );
+//        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator( vector, layerInstrument, 5,1,uniformRuntimeAtlas,driver );
+//        ravenTaskGraphOrchestrator.execute();
 
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
+
+        RavenTaskScheduler scheduler = new RavenTaskScheduler( ( CentralizedTaskInstrument ) taskInstrument );
+        scheduler.fetch();
     }
 
 

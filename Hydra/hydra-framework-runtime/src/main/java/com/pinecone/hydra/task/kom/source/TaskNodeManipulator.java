@@ -1,11 +1,16 @@
 package com.pinecone.hydra.task.kom.source;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.slime.meta.TableIndex64Meta;
 
 public interface TaskNodeManipulator extends GUIDNameManipulator {
 
@@ -25,5 +30,9 @@ public interface TaskNodeManipulator extends GUIDNameManipulator {
     @Override
     List<GUID> getGuidsByNameID( String name, GUID guid );
 
+
+    TableIndex64Meta selectSchedulableIdRange( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
+
+    List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
 
 }

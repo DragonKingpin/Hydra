@@ -5,7 +5,10 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.pinecone.slime.meta.TableIndex64Meta;
+
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -13,6 +16,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -53,5 +58,27 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 
+
+
+
+    @Override
+    TableIndex64Meta selectSchedulableIdRange(
+            @Param( "cycles" ) Collection<TaskScheduleCycle> cycles,
+            @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    List<GenericTaskElement> fetchSchedulableTasksInRange0(
+            @Param( "idMin"  ) long idMin,
+            @Param( "idMax"  ) long idMax,
+            @Param( "cycles" ) Collection<TaskScheduleCycle> cycles,
+            @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime ) {
+        List<GenericTaskElement> list = this.fetchSchedulableTasksInRange0( idMin, idMax, cycles, targetTime );
+        return (List) list;
+    }
 
 }

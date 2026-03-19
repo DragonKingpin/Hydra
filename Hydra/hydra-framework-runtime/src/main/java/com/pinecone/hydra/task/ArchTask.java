@@ -86,11 +86,6 @@ public abstract class ArchTask implements Task {
     }
 
     @Override
-    public int getScheduleTypeCode() {
-        return this.mTaskElement.getScheduleTypeCode();
-    }
-
-    @Override
     public boolean isEnable() {
         return this.mTaskElement.isEnable();
     }

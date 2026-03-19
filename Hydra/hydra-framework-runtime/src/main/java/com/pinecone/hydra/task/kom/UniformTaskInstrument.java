@@ -177,8 +177,6 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         taskElement.setResourceType( metaInfos.getResourceType() );
         taskElement.setScheduleCycle( metaInfos.getScheduleCycle() );
         taskElement.setScheduleType( metaInfos.getScheduleType() );
-        taskElement.setScheduleTypeCode( metaInfos.getScheduleTypeCode() );
-        taskElement.setScheduleCycleCode( metaInfos.getScheduleCycleCode() );
         taskElement.setType( metaInfos.getType() );
         taskElement.setImagePath( metaInfos.getImagePath() );
         taskElement.setName( metaInfos.getName() );

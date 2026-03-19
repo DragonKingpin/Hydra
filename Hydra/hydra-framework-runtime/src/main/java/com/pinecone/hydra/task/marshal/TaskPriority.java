@@ -2,7 +2,7 @@ package com.pinecone.hydra.task.marshal;
 
 import java.util.Arrays;
 
-public enum KernelTaskPriority {
+public enum TaskPriority {
     L0(50),
     L1(40),
     L2(30),
@@ -12,7 +12,7 @@ public enum KernelTaskPriority {
 
     private final int value;
 
-    private KernelTaskPriority( int value ) {
+    private TaskPriority(int value ) {
         this.value = value;
     }
 
@@ -22,7 +22,7 @@ public enum KernelTaskPriority {
 
     public static Integer byName( String name ) {
         try {
-            KernelTaskPriority taskPriority = valueOf(name);
+            TaskPriority taskPriority = valueOf(name);
             return taskPriority.getValue();
         }
         catch ( IllegalArgumentException e ) {
@@ -30,9 +30,9 @@ public enum KernelTaskPriority {
         }
     }
 
-    public static KernelTaskPriority of( int value ) {
-        return (KernelTaskPriority) Arrays.stream(values())
+    public static TaskPriority of(int value ) {
+        return (TaskPriority) Arrays.stream(values())
                 .filter((it) -> it.value == value)
-                .findFirst().orElse((KernelTaskPriority) null);
+                .findFirst().orElse((TaskPriority) null);
     }
 }

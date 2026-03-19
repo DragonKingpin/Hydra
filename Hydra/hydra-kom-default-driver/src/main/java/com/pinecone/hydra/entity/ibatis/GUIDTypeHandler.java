@@ -2,7 +2,6 @@ package com.pinecone.hydra.entity.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.ulf.util.guid.i128.UUID128;
-import com.pinecone.ulf.util.guid.i64.GUID72;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;

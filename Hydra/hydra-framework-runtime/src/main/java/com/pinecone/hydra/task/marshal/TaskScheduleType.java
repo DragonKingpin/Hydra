@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task.marshal;
 
-public enum KernelTaskScheduleType {
+public enum TaskScheduleType {
     Undefined      ( 0x00, "Undefined" ),
     Cycle          ( 0x01, "Cycle" ),
     Manual         ( 0x02, "Manual" ),
@@ -12,7 +12,7 @@ public enum KernelTaskScheduleType {
 
     private final String name;
 
-    KernelTaskScheduleType( int code, String name ) {
+    TaskScheduleType(int code, String name ) {
         this.code = code;
         this.name = name;
     }
@@ -25,8 +25,8 @@ public enum KernelTaskScheduleType {
         return this.code;
     }
 
-    public static KernelTaskScheduleType getByCode( int code ) {
-        for ( KernelTaskScheduleType type : KernelTaskScheduleType.values() ) {
+    public static TaskScheduleType getByCode(int code ) {
+        for ( TaskScheduleType type : TaskScheduleType.values() ) {
             if ( type.code == code ) {
                 return type;
             }

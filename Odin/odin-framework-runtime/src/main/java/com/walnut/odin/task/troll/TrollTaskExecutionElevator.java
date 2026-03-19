@@ -27,7 +27,7 @@ import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.proc.ProcessRemoteEventHandler;
 import com.walnut.odin.proc.RemoteProcess;
@@ -90,7 +90,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
 
     @Override
     public LocalDateTime evalBusinessTime( RavenTaskInstance instance, LocalDateTime biz ) {
-        KernelTaskScheduleCycle cycle = instance.getKernelScheduleCycle();
+        TaskScheduleCycle cycle = instance.getKernelScheduleCycle();
 
         LocalDateTime adjustedTime;
 

@@ -7,8 +7,8 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public interface TaskInstance extends Pinenut {
 
@@ -23,10 +23,6 @@ public interface TaskInstance extends Pinenut {
     TaskInstrument getTaskInstrument();
 
     String getRunStatus ();
-
-    int getKernelScheduleCycleCode () ;
-
-    int getKernelScheduleTypeCode () ;
 
     GUID getGuid();
 
@@ -56,9 +52,9 @@ public interface TaskInstance extends Pinenut {
 
     String getErrorCause();
 
-    KernelTaskScheduleCycle getKernelScheduleCycle ();
+    TaskScheduleCycle getKernelScheduleCycle ();
 
-    KernelTaskScheduleType getKernelScheduleType ();
+    TaskScheduleType getKernelScheduleType ();
 
     LocalDateTime getLastStartTime ();
 

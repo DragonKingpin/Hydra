@@ -3,8 +3,8 @@ package com.pinecone.hydra.task;
 import java.time.LocalDateTime;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
-import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
+import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.marshal.TaskScheduleType;
 
 public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected GUID guid;
@@ -22,8 +22,8 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected int retryCnt;
     protected String errorCause;
     protected boolean dryRun;
-    protected KernelTaskScheduleCycle kernelScheduleCycle;
-    protected KernelTaskScheduleType kernelScheduleType;
+    protected TaskScheduleCycle scheduleCycle;
+    protected TaskScheduleType scheduleType;
     protected LocalDateTime lastStartTime;
     protected LocalDateTime lastEndTime;
     protected LocalDateTime expectTime;
@@ -114,13 +114,13 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     }
 
     @Override
-    public KernelTaskScheduleCycle getKernelScheduleCycle() {
-        return this.kernelScheduleCycle;
+    public TaskScheduleCycle getKernelScheduleCycle() {
+        return this.scheduleCycle;
     }
 
     @Override
-    public KernelTaskScheduleType getKernelScheduleType() {
-        return this.kernelScheduleType;
+    public TaskScheduleType getKernelScheduleType() {
+        return this.scheduleType;
     }
 
     @Override

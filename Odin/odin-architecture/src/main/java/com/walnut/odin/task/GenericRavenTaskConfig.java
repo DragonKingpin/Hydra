@@ -9,8 +9,10 @@ import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements RavenTaskConfig {
 
     protected String mszInstanceTitleTimeFormat = RavenTaskConstants.InstanceTitleTimeFormat;
+    protected String mszDefaultDateTimeFormat   = RavenTaskConstants.DefaultDateTimeFormat;
 
-    protected String mszDefaultDateTimeFormat = RavenTaskConstants.DefaultDateTimeFormat;
+    protected int    mnScheduleScanThreadCount  = RavenTaskConstants.ScheduleScanThreadCount;
+    protected long   mnScheduleScanIdWindow     = RavenTaskConstants.ScheduleScanIdWindow;
 
     public GenericRavenTaskConfig() {
         super();
@@ -20,6 +22,9 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
         super( config );
         this.mszInstanceTitleTimeFormat = (String) config.getOrDefault("InstanceTitleTimeFormat", RavenTaskConstants.InstanceTitleTimeFormat);
         this.mszDefaultDateTimeFormat   = (String) config.getOrDefault("DefaultDateTimeFormat", RavenTaskConstants.DefaultDateTimeFormat);
+
+        this.mnScheduleScanThreadCount  = ( (Number) config.getOrDefault("ScheduleScanThreadCount", RavenTaskConstants.ScheduleScanThreadCount) ).intValue();
+        this.mnScheduleScanIdWindow     = ( (Number) config.getOrDefault("ScheduleScanIdWindow", RavenTaskConstants.ScheduleScanIdWindow) ).longValue();
     }
 
     @Override
@@ -31,4 +36,15 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     public String getDefaultDateTimeFormat() {
         return this.mszDefaultDateTimeFormat;
     }
+
+    @Override
+    public int getScheduleScanThreadCount() {
+        return this.mnScheduleScanThreadCount;
+    }
+
+    @Override
+    public long getScheduleScanIdWindow() {
+        return this.mnScheduleScanIdWindow;
+    }
+
 }

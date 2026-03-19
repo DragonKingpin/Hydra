@@ -8,4 +8,8 @@ public interface RavenTaskConfig extends KernelObjectConfig {
 
     String getDefaultDateTimeFormat();
 
+    int getScheduleScanThreadCount();
+
+    long getScheduleScanIdWindow();
+
 }

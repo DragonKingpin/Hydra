@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.FolderElement;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -87,18 +87,18 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
     }
 
     protected Object[]    affirmJobExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        JobElement job = null;
+        AppElement job = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceJobElement() == null ) {
+                if( rootE.evinceAppElement() == null ) {
                     throw new IllegalArgumentException(
-                            String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                            String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                     );
                 }
 
-                job = rootE.evinceJobElement();
+                job = rootE.evinceAppElement();
             }
         }
         else {
@@ -107,13 +107,13 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                 Collection<ElementNode> destChildren = parentNode.evinceNamespace().fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof JobElement ) {
-                            job = (JobElement) node;
+                        if( node instanceof AppElement) {
+                            job = (AppElement) node;
                             break;
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                             );
                         }
                     }
@@ -123,9 +123,9 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
 
 
 
-        JobElement neo ;
+        AppElement neo ;
         if( job == null ) {
-            neo = new GenericJobElement( jo, this.instrument );
+            neo = new GenericAppElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
@@ -220,7 +220,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
         else {
             Object[] pair;
             boolean bIsFolderElement = false;
-            if( szMetaType.equals( JobElement.class.getSimpleName() ) ) {
+            if( szMetaType.equals( AppElement.class.getSimpleName() ) ) {
                 pair = this.affirmJobExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }

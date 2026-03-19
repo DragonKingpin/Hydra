@@ -8,9 +8,9 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
-import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -18,9 +18,8 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.instance.KernelInstanceInstrument;
-import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.task.kom.operator.GenericElementOperatorFactory;
-import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
@@ -48,7 +47,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected TaskNamespaceManipulator    taskNamespaceManipulator;
 
-    protected JobNodeManipulator          jobNodeManipulator;
+    protected AppNodeManipulator appNodeManipulator;
 
     protected TaskNodeManipulator         taskNodeManipulator;
 
@@ -66,7 +65,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
         this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
-        this.jobNodeManipulator          = this.taskMasterManipulator.getJobNodeManipulator();
+        this.appNodeManipulator          = this.taskMasterManipulator.getAppNodeManipulator();
         this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
@@ -75,8 +74,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
 
         // TODO for customize service tree architecture.
-        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.jobNodeManipulator) );
-        this.fileManipulators            = new ArrayList<>( List.of( this.jobNodeManipulator, this.taskNodeManipulator) );
+        this.folderManipulators          = new ArrayList<>( List.of( this.taskNamespaceManipulator, this.appNodeManipulator) );
+        this.fileManipulators            = new ArrayList<>( List.of( this.appNodeManipulator, this.taskNodeManipulator) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
@@ -163,8 +162,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
-    public JobElement affirmJob( String path ) {
-        return (JobElement) this.affirmTreeNodeByPath( path, GenericJobElement.class, GenericNamespace.class );
+    public AppElement affirmJob(String path ) {
+        return (AppElement) this.affirmTreeNodeByPath( path, GenericAppElement.class, GenericNamespace.class );
     }
 
     @Override

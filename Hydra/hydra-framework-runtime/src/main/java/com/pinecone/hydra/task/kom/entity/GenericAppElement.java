@@ -10,24 +10,24 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 
-public class GenericJobElement extends ArchElementNode implements JobElement {
+public class GenericAppElement extends ArchElementNode implements AppElement {
     protected String        taskType;
 
-    public GenericJobElement() {
+    public GenericAppElement() {
         super();
     }
 
-    public GenericJobElement(Map<String, Object > joEntity ) {
+    public GenericAppElement( Map<String, Object > joEntity ) {
         super( joEntity );
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericJobElement(Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+    public GenericAppElement( Map<String, Object > joEntity, TaskInstrument taskInstrument ) {
         super( joEntity, taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericJobElement(TaskInstrument taskInstrument) {
+    public GenericAppElement( TaskInstrument taskInstrument ) {
         super(taskInstrument);
     }
 

@@ -317,7 +317,7 @@ public abstract class Heist extends ArchHeistum implements CascadeHeist {
             }
 
             if ( cause instanceof InterruptedException ) {
-                this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Terminated, hierarchy );
+                this.getHeistgram().notifyLifecycleEvent( this, TaskInstanceStatus.Killed, hierarchy );
             }
             throw e;
         }

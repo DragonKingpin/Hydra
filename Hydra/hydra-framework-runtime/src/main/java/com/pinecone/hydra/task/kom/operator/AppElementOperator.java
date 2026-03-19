@@ -6,37 +6,37 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
-import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
-import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
-public class JobElementOperator extends ArchElementOperator implements ElementOperator {
-    protected JobNodeManipulator jobNodeManipulator;
+public class AppElementOperator extends ArchElementOperator implements ElementOperator {
+    protected AppNodeManipulator appNodeManipulator;
 
-    public JobElementOperator(ElementOperatorFactory factory ) {
+    public AppElementOperator(ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
 
-    public JobElementOperator(TaskMasterManipulator masterManipulator, TaskInstrument taskInstrument){
+    public AppElementOperator(TaskMasterManipulator masterManipulator, TaskInstrument taskInstrument){
         super( masterManipulator, taskInstrument);
-        this.jobNodeManipulator = masterManipulator.getJobNodeManipulator();
+        this.appNodeManipulator = masterManipulator.getAppNodeManipulator();
     }
 
 
     @Override
     public GUID insert( TreeNode treeNode ) {
-        GenericJobElement jobElement = (GenericJobElement) treeNode;
+        GenericAppElement jobElement = (GenericAppElement) treeNode;
 
         GuidAllocator guidAllocator = this.taskInstrument.getGuidAllocator();
         GUID jobNodeGUID = guidAllocator.nextGUID();
         jobElement.setGuid( jobNodeGUID );
-        this.jobNodeManipulator.insert( jobElement );
+        this.appNodeManipulator.insert( jobElement );
 
         //将应用元信息存入元信息表
         this.nodeMetaManipulator.insert( jobElement );
@@ -93,29 +93,29 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
     }
 
     @Override
-    public JobElement get(GUID guid ) {
-        JobElement jobElement;
-        jobElement = this.jobNodeManipulator.getJobElement( guid, this.taskInstrument );
-        this.applyCommonMeta(jobElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
+    public AppElement get(GUID guid ) {
+        AppElement appElement;
+        appElement = this.appNodeManipulator.getAppElement( guid, this.taskInstrument );
+        this.applyCommonMeta(appElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
-        jobElement.setGuid(jobElement.getGuid());
-        return jobElement;
+        appElement.setGuid(appElement.getGuid());
+        return appElement;
     }
 
     @Override
-    public JobElement get(GUID guid, int depth ) {
+    public AppElement get(GUID guid, int depth ) {
         return this.get( guid );
     }
 
     @Override
-    public JobElement getAsRootDepth(GUID guid ) {
+    public AppElement getAsRootDepth(GUID guid ) {
         return this.get( guid );
     }
 
     @Override
     public void update( TreeNode treeNode ) {
-        GenericJobElement applicationElement = (GenericJobElement) treeNode;
-        this.jobNodeManipulator.update( applicationElement );
+        GenericAppElement applicationElement = (GenericAppElement) treeNode;
+        this.appNodeManipulator.update( applicationElement );
         this.nodeMetaManipulator.update( applicationElement );
     }
 
@@ -129,6 +129,6 @@ public class JobElementOperator extends ArchElementOperator implements ElementOp
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
         this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
-        this.jobNodeManipulator.remove( node.getGuid( ));
+        this.appNodeManipulator.remove( node.getGuid( ));
     }
 }

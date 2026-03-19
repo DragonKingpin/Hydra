@@ -32,11 +32,11 @@ public interface ClusterNodeMapper extends ClusterNodeManipulator {
     @Select("SELECT `id` AS `enumId`, `guid`, `name`, `type`, " +
             "`create_time` AS `createTime`, `update_time` AS `updateTime` " +
             "FROM `hydra_deploy_cluster_node` WHERE `guid` = #{guid}")
-    GenericClusterElement getJobElement(@Param("guid") GUID guid );
+    GenericClusterElement getAppElement(@Param("guid") GUID guid );
 
     @Override
     default ClusterElement getClusterElement(GUID guid, DeployInstrument instrument ) {
-        GenericClusterElement element = this.getJobElement( guid );
+        GenericClusterElement element = this.getAppElement( guid );
         element.apply( instrument );
 
         return element;

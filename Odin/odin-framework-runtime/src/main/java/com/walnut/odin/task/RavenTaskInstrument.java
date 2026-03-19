@@ -16,7 +16,7 @@ import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
-import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
@@ -231,7 +231,7 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
-    public JobElement affirmJob( String path ) {
+    public AppElement affirmJob(String path ) {
         return this.uniformTaskInstrument.affirmJob( path );
     }
 

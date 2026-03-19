@@ -11,7 +11,7 @@ public interface TaskMasterManipulator extends KOIMasterManipulator {
 
     NodeMetaManipulator getNodeMetaManipulator();
 
-    JobNodeManipulator getJobNodeManipulator();
+    AppNodeManipulator getAppNodeManipulator();
 
     TaskNodeManipulator getTaskNodeManipulator();
 

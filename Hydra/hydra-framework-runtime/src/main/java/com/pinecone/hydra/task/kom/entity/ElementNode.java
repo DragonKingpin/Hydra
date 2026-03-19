@@ -22,7 +22,7 @@ public interface ElementNode extends TaskTreeNode, TaskFamilyNode, ElementObject
         return null;
     }
 
-    default JobElement evinceJobElement() {
+    default AppElement evinceAppElement() {
         return null;
     }
 

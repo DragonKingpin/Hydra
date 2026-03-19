@@ -100,7 +100,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
             if( rootE != null ) {
                 if( rootE.evinceClusterElement() == null ) {
                     throw new IllegalArgumentException(
-                            String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                            String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                     );
                 }
 
@@ -119,7 +119,7 @@ public class DeployJSONDecoder implements DeployInstrumentDecoder {
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                             );
                         }
                     }

@@ -7,7 +7,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.task.kom.GenericNamespaceRules;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
@@ -91,7 +91,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
             }
         }
 
-        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericJobElement.class.getName())){
+        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericAppElement.class.getName())){
             this.removeNode(guid);
         }
         else {

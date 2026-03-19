@@ -2,9 +2,9 @@ package com.pinecone.hydra.task.kom.entity;
 
 import com.pinecone.hydra.task.kom.TaskFamilyNode;
 
-public interface JobElement extends FolderElement, TaskFamilyNode {
+public interface AppElement extends FolderElement, TaskFamilyNode {
     @Override
-    default JobElement evinceJobElement() {
+    default AppElement evinceAppElement() {
         return this;
     }
 

@@ -5,7 +5,7 @@ import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.task.ibatis.JobNodeMapper;
+import com.pinecone.hydra.task.ibatis.AppNodeMapper;
 import com.pinecone.hydra.task.ibatis.NamespaceRulesMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMetaMapper;
 import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
@@ -13,7 +13,7 @@ import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import com.pinecone.hydra.task.ibatis.InstanceNodeMapper;
-import com.pinecone.hydra.task.kom.source.JobNodeManipulator;
+import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
@@ -45,8 +45,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     NodeMetaManipulator nodeMetaManipulator;
 
     @Resource
-    @Structure(type = JobNodeMapper.class )
-    JobNodeManipulator jobNodeManipulator;
+    @Structure(type = AppNodeMapper.class )
+    AppNodeManipulator appNodeManipulator;
 
     @Resource
     @Structure( type = TaskNamespaceMapper.class )
@@ -91,8 +91,8 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public JobNodeManipulator getJobNodeManipulator() {
-        return this.jobNodeManipulator;
+    public AppNodeManipulator getAppNodeManipulator() {
+        return this.appNodeManipulator;
     }
 
     @Override

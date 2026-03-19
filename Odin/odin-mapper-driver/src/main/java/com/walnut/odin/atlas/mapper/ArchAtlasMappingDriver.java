@@ -49,7 +49,7 @@ public abstract class ArchAtlasMappingDriver implements AtlasMappingDriver {
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUIDTypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( UOITypeHandler.class );
 
-        ibatisClient.addXMLObjectScope( "mapper.kernel.hydranium" );
+        ibatisClient.addXMLObjectScope( "mapper.kernel.task" );
         this.mMapperCandidates = ibatisClient.addDataAccessObjectScope( szPackageName );
 
         for( Class<? > mapperClass : this.mMapperCandidates ) {

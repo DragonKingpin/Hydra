@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.task.ibatis.TaskNodeMapper">
+
+    <!-- ========================================================== -->
+    <!-- ResultMap -->
+    <!-- ========================================================== -->
+
+    <resultMap id="TaskNodeMap" type="com.pinecone.hydra.task.kom.entity.GenericTaskElement">
+
+        <id     column="id"                  property="enumId"/>
+
+        <result column="guid"                property="guid"/>
+        <result column="name"                property="name"/>
+        <result column="schedule_cron"       property="scheduleCron"/>
+        <result column="manual"              property="manual"/>
+        <result column="image_path"          property="imagePath"/>
+        <result column="type"                property="type"/>
+        <result column="resource_type"       property="resourceType"/>
+        <result column="deployment_method"   property="deploymentMethod"/>
+        <result column="priority"            property="priority"/>
+        <result column="actually_priority"   property="actuallyPriority"/>
+        <result column="dry_run"             property="dryRun"/>
+        <result column="schedule_cycle_code" property="scheduleCycleCode"/>
+        <result column="schedule_type_code"  property="scheduleTypeCode"/>
+        <result column="enable"              property="enable"/>
+        <result column="create_time"         property="createTime"/>
+        <result column="update_time"         property="updateTime"/>
+
+    </resultMap>
+
+
+    <!-- ========================================================== -->
+    <!-- Insert -->
+    <!-- ========================================================== -->
+
+    <insert id="insert" parameterType="com.pinecone.hydra.task.kom.entity.TaskElement">
+
+        INSERT INTO hydra_task_task_node
+        (
+            guid,
+            name,
+            schedule_cron,
+            manual,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle_code,
+            schedule_type_code,
+            enable,
+            create_time,
+            update_time
+        )
+        VALUES
+            (
+                #{guid},
+                #{name},
+                #{scheduleCron},
+                #{manual},
+                #{imagePath},
+                #{type},
+                #{resourceType},
+                #{deploymentMethod},
+                #{priority},
+                #{actuallyPriority},
+                #{dryRun},
+                #{scheduleCycleCode},
+                #{scheduleTypeCode},
+                #{enable},
+                #{createTime},
+                #{updateTime}
+            )
+
+    </insert>
+
+
+    <!-- ========================================================== -->
+    <!-- Delete -->
+    <!-- ========================================================== -->
+
+    <delete id="remove">
+
+        DELETE FROM hydra_task_task_node
+        WHERE guid = #{guid}
+
+    </delete>
+
+
+    <!-- ========================================================== -->
+    <!-- Select by GUID -->
+    <!-- ========================================================== -->
+
+    <select id="getTaskNode0" parameterType="com.pinecone.framework.util.id.GUID" resultMap="TaskNodeMap">
+
+        SELECT
+            id,
+            guid,
+            name,
+            schedule_cron,
+            manual,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle_code,
+            schedule_type_code,
+            enable,
+            create_time,
+            update_time
+        FROM hydra_task_task_node
+        WHERE guid = #{guid}
+
+    </select>
+
+    <!-- ========================================================== -->
+    <!-- Update -->
+    <!-- ========================================================== -->
+
+    <update id="update" parameterType="com.pinecone.hydra.task.kom.entity.TaskElement">
+
+        UPDATE hydra_task_task_node
+        SET
+            name                = #{name},
+            schedule_cron       = #{scheduleCron},
+            manual              = #{manual},
+            image_path          = #{imagePath},
+            type                = #{type},
+            resource_type       = #{resourceType},
+            deployment_method   = #{deploymentMethod},
+            priority            = #{priority},
+            actually_priority   = #{actuallyPriority},
+            dry_run             = #{dryRun},
+            schedule_cycle_code = #{scheduleCycleCode},
+            schedule_type_code  = #{scheduleTypeCode},
+            enable              = #{enable},
+            create_time         = #{createTime},
+            update_time         = #{updateTime}
+        WHERE guid = #{guid}
+
+    </update>
+
+
+    <!-- ========================================================== -->
+    <!-- Select by Name -->
+    <!-- ========================================================== -->
+
+    <select id="fetchTaskNodeByName0" resultMap="TaskNodeMap">
+
+        SELECT
+            id                   AS enumId,
+            guid,
+            name,
+            schedule_cron        AS scheduleCron,
+            manual,
+            image_path           AS imagePath,
+            type,
+            resource_type        AS resourceType,
+            deployment_method    AS deploymentMethod,
+            priority,
+            actually_priority    AS actuallyPriority,
+            dry_run              AS dryRun,
+            schedule_cycle_code  AS scheduleCycleCode,
+            schedule_type_code   AS scheduleTypeCode,
+            enable,
+            create_time          AS createTime,
+            update_time          AS updateTime
+        FROM hydra_task_task_node
+        WHERE name = #{name}
+
+    </select>
+
+
+    <!-- ========================================================== -->
+    <!-- GUID Queries -->
+    <!-- ========================================================== -->
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+
+        SELECT guid
+        FROM hydra_task_task_node
+        WHERE name = #{name}
+
+    </select>
+
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+
+        SELECT guid
+        FROM hydra_task_task_node
+        WHERE name = #{name}
+          AND guid = #{guid}
+
+    </select>
+
+</mapper>

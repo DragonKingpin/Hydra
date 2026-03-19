@@ -27,7 +27,7 @@
           `parent_guid` )
         VALUES
             ( #{childGuid},
-              'weak',
+              'owned',
               #{parentGuid} )
     </insert>
 
@@ -247,7 +247,7 @@
           `parent_guid` )
         VALUES
             ( #{childGuid},
-              'weak',
+              'owned',
               #{parentGuid} )
 
     </insert>

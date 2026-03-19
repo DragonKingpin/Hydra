@@ -170,7 +170,7 @@ class Randy extends EnderHydra {
 
 
         TaskJSONDecoder decoder = new TaskJSONDecoder( instrument );
-        decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: JobElement, type:SysJob, tasks: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
+        decoder.decode( new JSONMaptron( "{ root: { test: { job: { metaType: AppElement, type:SysJob, tasks: { task: { metaType: TaskElement, type: SparkTask } } } } } }" ) );
 
         Debug.fmp( 2, instrument.queryElement( "root" ).toJSONObject() );
 //        GUID128 guid128 = GUIDs.GUID128("019714af-e0ec-7f2a-94a3-cd740efccb6c");

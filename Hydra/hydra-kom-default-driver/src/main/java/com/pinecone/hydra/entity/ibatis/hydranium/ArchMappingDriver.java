@@ -56,6 +56,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( UOITypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( URITypeHandler.class );
 
+        ibatisClient.addXMLObjectScope( "mapper.kernel.task" );
         this.mMapperCandidates = ibatisClient.addDataAccessObjectScope( szPackageName );
 
         for( Class<? > mapperClass : this.mMapperCandidates ) {

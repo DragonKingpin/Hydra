@@ -148,4 +148,41 @@ public abstract class ArchTaskInstance implements TaskInstance {
     public InstanceEntry getInstanceEntry() {
         return this.mInstanceEntry;
     }
+
+    @Override
+    public LocalDateTime getExpectTime() {
+        return this.mInstanceEntry.getExpectTime();
+    }
+
+    @Override
+    public LocalDateTime getFireTime() {
+        return this.mInstanceEntry.getFireTime();
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return this.mInstanceEntry.getStartTime();
+    }
+
+    @Override
+    public LocalDateTime getFinishTime() {
+        return this.mInstanceEntry.getFinishTime();
+    }
+
+    @Override
+    public LocalDateTime getScheduleHostTime() {
+        return this.mInstanceEntry.getScheduleHostTime();
+    }
+
+    @Override
+    public LocalDateTime getSubmitTime() {
+        return this.mInstanceEntry.getSubmitTime();
+    }
+
+    @Override
+    public LocalDateTime getScheduleTime() {
+        return this.mInstanceEntry.getScheduleTime();
+    }
+
+
 }

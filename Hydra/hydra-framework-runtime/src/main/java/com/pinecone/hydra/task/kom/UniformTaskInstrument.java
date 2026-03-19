@@ -47,7 +47,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected TaskNamespaceManipulator    taskNamespaceManipulator;
 
-    protected AppNodeManipulator appNodeManipulator;
+    protected AppNodeManipulator          appNodeManipulator;
 
     protected TaskNodeManipulator         taskNodeManipulator;
 

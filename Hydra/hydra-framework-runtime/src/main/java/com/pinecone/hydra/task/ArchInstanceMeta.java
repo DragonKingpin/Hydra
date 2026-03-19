@@ -26,6 +26,13 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected KernelTaskScheduleType kernelScheduleType;
     protected LocalDateTime lastStartTime;
     protected LocalDateTime lastEndTime;
+    protected LocalDateTime expectTime;
+    protected LocalDateTime fireTime;
+    protected LocalDateTime startTime;
+    protected LocalDateTime finishTime;
+    protected LocalDateTime scheduleHostTime;
+    protected LocalDateTime submitTime;
+    protected LocalDateTime scheduleTime;
     protected LocalDateTime createTime;
     protected LocalDateTime updateTime;
 
@@ -73,6 +80,8 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     public TaskInstanceStatus getInstanceStatus() {
         return this.instanceStatus;
     }
+
+
 
     @Override
     public String getTaskType() {
@@ -122,6 +131,78 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public LocalDateTime getLastEndTime() {
         return this.lastEndTime;
+    }
+
+    @Override
+    public LocalDateTime getExpectTime() {
+        return this.expectTime;
+    }
+
+    @Override
+    public LocalDateTime getFireTime() {
+        return this.fireTime;
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return this.startTime;
+    }
+
+    @Override
+    public LocalDateTime getFinishTime() {
+        return this.finishTime;
+    }
+
+    @Override
+    public LocalDateTime getScheduleHostTime() {
+        return this.scheduleHostTime;
+    }
+
+    @Override
+    public LocalDateTime getSubmitTime() {
+        return this.submitTime;
+    }
+
+    @Override
+    public LocalDateTime getScheduleTime() {
+        return this.scheduleTime;
+    }
+
+    // --- 新增字段的 Setter 实现 ---
+
+    @Override
+    public void setExpectTime(LocalDateTime expectTime) {
+        this.expectTime = expectTime;
+    }
+
+    @Override
+    public void setFireTime(LocalDateTime fireTime) {
+        this.fireTime = fireTime;
+    }
+
+    @Override
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    @Override
+    public void setFinishTime(LocalDateTime finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    @Override
+    public void setScheduleHostTime(LocalDateTime scheduleHostTime) {
+        this.scheduleHostTime = scheduleHostTime;
+    }
+
+    @Override
+    public void setSubmitTime(LocalDateTime submitTime) {
+        this.submitTime = submitTime;
+    }
+
+    @Override
+    public void setScheduleTime(LocalDateTime scheduleTime) {
+        this.scheduleTime = scheduleTime;
     }
 
     @Override

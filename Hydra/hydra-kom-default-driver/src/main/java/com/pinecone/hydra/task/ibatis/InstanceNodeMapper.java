@@ -23,16 +23,19 @@ import java.util.List;
 public interface InstanceNodeMapper extends InstanceNodeManipulator {
 
     String BASE_FIELDS =
-            "guid, task_guid, name, task_name, business_time, priority, image_path, " +
-                    "actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
+            "guid, task_guid, name, task_name, business_time, " +
+                    "expect_time, fire_time, start_time, finish_time, schedule_host_time, submit_time, schedule_time,  " +
+                    "priority, image_path, actually_priority, run_status, schedule_cycle_code, schedule_type_code, " +
                     "task_type, dry_run, run_count, sequence_cnt, retry_cnt, " +
                     "latest_start_time, latest_end_time, error_cause, create_time, update_time";
 
     String BASE_COLUMNS =
-            "#{guid}, #{taskGuid}, #{instanceName}, #{taskName}, #{businessTime}, #{priority}, #{imagePath}, " +
-                    "#{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
+            "#{guid}, #{taskGuid}, #{instanceName}, #{taskName}, #{businessTime}, " +
+                    "#{expectTime}, #{fireTime}, #{startTime}, #{finishTime}, #{scheduleHostTime}, #{submitTime}, #{scheduleTime}, " +
+                    "#{priority}, #{imagePath}, #{actuallyPriority}, #{runStatus}, #{kernelScheduleCycleCode}, #{kernelScheduleTypeCode}, " +
                     "#{taskType}, #{dryRun}, #{runCount}, #{sequenceCnt}, #{retryCnt}, " +
                     "#{lastStartTime}, #{lastEndTime}, #{errorCause}, #{createTime}, #{updateTime}";
+
 
     @Override
     @Insert(
@@ -40,13 +43,19 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     )
     void insert( InstanceEntry instance );
 
-    @Override
     @Update(
             "UPDATE hydra_task_instances SET " +
                     "task_guid = #{taskGuid}, " +
                     "name = #{instanceName}, " +
-                    "task_name = #{taskName}," +
+                    "task_name = #{taskName}, " +
                     "business_time = #{businessTime}, " +
+                    "expect_time = #{expectTime}, " +
+                    "fire_time = #{fireTime}, " +
+                    "start_time = #{startTime}, " +
+                    "finish_time = #{finishTime}, " +
+                    "schedule_host_time = #{scheduleHostTime}, " +
+                    "submit_time = #{submitTime}, " +
+                    "schedule_time = #{scheduleTime}, " +
                     "priority = #{priority}, " +
                     "image_path = #{imagePath}, " +
                     "actually_priority = #{actuallyPriority}, " +
@@ -66,15 +75,20 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     )
     void update( InstanceEntry instance );
 
-    @Select(
-            "SELECT " + BASE_FIELDS + " FROM hydra_task_instances WHERE guid = #{guid}"
-    )
+
     @Results(id = "InstanceResultMap", value = {
             @Result(property = "guid", column = "guid"),
             @Result(property = "taskGuid", column = "task_guid"),
             @Result(property = "instanceName", column = "name"),
             @Result(property = "taskName", column = "task_name"),
             @Result(property = "businessTime", column = "business_time"),
+            @Result(property = "expectTime", column = "expect_time"),
+            @Result(property = "fireTime", column = "fire_time"),
+            @Result(property = "startTime", column = "start_time"),
+            @Result(property = "finishTime", column = "finish_time"),
+            @Result(property = "scheduleHostTime", column = "schedule_host_time"),
+            @Result(property = "submitTime", column = "submit_time"),
+            @Result(property = "scheduleTime", column = "schedule_time"),
             @Result(property = "priority", column = "priority"),
             @Result(property = "imagePath", column = "image_path"),
             @Result(property = "actuallyPriority", column = "actually_priority"),
@@ -93,6 +107,7 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             @Result(property = "updateTime", column = "update_time")
     })
     GenericInstanceEntry queryByGuid0( GUID guid );
+
 
     @Override
     default InstanceEntry queryByGuid( GUID guid, TaskInstrument instrument ) {

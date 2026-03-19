@@ -1,5 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import com.pinecone.framework.util.json.JSON;
@@ -25,6 +26,9 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected KernelTaskScheduleCycle  kernelScheduleCycle;
     protected KernelTaskScheduleType   kernelScheduleType;
     protected boolean                  enable;
+
+    protected LocalDateTime            scheduleStartTime;
+    protected LocalDateTime            scheduleEndTime;
 
 
     private void initSelf( Map<String, Object > joEntity ) {
@@ -208,6 +212,26 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setEnable( boolean enable ) {
         this.enable = enable;
+    }
+
+    @Override
+    public LocalDateTime getScheduleStartTime() {
+        return this.scheduleStartTime;
+    }
+
+    @Override
+    public void setScheduleStartTime(LocalDateTime scheduleStartTime) {
+            this.scheduleStartTime = scheduleStartTime;
+    }
+
+    @Override
+    public LocalDateTime getScheduleEndTime() {
+        return  this.scheduleEndTime;
+    }
+
+    @Override
+    public void setScheduleEndTime(LocalDateTime scheduleEndTime) {
+                 this.scheduleEndTime = scheduleEndTime;
     }
 
 

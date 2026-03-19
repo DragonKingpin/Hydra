@@ -70,4 +70,24 @@ public interface TaskInstance extends Pinenut {
 
     InstanceEntry getInstanceEntry();
 
+    LocalDateTime getExpectTime();
+
+
+    LocalDateTime getFireTime();
+
+
+    LocalDateTime getStartTime();
+
+
+    LocalDateTime getFinishTime();
+
+
+    LocalDateTime getScheduleHostTime();
+
+
+    LocalDateTime getSubmitTime();
+
+
+    LocalDateTime getScheduleTime();
+
 }

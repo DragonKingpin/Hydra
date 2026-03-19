@@ -189,6 +189,26 @@ public class GenericRavenTaskElement implements RavenTaskElement {
     }
 
     @Override
+    public LocalDateTime getScheduleStartTime() {
+        return this.taskElement.getScheduleStartTime();
+    }
+
+    @Override
+    public void setScheduleStartTime(LocalDateTime scheduleStartTime) {
+        this.taskElement.setScheduleStartTime( scheduleStartTime );
+    }
+
+    @Override
+    public LocalDateTime getScheduleEndTime() {
+        return  this.taskElement.getScheduleEndTime();
+    }
+
+    @Override
+    public void setScheduleEndTime(LocalDateTime scheduleEndTime) {
+      this.taskElement.setScheduleEndTime( scheduleEndTime );
+    }
+
+    @Override
     public GUIDImperialTrieNode getDistributedTreeNode() {
         return this.taskElement.getDistributedTreeNode();
     }

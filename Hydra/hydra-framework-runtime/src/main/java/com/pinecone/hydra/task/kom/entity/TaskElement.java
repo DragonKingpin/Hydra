@@ -4,6 +4,8 @@ import com.pinecone.hydra.task.TaskExtraMeta;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleCycle;
 import com.pinecone.hydra.task.marshal.KernelTaskScheduleType;
 
+import java.time.LocalDateTime;
+
 public interface TaskElement extends ElementNode {
 
     @Override
@@ -55,7 +57,11 @@ public interface TaskElement extends ElementNode {
     boolean isEnable() ;
     void setEnable( boolean enable ) ;
 
+    LocalDateTime getScheduleStartTime();
+    void setScheduleStartTime( LocalDateTime scheduleStartTime );
 
+    LocalDateTime getScheduleEndTime();
+    void setScheduleEndTime( LocalDateTime scheduleEndTime );
 
     TaskExtraMeta getExtraMeta();
 

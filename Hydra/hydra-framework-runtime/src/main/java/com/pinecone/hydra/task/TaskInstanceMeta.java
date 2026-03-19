@@ -49,4 +49,33 @@ public interface TaskInstanceMeta extends Pinenut {
     LocalDateTime getCreateTime ();
 
     LocalDateTime getUpdateTime ();
+
+
+    LocalDateTime getExpectTime();
+
+    LocalDateTime getFireTime();
+
+    LocalDateTime getStartTime();
+
+    LocalDateTime getFinishTime();
+
+    LocalDateTime getScheduleHostTime();
+
+    LocalDateTime getSubmitTime();
+
+    LocalDateTime getScheduleTime();
+
+    void setExpectTime(LocalDateTime expectTime);
+
+    void setFireTime(LocalDateTime fireTime);
+
+    void setStartTime(LocalDateTime startTime);
+
+    void setFinishTime(LocalDateTime finishTime);
+
+    void setScheduleHostTime(LocalDateTime scheduleHostTime);
+
+    void setSubmitTime(LocalDateTime submitTime);
+
+    void setScheduleTime(LocalDateTime scheduleTime);
 }

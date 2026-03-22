@@ -11,7 +11,7 @@ import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 
 
 @Component
-public class OdinAtlasMasterManipulatorImpl implements RuntimeMasterManipulator {
+public class OdinAtlasMasterManipulatorImpl implements RunAtlasMasterManipulator {
     @Resource
     @Structure( type = OdinAtlasMasterGraphManipulatorImpl.class )
     VectorGraphMasterManipulator mVectorGraphMasterManipulator;

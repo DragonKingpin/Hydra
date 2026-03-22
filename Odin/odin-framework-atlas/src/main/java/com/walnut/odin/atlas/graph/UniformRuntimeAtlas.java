@@ -25,7 +25,7 @@ import com.walnut.odin.atlas.advance.GenericGraphStratumTape;
 import com.walnut.odin.atlas.advance.GraphStratumTape;
 import com.walnut.odin.atlas.graph.entity.TaskGraphNode;
 import com.walnut.odin.atlas.mapper.QueueStratumManipulator;
-import com.walnut.odin.atlas.mapper.RuntimeMasterManipulator;
+import com.walnut.odin.atlas.mapper.RunAtlasMasterManipulator;
 import com.walnut.odin.atlas.mapper.TaskGraphManipulator;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     private TaskInstrument                       mTaskInstrument;
 
-    private RuntimeMasterManipulator             mRuntimeMasterManipulator;
+    private RunAtlasMasterManipulator mRuntimeMasterManipulator;
 
     private VectorGraphMasterManipulator         mVectorGraphMasterManipulator;
 
@@ -44,7 +44,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     protected void init( TaskInstrument taskInstrument ) {
         this.mTaskInstrument                   = taskInstrument;
-        this.mRuntimeMasterManipulator         = (RuntimeMasterManipulator) this.mAtlasMasterManipulator;
+        this.mRuntimeMasterManipulator         = (RunAtlasMasterManipulator) this.mAtlasMasterManipulator;
         this.mQueueStratumManipulator          = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
         this.mVectorGraphMasterManipulator     = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
         this.mTaskGraphManipulator             = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();

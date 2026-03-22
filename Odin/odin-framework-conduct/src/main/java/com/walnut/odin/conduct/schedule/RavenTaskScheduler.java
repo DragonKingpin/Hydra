@@ -14,6 +14,7 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.pinecone.slime.meta.TableIndex64Meta;
+import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
@@ -31,19 +32,24 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private int                        mnScanThreadCount;
     private long                       mnScanIdWindow;
 
+    private RuntimeAtlasInstrument     mRuntimeAtlasInstrument;
+
     private CentralizedTaskInstrument  mCentralizedTaskInstrument;
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
 
     private ExecutorService            mExecutorService;
 
-    public RavenTaskScheduler( CentralizedTaskInstrument instrument ) {
-        this.mCentralizedTaskInstrument  = instrument;
-        this.mRavenTaskMasterManipulator = instrument.getRavenTaskMasterManipulator();
+    public RavenTaskScheduler( CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument ) {
+        this.mCentralizedTaskInstrument  = taskInstrument;
+        this.mRavenTaskMasterManipulator = taskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
-        RavenTaskConfig config           = (RavenTaskConfig) instrument.getConfig();
+
+        this.mRuntimeAtlasInstrument     = atlasInstrument;
+
+        RavenTaskConfig config           = (RavenTaskConfig) taskInstrument.getConfig();
         this.mnScanThreadCount           = config.getScheduleScanThreadCount();
-        this.mnScanIdWindow              = 2;
+        this.mnScanIdWindow              = config.getScheduleScanIdWindow();
 
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
     }
@@ -98,9 +104,9 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
     }
 
-    protected void prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
+    protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
         if ( elements == null || elements.isEmpty() ) {
-            return;
+            return elements;
         }
 
         for ( TaskElement element : elements ) {
@@ -108,6 +114,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
 
         Debug.traceSyn( elements );
+        return elements;
     }
 
     public void prepareSchedulableInstances( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime ) {
@@ -142,11 +149,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             this.mExecutorService.submit( () -> {
                 log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}) <Start>", finalStart, finalEnd );
 
-                List<TaskElement> elements = this.mTaskNodeManipulator.fetchSchedulableTasksInRange(
+                Collection<TaskElement> elements = this.mTaskNodeManipulator.fetchSchedulableTasksInRange(
                                 finalStart, finalEnd, cycles, finalTargetTime
                 );
 
-                this.prepareScheduleTasks( elements, finalTargetTime );
+                elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
                 log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, elements.size() );
             } );
@@ -154,7 +161,6 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             cursor = windowEnd + 1;
         }
     }
-
 
     public void fetch() {
         this.prepareSchedulableInstances( DailyTaskScheduleCycles, LocalDateTime.now() );

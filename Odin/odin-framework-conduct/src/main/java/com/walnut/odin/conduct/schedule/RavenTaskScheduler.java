@@ -16,8 +16,12 @@ import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.pinecone.slime.meta.TableIndex64Meta;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.task.CentralizedTaskInstrument;
+import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
+import com.walnut.odin.task.troll.LaunchFeature;
+import com.walnut.odin.task.troll.TaskExecutionElevator;
 
 public class RavenTaskScheduler implements UniformTaskScheduler {
 
@@ -34,18 +38,22 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
     private RuntimeAtlasInstrument     mRuntimeAtlasInstrument;
 
+    private TaskExecutionElevator      mTaskExecutionElevator;
     private CentralizedTaskInstrument  mCentralizedTaskInstrument;
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
 
     private ExecutorService            mExecutorService;
 
-    public RavenTaskScheduler( CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument ) {
+    public RavenTaskScheduler(
+            CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument, TaskExecutionElevator elevator
+    ) {
         this.mCentralizedTaskInstrument  = taskInstrument;
         this.mRavenTaskMasterManipulator = taskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
 
         this.mRuntimeAtlasInstrument     = atlasInstrument;
+        this.mTaskExecutionElevator      = elevator;
 
         RavenTaskConfig config           = (RavenTaskConfig) taskInstrument.getConfig();
         this.mnScanThreadCount           = config.getScheduleScanThreadCount();
@@ -104,6 +112,19 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
     }
 
+    protected void prepareTaskInstances( Collection<TaskElement> elements, LocalDateTime targetTime ) {
+        for ( TaskElement element : elements ) {
+            RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );
+            RavenTaskInstance instance = task.createInstance();
+
+            LaunchFeature feature = new LaunchFeature(); //TODO
+            this.mTaskExecutionElevator.initializeInstance( instance, feature );
+
+
+            // 你顺着写
+        }
+    }
+
     protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
         if ( elements == null || elements.isEmpty() ) {
             return elements;
@@ -113,6 +134,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             this.prepareTaskScheduleTimeOffset( element, targetTime );
         }
 
+        this.prepareTaskInstances( elements, targetTime );
         Debug.traceSyn( elements );
         return elements;
     }

@@ -23,6 +23,8 @@ public interface TaskExecutionElevator extends Manager {
 
     String evalInstanceName( RavenTaskInstance instance, LocalDateTime bizTimeEpoch ) ;
 
+    void initializeInstance( RavenTaskInstance instance, LaunchFeature feature );
+
 
 
     UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;

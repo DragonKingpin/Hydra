@@ -7,6 +7,7 @@ import com.pinecone.framework.system.executum.Processum;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -34,6 +35,7 @@ import com.walnut.odin.task.service.RavenCategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.TaskExMetaManipulator;
 import com.walnut.odin.task.system.TaskPathInvalidException;
+import com.walnut.odin.task.troll.GenericRavenTask;
 
 public class RavenTaskInstrument implements CentralizedTaskInstrument {
     protected RavenTaskMasterManipulator ravenTaskMasterManipulator;
@@ -413,6 +415,35 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public void applySuperiorPathScope( String superiorPathScope ) {
         this.uniformTaskInstrument.applySuperiorPathScope( superiorPathScope );
+    }
+
+
+
+
+
+
+    @Override
+    public RavenTask constructTask( TaskElement taskElement ) {
+        return this.constructTask( taskElement, null );
+    }
+
+    @Override
+    public RavenTask constructTask( TaskElement taskElement, Identification serviceId ) {
+        if ( serviceId == null ) {
+            //serviceId = taskElement.
+        }
+        RavenTask task = new GenericRavenTask( this, serviceId, taskElement );
+
+        return task;
+    }
+
+    @Override
+    public RavenTask createTask( TaskElement taskElement, Identification serviceId ) {
+        this.put( taskElement );
+        RavenTask task = this.constructTask( taskElement, serviceId );
+
+
+        return task;
     }
 
 

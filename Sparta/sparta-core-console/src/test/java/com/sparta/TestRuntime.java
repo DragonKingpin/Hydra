@@ -4,6 +4,8 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.odin.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.walnut.odin.atlas.advance.strategy.AtlasPriorityProcessStrategy;
 import com.walnut.odin.atlas.advance.strategy.MegaInDegreeFirstStrategy;
@@ -31,6 +33,8 @@ import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
+import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.task.CentralizedTaskInstrument;
@@ -68,6 +72,10 @@ class Rick extends EnderHydra {
         CentralizedTaskInstrument uniformTaskInstrument = new RavenTaskInstrument( driver, new GenericRavenTaskConfig() );
 
         UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument, layerInstrument);
+
+
+
+
         //this.testInsert(uniformRuntimeAtlas);
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
@@ -134,7 +142,11 @@ class Rick extends EnderHydra {
 
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
 
-        RavenTaskScheduler scheduler = new RavenTaskScheduler( ( CentralizedTaskInstrument ) taskInstrument, uniformRuntimeAtlas );
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
+                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
+        CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) taskInstrument, wolfKing );
+
+        RavenTaskScheduler scheduler = new RavenTaskScheduler( ( CentralizedTaskInstrument ) taskInstrument, uniformRuntimeAtlas, regiment.taskExecutionElevator() );
         scheduler.fetch();
     }
 

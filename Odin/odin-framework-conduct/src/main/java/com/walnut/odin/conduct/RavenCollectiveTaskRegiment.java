@@ -159,28 +159,12 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         }
         TaskElement taskElement = (TaskElement) treeNode;
 
-        return this.constructTask( taskElement );
-    }
-
-    public RavenTask constructTask( TaskElement taskElement ) {
-        return this.constructTask( taskElement, null );
-    }
-
-    public RavenTask constructTask( TaskElement taskElement, Identification serviceId ) {
-        if ( serviceId == null ) {
-            //serviceId = taskElement.
-        }
-        RavenTask task = new GenericRavenTask( this.mTaskInstrument, serviceId, taskElement );
-
-        return task;
+        return this.mTaskInstrument.constructTask( taskElement );
     }
 
     @Override
     public RavenTask createTask( TaskElement taskElement, Identification serviceId ) {
-        this.mTaskInstrument.put( taskElement );
-        RavenTask task = this.constructTask( taskElement, serviceId );
-
-
+        RavenTask task = this.mTaskInstrument.createTask( taskElement, serviceId );
         return task;
     }
 
@@ -211,7 +195,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         this.updateTaskMeta( taskElement );
         String newPath = this.mTaskInstrument.getPath( taskElement.getGuid() );
         Debug.trace(newPath);
-        return this.constructTask( taskElement, serviceId );
+        return this.mTaskInstrument.constructTask( taskElement, serviceId );
     }
 
     @Override

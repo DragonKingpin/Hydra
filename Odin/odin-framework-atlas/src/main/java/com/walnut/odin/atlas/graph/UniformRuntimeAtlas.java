@@ -34,7 +34,7 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     private TaskInstrument                       mTaskInstrument;
 
-    private RunAtlasMasterManipulator mRuntimeMasterManipulator;
+    private RunAtlasMasterManipulator            mRuntimeMasterManipulator;
 
     private VectorGraphMasterManipulator         mVectorGraphMasterManipulator;
 

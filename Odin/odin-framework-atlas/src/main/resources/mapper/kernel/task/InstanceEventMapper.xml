@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceEventMapper">
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceEvent">
+        INSERT INTO odin_task_instance_event (
+            guid,
+            task_guid,
+            instance_guid,
+            instance_name,
+            retry_times,
+            current_retry_number,
+            event_type,
+            state,
+            event_context,
+            exec_time
+        ) VALUES (
+                     #{guid},
+                     #{taskGuid},
+                     #{instanceGuid},
+                     #{instanceName},
+                     #{retryTimes},
+                     #{currentRetryNumber},
+                     #{eventType},
+                     #{state},
+                     #{eventContext},
+                     #{execTime}
+                 )
+    </insert>
+
+</mapper>

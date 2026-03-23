@@ -1,11 +1,26 @@
 package com.walnut.odin.conduct.schedule;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.InstanceEventType;
+import com.pinecone.hydra.task.TaskInstanceExecState;
+import com.pinecone.hydra.task.TaskInstanceStatus;
+import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.walnut.odin.conduct.entity.GenericInstanceAtlasAdjacent;
+import com.walnut.odin.conduct.entity.GenericInstanceAtlasNode;
+import com.walnut.odin.conduct.entity.GenericInstanceEvent;
+import com.walnut.odin.conduct.entity.GenericInstanceExec;
+import com.walnut.odin.conduct.entity.InstanceAtlasAdjacent;
+import com.walnut.odin.conduct.entity.InstanceAtlasNode;
+import com.walnut.odin.conduct.entity.InstanceEvent;
+import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.task.mapper.InstanceEventMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +58,13 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
 
+    private InstanceManipulator        mInstanceManipulator;
+
     private ExecutorService            mExecutorService;
+
+
+
+
 
     public RavenTaskScheduler(
             CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument, TaskExecutionElevator elevator
@@ -112,18 +133,100 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
     }
 
-    protected void prepareTaskInstances( Collection<TaskElement> elements, LocalDateTime targetTime ) {
+/*    protected void prepareTaskInstances1( Collection<TaskElement> elements, LocalDateTime targetTime ) {
         for ( TaskElement element : elements ) {
             RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );
             RavenTaskInstance instance = task.createInstance();
+            GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
+            if ( graphNode != null ) {
+                List<GUID> parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
 
+                if ( parentIds != null && !parentIds.isEmpty() ) {
+                    for( GUID parentId : parentIds){
+
+
+
+
+                    }
+
+                    String bizTimeLab = this.mTaskExecutionElevator.evalBusinessTimeLabel( instance, targetTime );
+
+
+                }
+            }
             LaunchFeature feature = new LaunchFeature(); //TODO
             this.mTaskExecutionElevator.initializeInstance( instance, feature );
 
 
             // 你顺着写
+
+        }
+    }*/
+
+    protected void prepareTaskInstances( Collection<TaskElement> elements, LocalDateTime targetTime ) {
+        for ( TaskElement element : elements ) {
+            RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );
+            RavenTaskInstance instance = task.createInstance();
+
+            LaunchFeature feature = new LaunchFeature();
+            this.mTaskExecutionElevator.initializeInstance( instance, feature );
+            GUID instanceGuid = instance.getInstanceEntry().getGuid();
+
+            GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
+            List<GUID> parentIds = new ArrayList<>();
+
+            InstanceAtlasNode instanceNode = new GenericInstanceAtlasNode();
+
+            instanceNode.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
+            instanceNode.setInstanceGuid( instanceGuid );
+            instanceNode.setNodeName( instance.getOwnedTask().getName() );
+
+            if ( graphNode != null ) {
+                parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
+                instanceNode.setIsIsolated( parentIds == null || parentIds.isEmpty() );
+            } else {
+                instanceNode.setIsIsolated( true );
+            }
+
+            this.mInstanceManipulator.getInstanceAtlasNodeMapper().insert( instanceNode );
+
+
+            if ( parentIds != null && !parentIds.isEmpty() ) {
+                for ( GUID parentId : parentIds ) {
+                    InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
+                    adjacent.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
+                    adjacent.setParentGuid( parentId );
+                    this.mInstanceManipulator.getInstanceAtlasAdjacentMapper().insert( adjacent );
+                }
+            }
+
+            InstanceExec exec = new GenericInstanceExec();
+            exec.setTaskGuid( element.getGuid() );
+            exec.setInstanceGuid( instanceGuid );
+            exec.setTaskName( instance.getOwnedTask().getName() );
+            exec.setInstanceName( instance.getInstanceEntry().getInstanceName() );
+            exec.setProcessorQueue( "default" );
+            exec.setClusterName( "local_cluster" );
+            exec.setExecState( TaskInstanceExecState.Submitted.getName() );
+            exec.setCurrentRetryNumber( 0 );
+            exec.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
+            this.mInstanceManipulator.getInstanceExecMapper().insert( exec );
+
+            InstanceEvent event = new GenericInstanceEvent();
+            event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
+            event.setTaskGuid( element.getGuid() );
+            event.setInstanceGuid( instanceGuid );
+            event.setInstanceName( instance.getInstanceEntry().getInstanceName() );
+            event.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
+            event.setCurrentRetryNumber( 0 );
+            event.setEventType( instance.getTaskType() );
+            event.setState( InstanceEventType.TaskTimeReady.getName() );
+            event.setExecTime( LocalDateTime.now() );
+            event.setEventContext( "{}" );
+            this.mInstanceManipulator.getInstanceEventMapper().insert( event );
         }
     }
+
 
     protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
         if ( elements == null || elements.isEmpty() ) {
@@ -131,7 +234,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
 
         for ( TaskElement element : elements ) {
-            this.prepareTaskScheduleTimeOffset( element, targetTime );
+            //this.prepareTaskScheduleTimeOffset( element, targetTime );
         }
 
         this.prepareTaskInstances( elements, targetTime );

@@ -47,6 +47,8 @@ public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
     VectorDAG queryByPath( String path );
 
 
+    List<GUID> fetchParentIds( GUID graphNodeGuid );
+
 
     @Unsafe( "TestOnly" )
     List<GraphNode> fetchIsolatedNodesAll();

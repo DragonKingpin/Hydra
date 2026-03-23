@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task;
 
-public enum InstanceEvent {
+public enum InstanceEventType {
 
     TaskSubmit             ( "TaskSubmit"           ),
     TaskTimeReady          ( "TaskTimeReady"        ),
@@ -17,7 +17,7 @@ public enum InstanceEvent {
 
     private final String name;
 
-    InstanceEvent( String name ) {
+    InstanceEventType(String name ) {
         this.name = name;
     }
 
@@ -25,9 +25,9 @@ public enum InstanceEvent {
         return this.name;
     }
 
-    public static InstanceEvent valueOfName( String name ) {
+    public static InstanceEventType valueOfName(String name ) {
         try {
-            return InstanceEvent.valueOf(name);
+            return InstanceEventType.valueOf(name);
         }
         catch (IllegalArgumentException e) {
             return null;

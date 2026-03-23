@@ -160,6 +160,11 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     }
 
     @Override
+    public List<GUID> fetchParentIds(GUID graphNodeGuid) {
+        return  this.mTaskGraphManipulator.fetchParentIds( graphNodeGuid );
+    }
+
+    @Override
     public void addChild( GUID parentGuid, GUID childGuid ) {
         this.mVectorGraphManipulator.addChild( parentGuid,childGuid );
     }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceExecMapper">
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO odin_task_instance_exec (
+            task_guid,
+            instance_guid,
+            task_name,
+            instance_name,
+            processor_queue,
+            cluster_name,
+            exec_state,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        ) VALUES (
+                     #{taskGuid},
+                     #{instanceGuid},
+                     #{taskName},
+                     #{instanceName},
+                     #{processorQueue},
+                     #{clusterName},
+                     #{execState},
+                     #{currentRetryNumber},
+                     #{retryTimes},
+                     #{startTime},
+                     #{runTime},
+                     #{finishTime}
+                 )
+    </insert>
+
+</mapper>

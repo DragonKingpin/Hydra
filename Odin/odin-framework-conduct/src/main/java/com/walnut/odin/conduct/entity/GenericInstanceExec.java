@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 public class GenericInstanceExec implements InstanceExec {
+    protected long          id;
     protected GUID          taskGuid;
     protected GUID          instanceGuid;
     protected String        taskName;
@@ -26,6 +27,16 @@ public class GenericInstanceExec implements InstanceExec {
 
     public GenericInstanceExec(Map<String, Object> joEntity) {
         BeanMapDecoder.BasicDecoder.decode(this, joEntity);
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
+    }
+
+    @Override
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override

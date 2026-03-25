@@ -26,14 +26,12 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.walnut.odin.task.entity.GenericRavenTaskElement;
-import com.walnut.odin.task.entity.GenericRavenTaskMeta;
-import com.walnut.odin.task.entity.RavenTaskElement;
-import com.walnut.odin.task.entity.RavenTaskMeta;
+
+
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.service.RavenCategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
-import com.walnut.odin.task.source.TaskExMetaManipulator;
+
 import com.walnut.odin.task.system.TaskPathInvalidException;
 import com.walnut.odin.task.troll.GenericRavenTask;
 
@@ -44,13 +42,12 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     protected CategoryService            categoryService;
 
-    protected TaskExMetaManipulator      taskExMetaManipulator;
 
 
 
     protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
         this.uniformTaskInstrument      = new UniformTaskInstrument( superiorProcess, driver.getMasterManipulator(), parent, name, config, guidAllocator ) {
-            @Override
+        /*    @Override
             public RavenTaskElement affirmTask( String path ,TaskElement metaInfos ) {
                 TaskElement taskElement           = super.affirmTask( path , metaInfos);
                 if ( taskElement == null ) {
@@ -86,7 +83,7 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
             public TreeNode getAsRootDepth( GUID guid ) {
                 TreeNode treeNode =  super.getAsRootDepth( guid );
                 return RavenTaskInstrument.this.transformTreeNode( (TaskTreeNode) treeNode, false );
-            }
+            }*/
         };
     }
 
@@ -96,7 +93,7 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, config, guidAllocator );
 
         this.categoryService            = new RavenCategoryService( this );
-        this.taskExMetaManipulator      = this.ravenTaskMasterManipulator.getTaskExMetaManipulator();
+
     }
 
     public RavenTaskInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, KernelObjectConfig config ) {
@@ -203,35 +200,6 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
 
 
-
-
-
-
-    protected RavenTaskElement transformTaskElement ( TaskElement that, boolean isAffirmed ) {
-        RavenTaskMeta ravenTaskMeta       = this.taskExMetaManipulator.getTaskExMeta( that.getGuid(), null );
-        RavenTaskElement ravenTaskElement = new GenericRavenTaskElement( that, ravenTaskMeta );
-        if ( ravenTaskMeta != null ) {
-            ravenTaskMeta.setKernelMeta( ravenTaskElement );
-        }
-        else {
-            if ( isAffirmed ) {
-                ravenTaskMeta = new GenericRavenTaskMeta();
-                ravenTaskMeta.setGuid( that.getGuid() );
-                this.taskExMetaManipulator.insert( ravenTaskMeta );
-            }
-        }
-
-        return ravenTaskElement;
-    }
-
-    protected TaskTreeNode transformTreeNode( TaskTreeNode that, boolean isAffirmed ) {
-        if ( that instanceof TaskElement ) {
-            return this.transformTaskElement( (TaskElement) that, isAffirmed );
-        }
-
-        return that;
-    }
-
     @Override
     public AppElement affirmJob(String path ) {
         return this.uniformTaskInstrument.affirmJob( path );
@@ -243,8 +211,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
-    public RavenTaskElement affirmTask( String path ,TaskElement metaInfos) {
-        return (RavenTaskElement) this.uniformTaskInstrument.affirmTask( path ,metaInfos);
+    public TaskElement affirmTask( String path ,TaskElement metaInfos) {
+        return (TaskElement) this.uniformTaskInstrument.affirmTask( path ,metaInfos);
     }
 
     @Override

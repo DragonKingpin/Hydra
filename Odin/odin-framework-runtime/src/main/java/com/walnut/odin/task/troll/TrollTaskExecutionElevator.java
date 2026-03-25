@@ -159,9 +159,9 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
     public void initializeInstance( RavenTaskInstance instance, LaunchFeature feature ) {
         LocalDateTime now = LocalDateTime.now();
         this.getLogger().info(
-                "[TaskLaunchSequence] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, Time: `{}`) <Start>",
+                "[TaskLaunchSequence] (TaskName: `{}`, KernelHandleName: `/`, TaskGuid: `{}`, Time: `{}`) <Start>",
                 instance.getOwnedTask().getName(),
-                instance.getOwnedTask().getFullName(),
+
                 instance.getOwnedTask().getId(),
                 now.format( this.mDefaultDateTimeFormat )
         );

@@ -6,6 +6,9 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface InstanceExec extends Pinenut {
+    long getId();
+    void setId(long id);
+
     GUID getTaskGuid();
     void setTaskGuid(GUID taskGuid);
 

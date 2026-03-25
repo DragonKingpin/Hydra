@@ -10,7 +10,8 @@ import java.util.concurrent.Executors;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
-import com.pinecone.hydra.task.TaskInstanceStatus;
+import com.pinecone.hydra.task.kom.UniformTaskInstrument;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.walnut.odin.conduct.entity.GenericInstanceAtlasAdjacent;
 import com.walnut.odin.conduct.entity.GenericInstanceAtlasNode;
@@ -20,7 +21,7 @@ import com.walnut.odin.conduct.entity.InstanceAtlasAdjacent;
 import com.walnut.odin.conduct.entity.InstanceAtlasNode;
 import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
-import com.walnut.odin.task.mapper.InstanceEventMapper;
+import com.walnut.odin.task.source.ScheduleManipulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +59,14 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
 
-    private InstanceManipulator        mInstanceManipulator;
+    private ScheduleManipulator        mScheduleManipulator;
 
     private ExecutorService            mExecutorService;
 
 
+    private UniformTaskInstrument      mUniformTaskInstrument;
 
+    private InstanceInstrument         mInstanceInstrument;
 
 
     public RavenTaskScheduler(
@@ -72,9 +75,12 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mCentralizedTaskInstrument  = taskInstrument;
         this.mRavenTaskMasterManipulator = taskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
-
+        this.mUniformTaskInstrument      = taskInstrument.getUniformTaskInstrument();
+        this.mInstanceInstrument         = this.mUniformTaskInstrument.getInstanceInstrument();
         this.mRuntimeAtlasInstrument     = atlasInstrument;
         this.mTaskExecutionElevator      = elevator;
+        this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
+
 
         RavenTaskConfig config           = (RavenTaskConfig) taskInstrument.getConfig();
         this.mnScanThreadCount           = config.getScheduleScanThreadCount();
@@ -82,6 +88,9 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
     }
+
+
+
 
 
     @Override
@@ -188,7 +197,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
                 instanceNode.setIsIsolated( true );
             }
 
-            this.mInstanceManipulator.getInstanceAtlasNodeMapper().insert( instanceNode );
+          //  this.mInstanceInstrument.getInstanceAtlasInstrument().insertInstanceAtlasNode( instanceNode );
 
 
             if ( parentIds != null && !parentIds.isEmpty() ) {
@@ -196,7 +205,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
                     InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
                     adjacent.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
                     adjacent.setParentGuid( parentId );
-                    this.mInstanceManipulator.getInstanceAtlasAdjacentMapper().insert( adjacent );
+                    this.mScheduleManipulator.getInstanceAtlasAdjacentMapper().insert( adjacent );
                 }
             }
 
@@ -210,7 +219,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             exec.setExecState( TaskInstanceExecState.Submitted.getName() );
             exec.setCurrentRetryNumber( 0 );
             exec.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
-            this.mInstanceManipulator.getInstanceExecMapper().insert( exec );
+            this.mScheduleManipulator.getInstanceExecMapper().insert( exec );
 
             InstanceEvent event = new GenericInstanceEvent();
             event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
@@ -223,7 +232,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             event.setState( InstanceEventType.TaskTimeReady.getName() );
             event.setExecTime( LocalDateTime.now() );
             event.setEventContext( "{}" );
-            this.mInstanceManipulator.getInstanceEventMapper().insert( event );
+            this.mScheduleManipulator.getInstanceEventMapper().insert( event );
         }
     }
 
@@ -234,7 +243,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
 
         for ( TaskElement element : elements ) {
-            //this.prepareTaskScheduleTimeOffset( element, targetTime );
+            this.prepareTaskScheduleTimeOffset( element, targetTime );
         }
 
         this.prepareTaskInstances( elements, targetTime );
@@ -272,15 +281,20 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
             LocalDateTime finalTargetTime = targetTime;
             this.mExecutorService.submit( () -> {
-                log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}) <Start>", finalStart, finalEnd );
+                try {
+                    log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}) <Start>", finalStart, finalEnd );
 
-                Collection<TaskElement> elements = this.mTaskNodeManipulator.fetchSchedulableTasksInRange(
-                                finalStart, finalEnd, cycles, finalTargetTime
-                );
+                    Collection<TaskElement> elements = this.mTaskNodeManipulator.fetchSchedulableTasksInRange(
+                            finalStart, finalEnd, cycles, finalTargetTime
+                    );
 
-                elements = this.prepareScheduleTasks( elements, finalTargetTime );
+                    elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
-                log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, elements.size() );
+                    log.info( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, elements.size() );
+                }
+                catch ( Exception e ) {
+                    log.error( "[TaskSchedulerLifecycle] Preparing schedulable instances (Start: {}, End: {}) <Error>", finalStart, finalEnd, e );
+                }
             } );
 
             cursor = windowEnd + 1;

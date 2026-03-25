@@ -6,11 +6,11 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
+import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.source.CategoryMappingManipulator;
 import com.walnut.odin.task.source.CategoryTypeManipulator;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.TaskCategoryManipulator;
-import com.walnut.odin.task.source.TaskExMetaManipulator;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
 
 import org.springframework.stereotype.Component;
@@ -40,18 +40,18 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     protected CategoryMappingManipulator categoryMappingManipulator;
 
     @Resource
-    @Structure( type = TaskExMetaMapper.class )
-    protected TaskExMetaManipulator taskExMetaManipulator;
-
-    @Resource
     @Structure( type = TaskProcessorMapper.class )
     protected TaskProcessorManipulator taskProcessorManipulator;
+
+    protected ScheduleManipulator      scheduleManipulator;
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {
         driver.autoConstruct( RavenTaskMasterManipulatorImpl.class, Map.of(), this );
         this.taskMappingDriver         = taskMappingDriver;
         this.taskMasterManipulator     = (TaskMasterManipulator)taskMappingDriver.getMasterManipulator();
         this.skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
+
+        this.scheduleManipulator       = new ScheduleManipulatorImpl( driver );
     }
 
     @Override
@@ -85,13 +85,12 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     }
 
     @Override
-    public TaskExMetaManipulator getTaskExMetaManipulator() {
-        return this.taskExMetaManipulator;
-    }
-
-    @Override
     public TaskProcessorManipulator getTaskProcessorManipulator() {
         return this.taskProcessorManipulator;
     }
 
+    @Override
+    public ScheduleManipulator getScheduleManipulator() {
+        return this.scheduleManipulator;
+    }
 }

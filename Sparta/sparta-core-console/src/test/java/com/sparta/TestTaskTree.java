@@ -42,7 +42,6 @@ import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
-import com.walnut.odin.task.entity.GenericRavenTaskElement;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.troll.LaunchFeature;
@@ -95,7 +94,7 @@ class Randy extends EnderHydra {
       RavenTaskInstance instance = task.createInstance();
       Debug.trace(instance);
       Debug.trace(instrument.queryElement("spartaTest00058"));*/
-        TaskElement  taskElement = (GenericRavenTaskElement) instrument.queryElement("spartaTest00058");
+        TaskElement  taskElement = (TaskElement) instrument.queryElement("spartaTest00058");
         Debug.trace(taskElement);
         taskElement.setName("spartaTest00059855");
         Debug.trace(taskElement);

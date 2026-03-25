@@ -142,36 +142,6 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
     }
 
-/*    protected void prepareTaskInstances1( Collection<TaskElement> elements, LocalDateTime targetTime ) {
-        for ( TaskElement element : elements ) {
-            RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );
-            RavenTaskInstance instance = task.createInstance();
-            GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
-            if ( graphNode != null ) {
-                List<GUID> parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
-
-                if ( parentIds != null && !parentIds.isEmpty() ) {
-                    for( GUID parentId : parentIds){
-
-
-
-
-                    }
-
-                    String bizTimeLab = this.mTaskExecutionElevator.evalBusinessTimeLabel( instance, targetTime );
-
-
-                }
-            }
-            LaunchFeature feature = new LaunchFeature(); //TODO
-            this.mTaskExecutionElevator.initializeInstance( instance, feature );
-
-
-            // 你顺着写
-
-        }
-    }*/
-
     protected void prepareTaskInstances( Collection<TaskElement> elements, LocalDateTime targetTime ) {
         for ( TaskElement element : elements ) {
             RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );

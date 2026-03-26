@@ -6,15 +6,10 @@ import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -81,5 +76,19 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         }
         entry.apply( instrument );
         return entry;
+    }
+
+    List<GenericInstanceEntry> fetchExecutableInstances0(
+            @Param("runStatus") String runStatus,
+            @Param("targetTime") LocalDateTime targetTime,
+            @Param("limit") int limit
+    );
+
+    @Override
+    default List<InstanceEntry> fetchExecutableInstances(TaskInstrument instrument, @Param("runStatus") String runStatus,
+                                                         @Param("targetTime") LocalDateTime targetTime,
+                                                         @Param("limit") int limit ) {
+        List<GenericInstanceEntry> list = this.fetchExecutableInstances0( runStatus, targetTime, limit );
+        return (List)list;
     }
 }

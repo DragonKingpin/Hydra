@@ -46,5 +46,5 @@ public interface InstanceInstrument extends Instrument {
 
     InstanceEntry findLastExecuted( GUID taskGuid, String bizTime );
 
-
+    List<InstanceEntry> fetchExecutableInstances(String runStatus, LocalDateTime targetTime, int limit );
 }

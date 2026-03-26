@@ -33,4 +33,26 @@
                  )
     </insert>
 
+    <update id="updateStateByInstanceGuid" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="currentRetryNumber != null">
+                current_retry_number = #{currentRetryNumber},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+    </update>
+
 </mapper>

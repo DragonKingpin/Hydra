@@ -203,6 +203,7 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
         return this.instanceStatus.getName();
     }
 
+    @Override
     public void setRunStatus ( String status ) {
         this.instanceStatus = TaskInstanceStatus.getByName( status );
     }

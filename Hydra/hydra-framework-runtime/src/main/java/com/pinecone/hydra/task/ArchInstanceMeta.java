@@ -168,7 +168,6 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
         return this.scheduleTime;
     }
 
-    // --- 新增字段的 Setter 实现 ---
 
     @Override
     public void setExpectTime(LocalDateTime expectTime) {

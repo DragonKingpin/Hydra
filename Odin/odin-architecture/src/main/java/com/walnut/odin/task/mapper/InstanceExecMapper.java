@@ -8,4 +8,5 @@ public interface InstanceExecMapper {
 
     void insert( InstanceExec instanceExec );
 
+    void updateStateByInstanceGuid( InstanceExec execUpdate );
 }

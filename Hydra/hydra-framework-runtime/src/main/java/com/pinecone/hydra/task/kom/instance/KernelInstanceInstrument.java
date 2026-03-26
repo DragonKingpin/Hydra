@@ -18,6 +18,7 @@ public class KernelInstanceInstrument implements InstanceInstrument {
 
     protected TaskInstrument            mTaskInstrument;
 
+
     public KernelInstanceInstrument( TaskInstrument instrument, InstanceNodeManipulator manipulator ) {
         this.mTaskInstrument = instrument;
         this.mInstanceManipulator = manipulator;
@@ -109,5 +110,11 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     public InstanceEntry findLastExecuted( GUID taskGuid, String bizTime ) {
         return this.mInstanceManipulator.findLastExecuted( taskGuid, this.mTaskInstrument, bizTime );
     }
+
+    @Override
+    public List<InstanceEntry> fetchExecutableInstances(String runStatus, LocalDateTime targetTime, int limit ) {
+        return this.mInstanceManipulator.fetchExecutableInstances( this.mTaskInstrument, runStatus, targetTime, limit );
+    }
+
 
 }

@@ -8,9 +8,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
+import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.walnut.odin.conduct.entity.GenericInstanceAtlasAdjacent;
@@ -167,8 +170,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
                 instanceNode.setIsIsolated( true );
             }
 
-          //  this.mInstanceInstrument.getInstanceAtlasInstrument().insertInstanceAtlasNode( instanceNode );
-
+            this.mScheduleManipulator.getInstanceAtlasNodeMapper().insert( instanceNode );
 
             if ( parentIds != null && !parentIds.isEmpty() ) {
                 for ( GUID parentId : parentIds ) {
@@ -271,8 +273,73 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         }
     }
 
+    public void dispatchExecutableInstances( LocalDateTime targetTime ) {
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+        int limit = (int) this.mnScanIdWindow;
+
+        TaskInstanceStatus targetStatus = TaskInstanceStatus.New;
+
+        try {
+
+            List<InstanceEntry> executableInstances = this.mInstanceInstrument.fetchExecutableInstances(
+                    String.valueOf(targetStatus), targetTime, limit
+            );
+
+          for ( InstanceEntry instanceEntry : executableInstances ) {
+              log.info(instanceEntry.getGuid().toString());
+              log.info(instanceEntry.getRunStatus());
+              log.info(instanceEntry.getInstanceName());
+          }
+
+            if (executableInstances.isEmpty()) {
+                return;
+            }
+
+            this.processAndFireInstances( executableInstances );
+
+        } catch ( Exception e ) {
+            throw new RuntimeException(e);
+        }
+    }
+    protected void processAndFireInstances(List<InstanceEntry> instances ) throws MetaPersistenceException {
+        for ( InstanceEntry instance : instances ) {
+            try {
+                log.info( "GUID: {}, Name: {}", instance.getGuid(), instance.getInstanceName() );
+                instance.setInstanceStatus( TaskInstanceStatus.ResourceWait );
+                instance.setRunStatus(TaskInstanceStatus.ResourceWait.getName());
+                instance.setStartTime( LocalDateTime.now() );
+                this.mInstanceInstrument.updateInstance( instance );
+                //log.info(this.mInstanceInstrument.getInstanceEntry(instance.getGuid()).getRunStatus());
+                InstanceExec execUpdate = new GenericInstanceExec();
+                execUpdate.setInstanceGuid( instance.getGuid() );
+                execUpdate.setExecState( TaskInstanceExecState.Submitted.getName() );
+                this.mScheduleManipulator.getInstanceExecMapper().updateStateByInstanceGuid( execUpdate );
+
+                InstanceEvent event = new GenericInstanceEvent();
+                event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
+                event.setTaskGuid( instance.getTaskGuid() );
+                event.setInstanceGuid( instance.getGuid() );
+                event.setInstanceName( instance.getInstanceName() );
+                event.setEventType( instance.getTaskType() );
+                event.setState( InstanceEventType.CheckDependencyReady.getName() );
+                event.setExecTime( LocalDateTime.now() );
+                event.setEventContext( "{}" );
+            //    this.mScheduleManipulator.getInstanceEventMapper().insert( event );
+                //LaunchFeature feature = new LaunchFeature();
+              //  this.mTaskExecutionElevator.elevateLocally( instance, feature );
+
+            } catch ( Exception e ) {
+                instance.setInstanceStatus( TaskInstanceStatus.Error );
+                this.mInstanceInstrument.updateInstance( instance );
+            }
+        }
+    }
+
     public void fetch() {
-        this.prepareSchedulableInstances( DailyTaskScheduleCycles, LocalDateTime.now() );
+      //  this.prepareSchedulableInstances( DailyTaskScheduleCycles, LocalDateTime.now() );
+        this.dispatchExecutableInstances( LocalDateTime.now() );
     }
 
 }

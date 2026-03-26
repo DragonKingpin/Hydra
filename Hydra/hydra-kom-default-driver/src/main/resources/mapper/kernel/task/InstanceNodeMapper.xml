@@ -226,7 +226,17 @@
         LIMIT 1
 
     </select>
-
+    <select id="fetchExecutableInstances0"  resultMap="InstanceResultMap">
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE run_status = #{runStatus}
+        AND run_status != 'Killed' AND expect_time <![CDATA[ <= ]]> #{targetTime}
+        ORDER BY
+        actually_priority DESC,
+        expect_time ASC
+        LIMIT #{limit}
+    </select>
 
 
 </mapper>

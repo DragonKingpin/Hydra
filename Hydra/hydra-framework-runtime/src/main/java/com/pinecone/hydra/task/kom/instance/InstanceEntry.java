@@ -18,6 +18,7 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
           return this.getInstanceName();
      }
 
+     @Override
      String getTaskName();
 
      TaskElement taskElement();
@@ -47,6 +48,8 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
      void setSequenceCnt( int sequenceCnt );
 
      void setRetryCnt( int retryCnt );
+
+     void setRunStatus( String runStatus );
 
      void setDryRun ( boolean dryRun );
 

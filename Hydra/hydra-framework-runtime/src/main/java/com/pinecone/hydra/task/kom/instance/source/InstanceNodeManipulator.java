@@ -3,8 +3,10 @@ package com.pinecone.hydra.task.kom.instance.source;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface InstanceNodeManipulator extends Pinenut {
@@ -33,4 +35,6 @@ public interface InstanceNodeManipulator extends Pinenut {
 
     InstanceEntry findLastExecuted( GUID taskGuid, TaskInstrument instrument, String bizTime );
 
+
+    List<InstanceEntry> fetchExecutableInstances(TaskInstrument instrument, String runStatus, LocalDateTime targetTime, int limit );
 }

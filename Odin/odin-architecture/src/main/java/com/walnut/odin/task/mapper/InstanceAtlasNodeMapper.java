@@ -7,6 +7,6 @@ import com.walnut.odin.conduct.entity.InstanceAtlasNode;
 @IbatisDataAccessObject
 public interface InstanceAtlasNodeMapper extends InstanceNodeManipulator {
 
-    void insertInstanceAtlasNode( InstanceAtlasNode instanceAtlasNode);
+    void insert( InstanceAtlasNode instanceAtlasNode);
 
 }

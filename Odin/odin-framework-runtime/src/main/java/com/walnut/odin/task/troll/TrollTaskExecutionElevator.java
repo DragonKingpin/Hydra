@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,6 +206,15 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         }
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setBusinessTime( bizTime );
+
+        TaskElement taskElement = instance.getOwnedTask().getTaskElement();
+
+        LocalDateTime expectTime = taskElement.getNextScheduleTime();
+        if ( expectTime == null ) {
+
+            expectTime = bizTime;
+        }
+        entry.setExpectTime( expectTime );
 
         this.mTaskInstrument.getInstanceInstrument().addInstance( entry );
         this.getLogger().info(

@@ -49,3 +49,23 @@
 ```
 8. 单词：
 8.1 接口默认实现使用 Generic，除非明确给出。
+8.2 getOrCreate 语义统一使用 affirm，如affirmPath( String szPath )
+8.3 子类对基类映射实现，统一使用 evince，例如：
+```java
+    public interface ElementNode extends TaskTreeNode {
+        default AppElement evinceAppElement() { return null; }
+    
+        default TaskElement evinceTaskElement() { return null; }
+    }
+
+    public interface TaskElement extends ElementNode {
+        @Override
+        default TaskElement evinceTaskElement() {
+            return this;
+        }
+    }
+```
+
+
+
+

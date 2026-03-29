@@ -1,17 +1,27 @@
 package com.walnut.odin.conduct.schedule;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
+import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
+import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.task.CentralizedTaskInstrument;
+import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.troll.TaskExecutionElevator;
 
 public interface UniformTaskScheduler extends Pinenut {
 
-    List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
+    RavenTaskConfig ravenTaskConfig();
 
-    List<TaskElement> fetchSchedulableTasksDaily( long idMin, long idMax, LocalDateTime targetTime );
+    CentralizedTaskInstrument taskInstrument();
+
+    InstanceInstrument instanceInstrument();
+
+    RuntimeAtlasInstrument atlasInstrument();
+
+    TaskExecutionElevator taskExecutionElevator();
+
+
+    TaskSchedulePreparator taskSchedulePreparator();
+
+    InstanceScheduleImpetus instanceScheduleLauncher();
 
 }

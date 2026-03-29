@@ -27,6 +27,7 @@
         <result column="schedule_start_time"  property="scheduleStartTime"/>
         <result column="schedule_end_time"    property="scheduleEndTime"/>
         <result column="next_schedule_time"   property="nextScheduleTime"/>
+        <result column="processor_name"       property="processorName"/>
         <result column="enable"               property="enable"/>
         <result column="create_time"          property="createTime"/>
         <result column="update_time"          property="updateTime"/>
@@ -53,6 +54,7 @@
             dry_run,
             schedule_cycle,
             schedule_type,
+            processor_name,
             enable,
             create_time,
             update_time
@@ -71,6 +73,7 @@
                 #{dryRun},
                 #{scheduleCycle},
                 #{scheduleType},
+                #{processor_name},
                 #{enable},
                 #{createTime},
                 #{updateTime}
@@ -99,6 +102,7 @@
             schedule_start_time = #{scheduleStartTime},
             schedule_end_time   = #{scheduleEndTime},
             next_schedule_time  = #{nextScheduleTime},
+            processor_name      = #{processorName}
             enable              = #{enable},
             update_time         = #{updateTime}
         WHERE guid = #{guid}
@@ -125,6 +129,7 @@
             dry_run,
             schedule_cycle,
             schedule_type,
+            processor_name,
             enable,
             create_time,
             update_time
@@ -153,6 +158,7 @@
             dry_run,
             schedule_cycle,
             schedule_type,
+            processor_name,
             enable,
             create_time,
             update_time
@@ -200,6 +206,7 @@
             schedule_end_time,
             enable,
             next_schedule_time,
+            processor_name,
             create_time,
             update_time
         FROM

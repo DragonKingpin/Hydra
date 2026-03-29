@@ -1,6 +1,7 @@
 package com.pinecone.framework.util;
 
 
+import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.unit.AbstractMultiValueMap;
 import com.pinecone.framework.unit.MultiValueMap;
 
@@ -19,6 +20,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+@SuppressWarnings( "unchecked" )
 public abstract class CollectionUtils {
     public CollectionUtils() {
     }
@@ -412,4 +414,22 @@ public abstract class CollectionUtils {
             throw new UnsupportedOperationException("Not supported");
         }
     }
+
+
+
+    @Unsafe
+    public static <T> List<T> genericConvert( List list ) {
+        return (List<T>) list;
+    }
+
+    @Unsafe
+    public static <T> Collection<T> genericConvert( Collection collection ) {
+        return (Collection<T>) collection;
+    }
+
+    @Unsafe
+    public static <K, V> Map<K, V> genericConvert( Map map ) {
+        return (Map<K, V>) map;
+    }
+
 }

@@ -68,22 +68,18 @@ public interface TaskInstance extends Pinenut {
 
     LocalDateTime getExpectTime();
 
-
     LocalDateTime getFireTime();
-
 
     LocalDateTime getStartTime();
 
-
     LocalDateTime getFinishTime();
-
 
     LocalDateTime getScheduleHostTime();
 
-
     LocalDateTime getSubmitTime();
 
-
     LocalDateTime getScheduleTime();
+
+    String getProcessorName();
 
 }

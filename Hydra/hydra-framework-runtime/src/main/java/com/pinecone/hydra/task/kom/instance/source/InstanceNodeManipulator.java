@@ -1,10 +1,12 @@
 package com.pinecone.hydra.task.kom.instance.source;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,5 +38,10 @@ public interface InstanceNodeManipulator extends Pinenut {
     InstanceEntry findLastExecuted( GUID taskGuid, TaskInstrument instrument, String bizTime );
 
 
-    List<InstanceEntry> fetchExecutableInstances(TaskInstrument instrument, String runStatus, LocalDateTime targetTime, int limit );
+    TableIndexMeta selectSchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime, @Nullable Short actuallyPriority );
+
+    List<InstanceEntry> fetchSchedulableInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, @Nullable Short actuallyPriority
+    );
 }

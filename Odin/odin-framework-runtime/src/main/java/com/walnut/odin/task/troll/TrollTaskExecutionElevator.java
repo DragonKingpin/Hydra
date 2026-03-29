@@ -207,15 +207,6 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setBusinessTime( bizTime );
 
-        TaskElement taskElement = instance.getOwnedTask().getTaskElement();
-
-        LocalDateTime expectTime = taskElement.getNextScheduleTime();
-        if ( expectTime == null ) {
-
-            expectTime = bizTime;
-        }
-        entry.setExpectTime( expectTime );
-
         this.mTaskInstrument.getInstanceInstrument().addInstance( entry );
         this.getLogger().info(
                 "[TaskLaunchSequence] [Schema] (Task: `{}`, InstanceName: `{}`, InsGuid: `{}`, RunCount: {}, SequenceCnt: {}, RetryCnt: {}, RetryMode: {}, BusinessTime: {}) <Ready to elevate>",

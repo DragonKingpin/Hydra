@@ -57,6 +57,11 @@ public interface TaskElement extends ElementNode {
     LocalDateTime getNextScheduleTime();
     void setNextScheduleTime( LocalDateTime nextScheduleTime );
 
+
+    String getProcessorName();
+    void setProcessorName( String processorName );
+
+
     TaskExtraMeta getExtraMeta();
 
 }

@@ -32,6 +32,7 @@
         latest_start_time,
         latest_end_time,
         error_cause,
+        processor_name,
         create_time,
         update_time
     </sql>
@@ -63,6 +64,7 @@
         #{lastStartTime},
         #{lastEndTime},
         #{errorCause},
+        #{processorName},
         #{createTime},
         #{updateTime}
     </sql>
@@ -70,6 +72,11 @@
     <!-- ========================================================== -->
     <!-- ResultMap -->
     <!-- ========================================================== -->
+
+    <resultMap id="TableIndex64MetaResult" type="com.pinecone.slime.meta.TableIndex64Meta">
+        <result column="min_id" property="minId"/>
+        <result column="max_id" property="maxId"/>
+    </resultMap>
 
     <resultMap id="InstanceResultMap" type="com.pinecone.hydra.task.kom.instance.GenericInstanceEntry">
 
@@ -99,6 +106,7 @@
         <result column="latest_start_time"   property="lastStartTime"/>
         <result column="latest_end_time"     property="lastEndTime"/>
         <result column="error_cause"         property="errorCause"/>
+        <result column="processor_name"      property="processorName"/>
         <result column="create_time"         property="createTime"/>
         <result column="update_time"         property="updateTime"/>
 
@@ -154,6 +162,7 @@
             latest_start_time   = #{lastStartTime},
             latest_end_time     = #{lastEndTime},
             error_cause         = #{errorCause},
+            processor_name      = #{processorName},
             update_time         = #{updateTime}
         WHERE guid = #{guid}
 
@@ -226,16 +235,40 @@
         LIMIT 1
 
     </select>
-    <select id="fetchExecutableInstances0"  resultMap="InstanceResultMap">
+
+    <select id="selectSchedulableIdRange" resultMap="TableIndex64MetaResult">
         SELECT
-        <include refid="BaseFields"/>
-        FROM hydra_task_instances
-        WHERE run_status = #{runStatus}
-        AND run_status != 'Killed' AND expect_time <![CDATA[ <= ]]> #{targetTime}
-        ORDER BY
-        actually_priority DESC,
-        expect_time ASC
-        LIMIT #{limit}
+            MIN( `id` ) AS min_id,
+            MAX( `id` ) AS max_id
+        FROM `hydra_task_instances`
+        WHERE `run_status` = #{runStatus}
+          AND (
+            `expect_time` IS NULL
+             OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+        <if test="actuallyPriority != null">
+            AND `actually_priority` = #{actuallyPriority}
+        </if>
+        AND schedule_type = 'Cycle'
+    </select>
+
+    <select id="fetchSchedulableInstances0" resultMap="InstanceResultMap">
+        SELECT
+            `id`,
+            <include refid="BaseFields"/>
+        FROM `hydra_task_instances`
+        WHERE `id` <![CDATA[ >= ]]> #{idMin}
+          AND `id` <![CDATA[ <= ]]> #{idMax}
+          AND `run_status` = #{runStatus}
+          AND (
+              `expect_time` IS NULL
+              OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+        <if test="actuallyPriority != null">
+            AND `actually_priority` = #{actuallyPriority}
+        </if>
+        AND schedule_type = 'Cycle'
+        ORDER BY actually_priority DESC, id ASC
     </select>
 
 

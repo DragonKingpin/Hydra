@@ -30,6 +30,8 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected LocalDateTime            scheduleEndTime;
     protected LocalDateTime            nextScheduleTime;
 
+    protected String                   processorName;
+
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
         if ( this.szElementaryConfig != null ) {
@@ -199,6 +201,15 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
         this.scheduleEndTime = scheduleEndTime;
     }
 
+    @Override
+    public String getProcessorName() {
+        return this.processorName;
+    }
+
+    @Override
+    public void setProcessorName( String processorName ) {
+        this.processorName = processorName;
+    }
 
     @Override
     public TaskExtraMeta getExtraMeta() {

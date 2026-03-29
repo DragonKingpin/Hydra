@@ -174,5 +174,9 @@ public abstract class ArchTaskInstance implements TaskInstance {
         return this.mInstanceEntry.getScheduleTime();
     }
 
+    @Override
+    public String getProcessorName() {
+        return this.mInstanceEntry.getProcessorName();
+    }
 
 }

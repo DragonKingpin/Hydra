@@ -96,6 +96,11 @@ public abstract class ArchTask implements Task {
     }
 
     @Override
+    public String getProcessorName() {
+        return this.mTaskElement.getProcessorName();
+    }
+
+    @Override
     public Map<String, Object> getMetaDataScope() {
         return this.mMetaDataScope;
     }

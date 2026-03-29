@@ -31,6 +31,8 @@ public interface Task extends TaskFamilyMeta {
 
     boolean isEnable() ;
 
+    String getProcessorName();
+
 
     Map<String, Object> getMetaDataScope();
 

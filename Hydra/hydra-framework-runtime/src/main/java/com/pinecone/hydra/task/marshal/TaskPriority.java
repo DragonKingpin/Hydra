@@ -3,6 +3,9 @@ package com.pinecone.hydra.task.marshal;
 import java.util.Arrays;
 
 public enum TaskPriority {
+    MAX(999),
+    UNLIMITED(500),
+
     L0(50),
     L1(40),
     L2(30),

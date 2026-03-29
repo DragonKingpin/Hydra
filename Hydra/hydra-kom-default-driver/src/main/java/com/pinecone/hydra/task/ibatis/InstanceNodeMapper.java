@@ -1,11 +1,16 @@
 package com.pinecone.hydra.task.ibatis;
 
+import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.util.CollectionUtils;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.pinecone.slime.meta.TableIndex64Meta;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -78,17 +83,31 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return entry;
     }
 
-    List<GenericInstanceEntry> fetchExecutableInstances0(
-            @Param("runStatus") String runStatus,
-            @Param("targetTime") LocalDateTime targetTime,
-            @Param("limit") int limit
+
+
+
+
+    @Override
+    TableIndex64Meta selectSchedulableIdRange(
+            @Param("runStatus") TaskInstanceStatus runStatus, @Param("targetTime") LocalDateTime targetTime,
+            @Param( "actuallyPriority" ) @Nullable Short actuallyPriority
+    );
+
+    List<GenericInstanceEntry> fetchSchedulableInstances0(
+            @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax,
+            @Param( "runStatus" ) TaskInstanceStatus runStatus, @Param( "targetTime" ) LocalDateTime targetTime,
+            @Param( "actuallyPriority" ) @Nullable Short actuallyPriority
     );
 
     @Override
-    default List<InstanceEntry> fetchExecutableInstances(TaskInstrument instrument, @Param("runStatus") String runStatus,
-                                                         @Param("targetTime") LocalDateTime targetTime,
-                                                         @Param("limit") int limit ) {
-        List<GenericInstanceEntry> list = this.fetchExecutableInstances0( runStatus, targetTime, limit );
-        return (List)list;
+    default List<InstanceEntry> fetchSchedulableInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, @Nullable Short actuallyPriority
+    ) {
+        List<GenericInstanceEntry> list = this.fetchSchedulableInstances0( idMin, idMax, runStatus, targetTime, actuallyPriority );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return CollectionUtils.genericConvert( list );
     }
 }

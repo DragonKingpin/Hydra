@@ -4,7 +4,9 @@ import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
+import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,5 +48,20 @@ public interface InstanceInstrument extends Instrument {
 
     InstanceEntry findLastExecuted( GUID taskGuid, String bizTime );
 
-    List<InstanceEntry> fetchExecutableInstances(String runStatus, LocalDateTime targetTime, int limit );
+
+
+
+
+    TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchSchedulableInstances(
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime
+    );
+
+    TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority );
+
+    List<InstanceEntry> fetchSchedulableInstances(
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority
+    );
+
 }

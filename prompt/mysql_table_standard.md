@@ -58,3 +58,5 @@ SELECT t1.`key`, t2.`k2` FROM table as t1 LEFT JOIN table2 as t2 ON t1.x = t2.x 
 ### 7. Ibatis 
 7.1 Param 不要使用匈牙利命名法，如 @Param("guid") GUID guid
 7.2 GUID直接用GUID，如 @Param("guid") GUID guid
+7.3 XML 中特殊字符使用如：
+<![CDATA[ <= ]]>

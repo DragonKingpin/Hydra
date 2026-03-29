@@ -8,6 +8,7 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -111,9 +112,32 @@ public class KernelInstanceInstrument implements InstanceInstrument {
         return this.mInstanceManipulator.findLastExecuted( taskGuid, this.mTaskInstrument, bizTime );
     }
 
+
+
+
+
     @Override
-    public List<InstanceEntry> fetchExecutableInstances(String runStatus, LocalDateTime targetTime, int limit ) {
-        return this.mInstanceManipulator.fetchExecutableInstances( this.mTaskInstrument, runStatus, targetTime, limit );
+    public TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime ) {
+        return this.mInstanceManipulator.selectSchedulableIdRange( runStatus, targetTime, null );
+    }
+
+    @Override
+    public List<InstanceEntry> fetchSchedulableInstances(
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime
+    ) {
+        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatus, targetTime, null );
+    }
+
+    @Override
+    public TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority ) {
+        return this.mInstanceManipulator.selectSchedulableIdRange( runStatus, targetTime, actuallyPriority );
+    }
+
+    @Override
+    public List<InstanceEntry> fetchSchedulableInstances(
+            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority
+    ) {
+        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatus, targetTime, actuallyPriority );
     }
 
 

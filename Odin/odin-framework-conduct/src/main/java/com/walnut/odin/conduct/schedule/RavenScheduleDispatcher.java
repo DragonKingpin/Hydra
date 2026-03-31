@@ -19,6 +19,8 @@ import com.walnut.odin.conduct.schedule.entity.ScheduleLaunchContext;
 
 public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
 
+
+    private String                                             mszPartitionName;
     private ConcurrentMap<Integer, ConcurrentQuota>            mPriorityQuota;
     private AtomicLong                                         mGlobalConcurrentInstance;
 

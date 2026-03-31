@@ -2,6 +2,7 @@ package com.sparta;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
+import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSONMaptron;
@@ -37,6 +38,7 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
+import com.walnut.odin.system.Odin;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
@@ -53,6 +55,13 @@ class Rick extends EnderHydra {
 
     @Override
     public void vitalize () throws Exception {
+
+        Lord lord = this.getLordFederation().instantiate( "KernelOdinLord", "./system/setup/lords/odin.json5" );
+
+        Odin odin = (Odin) lord;
+        odin.vitalize();
+
+
         AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
                 this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
         );

@@ -60,10 +60,6 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     protected void traceWelcomeInfo() {
         Tracer console = this.mSystem.console();
         console.getOut().print( "---------------------------------------------------------------\n" );
-        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin\u001B[0m\n" );
-        console.getOut().print( "\u001B[31mMassive Task Orchestration System \u001B[0m\n" );
-        console.getOut().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
-        console.getOut().print( "---------------------------------------------------------------\n" );
         console.getOut().print( "\u001B[34mRaven Odin Collective Task Regiment\u001B[0m\n" );
         console.getOut().print( "\u001B[34mCentralized task lifecycle management and deployment system.\u001B[0m\n" );
         console.getOut().print( "---------------------------------------------------------------\n" );

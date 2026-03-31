@@ -21,6 +21,10 @@ public interface KernelLordFederation extends SubsystemDirector, Federation {
 
     int size();
 
+    Map<String, Object> addConfig(String key, Object dyPathOrObject );
+
+    Lord instantiate( String fullName, Object confPathOrObject );
+
     Lord instantiate( String fullName );
 
 }

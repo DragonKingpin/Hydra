@@ -20,5 +20,6 @@
         <module>odin-framework-runtime</module>
         <module>odin-framework-conduct</module>
         <module>odin-mapper-driver</module>
+        <module>odin-system</module>
     </modules>
 </project>

@@ -1,5 +1,7 @@
 package com.pinecone.hydra.system.subsystem;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,7 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.regime.arch.Lord;
+import com.pinecone.framework.util.CollectionUtils;
 import com.pinecone.framework.util.config.JSONConfig;
+import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
@@ -128,6 +132,35 @@ public class CentralKernelLordFederation extends ArchSubsystemDirector implement
         return this.mEmpireLords.size();
     }
 
+    @Override
+    public Map<String, Object> addConfig( String key, Object dyPathOrObject ) {
+        Map<String, Object> cms = CollectionUtils.genericConvert( (Map) this.mSegmentConfig );
+        if( dyPathOrObject instanceof String ) {
+            try {
+                PatriarchalConfig sysConfig = this.mSegmentConfig.getChildFromPath( Path.of((String) dyPathOrObject) );
+                cms.put( key, sysConfig );
+                return CollectionUtils.genericConvert( (Map) sysConfig );
+            }
+            catch ( IOException e ) {
+                return null;
+            }
+        }
+        else {
+            cms.put( key, dyPathOrObject );
+        }
+        return CollectionUtils.genericConvert( (Map) dyPathOrObject );
+    }
+
+    @Override
+    public Lord instantiate( String fullName, Object confPathOrObject ) {
+        if ( !this.mSegmentConfig.containsKey( fullName ) ) {
+            Map<String, Object> m = this.addConfig( fullName, confPathOrObject );
+            if ( m == null ) {
+                return null;
+            }
+        }
+        return this.instantiate( fullName );
+    }
 
     @Override
     public Hydrogen getSystem() {

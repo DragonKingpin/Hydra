@@ -1,0 +1,10 @@
+{
+  "Name"     : "KernelOdinLord",
+  "MainClass": "com.walnut.odin.system.Odin",
+  "LifecycleWithPrimarySystem" : false,
+
+
+  "Scheduler": {
+
+  }
+}

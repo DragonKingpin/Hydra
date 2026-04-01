@@ -4,6 +4,8 @@ package com.walnut.odin.task;
 import java.util.Map;
 
 import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
 
 public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements RavenTaskConfig {
@@ -14,17 +16,24 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     protected int    mnScheduleScanThreadCount  = RavenTaskConstants.ScheduleScanThreadCount;
     protected long   mnScheduleScanIdWindow     = RavenTaskConstants.ScheduleScanIdWindow;
 
+    protected String mszSchedulePartitionName   = "__DEFAULT__";
+    protected JSONObject mScheduleGlobalDispatcherConfig;
+
     public GenericRavenTaskConfig() {
         super();
     }
 
-    public GenericRavenTaskConfig( @Nullable Map<String, Object> config ){
-        super( config );
-        this.mszInstanceTitleTimeFormat = (String) config.getOrDefault("InstanceTitleTimeFormat", RavenTaskConstants.InstanceTitleTimeFormat);
-        this.mszDefaultDateTimeFormat   = (String) config.getOrDefault("DefaultDateTimeFormat", RavenTaskConstants.DefaultDateTimeFormat);
+    public GenericRavenTaskConfig( JSONObject main ) {
+        super( main.optJSONObject( "kernelConfig" ) );
+        JSONObject config = main.optJSONObject( "kernelConfig" );
+        this.mszInstanceTitleTimeFormat = (String) config.getOrDefault("instanceTitleTimeFormat", RavenTaskConstants.InstanceTitleTimeFormat);
+        this.mszDefaultDateTimeFormat   = (String) config.getOrDefault("defaultDateTimeFormat", RavenTaskConstants.DefaultDateTimeFormat);
 
-        this.mnScheduleScanThreadCount  = ( (Number) config.getOrDefault("ScheduleScanThreadCount", RavenTaskConstants.ScheduleScanThreadCount) ).intValue();
-        this.mnScheduleScanIdWindow     = ( (Number) config.getOrDefault("ScheduleScanIdWindow", RavenTaskConstants.ScheduleScanIdWindow) ).longValue();
+        this.mnScheduleScanThreadCount  = ( (Number) config.getOrDefault("scheduleScanThreadCount", RavenTaskConstants.ScheduleScanThreadCount) ).intValue();
+        this.mnScheduleScanIdWindow     = ( (Number) config.getOrDefault("scheduleScanIdWindow", RavenTaskConstants.ScheduleScanIdWindow) ).longValue();
+
+        this.mszSchedulePartitionName   = main.optJSONObject( "scheduler" ).optString( "partitionName", "__DEFAULT__" );
+        this.mScheduleGlobalDispatcherConfig = main.optJSONObject( "scheduler" ).optJSONObject( "globalDispatcher" );
     }
 
     @Override
@@ -45,6 +54,16 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     @Override
     public long getScheduleScanIdWindow() {
         return this.mnScheduleScanIdWindow;
+    }
+
+    @Override
+    public JSONObject getScheduleGlobalDispatcherConfig() {
+        return this.mScheduleGlobalDispatcherConfig;
+    }
+
+    @Override
+    public String getSchedulePartitionName() {
+        return this.mszSchedulePartitionName;
     }
 
 }

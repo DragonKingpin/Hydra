@@ -2,14 +2,61 @@ package com.walnut.odin.system;
 
 import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
+import com.pinecone.framework.util.json.JSONObject;
+import com.pinecone.framework.util.json.homotype.MapStructure;
+import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
+import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.ProcessManagerSystema;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.LogStatuses;
+import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.hydra.umc.msg.MessageNode;
+import com.pinecone.hydra.umc.wolf.server.UlfServer;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
+import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
+import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
+import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.tritium.system.TritiumSystem;
+import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.atlas.graph.UniformRuntimeAtlas;
+import com.walnut.odin.atlas.mapper.OdinAtlasMappingDriver;
+import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
+import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
+import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
+import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.task.CentralizedTaskInstrument;
+import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTaskInstrument;
+import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
 public class Odin extends ArchModularizedSubsystem implements TaskCentralControl {
 
+    private CollectiveTaskRegiment  mTaskRegiment;
+
+    private LayerInstrument         mLayerInstrument;
+    private RuntimeAtlasInstrument  mAtlasInstrument;
+
+    private UniformTaskScheduler    mTaskScheduler;
+
+    @MapStructure("metaDependent.atlasDatabase")
+    private String                  mszAtlasDatabaseKey;
+
+    @MapStructure("metaDependent.taskInstrument")
+    private String                  mszTaskInstrumentKey;;
+
+    @MapStructure("metaDependent.controlRPCDriver")
+    private String                  mszControlRPCDriverKey;
+
+    @MapStructure("metaDependent.processManager")
+    private String                  mszProcessManagerKey;
+
     public Odin( Hydrogen primarySystem, String name, PatriarchalConfig config ) {
         super( primarySystem, name, config );
+
+        TritiumSystem sys = (TritiumSystem) this.parentSystem();
+        sys.getPrimaryConfigScope().autoInject( Odin.class, config, this );
     }
 
     @Override
@@ -34,7 +81,52 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     }
 
     protected void prepare_system_skeleton() {
+        this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
 
+        TritiumSystem sys = (TritiumSystem) this.parentSystem();
+
+        //sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance()
+
+        KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
+                sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
+                sys.getDispenserCenter()
+        );
+
+        AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
+                sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
+                sys.getDispenserCenter()
+        );
+
+        KOIMappingDriver taskDriver = new OdinUniformTaskMappingDriver(
+                sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszTaskInstrumentKey ),
+                sys.getDispenserCenter()
+        );
+
+
+
+
+        CentralizedTaskInstrument taskInstrument = new RavenTaskInstrument(
+                taskDriver, new GenericRavenTaskConfig( (JSONObject) this.mSubsystemConfig )
+        );
+        this.infoLifecycle( "<Odin> Constructing component `TaskInstrument`.", LogStatuses.StatusDone );
+
+        this.mLayerInstrument = new VLayerInstrument( layerMappingDriver );
+        this.mAtlasInstrument = new UniformRuntimeAtlas( atlasMappingDriver, taskInstrument, this.mLayerInstrument );
+        this.infoLifecycle( "<Odin> Constructing component `AtlasInstrument`.", LogStatuses.StatusDone );
+
+        MessageNode messageNode = sys.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( this.mszControlRPCDriverKey );
+        if ( messageNode == null ) {
+            messageNode = (MessageNode) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszControlRPCDriverKey );
+        }
+        UlfServer rpcServer = (UlfServer) messageNode;
+        if ( rpcServer != null ) {
+            ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
+            RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm, rpcServer );
+            this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
+        }
+        this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
+
+        this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusDone );
     }
 
     @Override
@@ -46,5 +138,23 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     public void terminate() {
 
     }
+
+
+    public LayerInstrument getLayerInstrument() {
+        return this.mLayerInstrument;
+    }
+
+    public RuntimeAtlasInstrument getAtlasInstrument() {
+        return this.mAtlasInstrument;
+    }
+
+    public CollectiveTaskRegiment getTaskRegiment() {
+        return this.mTaskRegiment;
+    }
+
+    public UniformTaskScheduler getTaskScheduler() {
+        return this.mTaskScheduler;
+    }
+
 
 }

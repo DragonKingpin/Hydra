@@ -19,6 +19,8 @@ public interface UniformTaskScheduler extends Pinenut {
 
     TaskExecutionElevator taskExecutionElevator();
 
+    String getPartitionName();
+
 
     TaskSchedulePreparator taskSchedulePreparator();
 

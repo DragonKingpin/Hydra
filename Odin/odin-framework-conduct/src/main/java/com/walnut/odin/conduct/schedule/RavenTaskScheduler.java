@@ -16,17 +16,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RavenTaskScheduler implements UniformTaskScheduler {
 
-    private RavenTaskConfig            mRavenTaskConfig;
+    private RavenTaskConfig              mRavenTaskConfig;
 
-    private InstanceInstrument         mInstanceInstrument;
-    private UniformTaskInstrument      mUniformTaskInstrument;
-    private RuntimeAtlasInstrument     mRuntimeAtlasInstrument;
-    private CentralizedTaskInstrument  mCentralizedTaskInstrument;
-    private TaskExecutionElevator      mTaskExecutionElevator;
+    private InstanceInstrument           mInstanceInstrument;
+    private UniformTaskInstrument        mUniformTaskInstrument;
+    private RuntimeAtlasInstrument       mRuntimeAtlasInstrument;
+    private CentralizedTaskInstrument    mCentralizedTaskInstrument;
+    private TaskExecutionElevator        mTaskExecutionElevator;
 
-    private TaskSchedulePreparator     mTaskSchedulePreparator;
-    private InstanceScheduleImpetus    mInstanceScheduleImpetus;
+    private TaskSchedulePreparator       mTaskSchedulePreparator;
+    private InstanceScheduleImpetus      mInstanceScheduleImpetus;
 
+    private InstanceScheduleDispatcher   mInstanceScheduleDispatcher;
+    private String                       mszPartitionName;
 
     public RavenTaskScheduler(
             CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument, TaskExecutionElevator elevator
@@ -40,9 +42,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mTaskExecutionElevator      = elevator;
 
         this.mRavenTaskConfig            = (RavenTaskConfig) taskInstrument.getConfig();
+        this.mszPartitionName            = this.mRavenTaskConfig.getSchedulePartitionName();
 
         this.mTaskSchedulePreparator     = new RavenTaskSchedulePreparator( this );
         this.mInstanceScheduleImpetus    = new RavenInstanceScheduleImpetus( this );
+        this.mInstanceScheduleDispatcher = new RavenScheduleDispatcher( this );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskScheduler Construction) <Done>" );
     }
@@ -83,6 +87,10 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         return this.mTaskExecutionElevator;
     }
 
+    @Override
+    public String getPartitionName() {
+        return this.mszPartitionName;
+    }
 
     public void fetch() {
         //this.mTaskSchedulePreparator.prepareSchedulableTasksDaily( LocalDateTime.now() );

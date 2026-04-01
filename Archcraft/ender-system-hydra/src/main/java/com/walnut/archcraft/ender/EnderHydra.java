@@ -76,6 +76,7 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.mSystemProcessManager = new UniformProcessManager(
                 this, null, "SystemUniformProcessManager", "", null
         );
+        this.getDispenserCenter().getInstanceDispenser().registerInstance( "__SystemTaskManager__", this.mSystemProcessManager );
         this.infoLifecycle( "<Uniform Hydra> ProcessSubsystem[4] System ProcessManager Initialization", LogStatuses.StatusDone );
 
 

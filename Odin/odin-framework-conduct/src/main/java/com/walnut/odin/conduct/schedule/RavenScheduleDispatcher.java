@@ -12,6 +12,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskPriority;
 import com.walnut.odin.conduct.schedule.entity.ConcurrentQuota;
@@ -21,6 +22,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
 
 
     private String                                             mszPartitionName;
+    private Map<String, ConcurrentQuota>                       mQuotaConfig;
     private ConcurrentMap<Integer, ConcurrentQuota>            mPriorityQuota;
     private AtomicLong                                         mGlobalConcurrentInstance;
 
@@ -28,14 +30,76 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
     private ConcurrentMap<Integer, Map<GUID, InstanceEntry>>   mPriorityInstances;
     private Lock                                               mGlobalInstanceLock;
 
-    public RavenScheduleDispatcher() {
+    protected void from_config( JSONObject config ) {
+        this.mszPartitionName = config.optString( "name" );
+
+        JSONObject joQuotaConfig = config.getJSONObject( "quota" );
+        this.mQuotaConfig = ConcurrentQuota.fromThose( joQuotaConfig );
+        this.mGlobalConcurrentInstance = new AtomicLong( config.optLong( "globalConcurrentInstance" ) );
+
+        for ( Map.Entry<String, ConcurrentQuota> entry : this.mQuotaConfig.entrySet() ) {
+            if ( entry == null ) {
+                continue;
+            }
+
+            String          szKey   = entry.getKey();
+            ConcurrentQuota value   = entry.getValue();
+
+            if ( szKey == null || value == null ) {
+                continue;
+            }
+
+            if ( "default".equalsIgnoreCase( szKey ) ) {
+                continue;
+            }
+
+            this.refreshQuotaCount( value, this.mGlobalConcurrentInstance.get() );
+            this.mPriorityQuota.put( (int) value.getPriority(), value );
+        }
+    }
+
+    public RavenScheduleDispatcher( JSONObject config ) {
         this.mPriorityQuota            = new ConcurrentHashMap<>();
-        this.mGlobalConcurrentInstance = new AtomicLong( 0 );
         this.mPrioritySegLocks         = new ConcurrentHashMap<>();
         this.mPriorityInstances        = new ConcurrentHashMap<>();
         this.mGlobalInstanceLock       = new ReentrantLock();
+
+        this.from_config( config );
     }
 
+    public RavenScheduleDispatcher( UniformTaskScheduler taskScheduler ) {
+        this(
+                taskScheduler.ravenTaskConfig().getScheduleGlobalDispatcherConfig().optJSONObject(
+                        taskScheduler.ravenTaskConfig().getSchedulePartitionName()
+                )
+        );
+    }
+
+
+    protected ConcurrentQuota resolveQuotaTemplate( short nPriority ) {
+        if ( this.mQuotaConfig == null || this.mQuotaConfig.isEmpty() ) {
+            return null;
+        }
+
+        if ( isQuotaBypassedPriority( nPriority ) ) {
+            ConcurrentQuota unlimitedQuota = this.mQuotaConfig.get( "unlimited" );
+            if ( unlimitedQuota != null ) {
+                return unlimitedQuota.reproduce( nPriority );
+            }
+        }
+
+        ConcurrentQuota directQuota = this.mPriorityQuota.get( (int) nPriority );
+        if ( directQuota != null ) {
+            return directQuota.reproduce( nPriority );
+        }
+
+        ConcurrentQuota defaultQuota = this.mQuotaConfig.get( "default" );
+        if ( defaultQuota != null ) {
+            return defaultQuota.reproduce( nPriority );
+        }
+
+        return null;
+    }
 
     protected static Map<Integer, List<InstanceEntry>> groupInstancesByPriority( Collection<InstanceEntry> instances ) {
         Map<Integer, List<InstanceEntry>> grouped = new HashMap<>();
@@ -67,7 +131,13 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
     protected ConcurrentQuota affirmQuota( short nPriority ) {
         ConcurrentQuota quota = this.mPriorityQuota.computeIfAbsent(
                 (int) nPriority,
-                k -> new ConcurrentQuota( nPriority )
+                k -> {
+                    ConcurrentQuota template = this.resolveQuotaTemplate( nPriority );
+                    if ( template != null ) {
+                        return template;
+                    }
+                    return new ConcurrentQuota( nPriority );
+                }
         );
 
         this.refreshQuotaCount( quota, this.mGlobalConcurrentInstance.get() );
@@ -80,18 +150,39 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
             return;
         }
 
-        long nMaximumCnt = (long) Math.floor( nGlobalConcurrentInstance * quota.getMaximumRatio() );
-        if ( nMaximumCnt < 0 ) {
-            nMaximumCnt = 0;
+        if ( quota.isMaximumRatioMode() ) {
+            long nMaximumCnt = (long) Math.floor( nGlobalConcurrentInstance * quota.getMaximumRatio() );
+            if ( nMaximumCnt < 0 ) {
+                nMaximumCnt = 0;
+            }
+            quota.setMaximumCnt( nMaximumCnt );
         }
-        quota.setMaximumCnt( nMaximumCnt );
-
-
-        long nMinimumCnt = (long) Math.floor( nGlobalConcurrentInstance * quota.getMinimumRatio() );
-        if ( nMinimumCnt < 0 ) {
-            nMinimumCnt = 0;
+        else {
+            Long nMaximumCnt = quota.getMaximumCnt();
+            if ( nMaximumCnt == null ) {
+                quota.setMaximumCnt( 0L );
+            }
+            else if ( nMaximumCnt < 0 ) {
+                quota.setMaximumCnt( Long.MAX_VALUE );
+            }
         }
-        quota.setMinimumCnt( nMinimumCnt );
+
+        if ( quota.isMinimumRatioMode() ) {
+            long nMinimumCnt = (long) Math.floor( nGlobalConcurrentInstance * quota.getMinimumRatio() );
+            if ( nMinimumCnt < 0 ) {
+                nMinimumCnt = 0;
+            }
+            quota.setMinimumCnt( nMinimumCnt );
+        }
+        else {
+            Long nMinimumCnt = quota.getMinimumCnt();
+            if ( nMinimumCnt == null ) {
+                quota.setMinimumCnt( 0L );
+            }
+            else if ( nMinimumCnt < 0 ) {
+                quota.setMinimumCnt( Long.MAX_VALUE );
+            }
+        }
     }
 
     protected Map<GUID, InstanceEntry> affirmPriorityInstances( int nPriority ) {
@@ -184,10 +275,13 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         }
     }
 
+    @Override
+    public String getPartitionName() {
+        return this.mszPartitionName;
+    }
 
 
-
-    protected void pipeLaunchByPriority( int nPriority, Collection<InstanceEntry> instances, ScheduleLaunchContext context ) {
+    protected void pipeLaunchByPriority(int nPriority, Collection<InstanceEntry> instances, ScheduleLaunchContext context ) {
         Lock segLock = this.affirmPrioritySegLock( nPriority );
         segLock.lock();
 

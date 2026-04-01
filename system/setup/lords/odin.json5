@@ -4,7 +4,84 @@
   "LifecycleWithPrimarySystem" : false,
 
 
-  "Scheduler": {
+  "metaDependent": {
+    "atlasDatabase"    : "MySQLKingHydranium",
+    "taskInstrument"   : "MySQLKingHydranium",
+    "controlRPCDriver" : "TaskWolfKing",
+    "processManager"   : "__SystemTaskManager__",
+  },
 
-  }
+  "kernelConfig": {
+    "instanceTitleTimeFormat": "yyyy_MM_dd_HH_mm_ss",
+    "defaultDateTimeFormat": "yyyy-MM-dd HH:mm:ss",
+    "scheduleScanThreadCount": 8,
+    "scheduleScanIdWindow": 1000
+  },
+
+  "scheduler": {
+
+    "partitionName": "__DEFAULT__",
+
+    "globalDispatcher": {
+      "__DEFAULT__": {
+        "name": "__DEFAULT__",
+
+        "globalConcurrentInstance": 100000,
+
+        "quota": {
+
+          "L0": {
+            "priority": 50,
+            "maximumRatio": 0.3,
+            "minimumRatio": 0.1,
+          },
+          "L1": {
+            "priority": 40,
+            "maximumRatio": 0.2,
+            "minimumRatio": 0.1,
+          },
+          "L2": {
+            "priority": 30,
+            "maximumRatio": 0.2,
+            "minimumRatio": 0.1,
+          },
+          "L3": {
+            "priority": 20,
+            "maximumRatio": 0.15,
+            "minimumRatio": 0.05,
+          },
+          "L4": {
+            "priority": 10,
+            "maximumRatio": 0.1,
+            "minimumRatio": 0.05,
+          },
+          "L5": {
+            "priority": 0,
+            "maximumRatio": 0.05,
+            "minimumRatio": 0.01,
+          },
+
+          "unlimited": {
+            "priority": 500,
+            "maximumRatio": -1.0,
+            "minimumRatio": -1.0,
+            "maximumCnt": -1,
+            "minimumCnt": -1,
+          },
+
+          "default": {
+            "priority": -1,
+            "maximumRatio": -1.0,
+            "minimumRatio": -1.0,
+            "maximumCnt": 1000,
+            "minimumCnt": 1000,
+          },
+
+        }
+      }
+    },
+
+  },
+
+
 }

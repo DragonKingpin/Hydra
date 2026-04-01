@@ -4,12 +4,16 @@ import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.framework.util.Debug;
+import com.pinecone.framework.util.config.JSONConfig;
+import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSONMaptron;
+import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.odin.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.walnut.odin.atlas.advance.strategy.AtlasPriorityProcessStrategy;
 import com.walnut.odin.atlas.advance.strategy.MegaInDegreeFirstStrategy;
+import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.atlas.graph.UniformRuntimeAtlas;
 import com.walnut.odin.atlas.mapper.OdinAtlasMappingDriver;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
@@ -37,6 +41,8 @@ import com.walnut.archcraft.ender.EnderHydra;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
+import com.walnut.odin.conduct.schedule.InstanceScheduleDispatcher;
+import com.walnut.odin.conduct.schedule.RavenScheduleDispatcher;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.system.Odin;
 import com.walnut.odin.task.CentralizedTaskInstrument;
@@ -56,31 +62,30 @@ class Rick extends EnderHydra {
     @Override
     public void vitalize () throws Exception {
 
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
+                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
+        this.getDispenserCenter().getInstanceDispenser().registerInstance( "TaskWolfKing", wolfKing );
+
         Lord lord = this.getLordFederation().instantiate( "KernelOdinLord", "./system/setup/lords/odin.json5" );
 
         Odin odin = (Odin) lord;
         odin.vitalize();
 
+        JSONConfig config = (JSONConfig) odin.getSubsystemConfig();
+        JSONObject jo = config.queryJSONObject("scheduler.globalDispatcher.__DEFAULT__");
 
-        AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
-                this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
-        );
+
+        InstanceScheduleDispatcher dispatcher = new RavenScheduleDispatcher( jo );
+
 
         KOIMappingDriver koiMappingDriver = new QueueMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
 
-        KOIMappingDriver driver = new OdinUniformTaskMappingDriver(
-                this,(IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),this.getDispenserCenter()
-        );
 
-        KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
-                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-        VLayerInstrument layerInstrument = new VLayerInstrument(layerMappingDriver);
-        CentralizedTaskInstrument uniformTaskInstrument = new RavenTaskInstrument( driver, new GenericRavenTaskConfig() );
-
-        UniformRuntimeAtlas uniformRuntimeAtlas = new UniformRuntimeAtlas(atlasMappingDriver, uniformTaskInstrument, layerInstrument);
+        LayerInstrument layerInstrument = odin.getLayerInstrument();
+        CentralizedTaskInstrument uniformTaskInstrument = odin.getTaskRegiment().taskInstrument();
+        RuntimeAtlasInstrument uniformRuntimeAtlas = odin.getAtlasInstrument();
 
 
 
@@ -89,7 +94,7 @@ class Rick extends EnderHydra {
         //this.testQuery( uniformRuntimeAtlas );
         //this.testTape( uniformRuntimeAtlas, koiMappingDriver );
         //this.testAdvancer( uniformRuntimeAtlas, koiMappingDriver,layerInstrument );
-        this.testOrchestrator( layerInstrument, uniformRuntimeAtlas,koiMappingDriver, uniformTaskInstrument );
+        this.testOrchestrator( odin );
     }
 
     public void testInsert(UniformRuntimeAtlas uniformRuntimeAtlas) {
@@ -144,18 +149,16 @@ class Rick extends EnderHydra {
         advancer.traverse(magnitudeVectorDAG);
     }
 
-    public void testOrchestrator(LayerInstrument layerInstrument, UniformRuntimeAtlas uniformRuntimeAtlas, KOIMappingDriver driver, TaskInstrument taskInstrument) {
+    public void testOrchestrator( Odin odin ) {
 //        VectorDAG vector = uniformRuntimeAtlas.queryByPath( "l1" );
 //        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator( vector, layerInstrument, 5,1,uniformRuntimeAtlas,driver );
 //        ravenTaskGraphOrchestrator.execute();
 
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
 
-        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
-                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-        CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) taskInstrument, wolfKing );
-
-        RavenTaskScheduler scheduler = new RavenTaskScheduler( ( CentralizedTaskInstrument ) taskInstrument, uniformRuntimeAtlas, regiment.taskExecutionElevator() );
+        RavenTaskScheduler scheduler = new RavenTaskScheduler(
+                odin.getTaskRegiment().taskInstrument(), odin.getAtlasInstrument(), odin.getTaskRegiment().taskExecutionElevator()
+        );
         scheduler.fetch();
     }
 

@@ -7,7 +7,7 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.task.RavenTaskInstance;
 
-public interface TaskExecutionElevator extends Manager {
+public interface TaskExecutionLauncher extends Manager {
 
     ProcessManager processManager();
 
@@ -27,13 +27,13 @@ public interface TaskExecutionElevator extends Manager {
 
 
 
+    UProcess createLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess createRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
+
+
+
     UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
     UProcess launchRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
-
-
-
-    UProcess elevateLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
-
-    UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
 }

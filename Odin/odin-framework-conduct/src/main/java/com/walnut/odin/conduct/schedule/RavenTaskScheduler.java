@@ -9,7 +9,7 @@ import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,7 +22,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private UniformTaskInstrument        mUniformTaskInstrument;
     private RuntimeAtlasInstrument       mRuntimeAtlasInstrument;
     private CentralizedTaskInstrument    mCentralizedTaskInstrument;
-    private TaskExecutionElevator        mTaskExecutionElevator;
+    private TaskExecutionLauncher        mTaskExecutionLauncher;
 
     private TaskSchedulePreparator       mTaskSchedulePreparator;
     private InstanceScheduleImpetus      mInstanceScheduleImpetus;
@@ -31,7 +31,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private String                       mszPartitionName;
 
     public RavenTaskScheduler(
-            CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument, TaskExecutionElevator elevator
+            CentralizedTaskInstrument taskInstrument, RuntimeAtlasInstrument atlasInstrument, TaskExecutionLauncher launcher
     ) {
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskScheduler Construction) <Start>" );
 
@@ -39,7 +39,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mUniformTaskInstrument      = taskInstrument.getUniformTaskInstrument();
         this.mInstanceInstrument         = this.mUniformTaskInstrument.getInstanceInstrument();
         this.mRuntimeAtlasInstrument     = atlasInstrument;
-        this.mTaskExecutionElevator      = elevator;
+        this.mTaskExecutionLauncher      = launcher;
 
         this.mRavenTaskConfig            = (RavenTaskConfig) taskInstrument.getConfig();
         this.mszPartitionName            = this.mRavenTaskConfig.getSchedulePartitionName();
@@ -58,7 +58,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     }
 
     @Override
-    public InstanceScheduleImpetus instanceScheduleLauncher() {
+    public InstanceScheduleImpetus instanceScheduleImpetus() {
         return this.mInstanceScheduleImpetus;
     }
 
@@ -83,8 +83,8 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     }
 
     @Override
-    public TaskExecutionElevator taskExecutionElevator() {
-        return this.mTaskExecutionElevator;
+    public TaskExecutionLauncher taskExecutionLauncher() {
+        return this.mTaskExecutionLauncher;
     }
 
     @Override

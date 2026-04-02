@@ -1,6 +1,6 @@
 package com.walnut.odin.task.troll;
 
-public class InstanceLaunchException extends ElevationException {
+public class InstanceLaunchException extends LaunchException {
 
     public InstanceLaunchException() {
         super();

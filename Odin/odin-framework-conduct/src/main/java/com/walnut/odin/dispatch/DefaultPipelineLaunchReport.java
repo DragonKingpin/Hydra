@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import com.pinecone.hydra.proc.UProcess;
 
-public class DefaultPipelineElevationReport implements PipelineElevationReport {
+public class DefaultPipelineLaunchReport implements PipelineLaunchReport {
 
     protected TaskExecutionProcessor          mProcessor;
     protected Collection<UProcess>            mLaunchedProcesses;
@@ -13,7 +13,7 @@ public class DefaultPipelineElevationReport implements PipelineElevationReport {
     protected Collection<TaskLaunchContext>   mWaitingContext;
     protected boolean                         mbPreparing;
 
-    protected DefaultPipelineElevationReport(
+    protected DefaultPipelineLaunchReport(
             TaskExecutionProcessor processor,
             Collection<UProcess> launchedProcesses,
             Collection<TaskLaunchContext> launchedContext,
@@ -27,12 +27,12 @@ public class DefaultPipelineElevationReport implements PipelineElevationReport {
         this.mbPreparing         = preparing;
     }
 
-    public static DefaultPipelineElevationReport preparing(
+    public static DefaultPipelineLaunchReport preparing(
             TaskExecutionProcessor processor,
             Collection<UProcess> launchedProcesses,
             Collection<TaskLaunchContext> waitingContext
     ) {
-        return new DefaultPipelineElevationReport(
+        return new DefaultPipelineLaunchReport(
                 processor,
                 launchedProcesses,
                 Collections.emptyList(),
@@ -41,13 +41,13 @@ public class DefaultPipelineElevationReport implements PipelineElevationReport {
         );
     }
 
-    public static DefaultPipelineElevationReport executed(
+    public static DefaultPipelineLaunchReport executed(
             TaskExecutionProcessor processor,
             Collection<UProcess> launchedProcesses,
             Collection<TaskLaunchContext> launchedContext,
             Collection<TaskLaunchContext> waitingContext
     ) {
-        return new DefaultPipelineElevationReport(
+        return new DefaultPipelineLaunchReport(
                 processor,
                 launchedProcesses,
                 launchedContext,
@@ -56,11 +56,11 @@ public class DefaultPipelineElevationReport implements PipelineElevationReport {
         );
     }
 
-    public static DefaultPipelineElevationReport recycled(
+    public static DefaultPipelineLaunchReport recycled(
             TaskExecutionProcessor processor,
             Collection<TaskLaunchContext> recycled
     ) {
-        return new DefaultPipelineElevationReport(
+        return new DefaultPipelineLaunchReport(
                 processor,
                 Collections.emptyList(),
                 Collections.emptyList(),

@@ -43,7 +43,7 @@ import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
@@ -61,7 +61,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     private long                          mnScanIdWindow;
 
     private UniformTaskScheduler          mTaskScheduler;
-    private TaskExecutionElevator         mTaskExecutionElevator;
+    private TaskExecutionLauncher         mTaskExecutionLauncher;
     private UniformTaskInstrument         mUniformTaskInstrument;
     private RuntimeAtlasInstrument        mRuntimeAtlasInstrument;
     private CentralizedTaskInstrument     mCentralizedTaskInstrument;
@@ -84,7 +84,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mnScanIdWindow                = this.mRavenTaskConfig.getScheduleScanIdWindow();
 
         this.mRuntimeAtlasInstrument       = taskScheduler.atlasInstrument();
-        this.mTaskExecutionElevator        = taskScheduler.taskExecutionElevator();
+        this.mTaskExecutionLauncher        = taskScheduler.taskExecutionLauncher();
         this.mCentralizedTaskInstrument    = taskScheduler.taskInstrument();
         this.mUniformTaskInstrument        = this.mCentralizedTaskInstrument.getUniformTaskInstrument();
 
@@ -155,7 +155,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         InstanceEntry it = that.getInstanceEntry();
         it.setExpectTime( context.getThisScheduleTime() ); // 先更新，后面会插入，妈的
 
-        this.mTaskExecutionElevator.initializeInstance( that, feature );  // 这里会完成实例插入
+        this.mTaskExecutionLauncher.initializeInstance( that, feature );  // 这里会完成实例插入
     }
 
     protected void prepareInstanceLineage( TaskScheduleContext context, RavenTaskInstance instance ) {

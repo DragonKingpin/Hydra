@@ -33,8 +33,8 @@ import com.walnut.odin.task.troll.GenericRavenTask;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
-import com.walnut.odin.task.troll.TrollTaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
+import com.walnut.odin.task.troll.TrollTaskExecutionLauncher;
 
 
 public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
@@ -49,7 +49,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected RemoteProcessManagerServer    mRemoteProcessManagerServer;
 
-    protected TaskExecutionElevator         mTaskExecutionElevator;
+    protected TaskExecutionLauncher         mTaskExecutionLauncher;
 
     protected TaskDispatcher                mTaskDispatcher;
 
@@ -70,8 +70,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     protected void prepare_odin_collective_regiment_subsystem() {
         this.infoLifecycle( "Preparing Odin`s army, constructing task-regiment.", LogStatuses.StatusStart );
 
-        this.mTaskExecutionElevator = new TrollTaskExecutionElevator( this );
-        this.infoLifecycle( "TaskExecutionElevator: `" + this.mTaskExecutionElevator.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
+        this.mTaskExecutionLauncher = new TrollTaskExecutionLauncher( this );
+        this.infoLifecycle( "TaskExecutionElevator: `" + this.mTaskExecutionLauncher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
 
         this.mTaskDispatcher = new RavenTaskDispatcher( this );
         this.infoLifecycle( "TaskDispatcher: `" + this.mTaskDispatcher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
@@ -128,8 +128,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     @Override
-    public TaskExecutionElevator taskExecutionElevator() {
-        return this.mTaskExecutionElevator;
+    public TaskExecutionLauncher taskExecutionLauncher() {
+        return this.mTaskExecutionLauncher;
     }
 
     @Override
@@ -212,16 +212,16 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
 
 
-    protected LaunchedContext launch0( GUID taskGuid, LaunchFeature feature, boolean elevate ) throws InstanceLaunchException, TaskDispatchException {
+    protected LaunchedContext launch0( GUID taskGuid, LaunchFeature feature, boolean launch ) throws InstanceLaunchException, TaskDispatchException {
         RavenTask task = this.getTaskByGuid( taskGuid );
         RavenTaskInstance instance = task.createInstance();
 
         UProcess process;
-        if ( elevate ) {
-            process = this.mTaskDispatcher.elevate( instance, feature );
+        if ( launch ) {
+            process = this.mTaskDispatcher.launch( instance, feature );
         }
         else {
-            process = this.mTaskDispatcher.launch( instance, feature );
+            process = this.mTaskDispatcher.create( instance, feature );
         }
 
         LaunchedContext context = new LaunchedContext( process, instance );
@@ -229,15 +229,24 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     @Override
-    public LaunchedContext launch( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
+    public LaunchedContext create( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
         return this.launch0( taskGuid, feature, false );
     }
 
     @Override
-    public LaunchedContext elevate( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
+    public LaunchedContext launch( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
         return this.launch0( taskGuid, feature, true );
     }
 
+
+    @Override
+    public LaunchedContext create( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
+        GUID taskGuid = this.mTaskInstrument.queryGUIDByPath( path );
+        if ( taskGuid == null ) {
+            throw new IllegalArgumentException( "Task `" + path + "` is not task." );
+        }
+        return this.create( taskGuid, feature );
+    }
 
     @Override
     public LaunchedContext launch( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
@@ -246,15 +255,6 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
             throw new IllegalArgumentException( "Task `" + path + "` is not task." );
         }
         return this.launch( taskGuid, feature );
-    }
-
-    @Override
-    public LaunchedContext elevate( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
-        GUID taskGuid = this.mTaskInstrument.queryGUIDByPath( path );
-        if ( taskGuid == null ) {
-            throw new IllegalArgumentException( "Task `" + path + "` is not task." );
-        }
-        return this.elevate( taskGuid, feature );
     }
 
     @Override

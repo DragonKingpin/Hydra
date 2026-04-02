@@ -345,7 +345,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         }
     }
 
-    public ScheduleLaunchContext pipeLaunch( Collection<InstanceEntry> instances ) {
+    public ScheduleLaunchContext pipeCreate( Collection<InstanceEntry> instances ) {
         ScheduleLaunchContext context = new ScheduleLaunchContext();
         if ( instances == null || instances.isEmpty() ) {
             return context;

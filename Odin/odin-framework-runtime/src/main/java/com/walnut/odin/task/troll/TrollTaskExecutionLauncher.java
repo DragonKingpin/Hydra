@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.pinecone.hydra.task.kom.entity.TaskElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
 
-public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jTraceable {
+public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jTraceable {
 
     protected Logger mLogger;
 
@@ -63,7 +62,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
     protected ImageModifier mImageModifier;
 
 
-    public TrollTaskExecutionElevator( CollectiveTaskRegiment taskRegiment ) {
+    public TrollTaskExecutionLauncher(CollectiveTaskRegiment taskRegiment ) {
         this.mLogger                      = LoggerFactory.getLogger( this.getClass() );
         this.mRemoteProcessManagerServer  = taskRegiment.remoteProcessManagerServer();
         this.mProcessManager              = taskRegiment.processManager();
@@ -221,7 +220,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         );
     }
 
-    protected void afterProcessLaunched( RavenTaskInstance instance, UProcess process ) throws MetaPersistenceException {
+    protected void afterProcessCreated( RavenTaskInstance instance, UProcess process ) throws MetaPersistenceException {
         instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Standby );
         instance.update();
     }
@@ -246,7 +245,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
     }
 
     @Override
-    public UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess createLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         try {
             this.initializeInstance( instance, feature );
             URI imageURI = this.evalImageURI( instance, feature );
@@ -274,7 +273,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
 
 
             this.prepareProcessHandle( process, feature );
-            this.afterProcessLaunched( instance, process );
+            this.afterProcessCreated( instance, process );
             return process;
         }
         catch ( Exception e ) {
@@ -283,7 +282,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
     }
 
     @Override
-    public UProcess launchRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess createRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
         try {
             this.initializeInstance( instance, feature );
             URI imageURI = this.evalImageURI( instance, feature );
@@ -308,7 +307,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
             }
 
             this.prepareProcessHandle( process, feature );
-            this.afterProcessLaunched( instance, process );
+            this.afterProcessCreated( instance, process );
             return process;
         }
         catch ( Exception e ) {
@@ -325,9 +324,9 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         }
         catch ( MetaPersistenceException e ) {
             mLogger.error(
-                    "[TaskElevationSequence] [MetaPersistenceException] (Process: `{}`, PID: `{}`) <Error>", process.getName(), process.getPID()
+                    "[TaskLaunchSequence] [MetaPersistenceException] (Process: `{}`, PID: `{}`) <Error>", process.getName(), process.getPID()
             );
-            mLogger.error( "[TaskElevationSequence] [MetaPersistenceException: `{}`]", e );
+            mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException: `{}`]", e );
         }
     }
 
@@ -344,21 +343,21 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
 
 
     @Override
-    public UProcess elevateLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         this.getLogger().info(
-                "[TaskElevationSequence] [ElevateLocally] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Start>",
+                "[TaskLaunchSequence] [LaunchLocally] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Start>",
                 instance.getOwnedTask().getName(),
                 instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId()
         );
 
-        UProcess process = this.launchLocally( instance, feature );
+        UProcess process = this.createLocally( instance, feature );
         if ( process == null ) {
             return null;
         }
 
-        this.mLogger.info( "[TaskElevationSequence] [LocalProcessStandby] (Process: `{}`, PID: `{}`) <ElevationServerAck>", process.getName(), process.getPID() );
-        this.mLogger.info( "[TaskElevationSequence] [ExecutingVitalizationInstruction] (Process: `{}`, PID: `{}`) <Start>", process.getName(), process.getPID() );
+        this.mLogger.info( "[TaskLaunchSequence] [LocalProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
+        this.mLogger.info( "[TaskLaunchSequence] [ExecutingVitalizationInstruction] (Process: `{}`, PID: `{}`) <Start>", process.getName(), process.getPID() );
 
 
         this.mImageModifier.addSystemProcessEventHandler(process.getExecutionImage().getEntryPoint(), new ProcessEventHandler() {
@@ -368,7 +367,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
                     afterOwnedProcessTerminated( instance, process );
 
                     mLogger.info(
-                            "[TaskElevationSequence] [LocalTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
+                            "[TaskLaunchSequence] [LocalTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
                             instance.getOwnedTask().getName(),
                             instance.getOwnedTask().getFullName(),
                             instance.getOwnedTask().getId()
@@ -380,7 +379,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         this.afterOwnedProcessStarted( instance, process );
 
         this.mLogger.info(
-                "[TaskElevationSequence] [LocalTaskElevated] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
+                "[TaskLaunchSequence] [LocalTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
                 instance.getOwnedTask().getName(),
                 instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId(),
@@ -390,21 +389,21 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
     }
 
     @Override
-    public UProcess elevateRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess launchRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
         this.getLogger().info(
-                "[TaskElevationSequence] [ElevateRemotely] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Start>",
+                "[TaskLaunchSequence] [LaunchRemotely] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Start>",
                 instance.getOwnedTask().getName(),
                 instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId()
         );
 
-        UProcess process = this.launchRemotely( instance, pmClientId, feature );
+        UProcess process = this.createRemotely( instance, pmClientId, feature );
         if ( process == null ) {
             return null;
         }
 
-        this.mLogger.info( "[TaskElevationSequence] [RemoteProcessStandby] (Process: `{}`, PID: `{}`) <ElevationServerAck>", process.getName(), process.getPID() );
-        this.mLogger.info( "[TaskElevationSequence] [SendingVitalizationInstruction] (Process: `{}`, PID: `{}`, DestinationClient: `{}`) <Start>", process.getName(), process.getPID(), pmClientId );
+        this.mLogger.info( "[TaskLaunchSequence] [RemoteProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
+        this.mLogger.info( "[TaskLaunchSequence] [SendingVitalizationInstruction] (Process: `{}`, PID: `{}`, DestinationClient: `{}`) <Start>", process.getName(), process.getPID(), pmClientId );
 
         RemoteProcess remoteProcess = (RemoteProcess) process;
         remoteProcess.addRemoteEventHandler(new ProcessRemoteEventHandler() {
@@ -414,7 +413,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
                     afterOwnedProcessTerminated( instance, process );
 
                     mLogger.info(
-                            "[TaskElevationSequence] [RemoteTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
+                            "[TaskLaunchSequence] [RemoteTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
                             instance.getOwnedTask().getName(),
                             instance.getOwnedTask().getFullName(),
                             instance.getOwnedTask().getId()
@@ -426,7 +425,7 @@ public class TrollTaskExecutionElevator implements TaskExecutionElevator, Slf4jT
         this.afterOwnedProcessStarted( instance, process );
 
         this.mLogger.info(
-                "[TaskElevationSequence] [RemoteTaskElevated] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
+                "[TaskLaunchSequence] [RemoteTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
                 instance.getOwnedTask().getName(),
                 instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId(),

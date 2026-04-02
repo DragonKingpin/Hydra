@@ -30,14 +30,14 @@ public interface TaskDispatcher extends Pinenut {
     Collection<TaskLaunchContext> queryAffinityTasks( String szProcessorName );
 
 
-    PipelineElevationReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
+    PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
-    PipelineElevationReport pipeElevate( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
+    PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
+
+    UProcess create( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
     UProcess launch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
-
-    UProcess elevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
 
 }

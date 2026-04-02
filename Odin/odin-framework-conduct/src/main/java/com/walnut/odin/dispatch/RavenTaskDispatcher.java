@@ -21,7 +21,7 @@ import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 
 public class RavenTaskDispatcher implements TaskDispatcher {
@@ -42,7 +42,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     protected DispatchStrategy          mDispatchStrategy;
 
-    protected TaskExecutionElevator     mTaskExecutionElevator;
+    protected TaskExecutionLauncher     mTaskExecutionLauncher;
 
     protected CollectiveTaskRegiment    mCollectiveTaskRegiment;
 
@@ -53,7 +53,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mDispatchStrategy           = strategy;
         this.mClientProcessorsIndex      = new HashMap<>();
         this.mCollectiveTaskRegiment     = regiment;
-        this.mTaskExecutionElevator      = regiment.taskExecutionElevator();
+        this.mTaskExecutionLauncher      = regiment.taskExecutionLauncher();
         this.mTaskProcessorManipulator   = regiment.taskInstrument().getRavenTaskMasterManipulator().getTaskProcessorManipulator();
     }
 
@@ -82,7 +82,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         }
 
         entity.setControlClientId( nClientId );
-        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor( entity, this.mTaskExecutionElevator );
+        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor( entity, this.mTaskExecutionLauncher );
         this.registerProcessor( processor );
         return entity;
     }
@@ -177,7 +177,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
-    public PipelineElevationReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+    public PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
 
         this.mLock.lock();
@@ -194,7 +194,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
-    public PipelineElevationReport pipeElevate( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+    public PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
 
         this.mLock.lock();
@@ -210,7 +210,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         return this.executeScheme( plan, false );
     }
 
-    protected PipelineElevationReport executeScheme(
+    protected PipelineLaunchReport executeScheme(
             Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bLaunch
     ) throws InstanceLaunchException, TaskDispatchException {
         List<UProcess> launched = new ArrayList<>();
@@ -221,13 +221,13 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             TaskExecutionProcessor processor = entry.getKey();
             Collection<TaskLaunchContext> assigned = entry.getValue();
 
-            PipelineElevationReport report;
+            PipelineLaunchReport report;
 
             if ( bLaunch ) {
-                report = processor.pipeLaunch( assigned );
+                report = processor.pipeCreate( assigned );
             }
             else {
-                report = processor.pipeElevate( assigned );
+                report = processor.pipeLaunch( assigned );
             }
 
             launched.addAll( report.launchedProcesses() );
@@ -235,7 +235,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             waiting.addAll( report.waitingContext() );
         }
 
-        return DefaultPipelineElevationReport.executed(
+        return DefaultPipelineLaunchReport.executed(
                 null,
                 launched,
                 consumed,
@@ -244,16 +244,16 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
-    public UProcess launch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
+    public UProcess create( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
         TaskLaunchContext context = TaskLaunchContext.of( instance, feature );
-        PipelineElevationReport _r = this.pipeLaunch( List.of( context ) );
+        PipelineLaunchReport _r = this.pipeCreate( List.of( context ) );
         return context.getLaunchedProcess();
     }
 
     @Override
-    public UProcess elevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
+    public UProcess launch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException {
         TaskLaunchContext context = TaskLaunchContext.of( instance, feature );
-        PipelineElevationReport _r = this.pipeElevate( List.of( context ) );
+        PipelineLaunchReport _r = this.pipeLaunch( List.of( context ) );
         return context.getLaunchedProcess();
     }
 

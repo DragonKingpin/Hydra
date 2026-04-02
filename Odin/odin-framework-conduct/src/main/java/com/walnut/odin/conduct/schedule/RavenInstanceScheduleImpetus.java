@@ -27,7 +27,7 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
@@ -38,7 +38,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private long                       mnScanIdWindow;
 
     private UniformTaskScheduler       mTaskScheduler;
-    private TaskExecutionElevator      mTaskExecutionElevator;
+    private TaskExecutionLauncher      mTaskExecutionLauncher;
     private UniformTaskInstrument      mUniformTaskInstrument;
     private RuntimeAtlasInstrument     mRuntimeAtlasInstrument;
     private InstanceInstrument         mInstanceInstrument;
@@ -57,7 +57,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mnScanIdWindow              = this.mRavenTaskConfig.getScheduleScanIdWindow();
 
         this.mRuntimeAtlasInstrument     = taskScheduler.atlasInstrument();
-        this.mTaskExecutionElevator      = taskScheduler.taskExecutionElevator();
+        this.mTaskExecutionLauncher      = taskScheduler.taskExecutionLauncher();
         this.mCentralizedTaskInstrument  = taskScheduler.taskInstrument();
         this.mUniformTaskInstrument      = this.mCentralizedTaskInstrument.getUniformTaskInstrument();
         this.mInstanceInstrument         = taskScheduler.instanceInstrument();
@@ -154,7 +154,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 event.setEventContext( "{}" );
                 //    this.mScheduleManipulator.getInstanceEventMapper().insert( event );
                 //LaunchFeature feature = new LaunchFeature();
-                //  this.mTaskExecutionElevator.elevateLocally( instance, feature );
+                //  this.mTaskExecutionLauncher.launchLocally( instance, feature );
 
             }
             catch ( MetaPersistenceException e ) {

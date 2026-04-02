@@ -157,7 +157,7 @@ class Rick extends EnderHydra {
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
 
         RavenTaskScheduler scheduler = new RavenTaskScheduler(
-                odin.getTaskRegiment().taskInstrument(), odin.getAtlasInstrument(), odin.getTaskRegiment().taskExecutionElevator()
+                odin.getTaskRegiment().taskInstrument(), odin.getAtlasInstrument(), odin.getTaskRegiment().taskExecutionLauncher()
         );
         scheduler.fetch();
     }

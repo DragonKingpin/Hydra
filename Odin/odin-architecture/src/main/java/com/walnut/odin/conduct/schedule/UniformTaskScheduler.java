@@ -5,7 +5,7 @@ import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public interface UniformTaskScheduler extends Pinenut {
 
@@ -17,13 +17,13 @@ public interface UniformTaskScheduler extends Pinenut {
 
     RuntimeAtlasInstrument atlasInstrument();
 
-    TaskExecutionElevator taskExecutionElevator();
+    TaskExecutionLauncher taskExecutionLauncher();
 
     String getPartitionName();
 
 
     TaskSchedulePreparator taskSchedulePreparator();
 
-    InstanceScheduleImpetus instanceScheduleLauncher();
+    InstanceScheduleImpetus instanceScheduleImpetus();
 
 }

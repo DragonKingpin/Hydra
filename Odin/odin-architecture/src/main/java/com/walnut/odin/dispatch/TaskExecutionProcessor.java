@@ -40,23 +40,23 @@ public interface TaskExecutionProcessor extends Pinenut {
     int getWaitingSize();
 
 
+    UProcess directlyCreate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
     UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
-    UProcess directlyElevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
 
+    PipelineLaunchReport recycleTerminated(Collection<Identification> terminatedIds );
 
-    PipelineElevationReport recycleTerminated( Collection<Identification> terminatedIds );
+    PipelineLaunchReport launchsPending() throws TaskDispatchException;
 
-    PipelineElevationReport elevatesPending() throws TaskDispatchException;
-
-    PipelineElevationReport shiftElevatesPipeline( Collection<Identification> terminatedIds ) throws TaskDispatchException;
+    PipelineLaunchReport shiftLaunchsPipeline(Collection<Identification> terminatedIds ) throws TaskDispatchException;
 
 
-    PipelineElevationReport prepare( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
+    PipelineLaunchReport prepare(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 
-    PipelineElevationReport pipeLaunch ( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
+    PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 
-    PipelineElevationReport pipeElevate( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
+    PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 
 }

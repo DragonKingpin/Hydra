@@ -23,7 +23,7 @@ import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
@@ -37,14 +37,14 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     protected boolean                         mbExclusive;
 
     protected TaskExecutionQueue              mTaskExecutionQueue;
-    protected TaskExecutionElevator           mTaskExecutionElevator;
+    protected TaskExecutionLauncher           mTaskExecutionLauncher;
 
     protected Map<GUID, TaskLaunchContext>    mRunningProcesses;
     protected ConsumeCompromisedPolice        mConsumeCompromisedPolice;
 
     protected Logger                          log = LoggerFactory.getLogger( this.getClass() );
 
-    public RavenTaskExecutionProcessor( TaskProcessorEntity processorEntity, TaskExecutionQueue queue, TaskExecutionElevator elevator ) {
+    public RavenTaskExecutionProcessor( TaskProcessorEntity processorEntity, TaskExecutionQueue queue, TaskExecutionLauncher launcher ) {
         this.mszName                     = processorEntity.getName();
         this.mDeployClusterServer        = processorEntity.getDeployClusterServer();
         this.mszClusterPath              = processorEntity.getClusterPath();
@@ -54,13 +54,13 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mnPriority                  = processorEntity.getPriority();
         this.mbExclusive                 = processorEntity.isExclusive();
         this.mTaskExecutionQueue         = queue;
-        this.mTaskExecutionElevator      = elevator;
+        this.mTaskExecutionLauncher      = launcher;
         this.mRunningProcesses           = new ConcurrentHashMap<>();
         this.mConsumeCompromisedPolice   = ConsumeCompromisedPolice.EvictionException; // TODO, Advance
     }
 
-    public RavenTaskExecutionProcessor( TaskProcessorEntity processorEntity, TaskExecutionElevator elevator ) {
-        this( processorEntity, new GenericI32TaskQueue( processorEntity.getTaskQueueMeta() ), elevator );
+    public RavenTaskExecutionProcessor( TaskProcessorEntity processorEntity, TaskExecutionLauncher launcher ) {
+        this( processorEntity, new GenericI32TaskQueue( processorEntity.getTaskQueueMeta() ), launcher );
     }
 
     @Override
@@ -158,14 +158,14 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
-    public UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess directlyCreate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
-            return this.mTaskExecutionElevator.launchLocally( instance, feature );
+            return this.mTaskExecutionLauncher.createLocally( instance, feature );
         }
 
-        return this.mTaskExecutionElevator.launchRemotely(
+        return this.mTaskExecutionLauncher.createRemotely(
                 instance,
                 this.mnControlClientId,
                 feature
@@ -173,14 +173,14 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
-    public UProcess directlyElevate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+    public UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
-            return this.mTaskExecutionElevator.elevateLocally( instance, feature );
+            return this.mTaskExecutionLauncher.launchLocally( instance, feature );
         }
 
-        return this.mTaskExecutionElevator.elevateRemotely(
+        return this.mTaskExecutionLauncher.launchRemotely(
                 instance,
                 this.mnControlClientId,
                 feature
@@ -220,27 +220,27 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     protected void afterProcessTerminated( UProcess process, TaskLaunchContext context ) throws TaskDispatchException {
         this.mRunningProcesses.remove( process.getPID() );
-        this.shiftElevatesPipeline( List.of( context.getTaskInstance().getId() ) );
+        this.shiftLaunchsPipeline( List.of( context.getTaskInstance().getId() ) );
     }
 
     @Override
-    public PipelineElevationReport prepare( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+    public PipelineLaunchReport prepare( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
         this.mTaskExecutionQueue.offer( contexts );
 
-        return DefaultPipelineElevationReport.preparing(
+        return DefaultPipelineLaunchReport.preparing(
                 this,
                 Collections.emptyList(),
                 contexts
         );
     }
 
-    protected PipelineElevationReport pipeOpt( Collection<TaskLaunchContext> contexts, boolean elevateOrLaunch ) throws TaskDispatchException {
-        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( elevateOrLaunch );
+    protected PipelineLaunchReport pipeOpt( Collection<TaskLaunchContext> contexts, boolean launchOrCreate ) throws TaskDispatchException {
+        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( launchOrCreate );
         Collection<TaskLaunchContext> consumed = this.mTaskExecutionQueue.pipeConsume( contexts, consumer );
         List<UProcess> launched = consumer.getLaunched();
 
         Collection<TaskLaunchContext> waiting = this.subtractContext( contexts, consumed );
-        return DefaultPipelineElevationReport.executed(
+        return DefaultPipelineLaunchReport.executed(
                 this,
                 launched,
                 consumed,
@@ -249,32 +249,32 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
-    public PipelineElevationReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+    public PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
         return this.pipeOpt( contexts, false );
     }
 
     @Override
-    public PipelineElevationReport pipeElevate( Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+    public PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
         return this.pipeOpt( contexts, true );
     }
 
     @Override
-    public PipelineElevationReport recycleTerminated( Collection<Identification> terminatedIds ) {
+    public PipelineLaunchReport recycleTerminated(Collection<Identification> terminatedIds ) {
         Collection<TaskLaunchContext> recycled = this.mTaskExecutionQueue.recycleTerminated( terminatedIds );
 
-        return DefaultPipelineElevationReport.recycled(
+        return DefaultPipelineLaunchReport.recycled(
                 this,
                 recycled
         );
     }
 
     @Override
-    public PipelineElevationReport elevatesPending() throws TaskDispatchException {
+    public PipelineLaunchReport launchsPending() throws TaskDispatchException {
         RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( true );
         Collection<TaskLaunchContext> consumed = this.mTaskExecutionQueue.consumePending( consumer );
         List<UProcess> launched = consumer.getLaunched();
 
-        return DefaultPipelineElevationReport.executed(
+        return DefaultPipelineLaunchReport.executed(
                 this,
                 launched,
                 consumed,
@@ -283,12 +283,12 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
-    public PipelineElevationReport shiftElevatesPipeline( Collection<Identification> terminatedIds ) throws TaskDispatchException {
+    public PipelineLaunchReport shiftLaunchsPipeline(Collection<Identification> terminatedIds ) throws TaskDispatchException {
         RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( true );
         Collection<TaskLaunchContext> consumed = this.mTaskExecutionQueue.shiftPipeline( terminatedIds, consumer );
         List<UProcess> launched = consumer.getLaunched();
 
-        return DefaultPipelineElevationReport.executed(
+        return DefaultPipelineLaunchReport.executed(
                 this,
                 launched,
                 consumed,
@@ -301,22 +301,22 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
         public List<UProcess> launched;
 
-        public boolean elevateOrLaunch;
+        public boolean launchOrCreate;
 
-        public RTaskInstanceConsumer( boolean elevateOrLaunch ) {
+        public RTaskInstanceConsumer( boolean launchOrCreate ) {
             this.launched = new ArrayList<>();
-            this.elevateOrLaunch = elevateOrLaunch;
+            this.launchOrCreate = launchOrCreate;
         }
 
         @Override
         public void tryConsume( TaskLaunchContext context ) throws TaskConsumeException {
             try {
                 UProcess proc;
-                if ( this.elevateOrLaunch ) {
-                    proc = directlyElevate( context.getTaskInstance(), context.getLaunchFeature() );
+                if ( this.launchOrCreate ) {
+                    proc = directlyLaunch( context.getTaskInstance(), context.getLaunchFeature() );
                 }
                 else {
-                    proc = directlyLaunch( context.getTaskInstance(), context.getLaunchFeature() );
+                    proc = directlyCreate( context.getTaskInstance(), context.getLaunchFeature() );
                 }
                 this.launched.add( proc );
                 afterProcessLaunched( proc, context );

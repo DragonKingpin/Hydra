@@ -4,12 +4,10 @@ import java.util.Map;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.proc.ProcessManager;
-import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
@@ -34,18 +32,14 @@ import com.walnut.odin.conduct.CollectiveTaskLegionary;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskLegionary;
 import com.walnut.odin.conduct.entity.LaunchedContext;
-import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
-import com.walnut.odin.task.RavenTask;
-import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.dto.CategoryTag;
 import com.walnut.odin.task.dto.GenericCategoryTag;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
 
 
 class Randy extends EnderHydra {
@@ -76,7 +70,7 @@ class Randy extends EnderHydra {
         //this.testTaskRegimentBase( taskRegiment ,ravenTaskInstrument);
 
 
-        this.testInstanceElevate( ravenTaskInstrument );
+        this.testInstanceLaunch( ravenTaskInstrument );
     }
 
     private void testTaskRegimentBase( CollectiveTaskRegiment regiment ,  RavenTaskInstrument instrument) {
@@ -202,7 +196,7 @@ class Randy extends EnderHydra {
 
 
 
-    private void testInstanceElevate( TaskInstrument instrument ) throws Exception {
+    private void testInstanceLaunch( TaskInstrument instrument ) throws Exception {
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         CollectiveTaskRegiment regiment = new RavenCollectiveTaskRegiment( this, (CentralizedTaskInstrument) instrument, wolfKing );
@@ -229,7 +223,7 @@ class Randy extends EnderHydra {
 
 
 
-//        TaskExecutionElevator elevator = regiment.taskExecutionElevator();
+//        TaskExecutionLauncher launcher = regiment.taskExecutionLauncher();
 //        GUID taskGuid = instrument.queryGUIDByPath( "root/test/job/task" );
 //        RavenTask task = regiment.getTaskByGuid( taskGuid );
 //        RavenTaskInstance instance = task.createInstance();
@@ -260,13 +254,13 @@ class Randy extends EnderHydra {
 
 
         LaunchFeature feature = new LaunchFeature();
-        //UProcess uProcess = elevator.launchLocally( instance, feature );
-        //UProcess uProcess = elevator.launchRemotely( instance, client.getClientId(), feature );
+        //UProcess uProcess = launcher.createLocally( instance, feature );
+        //UProcess uProcess = launcher.createRemotely( instance, client.getClientId(), feature );
 
         //uProcess.start();
 
-        //elevator.elevateRemotely( instance, client.getClientId(), feature );
-        //elevator.elevateLocally( instance, feature );
+        //launcher.launchRemotely( instance, client.getClientId(), feature );
+        //launcher.launchLocally( instance, feature );
 
 
 
@@ -279,14 +273,14 @@ class Randy extends EnderHydra {
 //        );
 //        processorEntity.setControlClientId( client.getClientId() );
 //
-//        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(processorEntity, elevator);
-//        processor.pipeElevate( List.of( TaskLaunchContext.of( feature, instance ) ) );
+//        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(processorEntity, launcher);
+//        processor.pipeLaunch( List.of( TaskLaunchContext.of( feature, instance ) ) );
 
 
 
         //TaskDispatcher taskDispatcher = regiment.taskDispatcher();
-        //UProcess process = taskDispatcher.elevate( instance, feature );
-        LaunchedContext context = regiment.elevate( "root/test/job/task", feature );
+        //UProcess process = taskDispatcher.create( instance, feature );
+        LaunchedContext context = regiment.create( "root/test/job/task", feature );
         Debug.greenfs( context.getProcess().getPID() );
 
     }

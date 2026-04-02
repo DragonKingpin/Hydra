@@ -17,7 +17,7 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
-import com.walnut.odin.task.troll.TaskExecutionElevator;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public interface CollectiveTaskRegiment extends Regiment, Slf4jTraceable {
 
@@ -39,7 +39,7 @@ public interface CollectiveTaskRegiment extends Regiment, Slf4jTraceable {
 
     CentralizedTaskInstrument taskInstrument();
 
-    TaskExecutionElevator taskExecutionElevator();
+    TaskExecutionLauncher taskExecutionLauncher();
 
     TaskDispatcher taskDispatcher();
 
@@ -47,14 +47,14 @@ public interface CollectiveTaskRegiment extends Regiment, Slf4jTraceable {
 
 
 
+    LaunchedContext create( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
+
     LaunchedContext launch( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
-    LaunchedContext elevate( GUID taskGuid, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
+    LaunchedContext create( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
     LaunchedContext launch( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
-
-    LaunchedContext elevate( String path, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;
 
 
     RegimentJoinResponse invokeJoinRegiment( RegimentJoinRequest request );

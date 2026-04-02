@@ -5,7 +5,7 @@ import java.util.Collection;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.proc.UProcess;
 
-public interface PipelineElevationReport extends Pinenut {
+public interface PipelineLaunchReport extends Pinenut {
 
     Collection<UProcess> launchedProcesses();
 

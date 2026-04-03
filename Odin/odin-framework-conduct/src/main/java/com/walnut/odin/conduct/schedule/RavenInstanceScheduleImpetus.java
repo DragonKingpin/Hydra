@@ -48,6 +48,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private TaskNodeManipulator        mTaskNodeManipulator;
     private ScheduleManipulator        mScheduleManipulator;
 
+    private InstanceScheduleDispatcher mInstanceScheduleDispatcher;
     private ExecutorService            mExecutorService;
 
     public RavenInstanceScheduleImpetus( UniformTaskScheduler taskScheduler ) {
@@ -66,6 +67,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
 
+        this.mInstanceScheduleDispatcher = taskScheduler.instanceScheduleDispatcher();
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
@@ -113,7 +115,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                     );
 
 
-
+                    this.mInstanceScheduleDispatcher.pipeLaunch( entries );
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
                     log.info( "[TaskSchedulerLifecycle] Impelling schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, entries.size() );

@@ -234,8 +234,8 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         );
     }
 
-    protected PipelineLaunchReport pipeOpt( Collection<TaskLaunchContext> contexts, boolean launchOrCreate ) throws TaskDispatchException {
-        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( launchOrCreate );
+    protected PipelineLaunchReport pipeOpt( Collection<TaskLaunchContext> contexts, boolean directlyLaunch ) throws TaskDispatchException {
+        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( directlyLaunch );
         Collection<TaskLaunchContext> consumed = this.mTaskExecutionQueue.pipeConsume( contexts, consumer );
         List<UProcess> launched = consumer.getLaunched();
 
@@ -301,18 +301,18 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
         public List<UProcess> launched;
 
-        public boolean launchOrCreate;
+        public boolean directlyLaunch;
 
-        public RTaskInstanceConsumer( boolean launchOrCreate ) {
+        public RTaskInstanceConsumer( boolean directlyLaunch ) {
             this.launched = new ArrayList<>();
-            this.launchOrCreate = launchOrCreate;
+            this.directlyLaunch = directlyLaunch;
         }
 
         @Override
         public void tryConsume( TaskLaunchContext context ) throws TaskConsumeException {
             try {
                 UProcess proc;
-                if ( this.launchOrCreate ) {
+                if ( this.directlyLaunch ) {
                     proc = directlyLaunch( context.getTaskInstance(), context.getLaunchFeature() );
                 }
                 else {

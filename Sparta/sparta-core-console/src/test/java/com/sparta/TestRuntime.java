@@ -71,21 +71,10 @@ class Rick extends EnderHydra {
         Odin odin = (Odin) lord;
         odin.vitalize();
 
-        JSONConfig config = (JSONConfig) odin.getSubsystemConfig();
-        JSONObject jo = config.queryJSONObject("scheduler.globalDispatcher.__DEFAULT__");
 
-
-        InstanceScheduleDispatcher dispatcher = new RavenScheduleDispatcher( jo );
-
-
-        KOIMappingDriver koiMappingDriver = new QueueMappingDriver(
-                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
-        );
-
-
-        LayerInstrument layerInstrument = odin.getLayerInstrument();
-        CentralizedTaskInstrument uniformTaskInstrument = odin.getTaskRegiment().taskInstrument();
-        RuntimeAtlasInstrument uniformRuntimeAtlas = odin.getAtlasInstrument();
+        LayerInstrument layerInstrument = odin.layerInstrument();
+        CentralizedTaskInstrument uniformTaskInstrument = odin.taskRegiment().taskInstrument();
+        RuntimeAtlasInstrument uniformRuntimeAtlas = odin.atlasInstrument();
 
 
 
@@ -156,9 +145,7 @@ class Rick extends EnderHydra {
 
 //        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
 
-        RavenTaskScheduler scheduler = new RavenTaskScheduler(
-                odin.getTaskRegiment().taskInstrument(), odin.getAtlasInstrument(), odin.getTaskRegiment().taskExecutionLauncher()
-        );
+        RavenTaskScheduler scheduler = (RavenTaskScheduler) odin.taskScheduler();
         scheduler.fetch();
     }
 

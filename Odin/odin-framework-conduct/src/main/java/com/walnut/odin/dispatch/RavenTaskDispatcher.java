@@ -211,7 +211,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     protected PipelineLaunchReport executeScheme(
-            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bLaunch
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bCreation
     ) throws InstanceLaunchException, TaskDispatchException {
         List<UProcess> launched = new ArrayList<>();
         List<TaskLaunchContext> consumed = new ArrayList<>();
@@ -223,7 +223,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
             PipelineLaunchReport report;
 
-            if ( bLaunch ) {
+            if ( bCreation ) {
                 report = processor.pipeCreate( assigned );
             }
             else {

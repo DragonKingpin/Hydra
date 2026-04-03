@@ -63,6 +63,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     }
 
     @Override
+    public InstanceScheduleDispatcher instanceScheduleDispatcher() {
+        return this.mInstanceScheduleDispatcher;
+    }
+
+    @Override
     public RavenTaskConfig ravenTaskConfig() {
         return this.mRavenTaskConfig;
     }

@@ -23,6 +23,7 @@ import com.walnut.odin.atlas.graph.UniformRuntimeAtlas;
 import com.walnut.odin.atlas.mapper.OdinAtlasMappingDriver;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
+import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
@@ -80,13 +81,11 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Domain Subsystem Initialization", LogStatuses.StatusReady );
     }
 
-    protected void prepare_system_skeleton() {
-        this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
+    protected void prepare_instrumentation() {
+        this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusStart );
+
 
         TritiumSystem sys = (TritiumSystem) this.parentSystem();
-
-        //sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance()
-
         KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
                 sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
                 sys.getDispenserCenter()
@@ -101,8 +100,6 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
                 sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszTaskInstrumentKey ),
                 sys.getDispenserCenter()
         );
-
-
 
 
         CentralizedTaskInstrument taskInstrument = new RavenTaskInstrument(
@@ -126,6 +123,27 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         }
         this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
 
+
+        this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_scheduler() {
+        this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusStart );
+
+        this.mTaskScheduler = new RavenTaskScheduler(
+                this.mTaskRegiment.taskInstrument(), this.mAtlasInstrument, this.mTaskRegiment.taskExecutionLauncher()
+        );
+
+        this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_system_skeleton() {
+        this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
+
+        this.prepare_instrumentation();
+        this.prepare_scheduler();
+
+
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusDone );
     }
 
@@ -140,19 +158,19 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     }
 
 
-    public LayerInstrument getLayerInstrument() {
+    public LayerInstrument layerInstrument() {
         return this.mLayerInstrument;
     }
 
-    public RuntimeAtlasInstrument getAtlasInstrument() {
+    public RuntimeAtlasInstrument atlasInstrument() {
         return this.mAtlasInstrument;
     }
 
-    public CollectiveTaskRegiment getTaskRegiment() {
+    public CollectiveTaskRegiment taskRegiment() {
         return this.mTaskRegiment;
     }
 
-    public UniformTaskScheduler getTaskScheduler() {
+    public UniformTaskScheduler taskScheduler() {
         return this.mTaskScheduler;
     }
 

@@ -62,7 +62,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     protected ImageModifier mImageModifier;
 
 
-    public TrollTaskExecutionLauncher(CollectiveTaskRegiment taskRegiment ) {
+    public TrollTaskExecutionLauncher( CollectiveTaskRegiment taskRegiment ) {
         this.mLogger                      = LoggerFactory.getLogger( this.getClass() );
         this.mRemoteProcessManagerServer  = taskRegiment.remoteProcessManagerServer();
         this.mProcessManager              = taskRegiment.processManager();

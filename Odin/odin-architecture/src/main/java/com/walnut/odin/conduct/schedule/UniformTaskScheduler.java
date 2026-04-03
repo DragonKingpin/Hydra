@@ -26,4 +26,6 @@ public interface UniformTaskScheduler extends Pinenut {
 
     InstanceScheduleImpetus instanceScheduleImpetus();
 
+    InstanceScheduleDispatcher instanceScheduleDispatcher();
+
 }

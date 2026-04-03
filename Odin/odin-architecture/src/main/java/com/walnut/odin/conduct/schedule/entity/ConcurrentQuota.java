@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.unit.KeyValue;
+import com.pinecone.framework.util.json.JSONEncoder;
 import com.pinecone.framework.util.json.JSONObject;
 
 public class ConcurrentQuota implements Pinenut {
@@ -139,4 +141,14 @@ public class ConcurrentQuota implements Pinenut {
         return quota;
     }
 
+    @Override
+    public String toJSONString() {
+        return JSONEncoder.stringifyMapFormat( new KeyValue[]{
+                new KeyValue<>( "priority"      , this.getPriority() ),
+                new KeyValue<>( "maximumRatio"  , this.getMaximumRatio() ),
+                new KeyValue<>( "maximumCnt"    , this.getMaximumCnt() ),
+                new KeyValue<>( "minimumRatio"  , this.getMinimumRatio() ),
+                new KeyValue<>( "minimumCnt"    , this.getMaximumCnt() )
+        } );
+    }
 }

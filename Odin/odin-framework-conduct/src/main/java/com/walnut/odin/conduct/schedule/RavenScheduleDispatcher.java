@@ -11,7 +11,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pinecone.framework.util.CollectionUtils;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskPriority;
@@ -20,6 +25,7 @@ import com.walnut.odin.conduct.schedule.entity.ScheduleLaunchContext;
 
 public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
 
+    private Logger log = LoggerFactory.getLogger( this.getClass() );
 
     private String                                             mszPartitionName;
     private Map<String, ConcurrentQuota>                       mQuotaConfig;
@@ -58,6 +64,16 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         }
     }
 
+    protected void trace_dispatcher_config() {
+        JSONObject jo = new JSONMaptron();
+
+        jo.put( "PartitionName", this.mszPartitionName );
+        jo.put( "ConcurrentInstance", this.mGlobalConcurrentInstance.get() );
+        jo.put( "QuotationConfig", new JSONMaptron( CollectionUtils.genericConvert( this.mQuotaConfig ), true ) );
+
+        log.info( "[ScheduleDispatcher] Dispatcher configured with following configs: {}", jo.toJSONStringI( 2 ) );
+    }
+
     public RavenScheduleDispatcher( JSONObject config ) {
         this.mPriorityQuota            = new ConcurrentHashMap<>();
         this.mPrioritySegLocks         = new ConcurrentHashMap<>();
@@ -65,6 +81,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         this.mGlobalInstanceLock       = new ReentrantLock();
 
         this.from_config( config );
+        this.trace_dispatcher_config();
     }
 
     public RavenScheduleDispatcher( UniformTaskScheduler taskScheduler ) {
@@ -281,7 +298,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
     }
 
 
-    protected void pipeLaunchByPriority(int nPriority, Collection<InstanceEntry> instances, ScheduleLaunchContext context ) {
+    protected void pipeLaunchByPriority( int nPriority, Collection<InstanceEntry> instances, ScheduleLaunchContext context ) {
         Lock segLock = this.affirmPrioritySegLock( nPriority );
         segLock.lock();
 
@@ -345,7 +362,8 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         }
     }
 
-    public ScheduleLaunchContext pipeCreate( Collection<InstanceEntry> instances ) {
+    @Override
+    public ScheduleLaunchContext pipeLaunch( Collection<InstanceEntry> instances ) {
         ScheduleLaunchContext context = new ScheduleLaunchContext();
         if ( instances == null || instances.isEmpty() ) {
             return context;

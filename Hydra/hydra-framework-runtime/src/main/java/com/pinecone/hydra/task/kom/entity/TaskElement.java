@@ -1,5 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.TaskExtraMeta;
 import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.pinecone.hydra.task.marshal.TaskScheduleType;

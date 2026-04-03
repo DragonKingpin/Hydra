@@ -35,4 +35,7 @@ public interface TaskNodeManipulator extends GUIDNameManipulator {
 
     List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
 
+    List<TaskElement> listPage(int offset, int pageSize);
+
+
 }

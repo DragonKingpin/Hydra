@@ -80,4 +80,9 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
         return (List) list;
     }
 
+
+
+    @Override
+    List<TaskElement> listPage(int offset, int pageSize);
+
 }

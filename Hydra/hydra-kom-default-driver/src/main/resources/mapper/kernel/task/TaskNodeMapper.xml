@@ -228,4 +228,35 @@
 
     </select>
 
+
+    <sql id="TaskNodeColumns">
+    id,
+    guid,
+    owned_service_guid,
+    name,
+    schedule_cron,
+    image_path,
+    type,
+    resource_type,
+    deployment_method,
+    priority,
+    actually_priority,
+    dry_run,
+    schedule_cycle,
+    schedule_type,
+    schedule_start_time,
+    schedule_end_time,
+    enable,
+    next_schedule_time,
+    create_time,
+    update_time
+    </sql>
+
+    <select id="listPage" resultMap="TaskNodeMap">
+        SELECT
+        <include refid="TaskNodeColumns"/>
+        FROM hydra_task_task_node
+        ORDER BY id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 </mapper>

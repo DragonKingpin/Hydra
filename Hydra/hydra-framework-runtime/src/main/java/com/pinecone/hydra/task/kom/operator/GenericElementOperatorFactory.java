@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.pinecone.hydra.task.kom.ServiceInstrument;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
@@ -13,7 +13,7 @@ import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
 public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected TaskMasterManipulator taskMasterManipulator;
-    protected ServiceInstrument serviceInstrument;
+    protected TaskInstrument taskInstrument;
     protected Map<String, TreeNodeOperator> registerer = new HashMap<>();
 
     protected Map<String, String >             metaTypeMap = new TreeMap<>();
@@ -25,11 +25,11 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     protected void registerDefaultMetaTypes() {
         this.registerDefaultMetaType( GenericNamespace.class );
         this.registerDefaultMetaType( GenericTaskElement.class );
-        this.registerDefaultMetaType( GenericJobElement.class );
+        this.registerDefaultMetaType( GenericAppElement.class );
     }
 
-    public GenericElementOperatorFactory(ServiceInstrument serviceInstrument, TaskMasterManipulator taskMasterManipulator){
-        this.serviceInstrument = serviceInstrument;
+    public GenericElementOperatorFactory(TaskInstrument taskInstrument, TaskMasterManipulator taskMasterManipulator){
+        this.taskInstrument = taskInstrument;
         this.taskMasterManipulator = taskMasterManipulator;
 
         this.registerer.put(
@@ -39,7 +39,7 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
 
         this.registerer.put(
                 ElementOperatorFactory.DefaultApplicationNode,
-                new JobElementOperator(this)
+                new AppElementOperator(this)
         );
 
         this.registerer.put(
@@ -65,8 +65,8 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public ServiceInstrument getServicesTree() {
-        return this.serviceInstrument;
+    public TaskInstrument taskInstrument() {
+        return this.taskInstrument;
     }
 
     @Override

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceAtlasNodeMapper">
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceAtlasNode">
+        INSERT INTO odin_task_instance_atlas_nodes (
+            guid,
+            instance_guid,
+            node_name,
+            is_isolated
+        ) VALUES (
+                     #{guid},
+                     #{instanceGuid},
+                     #{nodeName},
+                     #{isIsolated}
+                 )
+    </insert>
+
+</mapper>

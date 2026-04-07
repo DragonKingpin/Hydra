@@ -2,12 +2,12 @@ package com.pinecone.hydra.account.entity;
 
 import com.pinecone.framework.util.id.GUID;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface FolderElement extends ElementNode{
-    List<ElementNode> fetchChildren();
+    Collection<ElementNode> fetchChildren();
 
-    List<GUID> fetchChildrenGuids();
+    Collection<GUID> fetchChildrenGuids();
 
     void addChild( ElementNode child );
 

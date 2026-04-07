@@ -9,20 +9,44 @@ import com.pinecone.framework.util.name.Name;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ArchMultiScopeFactory extends ArchDynamicFactory implements MultiScopeFactory {
-    protected TaskManager             mTaskManager      ;
-    protected MultiTraitClassLoader   mTraitClassLoader ;
+    protected TaskManager             mTaskManager        ;
+    protected MultiTraitClassLoader   mTraitClassLoader   ;
+    protected Map<Class<?>, Object>   mInstanceSingletons ;
 
     protected ArchMultiScopeFactory( TaskManager taskManager, ClassLoader classLoader, MultiTraitClassLoader traitClassLoader, ClassScope classScope ) {
         super( classLoader, classScope );
-        this.mTaskManager       = taskManager       ;
-        this.mTraitClassLoader  = traitClassLoader  ;
+        this.mTaskManager         = taskManager       ;
+        this.mTraitClassLoader    = traitClassLoader  ;
+        this.mInstanceSingletons  = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public <T> void putInstanceSingleton( Class<T> clazz, T obj ) {
+        this.mInstanceSingletons.put( clazz, obj );
+    }
+
+    @Override
+    public <T> void removeInstanceSingleton(Class<T> clazz) {
+        this.mInstanceSingletons.remove( clazz );
+    }
+
+    @Override
+    public int instanceSingletonSize() {
+        return this.mInstanceSingletons.size();
     }
 
     @Override
     public MultiTraitClassLoader getTraitClassLoader() {
         return this.mTraitClassLoader;
+    }
+
+    @Override
+    protected Object beforeInstantiate( Class<?> that, Class<?>[] stereotypes, Object[] args ) {
+        return this.mInstanceSingletons.get( that );
     }
 
     @Override

@@ -9,19 +9,19 @@ import java.util.List;
 
 /**
  *  Pinecone Ursus For Java Imperial Tree
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Imperium (Imperial Tree)
- *  It is a distributed uniformed orchestration system tree used for uniformed and systematic orchestration of controlled distributed objects.
+ *  It is a distributed uniformed institutionalization system tree used for uniformed and systematic institutionalization of controlled distributed objects.
  *  Similar to kernel object management in other OS, it ensures that kernel objects and target-controlled objects in the system are marshaled
  *  and accessed in a uniformed URL-style.
  *  This data structure is based on a prefix tree and a GUID system, which can also be utilized for other marshaling purposes.
  *
  *  Imperium (统治树)，
- *  是一种分布式统一编排体系树，用于对受控分布式对象进行统一系统性编排。
- *  与其他操作系统内核对象管理类似，使得系统中的内核对象和欲控对象，整整齐齐的被编组和统一URL式访问。
- *  该数据结构基于前缀树和GUID身份证体系，是一类通用数据结构，也可用于其他编组目的的实现。
+ *  是一种分布式统一编制体系树，用于对受控分布式对象进行统一系统性编制。
+ *  与其他操作系统内核对象管理类似，使得系统中的内核对象和欲控对象，整整齐齐的被编制和统一URL式访问。
+ *  该数据结构基于前缀树和GUID身份证体系，是一类通用数据结构，也可用于其他编制或编组目的的实现。
  *
  *  e.g. \Device\HarddiskVolume3\Users\dragonking\AppData\Local\
  *  e.g. /proc/137/task

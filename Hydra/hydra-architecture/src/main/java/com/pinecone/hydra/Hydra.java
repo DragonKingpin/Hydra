@@ -4,13 +4,13 @@ import com.pinecone.framework.system.Framework;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.system.architecture.SystemComponentManager;
 import com.pinecone.hydra.system.HySkeleton;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.MultiComponentSystem;
 import com.pinecone.hydra.system.SystemSkeleton;
 
 import java.nio.file.Path;
 
-public abstract class Hydra extends Framework implements Hydrarum {
+public abstract class Hydra extends Framework implements Hydrogen {
     private HySkeleton                 mComponentManager ;
 
     protected boolean                  mDebugMode        ;

@@ -17,8 +17,8 @@ public interface VolumeGram extends Processum {
     byte[] getBuffer();
     void setBuffer( byte[] buffer );
 
-    int getBufferOutThreadId();
-    void applyBufferOutThreadId(int bufferOutThreadId );
+    long getBufferOutThreadId();
+    void applyBufferOutThreadId(long bufferOutThreadId );
 
     void applyBufferOutBlockerLatch( Semaphore bufferOutBlockerLatch);
     Semaphore getBufferOutBlockerLatch();

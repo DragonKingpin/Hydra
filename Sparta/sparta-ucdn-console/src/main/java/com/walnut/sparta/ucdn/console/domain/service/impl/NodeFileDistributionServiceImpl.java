@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.console.domain.service.impl;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
@@ -104,7 +104,7 @@ public class NodeFileDistributionServiceImpl implements NodeFileDistributionServ
 
     @Override
     public void clusterFileSync( ClusterFileSyncDTO dto ) throws IOException, InterruptedException {
-        Folder folder = this.primaryFileSystem.getFolder( GUIDs.GUID72(dto.getFileGuid()) );
+        Folder folder = this.primaryFileSystem.getFolder( GUIDs.GUID128(dto.getFileGuid()) );
         List<GUID> guids = this.primaryVersion.fetchVersions(folder.getGuid());
         ServiceLifecycleIface lifecycleIface = this.ucdnServiceManager.getLifecycleIface();
         int serviceNum = lifecycleIface.countRegisteredService();

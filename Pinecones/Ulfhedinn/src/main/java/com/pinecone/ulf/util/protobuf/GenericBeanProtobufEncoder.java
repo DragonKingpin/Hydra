@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors;
@@ -202,8 +203,8 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
             boolean includeSuperClass = clazz.getClassLoader() != null;
             Method[] methods = includeSuperClass ? clazz.getMethods() : clazz.getDeclaredMethods();
 
-            int fieldNumber = 1;
-            for( int i = 0; i < methods.length; ++i ) {
+            Map<String, Method> methodOrderMap = new TreeMap<>(); // Unified methods order accessing all services.
+            for ( int i = 0; i < methods.length; ++i ) {
                 try {
                     Method method = methods[i];
                     if ( Modifier.isPublic( method.getModifiers() ) ) {
@@ -216,89 +217,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                                     continue;
                                 }
 
-                                Class<?> elemRetType = method.getReturnType();
-                                DescriptorProtos.FieldDescriptorProto.Type fieldType = this.reinterpret( elemRetType );
-
-                                DescriptorProtos.FieldDescriptorProto.Builder fieldBuilder;
-                                Class<?> dependenceComponentType = null;
-                                if( Collection.class.isAssignableFrom( elemRetType ) ) {
-                                    Type gt = method.getGenericReturnType();
-                                    String[] genericTypeNames = ReflectionUtils.extractGenericClassNames( gt.getTypeName() );
-                                    if( genericTypeNames != null && genericTypeNames.length > 0 ) {
-                                        String genericTypeName = genericTypeNames[ 0 ];
-
-                                        if( !genericTypeName.equals( "?" ) && !genericTypeName.equals( Object.class.getSimpleName() ) ) {
-                                            try {
-                                                dependenceComponentType = this.getClass().getClassLoader().loadClass( genericTypeName );
-                                                fieldType = this.reinterpret( dependenceComponentType );
-                                            }
-                                            catch ( ClassNotFoundException e ) {
-                                                continue;
-                                            }
-                                        }
-                                    }
-
-                                    fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
-                                            .setName( key )
-                                            .setNumber( fieldNumber )
-                                            .setType( fieldType )
-                                            .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
-                                }
-                                else if( elemRetType.isArray() && !byte[].class.isAssignableFrom( elemRetType ) ) {
-                                    Class<?> componentType = elemRetType.getComponentType();
-                                    fieldType = this.reinterpret( componentType );
-                                    dependenceComponentType = componentType;
-
-                                    fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
-                                            .setName( key )
-                                            .setNumber( fieldNumber )
-                                            .setType( this.reinterpret( componentType ) )
-                                            .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
-                                }
-                                else {
-                                    fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
-                                            .setName( key )
-                                            .setNumber( fieldNumber )
-                                            .setType( fieldType );
-                                }
-                                fieldNumber++;
-
-
-                                if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
-                                    Class<?> nestedClass = method.getReturnType();
-                                    Object dyChild = null;
-
-                                    if ( dynamicObject != null ) {
-                                        try {
-                                            method.setAccessible( true );
-                                            dyChild = method.invoke( dynamicObject );
-                                        }
-                                        catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
-                                            dyChild = null;
-                                        }
-                                    }
-
-                                    if ( !clazz.equals( nestedClass ) ) {
-                                        Descriptors.Descriptor nestedDescriptor;
-                                        if ( dependenceComponentType != null ) {
-                                            // Array / List can`t uses dynamic object.
-                                            nestedDescriptor = this.transform0( dependenceComponentType, szEntityName + "_" + key, null, exceptedKeys, options );
-                                        }
-                                        else {
-                                            nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
-                                        }
-                                        if( nestedDescriptor == null ) {
-                                            continue;
-                                        }
-                                        fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
-                                        dependencies.add( nestedDescriptor.getFile() );
-                                    }
-                                    else {
-                                        fieldBuilder.setTypeName( szEntityName );
-                                    }
-                                }
-
-                                descriptorBuilder.addField( fieldBuilder );
+                                methodOrderMap.put( key, method );
                             }
                         }
                     }
@@ -306,6 +225,101 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                 catch ( Exception ignore ) {
                     ignore.printStackTrace();
                     // Do nothing.
+                }
+            }
+
+            int fieldNumber = 1;
+            for ( Map.Entry<String, Method> kv: methodOrderMap.entrySet() ) {
+                try {
+                    String key = kv.getKey();
+                    Method method = kv.getValue();
+
+                    Class<?> elemRetType = method.getReturnType();
+                    DescriptorProtos.FieldDescriptorProto.Type fieldType = this.reinterpret( elemRetType );
+
+                    DescriptorProtos.FieldDescriptorProto.Builder fieldBuilder;
+                    Class<?> dependenceComponentType = null;
+                    if( Collection.class.isAssignableFrom( elemRetType ) ) {
+                        Type gt = method.getGenericReturnType();
+                        String[] genericTypeNames = ReflectionUtils.extractGenericClassNames( gt.getTypeName() );
+                        if( genericTypeNames != null && genericTypeNames.length > 0 ) {
+                            String genericTypeName = genericTypeNames[ 0 ];
+
+                            if( !genericTypeName.equals( "?" ) && !genericTypeName.equals( Object.class.getSimpleName() ) ) {
+                                try {
+                                    dependenceComponentType = this.getClass().getClassLoader().loadClass( genericTypeName );
+                                    fieldType = this.reinterpret( dependenceComponentType );
+                                }
+                                catch ( ClassNotFoundException e ) {
+                                    continue;
+                                }
+                            }
+                        }
+
+                        fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
+                                .setName( key )
+                                .setNumber( fieldNumber )
+                                .setType( fieldType )
+                                .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
+                    }
+                    else if( elemRetType.isArray() && !byte[].class.isAssignableFrom( elemRetType ) ) {
+                        Class<?> componentType = elemRetType.getComponentType();
+                        fieldType = this.reinterpret( componentType );
+                        dependenceComponentType = componentType;
+
+                        fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
+                                .setName( key )
+                                .setNumber( fieldNumber )
+                                .setType( this.reinterpret( componentType ) )
+                                .setLabel( DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED );
+                    }
+                    else {
+                        fieldBuilder = DescriptorProtos.FieldDescriptorProto.newBuilder()
+                                .setName( key )
+                                .setNumber( fieldNumber )
+                                .setType( fieldType );
+                    }
+                    fieldNumber++;
+
+
+                    if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
+                        Class<?> nestedClass = method.getReturnType();
+                        Object dyChild = null;
+
+                        if ( dynamicObject != null ) {
+                            try {
+                                method.setAccessible( true );
+                                dyChild = method.invoke( dynamicObject );
+                            }
+                            catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e ) {
+                                dyChild = null;
+                            }
+                        }
+
+                        if ( !clazz.equals( nestedClass ) ) {
+                            Descriptors.Descriptor nestedDescriptor;
+                            if ( dependenceComponentType != null ) {
+                                // Array / List can`t uses dynamic object.
+                                nestedDescriptor = this.transform0( dependenceComponentType, szEntityName + "_" + key, null, exceptedKeys, options );
+                            }
+                            else {
+                                nestedDescriptor = this.transform0( nestedClass, szEntityName + "_" + key, dyChild, exceptedKeys, options );
+                            }
+                            if( nestedDescriptor == null ) {
+                                continue;
+                            }
+                            fieldBuilder.setTypeName( nestedDescriptor.getFullName() );
+                            dependencies.add( nestedDescriptor.getFile() );
+                        }
+                        else {
+                            fieldBuilder.setTypeName( szEntityName );
+                        }
+                    }
+
+                    descriptorBuilder.addField( fieldBuilder );
+                }
+                catch ( Exception e ) {
+                    throw new ProtobufEncodeException( e );
                 }
             }
 
@@ -405,7 +419,19 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                 try {
 
                     String szGetterMethod = JavaBeans.MethodMajorKeyGet + JavaBeans.methodKeyNameUpperCaseNormalize( fieldName );
-                    Method         getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    Method         getter ;
+                    try {
+                        getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    }
+                    catch ( NoSuchMethodException e ) {
+                        getter = null;
+                    }
+
+                    if ( getter == null && fieldDescriptor.getType() == Descriptors.FieldDescriptor.Type.BOOL ) {
+                        szGetterMethod = JavaBeans.MethodMajorKeyIs + JavaBeans.methodKeyNameUpperCaseNormalize( fieldName );
+                        getter = dynamicObject.getClass().getMethod( szGetterMethod );
+                    }
+
                     if ( getter != null ) {
                         Object value = getter.invoke( dynamicObject );
 

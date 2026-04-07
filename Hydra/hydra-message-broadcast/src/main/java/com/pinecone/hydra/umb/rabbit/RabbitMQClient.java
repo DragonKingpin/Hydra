@@ -1,6 +1,6 @@
 package com.pinecone.hydra.umb.rabbit;
 
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 public class RabbitMQClient implements Pinenut {
-    protected Hydrarum       mSystem;
+    protected Hydrogen mSystem;
     protected JSONObject     mjoSectionConf;
     protected String         mszHost;
     protected short          mnPort;
@@ -21,7 +21,7 @@ public class RabbitMQClient implements Pinenut {
     protected String         mszPassword;
     protected String         mszVHost = "/wolf";
 
-    public RabbitMQClient(Hydrarum system, JSONObject joConf ) {
+    public RabbitMQClient(Hydrogen system, JSONObject joConf ) {
         this.mSystem        = system;
         this.mjoSectionConf = joConf;
 

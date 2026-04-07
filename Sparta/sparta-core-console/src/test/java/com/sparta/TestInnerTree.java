@@ -11,10 +11,10 @@ import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
 
-class LadyGaga extends Radium {
+class LadyGaga extends Tritium {
     public LadyGaga( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -47,7 +47,7 @@ class LadyGaga extends Radium {
         UniformServiceInstrument distributedScopeServiceTree = new UniformServiceInstrument(koiMappingDriver);
 
         //Debug.trace(distributedScopeServiceTree.getNode(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")).toString());
-        Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID72("f83ccfc-0002f9-0000-b4")));
+        Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID128("f83ccfc-0002f9-0000-b4")));
     }
 
     private void testScenario(){
@@ -60,7 +60,7 @@ class LadyGaga extends Radium {
 //        genericNamespaceNode.setNamespaceNodeMeta(new GenericNamespaceNodeMeta());
 //        genericNamespaceNode.setScenarioCommonData(new GenericScenarioCommonData());
 //        distributedScenarioMetaTree.insert(genericNamespaceNode);
-        distributedScenarioMetaTree.get(GUIDs.GUID72("1f5bced8-000315-0002-70"));
+        distributedScenarioMetaTree.get(GUIDs.GUID128("1f5bced8-000315-0002-70"));
     }
 }
 

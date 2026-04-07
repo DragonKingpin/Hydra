@@ -3,7 +3,7 @@ package com.pinecone.hydra.umb.rocket;
 import com.pinecone.hydra.umb.broadcast.BroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
@@ -38,7 +38,7 @@ public class RocketMQClient implements RocketClient {
     }
 
     public RocketMQClient( String nameSrvAddr, String groupName ) {
-        this( MessageNodus.nextLocalId(), nameSrvAddr, groupName );
+        this( Messagus.nextLocalId(), nameSrvAddr, groupName );
     }
 
     public RocketMQClient( long nodeId, Map<String, Object> config ){
@@ -46,7 +46,7 @@ public class RocketMQClient implements RocketClient {
     }
 
     public RocketMQClient( Map<String, Object> config ){
-        this( MessageNodus.nextLocalId(), config );
+        this( Messagus.nextLocalId(), config );
     }
 
 

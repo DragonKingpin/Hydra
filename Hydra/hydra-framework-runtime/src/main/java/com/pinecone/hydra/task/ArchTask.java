@@ -11,39 +11,43 @@ public abstract class ArchTask implements Task {
 
     protected Identification            mServiceId;
 
-    protected TaskElement mServiceMetaData;
+    protected TaskElement               mTaskElement;
 
     protected Map<String, Object >      mMetaDataScope;
 
-    public ArchTask(Identification serviceId, TaskElement serviceElement, Map<String, Object > metaDataScope ){
-        this.mServiceId = serviceId;
-        this.mServiceMetaData = serviceElement;
+    public ArchTask( Identification serviceId, TaskElement serviceElement, Map<String, Object > metaDataScope ){
+        this.mServiceId     = serviceId;
+        this.mTaskElement   = serviceElement;
         this.mMetaDataScope = metaDataScope;
     }
 
-    public ArchTask(Identification serviceId, TaskElement serviceElement ){
+    public ArchTask( Identification serviceId, TaskElement serviceElement ){
        this( serviceId, serviceElement, null );
     }
 
 
+    public TaskElement getTaskElement() {
+        return this.mTaskElement;
+    }
+
     @Override
     public String getName() {
-        return this.mServiceMetaData.getName();
+        return this.mTaskElement.getName();
     }
 
     @Override
     public String getDisplayName() {
-        return this.mServiceMetaData.getName();
+        return this.mTaskElement.getName();
     }
 
     @Override
     public String getFullName() {
-        return this.mServiceMetaData.getPath();
+        return this.mTaskElement.getKomPath();
     }
 
 
     public GUID getGuid() {
-        return this.mServiceMetaData.getGuid();
+        return this.mTaskElement.getGuid();
     }
 
     @Override
@@ -53,27 +57,47 @@ public abstract class ArchTask implements Task {
 
     @Override
     public String getScenario() {
-        return this.mServiceMetaData.getScenario();
+        return this.mTaskElement.getScenario();
     }
 
     @Override
-    public String getPrimaryImplLang() {
-        return this.mServiceMetaData.getPrimaryImplLang();
+    public String getMarshallingArchitecture() {
+        return this.mTaskElement.getMarshallingArchitecture();
     }
 
     @Override
     public String getExtraInformation() {
-        return this.mServiceMetaData.getExtraInformation();
+        return this.mTaskElement.getExtraInformation();
     }
 
     @Override
-    public String getLevel() {
-        return this.mServiceMetaData.getLevel();
+    public short getPriority() {
+        return this.mTaskElement.getPriority();
+    }
+
+    @Override
+    public short getActuallyPriority() {
+        return this.mTaskElement.getActuallyPriority();
+    }
+
+    @Override
+    public boolean isDryRun() {
+        return this.mTaskElement.isDryRun();
+    }
+
+    @Override
+    public boolean isEnable() {
+        return this.mTaskElement.isEnable();
     }
 
     @Override
     public String getDescription() {
-        return this.mServiceMetaData.getDescription();
+        return this.mTaskElement.getDescription();
+    }
+
+    @Override
+    public String getProcessorName() {
+        return this.mTaskElement.getProcessorName();
     }
 
     @Override

@@ -20,8 +20,8 @@ public class GenericRenderKOMRegistry extends GenericKOMRegistry implements Rend
 
 
     @Override
-    public RenderRegistryTreeNode getSelf( GUID guid ) {
-        return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getSelf( guid );
+    public RenderRegistryTreeNode getAsRootDepth( GUID guid ) {
+        return (RenderRegistryTreeNode) this.getOperatorByGuid( guid ).getAsRootDepth( guid );
     }
 
     @Override

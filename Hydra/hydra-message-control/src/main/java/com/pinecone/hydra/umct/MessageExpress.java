@@ -5,7 +5,7 @@ import com.pinecone.hydra.express.Express;
 
 /**
  *  Pinecone Ursus For Java UMCT Message Express [ Uniform Message Control Transmit ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
  *  Uniform Message Control Transmit Integrated Model - Express

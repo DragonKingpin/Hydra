@@ -10,12 +10,12 @@ import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.marshaling.ServiceJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
 
 
-class Jesse extends Radium {
+class Jesse extends Tritium {
     public Jesse( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -94,7 +94,7 @@ class Jesse extends Radium {
     }
 
     private void testDelete( ServiceInstrument serviceInstrument){
-        serviceInstrument.remove( GUIDs.GUID72("181e9e4-000395-0000-d4") );
+        serviceInstrument.remove( GUIDs.GUID128("181e9e4-000395-0000-d4") );
     }
 }
 

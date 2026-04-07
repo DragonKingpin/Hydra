@@ -61,6 +61,11 @@ public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     }
 
     @Override
+    public boolean isClosed() {
+        return this.kafkaProducer == null;
+    }
+
+    @Override
     public void sendPrototypeMessage( String topic, String ns, K name, V body ) throws UMBClientException {
         ProducerRecord<K, V > producerRecord = new ProducerRecord<>( topic, name, body );
         this.kafkaProducer.send( producerRecord );

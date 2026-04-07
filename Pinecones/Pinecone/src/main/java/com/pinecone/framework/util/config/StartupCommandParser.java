@@ -8,4 +8,7 @@ public interface StartupCommandParser extends Pinenut {
     StartupCommandParser DefaultParser = new GenericStartupCommandParser();
 
     Map<String, String[] > parse( String[] args );
+
+    Map<String, String[] > parse( Map<String, String > args );
+
 }

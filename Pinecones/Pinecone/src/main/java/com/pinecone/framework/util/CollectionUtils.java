@@ -1,6 +1,7 @@
 package com.pinecone.framework.util;
 
 
+import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.unit.AbstractMultiValueMap;
 import com.pinecone.framework.unit.MultiValueMap;
 
@@ -19,16 +20,25 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
+@SuppressWarnings( "unchecked" )
 public abstract class CollectionUtils {
     public CollectionUtils() {
     }
 
-    public static boolean isEmpty(Collection<?> collection) {
+    public static boolean isEmpty( Collection<?> collection ) {
         return collection == null || collection.isEmpty();
     }
 
-    public static boolean isEmpty(Map<?, ?> map) {
+    public static boolean isNoneEmpty( Collection<?> collection ) {
+        return !CollectionUtils.isEmpty( collection );
+    }
+
+    public static boolean isEmpty( Map<?, ?> map ) {
         return map == null || map.isEmpty();
+    }
+
+    public static boolean isNoneEmpty( Map<?, ?> map ) {
+        return !CollectionUtils.isEmpty( map );
     }
 
     public static List arrayToList(Object source) {
@@ -404,4 +414,22 @@ public abstract class CollectionUtils {
             throw new UnsupportedOperationException("Not supported");
         }
     }
+
+
+
+    @Unsafe
+    public static <T> List<T> genericConvert( List list ) {
+        return (List<T>) list;
+    }
+
+    @Unsafe
+    public static <T> Collection<T> genericConvert( Collection collection ) {
+        return (Collection<T>) collection;
+    }
+
+    @Unsafe
+    public static <K, V> Map<K, V> genericConvert( Map map ) {
+        return (Map<K, V>) map;
+    }
+
 }

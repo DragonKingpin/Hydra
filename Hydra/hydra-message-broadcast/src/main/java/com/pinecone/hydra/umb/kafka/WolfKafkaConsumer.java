@@ -6,9 +6,6 @@ import com.pinecone.hydra.umb.UMBServiceException;
 import com.pinecone.hydra.umb.UlfMBInformMessage;
 import com.pinecone.hydra.umb.UlfPackageMessageHandler;
 import com.pinecone.hydra.umb.broadcast.UMCBroadcastConsumer;
-import com.pinecone.hydra.umb.rocket.RocketMedium;
-import com.pinecone.hydra.umb.rocket.RocketReceiver;
-import com.pinecone.hydra.umb.rocket.RocketTransmit;
 import com.pinecone.hydra.umc.msg.EMCBytesDecoder;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCHead;
@@ -42,9 +39,9 @@ public class WolfKafkaConsumer extends UlfBroadcastPollConsumer<String, byte[] >
         this.mEMCBytesDecoder = new UMBBytesDecoder();
 
         // Dummy [ MQ is base on unidirectional communication. ]
-        this.mMedium          = new RocketMedium( this.getKafkaClient() );
-        this.mUMCReceiver     = new RocketReceiver( this.mMedium );
-        this.mUMCTransmit     = new RocketTransmit( this.mMedium );
+        this.mMedium          = new KafkaMedium( this.getKafkaClient() );
+        this.mUMCReceiver     = new KafkaReceiver( this.mMedium );
+        this.mUMCTransmit     = new KafkaTransmit( this.mMedium );
 
     }
 

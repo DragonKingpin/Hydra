@@ -2,9 +2,12 @@ package com.pinecone.hydra.task;
 
 import java.util.Map;
 
-import com.pinecone.framework.util.name.Namespace;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 
 public interface Task extends TaskFamilyMeta {
+
+    TaskElement getTaskElement();
+
     String getName();        // Service Name, e.g. WpnService
 
     String getDisplayName(); // Service Long Name, e.g. Windows Push Notification System Service
@@ -13,19 +16,24 @@ public interface Task extends TaskFamilyMeta {
 
     String getFullName();
 
-    Namespace getGroupNamespace();
-
-    String getGroupName();
-
     String getScenario() ;
 
-    String getPrimaryImplLang() ;
+    String getMarshallingArchitecture() ;
 
     String getExtraInformation() ;
 
-    String getLevel() ;
+    short getPriority();
 
-    Object getProcessImageObject();
+    short getActuallyPriority();
+
+
+    boolean isDryRun() ;
+
+    boolean isEnable() ;
+
+    String getProcessorName();
+
 
     Map<String, Object> getMetaDataScope();
+
 }

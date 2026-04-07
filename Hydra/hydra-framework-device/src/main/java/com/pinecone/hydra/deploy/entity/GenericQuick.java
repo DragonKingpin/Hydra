@@ -1,26 +1,18 @@
 package com.pinecone.hydra.deploy.entity;
 
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.entity.iface.Quick;
+import com.pinecone.hydra.deploy.Quick;
 
 public class GenericQuick implements Quick {
-    @Override
-    public String getStatus() {
-        return null;
-    }
+
+    protected String status;
 
     @Override
-    public GUID getGuid() {
-        return null;
+    public String getStatus() {
+        return this.status;
     }
 
     @Override
     public void setStatus(String status) {
-
-    }
-
-    @Override
-    public String getName() {
-        return null;
+          this.status = status;
     }
 }

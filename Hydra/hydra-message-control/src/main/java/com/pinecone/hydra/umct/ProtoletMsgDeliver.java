@@ -1,6 +1,9 @@
 package com.pinecone.hydra.umct;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import com.pinecone.hydra.express.Package;
 import com.pinecone.hydra.umct.decipher.PrototypeDecipher;
@@ -17,10 +20,14 @@ public class ProtoletMsgDeliver extends ArchMsgDeliver {
         this( name, express, ArchMessagram.DefaultServiceKey, machinery, encoder );
     }
 
-    public ProtoletMsgDeliver( String name, MessageExpress express, String szServiceKey, PMCTContextMachinery machinery, CompilerEncoder encoder ) {
-        super( name, express, new PrototypeDecipher( szServiceKey, encoder, machinery.getFieldProtobufDecoder() ), szServiceKey );
+    public ProtoletMsgDeliver( String name, MessageExpress express, String szServiceKey, PMCTContextMachinery machinery, CompilerEncoder encoder, Supplier<Map<String, MessageHandler>> routingTableSupplier ) {
+        super( name, express, new PrototypeDecipher( szServiceKey, encoder, machinery.getFieldProtobufDecoder() ), szServiceKey, routingTableSupplier );
         this.mCompilerEncoder = encoder;
         this.mPMCTContextMachinery = machinery;
+    }
+
+    public ProtoletMsgDeliver( String name, MessageExpress express, String szServiceKey, PMCTContextMachinery machinery, CompilerEncoder encoder ) {
+        this( name, express, szServiceKey, machinery, encoder, HashMap::new );
     }
 
     public ProtoletMsgDeliver( MessageExpress express, PMCTContextMachinery machinery, CompilerEncoder encoder ) {

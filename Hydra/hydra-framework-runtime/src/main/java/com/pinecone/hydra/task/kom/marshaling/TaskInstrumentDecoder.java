@@ -7,7 +7,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 
 public interface TaskInstrumentDecoder extends Pinenut {
-    default ElementNode decode(Object val, GUID parentGUID) {
+    default ElementNode decode( Object val, GUID parentGUID ) {
         if ( val instanceof Map ) {
             Map map = (Map) val;
             if( map.isEmpty() ) {
@@ -24,17 +24,17 @@ public interface TaskInstrumentDecoder extends Pinenut {
         return null;
     }
 
-    ElementNode decode(String key, Object val, GUID parentGUID);
+    ElementNode decode( String key, Object val, GUID parentGUID );
 
-    default ElementNode decode(Map.Entry kv, GUID parentGUID) {
+    default ElementNode decode( Map.Entry kv, GUID parentGUID ) {
         return this.decode( kv.getKey().toString(), kv.getValue(), parentGUID );
     }
 
-    default ElementNode decode(Object val) {
+    default ElementNode decode( Object val ) {
         return this.decode( val, null );
     }
 
-    default ElementNode decode(String key, Object val) {
+    default ElementNode decode( String key, Object val ) {
         return this.decode( key, val, null );
     }
 }

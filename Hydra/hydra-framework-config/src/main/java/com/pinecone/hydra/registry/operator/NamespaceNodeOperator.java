@@ -121,7 +121,7 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
     }
 
     @Override
-    public RegistryTreeNode getSelf( GUID guid ) {
+    public RegistryTreeNode getAsRootDepth( GUID guid ) {
         return this.getNamespaceNodeWideData( guid, 0 );
     }
 

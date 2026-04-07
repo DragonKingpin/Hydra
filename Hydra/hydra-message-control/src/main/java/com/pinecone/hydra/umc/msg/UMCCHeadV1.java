@@ -17,7 +17,7 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 /**
  *  Pinecone Ursus For Java UMCC[ Uniform Message Control - Compacted ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
  *  Uniform Message Control Protocol - Base-Mutable - Compacted [UMC-C]
@@ -96,8 +96,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
     }
 
     public UMCCHeadV1(  ) {
-        super( UMCCHeadV1.ProtocolSignature, UMCMethod.INFORM );
-        this.enableDefaultFields();
+        this( UMCCHeadV1.ProtocolSignature );
     }
 
     public UMCCHeadV1( String szSignature ) {
@@ -111,7 +110,10 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldMethod.index );
     }
 
-
+    public UMCCHeadV1( String szSignature, UMCMethod umcMethod, long fieldIndexBitmap ) {
+        super( szSignature, umcMethod, 0 );
+        this.fieldIndexBitmap = fieldIndexBitmap;
+    }
 
 
 

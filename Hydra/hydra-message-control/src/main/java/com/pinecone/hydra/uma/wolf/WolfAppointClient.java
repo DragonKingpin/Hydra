@@ -7,8 +7,8 @@ import java.util.concurrent.TimeoutException;
 
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.ProvokeHandleException;
-import com.pinecone.hydra.uma.AppointClient;
-import com.pinecone.hydra.uma.ArchAppointNode;
+import com.pinecone.hydra.uma.UlfAppointClient;
+import com.pinecone.hydra.uma.ArchUlfAppointNode;
 import com.pinecone.hydra.uma.AsynMsgHandler;
 import com.pinecone.hydra.uma.AsynReturnHandler;
 import com.pinecone.hydra.uma.proxy.GenericIfaceProxyFactory;
@@ -17,6 +17,7 @@ import com.pinecone.hydra.servgram.Servgramium;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.MediumTerminationException;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
@@ -30,9 +31,9 @@ import com.pinecone.hydra.umc.wolf.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umct.IlleagalResponseException;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.husky.compiler.MethodPrototype;
 import com.pinecone.hydra.umct.husky.heartbeat.HuskyHeartbeatControl;
 import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
@@ -47,27 +48,30 @@ import javassist.ClassPool;
 /**
  *  Pinecone Ursus For Java WolfAppointClient [ Ulfhedinn Wolf RPC Client ]
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolfAppointClient extends ArchAppointNode implements AppointClient {
+public class WolfAppointClient extends ArchUlfAppointNode implements UlfAppointClient {
     protected UlfClient              mMessenger;
 
     protected IfaceProxyFactory      mIfaceProxyFactory;
 
     protected HeartbeatControl       mHeartbeatControl;
 
-    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+    protected boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
         UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
         Channel channel = cb.getChannel().getNativeHandle();
         WolfAppointClient.this.getLogger().info( "Proactive channel ({}), has detached.", channel.id() );
         UlfClient wrappedClient = WolfAppointClient.this.getMessageNode();
         if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
             try {
-                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
 
                 WolfAppointClient.this.getLogger().info( "Proactive Channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+            }
+            catch ( MediumTerminationException e ) {
+                WolfAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
             }
             catch ( IOException e ) {
                 WolfAppointClient.this.getLogger().error( "Proactive channel ({}), attempted to reconnect but failed.", channel.id(), e );
@@ -81,10 +85,10 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
     protected void registerChannelInactiveHandler () {
         this.mMessenger.registerChannelInactiveHandler(new ChannelInactiveHandler() {
             @Override
-            public boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
-                this.afterEventTriggered( ccb );
+            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
+                this.afterEventTriggered( ccb, context );
 
-                return WolfAppointClient.this.afterChannelInactive( ccb );
+                return WolfAppointClient.this.afterChannelInactive( ccb, context );
             }
         });
     }
@@ -93,7 +97,7 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
         ClientConnectArguments arguments = WolfAppointClient.this.getMessageNode().getConnectionArguments();
         this.mMessenger.registerChannelConnectedHandler(new ChannelEventHandler() {
             @Override
-            public void afterEventTriggered( ChannelControlBlock block ) {
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
                 if ( arguments.isEnableHeartbeat() ) {
                     WolfAppointClient.this.mHeartbeatControl.registerChannel( block, arguments.getHeartbeatInterval() );
                 }
@@ -134,14 +138,14 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
         this.initSelf( messenger );
     }
 
-    public WolfAppointClient( UlfClient messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector ){
+    public WolfAppointClient( UlfClient messenger, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector ){
         this( messenger, true );
-        this.mPMCTContextMachinery = new HuskyContextMachinery( compiler, controllerInspector, new GenericFieldProtobufDecoder() );
+        this.mMCTContextMachinery = new HuskyContextMachinery( compiler, controllerInspector, new GenericFieldProtobufDecoder() );
         this.initSelf( messenger );
     }
 
     public WolfAppointClient( UlfClient messenger, CompilerEncoder encoder ){
-        this( messenger, new BytecodeIfacCompiler(
+        this( messenger, new BytecodeIfaceCompiler(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader(), encoder
         ), new BytecodeControllerInspector(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
@@ -149,7 +153,7 @@ public class WolfAppointClient extends ArchAppointNode implements AppointClient 
     }
 
     public WolfAppointClient( UlfClient messenger ){
-        this( messenger, new BytecodeIfacCompiler(
+        this( messenger, new BytecodeIfaceCompiler(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
         ), new BytecodeControllerInspector(
                 ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()

@@ -1,9 +1,8 @@
 # Bean Nuts Hazelnut Hydra <br> 九头龙，分布式操作系统
 <p align="center">
   <strong>
-  Adhoc, OLAP, 搜索引擎, 知识库, 知识图谱, 量化, 
-  微服务, 服务与任务编排, 并行计算与分布式系统设计, 矢量图调度, 
-  大规模分布式爬虫, 大数据处理, 数据仓库, 云计算, 中台
+  真超级个体, 一个人公司, 一个集团, 一个人中台, 大规模AI、数据、任务调度工业架构, 大规模控制, 
+  中央情报系统, 大规模分布式爬虫, 大数据处理, 数据仓库, 云计算, 中台
    </strong>
 </p>
 
@@ -48,31 +47,29 @@ Would you like to own the "God Eyes"? Do you crave power? Do you wish to wield a
 The Hazelnut and Hydra ecosystem is a powerful data analysis "Elder Brain" designed specifically for "TJ" individuals, 'all information all I need'.
 **Hey, commander!** We build a unique personal PB level data warehouse, knowledge base, and search engine just for you, your exclusive "God Eyes" !
 
-Hydra is a cloud computing-oriented, multi-task scheduling, big data, communication, service-oriented, which is the distributed operating system.
-Hydra helps build data products such as Adhoc analysis, OLAP, search engines, knowledge bases, knowledge graphs, quantitative systems, and data platforms.
+Your own C4ISR, your own 'global' strike system, Central Intelligence System, Central Staff System, and firepower industrial plants. 
+The underlying architecture of above.
 
 ## 📖 摘要 / 简介
-<p><strong>你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！</strong></p>
-<p>Hazelnut、Hydra 生态，专为"TJ"人打造的大规模数据分析“主脑”，一切尽在掌握之中。
-为你打造独一无二的的个人PB级数仓、知识库和搜索引擎，你的专属'上帝之眼'，一切数据为所欲为！</p>
-<p>不会集群？不会中间件？不会分布式？不会云计算？我是小白？Don`t worry，持续更新的保姆级教程和实例最小系统，弹性结构、系统可大可小，丐版技术也能玩转云和大数据。</p>
+**你想拥有‘上帝之眼’吗？你渴望力量吗？你希望一切信息尽在掌控吗？这个时代，数据即使世界！**
+
+Hydra 生态，专为"TJ"人打造的大规模数据分析“主脑”，一切尽在掌握之中。
+Hydra为你打造个人PB级数仓、知识库、图库、任务编排和服务于 Agent 工厂化的超级个体引擎，你的专属'上帝之眼'，为所欲为！
+
+到底这是什么玩意？属于你自己的C4ISR，你自己的“全球”打击系统、中央情报系统、中央参谋系统和火力军工厂的底层战略架构。
 
 ### 字多不看？太高端听不懂？几个场景助你快速了解Hydra理念。
 - **大规模知识库**：构造你的私人知识库，关联任何你感兴趣的知识图谱（金融、新闻、学术、游戏、音乐、电影、视频、小说、美食等），生成巨型知识库和图谱，并交给GPT等大模型给你生成属于你的`上帝报告`。
-- **数据仓库**：海量数据，任你处置，你可以打造自己的数据`天眼`，甚至可以乘坐时光机，在数据世界中随意穿行。你就是上帝，历史的变迁，触手可及。
+- **数据仓库**：海量数据，任你处置，你可以打造自己的数据`全图挂`，甚至可以乘坐时光机，在数据世界中随意穿行。你就是上帝，历史的变迁，触手可及。
 - **数据集市**：打造你的个人GPT，随着算力平民化、大模型技术的平民化。未来，你不想拥有自己的GPT吗？你只需要不断收集属于你的数据集，未来打造你的专属GPT、Diffusion等。
 - **大型采集**：统一并行架构打造大规模战略采集系统，多个实例助你快速入门：
 1).维基百科全站爬取；2).Urban Dictionary全站爬取；3).imdb爬取；4).编年史子项目，每日全世界新闻采集，打造互联网记忆库与情报系统；
 5).金融数据大规模采集（面向资金流向建模）；6).IP反查、ISP追踪、DNS/rDNS、域名、NIC等搜索引擎基架数据采集；等。（避免争议，不提供任何有争议的代码和数据）
-- **数据平台**：面向战略和战术数据分析系统，构建和打通其他开源数据产品，面向BI、OLAP、ETL、数仓、取数、情报等专业大数据分析系统。
+- **数据平台**：面向战略和战术数据分析系统，构建和打通其他开源数据产品，面向智能ETL、数仓、取数、情报等专业大数据分析系统。
 - **中台架构**：面向系统性实现上层应用、面向抽象、统一化，支撑大规模并行、大数据架构，信息、控制、调度、审计、权限等元架构分离。
 
-### 🏆 20万行源码，3A史诗巨献
-底层 Hydra = 手撕 `双工多路RPC` + `分布式文件系统` + `存储卷系统` + `MapReduce` + `运行支持库` + `操作系统内核` + `消息中间件统一总线`\
-应用层衍生子项目（Sparta 中台服务组）：分布式搜索引擎、分布式对象存储、CDN、任务控制系统、服务管理系统等。\
-该仓库为Java 11实现版本（由C/C++版本重构），非GUI大部分不直接基于第三方框架，前端工程（如BI）部分会与其他开源项目打通。
-此外由于本项目工程量、复杂度和工作量较大，本人精力、能力有限，错误和功能完整性不足是不可避免的，还希望各位读者大佬批评指正。\
-最后，由于本人精力和工作时间等问题，该公开版本为beta版本，一部分功能未完全实现，后续会不断迭代，欢迎关注。
+### 🏆 3A史诗巨献
+全域覆盖、听你指挥、能打胜战、作风优良。
 
 ### 什么是 Hydra，他能干嘛？
 - Hydra 由 <a href="https://www.dragonking.cn" target="_blank">DragonKing</a> 及其团队原创的分布式基架系统，
@@ -175,6 +172,8 @@ TODO
    借鉴WinNT、Unix，支持KernelObject、挂载点、统一内核对象管理。\
    Unix风格内核句柄路径化，如分布式挂载 /proc/、/dev/ 等。 
 ##### 1.1.2.2、统一调度编排系统
+![TaskTree](assets/imgs/task/task_tree.png)
+![TaskLineage](assets/imgs/task/task_lineage.png)
 1. Orchestration (事务、任务编排子系统)，面向统一解释器模式方法论和过程化设计，事务和任务编排逻辑化，支持循环控制、条件控制、散转控制、原子化等，更支持事务完整性设计。
 2. Auto (简易命令模式，可编程自动机系统)，实现支持Automaton简易生产-消费命令队列，实现支持PeriodicAutomaton可编程Timer，实现支持Marshalling流水线指令编排器。(更多Timer和算法持续更新中)
 3. Vector DAG（矢量图），
@@ -239,7 +238,6 @@ Servgram，小程序系统，是的这很微信，不过是服务端的小程序
    2. 简单卷
    3. 跨区卷
    4. 条带卷，基于状态机无锁编程化并行存储，采用基于差分多路缓存滑动窗口、DFA、FIFO多线程缓存等算法优化的高性能条带卷设计。
-![VolumeArchitecture](assets/imgs/volume_architecture.png)
 
   应用层面本项目提供了物理卷与逻辑卷的管理后台方便用户的管理与使用
   ![image](assets/imgs/logic_volume_manage.png)
@@ -376,52 +374,8 @@ TODO
 14. Javascript DOM 设计、CSS选择器等
 15. 其他若干个小框架、工具库、语言等（如Apache Commons、org.json、fastcgi、fastjson、libevent等），本文表示崇高敬意和感谢。
 
-## 六、🐣 致谢
-- 必须感谢长江存储，不然我还要多花几倍钱买固态，感谢某东和某宝折扣~。
-- TODO
 
-## 七、🐱 题外话
-### 7.1 FQA
-##### 7.1.1. 更新时间？
-很遗憾已经上班牛马了，更新速率减低到(3h/pd)，但每周仍然保证更新！
-##### 7.1.2. Bean Nuts XXX是啥？
-系统命名法，Bean是我第一个上网冲浪网名，Nuts是计算机领域根项目，Pinecone等坚果是子领域项目（如面向框架、面向业务等）,后面是子项目。
-##### 7.1.3. 为毛用Java？
-本项目一开始就是C/C++写的，但是由于该项目难度和工作量，一直找不到合适的人一起开发，且维护成本随项目迭代成指数增长，心有余而力不足，但后续根据时间可能出Go版本。
-##### 7.1.4. 这种偏底层项目Java有无性能影响？
-底层上肯定有一定影响，但Java是工业界非常优秀的实践之一，且那一点点Tiny性能损失与指数级代码维护相比，以人为本，问题不大。
-##### 7.1.5. 这种项目怎么维护、学习？
-数仓和这类底层项目建设是系统工程，实践中很少有个人或非商业团队愿意耗资数万搭建小数仓体系的，哪怕在公司上班的同学没有一定职级也很难接触海量真实大数据。
-实践中原始爬下来的海量4K小文件（或用户采集数据）->数据结构化处理->入库入仓->大数据检索->调用大模型API或生成图谱类->并发检索等完整的数据血缘、链路是非常系统、昂贵且复杂的建设。
-且我们不像大公司一样财大气粗，服务器算力和不要钱一样，因此技术选型不能直接照搬中台那一套，我们需要考虑非常多的真实场景。
-本人会不断自底向上真实搭建这样一套接地气的迷你云计算、中台体系，通过代码和终端来分享、发现和真实维护。
-##### 7.1.6. 这种项目的要学习需要多少知识储备？
-很多东西的建设都是系统工程，系统两字易写却难做，很多人需要一生去真正理解系统两字。
-与传统业务项目的CRUD不同，这类项目是全链路的，说大是迷你搭建整个中台、云体系，说小可以说是造操作系统小玩具。
-吹牛逼容易、落地困难，我要的核心是落地，"我真有一头牛"，因此这里没有一堆高大上的技术概念、技术黑话，很多技术和概念我会去简化、落地化而不是去卷所谓“优化”。
-最后这个问题没有答案，迭代就是学习，就是储备，小白也有资格成长。
 
-### 7.2 预告
-[20万行，4年+迭代工作量] Bean Nuts Pinecone Draco C/C++ Edition (松果·龙族，运行支持框架)
-    
-* C/C++ 版运行支持框架，“盗版”JDK，参考并C++重写HashMap、LinkdedHashMap、LinkdedTreeMap、BPlusTree等若干容器。
-* JSON、XML、HTML、DOM、CSS、Lock等若干小工具个实现。
-* FastCGI版，“盗版”Spring + PHP风格。 【直接支持C/C++手搓后端，以本人个人博客网站为例，<a href="https://www.rednest.cn">Red Nest</a>】
-
-### 7.3 更多关联子系统、框架和实例系统
-#### Bean Nuts Pinecone Ursus Java Edition (松果·熊族，运行支持框架)
-底层数据结构、算法、运行支持库、框架等支持系统。（位于本项目Pinecones/Pinecone）
-#### Bean Nuts Walnut Ulfhedinn Java Edition (核桃·狼皮狂战士，操作系统底层、第三方API封装SDK)
-Java版本未完全系统化实现，本欲迁移C/C++版本下的实现，但JVM和JDK把大部分都实现了，很尴尬。Java下使用涉及第三方API的封装将由该模块职能负责。（位于本项目Pinecones/Ulfhedinn）
-#### Bean Nuts Walnut Sparta (核桃·斯巴达，图形界面交互系统)
-本双月疯狂构建中。构建完将支持本系统以及与其他子系统的的图形界面、控制台双交互，系统将基于Springboot实现构建。（位于本项目Walnuts/Sparta）
-
-### 7.4 ☣ 技术债声明, Acknowledgement ⚠
-非严谨说明，由于本人技术栈杂、本人习惯等，且涉及项目历史长、本项目工程量巨大。可能导致部分概念、设计、不一定是当前Java技术栈体系下最优实现或最紧扣概念的设计。
-* 举个栗子：本人学习方法是先脑补，再补过程和概念，且先保业务开发进度的方法论（先验和迁移学习，说人话就是快速混用其他技术栈概念或实践，而非完美调研，反正不影响结果和功能）。
-因此可能存在概念出错、不严谨，后续再还技术债的现象，但这不影响我们持续认真检查以确保最终质量。
-* 永无止境、实践出真知：Rome was not built in a day, 项目涉及的技术门类较多，这个项目是我本科和研究生期间的业余爱好项目。
-虽然已尽可能搭建真实平台、实践、学习，但本人工作经验有限，因此不能保证不犯错误（甚至低级错误），欢迎批评指正，持续迭代。
 
 # 📈 项目活跃表
 ![Alt](https://repobeats.axiom.co/api/embed/0ae23655bb105addf8d90a999df36f690d615af7.svg "Repobeats analytics image")

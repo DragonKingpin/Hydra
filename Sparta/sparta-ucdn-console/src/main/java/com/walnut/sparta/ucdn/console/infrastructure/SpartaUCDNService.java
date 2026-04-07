@@ -10,7 +10,8 @@ import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
-import com.pinecone.hydra.service.registry.UniformServiceManager;
+import com.pinecone.hydra.service.registry.server.UniformServiceManager;
+import com.pinecone.hydra.service.registry.ulf.HuskyServiceAppointServer;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
@@ -26,10 +27,10 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.summer.spring.Springron;
-import com.walnut.redstone.messge.PrimaryMessageWareStone;
+import com.walnut.archcraft.redstone.messge.PrimaryMessageWareStone;
 import com.walnut.sparta.ucdn.console.SpartaBoot;
 import com.walnut.sparta.ucdn.console.ufm.UCFMConfig;
 import com.walnut.sparta.ucdn.console.ufm.UFMConfig;
@@ -72,19 +73,19 @@ public class SpartaUCDNService extends Springron implements UCDNService {
 
     protected void initKOMSubsystem() throws ComponentInitializationException {
         this.koiMappingDriver = new VolumeMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiBucketMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiVersionMappingDriver = new VersionMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiServiceMappingDriver = new ServiceMappingDriver(
-                this, (IbatisClient)this.getSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getSystem().getDispenserCenter()
+                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
 
         JSONConfig selfConfig = (JSONConfig) this.getConfig();
@@ -103,9 +104,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     protected void initModules() throws ComponentInitializationException {
-        this.serviceManager = new UniformServiceManager(
-                this.serviceInstrument, this.primaryMessageWareStone.getWolfKingAppointServer()
-        );
+        this.serviceManager = new UniformServiceManager( this.serviceInstrument );
+        this.serviceManager.hookAppointServer( new HuskyServiceAppointServer( this.primaryMessageWareStone.getWolfKingAppointServer() ) );
 
         JSONConfig selfConfig = (JSONConfig) this.getConfig();
         this.clusterFileSynchronizationConfig = new UCFMConfig( selfConfig.queryJSONObject( "service.ClusterFileSynchronizationConfig" ) );
@@ -137,7 +137,7 @@ public class SpartaUCDNService extends Springron implements UCDNService {
                         genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
                         genericApplicationContext.registerBean("primaryService", ServiceInstrument.class, () -> serviceInstrument);
                         genericApplicationContext.registerBean("primaryWolfDuplexAppointClient", DuplexAppointClient.class, () ->  primaryMessageWareStone.getWolfAppointClient());
-                        genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.getSystem());
+                        genericApplicationContext.registerBean("uofsContentDelivery", UCDNContentDelivery.class, () -> (UCDNContentDelivery) SpartaUCDNService.this.parentSystem());
                     }
                 });
             }
@@ -181,8 +181,8 @@ public class SpartaUCDNService extends Springron implements UCDNService {
     }
 
     @Override
-    public Radium getSystem() {
-        return (Radium)super.getSystem();
+    public Tritium parentSystem() {
+        return (Tritium)super.parentSystem();
     }
 
     @Override

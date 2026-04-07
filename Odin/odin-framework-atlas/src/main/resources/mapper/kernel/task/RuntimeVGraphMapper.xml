@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.walnut.odin.atlas.mapper.RuntimeVGraphMapper">
+
+    <!-- ================= INSERT ================= -->
+
+    <insert id="insertGraphNode">
+        INSERT INTO `hydra_atlas_vgraph_nodes`
+        ( `guid`,
+          `task_guid`,
+          `node_name`,
+          `node_description` )
+        VALUES
+            ( #{graphNode.guid},
+              #{graphNode.taskGuid},
+              #{graphNode.name},
+              #{graphNode.description} )
+    </insert>
+
+    <insert id="insertNodeAdjacent">
+        INSERT INTO `hydra_atlas_vgraph_adjacent`
+        ( `guid`,
+          `linked_type`,
+          `parent_guid` )
+        VALUES
+            ( #{childGuid},
+              'owned',
+              #{parentGuid} )
+    </insert>
+
+    <delete id="removeGraphNode">
+        DELETE FROM `hydra_atlas_vgraph_nodes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeGraphAdjacent">
+        DELETE FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <!-- ================= RESULT MAP ================= -->
+
+    <resultMap id="TaskAtlasNodeMap" type="com.walnut.odin.atlas.graph.entity.TaskAtlasNode">
+        <id     column="id"                property="enumId"/>
+        <result column="guid"              property="guid"/>
+        <result column="task_guid"         property="taskGuid"/>
+        <result column="node_name"         property="name"/>
+        <result column="node_description"  property="description"/>
+        <result column="is_isolated"       property="isolated"/>
+    </resultMap>
+
+    <!-- ================= BASIC QUERY ================= -->
+
+    <select id="queryNode" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getNodeByTaskGuid" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `task_guid` = #{taskGuid}
+    </select>
+
+    <select id="queryTaskGuidByNodeId"
+            resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `task_guid`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `guid` = #{nodeId}
+    </select>
+
+    <select id="fetchParentIds" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `parent_guid`
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <!-- ================= CHILD / ROOT ================= -->
+
+    <select id="fetchChildNodes0" resultMap="TaskAtlasNodeMap">
+        SELECT
+            vnodes.`id`,
+            vnodes.`guid`,
+            vnodes.`task_guid`,
+            vnodes.`node_name`,
+            vnodes.`node_description`,
+            vnodes.`is_isolated`,
+            vnodes.`create_time`,
+            vnodes.`update_time`
+        FROM `hydra_atlas_vgraph_nodes` AS vnodes
+                 JOIN `hydra_atlas_vgraph_adjacent` AS vadj
+                      ON vnodes.`guid` = vadj.`guid`
+        WHERE vadj.`parent_guid` = #{guid}
+    </select>
+
+    <select id="fetchChildNodeGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT havn.`guid`
+        FROM `hydra_atlas_vgraph_nodes` havn
+                 JOIN `hydra_atlas_vgraph_adjacent` hava
+                      ON havn.`guid` = hava.`guid`
+        WHERE hava.`parent_guid` = #{guid}
+    </select>
+
+    <select id="fetchRootNodes0" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM `hydra_atlas_vgraph_adjacent`
+            WHERE `guid` = `hydra_atlas_vgraph_nodes`.`guid`
+        )
+    </select>
+
+    <select id="fetchChildNodeIds" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid`
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="fetchNodesByName0" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `node_name` = #{name}
+    </select>
+
+    <!-- ================= PAGING ================= -->
+
+    <select id="fetchHandleGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM `hydra_atlas_vgraph_adjacent`
+            WHERE `guid` = `hydra_atlas_vgraph_nodes`.`guid`
+        )
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="fetchDownstreamNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid`
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `parent_guid` = #{nodeGuid}
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="fetchUpstreamNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `parent_guid`
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `guid` = #{nodeGuid}
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ================= DEGREE ================= -->
+
+    <select id="queryInDegree" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `parent_guid` = #{nodeGuid}
+    </select>
+
+    <select id="queryOutDegree" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `guid` = #{nodeGuid}
+    </select>
+
+    <select id="getPriorityByInDegree" resultType="long">
+        SELECT COUNT(*) + 1
+        FROM (
+                 SELECT
+                     `guid`,
+                     COUNT(*) AS `degree`
+                 FROM `hydra_atlas_vgraph_adjacent`
+                 GROUP BY `guid`
+             ) AS degree_table
+        WHERE degree_table.`degree` > (
+            SELECT COUNT(*)
+            FROM `hydra_atlas_vgraph_adjacent`
+            WHERE `guid` = #{guid}
+        )
+    </select>
+
+
+    <!-- ================= CHILD GUID PAGING ================= -->
+
+    <select id="limitFetchChildNodeGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid`
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `parent_guid` = #{guid}
+            LIMIT #{limit} OFFSET #{offset}
+
+    </select>
+
+
+    <!-- ================= CHILD COUNT ================= -->
+
+    <select id="countChildNodeNums" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_atlas_vgraph_adjacent`
+        WHERE `parent_guid` = #{guid}
+
+    </select>
+
+
+    <!-- ================= INSERT CHILD ================= -->
+
+    <insert id="addChild">
+        INSERT INTO `hydra_atlas_vgraph_adjacent`
+        ( `guid`,
+          `linked_type`,
+          `parent_guid` )
+        VALUES
+            ( #{childGuid},
+              'owned',
+              #{parentGuid} )
+
+    </insert>
+
+
+
+
+
+
+
+
+    <!-- ================= ISOLATED ================= -->
+
+    <select id="fetchIsolatedNodesById0" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `is_isolated` = 1
+          AND `id` BETWEEN #{idStart} AND #{idEnd}
+        ORDER BY `id` ASC
+
+    </select>
+
+    <select id="fetchIsolatedNodes0" resultMap="TaskAtlasNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `task_guid`,
+            `node_name`,
+            `node_description`,
+            `is_isolated`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `is_isolated` = 1
+        ORDER BY `id` ASC
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countIsolatedNodes" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `is_isolated` = 1
+    </select>
+
+    <select id="selectIsolatedNodeIndexMeta" resultType="com.pinecone.slime.meta.TableIndex64Meta">
+        SELECT
+            COALESCE( MIN(`id`), 0 ) AS minId,
+            COALESCE( MAX(`id`), 0 ) AS maxId
+        FROM `hydra_atlas_vgraph_nodes`
+        WHERE `is_isolated` = 1
+    </select>
+
+</mapper>

@@ -16,8 +16,6 @@
 
     <modules>
         <module>sailor-stream-distribute-sdk</module>
-        <module>redstone-core</module>
-        <module>redstone-message-stones</module>
     </modules>
 
 

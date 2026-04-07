@@ -35,7 +35,7 @@ public class FolderController {
      */
     @GetMapping("/folder/listItem")
     public String listItem(@RequestParam String folderGuid ){
-        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(folderGuid));
+        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID128(folderGuid));
         List<FileTreeNode> fileTreeNodes = folder.listItem();
         return  BasicResultResponse.success(fileTreeNodes).toJSONString() ;
     }
@@ -64,7 +64,7 @@ public class FolderController {
      */
     @GetMapping("/attribute")
     public             BasicResultResponse< FileTreeNode > attribute( @RequestParam("nodeGuid") String nodeGuid ){
-        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID72(nodeGuid));
+        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
         return BasicResultResponse.success( fileTreeNode );
     }
 
@@ -85,7 +85,7 @@ public class FolderController {
      */
     @DeleteMapping("/remove/file")
     public BasicResultResponse<String> removeFile( @RequestParam("fileGuid") String fileGuid ){
-        this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
+        this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
         return BasicResultResponse.success();
     }
 

@@ -31,7 +31,7 @@ public interface KOMRegistry extends Registry, ReparseKOMTree {
     RegistryTreeNode get( GUID guid, int depth );
 
     @Override
-    RegistryTreeNode getSelf( GUID guid );
+    RegistryTreeNode getAsRootDepth( GUID guid );
 
     Properties getProperties( GUID guid );
 

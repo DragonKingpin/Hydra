@@ -1,12 +1,12 @@
 package com.pinecone.hydra.system.component;
 
 import com.pinecone.hydra.system.HyComponent;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 
 public interface TracerScope extends HyComponent {
     @Override
-    Hydrarum getSystem();
+    Hydrogen getSystem();
 
     String getLoggerName( String name );
 

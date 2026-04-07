@@ -3,62 +3,78 @@ package com.pinecone.hydra.unit.vgraph;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathResolver;
 import com.pinecone.hydra.unit.vgraph.algo.BasicDAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.algo.DAGPathResolver;
 import com.pinecone.hydra.unit.vgraph.algo.DAGPathSelector;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
+import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
+import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 
-public abstract class ArchAtlasInstrument implements AtlasInstrument{
+public abstract class ArchAtlasInstrument implements AtlasInstrument {
+
     protected AtlasInstrument                   mParentInstrument;
+    protected LayerInstrument                   mLayerInstrument;
 
-    protected Hydrarum                          mHydrarum;
-
+    protected Hydrogen                          mHydrogen;
     protected Processum                         mSuperiorProcess;
 
     protected GuidAllocator                     mGuidAllocator;
-
     protected DAGPathResolver                   mPathResolver;
+    protected DAGPathSelector                   mPathSelector;
 
-    protected DAGPathSelector                    mPathSelector;
-
-    protected VectorGraphMasterManipulator      mMasterManipulator;
-
-    protected VectorGraphManipulator            mVectorGraphManipulator;
-
+    protected AtlasMasterManipulator            mAtlasMasterManipulator;
+    protected VectorGraphMasterManipulator      mVectorGraphMasterManipulator;
     protected VectorGraphPathCacheManipulator   mVectorGraphPathCacheManipulator;
+    protected VectorGraphManipulator            mVectorGraphManipulator;
 
     protected VectorGraphConfig                 mVectorGraphConfig;
 
-    public ArchAtlasInstrument (
-            Processum superiorProcess, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig,
-            AtlasInstrument parent, String name
-    ){
-        this.mMasterManipulator = masterManipulator;
-        this.mVectorGraphConfig = vectorGraphConfig;
-        this.mSuperiorProcess = superiorProcess;
-        if ( this.mSuperiorProcess instanceof Hydrarum ) {
-            this.mHydrarum                    = (Hydrarum) this.mSuperiorProcess;
+    public ArchAtlasInstrument(
+            AtlasMappingDriver atlasMappingDriver,
+            VectorGraphConfig vectorGraphConfig,
+            LayerInstrument layerInstrument
+    ) {
+        this.mLayerInstrument                   = layerInstrument;
+        this.mVectorGraphConfig                 = vectorGraphConfig;
+        this.mSuperiorProcess                   = atlasMappingDriver.getSuperiorProcess();
+        this.mAtlasMasterManipulator            = atlasMappingDriver.getMasterManipulator();
+        this.mVectorGraphMasterManipulator      = this.mAtlasMasterManipulator.getVectorGraphMasterManipulator();
+        this.mVectorGraphManipulator            = this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
+        this.mVectorGraphPathCacheManipulator   = this.mVectorGraphMasterManipulator.getVectorGraphPathCacheManipulator();
+
+        if ( this.mSuperiorProcess instanceof Hydrogen) {
+            this.mHydrogen = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mHydrarum                    = (Hydrarum) superiorProcess.getSystem();
+            this.mHydrogen = (Hydrogen) this.mSuperiorProcess.parentSystem();
         }
-        this.mParentInstrument = parent;
-
-        this.mGuidAllocator = new GenericGuidAllocator();
-        this.mVectorGraphManipulator = this.mMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
+        this.mGuidAllocator = GUIDs.newGuidAllocator();
         this.mPathResolver = new BasicDAGPathResolver();//后续要使用配置类指定
-        this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this, this.mVectorGraphManipulator );
+        this.mPathSelector = new BasicDAGPathSelector( this.mPathResolver, this.mVectorGraphManipulator );
+    }
+
+    public ArchAtlasInstrument( AtlasMappingDriver driver, LayerInstrument layerInstrument ) {
+        this( driver, null, layerInstrument );
+    }
+
+    @Override
+    public LayerInstrument layerInstrument() {
+        return this.mLayerInstrument;
     }
 
     @Override
@@ -77,8 +93,23 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument{
     }
 
     @Override
-    public String getPath(GUID guid) {
-        return this.getNS( guid, this.mVectorGraphConfig.getPathNameSeparator() );
+    public AtlasMasterManipulator getMasterManipulator() {
+        return this.mAtlasMasterManipulator;
+    }
+
+    @Override
+    public VectorGraphConfig getConfig() {
+        return this.mVectorGraphConfig;
+    }
+
+    @Override
+    public GuidAllocator getGuidAllocator() {
+        return this.mGuidAllocator;
+    }
+
+    @Override
+    public List<String> getPath(GUID guid) {
+        return this.getNS( guid, "/" );
     }
 
     @Override
@@ -96,22 +127,31 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument{
         return this.mPathSelector.contains( handleNode, nodeGuid );
     }
 
+
     @Override
-    public GUID put(GraphNode graphNode) {
+    public GUID put( GraphNode graphNode ) {
         GUID guid = this.mGuidAllocator.nextGUID();
         graphNode.setId( guid );
-        this.mVectorGraphManipulator.insertStartNode( graphNode );
+        this.mVectorGraphManipulator.insertGraphNode( graphNode );
 
         return guid;
     }
 
     @Override
-    public GraphNode get(GUID guid) {
+    public GUID put( GUID parentGuid, GraphNode graphNode ) {
+        GUID guid = this.mGuidAllocator.nextGUID();
+        graphNode.setId( guid );
+        this.mVectorGraphManipulator.insertNodeByEdge( parentGuid, graphNode );
+        return guid;
+    }
+
+    @Override
+    public GraphNode get( GUID guid ) {
         return this.mVectorGraphManipulator.queryNode( guid );
     }
 
     @Override
-    public GUID queryGUIDByNS(String path, String szBadSep, String szTargetSep) {
+    public GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep ) {
         if( szTargetSep != null ) {
             path = path.replace( szBadSep, szTargetSep );
         }
@@ -134,64 +174,91 @@ public abstract class ArchAtlasInstrument implements AtlasInstrument{
     }
 
     @Override
-    public TreeNode get(GUID guid, int depth) {
+    public TreeNode get( GUID guid, int depth) {
         return null;
     }
 
     @Override
-    public void remove(GUID guid) {
+    public void remove( GUID guid ) {
         this.mVectorGraphManipulator.removeNode( guid );
         this.mVectorGraphPathCacheManipulator.remove( guid );
     }
 
     @Override
-    public void remove(String path) {
+    public void remove( String path ) {
         GUID guid = this.queryGUIDByPath(path);
-        if( guid != null ){
+        if( guid != null ) {
             this.remove( guid );
         }
     }
 
     @Override
-    public List<GraphNode> getChildren(GUID guid) {
+    public List<GraphNode> getChildren( GUID guid ) {
         return this.mVectorGraphManipulator.fetchChildNodes( guid );
     }
 
     @Override
-    public List<GUID> fetchChildrenIds(GUID guid) {
+    public List<GUID> fetchChildrenIds( GUID guid ) {
         return this.mVectorGraphManipulator.fetchChildNodeIds( guid );
     }
 
     @Override
-    public void rename(GUID guid, String name) {
+    public void rename( GUID guid, String name ) {
 
     }
 
-    /**找一条可达路径**/
-    protected String getNS( GUID guid, String szSeparator ){
-        String path = this.mVectorGraphPathCacheManipulator.getPath(guid);
-        if( path != null ){
+    /**使用bfs找到所有可达路径**/
+    protected List<String> getNS( GUID guid, String szSeparator ){
+        // 先检查缓存
+        List<String> path = this.mVectorGraphPathCacheManipulator.getPath( guid );
+        if (path != null && !path.isEmpty()) {
             return path;
         }
 
-        GraphNode node = this.get(guid);
-        String assemblePath = node.getName();
-        while( !node.getParentIds().isEmpty() && this.allNonNull( node.getParentIds() ) ){
-            List<GUID> parentIds = node.getParentIds();
-            for( int i = 0; i < parentIds.size(); ++i ){
-                if( parentIds.get(i) != null ){
-                    node = this.get( parentIds.get(i) );
-                    break;
+        GraphNode startNode = this.get(guid);
+        if (startNode == null) {
+            return Collections.emptyList();
+        }
+
+        List<String> allPaths = new ArrayList<>();
+        Queue<GraphNodePair> queue = new LinkedList<>();
+        queue.offer( new GraphNodePair(startNode, startNode.getName()) );
+
+        while ( !queue.isEmpty() ) {
+            GraphNodePair current = queue.poll();
+            GraphNode currentNode = current.getGraphNode();
+            String currentPath = current.getCurrentPath();
+
+            List<GUID> parentIds = this.mVectorGraphManipulator.fetchParentIds( currentNode.getId() );
+            if ( parentIds.isEmpty() || !this.allNonNull(parentIds) ) {
+                allPaths.add(currentPath);
+                continue;
+            }
+
+            // 遍历所有非空的父节点
+            for (GUID parentId : parentIds) {
+                if (parentId != null) {
+                    GraphNode parentNode = this.get(parentId);
+                    if (parentNode != null) {
+                        String newPath = parentNode.getName() + szSeparator + currentPath;
+                        queue.offer(new GraphNodePair(parentNode, newPath));
+                    }
                 }
             }
-            String nodeName = node.getName();
-            assemblePath = nodeName + szSeparator + assemblePath;
         }
-        this.mVectorGraphPathCacheManipulator.insert( assemblePath, guid );
-        return assemblePath;
+
+        if (!allPaths.isEmpty()) {
+            for ( String s : allPaths ) {
+                this.mVectorGraphPathCacheManipulator.insert( s, guid );
+            }
+
+        }
+
+        return allPaths;
     }
 
     private boolean allNonNull( List<?> list ) {
         return list.stream().noneMatch( Objects::isNull );
     }
+
 }

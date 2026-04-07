@@ -9,6 +9,8 @@ public interface BroadcastProducer extends Pinenut {
 
     void start() throws UMBServiceException;
 
+    boolean isClosed();
+
     void sendMessage( String topic, String ns, String name, byte[] body ) throws UMBClientException ;
 
     void sendMessage( String topic, byte[] body ) throws UMBClientException ;

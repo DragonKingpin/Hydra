@@ -5,9 +5,11 @@ import com.pinecone.hydra.umb.broadcast.BroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.UNT;
 import com.pinecone.hydra.umb.broadcast.converter.GenericResultBytesConverter;
 import com.pinecone.hydra.umb.broadcast.converter.ResultBytesConverter;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,11 +46,11 @@ public class KafkaClient implements KClient {
     }
 
     public KafkaClient( String server ) {
-        this( MessageNodus.nextLocalId(), server );
+        this( Messagus.nextLocalId(), server );
     }
 
     public KafkaClient( Map<String, Object> config ){
-        this( MessageNodus.nextLocalId(), new KafkaConfig( config ) );
+        this( Messagus.nextLocalId(), new KafkaConfig( config ) );
     }
 
     @Override
@@ -153,4 +155,16 @@ public class KafkaClient implements KClient {
     protected ExecutorService getPollConsumerThreadPool() {
         return this.pollConsumerThreadPool;
     }
+
+
+    @Override
+    public Collection<BroadcastConsumer> viewConsumerRegister() {
+        return Collections.unmodifiableSet(this.consumerRegister.keySet());
+    }
+
+    @Override
+    public Collection<BroadcastProducer> viewProducerRegister() {
+        return Collections.unmodifiableSet(this.producerRegister.keySet());
+    }
+
 }

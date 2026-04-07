@@ -62,6 +62,13 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-service-control</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
 
 
         <dependency>

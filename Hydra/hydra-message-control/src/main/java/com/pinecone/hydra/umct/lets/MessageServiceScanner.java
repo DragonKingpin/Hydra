@@ -1,7 +1,7 @@
 package com.pinecone.hydra.umct.lets;
 
 import com.pinecone.framework.util.lang.ClassScope;
-import com.pinecone.framework.util.lang.GenericScopeNSProtocolIteratorsFactory;
+import com.pinecone.framework.util.lang.ClassScopeNSProtocolIteratorsFactory;
 import com.pinecone.framework.util.lang.NSProtocolIteratorsFactoryAdapter;
 import com.pinecone.ulf.util.lang.GenericPreloadClassInspector;
 import com.pinecone.ulf.util.lang.HierarchyClassInspector;
@@ -20,10 +20,10 @@ public class MessageServiceScanner extends PooledClassCandidateScanner implement
     }
 
     public MessageServiceScanner     ( ClassScope searchScope, ClassLoader classLoader, ClassPool classPool ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
     }
 
     public MessageServiceScanner     ( ClassScope searchScope, ClassLoader classLoader ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
     }
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceExecMapper">
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO odin_task_instance_exec (
+            task_guid,
+            instance_guid,
+            task_name,
+            instance_name,
+            processor_queue,
+            cluster_name,
+            exec_state,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        ) VALUES (
+                     #{taskGuid},
+                     #{instanceGuid},
+                     #{taskName},
+                     #{instanceName},
+                     #{processorQueue},
+                     #{clusterName},
+                     #{execState},
+                     #{currentRetryNumber},
+                     #{retryTimes},
+                     #{startTime},
+                     #{runTime},
+                     #{finishTime}
+                 )
+    </insert>
+
+    <update id="updateStateByInstanceGuid" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="currentRetryNumber != null">
+                current_retry_number = #{currentRetryNumber},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+    </update>
+
+</mapper>

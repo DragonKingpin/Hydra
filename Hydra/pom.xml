@@ -16,6 +16,8 @@
 
     <modules>
         <module>hydra-architecture</module>
+        <module>hydra-architecture-conduct</module>
+        <module>hydra-architecture-storage</module>
         <module>hydra-framework-runtime</module>
         <module>hydra-message-control</module>
         <module>hydra-message-broadcast</module>
@@ -26,9 +28,12 @@
 
         <module>hydra-kom-default-driver</module>
         <module>hydra-lib-thrift-sdk</module>
+        <module>hydra-lib-grpc-service-sdk</module>
         <module>hydra-lib-uofs-cache</module>
 
-        <module>radium</module>
-        <module>hydra-r-atlas-default-driver</module>
+        <module>hydra-system-tritium</module>
+        <module>hydra-system-reign</module>
+        <module>hydra-service-control</module>
+        <module>hydra-architecture-message</module>
     </modules>
 </project>

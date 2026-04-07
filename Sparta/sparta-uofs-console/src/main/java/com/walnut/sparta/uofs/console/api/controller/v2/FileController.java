@@ -51,7 +51,7 @@ public class FileController {
      */
     @GetMapping("/attribute")
     public BasicResultResponse<FileTreeNode> attribute(@RequestParam("nodeGuid") String nodeGuid ){
-        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID72(nodeGuid));
+        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
         return BasicResultResponse.success( fileTreeNode );
     }
 
@@ -62,8 +62,8 @@ public class FileController {
      */
     @DeleteMapping("/remove/file")
     public BasicResultResponse<String> removeFile( String fileGuid ){
-        this.fileService.remove( GUIDs.GUID72( fileGuid ) );
-        this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
+        this.fileService.remove( GUIDs.GUID128( fileGuid ) );
+        this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
         return BasicResultResponse.success();
     }
 

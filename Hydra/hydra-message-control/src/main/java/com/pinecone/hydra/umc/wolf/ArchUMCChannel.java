@@ -64,6 +64,16 @@ public abstract class ArchUMCChannel implements NettyUMCChannel {
     }
 
     @Override
+    public SocketAddress     remoteAddress() {
+        return this.mChannel.remoteAddress();
+    }
+
+    @Override
+    public SocketAddress     localAddress() {
+        return this.mChannel.localAddress();
+    }
+
+    @Override
     public Thread            getAffiliateThread(){
         return this.mAffiliateThread;
     }

@@ -12,10 +12,10 @@ import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.ibatis.hydranium.RegistryMappingDriver;
 import com.pinecone.hydra.registry.marshaling.RegistryJSONDecoder;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
 
-class StanMarsh extends Radium {
+class StanMarsh extends Tritium {
     public StanMarsh( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -39,9 +39,9 @@ class StanMarsh extends Radium {
         //this.testCopy( registry );
         //this.testMove( registry );
         //this.testMisc( registry );
-        //this.testSelector( registry );
+        this.testSelector( registry );
         //this.testAttributes( registry );
-        this.testMarshaling( registry );
+        //this.testMarshaling( registry );
     }
 
     private void testBasicInsert( KOMRegistry registry ) {
@@ -120,7 +120,7 @@ class StanMarsh extends Radium {
         //Debug.trace(registry.queryGUIDByPath("game/terraria/mob1"));
 
         //registry.newLinkTag("game/terraria/mob1","game/minecraft","mob1");
-        GUID guid = registry.queryGUIDByPath("game/minecraft/mob1");
+        GUID guid = registry.queryGUIDByPath("game/terraria/mob1");
         Debug.trace(guid);
 
 

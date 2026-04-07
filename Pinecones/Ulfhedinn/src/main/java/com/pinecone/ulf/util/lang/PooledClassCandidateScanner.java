@@ -14,11 +14,11 @@ public class PooledClassCandidateScanner extends ClassCandidateScanner {
     }
 
     public PooledClassCandidateScanner     ( ClassScope searchScope, ClassLoader classLoader, ClassPool classPool ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
     }
 
     public PooledClassCandidateScanner     ( ClassScope searchScope, ClassLoader classLoader ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
     }
 
     public void setClassPool ( ClassPool classPool ) {

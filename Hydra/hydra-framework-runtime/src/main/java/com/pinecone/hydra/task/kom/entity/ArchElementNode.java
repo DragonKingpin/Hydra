@@ -1,6 +1,8 @@
 package com.pinecone.hydra.task.kom.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -11,38 +13,56 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.task.ArchTaskFamilyMeta;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public abstract class ArchElementNode extends ArchTaskFamilyMeta implements ElementNode {
     protected long                       enumId;
 
-    protected GUIDImperialTrieNode distributedTreeNode;
-    protected ServiceInstrument serviceInstrument;
+    protected GUID                       metaGuid;
+
+    protected GUIDImperialTrieNode       distributedTreeNode;
+
+    protected TaskInstrument             taskInstrument;
+
+    protected LocalDateTime              createTime;
+
+    protected LocalDateTime              updateTime;
 
     public ArchElementNode() {
         super();
+
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public ArchElementNode( Map<String, Object > joEntity ) {
         super( joEntity );
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
-    public ArchElementNode( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
+    public ArchElementNode( Map<String, Object > joEntity, TaskInstrument taskInstrument) {
         super( joEntity );
-        this.apply(serviceInstrument);
+        this.apply(taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public ArchElementNode( ServiceInstrument serviceInstrument) {
-        this.apply(serviceInstrument);
+    public ArchElementNode( TaskInstrument taskInstrument ) {
+        this.apply(taskInstrument);
     }
 
-    public void apply( ServiceInstrument serviceInstrument) {
-        this.serviceInstrument = serviceInstrument;
-        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
-        this.setGuid( guidAllocator.nextGUID() );
+    public void apply( TaskInstrument taskInstrument ) {
+        this.taskInstrument = taskInstrument;
+        if ( this.getGuid() == null ) {
+            GuidAllocator guidAllocator = this.taskInstrument.getGuidAllocator();
+            this.setGuid( guidAllocator.nextGUID() );
+        }
+        if ( this.createTime == null ) {
+            this.createTime = LocalDateTime.now();
+            this.updateTime = LocalDateTime.now();
+        }
     }
 
     @Override
@@ -51,6 +71,26 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
 
         return this;
+    }
+
+    @Override
+    public String getKomPath() {
+        return this.taskInstrument.getPath( this.getGuid() );
+    }
+
+    @Override
+    public String getSystemKernelObjectPath() {
+        return this.taskInstrument.querySystemKernelObjectPath( this.getGuid() );
+    }
+
+    @Override
+    public GUID getMetaGuid() {
+        return this.metaGuid;
+    }
+
+    @Override
+    public void setMetaGuid( GUID metaGuid ) {
+        this.metaGuid = metaGuid;
     }
 
     @Override
@@ -84,8 +124,8 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
     @Override
-    public void setPrimaryImplLang( String primaryImplLang ) {
-        this.primaryImplLang = primaryImplLang;
+    public void setMarshallingArchitecture( String marshallingArchitecture ) {
+        this.marshallingArchitecture = marshallingArchitecture;
     }
 
     @Override
@@ -94,13 +134,28 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
     @Override
-    public void setLevel( String level ) {
-        this.level = level;
+    public void setDescription( String description ) {
+        this.description = description;
     }
 
     @Override
-    public void setDescription( String description ) {
-        this.description = description;
+    public LocalDateTime getCreateTime() {
+        return this.createTime;
+    }
+
+    @Override
+    public void setCreateTime( LocalDateTime createTime ) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public LocalDateTime getUpdateTime() {
+        return this.updateTime;
+    }
+
+    @Override
+    public void setUpdateTime( LocalDateTime updateTime ) {
+        this.updateTime = updateTime;
     }
 
     @Override
@@ -124,18 +179,18 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
     }
 
 
-    protected List<ElementNode > fetchChildren() {
-        List<GUID > guids = this.fetchChildrenGuids();
+    protected Collection<ElementNode > fetchChildren() {
+        Collection<GUID > guids = this.fetchChildrenGuids();
         List<ElementNode > elementNodes = new ArrayList<>();
         for( GUID guid : guids ){
-            ElementNode elementNode = (ElementNode) this.serviceInstrument.get( guid );
+            ElementNode elementNode = (ElementNode) this.taskInstrument.get( guid );
             elementNodes.add( elementNode );
         }
         return elementNodes;
     }
 
-    protected List<GUID > fetchChildrenGuids() {
-        return this.serviceInstrument.fetchChildrenGuids( this.getGuid() );
+    protected Collection<GUID > fetchChildrenGuids() {
+        return this.taskInstrument.fetchChildrenGuids( this.getGuid() );
     }
 
     protected void addChild( ElementNode child ) {
@@ -145,19 +200,19 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
             return;
         }
         else {
-            childId = this.serviceInstrument.put( child );
+            childId = this.taskInstrument.put( child );
         }
 
 
-        this.serviceInstrument.affirmOwnedNode( this.guid, childId );
+        this.taskInstrument.affirmOwnedNode( this.guid, childId );
     }
 
     protected boolean containsChild( String childName ) {
-        return this.serviceInstrument.containsChild( this.guid, childName );
+        return this.taskInstrument.containsChild( this.guid, childName );
     }
 
     @Override
     public JSONObject toJSONObject() {
-        return BeanColonist.DirectColonist.populate( this, ServoElement.UnbeanifiedKeys );
+        return BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys );
     }
 }

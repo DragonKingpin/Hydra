@@ -8,7 +8,7 @@ import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 public class SimplePathSelector extends StandardPathSelector {
-    public SimplePathSelector(PathResolver pathResolver, ImperialTree trieTree, GUIDNameManipulator dirMan, GUIDNameManipulator[] fileMans ) {
+    public SimplePathSelector( PathResolver pathResolver, ImperialTree trieTree, GUIDNameManipulator dirMan, GUIDNameManipulator[] fileMans ) {
         super( pathResolver, trieTree, dirMan, fileMans );
     }
 

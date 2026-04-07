@@ -7,17 +7,19 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.construction.UnifyStructureInjector;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.homotype.StereotypicInjector;
+import com.pinecone.hydra.entity.ibatis.GUID128TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUID72TypeHandler;
 import com.pinecone.hydra.entity.ibatis.GUIDTypeHandler;
 import com.pinecone.hydra.entity.ibatis.UOITypeHandler;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.entity.ibatis.URITypeHandler;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.ProxySessionMapperPool;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
 public abstract class ArchMappingDriver implements KOIMappingDriver {
-    protected Hydrarum             mSystem;
+    protected Hydrogen mSystem;
 
     protected Processum            mSuperiorProcess;
 
@@ -31,11 +33,11 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
 
     public ArchMappingDriver( Processum superiorProcess ) {
         this.mSuperiorProcess                 = superiorProcess;
-        if ( this.mSuperiorProcess instanceof Hydrarum ) {
-            this.mSystem                      = (Hydrarum) this.mSuperiorProcess;
+        if ( this.mSuperiorProcess instanceof Hydrogen) {
+            this.mSystem                      = (Hydrogen) this.mSuperiorProcess;
         }
         else {
-            this.mSystem                      = (Hydrarum) superiorProcess.getSystem();
+            this.mSystem                      = (Hydrogen) superiorProcess.parentSystem();
         }
     }
 
@@ -49,9 +51,12 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
         //SqlSessionTemplate
 
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUID72TypeHandler.class );
+        ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUID128TypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( GUIDTypeHandler.class );
         ibatisClient.getConfiguration().getTypeHandlerRegistry().register( UOITypeHandler.class );
+        ibatisClient.getConfiguration().getTypeHandlerRegistry().register( URITypeHandler.class );
 
+        ibatisClient.addXMLObjectScope( "mapper.kernel.task" );
         this.mMapperCandidates = ibatisClient.addDataAccessObjectScope( szPackageName );
 
         for( Class<? > mapperClass : this.mMapperCandidates ) {
@@ -68,7 +73,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
     @Override
     public StereotypicInjector autoConstruct( Class<?> stereotype, Map config, Object instance ) {
         UnifyStructureInjector injector = new UnifyStructureInjector( stereotype, this.mResourceDispenserCenter.getInstanceDispenser() );
-        try{
+        try {
             injector.inject( config, instance );
         }
         catch ( Exception e ){
@@ -83,7 +88,7 @@ public abstract class ArchMappingDriver implements KOIMappingDriver {
     }
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return this.mSystem;
     }
 

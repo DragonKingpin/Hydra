@@ -9,13 +9,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pinecone.odin</groupId>
+    <groupId>com.walnut.odin</groupId>
     <artifactId>odin</artifactId>
     <packaging>pom</packaging>
     <version>2.5.1</version>
 
     <modules>
-
         <module>odin-architecture</module>
+        <module>odin-framework-atlas</module>
+        <module>odin-framework-runtime</module>
+        <module>odin-framework-conduct</module>
+        <module>odin-mapper-driver</module>
+        <module>odin-system</module>
     </modules>
 </project>

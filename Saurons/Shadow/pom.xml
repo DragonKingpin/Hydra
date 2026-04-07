@@ -55,8 +55,8 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.pinecone.radium</groupId>
-            <artifactId>radium</artifactId>
+            <groupId>com.pinecone.tritium</groupId>
+            <artifactId>hydra-system-tritium</artifactId>
             <version>2.1.0</version>
         </dependency>
         <dependency>
@@ -82,8 +82,8 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sauron.heistotron</groupId>
-            <artifactId>heistotron</artifactId>
+            <groupId>com.sauron.heist</groupId>
+            <artifactId>heist-system-schedule</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

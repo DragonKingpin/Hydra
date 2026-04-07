@@ -13,7 +13,11 @@ public interface JSONEncoder extends Pinenut {
     String          JSON_OBJ_STRINGIFY_DEFAULT             = "[object %s]";
     String          JSON_OBJ_NULL_DEFAULT                  = "null";
     JSONEncoder     BASIC_JSON_ENCODER                     = new GenericJSONEncoder();
-    JSONMarshal     BASIC_JSON_MARSHAL                     = new JSONMarshal();
+    JSONMarshal     BASIC_JSON_MARSHAL                     = new GenericJSONMarshal();
+    JSONMarshal     STRUCT_JSON_MARSHAL                    = new GenericJSONMarshal( JSONMarshalMode.MODE_PUBLIC_FIELD );
+    JSONMarshal     COMMON_JSON_MARSHAL                    = new GenericJSONMarshal( JSONMarshalMode.MODE_COMMON );
+    JSONMarshal     BEAN_JSON_MARSHAL                      = new GenericJSONMarshal( JSONMarshalMode.MODE_BEAN_GETTER );
+
 
 
     Writer write              ( Pinenut that, Writer writer, int nIndentFactor, int nIndentBlankNum ) throws IOException ;

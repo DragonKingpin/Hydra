@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>odin</artifactId>
+        <groupId>com.walnut.odin</groupId>
+        <version>2.5.1</version>
+    </parent>
+
+    <artifactId>odin-framework-runtime</artifactId>
+    <version>2.5.1</version>
+    <modelVersion>4.0.0</modelVersion>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-framework-runtime</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.slime.jelly</groupId>
+            <artifactId>jelly</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kom.driver.default</groupId>
+            <artifactId>hydra-kom-default-driver</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.tritium</groupId>
+            <artifactId>hydra-system-tritium</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.walnut.odin</groupId>
+            <artifactId>odin-architecture</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+</project>

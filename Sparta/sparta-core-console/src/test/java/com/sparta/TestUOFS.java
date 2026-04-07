@@ -9,8 +9,8 @@ import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
-import com.pinecone.hydra.storage.file.direct.KenDirectFileSystemAccess;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFolder;
+import com.pinecone.hydra.storage.file.external.KenExternalFileSystemInstrument;
 import com.pinecone.hydra.storage.file.entity.ClusterPage;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
@@ -29,15 +29,24 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.tritium.Tritium;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.pinecone.radium.Radium;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V1;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V2;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V3;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V4;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V5;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V6;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
+import com.pinecone.ulf.util.guid.i128.GUID128;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 
-class Steve extends Radium {
+class Steve extends Tritium {
     public Steve( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -67,7 +76,7 @@ class Steve extends Radium {
         UniformVolumeManager volumeManager = new UniformVolumeManager(koiVolumeMappingDriver, volumeConfig);
         GuidAllocator guidAllocator = fileSystem.getGuidAllocator();
         //Debug.trace( fileSystem.get( GUIDs.GUID72( "020c8b0-000006-0002-54" ) ) );
-        //this.testInsert( fileSystem );
+        this.testInsert( fileSystem );
         //this.testUpload(fileSystem);
         //this.testDelete( fileSystem );
         //this.testChannelReceive( fileSystem, volumeManager );
@@ -77,8 +86,23 @@ class Steve extends Radium {
         //this.testCopy( fileSystem,volumeManager );
 
 
-        this.testClusterPage( fileSystem );
-
+        //this.testClusterPage( fileSystem );
+//        GuidAllocator128 guidAllocator128 = new GuidAllocator128V1();
+//        Debug.trace("Guid128V1：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V2();
+//        Debug.trace("Guid128V2：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V3();
+//        Debug.trace("Guid128V3：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V4();
+//        Debug.trace("Guid128V4：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V5();
+//        Debug.trace("Guid128V5：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V6();
+//        Debug.trace("Guid128V6：" + guidAllocator128.nextGUID() );
+//        guidAllocator128 = new GuidAllocator128V7();
+//        GUID128 g = (GUID128) guidAllocator128.nextGUID();
+//        Debug.trace("Guid128V7：" + g, g.toUUID() );
+//        Debug.trace( guidAllocator128.parse("00000000-0000-0000-0000-000000000000") );
     }
 
     private void testQuery ( KOMFileSystem fileSystem ){
@@ -95,12 +119,12 @@ class Steve extends Radium {
 
     private void testCopy(KOMFileSystem fileSystem, VolumeManager volumeManager) {
 //        fileSystem.copy("我的文件/图片","我的文件/我的文件",volumeManager);
-        FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID72("14bc124-00012c-0004-f8"));
+        FileNode fileNode = fileSystem.getFileNode(GUIDs.GUID128("14bc124-00012c-0004-f8"));
         Debug.trace( fileNode.getPath() );
     }
 
     private void testExternal(KOMFileSystem fileSystem){
-        KenDirectFileSystemAccess directFileSystemAccess = new KenDirectFileSystemAccess(fileSystem);
+        KenExternalFileSystemInstrument directFileSystemAccess = new KenExternalFileSystemInstrument(fileSystem);
 //        GenericExternalSymbolic externalSymbolic = new GenericExternalSymbolic();
 //        externalSymbolic.setName("xxx");
 //        externalSymbolic.setGuid( fileSystem.getGuidAllocator().nextGUID() );
@@ -113,7 +137,7 @@ class Steve extends Radium {
 
 //        ExternalFile externalFile = (GenericExternalFile)directFileSystemAccess.queryElement("我的文件/external/《智育》概要设计.docx");
 //        Debug.trace(externalFile.getPath());
-        GenericExternalFolder externalFolder = new GenericExternalFolder(new File("D:/文件"));
+        GenericNativeExternalFolder externalFolder = new GenericNativeExternalFolder(new File("D:/文件"));
         Debug.trace(externalFolder.getName());
         Debug.trace(externalFolder.toJSONString());
     }
@@ -148,7 +172,7 @@ class Steve extends Radium {
     }
 
     private void testClusterPage( KOMFileSystem fileSystem ){
-        ClusterPage clusterPage = fileSystem.fetchClustersByFileGuid( GUIDs.GUID72( "1632d6e-0001de-0003-e4" ) );
+        ClusterPage clusterPage = fileSystem.fetchClustersByFileGuid( GUIDs.GUID128( "1632d6e-0001de-0003-e4" ) );
         long sum = clusterPage.getClusters();
 
         for ( long i = 0; i < sum; ++i ) {

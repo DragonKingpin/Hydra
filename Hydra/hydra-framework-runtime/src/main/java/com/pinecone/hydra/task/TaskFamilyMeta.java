@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.Identification;
 
 public interface TaskFamilyMeta extends Pinenut  {
+
     //long getEnumId();
 
     //GUID getGuid();
@@ -14,11 +15,10 @@ public interface TaskFamilyMeta extends Pinenut  {
 
     String getScenario();
 
-    String getPrimaryImplLang();
+    String getMarshallingArchitecture();
 
     String getExtraInformation();
 
-    String getLevel();
-
     String getDescription();
+
 }

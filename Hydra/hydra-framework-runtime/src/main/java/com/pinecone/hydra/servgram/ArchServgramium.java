@@ -6,7 +6,7 @@ import com.pinecone.framework.system.executum.ArchProcessum;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import org.slf4j.Logger;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -23,7 +23,7 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
         super( szGramName, parent );
         this.mszGramName     = szGramName;
         this.mTaskManager    = new GenericMasterTaskManager( this );
-        this.mLogger         = this.getSystem().getTracerScope().newLogger( this.className() );
+        this.mLogger         = this.parentSystem().getTracerScope().newLogger( this.className() );
         this.loadConfig();
         this.infoLifecycle( "MeeseekSpawned", "I'm Mr.Meeseek[" + this.className() + "], look at me !" );
     }
@@ -63,7 +63,7 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
                 this.mServgramConf = this.mServgramList.getChildFromPath( Path.of((String) dyServgramConf) );
             }
             catch ( IOException e ) {
-                this.getSystem().handleKillException( e );
+                this.parentSystem().handleKillException( e );
             }
         }
         else {
@@ -88,8 +88,8 @@ public abstract class ArchServgramium extends ArchProcessum implements Servgrami
     }
 
     @Override
-    public Hydrarum getSystem() {
-        return (Hydrarum) super.getSystem();
+    public Hydrogen parentSystem() {
+        return (Hydrogen) super.parentSystem();
     }
 
     @Override

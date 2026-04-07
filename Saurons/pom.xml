@@ -15,8 +15,10 @@
     <version>1.2.7</version>
 
     <modules>
+        <module>heist-framework-architecture</module>
+        <module>heist-system-schedule</module>
+        <module>heist-http-client-okhttp-suit</module>
         <module>sauron-core</module>
-        <module>heistotron</module>
         <module>saurye</module>
         <module>shadow</module>
     </modules>

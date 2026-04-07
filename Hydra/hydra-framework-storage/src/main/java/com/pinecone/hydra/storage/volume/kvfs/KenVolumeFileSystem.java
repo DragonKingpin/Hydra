@@ -91,7 +91,7 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
         ResultSet resultSet = query.getResultSet();
         if ( resultSet.next() ){
             String targetVolumeGuid = resultSet.getString("target_volume_guid");
-            return GUIDs.GUID72( targetVolumeGuid );
+            return GUIDs.GUID128( targetVolumeGuid );
         }
         return null;
     }
@@ -112,7 +112,7 @@ public class KenVolumeFileSystem implements OnVolumeFileSystem {
         ResultSet resultSet = query.getResultSet();
         if ( resultSet.next() ){
             String targetVolumeGuid = resultSet.getString("target_volume_guid");
-            return GUIDs.GUID72( targetVolumeGuid );
+            return GUIDs.GUID128( targetVolumeGuid );
         }
         return null;
     }

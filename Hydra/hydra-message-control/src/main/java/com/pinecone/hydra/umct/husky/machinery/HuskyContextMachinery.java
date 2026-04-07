@@ -3,14 +3,14 @@ package com.pinecone.hydra.umct.husky.machinery;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.lang.ScopedPackage;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.ulf.util.protobuf.FieldProtobufDecoder;
 
 
 /**
  *  Pinecone Ursus For Java Hydra Ulfar, Husky Machinery
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Husky Transformer | Husky Machinery
@@ -20,7 +20,7 @@ public class HuskyContextMachinery extends HuskyTransformer implements PMCTConte
     protected DynamicFactory       mIfaceFactory;
     protected MultiMappingLoader   mMultiMappingLoader;
 
-    public HuskyContextMachinery( InterfacialCompiler compiler, ControllerInspector controllerInspector, FieldProtobufDecoder decoder ) {
+    public HuskyContextMachinery( ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, FieldProtobufDecoder decoder ) {
         super( compiler, controllerInspector, decoder );
 
         this.mIfaceFactory       = new GenericDynamicFactory( controllerInspector.getClassLoader() );

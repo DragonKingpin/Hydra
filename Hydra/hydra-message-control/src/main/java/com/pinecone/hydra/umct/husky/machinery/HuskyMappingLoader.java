@@ -19,7 +19,7 @@ public class HuskyMappingLoader extends ArchMultiScopeLoader implements MultiMap
         this.mPMCTContextMachinery = machinery;
         this.mClassScanner         = new PooledClassCandidateScanner( new HuskyMappingScopeSet( this.mClassLoader ), this.mClassLoader, this.mClassPool );
         this.mClassInspector       = new GenericPreloadClassInspector( this.mClassPool );
-        this.mClassScanner.addExcludeFilter( new ExcludeHuskyMappingFilters( this.mClassInspector, this.mPMCTContextMachinery) );
+        this.mClassScanner.addExcludeFilter( new ExcludeDigestMappingFilters( this.mClassInspector, this.mPMCTContextMachinery) );
     }
 
     protected HuskyMappingLoader( ClassScope classScope, ClassLoader classLoader, PMCTContextMachinery marshal ) {

@@ -2,9 +2,9 @@ package com.walnut.sparta.uofs.console.api.controller.v2;
 
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.ExternalFolder;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFolder;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
+import com.pinecone.hydra.storage.file.external.ExternalFolder;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFolder;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.Folder;
@@ -48,7 +48,7 @@ public class ExternalSymbolicController {
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
         if(elementNode != null){
             ExternalSymbolic externalSymbolic = (ExternalSymbolic) elementNode;
-            GenericExternalFolder externalFolder = new GenericExternalFolder(new File(externalSymbolic.getReparsedPoint()));
+            GenericNativeExternalFolder externalFolder = new GenericNativeExternalFolder(new File(externalSymbolic.getReparsedPoint()));
             return BasicResultResponse.success(externalFolder.listItem()).toJSONString();
         }
         return BasicResultResponse.success().toJSONString();
@@ -62,7 +62,7 @@ public class ExternalSymbolicController {
     @GetMapping("/listItem/externalFoldr")
     public String externalFolderListItem(@RequestParam("path") String path){
         File file = new File(path);
-        GenericExternalFolder externalFolder = new GenericExternalFolder(file);
+        GenericNativeExternalFolder externalFolder = new GenericNativeExternalFolder(file);
         return BasicResultResponse.success(externalFolder.listItem()).toJSONString();
     }
 

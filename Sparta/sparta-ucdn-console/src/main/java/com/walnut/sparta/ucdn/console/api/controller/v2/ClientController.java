@@ -1,12 +1,8 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
-import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.umb.UMBServiceException;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 
-import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
-import org.apache.thrift.TException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +36,7 @@ public class ClientController {
      * @return
      */
     @PostMapping("/upload")
-    public BasicResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file,@RequestParam("topic") String topic ) throws IOException, InterruptedException {
+    public GenericResultResponse<String> upload(@RequestParam("filePath") String filePath, @RequestParam("file") MultipartFile file, @RequestParam("topic") String topic ) throws IOException, InterruptedException {
         File tempFile = new File(majorTemporaryClusterFileDirectory+ UUID.randomUUID()+temporaryFileExtends);
         if( !tempFile.createNewFile() ){
             throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
@@ -52,7 +47,7 @@ public class ClientController {
         if( !tempFile.delete() ){
             throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     @GetMapping("/testDistribution")

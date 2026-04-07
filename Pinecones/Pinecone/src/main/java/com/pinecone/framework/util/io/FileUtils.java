@@ -173,6 +173,10 @@ public final class FileUtils {
 
     }
 
+    public static void purgeDirectory( File directory ) throws IOException {
+        FileUtils.deleteDirectory( directory );
+    }
+
     public static void deleteDirectory( File directory ) throws IOException {
         if ( directory.exists() ) {
             if ( !isSymlink(directory) ) {

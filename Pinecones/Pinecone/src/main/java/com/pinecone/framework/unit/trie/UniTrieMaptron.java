@@ -414,7 +414,12 @@ public class UniTrieMaptron<K extends String, V > extends AbstractTrieMap<K, V >
         DirectoryNode<V> dir = this.mRoot;
         TrieNode<V>     node = this.mRoot;
 
-        for ( int i = 0; i < segments.length; ++i ) {
+        int is = 0;
+        if ( segments.length > 1 && segments[0].isEmpty() ) {  // "/xxx/xxx" => Skip first `/` => "xxx/xxx"
+            is = 1;
+        }
+
+        for ( int i = is; i < segments.length; ++i ) {
             String segment = segments[ i ];
 
             if ( i < segments.length - 1 ) {

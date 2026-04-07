@@ -7,6 +7,7 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.umc.msg.UMCCHead;
 import com.pinecone.hydra.umc.msg.UMCCHeadV1;
+import com.pinecone.hydra.umc.msg.UMCMethod;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umc.msg.extra.GenericExtraHeadCoder;
 
@@ -25,12 +26,19 @@ public class TestUMCC {
         UMCCHeadV1.EncodePair pair = UMCCHeadV1.encode( head, coder );
         ByteBuffer buffer = pair.byteBuffer;
 
+        //new UMCCHeadV1("", UMCMethod.INFORM );
 
         Debug.redf( head, pair.bufLength );
 
 
         UMCCHead dec = UMCCHeadV1.decode( buffer.array(), head.getSignature(), coder );
-        Debug.bluef( dec );
+
+        byte[] headBuf = new byte[ head.getExtraHeadLength() ];
+        int headSize = head.sizeof();
+        System.arraycopy( buffer.array(), headSize, headBuf, 0, head.getExtraHeadLength() );
+        Object object = coder.getDecoder().decode( dec, headBuf );
+
+        Debug.bluef( dec, object );
     }
 
     public static void main( String[] args ) throws Exception {

@@ -2,6 +2,7 @@ package com.pinecone.framework.util.config;
 
 import com.pinecone.framework.unit.LinkedTreeMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class GenericStartupCommandParser implements StartupCommandParser {
@@ -57,9 +58,29 @@ public class GenericStartupCommandParser implements StartupCommandParser {
         return result;
     }
 
-    private String[] splitValues( String value ) {
+    @Override
+    public Map<String, String[]> parse( Map<String, String> args ) {
+        Map<String, String[]> map = new HashMap<>( args.size() );
+
+        for ( String key : args.keySet() ) {
+            String value = args.get(key);
+            if ( value == null ) {
+                value = "";
+            }
+            String[] values = this.splitValues( value );
+            map.put( key, values );
+        }
+
+        return map;
+    }
+
+    private String[] splitValues(String value ) {
         if ( value.isEmpty() ) {
             return new String[0];
+        }
+
+        if ( value.charAt(0) == '"' || value.charAt(0) == '\'' ) {
+            return new String[] { value };
         }
 
         for ( String separator : this.mValueSeparators ) {

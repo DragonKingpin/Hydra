@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class ArchExecutum implements Executum {
-    private int               mnId                      ;
+    private long              mnId                      ;
     protected String          mszName                   ;
     protected RuntimeSystem   mParentSystem             ;
     protected Processum       mParentProcessum          ;
@@ -31,7 +31,7 @@ public abstract class ArchExecutum implements Executum {
             this.mParentSystem = (RuntimeSystem) this.mParentProcessum;
         }
         else {
-            this.mParentSystem = this.mParentProcessum.getSystem();
+            this.mParentSystem = this.mParentProcessum.parentSystem();
         }
 
         this.makeNameAndId();
@@ -49,7 +49,7 @@ public abstract class ArchExecutum implements Executum {
         this.mnId          = Executum.nextAutoIncrementId();
         if( this.mszName == null ) {
             this.mszName = this.className();
-            long id = this.getId();
+            long id = this.getExecutumId();
             if( this.mParentProcessum != null ) {
                 this.mszName = this.mszName + "-Executum-" + id;
             }
@@ -81,7 +81,7 @@ public abstract class ArchExecutum implements Executum {
     }
 
     @Override
-    public int getId() {
+    public long getExecutumId() {
         return this.mnId;
     }
 
@@ -102,8 +102,16 @@ public abstract class ArchExecutum implements Executum {
     }
 
     @Override
-    public RuntimeSystem  getSystem() {
+    public RuntimeSystem  parentSystem() {
         return this.mParentSystem;
+    }
+
+    @Override
+    public RuntimeSystem revealNearestSystem() {
+        if ( this instanceof RuntimeSystem ) {
+            return (RuntimeSystem) this;
+        }
+        return parentSystem();
     }
 
     @Override
@@ -115,4 +123,12 @@ public abstract class ArchExecutum implements Executum {
     public boolean isTerminated(){
         return this.getState() == Thread.State.TERMINATED;
     }
+
+    @Override
+    public void start() {
+        if ( this.mAffiliateThread != null ) {
+            this.mAffiliateThread.start();
+        }
+    }
+
 }

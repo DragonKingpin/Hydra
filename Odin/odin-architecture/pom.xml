@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>odin</artifactId>
-        <groupId>com.pinecone.odin</groupId>
+        <groupId>com.walnut.odin</groupId>
         <version>2.5.1</version>
     </parent>
     <build>
@@ -21,9 +21,9 @@
     </build>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pinecone.odin.kernel</groupId>
+    <groupId>com.walnut.odin</groupId>
     <artifactId>odin-architecture</artifactId>
-    <version>2.1.0</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
     <modules>
 
@@ -46,6 +46,24 @@
             <groupId>com.pinecone.ulf</groupId>
             <artifactId>ulfhedinn</artifactId>
             <version>1.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-framework-runtime</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.hydra.kernel</groupId>
+            <artifactId>hydra-message-control</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.pinecone.slime.jelly</groupId>
+            <artifactId>jelly</artifactId>
+            <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

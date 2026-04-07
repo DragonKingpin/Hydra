@@ -2,6 +2,7 @@ package com.pinecone.hydra.umc.wolf.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,7 +20,7 @@ import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.RecipientChannelControlBlock;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
@@ -57,7 +58,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *  Pinecone Ursus For Java WolfServer [ Wolf, Uniform Message Control Protocol Server ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
@@ -90,7 +91,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
@@ -98,7 +99,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf ) {
@@ -106,7 +107,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf ) {
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, null );
     }
 
     public WolfMCServer( long nodeId, String szName, Processum parentProcess, Map<String, Object> joConf ) {
@@ -114,7 +115,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
     public WolfMCServer( String szName, Processum parentProcess, Map<String, Object> joConf ) {
-        this( -1, szName, parentProcess, null, joConf );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf );
     }
 
     protected WolfMCServer( Builder builder ){
@@ -172,9 +173,9 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     }
 
 
-    protected void notifyDataArrivedEventHandlers( RecipientChannelControlBlock block ) {
+    protected void notifyDataArrivedEventHandlers( RecipientChannelControlBlock block, ChannelHandlerContext ctx ) {
         for( ChannelEventHandler h : this.mDataArrivedEventHandlers ) {
-            h.afterEventTriggered( block );
+            h.afterEventTriggered( block, ctx );
         }
     }
 
@@ -186,11 +187,12 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
     @Override
     public void close() throws ProvokeHandleException {
         this.mStateMutex.lock();
-        try{
+        try {
             if( this.mMasterEventGroup != null ) {
                 this.mMasterEventGroup.shutdownGracefully();
+                this.mMasterEventGroup = null;
                 //this.clear();
-                this.mShutdown = true;
+                //this.mShutdown = true;
             }
 
             if( this.mWorkersEventGroup != null ) {
@@ -201,7 +203,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             this.mStateMutex.unlock();
         }
 
-        try{
+        try {
             synchronized ( this.mPrimaryThreadJoinMutex ) {
                 WolfMCServer.this.mPrimaryThreadJoinMutex.notify();
             }
@@ -222,7 +224,23 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         }
     }
 
-    protected void handleArrivedMessage( UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
+    @Override
+    public boolean isShutdown() {
+        if ( this.mMasterEventGroup == null ) {
+            return true;
+        }
+        return this.mMasterEventGroup.isShutdown();
+    }
+
+    @Override
+    public boolean isTerminated() {
+        if ( this.mMasterEventGroup == null ) {
+            return true;
+        }
+        return this.mMasterEventGroup.isTerminated();
+    }
+
+    protected void handleArrivedMessage(UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
         if( this.getErrorMessageAudit().isErrorMessage( msg ) ) {
             handle.onErrorMsgReceived( medium, block, msg, ctx, msg );
         }
@@ -259,7 +277,18 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                                 AttributeKey.valueOf( WolfMCStandardConstants.CB_CONTROL_BLOCK_KEY )
                         ).set( ccb );
 
-                        WolfMCServer.this.getLogger().info( "[MessengerConnected] <id:`{}`>", ctx.channel().id() );
+
+                        Channel channel = ctx.channel();
+                        SocketAddress remote = channel.remoteAddress();
+                        String ipInfo = "??";
+                        if ( remote instanceof InetSocketAddress ) {
+                            InetSocketAddress inet = (InetSocketAddress) remote;
+                            String ip   = inet.getAddress().getHostAddress();
+                            int port    = inet.getPort();
+
+                            ipInfo = ip + ":" + port;
+                        }
+                        WolfMCServer.this.getLogger().info( "[MessengerConnected] <id:`{}`, ip: `{}`>", ctx.channel().id(), ipInfo );
 
                         ccb.afterConnectionArrive(
                                 new AsyncUlfMedium( ctx, null, WolfMCServer.this ),  false
@@ -285,7 +314,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                                     WolfMCServer.this.mRecipientMsgHandler, medium, channelControlBlock, message, ctx, msg
                             );
 
-                            WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock );
+                            WolfMCServer.this.notifyDataArrivedEventHandlers( channelControlBlock, ctx );
                         }
 
                         medium.release();
@@ -302,7 +331,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
                         if ( !WolfMCServer.this.mChannelInactiveHandlers.isEmpty() ) {
                             boolean bBlocked = false;
                             for ( ChannelInactiveHandler handler : WolfMCServer.this.mChannelInactiveHandlers ) {
-                                if ( handler.afterChannelInactive( ccb ) ) {
+                                if ( handler.afterChannelInactive( ccb, ctx ) ) {
                                     bBlocked = true;
                                 }
                             }
@@ -350,9 +379,9 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             @Override
             public void operationComplete( ChannelFuture channelFuture ) throws Exception {
                 synchronized ( WolfMCServer.this.mPrimaryThreadJoinMutex ) {
-                    if ( WolfMCServer.this.mShutdown ) {
-                        WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
-                    }
+//                    if ( WolfMCServer.this.isShutdown() ) {
+//                        WolfMCServer.this.mShutdown = !channelFuture.isSuccess();
+//                    }
                     WolfMCServer.this.mPrimaryThreadJoinMutex.notify();
                 }
             }
@@ -361,7 +390,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         synchronized ( this.mPrimaryThreadJoinMutex ) {
             try {
                 this.mPrimaryThreadJoinMutex.wait( this.getConnectionArguments().getSocketTimeout() );
-                if( this.mShutdown ) {
+                if( this.isShutdown() ) {
                     throw new BindException( String.format( "%s [Serve], binding `%s` compromised.", this.className(), this.mPrimaryBindAddress.toString() ) );
                 }
             }
@@ -409,6 +438,11 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
 
     @Override
     public void execute() throws UMCServiceException {
+        if ( !this.isShutdown() ) {
+            this.mLogger.info( "WolfMCServer [{}:{}] is already started. <Pass>", this.getName(), this.hashCode() );
+            return;
+        }
+
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override
@@ -433,7 +467,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
 
         this.joinOuterThread();
         if( !this.isShutdown() ) {
-            this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Successfully" );
+            this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Ready" );
         }
 
         try {

@@ -3,11 +3,11 @@ package com.pinecone.framework.system.executum;
 import com.pinecone.framework.system.RuntimeSystem;
 import com.pinecone.framework.system.functions.Executable;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *  Pinecone Ursus For Java Executum
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Executum vs Executor
@@ -22,9 +22,11 @@ public interface Executum extends Executable, Lifecycle {
 
     void                setName( String szName );
 
-    int                 getId();
+    long                getExecutumId();
 
-    RuntimeSystem       getSystem();
+    RuntimeSystem       parentSystem();
+
+    RuntimeSystem       revealNearestSystem();
 
     Executum            parentExecutum();
 
@@ -37,14 +39,16 @@ public interface Executum extends Executable, Lifecycle {
     }
 
     default boolean     isMainThreadExecutum() {
-        return this.getAffiliateThread() == this.getSystem().getProcessMainThread();
+        return this.getAffiliateThread() == this.parentSystem().getProcessMainThread();
     }
 
     boolean             isTerminated();
 
-    AtomicInteger AutoIncrementId     = new AtomicInteger( 0 );
+    void                start();
 
-    static int nextAutoIncrementId() {
+    AtomicLong AutoIncrementId     = new AtomicLong( 0 );
+
+    static long nextAutoIncrementId() {
         return Executum.AutoIncrementId.getAndIncrement();
     }
 }

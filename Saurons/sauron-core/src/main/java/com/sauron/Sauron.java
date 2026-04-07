@@ -2,10 +2,10 @@ package com.sauron;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 import com.sauron.system.SauronKingdom;
 
-public class Sauron extends Radium implements SauronKingdom {
+public class Sauron extends Tritium implements SauronKingdom {
     public Sauron( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -31,7 +31,7 @@ public class Sauron extends Radium implements SauronKingdom {
         this.pout().print( "PineconeAlly : Bean Nuts Walnut Sparta\n" );
         this.pout().print( "PineconeAlly : Bean Nuts Acorn Summer (Pinecone Framework Edition)\n" );
         this.pout().print( "PineconeAlly : Bean Nuts Hazelnut Slime\n"   );
-        this.pout().print( "PineconeAlly : Bean Nuts Hazelnut Hydra Radium\n"   );
+        this.pout().print( "PineconeAlly : Bean Nuts Hazelnut Hydra Tritium\n"   );
         this.pout().print( "PineconeAlly : Bean Nuts Acorn Summer Springron (org.springframework.boot 2.4.1)\n"   );
     }
 }

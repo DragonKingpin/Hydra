@@ -150,7 +150,7 @@ public class VolumeController {
      */
     @GetMapping("/query/physical")
     public String queryPhysicalVolume( @RequestParam("guid") String guid ){
-        PhysicalVolume physicalVolume = this.primaryVolume.getPhysicalVolume(GUIDs.GUID72(guid));
+        PhysicalVolume physicalVolume = this.primaryVolume.getPhysicalVolume(GUIDs.GUID128(guid));
         return BasicResultResponse.success(physicalVolume).toJSONString();
     }
 
@@ -161,7 +161,7 @@ public class VolumeController {
      */
     @GetMapping("/query/logic")
     public String queryLogicVolume( @RequestParam("guid") String guid ){
-        LogicVolume logicVolume = this.primaryVolume.get(GUIDs.GUID72(guid));
+        LogicVolume logicVolume = this.primaryVolume.get(GUIDs.GUID128(guid));
         return BasicResultResponse.success(logicVolume).toJSONString();
     }
 
@@ -172,8 +172,8 @@ public class VolumeController {
      */
     @PostMapping("/storageExpansion")
     public BasicResultResponse<String> storageExpansion(@RequestBody StorageExpansionDTO dto){
-        GUID logicGuid = GUIDs.GUID72( dto.getLogicGuid() );
-        GUID physicalGuid = GUIDs.GUID72( dto.getChildGuid() );
+        GUID logicGuid = GUIDs.GUID128( dto.getLogicGuid() );
+        GUID physicalGuid = GUIDs.GUID128( dto.getChildGuid() );
 
         LogicVolume logicVolume = this.primaryVolume.get(logicGuid);
 
@@ -188,12 +188,12 @@ public class VolumeController {
      */
     @GetMapping("/getChildren")
     public String getChildren(@RequestParam("volumeGuid") String volumeGuid){
-        PhysicalVolume physicalVolume = this.primaryVolume.getPhysicalVolume(GUIDs.GUID72(volumeGuid));
+        PhysicalVolume physicalVolume = this.primaryVolume.getPhysicalVolume(GUIDs.GUID128(volumeGuid));
 
         if(physicalVolume != null){
             return BasicResultResponse.error("物理卷不存在子卷").toJSONString();
         }
-        LogicVolume logicVolume = this.primaryVolume.get(GUIDs.GUID72(volumeGuid));
+        LogicVolume logicVolume = this.primaryVolume.get(GUIDs.GUID128(volumeGuid));
         if( logicVolume instanceof TitanLocalSimpleVolume){
             SimpleVolume simpleVolume = (SimpleVolume) logicVolume;
             List<GUID> guids = simpleVolume.listPhysicalVolume();

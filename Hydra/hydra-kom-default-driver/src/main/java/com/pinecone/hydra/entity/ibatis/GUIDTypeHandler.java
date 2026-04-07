@@ -1,7 +1,7 @@
 package com.pinecone.hydra.entity.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i128.UUID128;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedJdbcTypes;
@@ -27,7 +27,7 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        return new GUID72( value );
+        return new UUID128( value );
     }
 
     @Override
@@ -36,7 +36,7 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        return new GUID72( value );
+        return new UUID128( value );
     }
 
     @Override
@@ -45,6 +45,6 @@ public class GUIDTypeHandler extends BaseTypeHandler<GUID> {
         if (value == null) {
             return null; // 如果值为 null，则直接返回 null
         }
-        return new GUID72( value );
+        return new UUID128( value );
     }
 }

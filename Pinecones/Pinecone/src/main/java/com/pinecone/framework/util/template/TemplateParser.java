@@ -17,7 +17,7 @@ import java.util.Map;
 
 /**
  *  Pinecone For Java TemplateParser [ Bean Nuts(R) Almond Dragon, Unify Template Language ]
- *  Copyright © Bean Nuts Foundation ( Dragon King ) All rights reserved. [Harold.E / JH.W]
+ *  Copyright © Bean Nuts Foundation ( Dragon King ) All rights reserved. [Harald.E / JH.W]
  *  *****************************************************************************************
  *  ${xxx}, ${xxx.xxx}, ${xxx["xxx"]}, ${xxx[xxx]}
  *  *****************************************************************************************

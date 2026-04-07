@@ -1,7 +1,7 @@
 package com.pinecone.slime.jelly.source.ibatis;
 
 import com.pinecone.framework.util.lang.ClassScope;
-import com.pinecone.framework.util.lang.GenericScopeNSProtocolIteratorsFactory;
+import com.pinecone.framework.util.lang.ClassScopeNSProtocolIteratorsFactory;
 import com.pinecone.framework.util.lang.NSProtocolIteratorsFactoryAdapter;
 import com.pinecone.slime.source.DAOScanner;
 import com.pinecone.ulf.util.lang.GenericPreloadClassInspector;
@@ -21,10 +21,10 @@ public class IbatisDAOScanner extends PooledClassCandidateScanner implements DAO
     }
 
     public IbatisDAOScanner     ( ClassScope searchScope, ClassLoader classLoader, ClassPool classPool ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), classPool );
     }
 
     public IbatisDAOScanner     ( ClassScope searchScope, ClassLoader classLoader ) {
-        this( searchScope, classLoader, new GenericScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
+        this( searchScope, classLoader, new ClassScopeNSProtocolIteratorsFactory( classLoader, searchScope ), ClassPool.getDefault() );
     }
 }

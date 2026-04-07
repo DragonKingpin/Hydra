@@ -1,6 +1,7 @@
 package com.pinecone.hydra.unit.vgraph.algo;
 
 import com.pinecone.framework.system.Nullable;
+import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.AtlasInstrument;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -12,13 +13,10 @@ import java.util.Stack;
 public class BasicDAGPathSelector implements DAGPathSelector {
     protected DAGPathResolver mPathResolver;
 
-    protected AtlasInstrument mAtlasInstrument;
-
     protected VectorGraphManipulator    mVectorGraphManipulator;
 
-    public BasicDAGPathSelector(DAGPathResolver pathResolver, AtlasInstrument atlasInstrument, VectorGraphManipulator vectorGraphManipulator  ){
+    public BasicDAGPathSelector(DAGPathResolver pathResolver, VectorGraphManipulator vectorGraphManipulator  ){
         this.mPathResolver = pathResolver;
-        this.mAtlasInstrument = atlasInstrument;
         this.mVectorGraphManipulator = vectorGraphManipulator;
     }
     @Override
@@ -74,12 +72,12 @@ public class BasicDAGPathSelector implements DAGPathSelector {
         return false;
     }
 
-    protected Object dfsSearch(List<String > parts ) {
+    protected GUID dfsSearch(List<String > parts ) {
         return this.dfsSearch( null, parts );
     }
 
 
-    /** 使用递归实现图的DFS遍历 **/
+    /** 使用递归实现图的DFS遍历（考古专用） **/
     protected Object dfsSearch(GUID parentID, List<String> parts, int depth) {
         if (depth == parts.size() - 1) {
             List<GraphNode> nodes = this.mVectorGraphManipulator.fetchNodesByName(parts.get(depth));
@@ -104,7 +102,7 @@ public class BasicDAGPathSelector implements DAGPathSelector {
     }
 
     /** 非递归形式DFS遍历 **/
-    protected Object dfsSearch(GUID parentID, List<String> parts) {
+    protected GUID dfsSearch(GUID parentID, List<String> parts) {
         if (parts.isEmpty()) {
             return null; // 边界条件：路径为空
         }
@@ -123,8 +121,8 @@ public class BasicDAGPathSelector implements DAGPathSelector {
                 List<GraphNode> nodes = mVectorGraphManipulator.fetchNodesByName(parts.get(currentDepth));
                 for (GraphNode node : nodes) {
                     if (currentParentID == null ||
-                            mVectorGraphManipulator.fetchParentIds(node.getId()).equals(currentParentID)) {
-                        return node; // 找到目标节点
+                            mVectorGraphManipulator.fetchParentIds(node.getId()).contains(currentParentID)) {
+                        return node.getId(); // 找到目标节点
                     }
                 }
                 continue; // 当前深度未找到，继续回溯

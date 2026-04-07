@@ -28,11 +28,11 @@ public class IntegratedMessagram extends ArchMessagram implements Messagram {
 
     protected void prepareExpresses() {
         if( StringUtils.isEmpty( this.mszExpressFactory ) ) {
-            this.mExpressFactory = new GenericDynamicFactory( this.getSystem().getTaskManager().getClassLoader() );
+            this.mExpressFactory = new GenericDynamicFactory( this.parentSystem().getTaskManager().getClassLoader() );
         }
         else {
             this.mExpressFactory = (DynamicFactory) DynamicFactory.DefaultFactory.optLoadInstance(
-                    this.mszExpressFactory, null, new Object[] { this.getSystem().getTaskManager().getClassLoader() }
+                    this.mszExpressFactory, null, new Object[] { this.parentSystem().getTaskManager().getClassLoader() }
             );
         }
 

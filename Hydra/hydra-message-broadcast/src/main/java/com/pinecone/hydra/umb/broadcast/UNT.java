@@ -4,7 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 
 /**
  *  Pinecone Ursus For Java [ Uniform Namespaced Topic ]
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Topic + Namespace

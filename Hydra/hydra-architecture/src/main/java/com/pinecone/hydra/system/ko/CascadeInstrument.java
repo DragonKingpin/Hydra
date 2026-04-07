@@ -1,9 +1,12 @@
 package com.pinecone.hydra.system.ko;
 
+import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.system.regimentation.UniformCascadeNodus;
 import com.pinecone.framework.util.name.Namespace;
 
-public interface CascadeInstrument extends KernelObjectInstrument, UniformCascadeNodus {
+public interface CascadeInstrument extends UniformCascadeNodus, Instrument {
+    String EmptySuperiorPathScope = "";
+
     @Override
     CascadeInstrument parent();
 
@@ -38,4 +41,15 @@ public interface CascadeInstrument extends KernelObjectInstrument, UniformCascad
     default String getFullName() {
         return this.getTargetingName().getFullName();
     }
+
+    /**
+     * Superior Path Scope (Specialized namespace)
+     * 上级键空间（专门命名空间）
+     * e.g. `/proc`/pid/name => Scope : `/proc`
+     * @return ParentPathScope
+     */
+    String getSuperiorPathScope();
+
+    void applySuperiorPathScope( String superiorPathScope );
+
 }

@@ -3,9 +3,9 @@ package com.pinecone.hydra.account.entity;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
-public class ArchElementNode implements ElementNode{
+public class ArchElementNode implements ElementNode {
     protected long              enumId;
 
     protected String            name;
@@ -14,14 +14,14 @@ public class ArchElementNode implements ElementNode{
 
     protected AccountManager    accountManager;
 
-    protected GuidAllocator     guidAllocator = new GenericGuidAllocator();
+    protected GuidAllocator     guidAllocator = GUIDs.newGuidAllocator();
 
     public ArchElementNode(){
         this.guid = guidAllocator.nextGUID();
     }
 
     public ArchElementNode(AccountManager accountManager){
-        this.guid = guidAllocator.nextGUID();
+        this.guid = this.guidAllocator.nextGUID();
         this.accountManager = accountManager;
     }
     @Override

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.task.ibatis.TaskNodeMapper">
+
+    <!-- ========================================================== -->
+    <!-- ResultMap -->
+    <!-- ========================================================== -->
+
+    <resultMap id="TaskNodeMap" type="com.pinecone.hydra.task.kom.entity.GenericTaskElement">
+        <id     column="id"                   property="enumId"/>
+
+        <result column="guid"                 property="guid"/>
+        <result column="name"                 property="name"/>
+        <result column="schedule_cron"        property="scheduleCron"/>
+        <result column="image_path"           property="imagePath"/>
+        <result column="type"                 property="type"/>
+        <result column="resource_type"        property="resourceType"/>
+        <result column="deployment_method"    property="deploymentMethod"/>
+        <result column="priority"             property="priority"/>
+        <result column="actually_priority"    property="actuallyPriority"/>
+        <result column="dry_run"              property="dryRun"/>
+        <result column="schedule_cycle"       property="scheduleCycle"/>
+        <result column="schedule_type"        property="scheduleType"/>
+        <result column="schedule_start_time"  property="scheduleStartTime"/>
+        <result column="schedule_end_time"    property="scheduleEndTime"/>
+        <result column="next_schedule_time"   property="nextScheduleTime"/>
+        <result column="processor_name"       property="processorName"/>
+        <result column="enable"               property="enable"/>
+        <result column="create_time"          property="createTime"/>
+        <result column="update_time"          property="updateTime"/>
+
+    </resultMap>
+
+    <!-- ========================================================== -->
+    <!-- Insert -->
+    <!-- ========================================================== -->
+
+    <insert id="insert" parameterType="com.pinecone.hydra.task.kom.entity.TaskElement">
+
+        INSERT INTO hydra_task_task_node
+        (
+            guid,
+            name,
+            schedule_cron,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle,
+            schedule_type,
+            processor_name,
+            enable,
+            create_time,
+            update_time
+        )
+        VALUES
+            (
+                #{guid},
+                #{name},
+                #{scheduleCron},
+                #{imagePath},
+                #{type},
+                #{resourceType},
+                #{deploymentMethod},
+                #{priority},
+                #{actuallyPriority},
+                #{dryRun},
+                #{scheduleCycle},
+                #{scheduleType},
+                #{processor_name},
+                #{enable},
+                #{createTime},
+                #{updateTime}
+            )
+
+    </insert>
+
+    <!-- ========================================================== -->
+    <!-- Update -->
+    <!-- ========================================================== -->
+
+    <update id="update" parameterType="com.pinecone.hydra.task.kom.entity.TaskElement">
+        UPDATE hydra_task_task_node
+        SET
+            name                = #{name},
+            schedule_cron       = #{scheduleCron},
+            image_path          = #{imagePath},
+            type                = #{type},
+            resource_type       = #{resourceType},
+            deployment_method   = #{deploymentMethod},
+            priority            = #{priority},
+            actually_priority   = #{actuallyPriority},
+            dry_run             = #{dryRun},
+            schedule_cycle      = #{scheduleCycle},
+            schedule_type       = #{scheduleType},
+            schedule_start_time = #{scheduleStartTime},
+            schedule_end_time   = #{scheduleEndTime},
+            next_schedule_time  = #{nextScheduleTime},
+            processor_name      = #{processorName}
+            enable              = #{enable},
+            update_time         = #{updateTime}
+        WHERE guid = #{guid}
+
+    </update>
+
+    <!-- ========================================================== -->
+    <!-- Select by GUID -->
+    <!-- ========================================================== -->
+
+    <select id="getTaskNode0" parameterType="com.pinecone.framework.util.id.GUID" resultMap="TaskNodeMap">
+
+        SELECT
+            id,
+            guid,
+            name,
+            schedule_cron,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle,
+            schedule_type,
+            processor_name,
+            enable,
+            create_time,
+            update_time
+        FROM hydra_task_task_node
+        WHERE guid = #{guid}
+
+    </select>
+
+    <!-- ========================================================== -->
+    <!-- Select by Name -->
+    <!-- ========================================================== -->
+
+    <select id="fetchTaskNodeByName0" resultMap="TaskNodeMap">
+
+        SELECT
+            id,
+            guid,
+            name,
+            schedule_cron,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle,
+            schedule_type,
+            processor_name,
+            enable,
+            create_time,
+            update_time
+        FROM hydra_task_task_node
+        WHERE name = #{name}
+
+    </select>
+
+
+
+    <select id="selectSchedulableIdRange" resultType="com.pinecone.slime.meta.TableIndex64Meta">
+        SELECT
+            MIN(id) AS minId,
+            MAX(id) AS maxId
+        FROM hydra_task_task_node
+        WHERE enable = 1
+        AND schedule_type = 'Cycle'
+        AND schedule_cycle IN
+        <foreach collection="cycles" item="cycle" open="(" separator="," close=")">
+            #{cycle}
+        </foreach>
+        AND (
+            next_schedule_time IS NULL
+            OR next_schedule_time &lt;= #{targetTime}
+        )
+    </select>
+
+    <select id="fetchSchedulableTasksInRange0" resultMap="TaskNodeMap">
+        SELECT
+            id,
+            guid,
+            owned_service_guid,
+            name,
+            schedule_cron,
+            image_path,
+            type,
+            resource_type,
+            deployment_method,
+            priority,
+            actually_priority,
+            dry_run,
+            schedule_cycle,
+            schedule_type,
+            schedule_start_time,
+            schedule_end_time,
+            enable,
+            next_schedule_time,
+            processor_name,
+            create_time,
+            update_time
+        FROM
+            hydra_task_task_node
+        WHERE
+            id &gt;= #{idMin}
+            AND id &lt;= #{idMax}
+            AND enable = 1
+            AND schedule_type = 'Cycle'
+            AND schedule_cycle IN
+            <foreach collection="cycles" item="cycle" open="(" separator="," close=")">
+                #{cycle}
+            </foreach>
+            AND (
+                next_schedule_time IS NULL
+                OR next_schedule_time &lt;= #{targetTime}
+            )
+            ORDER BY actually_priority DESC, id ASC
+
+    </select>
+
+
+    <sql id="TaskNodeColumns">
+    id,
+    guid,
+    owned_service_guid,
+    name,
+    schedule_cron,
+    image_path,
+    type,
+    resource_type,
+    deployment_method,
+    priority,
+    actually_priority,
+    dry_run,
+    schedule_cycle,
+    schedule_type,
+    schedule_start_time,
+    schedule_end_time,
+    enable,
+    next_schedule_time,
+    create_time,
+    update_time
+    </sql>
+
+    <select id="listPage" resultMap="TaskNodeMap">
+        SELECT
+        <include refid="TaskNodeColumns"/>
+        FROM hydra_task_task_node
+        ORDER BY id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+</mapper>

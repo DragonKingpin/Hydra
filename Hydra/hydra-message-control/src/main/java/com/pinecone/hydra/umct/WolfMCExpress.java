@@ -13,7 +13,7 @@ import com.pinecone.hydra.umct.husky.HuskyServiceErrorMessages;
 
 /**
  *  Pinecone Ursus For Java Hydra Ulfar, Wolf Express
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  */
 public class WolfMCExpress extends ArchMsgExpress implements UMCTExpress {

@@ -19,7 +19,7 @@ import io.netty.util.AttributeKey;
 import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.hydra.umc.msg.MessageNodus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolf.AsyncUlfMedium;
@@ -39,6 +39,7 @@ import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
+import com.pinecone.hydra.umct.UMCTExpressHandler;
 
 import java.io.IOException;
 
@@ -52,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *  Pinecone Ursus For Java WolfClient [ Wolf, Uniform Message Control Protocol Client ]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
@@ -81,7 +82,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ){
-        super( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
+        super( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, extraHeadCoder );
 
         this.apply( joConf );
     }
@@ -91,7 +92,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, Map<String, Object>  joConf, ExtraHeadCoder extraHeadCoder ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
+        this( Messagus.nextLocalId(), szName, parentProcess, null, joConf, extraHeadCoder );
     }
 
     public WolfMCClient( long nodeId, String szName, Processum parentProcess, Map<String, Object>  joConf ){
@@ -99,7 +100,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, Processum parentProcess, Map<String, Object>  joConf ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, joConf, null );
     }
 
     public WolfMCClient( long nodeId, String szName, UlfMessageNode parent, Processum parentProcess, Map<String, Object>  joConf ){
@@ -107,7 +108,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     public WolfMCClient( String szName, UlfMessageNode parent, Processum parentProcess, Map<String, Object>  joConf ){
-        this( MessageNodus.nextLocalId(), szName, parentProcess, parent, joConf, null );
+        this( Messagus.nextLocalId(), szName, parentProcess, parent, joConf, null );
     }
 
     protected WolfMCClient( Builder builder ){
@@ -145,6 +146,11 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     @Override
+    public UMCTExpressHandler             getAsyncMsgHandler() {
+        return this.mPrimeAsyncMessageHandler;
+    }
+
+    @Override
     public ClientConnectArguments         getConnectionArguments() {
         return this.mConnectionArguments;
     }
@@ -173,18 +179,18 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     @Override
     public void                           close() throws ProvokeHandleException {
         this.mStateMutex.lock();
-        try{
+        try {
             if( this.mExecutorGroup != null ) {
                 this.mExecutorGroup.shutdownGracefully();
                 this.clear();
-                this.mShutdown = true;
+                this.mExecutorGroup = null;
             }
         }
         finally {
             this.mStateMutex.unlock();
         }
 
-        try{
+        try {
             synchronized ( this.mPrimaryThreadJoinMutex ) {
                 WolfMCClient.this.mPrimaryThreadJoinMutex.notify();
             }
@@ -196,7 +202,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public void                           kill() {
-        try{
+        try {
             this.close();
         }
         catch ( ProvokeHandleException e ) {
@@ -205,9 +211,25 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         }
     }
 
-    protected void                        notifyChannelConnected( ChannelControlBlock block ) {
+    @Override
+    public boolean                        isShutdown() {
+        if ( this.mExecutorGroup == null ) {
+            return true;
+        }
+        return this.mExecutorGroup.isShutdown();
+    }
+
+    @Override
+    public boolean                        isTerminated() {
+        if ( this.mExecutorGroup == null ) {
+            return true;
+        }
+        return this.mExecutorGroup.isTerminated();
+    }
+
+    protected void                        notifyChannelConnected( ChannelControlBlock block, ChannelHandlerContext ctx ) {
         for( ChannelEventHandler h : this.mChannelConnectedHandlers ) {
-            h.afterEventTriggered( block );
+            h.afterEventTriggered( block, ctx );
         }
     }
 
@@ -227,9 +249,9 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
             @Override
             public void operationComplete( ChannelFuture channelFuture ) throws Exception {
                 synchronized ( WolfMCClient.this.mPrimaryThreadJoinMutex ) {
-                    if ( WolfMCClient.this.mShutdown ) {
-                        WolfMCClient.this.mShutdown = !channelFuture.isSuccess();
-                    }
+//                    if ( WolfMCClient.this.isShutdown() ) {
+//                        WolfMCClient.this.mShutdown = !channelFuture.isSuccess();
+//                    }
                     WolfMCClient.this.mPrimaryThreadJoinMutex.notify();
                 }
             }
@@ -240,7 +262,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         synchronized ( this.mPrimaryThreadJoinMutex ) {
             try {
                 this.mPrimaryThreadJoinMutex.wait( this.getConnectionArguments().getSocketTimeout() );
-                if( this.mShutdown ) {
+                if( WolfMCClient.this.isShutdown() ) {
                     throw new UnknownHostException( "Connect failed with '" + this.getConnectionArguments().getHost() + ":" + this.getConnectionArguments().getPort() + "'" );
                 }
             }
@@ -250,7 +272,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
             }
         }
 
-        this.notifyChannelConnected( ccb );
+        this.notifyChannelConnected( ccb, null );
         return ccb;
     }
 
@@ -404,7 +426,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
                         if ( !WolfMCClient.this.mChannelInactiveHandlers.isEmpty() ) {
                             boolean bBlocked = false;
                             for ( ChannelInactiveHandler handler : WolfMCClient.this.mChannelInactiveHandlers ) {
-                                if ( handler.afterChannelInactive( ccb ) ) {
+                                if ( handler.afterChannelInactive( ccb, ctx ) ) {
                                     bBlocked = true;
                                 }
                             }
@@ -432,7 +454,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         });
 
         this.syncSpawnChannels();
-        this.infoLifecycle( "Wolf<\uD83D\uDC3A>::initNettySubsystem", "Successfully" );
+        this.infoLifecycle( "Wolf<\uD83D\uDC3A>::initNettySubsystem", "Ready" );
     }
 
     public void                           connect() throws IOException, UMCServiceException {
@@ -461,6 +483,11 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public void                           execute() throws UMCServiceException {
+        if ( !this.isShutdown() ) {
+            this.mLogger.info( "WolfMCClient [{}:{}] is already started. <Pass>", this.getName(), this.hashCode() );
+            return;
+        }
+
         Exception[] lastException = new Exception[] { null };
         Thread primaryThread      = new Thread( new Runnable() {
             @Override

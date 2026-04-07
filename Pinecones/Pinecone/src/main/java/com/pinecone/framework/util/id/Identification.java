@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 
-public interface Identification extends Pinenut, Serializable {
-    Identification parse( String hexID );
+public interface Identification extends Pinenut, Serializable, Comparable<Identification> {
+
+    Identification parse( String code );
+
+    byte[] toBytes();
+
 }

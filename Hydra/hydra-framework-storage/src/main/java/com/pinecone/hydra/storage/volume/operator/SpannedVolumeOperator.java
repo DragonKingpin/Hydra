@@ -11,6 +11,7 @@ import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.util.Collection;
 import java.util.List;
 
 public class SpannedVolumeOperator extends ArchVolumeOperator  implements VolumeOperator{
@@ -69,7 +70,7 @@ public class SpannedVolumeOperator extends ArchVolumeOperator  implements Volume
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 
@@ -80,7 +81,7 @@ public class SpannedVolumeOperator extends ArchVolumeOperator  implements Volume
 
     @Override
     public void removeStorageObject(GUID volumeGuid,GUID storageObjectGuid,long size) {
-        List<TreeNode> children = this.volumeManager.getChildren(volumeGuid);
+        Collection<TreeNode> children = this.volumeManager.getChildren(volumeGuid);
         for( TreeNode treeNode : children ){
             this.volumeManager.removeStorageObject( treeNode.getGuid(), storageObjectGuid,size );
         }

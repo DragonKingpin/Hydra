@@ -44,7 +44,7 @@ public interface KOMFileSystem extends ReparseKOMTree {
     void update( FileTreeNode node);
 
     @Override
-    FileTreeNode getSelf( GUID guid );
+    FileTreeNode getAsRootDepth( GUID guid );
 
     FileNode getFileNode(GUID guid );
 

@@ -3,6 +3,7 @@ package com.pinecone.hydra.registry;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.entity.ConfigNode;
 import com.pinecone.hydra.registry.entity.DefaultPropertyConverter;
@@ -49,7 +50,7 @@ import java.util.Objects;
 
 /**
  *  Pinecone Ursus For Java Uniform KOMRegistry
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Uniform Distribute Kernel Object Model Registry (Config KOM Registry)
@@ -66,14 +67,13 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     protected TypeConverter                   textValueTypeConverter;
 
 
-    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name ){
+    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name, @Nullable GuidAllocator guidAllocator ){
         // Phase [1] Construct system.
-        super( superiorProcess, masterManipulator, KernelRegistryConfig, parent, name );
+        super( superiorProcess, masterManipulator, KernelRegistryConfig, parent, name, guidAllocator );
 
         // Phase [2] Construct fundamentals.
         this.registryMasterManipulator     =  (RegistryMasterManipulator) masterManipulator;
         this.pathResolver                  =  new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator                 =  GUIDs.newGuidAllocator();
 
         // Phase [3] Construct manipulators.
         this.registryPropertiesManipulator =  this.registryMasterManipulator.getPropertiesManipulator();
@@ -92,6 +92,10 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
         // Phase [5] Construct misc.
         this.propertyTypeConverter         =  new DefaultPropertyConverter();
         this.textValueTypeConverter        =  new DefaultTextValueConverter();
+    }
+
+    public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator, KOMRegistry parent, String name ){
+        this ( superiorProcess, masterManipulator, parent, name, null );
     }
 
     public GenericKOMRegistry( Processum superiorProcess, KOIMasterManipulator masterManipulator ){
@@ -171,8 +175,8 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     }
 
     @Override
-    public RegistryTreeNode getSelf( GUID guid ) {
-        return (RegistryTreeNode) super.getSelf( guid );
+    public RegistryTreeNode getAsRootDepth( GUID guid ) {
+        return (RegistryTreeNode) super.getAsRootDepth( guid );
     }
 
     @Override
@@ -488,7 +492,7 @@ public class GenericKOMRegistry extends ArchReparseKOMTree implements KOMRegistr
     protected RegistryTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
-        GUID parentGuid = GUIDs.Dummy72();
+        GUID parentGuid = GUIDs.Dummy128();
 
         RegistryTreeNode node = this.queryElement( path );
         if( node != null ) {

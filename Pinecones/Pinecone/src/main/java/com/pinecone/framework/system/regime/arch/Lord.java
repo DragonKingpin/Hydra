@@ -5,4 +5,7 @@ package com.pinecone.framework.system.regime.arch;
  * 领域控制者
  */
 public interface Lord extends Dominator {
+
+    void release();
+
 }

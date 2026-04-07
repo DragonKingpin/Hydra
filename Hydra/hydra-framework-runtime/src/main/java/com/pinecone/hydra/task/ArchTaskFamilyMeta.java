@@ -15,7 +15,7 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
 
     protected String scenario;
 
-    protected String primaryImplLang;
+    protected String marshallingArchitecture;
 
     protected String extraInformation;
 
@@ -24,21 +24,19 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
     protected Map<String, Object > elementaryConfig;
 
 
-    protected String level;
-
     protected String description;
 
     public ArchTaskFamilyMeta() {
     }
 
-    public ArchTaskFamilyMeta(Map<String, Object > joEntity ) {
+    public ArchTaskFamilyMeta( Map<String, Object > joEntity ) {
         this.apply( joEntity );
     }
 
-    protected ArchTaskFamilyMeta apply(Map<String, Object > joEntity ) {
+    protected ArchTaskFamilyMeta apply( Map<String, Object > joEntity ) {
         String szGuid = (String) joEntity.get( "guid" );
         if( szGuid != null ) {
-            this.guid = GUIDs.GUID72( (String) joEntity.get( "guid" ) );
+            this.guid = GUIDs.GUID128( (String) joEntity.get( "guid" ) );
         }
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
 
@@ -66,18 +64,13 @@ public abstract class ArchTaskFamilyMeta implements TaskFamilyMeta {
     }
 
     @Override
-    public String getPrimaryImplLang() {
-        return this.primaryImplLang;
+    public String getMarshallingArchitecture() {
+        return this.marshallingArchitecture;
     }
 
     @Override
     public String getExtraInformation() {
         return this.extraInformation;
-    }
-
-    @Override
-    public String getLevel() {
-        return this.level;
     }
 
     @Override

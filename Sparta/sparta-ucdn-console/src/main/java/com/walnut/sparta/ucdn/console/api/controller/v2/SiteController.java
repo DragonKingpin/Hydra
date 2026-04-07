@@ -7,7 +7,7 @@ import com.pinecone.hydra.storage.bucket.entity.GenericSite;
 import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.Folder;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class SiteController implements Pinenut {
      * @return 返回操作结果
      */
     @PutMapping("/create")
-    public BasicResultResponse<String> createSite(@RequestParam("siteName") String siteName){
+    public GenericResultResponse<String> createSite(@RequestParam("siteName") String siteName){
         System.out.println(siteName);
         Folder folder = this.primaryFileSystem.affirmFolder( siteName );
         GenericSite site = new GenericSite();
@@ -43,7 +43,7 @@ public class SiteController implements Pinenut {
         site.setMountPointGuid(folder.getGuid());
         this.bucketInstrument.createSite( site );
 
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -52,10 +52,10 @@ public class SiteController implements Pinenut {
      * @return 操作结果
      */
     @DeleteMapping("/delete")
-    public BasicResultResponse<String> removeSite( @RequestParam("siteName") String siteName ){
+    public GenericResultResponse<String> removeSite(@RequestParam("siteName") String siteName ){
         this.bucketInstrument.removeSite(siteName);
 
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -65,7 +65,7 @@ public class SiteController implements Pinenut {
     @GetMapping("/list")
     public String listSite(){
         List<Site> sites = this.bucketInstrument.listSite();
-        return BasicResultResponse.success(sites).toJSONString();
+        return GenericResultResponse.success(sites).toJSONString();
     }
 
 }

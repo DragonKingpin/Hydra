@@ -9,6 +9,8 @@ public class UCDNConstants {
 
     public static String serviceId = "1769872-0002d2-0003-cc";
 
+    public static String deployId = "1769872-0002d2-0003-cc";
+
     public static long clientId = 1;
 
     public static String period = ".";

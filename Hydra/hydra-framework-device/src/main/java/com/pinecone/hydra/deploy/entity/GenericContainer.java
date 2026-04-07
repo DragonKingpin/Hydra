@@ -1,26 +1,18 @@
 package com.pinecone.hydra.deploy.entity;
 
-import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.entity.iface.Container;
+import com.pinecone.hydra.deploy.Container;
 
 public class GenericContainer implements Container {
+
+    protected String status;
+
     @Override
     public String getStatus() {
-        return null;
+        return this.status;
     }
 
     @Override
-    public GUID getGuid() {
-        return null;
-    }
-
-    @Override
-    public void setStatus(String status) {
-
-    }
-
-    @Override
-    public String getName() {
-        return null;
+    public void setStatus( String status ) {
+        this.status = status;
     }
 }

@@ -4,13 +4,13 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
-import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.GenericSiteNode;
 import com.pinecone.hydra.storage.bucket.entity.SiteNode;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.SiteNodeDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.vo.SiteNodeVO;
 import com.walnut.sparta.ucdn.console.infrastructure.service.UCDNServiceManager;
@@ -44,7 +44,7 @@ public class SiteNodeController {
     public String querySiteNodeBySiteGuid(@RequestParam("siteGuid") String siteGuid){
         ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
         ArrayList<SiteNodeVO> siteNodeVOS = new ArrayList<>();
-        List<SiteNode> siteNodes = this.bucketInstrument.querySiteNodeBySiteGuid(GUIDs.GUID72( siteGuid ));
+        List<SiteNode> siteNodes = this.bucketInstrument.querySiteNodeBySiteGuid(GUIDs.GUID128( siteGuid ));
         for( SiteNode siteNode : siteNodes ){
             if( lifecycleIface.hasOwnedServiceByServiceId( siteNode.getRelatedService().toString() ) ){
                 siteNode.setState( 1 );
@@ -55,50 +55,50 @@ public class SiteNodeController {
             siteNodeVO.setRelatedServicePath( this.primaryService.getPath( siteNode.getRelatedService() ) );
             siteNodeVOS.add( siteNodeVO );
         }
-        return BasicResultResponse.success(siteNodeVOS).toJSONString();
+        return GenericResultResponse.success(siteNodeVOS).toJSONString();
     }
 
     @DeleteMapping("/remove/siteNodeGuid")
-    public BasicResultResponse<String> removeSiteNode( @RequestParam("siteNodeGuid") String siteNodeGuid ){
+    public GenericResultResponse<String> removeSiteNode(@RequestParam("siteNodeGuid") String siteNodeGuid ){
         ServiceLifecycleIface lifecycleIface = this.UCDNServiceManager.getLifecycleIface();
-        SiteNode siteNode = this.bucketInstrument.querySiteNode(GUIDs.GUID72(siteNodeGuid));
-        lifecycleIface.deregisterServiceByServiceId( siteNode.getRelatedService().toString() );
-        this.bucketInstrument.removeSiteNode( GUIDs.GUID72( siteNodeGuid ) );
-        return BasicResultResponse.success();
+        SiteNode siteNode = this.bucketInstrument.querySiteNode(GUIDs.GUID128(siteNodeGuid));
+        lifecycleIface.deregisterServiceByInstanceId( siteNode.getRelatedService().toString() );
+        this.bucketInstrument.removeSiteNode( GUIDs.GUID128( siteNodeGuid ) );
+        return GenericResultResponse.success();
     }
 
     @PostMapping("/create")
-    public BasicResultResponse<String> createSiteNode(@RequestBody SiteNodeDTO dto){
+    public GenericResultResponse<String> createSiteNode(@RequestBody SiteNodeDTO dto){
         GenericSiteNode siteNode = new GenericSiteNode();
-        siteNode.setSiteGuid( GUIDs.GUID72( dto.getSiteGuid() ) );
+        siteNode.setSiteGuid( GUIDs.GUID128( dto.getSiteGuid() ) );
         siteNode.setNodeName( dto.getNodeName() );
-        siteNode.setRelatedService( GUIDs.GUID72( dto.getRelatedService() ) );
+        siteNode.setRelatedService( GUIDs.GUID128( dto.getRelatedService() ) );
         GUID guid = this.bucketInstrument.createSiteNode(siteNode);
-        return BasicResultResponse.success(guid.toString());
+        return GenericResultResponse.success(guid.toString());
     }
 
     @PostMapping("/update")
-    public BasicResultResponse<String> updateSiteNode( @RequestBody SiteNodeDTO dto ){
+    public GenericResultResponse<String> updateSiteNode(@RequestBody SiteNodeDTO dto ){
         GenericSiteNode siteNode = new GenericSiteNode();
         siteNode.setNodeName( dto.getNodeName() );
-        siteNode.setNodeGuid( GUIDs.GUID72( dto.getNodeGuid() ) );
+        siteNode.setNodeGuid( GUIDs.GUID128( dto.getNodeGuid() ) );
         siteNode.setState( dto.getState() );
         siteNode.setIsEnabled( dto.getIsEnabled() );
-        siteNode.setSiteGuid( GUIDs.GUID72( dto.getSiteGuid() ) );
+        siteNode.setSiteGuid( GUIDs.GUID128( dto.getSiteGuid() ) );
         this.bucketInstrument.updateSiteNode( siteNode );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     @GetMapping("/fetch/allService")
     public String fetchAllService(){
         List<ServiceElement> serviceElements = this.primaryService.fetchAllService();
-        return BasicResultResponse.success(serviceElements).toJSONString();
+        return GenericResultResponse.success(serviceElements).toJSONString();
     }
 
     @PostMapping("/test/registerService")
-    public BasicResultResponse<String> testRegisterService( @RequestBody RegisterServiceDTO dto ){
+    public GenericResultResponse<String> testRegisterService(@RequestBody RegisterServiceDTO dto ){
         this.UCDNServiceManager.getLifecycleIface().registerService( dto );
         Debug.trace( "是否存在" + this.UCDNServiceManager.getLifecycleIface().hasOwnedServiceByServiceId( dto.getServiceId() ) );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 }

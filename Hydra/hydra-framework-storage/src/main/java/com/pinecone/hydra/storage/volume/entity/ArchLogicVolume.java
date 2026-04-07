@@ -9,6 +9,7 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
@@ -31,7 +32,7 @@ public abstract class ArchLogicVolume extends ArchVolume implements LogicVolume{
     public List<LogicVolume> queryChildren() {
         if ( this.children == null || this.children.isEmpty() ){
             ArrayList<LogicVolume> logicVolumes = new ArrayList<>();
-            List<TreeNode> nodes = this.volumeManager.getChildren( this.guid );
+            Collection<TreeNode> nodes = this.volumeManager.getChildren( this.guid );
             for( TreeNode node : nodes ){
                 LogicVolume volume = this.volumeManager.get(node.getGuid());
                 logicVolumes.add( volume );

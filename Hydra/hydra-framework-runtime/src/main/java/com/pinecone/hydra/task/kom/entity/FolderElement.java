@@ -1,15 +1,17 @@
 package com.pinecone.hydra.task.kom.entity;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.pinecone.framework.util.id.GUID;
 
 public interface FolderElement extends ElementNode {
-    List<ElementNode > fetchChildren();
 
-    List<GUID > fetchChildrenGuids();
+    Collection<ElementNode > fetchChildren();
 
-    void addChild(ElementNode child);
+    Collection<GUID > fetchChildrenGuids();
 
-    boolean containsChild(String childName);
+    void addChild( ElementNode child );
+
+    boolean containsChild( String childName );
+
 }

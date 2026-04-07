@@ -6,9 +6,9 @@ import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
-class Ken extends Radium {
+class Ken extends Tritium {
     public Ken( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

@@ -6,6 +6,10 @@ import com.pinecone.framework.util.id.GUID;
 import java.util.List;
 
 public interface GraphNode extends Pinenut {
+    long getEnumId();
+
+    void setEnumId(long enumId);
+
     String getName();
 
     GUID getId();
@@ -15,4 +19,8 @@ public interface GraphNode extends Pinenut {
     List<GUID> getParentIds();
 
     void setParentIds( List<GUID> parentIds );
+
+    String getDescription();
+
+    void setDescription( String description );
 }

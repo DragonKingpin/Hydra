@@ -39,7 +39,7 @@ public class JSONHeaderDecipher implements HeaderDecipher {
         Object[] ret = new Object[ keys.size() ];
         int i = 0;
         for( String k : keys ) {
-            ret[ i ] = k;
+            ret[ i ] = map.get( k );
             ++i;
         }
         return ret;

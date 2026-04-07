@@ -11,5 +11,7 @@ public interface USII extends Pinenut {
 
     Identification getServiceId();
 
+    Identification getInstanceId();
+
     String getFullKey();
 }

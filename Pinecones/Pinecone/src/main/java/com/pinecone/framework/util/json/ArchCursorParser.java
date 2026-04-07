@@ -12,7 +12,7 @@ import java.io.StringReader;
 
 /**
  *  Pinecone For Java JSONCursorParser [ Bean Nuts Almond JSON For Pinecone Java ]
- *  Copyright © 2008 - 2028 Bean Nuts Foundation ( DR.Undefined ) All rights reserved. [Harold.E / WJH]
+ *  Copyright © 2008 - 2028 Bean Nuts Foundation ( DR.Undefined ) All rights reserved. [Harald.E / WJH]
  *  Tip:
  *  *****************************************************************************************
  *  JSON util Version Signature: Ver. 3.4 [Build 20240531] [Pinecone Ver.3.4]

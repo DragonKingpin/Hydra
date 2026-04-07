@@ -12,7 +12,7 @@ import com.pinecone.hydra.umct.husky.compiler.MethodDigest;
 public interface RouteDispatcher extends Pinenut {
     void setUMCTExpress( UMCTExpress handler );
 
-    PMCTContextMachinery getContextMachinery();
+    MCTContextMachinery getContextMachinery();
 
     UMCTExpress getUMCTExpress();
 

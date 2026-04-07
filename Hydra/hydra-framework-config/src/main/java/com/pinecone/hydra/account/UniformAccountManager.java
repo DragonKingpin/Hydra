@@ -1,7 +1,9 @@
 package com.pinecone.hydra.account;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.account.entity.ACNodeAllotment;
 import com.pinecone.hydra.account.entity.Account;
@@ -23,6 +25,7 @@ import com.pinecone.hydra.account.source.CredentialManipulator;
 import com.pinecone.hydra.account.source.PrivilegeManipulator;
 import com.pinecone.hydra.account.source.RoleManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
+import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -36,7 +39,7 @@ import com.pinecone.hydra.account.source.DomainNodeManipulator;
 import com.pinecone.hydra.account.source.GroupNodeManipulator;
 import com.pinecone.hydra.account.source.UserMasterManipulator;
 import com.pinecone.hydra.account.source.UserNodeManipulator;
-import com.pinecone.ulf.util.guid.GUID72;
+import com.pinecone.ulf.util.guid.i64.GUID72;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.ArrayList;
@@ -66,11 +69,10 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     protected ACNodeAllotment                   acNodeAllotment;
 
 
-    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
-        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name );
+    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, KernelAccountConfig, parent, name, superiorPathScope, guidAllocator );
         this.userMasterManipulator = (UserMasterManipulator) masterManipulator;
         this.pathResolver          = new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator         = GUIDs.newGuidAllocator();
 
         this.operatorFactory            = new GenericAccountOperatorFactory( this, this.userMasterManipulator );
         this.groupNodeManipulator       = this.userMasterManipulator.getGroupNodeManipulator();
@@ -89,6 +91,10 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
         );
 
         this.acNodeAllotment = new GenericACNodeAllotment( this );
+    }
+
+    public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
+        this( superiorProcess, masterManipulator, parent, name, CascadeInstrument.EmptySuperiorPathScope, null );
     }
 
     public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
@@ -136,7 +142,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     protected ElementNode affirmTreeNodeByPath(String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
-        GUID parentGuid = GUIDs.Dummy72();
+        GUID parentGuid = GUIDs.Dummy128();
 
         ElementNode node = this.queryElement(path);
         if ( node != null ){

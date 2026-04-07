@@ -1,5 +1,6 @@
 package com.pinecone.hydra.umc.wolf;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
@@ -32,7 +33,8 @@ public class UlfChannel extends ArchUMCChannel {
         }
     }
 
-    public UlfChannel( MessageNode node, Channel nativeChannel, SocketAddress address ) {
+    // Auto set address while connection.
+    public UlfChannel( MessageNode node, Channel nativeChannel, @Nullable SocketAddress address ) {
         super( node, nativeChannel, address );
     }
 
@@ -51,7 +53,7 @@ public class UlfChannel extends ArchUMCChannel {
 
     @Override
     public void              reconnect( long mils ) throws IOException {
-        if( this.isShutdown() ) {
+        if ( this.isShutdown() ) {
             ChannelFuture future = this.toConnect( this.getAddress() ).getLastChannelFuture();
             CompletableFuture<Void> completableFuture = new CompletableFuture<>();
             future.addListener(new ChannelFutureListener() {
@@ -106,7 +108,7 @@ public class UlfChannel extends ArchUMCChannel {
         }
     }
 
-    public ArchUMCChannel    toConnect( SocketAddress address ){
+    public ArchUMCChannel    toConnect( SocketAddress address ) {
         this.mAddress           = address;
         this.mLastChannelFuture = this.getBootstrap().connect( address );
 

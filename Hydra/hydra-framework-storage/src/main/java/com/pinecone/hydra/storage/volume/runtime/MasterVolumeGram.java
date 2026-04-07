@@ -19,7 +19,7 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.StripCacheBlock;
 public class MasterVolumeGram extends ArchProcessum implements VolumeGram {
     protected Lock                  mMajorStatusIO = new SpinLock();
     protected int                   jobCount;
-    protected int                   bufferOutThreadId;
+    protected long                  bufferOutThreadId;
     protected Semaphore             bufferOutBlockerLatch;
     protected int                   currentBufferInJobCode;
     protected CountDownLatch        countDownLatch;
@@ -49,7 +49,7 @@ public class MasterVolumeGram extends ArchProcessum implements VolumeGram {
         return this.mMajorStatusIO;
     }
 
-    public LocalStripedTaskThread getChildThread( int threadId ){
+    public LocalStripedTaskThread getChildThread( long threadId ){
         return (LocalStripedTaskThread) this.getTaskManager().getExecutumPool().get( threadId );
     }
 
@@ -85,12 +85,12 @@ public class MasterVolumeGram extends ArchProcessum implements VolumeGram {
     }
 
     @Override
-    public int getBufferOutThreadId() {
+    public long getBufferOutThreadId() {
         return this.bufferOutThreadId;
     }
 
     @Override
-    public void applyBufferOutThreadId(int bufferOutThreadId) {
+    public void applyBufferOutThreadId(long bufferOutThreadId) {
         this.bufferOutThreadId = bufferOutThreadId;
     }
 

@@ -17,18 +17,19 @@ import java.util.List;
 @Mapper
 @IbatisDataAccessObject
 public interface TaskNamespaceMapper extends TaskNamespaceManipulator {
-    @Insert("INSERT INTO `hydra_task_namespace_node` (`guid`, `name`, `rules_guid`) VALUES (#{guid},#{name},#{rulesGUID})")
+    @Insert("INSERT INTO `hydra_task_namespace_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void insert( Namespace ns );
 
     @Delete("DELETE FROM `hydra_task_namespace_node` WHERE `guid`=#{guid}")
     void remove( @Param("guid") GUID GUID );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_task_namespace_node` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_task_namespace_node` WHERE `guid`=#{guid}")
     GenericNamespace getNamespace( @Param("guid") GUID guid );
+
     @Update("UPDATE `hydra_task_namespace_node` SET `name` = #{name} WHERE `guid` = #{guid}")
     void update( Namespace ns );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_task_namespace_node` WHERE name=#{name}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_task_namespace_node` WHERE name=#{name}")
     List<GenericNamespace > fetchNamespaceNodeByName0( @Param("name") String name );
 
     @SuppressWarnings( "unchecked" )

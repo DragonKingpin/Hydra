@@ -1,7 +1,6 @@
 package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.storage.StorageConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.volume.entity.LogicVolume;
 import com.pinecone.hydra.storage.volume.entity.PhysicalVolume;
@@ -11,7 +10,7 @@ import com.pinecone.hydra.storage.volume.entity.local.VolumeCapacity;
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.ExecutorPool;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 
 import java.sql.SQLException;
@@ -46,7 +45,7 @@ public interface VolumeManager extends KOMInstrument {
 
     void storageExpansion( GUID parentGuid, GUID childGuid );
 
-    Hydrarum getHydrarum();
+    Hydrogen getHydrogen();
 
     ExecutorPool getKenusPool();
 

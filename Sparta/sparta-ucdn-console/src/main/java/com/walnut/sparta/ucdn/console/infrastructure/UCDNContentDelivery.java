@@ -1,9 +1,9 @@
 package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
-public class UCDNContentDelivery extends Radium implements FSContentDeliveryService {
+public class UCDNContentDelivery extends Tritium implements FSContentDeliveryService {
     protected SpartaUCDNService spartaUCDNService;
 
     public UCDNContentDelivery(String[] args, CascadeSystem parent ) {

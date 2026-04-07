@@ -1,12 +1,10 @@
 package com.pinecone.hydra.storage.volume;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.storage.StorageConfig;
-import com.pinecone.hydra.storage.ArchStorageConfig;
-import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.entity.Cluster;
 import com.pinecone.hydra.storage.file.entity.LocalCluster;
 import com.pinecone.hydra.storage.file.transmit.UniformSourceLocator;
@@ -35,8 +33,9 @@ import com.pinecone.hydra.storage.volume.source.StripedVolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeAllocateManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
+import com.pinecone.hydra.system.ko.CascadeInstrument;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
@@ -78,11 +77,10 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     protected KenVolumeFileSystem               kenVolumeFileSystem;
 
 
-    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config ) {
-        super( superiorProcess, masterManipulator, config, parent, name );
+    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config, String superiorPathScope, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, config, parent, name, superiorPathScope, guidAllocator );
         this.volumeMasterManipulator       =   ( VolumeMasterManipulator ) masterManipulator;
         this.pathResolver                  =   new KOPathResolver( this.kernelObjectConfig );
-        this.guidAllocator                 =   GUIDs.newGuidAllocator();
 
         this.volumeAllotment               =   new TitanVolumeAllotment( this,this.volumeMasterManipulator );
         this.mirroredVolumeManipulator     =   this.volumeMasterManipulator.getMirroredVolumeManipulator();
@@ -100,8 +98,12 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
         this.pathSelector                  =   new SimplePathSelector(
                 this.pathResolver, this.imperialTree, this.primeLogicVolumeManipulator, new GUIDNameManipulator[] {}
         );
-        this.kenVolumeFileSystem           = new KenVolumeFileSystem(this);
+        this.kenVolumeFileSystem           =   new KenVolumeFileSystem(this);
         this.operatorFactory               =   new TitanVolumeOperatorFactory( this, this.volumeMasterManipulator );
+    }
+
+    public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeManager parent, String name, VolumeConfig config ) {
+        this( superiorProcess, masterManipulator, parent, name, config, CascadeInstrument.EmptySuperiorPathScope, null );
     }
 
     public UniformVolumeManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, VolumeConfig config ) {
@@ -217,7 +219,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
-    public TreeNode getSelf(GUID guid) {
+    public TreeNode getAsRootDepth(GUID guid) {
         return null;
     }
 
@@ -341,8 +343,8 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
     }
 
     @Override
-    public Hydrarum getHydrarum() {
-        return this.hydrarum;
+    public Hydrogen getHydrogen() {
+        return this.hydrogen;
     }
 
     @Override
@@ -415,7 +417,7 @@ public class UniformVolumeManager extends ArchKOMTree implements VolumeManager {
 
         String sourceName = localCluster.getSourceName();
         UniformSourceLocator uniformSourceLocator = JSON.unmarshal(sourceName, UniformSourceLocator.class);
-        LogicVolume volume = this.get(GUIDs.GUID72(uniformSourceLocator.getVolumeGuid()));
+        LogicVolume volume = this.get(GUIDs.GUID128(uniformSourceLocator.getVolumeGuid()));
 
         VolumeOperator operator = (VolumeOperator) this.getOperatorByGuid(volume.getGuid());
         operator.removeStorageObject( volume.getGuid(), cluster.getSegGuid(), cluster.getSize() );

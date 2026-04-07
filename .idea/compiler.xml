@@ -7,28 +7,73 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="hydra" />
-        <module name="Hydra" />
-        <module name="Jelly" />
-        <module name="jelly" />
-        <module name="pinecone" />
-        <module name="Pinecone" />
+        <module name="sparta-uac-console" />
         <module name="radium" />
-        <module name="Radium" />
-        <module name="Saurye" />
-        <module name="saurye" />
         <module name="shadow" />
-        <module name="Shadow" />
-        <module name="Slime" />
-        <module name="slime" />
-        <module name="Sparta" />
-        <module name="sparta" />
-        <module name="springram" />
-        <module name="Springram" />
-        <module name="summer" />
+        <module name="hydra-framework-runtime" />
+        <module name="hydra-architecture" />
+        <module name="odin-architecture" />
         <module name="Summer" />
+        <module name="Pinecone" />
+        <module name="sparta-api-uac" />
+        <module name="heist-framework-architecture" />
+        <module name="sparta-uofs-console" />
+        <module name="hydra-kom-default-driver" />
+        <module name="hydra-message-control" />
+        <module name="hydra-framework-service" />
+        <module name="hydra-framework-storage" />
+        <module name="ulf-lib-oltp-rdb" />
+        <module name="redqueen-framework-service" />
+        <module name="skynet-system" />
+        <module name="Sparta" />
+        <module name="hydra-lib-uofs-cache" />
+        <module name="ulf-lib-construction" />
+        <module name="heist-system-schedule" />
+        <module name="hydra-framework-device" />
+        <module name="redstone-message-stones" />
+        <module name="hydra-lib-thrift-sdk" />
+        <module name="redstone-architecture" />
+        <module name="hydra-service-control" />
+        <module name="heist-http-client-okhttp-suit" />
+        <module name="hydra-architecture-conduct" />
+        <module name="hydra-system-reign" />
+        <module name="hydra-architecture-message" />
+        <module name="skynet-architecture" />
+        <module name="sparta-utask-console" />
+        <module name="sailor-stream-distribute-sdk" />
+        <module name="sparta-uofs-service" />
+        <module name="springram" />
+        <module name="sparta-ucdn-console" />
         <module name="ulfhedinn" />
+        <module name="hydra-r-atlas-default-driver" />
+        <module name="odin-framework-runtime" />
+        <module name="Shadow" />
+        <module name="ender-system-hydra" />
+        <module name="hydra-lib-grpc-service-sdk" />
+        <module name="sauron-core" />
+        <module name="sparta-api-uofs" />
+        <module name="summer" />
+        <module name="slime" />
+        <module name="jelly" />
+        <module name="Radium" />
+        <module name="redqueen-system" />
+        <module name="skynet-cloud-deploy" />
+        <module name="Saurye" />
+        <module name="hydra-message-broadcast" />
+        <module name="hydra-architecture-storage" />
+        <module name="Slime" />
+        <module name="redqueen-architecture" />
+        <module name="sparta-ucdn-service" />
+        <module name="Hydra" />
+        <module name="hydra-system-tritium" />
+        <module name="hydra-framework-config" />
+        <module name="redqueen-computation-suit" />
+        <module name="sparta-core-console" />
+        <module name="Springram" />
+        <module name="pinecone" />
         <module name="Ulfhedinn" />
+        <module name="Jelly" />
+        <module name="saurye" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -67,16 +112,63 @@
       <module name="TaskJuggler" options="-parameters" />
       <module name="Ulfhedinn" options="-parameters" />
       <module name="Walnuts" options="-parameters" />
-      <module name="hydra" options="-parameters" />
+      <module name="ender-system-hydra" options="-parameters" />
+      <module name="heist-framework-architecture" options="-parameters" />
+      <module name="heist-http-client-okhttp-suit" options="-parameters" />
+      <module name="heist-system-schedule" options="-parameters" />
+      <module name="hydra" options="" />
+      <module name="hydra-architecture" options="-parameters" />
+      <module name="hydra-architecture-conduct" options="-parameters" />
+      <module name="hydra-architecture-message" options="-parameters" />
+      <module name="hydra-architecture-storage" options="-parameters" />
+      <module name="hydra-framework-config" options="-parameters" />
+      <module name="hydra-framework-device" options="-parameters" />
+      <module name="hydra-framework-runtime" options="-parameters" />
+      <module name="hydra-framework-service" options="-parameters" />
+      <module name="hydra-framework-storage" options="-parameters" />
+      <module name="hydra-kom-default-driver" options="-parameters" />
+      <module name="hydra-lib-grpc-service-sdk" options="-parameters" />
+      <module name="hydra-lib-thrift-sdk" options="-parameters" />
+      <module name="hydra-lib-uofs-cache" options="-parameters" />
+      <module name="hydra-message-broadcast" options="-parameters" />
+      <module name="hydra-message-control" options="-parameters" />
+      <module name="hydra-r-atlas-default-driver" options="-parameters" />
+      <module name="hydra-service-control" options="-parameters" />
+      <module name="hydra-system-reign" options="-parameters" />
+      <module name="hydra-system-tritium" options="-parameters" />
       <module name="jelly" options="-parameters" />
+      <module name="odin-architecture" options="-parameters" />
+      <module name="odin-framework-runtime" options="-parameters" />
       <module name="pinecone" options="-parameters" />
       <module name="radium" options="-parameters" />
+      <module name="redqueen-architecture" options="-parameters" />
+      <module name="redqueen-computation-suit" options="-parameters" />
+      <module name="redqueen-framework-service" options="-parameters" />
+      <module name="redqueen-system" options="-parameters" />
+      <module name="redstone-architecture" options="-parameters" />
+      <module name="redstone-message-stones" options="-parameters" />
+      <module name="sailor-stream-distribute-sdk" options="-parameters" />
+      <module name="sauron-core" options="-parameters" />
       <module name="saurye" options="-parameters" />
       <module name="shadow" options="-parameters" />
+      <module name="skynet-architecture" options="-parameters" />
+      <module name="skynet-cloud-deploy" options="-parameters" />
+      <module name="skynet-system" options="-parameters" />
       <module name="slime" options="-parameters" />
-      <module name="sparta" options="-parameters" />
+      <module name="sparta" options="" />
+      <module name="sparta-api-uac" options="-parameters" />
+      <module name="sparta-api-uofs" options="-parameters" />
+      <module name="sparta-core-console" options="-parameters" />
+      <module name="sparta-uac-console" options="-parameters" />
+      <module name="sparta-ucdn-console" options="-parameters" />
+      <module name="sparta-ucdn-service" options="-parameters" />
+      <module name="sparta-uofs-console" options="-parameters" />
+      <module name="sparta-uofs-service" options="-parameters" />
+      <module name="sparta-utask-console" options="-parameters" />
       <module name="springram" options="-parameters" />
       <module name="summer" options="-parameters" />
+      <module name="ulf-lib-construction" options="-parameters" />
+      <module name="ulf-lib-oltp-rdb" options="-parameters" />
       <module name="ulfhedinn" options="-parameters" />
     </option>
   </component>

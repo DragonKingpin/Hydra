@@ -7,6 +7,7 @@ import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,12 +43,12 @@ public class GenericApplicationElement extends ArchServoElement implements Appli
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 
@@ -66,7 +67,7 @@ public class GenericApplicationElement extends ArchServoElement implements Appli
 
     @Override
     public JSONObject toJSONObject() {
-        List<ElementNode > children = this.fetchChildren();
+        Collection<ElementNode > children = this.fetchChildren();
         JSONObject jo         = BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys);
         JSONObject joChildren = new JSONMaptron();
 

@@ -3,13 +3,15 @@ package com.pinecone.framework.util;
 import java.util.Collection;
 import java.util.Map;
 
+import com.pinecone.framework.system.AssertionRuntimeException;
+
 public abstract class Assert {
     public Assert() {
     }
 
     public static void isTrue(boolean expression, String message) {
         if ( !expression ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException( message );
         }
     }
 
@@ -19,7 +21,7 @@ public abstract class Assert {
 
     public static void isNull( Object object, String message ) {
         if ( object != null ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -29,7 +31,7 @@ public abstract class Assert {
 
     public static void notNull( Object object, String message ) {
         if ( object == null ) {
-            throw new IllegalArgumentException( message );
+            throw new AssertionRuntimeException( message );
         }
     }
 
@@ -39,7 +41,7 @@ public abstract class Assert {
 
     public static void hasLength( String text, String message ) {
         if ( !StringUtils.hasLength(text) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -49,7 +51,7 @@ public abstract class Assert {
 
     public static void hasText( String text, String message ) {
         if ( !StringUtils.hasText(text) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -59,7 +61,7 @@ public abstract class Assert {
 
     public static void doesNotContain( String textToSearch, String substring, String message ) {
         if ( StringUtils.hasLength(textToSearch) && StringUtils.hasLength(substring) && textToSearch.contains(substring) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -69,7 +71,7 @@ public abstract class Assert {
 
     public static void notEmpty( Object[] array, String message ) {
         if ( ObjectUtils.isEmpty(array) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -84,7 +86,7 @@ public abstract class Assert {
             for( int i = 0; i < len; ++i ) {
                 Object element = array[i];
                 if ( element == null ) {
-                    throw new IllegalArgumentException(message);
+                    throw new AssertionRuntimeException(message);
                 }
             }
         }
@@ -97,7 +99,7 @@ public abstract class Assert {
 
     public static void notEmpty( Collection<?> collection, String message ) {
         if ( CollectionUtils.isEmpty(collection) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -107,7 +109,7 @@ public abstract class Assert {
 
     public static void notEmpty( Map<?, ?> map, String message ) {
         if ( CollectionUtils.isEmpty(map) ) {
-            throw new IllegalArgumentException(message);
+            throw new AssertionRuntimeException(message);
         }
     }
 
@@ -122,7 +124,7 @@ public abstract class Assert {
     public static void isInstanceOf( Class<?> type, Object obj, String message ) {
         Assert.notNull(type, "Type to check against must not be null");
         if ( !type.isInstance(obj) ) {
-            throw new IllegalArgumentException((StringUtils.hasLength(message) ? message + " " : "") + "Object of class [" + (obj != null ? obj.getClass().getName() : "null") + "] must be an instance of " + type);
+            throw new AssertionRuntimeException((StringUtils.hasLength(message) ? message + " " : "") + "Object of class [" + (obj != null ? obj.getClass().getName() : "null") + "] must be an instance of " + type);
         }
     }
 
@@ -133,7 +135,7 @@ public abstract class Assert {
     public static void isAssignable( Class<?> superType, Class<?> subType, String message ) {
         Assert.notNull(superType, "Type to check against must not be null");
         if (subType == null || !superType.isAssignableFrom(subType)) {
-            throw new IllegalArgumentException(message + subType + " is not assignable to " + superType);
+            throw new AssertionRuntimeException(message + subType + " is not assignable to " + superType);
         }
     }
 
@@ -148,6 +150,6 @@ public abstract class Assert {
     }
 
     public static void provokeIrrationally( Throwable bad ) {
-        throw new IllegalArgumentException( bad );
+        throw new AssertionRuntimeException( bad );
     }
 }

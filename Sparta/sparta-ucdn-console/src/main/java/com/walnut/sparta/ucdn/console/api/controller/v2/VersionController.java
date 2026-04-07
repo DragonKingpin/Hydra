@@ -5,7 +5,7 @@ import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.TitanVersionMapping;
 import com.pinecone.hydra.storage.version.entity.VersionMapping;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,38 +23,38 @@ public class VersionController {
     private VersionManage versionManage;
 
     @PutMapping("/create/VersionMapping")
-    public BasicResultResponse<String> createVersionMapping(@RequestParam("fileGuid") String fileGuid,
-                                                            @RequestParam("enableVersionGuid") String enableVersionGuid
+    public GenericResultResponse<String> createVersionMapping(@RequestParam("fileGuid") String fileGuid,
+                                                              @RequestParam("enableVersionGuid") String enableVersionGuid
     ) {
-        TitanVersion titanVersion = this.versionManage.queryByTargetStorageObjectGuid(GUIDs.GUID72(enableVersionGuid));
+        TitanVersion titanVersion = this.versionManage.queryByTargetStorageObjectGuid(GUIDs.GUID128(enableVersionGuid));
         TitanVersionMapping versionMapping = new TitanVersionMapping();
-        versionMapping.setFileGuid(GUIDs.GUID72(fileGuid));
-        versionMapping.setEnableVersionGuid(GUIDs.GUID72(enableVersionGuid));
+        versionMapping.setFileGuid(GUIDs.GUID128(fileGuid));
+        versionMapping.setEnableVersionGuid(GUIDs.GUID128(enableVersionGuid));
         versionMapping.setVersionGuid((titanVersion.getVersionGuid()));
         if (!this.versionManage.isExistEnableVersionMapping(versionMapping.getEnableVersionGuid())){
             this.versionManage.insertVesionMapping(versionMapping);
         }
         else
             this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
     @GetMapping("/query/VersionMapping")
     public String queryVersionMapping(@RequestParam("fileGuid") String fileGuid) {
-        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID72(fileGuid));
+        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID128(fileGuid));
         TitanVersion version =new TitanVersion();
         if (versionMapping != null){
             version=this.versionManage.queryByTargetStorageObjectGuid(versionMapping.getEnableVersionGuid());
         }
-        return BasicResultResponse.success(version).toJSONString();
+        return GenericResultResponse.success(version).toJSONString();
     }
     @PutMapping("/update/VersionMapping")
-    public BasicResultResponse<String> updateVersionMapping(
+    public GenericResultResponse<String> updateVersionMapping(
             @RequestParam("fileGuid") String fileGuid,
             @RequestParam("enableVersionGuid") String enableVersionGuid) {
-        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID72(fileGuid));
-        versionMapping.setEnableVersionGuid(GUIDs.GUID72(enableVersionGuid));
+        VersionMapping versionMapping = this.versionManage.queryVersionMapping(GUIDs.GUID128(fileGuid));
+        versionMapping.setEnableVersionGuid(GUIDs.GUID128(enableVersionGuid));
         this.versionManage.UpdateVesionMapping(versionMapping);
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
 

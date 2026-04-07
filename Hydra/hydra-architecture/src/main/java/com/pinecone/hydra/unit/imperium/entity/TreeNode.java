@@ -2,7 +2,7 @@ package com.pinecone.hydra.unit.imperium.entity;
 
 import com.pinecone.framework.util.id.GUID;
 
-public interface TreeNode extends EntityNode {
+public interface TreeNode extends SkeletonNode {
     String getName();
 
     GUID getGuid();

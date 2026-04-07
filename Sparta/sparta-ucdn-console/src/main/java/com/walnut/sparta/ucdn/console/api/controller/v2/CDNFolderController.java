@@ -8,7 +8,7 @@ import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConstants;
 import com.walnut.sparta.ucdn.console.mapper.ClusterFileSyncMapper;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -44,7 +44,7 @@ public class CDNFolderController {
      */
     @GetMapping("/folder/listItem")
     public String listItem(@RequestParam String folderGuid ){
-        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID72(folderGuid));
+        Folder folder = this.primaryFileSystem.getFolder(GUIDs.GUID128(folderGuid));
         List<FileTreeNode> fileTreeNodes = folder.listItem();
         for ( FileTreeNode fileTreeNode : fileTreeNodes ) {
             if ( this.versionManage.queryIsManage(fileTreeNode.getGuid()) ){
@@ -67,7 +67,7 @@ public class CDNFolderController {
                 }
             }
         }
-        return  BasicResultResponse.success(fileTreeNodes).toJSONString() ;
+        return  GenericResultResponse.success(fileTreeNodes).toJSONString() ;
     }
 
     /**
@@ -76,9 +76,9 @@ public class CDNFolderController {
      * @return 返回操作状态
      */
     @GetMapping("/create")
-    public BasicResultResponse<String> createFolder( @RequestParam("destDirPath") String destDirPath ){
+    public GenericResultResponse<String> createFolder(@RequestParam("destDirPath") String destDirPath ){
         this.primaryFileSystem.affirmFolder( destDirPath );
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
 
     /**
@@ -87,9 +87,9 @@ public class CDNFolderController {
      * @return 返回属性信息
      */
     @GetMapping("/attribute")
-    public BasicResultResponse< FileTreeNode > attribute( @RequestParam("nodeGuid") String nodeGuid ){
-        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID72(nodeGuid));
-        return BasicResultResponse.success( fileTreeNode );
+    public GenericResultResponse< FileTreeNode > attribute(@RequestParam("nodeGuid") String nodeGuid ){
+        FileTreeNode fileTreeNode = this.primaryFileSystem.get(GUIDs.GUID128(nodeGuid));
+        return GenericResultResponse.success( fileTreeNode );
     }
 
     /**
@@ -99,7 +99,7 @@ public class CDNFolderController {
     @GetMapping("/list/root")
     public String listRoot(){
         List<FileTreeNode> roots = this.primaryFileSystem.fetchRoot();
-        return BasicResultResponse.success( roots ).toJSONString();
+        return GenericResultResponse.success( roots ).toJSONString();
     }
 
     /**
@@ -108,9 +108,9 @@ public class CDNFolderController {
      * @return 返回操作结果
      */
     @DeleteMapping("/remove/file")
-    public BasicResultResponse<String> removeFile( String fileGuid ){
-        this.primaryFileSystem.remove( GUIDs.GUID72( fileGuid ) );
-        return BasicResultResponse.success();
+    public GenericResultResponse<String> removeFile(String fileGuid ){
+        this.primaryFileSystem.remove( GUIDs.GUID128( fileGuid ) );
+        return GenericResultResponse.success();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.unit.KeyValue;
@@ -10,21 +10,16 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.task.kom.GenericNamespaceRules;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
+import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericNamespace extends ArchElementNode implements Namespace {
-    protected GUID                        rulesGUID;
-
     protected GUID                        metaGuid;
 
-    protected GUIDImperialTrieNode distributedTreeNode;
+    protected GUIDImperialTrieNode        distributedTreeNode;
 
-    protected GenericNamespaceRules       classificationRules;
-
-    protected TaskNamespaceManipulator namespaceManipulator;
+    protected TaskNamespaceManipulator    namespaceManipulator;
 
 
     public GenericNamespace() {
@@ -36,17 +31,17 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( Map<String, Object > joEntity, ServiceInstrument serviceInstrument) {
-        super( joEntity, serviceInstrument);
+    public GenericNamespace( Map<String, Object > joEntity, TaskInstrument taskInstrument) {
+        super( joEntity, taskInstrument);
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
     }
 
-    public GenericNamespace( ServiceInstrument serviceInstrument) {
-        super(serviceInstrument);
+    public GenericNamespace( TaskInstrument taskInstrument) {
+        super(taskInstrument);
     }
 
-    public GenericNamespace(ServiceInstrument serviceInstrument, TaskNamespaceManipulator namespaceManipulator ) {
-        this(serviceInstrument);
+    public GenericNamespace(TaskInstrument taskInstrument, TaskNamespaceManipulator namespaceManipulator ) {
+        this(taskInstrument);
         this.namespaceManipulator = namespaceManipulator;
     }
 
@@ -61,16 +56,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public GenericNamespaceRules getClassificationRules() {
-        return this.classificationRules;
-    }
-
-    @Override
-    public void setClassificationRules( GenericNamespaceRules classificationRules ) {
-        this.classificationRules = classificationRules;
-    }
-
-    @Override
     public GUID getMetaGuid() {
         return this.metaGuid;
     }
@@ -81,18 +66,8 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public GUID getRulesGUID() {
-        return this.rulesGUID;
-    }
-
-    @Override
-    public void setRulesGUID( GUID rulesGUID ) {
-        this.rulesGUID = rulesGUID;
-    }
-
-    @Override
     public JSONObject toJSONObject() {
-        List<ElementNode > children = this.fetchChildren();
+        Collection<ElementNode > children = this.fetchChildren();
         JSONObject jo = new JSONMaptron();
 
         for( ElementNode node : children ) {
@@ -103,7 +78,7 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     @Override
     public JSONObject toJSONDetails() {
-        return BeanColonist.DirectColonist.populate( this, UnbeanifiedKeys);
+        return BeanColonist.DirectColonist.populate( this, ElementNode.UnbeanifiedKeys );
     }
 
     @Override
@@ -120,12 +95,12 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public List<ElementNode > fetchChildren() {
+    public Collection<ElementNode > fetchChildren() {
         return super.fetchChildren();
     }
 
     @Override
-    public List<GUID > fetchChildrenGuids() {
+    public Collection<GUID > fetchChildrenGuids() {
         return super.fetchChildrenGuids();
     }
 

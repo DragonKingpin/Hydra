@@ -81,7 +81,7 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator{
     }
 
     @Override
-    public FileTreeNode getSelf(GUID guid) {
+    public FileTreeNode getAsRootDepth(GUID guid) {
         return this.getFileTreeNodeWideData(guid);
     }
 

@@ -9,11 +9,12 @@ import org.slf4j.Logger;
 
 import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.hydra.uma.AppointServer;
-import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
+import com.pinecone.hydra.uma.UlfDuplexAppointClient;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
+import com.pinecone.hydra.umc.msg.MediumTerminationException;
 import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.UlfChannel;
@@ -27,12 +28,13 @@ import com.pinecone.hydra.umct.MessageJunction;
 import com.pinecone.hydra.umct.UMCTExpress;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
 import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
-import com.pinecone.hydra.umct.husky.compiler.BytecodeIfacCompiler;
+import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
-import com.pinecone.hydra.umct.husky.compiler.InterfacialCompiler;
+import com.pinecone.hydra.umct.husky.compiler.ProtoInterfacialCompiler;
 import com.pinecone.hydra.umct.husky.machinery.HuskyContextMachinery;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.HuskyRouteDispatcherFabricator;
+import com.pinecone.hydra.umct.husky.machinery.ProtoRouteDispatcher;
 import com.pinecone.hydra.umct.husky.machinery.RouteDispatcher;
 import com.pinecone.hydra.umct.mapping.BytecodeControllerInspector;
 import com.pinecone.hydra.umct.mapping.ControllerInspector;
@@ -46,11 +48,11 @@ import javassist.ClassPool;
 /**
  *  Pinecone Ursus For Java WolvesAppointClient [ Ulfhedinn Wolf Duplex RPC Client ]
  *  Bean Nuts Walnut Ulfhedinn Wolves/Ulfar Family.
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  */
-public class WolvesAppointClient extends WolfAppointClient implements DuplexAppointClient {
+public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexAppointClient {
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {
             throw new IllegalArgumentException( "`" + expressType.getSimpleName() + "` is not DuplexExpress calibre qualified." );
@@ -63,7 +65,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
 
     @Override
-    protected boolean afterChannelInactive( ChannelControlBlock ccb ) throws ChannelHandleException {
+    protected boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
         UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
         Channel channel = cb.getChannel().getNativeHandle();
         Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
@@ -72,7 +74,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
             if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
                 try {
-                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient );
+                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
                     Channel newChannel = cb.getChannel().getNativeHandle();
                     WolvesAppointClient.copyDuplexAttrs( channel, newChannel );
 
@@ -81,6 +83,9 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
                     cb.sendAsynMsg( instructMessage, true );
 
                     WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
+                }
+                catch ( MediumTerminationException e ) {
+                    WolvesAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
                 }
                 catch ( IOException e ) {
                     WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
@@ -92,21 +97,21 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
             express.afterChannelInactive( cb );
             return true; // Blocking next inactive sequence.
         }
-        return super.afterChannelInactive( ccb );
+        return super.afterChannelInactive( ccb, context );
     }
 
     private void initSelf() {
 
     }
 
-    protected WolvesAppointClient( UlfClient messenger, RouteDispatcher dispatcher ) {
+    protected WolvesAppointClient( UlfClient messenger, ProtoRouteDispatcher dispatcher ) {
         super( messenger, dispatcher.getInterfacialCompiler(), dispatcher.getContextMachinery().getControllerInspector() );
         this.initSelf();
         this.mRouteDispatcher = dispatcher;
         this.mInstructedChannels = new LinkedTreeMap<>();
     }
 
-    public WolvesAppointClient( UlfClient messenger, InterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
+    public WolvesAppointClient( UlfClient messenger, ProtoInterfacialCompiler compiler, ControllerInspector controllerInspector, UMCTExpress express ){
         this( messenger, new HuskyRouteDispatcher( compiler, controllerInspector, express ) );
         this.apply( express );
     }
@@ -131,7 +136,7 @@ public class WolvesAppointClient extends WolfAppointClient implements DuplexAppo
 
             this.mRouteDispatcher = new HuskyRouteDispatcher( express, messenger.getTaskManager().getClassLoader() );
             HuskyRouteDispatcherFabricator.afterConstructed( (HuskyRouteDispatcher)this.mRouteDispatcher, express );
-            this.mPMCTContextMachinery = new HuskyContextMachinery( new BytecodeIfacCompiler(
+            this.mMCTContextMachinery = new HuskyContextMachinery( new BytecodeIfaceCompiler(
                     ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()
             ), new BytecodeControllerInspector(
                     ClassPool.getDefault(), messenger.getTaskManager().getClassLoader()

@@ -94,8 +94,8 @@ public class TestBasicTransaction {
         Pinecone.init( (Object...cfg )->{
 
             //TestBasicTransaction.testSequential();
-            //TestBasicTransaction.testParallel();
-            TestBasicTransaction.testGraph();
+            TestBasicTransaction.testParallel();
+            //TestBasicTransaction.testGraph();
 
             return 0;
         }, (Object[]) args );

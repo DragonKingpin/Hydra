@@ -7,16 +7,16 @@ import com.pinecone.hydra.storage.version.entity.VersionMapping;
 import com.pinecone.hydra.storage.version.source.VersionManipulator;
 import com.pinecone.hydra.storage.version.source.VersionMappingManipulator;
 import com.pinecone.hydra.storage.version.source.VersionMasterManipulator;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.ulf.util.guid.GenericGuidAllocator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.util.List;
 
 public class TitanVersionManage implements VersionManage {
-    protected Hydrarum                      hydrarum;
+    protected Hydrogen                      hydrogen;
 
     protected GuidAllocator                 guidAllocator;
 
@@ -25,16 +25,16 @@ public class TitanVersionManage implements VersionManage {
     protected VersionManipulator            versionManipulator;
     protected VersionMappingManipulator     versionMappingManipulator;
 
-    public TitanVersionManage( Hydrarum hydrarum, KOIMasterManipulator masterManipulator, String name ){
-        this.hydrarum                   = hydrarum;
+    public TitanVersionManage(Hydrogen hydrogen, KOIMasterManipulator masterManipulator, String name ){
+        this.hydrogen = hydrogen;
         this.masterManipulator          = (VersionMasterManipulator) masterManipulator;
-        this.guidAllocator              = new GenericGuidAllocator();
+        this.guidAllocator              = GUIDs.newGuidAllocator();
         this.versionManipulator         = this.masterManipulator.getVersionManipulator();
         this.versionMappingManipulator  = this.masterManipulator.getVersionMappingManipulator();
     }
 
-    public TitanVersionManage( Hydrarum hydrarum, KOIMasterManipulator masterManipulator ){
-        this( hydrarum, masterManipulator, VersionManage.class.getSimpleName() );
+    public TitanVersionManage( Hydrogen hydrogen, KOIMasterManipulator masterManipulator ){
+        this(hydrogen, masterManipulator, VersionManage.class.getSimpleName() );
     }
 
     public TitanVersionManage( KOIMappingDriver driver ) {

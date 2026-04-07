@@ -1,0 +1,37 @@
+package com.pinecone.hydra.task.marshal;
+
+public enum TaskScheduleType {
+    Undefined      ( 0x00, "Undefined" ),
+    Cycle          ( 0x01, "Cycle" ),
+    Manual         ( 0x02, "Manual" ),
+    Triggered      ( 0x03, "Triggered" ),
+    Resident       ( 0x04, "Resident" ),
+    ;
+
+    private final int code;
+
+    private final String name;
+
+    TaskScheduleType(int code, String name ) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getCode() {
+        return this.code;
+    }
+
+    public static TaskScheduleType getByCode(int code ) {
+        for ( TaskScheduleType type : TaskScheduleType.values() ) {
+            if ( type.code == code ) {
+                return type;
+            }
+        }
+
+        return null;
+    }
+}

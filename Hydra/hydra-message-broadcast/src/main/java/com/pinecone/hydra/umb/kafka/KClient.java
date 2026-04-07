@@ -1,9 +1,12 @@
 package com.pinecone.hydra.umb.kafka;
 
+import com.pinecone.hydra.umb.broadcast.BroadcastConsumer;
 import com.pinecone.hydra.umb.broadcast.BroadcastNode;
+import com.pinecone.hydra.umb.broadcast.BroadcastProducer;
 import com.pinecone.hydra.umb.broadcast.converter.ResultBytesConverter;
 import com.pinecone.hydra.umc.msg.handler.ErrorMessageAudit;
 
+import java.util.Collection;
 import java.util.Properties;
 
 public interface KClient extends BroadcastNode {
@@ -32,4 +35,9 @@ public interface KClient extends BroadcastNode {
     }
 
     ResultBytesConverter<Object > getDafaultResultBytesConverter();
+
+
+    Collection<BroadcastProducer> viewProducerRegister();
+
+    Collection<BroadcastConsumer> viewConsumerRegister();
 }

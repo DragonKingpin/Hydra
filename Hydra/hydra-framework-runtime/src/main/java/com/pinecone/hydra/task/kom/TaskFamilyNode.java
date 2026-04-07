@@ -24,23 +24,19 @@ public interface TaskFamilyNode extends TaskFamilyMeta {
 
     String getScenario();
 
-    void setScenario(String scenario);
+    void setScenario( String scenario );
 
-    String getPrimaryImplLang();
+    String getMarshallingArchitecture();
 
-    void setPrimaryImplLang(String primaryImplLang);
+    void setMarshallingArchitecture( String marshallingArchitecture );
 
     String getExtraInformation();
 
-    void setExtraInformation(String extraInformation);
-
-    String getLevel();
-
-    void setLevel(String level);
+    void setExtraInformation( String extraInformation );
 
     String getDescription();
 
-    void setDescription(String description);
+    void setDescription( String description );
 
-    TaskFamilyNode apply(Map<String, Object> joEntity) ;
+    TaskFamilyNode apply( Map<String, Object> joEntity ) ;
 }

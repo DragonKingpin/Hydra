@@ -1,10 +1,11 @@
 package com.pinecone.hydra.system.imperium;
 
-import com.pinecone.hydra.system.ko.KernelObjectInstrument;
+import com.pinecone.hydra.system.HyComponent;
+import com.pinecone.hydra.system.ko.runtime.CentralizedRuntimeInstrument;
 
 /**
  *  Pinecone Ursus For Java Imperium Privy Council
- *  Author: Harold.E (Dragon King), Ken
+ *  Author: Harald.E (Dragon King), Ken
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Imperium Privy Council
@@ -20,5 +21,8 @@ import com.pinecone.hydra.system.ko.KernelObjectInstrument;
  *  e.g. /proc/137/status                                       => {name: scsi_eh_26, State: S, Pid: 137}
  *  *****************************************************************************************
  */
-public interface ImperiumPrivy extends KernelObjectInstrument {
+public interface ImperiumPrivy extends HyComponent {
+
+    CentralizedRuntimeInstrument getExpressInstrument();
+
 }

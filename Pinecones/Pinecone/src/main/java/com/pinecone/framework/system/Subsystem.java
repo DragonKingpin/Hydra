@@ -1,4 +1,9 @@
 package com.pinecone.framework.system;
 
-public interface Subsystem extends CascadeSystem {
+import com.pinecone.framework.system.executum.Systema;
+
+public interface Subsystem extends Systema {
+
+
+
 }

@@ -1,0 +1,5 @@
+{
+  "Name"     : "KernelSkynetLord",
+  "MainClass": "com.acorn.skynet.Skynet",
+  "LifecycleWithPrimarySystem" : true
+}

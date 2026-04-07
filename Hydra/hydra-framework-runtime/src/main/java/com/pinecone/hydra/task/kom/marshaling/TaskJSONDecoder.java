@@ -4,20 +4,20 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.task.kom.ServiceInstrument;
-import com.pinecone.hydra.task.kom.entity.JobElement;
+import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.FolderElement;
-import com.pinecone.hydra.task.kom.entity.GenericJobElement;
+import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 
 public class TaskJSONDecoder implements TaskInstrumentDecoder {
-    protected ServiceInstrument instrument;
+    protected TaskInstrument instrument;
 
-    public TaskJSONDecoder( ServiceInstrument instrument ) {
+    public TaskJSONDecoder( TaskInstrument instrument ) {
         this.instrument = instrument;
     }
 
@@ -28,7 +28,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             return (ElementNode) this.instrument.get( this.decodeJSONObject( szName, (Map<String, Object>) o, parentGuid ).getGuid() );
         }
 
-        throw new IllegalArgumentException( "Elements of `ServersInstrument` should all be object." );
+        throw new IllegalArgumentException( "Elements of `TaskInstrument` should all be object." );
     }
 
     protected Namespace   newNamespace( String szName, Map<String, Object > jo ) {
@@ -65,7 +65,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "<ServiceInstrument> Existed child-destination [%s] should be namespace.", szName )
+                                    String.format( "<TaskInstrument> Existed child-destination [%s] should be namespace.", szName )
                             );
                         }
                     }
@@ -87,18 +87,18 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
     }
 
     protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        JobElement app = null;
+        AppElement job = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
             if( rootE != null ) {
-                if( rootE.evinceJobElement() == null ) {
+                if( rootE.evinceAppElement() == null ) {
                     throw new IllegalArgumentException(
-                            String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                            String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                     );
                 }
 
-                app = rootE.evinceJobElement();
+                job = rootE.evinceAppElement();
             }
         }
         else {
@@ -107,13 +107,13 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                 Collection<ElementNode> destChildren = parentNode.evinceNamespace().fetchChildren();
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
-                        if( node instanceof JobElement ) {
-                            app = (JobElement) node;
+                        if( node instanceof AppElement) {
+                            job = (AppElement) node;
                             break;
                         }
                         else {
                             throw new IllegalArgumentException(
-                                    String.format( "Existed child-destination [%s] should be `JobElement`.", szName )
+                                    String.format( "Existed child-destination [%s] should be `AppElement`.", szName )
                             );
                         }
                     }
@@ -123,19 +123,19 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
 
 
 
-        JobElement neo ;
-        if( app == null ) {
-            neo = new GenericJobElement( jo, this.instrument );
+        AppElement neo ;
+        if( job == null ) {
+            neo = new GenericAppElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = app;
+            neo = job;
         }
-        return new Object[] { app, neo };
+        return new Object[] { job, neo };
     }
 
-    protected Object[]    affirmSerExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
-        TaskElement ser = null;
+    protected Object[]    affirmTasExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+        TaskElement task = null;
 
         if( parentGuid == null ) {
             ElementNode rootE = this.instrument.queryElement( szName );
@@ -146,7 +146,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                     );
                 }
 
-                ser = rootE.evinceTaskElement();
+                task = rootE.evinceTaskElement();
             }
         }
         else {
@@ -157,7 +157,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
                 for( ElementNode node : destChildren ) {
                     if( szName.equals( node.getName() ) ) {
                         if( node instanceof TaskElement ) {
-                            ser = (TaskElement) node;
+                            task = (TaskElement) node;
                             break;
                         }
                         else {
@@ -178,14 +178,14 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
 
 
         TaskElement neo ;
-        if( ser == null ) {
+        if( task == null ) {
             neo = new GenericTaskElement( jo, this.instrument );
             neo.setName( szName );
         }
         else {
-            neo = ser;
+            neo = task;
         }
-        return new Object[] { ser, neo };
+        return new Object[] { task, neo };
     }
 
     protected Object[]    decodeExternalElements( String szMetaType, String szName, GUID parentGuid, Map<String, Object > jo ) throws IllegalArgumentException {
@@ -220,12 +220,12 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
         else {
             Object[] pair;
             boolean bIsFolderElement = false;
-            if( szMetaType.equals( JobElement.class.getSimpleName() ) ) {
+            if( szMetaType.equals( AppElement.class.getSimpleName() ) ) {
                 pair = this.affirmAppExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }
             else if( szMetaType.equals( TaskElement.class.getSimpleName() ) ) {
-                pair = this.affirmSerExisted( szName, parentGuid, jo );
+                pair = this.affirmTasExisted( szName, parentGuid, jo );
             }
             else {
                 try{
@@ -249,9 +249,9 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             }
 
             if( bIsFolderElement ) {
-                Object services = jo.get( "services" );
-                if( services instanceof Map ) {
-                    Map joSer = (Map) services;
+                Object subs = jo.get( "tasks" );
+                if( subs instanceof Map ) {
+                    Map joSer = (Map) subs;
                     this.decodeChildren( joSer, currentGuid );
                 }
             }

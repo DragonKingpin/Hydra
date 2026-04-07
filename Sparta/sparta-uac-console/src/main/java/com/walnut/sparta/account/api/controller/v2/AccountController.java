@@ -31,6 +31,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public class AccountController {
             @RequestParam("name") String name) {
         // 查询域是否存在
         GenericDomain domain = new GenericDomain();
-        domain.setGuid(GUIDs.GUID72(guid));
+        domain.setGuid(GUIDs.GUID128(guid));
         domain.setName(name); // 更新域名称
         this.primaryAccount.updateDomain(domain); // 保存更新
         return BasicResultResponse.success(true);
@@ -73,11 +74,11 @@ public class AccountController {
     @RequiresAuthentication
     public BasicResultResponse<String> removeDomain( @RequestParam("domainGuid") String domainGuid ){
 
-        List<TreeNode> children = this.primaryAccount.getChildren( GUIDs.GUID72(domainGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren( GUIDs.GUID128(domainGuid));
         for (TreeNode treeNode : children) {
             this.primaryAccount.remove(treeNode.getGuid());
         }
-        this.primaryAccount.remove( GUIDs.GUID72(domainGuid) );
+        this.primaryAccount.remove( GUIDs.GUID128(domainGuid) );
         return BasicResultResponse.success();
     }
 
@@ -87,17 +88,17 @@ public class AccountController {
         GenericGroup genericGroup = new GenericGroup();
         genericGroup.setName(groupName);
         this.primaryAccount.put( genericGroup );
-        this.primaryAccount.addChildren(GUIDs.GUID72(parentGuid), genericGroup.getGuid() );
+        this.primaryAccount.addChildren(GUIDs.GUID128(parentGuid), genericGroup.getGuid() );
         return BasicResultResponse.success();
     }
     @DeleteMapping("/remove/group")
     @RequiresAuthentication
     public BasicResultResponse<String> removeGroup( @RequestParam("groupGuid") String groupGuid ){
-        List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(groupGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID128(groupGuid));
         System.out.println(children.isEmpty());
         System.out.println(groupGuid);
         if (children.isEmpty()) {
-            this.primaryAccount.remove(GUIDs.GUID72(groupGuid));
+            this.primaryAccount.remove(GUIDs.GUID128(groupGuid));
             return BasicResultResponse.success("删除成功");
         }
         return BasicResultResponse.error("Group is not empty");
@@ -109,7 +110,7 @@ public class AccountController {
             @RequestParam("groupGuid") String groupGuid,
             @RequestParam("groupName") String groupName) {
         // 查询组是否存在
-        Group group = this.primaryAccount.queryGroupByGroupGuid(GUIDs.GUID72(groupGuid));
+        Group group = this.primaryAccount.queryGroupByGroupGuid(GUIDs.GUID128(groupGuid));
         if (group != null) {
             group.setName(groupName); // 更新组名称
             this.primaryAccount.updateGroup(group); // 保存更新
@@ -123,7 +124,7 @@ public class AccountController {
     @RequiresAuthentication
     public String queryUsersByGroup(@RequestParam("groupGuid") String groupGuid) {
         List<GenericAccount> accounts = new ArrayList<>();
-        List<GUID> guids = this.primaryAccount.fetchChildrenGuids(GUIDs.GUID72(groupGuid));
+        Collection<GUID> guids = this.primaryAccount.fetchChildrenGuids(GUIDs.GUID128(groupGuid));
         for (GUID guid : guids)
         {
             accounts.add((GenericAccount) this.primaryAccount.queryAccountByUserGuid(guid));
@@ -186,7 +187,7 @@ public class AccountController {
                                 now,
                                 now
                         );
-                        authorization.setPrivilegeGuid(GUIDs.GUID72(privilegeGuid.trim())); // 去除可能的空格
+                        authorization.setPrivilegeGuid(GUIDs.GUID128(privilegeGuid.trim())); // 去除可能的空格
                         authorization.setGuid(this.primaryAccount.getGuidAllocator().nextGUID());
                         this.primaryAccount.insertAuthorization(authorization);
                     }
@@ -194,7 +195,7 @@ public class AccountController {
                 }
             }
 
-            this.primaryAccount.addChildren(GUIDs.GUID72(parentGuid), account.getGuid());
+            this.primaryAccount.addChildren(GUIDs.GUID128(parentGuid), account.getGuid());
             return BasicResultResponse.success(account).toJSONString();
         }
         return BasicResultResponse.error("Account already exists").toJSONString();
@@ -211,7 +212,7 @@ public class AccountController {
             @RequestParam("newUsername") String newUsername
     ) {
         LocalDateTime now = LocalDateTime.now();
-        Account account = this.primaryAccount.queryAccountByUserGuid(GUIDs.GUID72(userGuid));
+        Account account = this.primaryAccount.queryAccountByUserGuid(GUIDs.GUID128(userGuid));
         if (account != null) {
             account.setNickName(nickName);
             account.setKernelCredential(kernelCredential);
@@ -220,7 +221,7 @@ public class AccountController {
             account.setUpdateTime(now);
             account.setRole(role);
             account.setName(newUsername); // 允许修改用户名
-            account.setGuid(GUIDs.GUID72(userGuid));
+            account.setGuid(GUIDs.GUID128(userGuid));
             System.out.println(account);
             this.primaryAccount.updateAccount(account);
         }
@@ -230,7 +231,7 @@ public class AccountController {
     @DeleteMapping("/remove/account")
     @RequiresAuthentication
     public BasicResultResponse<Boolean> removeAccount( @RequestParam("userGuid") String userGuid ) {
-        Account account=this.primaryAccount.queryAccountByUserGuid(GUIDs.GUID72(userGuid));
+        Account account=this.primaryAccount.queryAccountByUserGuid(GUIDs.GUID128(userGuid));
         List<GenericAuthorization> authorizations = this.primaryAccount.queryAuthorizationByUserGuid(account.getGuid());
         for (GenericAuthorization authorization : authorizations) {
             this.primaryAccount.remove(authorization.getGuid());
@@ -326,14 +327,14 @@ public class AccountController {
     public BasicResultResponse<String> queryDomainGroups(
             @RequestParam("domainGuid") String domainGuid) {
         try {
-            List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
+            Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID128(domainGuid));
             List<Map<String, String>> groups = new ArrayList<>();
             for (TreeNode child : children) {
                 if (child instanceof Group) {
                     Group group = this.primaryAccount.queryGroupByGroupGuid(child.getGuid());
                     Map<String, String> groupInfo = new HashMap<>();
-                    groupInfo.put("domainName", this.primaryAccount.queryDomainNameByGuid(GUIDs.GUID72(domainGuid)));
-                    System.out.println(this.primaryAccount.queryDomainNameByGuid(GUIDs.GUID72(domainGuid)));
+                    groupInfo.put("domainName", this.primaryAccount.queryDomainNameByGuid(GUIDs.GUID128(domainGuid)));
+                    System.out.println(this.primaryAccount.queryDomainNameByGuid(GUIDs.GUID128(domainGuid)));
                     groupInfo.put("groupName", group.getName());
                     groupInfo.put("groupGuid", group.getGuid().toString());
                     groups.add(groupInfo);
@@ -350,7 +351,7 @@ public class AccountController {
     public BasicResultResponse<String> queryDomainGroup(
             @RequestParam("domainGuid") String domainGuid
     ){
-        List<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID72(domainGuid));
+        Collection<TreeNode> children = this.primaryAccount.getChildren(GUIDs.GUID128(domainGuid));
         List<Group> groups = new ArrayList<>();
         for (TreeNode child : children) {
             if (child instanceof Group) {
@@ -381,7 +382,7 @@ public class AccountController {
         );
         // 检查parentPrivGuid是否为空或空字符串
         if (parentPrivGuid != null && !parentPrivGuid.isEmpty()) {
-            privilege.setParentPrivGuid(GUIDs.GUID72(parentPrivGuid));
+            privilege.setParentPrivGuid(GUIDs.GUID128(parentPrivGuid));
         } else {
             privilege.setParentPrivGuid(null);
         }
@@ -397,7 +398,7 @@ public class AccountController {
             @RequestParam("token") String token,
             @RequestParam("type") String type,
             @RequestParam("privilegeCode") String privilegeCode) {
-        Privilege privilege = this.primaryAccount.queryPrivilegeByGuid(GUIDs.GUID72(guid));
+        Privilege privilege = this.primaryAccount.queryPrivilegeByGuid(GUIDs.GUID128(guid));
         if (privilege != null) {
             privilege.setName(name);
             privilege.setToken(token);
@@ -413,7 +414,7 @@ public class AccountController {
     public BasicResultResponse<String> removePrivilege(
             @RequestParam("privilegeGuid") String privilegeGuid)
     {
-        this.primaryAccount.removePrivilege(GUIDs.GUID72(privilegeGuid));
+        this.primaryAccount.removePrivilege(GUIDs.GUID128(privilegeGuid));
         return BasicResultResponse.success();
     }
     @GetMapping("/List/privilege")
@@ -494,7 +495,7 @@ public class AccountController {
                 LocalDateTime.now()
         );
         authorization.setGuid(this.primaryAccount.getGuidAllocator().nextGUID());
-        authorization.setPrivilegeGuid(GUIDs.GUID72(privilegeGuids));
+        authorization.setPrivilegeGuid(GUIDs.GUID128(privilegeGuids));
         this.primaryAccount.insertAuthorization(authorization);
 
         return BasicResultResponse.success();
@@ -505,7 +506,7 @@ public class AccountController {
     public BasicResultResponse<String> deleteAuthorization(
             @RequestParam ("authorizationGuid") String Guid)
     {
-        this.primaryAccount.removeAuthorizationByGuid(GUIDs.GUID72(Guid));
+        this.primaryAccount.removeAuthorizationByGuid(GUIDs.GUID128(Guid));
         return BasicResultResponse.success();
     }
 
@@ -533,7 +534,7 @@ public class AccountController {
     ) {
         try {
             // 更新授权信息的逻辑
-            this.primaryAccount.updateAuthorization(GUIDs.GUID72(guid));
+            this.primaryAccount.updateAuthorization(GUIDs.GUID128(guid));
             return BasicResultResponse.success();
         } catch (Exception e) {
             return BasicResultResponse.error("更新授权失败: " + e.getMessage());

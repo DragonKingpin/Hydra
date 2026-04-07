@@ -22,7 +22,7 @@ import com.pinecone.hydra.storage.volume.entity.local.striped.TitanStripReceiver
 import com.pinecone.hydra.storage.volume.kvfs.KenVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.kvfs.OnVolumeFileSystem;
 import com.pinecone.hydra.storage.volume.runtime.MasterVolumeGram;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -56,9 +56,9 @@ public class TitanStripedReceive64 implements StripedReceive64{
     }
     @Override
     public StorageIOResponse receive(Chanface chanface) throws UIOException {
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
-        hydrarum.getTaskManager().add( masterVolumeGram );
+        Hydrogen hydrogen = this.volumeManager.getHydrogen();
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen);
+        hydrogen.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
 
@@ -81,9 +81,9 @@ public class TitanStripedReceive64 implements StripedReceive64{
 
     @Override
     public StorageIOResponse receive(Chanface chanface,Number offset, Number endSize) throws UIOException {
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum );
-        hydrarum.getTaskManager().add( masterVolumeGram );
+        Hydrogen hydrogen = this.volumeManager.getHydrogen();
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen);
+        hydrogen.getTaskManager().add( masterVolumeGram );
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
 
 
@@ -112,10 +112,10 @@ public class TitanStripedReceive64 implements StripedReceive64{
 
     @Override
     public StorageIOResponse receive(RandomAccessChanface randomAccessChanface) throws UIOException {
-        Hydrarum hydrarum = this.volumeManager.getHydrarum();
+        Hydrogen hydrogen = this.volumeManager.getHydrogen();
         List<LogicVolume> volumes = this.stripedVolume.queryChildren();
-        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrarum, volumes.size(), 1, this.volumeManager.getConfig().getDefaultStripSize().intValue() );
-        hydrarum.getTaskManager().add( masterVolumeGram );
+        MasterVolumeGram masterVolumeGram = new MasterVolumeGram( this.stripedVolume.getGuid().toString(), hydrogen, volumes.size(), 1, this.volumeManager.getConfig().getDefaultStripSize().intValue() );
+        hydrogen.getTaskManager().add( masterVolumeGram );
         MappedExecutor executor = null;
         try {
             executor = this.getExecutor();
@@ -126,7 +126,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
         TitanStripReceiveBufferOutJob bufferOutJob = new TitanStripReceiveBufferOutJob( masterVolumeGram, this.volumeManager, randomAccessChanface, this.storageReceiveIORequest, executor );
         LocalStripedTaskThread taskThread = new LocalStripedTaskThread( "bufferOut",masterVolumeGram, bufferOutJob );
         masterVolumeGram.getTaskManager().add( taskThread );
-        masterVolumeGram.applyBufferOutThreadId( taskThread.getId() );
+        masterVolumeGram.applyBufferOutThreadId( taskThread.getExecutumId() );
         taskThread.start();
 
         int index = 0;
@@ -136,7 +136,7 @@ public class TitanStripedReceive64 implements StripedReceive64{
             LocalStripedTaskThread bufferInThread = new LocalStripedTaskThread(volume.getName(), masterVolumeGram, bufferInJob);
             masterVolumeGram.getTaskManager().add( bufferInThread );
             CacheBlock cacheBlock = masterVolumeGram.getCacheGroup().get(index);
-            cacheBlock.setBufferWriteThreadId( bufferInThread.getId() );
+            cacheBlock.setBufferWriteThreadId( bufferInThread.getExecutumId() );
             bufferInThread.start();
             index++;
         }

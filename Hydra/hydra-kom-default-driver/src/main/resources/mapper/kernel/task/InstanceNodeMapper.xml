@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.task.ibatis.InstanceNodeMapper">
+
+    <sql id="BaseFields">
+        guid,
+        task_guid,
+        name,
+        task_name,
+        business_time,
+        expect_time,
+        fire_time,
+        start_time,
+        finish_time,
+        schedule_host_time,
+        submit_time,
+        schedule_time,
+        priority,
+        image_path,
+        actually_priority,
+        run_status,
+        schedule_cycle,
+        schedule_type,
+        task_type,
+        dry_run,
+        run_count,
+        sequence_cnt,
+        retry_cnt,
+        latest_start_time,
+        latest_end_time,
+        error_cause,
+        processor_name,
+        create_time,
+        update_time
+    </sql>
+
+    <sql id="BaseColumns">
+        #{guid},
+        #{taskGuid},
+        #{instanceName},
+        #{taskName},
+        #{businessTime},
+        #{expectTime},
+        #{fireTime},
+        #{startTime},
+        #{finishTime},
+        #{scheduleHostTime},
+        #{submitTime},
+        #{scheduleTime},
+        #{priority},
+        #{imagePath},
+        #{actuallyPriority},
+        #{runStatus},
+        #{scheduleCycle},
+        #{scheduleType},
+        #{taskType},
+        #{dryRun},
+        #{runCount},
+        #{sequenceCnt},
+        #{retryCnt},
+        #{lastStartTime},
+        #{lastEndTime},
+        #{errorCause},
+        #{processorName},
+        #{createTime},
+        #{updateTime}
+    </sql>
+
+    <!-- ========================================================== -->
+    <!-- ResultMap -->
+    <!-- ========================================================== -->
+
+    <resultMap id="TableIndex64MetaResult" type="com.pinecone.slime.meta.TableIndex64Meta">
+        <result column="min_id" property="minId"/>
+        <result column="max_id" property="maxId"/>
+    </resultMap>
+
+    <resultMap id="InstanceResultMap" type="com.pinecone.hydra.task.kom.instance.GenericInstanceEntry">
+
+        <result column="guid"                property="guid"/>
+        <result column="task_guid"           property="taskGuid"/>
+        <result column="name"                property="instanceName"/>
+        <result column="task_name"           property="taskName"/>
+        <result column="business_time"       property="businessTime"/>
+        <result column="expect_time"         property="expectTime"/>
+        <result column="fire_time"           property="fireTime"/>
+        <result column="start_time"          property="startTime"/>
+        <result column="finish_time"         property="finishTime"/>
+        <result column="schedule_host_time"  property="scheduleHostTime"/>
+        <result column="submit_time"         property="submitTime"/>
+        <result column="schedule_time"       property="scheduleTime"/>
+        <result column="priority"            property="priority"/>
+        <result column="image_path"          property="imagePath"/>
+        <result column="actually_priority"   property="actuallyPriority"/>
+        <result column="run_status"          property="runStatus"/>
+        <result column="schedule_cycle"      property="scheduleCycle"/>
+        <result column="schedule_type"       property="scheduleType"/>
+        <result column="task_type"           property="taskType"/>
+        <result column="dry_run"             property="dryRun"/>
+        <result column="run_count"           property="runCount"/>
+        <result column="sequence_cnt"        property="sequenceCnt"/>
+        <result column="retry_cnt"           property="retryCnt"/>
+        <result column="latest_start_time"   property="lastStartTime"/>
+        <result column="latest_end_time"     property="lastEndTime"/>
+        <result column="error_cause"         property="errorCause"/>
+        <result column="processor_name"      property="processorName"/>
+        <result column="create_time"         property="createTime"/>
+        <result column="update_time"         property="updateTime"/>
+
+    </resultMap>
+
+    <!-- ========================================================== -->
+    <!-- Insert -->
+    <!-- ========================================================== -->
+
+    <insert id="insert" parameterType="com.pinecone.hydra.task.kom.instance.InstanceEntry">
+
+        INSERT INTO hydra_task_instances
+        (
+        <include refid="BaseFields"/>
+        )
+        VALUES
+        (
+        <include refid="BaseColumns"/>
+        )
+
+    </insert>
+
+    <!-- ========================================================== -->
+    <!-- Update -->
+    <!-- ========================================================== -->
+
+    <update id="update" parameterType="com.pinecone.hydra.task.kom.instance.InstanceEntry">
+
+        UPDATE hydra_task_instances
+        SET
+            task_guid           = #{taskGuid},
+            name                = #{instanceName},
+            task_name           = #{taskName},
+            business_time       = #{businessTime},
+            expect_time         = #{expectTime},
+            fire_time           = #{fireTime},
+            start_time          = #{startTime},
+            finish_time         = #{finishTime},
+            schedule_host_time  = #{scheduleHostTime},
+            submit_time         = #{submitTime},
+            schedule_time       = #{scheduleTime},
+            priority            = #{priority},
+            image_path          = #{imagePath},
+            actually_priority   = #{actuallyPriority},
+            run_status          = #{runStatus},
+            schedule_cycle      = #{kernelScheduleCycle},
+            schedule_type       = #{kernelScheduleType},
+            task_type           = #{taskType},
+            dry_run             = #{dryRun},
+            run_count           = #{runCount},
+            sequence_cnt        = #{sequenceCnt},
+            retry_cnt           = #{retryCnt},
+            latest_start_time   = #{lastStartTime},
+            latest_end_time     = #{lastEndTime},
+            error_cause         = #{errorCause},
+            processor_name      = #{processorName},
+            update_time         = #{updateTime}
+        WHERE guid = #{guid}
+
+    </update>
+
+    <!-- ========================================================== -->
+    <!-- Query By GUID -->
+    <!-- ========================================================== -->
+
+    <select id="queryByGuid0" parameterType="com.pinecone.framework.util.id.GUID" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE guid = #{guid}
+
+    </select>
+
+
+    <select id="countInstance" resultType="int">
+
+        SELECT COUNT(*)
+        FROM hydra_task_instances
+
+    </select>
+
+    <select id="countInstanceByName" resultType="long">
+
+        SELECT COUNT(*)
+        FROM hydra_task_instances
+        WHERE name = #{name}
+
+    </select>
+
+    <select id="fetchInstances0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <select id="queryByTaskGuid0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <select id="countInstanceByTaskGuid" resultType="long">
+
+        SELECT COUNT(*)
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+
+    </select>
+
+    <select id="findLastExecuted0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+        AND business_time = #{bizTime}
+        ORDER BY run_count DESC
+        LIMIT 1
+
+    </select>
+
+    <select id="selectSchedulableIdRange" resultMap="TableIndex64MetaResult">
+        SELECT
+            MIN( `id` ) AS min_id,
+            MAX( `id` ) AS max_id
+        FROM `hydra_task_instances`
+        WHERE
+        `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
+
+          AND (
+            `expect_time` IS NULL
+             OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+        <if test="actuallyPriority != null">
+            AND `actually_priority` = #{actuallyPriority}
+        </if>
+        AND schedule_type = 'Cycle'
+    </select>
+
+    <select id="fetchSchedulableInstances0" resultMap="InstanceResultMap">
+        SELECT
+            `id`,
+            <include refid="BaseFields"/>
+        FROM `hydra_task_instances`
+        WHERE `id` <![CDATA[ >= ]]> #{idMin}
+          AND `id` <![CDATA[ <= ]]> #{idMax}
+          AND `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
+          AND (
+              `expect_time` IS NULL
+              OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+        <if test="actuallyPriority != null">
+            AND `actually_priority` = #{actuallyPriority}
+        </if>
+        AND schedule_type = 'Cycle'
+        ORDER BY actually_priority DESC, id ASC
+    </select>
+
+
+</mapper>

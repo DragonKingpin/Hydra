@@ -2,9 +2,9 @@ package com.walnut.sparta.uofs;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
-import com.pinecone.radium.Radium;
+import com.pinecone.tritium.Tritium;
 
-class JesusChrist extends Radium {
+class JesusChrist extends Tritium {
     public JesusChrist( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }

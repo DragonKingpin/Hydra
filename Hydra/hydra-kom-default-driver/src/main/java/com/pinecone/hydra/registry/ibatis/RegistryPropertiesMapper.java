@@ -45,7 +45,7 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
         for( Map raw : raws ) {
             Property property = new GenericProperty( parent );
             property.setEnumId( ( (Number) raw.get( "enumId" ) ).longValue() );
-            property.setGuid  ( GUIDs.GUID72( (String) raw.get( "guid" ) )  );
+            property.setGuid  ( GUIDs.GUID128( (String) raw.get( "guid" ) )  );
             property.setType  ( (String) raw.get( "type" )  );
             property.setKey   ( (String) raw.get( "key" )   );
 

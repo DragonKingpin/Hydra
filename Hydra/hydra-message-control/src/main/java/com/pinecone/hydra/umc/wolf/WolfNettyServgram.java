@@ -7,12 +7,13 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.servgram.ArchServgramium;
 import com.pinecone.framework.system.RedirectRuntimeException;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.umc.msg.UMCException;
 import com.pinecone.hydra.umc.msg.UMCServiceException;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class WolfNettyServgram extends ArchServgramium {
@@ -21,7 +22,6 @@ public abstract class WolfNettyServgram extends ArchServgramium {
     protected final Object              mOuterThreadDetachMutex         = new Object(); // Waiting for primary thread initialized. [Outer refers invoked thead, e.g. Usually main-thread]
 
     protected ReentrantLock             mStateMutex                     = new ReentrantLock();
-    protected boolean                   mShutdown                       = true ;
 
     public WolfNettyServgram( String szName, Processum parentProcess, Map<String, Object> joConf ) {
         super( szName, parentProcess );
@@ -34,20 +34,16 @@ public abstract class WolfNettyServgram extends ArchServgramium {
     }
 
     @Override
-    public Hydrarum getSystem() {
-        return (Hydrarum) super.getSystem();
+    public Hydrogen parentSystem() {
+        return (Hydrogen) super.parentSystem();
     }
 
 
 
-    public boolean isShutdown(){
-        return this.mShutdown;
-    }
+    public abstract boolean isShutdown() ;
 
     @Override
-    public boolean isTerminated(){
-        return this.isShutdown();
-    }
+    public abstract boolean isTerminated() ;
 
     protected void setConfig( Map<String, Object> joConf ) {
         if( joConf instanceof JSONObject ) {

@@ -1,7 +1,7 @@
 package com.walnut.sparta.ucdn.console.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.util.JWTUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class JWTInterceptor implements HandlerInterceptor {
         String jwt=request.getHeader("Token");
         if (!StringUtils.hasLength(jwt)){
             log.info("The request header Token is empty");
-            BasicResultResponse error = BasicResultResponse.error("not login");
+            GenericResultResponse error = GenericResultResponse.error("not login");
             String jsonString = JSONObject.toJSONString(error);
             response.getWriter().write(jsonString);
             return false;
@@ -36,7 +36,7 @@ public class JWTInterceptor implements HandlerInterceptor {
             JWTUtil.ParseJWt(jwt);
         } catch (Exception e){
             log.info("Token parsing failed");
-            BasicResultResponse error = BasicResultResponse.error("Not logged in");
+            GenericResultResponse error = GenericResultResponse.error("Not logged in");
             String jsonString = JSONObject.toJSONString(error);
             response.getWriter().write(jsonString);
             return false;

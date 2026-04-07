@@ -27,7 +27,7 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
 
     public String collect0 ( String szResourcePath, String szNSName, List<String > packageNames, boolean bCollectChildren ) {
         try {
-            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath );
+            JarEntryIterator iterator        = new JarEntryIterator( szResourcePath, ".class" );
             Enumeration<JarEntry> entries    = iterator.entries ();
             String packagePath               = iterator.getPackagePath();
             String classesScopePath          = iterator.getClassesScopePath();
@@ -40,7 +40,7 @@ public class JarPackageCollectorAdapter implements PathNamespaceCollectum {
                         entryName = entryName.replace( classesScopePath, "" );
                     }
 
-                    if ( bCollectChildren && packageNames != null ) { // [@Harold Notice] No need for recursion, for JAR files, this flag is usually processed in a tiled manner
+                    if ( bCollectChildren && packageNames != null ) { // [@Harald Notice] No need for recursion, for JAR files, this flag is usually processed in a tiled manner
                         if ( entryName.startsWith ( packagePath ) && !entryName.equals( packagePath + NamespaceCollector.RESOURCE_NAME_SEPARATOR ) ) {
                             entryName = entryName.replace ( NamespaceCollector.RESOURCE_NAME_SEPARATOR, NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR );
                             entryName = entryName.substring ( 0, entryName.lastIndexOf ( NamespaceCollector.JAVA_PKG_CLASS_SEPARATOR ) );

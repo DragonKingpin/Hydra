@@ -42,41 +42,103 @@ public class ObjectJSONCursorUnmarshal extends ArchCursorParser {
     };
 
 
-    protected Class<? >      mClassType;
+    protected Class<? >         mClassType   ;
+    protected Type              mRootType    ;
+    protected final TypeContext mTypeContext = new TypeContext();
 
-    public ObjectJSONCursorUnmarshal( Reader reader, Class<? > classType ) {
-        super( reader );
-        this.mClassType      = classType;
+    public ObjectJSONCursorUnmarshal( Reader reader, Class<? > classType, Type rootType ) throws JSONParseException {
+        super(reader);
+        this.mRootType   = rootType;
+        this.mClassType  = classType;
+    }
+
+    public ObjectJSONCursorUnmarshal( Reader reader, Type rootType ) throws JSONParseException {
+        this( reader, ObjectiveEvaluator.resolveRawClass( rootType ), rootType );
+    }
+
+    public ObjectJSONCursorUnmarshal( Reader reader, Class<? > classType ) throws JSONParseException {
+        this( reader, (Type) classType );
     }
 
     public ObjectJSONCursorUnmarshal( InputStream inputStream, Class<? > classType ) throws JSONParseException {
         this((Reader)( new InputStreamReader(inputStream)), classType );
     }
 
-    public ObjectJSONCursorUnmarshal( String s, Class<? > classType ) {
+    public ObjectJSONCursorUnmarshal( InputStream inputStream, Type rootType ) throws JSONParseException {
+        this((Reader)( new InputStreamReader(inputStream)), ObjectiveEvaluator.resolveRawClass( rootType ), rootType );
+    }
+
+    public ObjectJSONCursorUnmarshal( String s, Class<? > classType ) throws JSONParseException {
         this((Reader)( new StringReader(s)), classType );
     }
 
+    public ObjectJSONCursorUnmarshal( String s, Type rootType ) throws JSONParseException {
+        this((Reader)( new StringReader(s)), ObjectiveEvaluator.resolveRawClass( rootType ), rootType );
+    }
+
+
+    protected GenericTypeContext nextGenericTypeContext( Object parent, Object indexKey ) throws JSONParseException {
+        Class<? > thisType    ;
+        Type elemGenericType  ;
+
+        if ( parent == null ) {
+            if ( this.mTypeContext.isEmpty() ) {
+                this.mTypeContext.push(
+                        this.mRootType,
+                        ObjectiveEvaluator.extractGenericElementType( this.mRootType )
+                );
+            }
+
+            TypeContext.Frame frame = this.mTypeContext.peek();
+
+            thisType        = ObjectiveEvaluator.resolveRawClass( frame.mContainerType );
+            elemGenericType = frame.mElementType;
+        }
+        else {
+            TypeContext.Frame frame = this.mTypeContext.peek();
+
+            if ( frame != null && frame.mElementType != null ) {
+                elemGenericType = frame.mElementType;
+                thisType        = ObjectiveEvaluator.resolveRawClass( frame.mElementType );
+            }
+            else {
+                elemGenericType = ObjectiveEvaluator.MapStructures.getElementGenericType( parent, indexKey.toString() );
+                thisType        = ObjectiveEvaluator.MapStructures.getType( parent, indexKey );
+            }
+        }
+
+        GenericTypeContext context = new GenericTypeContext();
+        context.thisType = thisType;
+        context.elemGenericType = elemGenericType;
+
+        return context;
+    }
 
     @Override
     protected Object newJSONArray( Object indexKey, ArchCursorParser parser, Object parent, Object[] args ) {
-        try{
-            Class<? > thisType    = this.mClassType;
-            Type elemGenericType = null;
-            if( parent != null ){
-                elemGenericType = ObjectiveEvaluator.MapStructures.getElementGenericType( parent, indexKey.toString() );
-                thisType = ObjectiveEvaluator.MapStructures.getType( parent, indexKey );
-            }
+        try {
+            GenericTypeContext context = this.nextGenericTypeContext( parent, indexKey );
+            Class<? > thisType    = context.thisType;
+            Type elemGenericType  = context.elemGenericType;
+
+//            if ( parent != null ){
+//                elemGenericType = ObjectiveEvaluator.MapStructures.getElementGenericType( parent, indexKey.toString() );
+//                thisType = ObjectiveEvaluator.MapStructures.getType( parent, indexKey );
+//            }
+//            else {
+//                thisType = ObjectiveEvaluator.resolveRawClass( this.mRootType );
+//                elemGenericType = ObjectiveEvaluator.extractGenericElementType( this.mRootType );
+//            }
 
             Object    self;
 
-            if( thisType == null ) {
+            if ( thisType == null ) {
                 self = new Object(); // Dummy
                 ObjectJSONCursorUnmarshal.INNER_ARRAY_DECODER.decode( self, parent, indexKey,this, elemGenericType );
                 return self;
             }
 
-            if( thisType.equals( List.class ) || thisType.equals( Void.class ) || thisType.equals( Object.class ) ) {
+            if ( thisType.equals( List.class ) || thisType.equals( Void.class ) || thisType.equals( Object.class ) ) {
                 thisType = JSONArraytron.class;
                 if( elemGenericType != null ) {
                     String genericTypeName = elemGenericType.getTypeName();
@@ -85,13 +147,13 @@ public class ObjectJSONCursorUnmarshal extends ArchCursorParser {
                     }
                 }
             }
-            else if( thisType.equals( Set.class ) ) {
+            else if ( thisType.equals( Set.class ) ) {
                 thisType = LinkedHashSet.class;
             }
 
-            if( thisType.isArray() ) {
+            if ( thisType.isArray() ) {
                 Class<?> innerType = thisType.getComponentType();
-                if( innerType.equals( Object.class ) ) {
+                if ( innerType.equals( Object.class ) ) {
                     self = new Object[]{ new Object[ 0 ] };  // Object[]*, ptr -> Object[]
                 }
                 else {
@@ -105,7 +167,7 @@ public class ObjectJSONCursorUnmarshal extends ArchCursorParser {
             }
 
             ObjectJSONCursorUnmarshal.INNER_ARRAY_DECODER.decode( self, parent, indexKey,this, elemGenericType );
-            if( self.getClass().isArray() ) {
+            if ( self.getClass().isArray() ) {
                 return Array.get( self, 0 );
             }
             return self;
@@ -134,13 +196,18 @@ public class ObjectJSONCursorUnmarshal extends ArchCursorParser {
 
     @Override
     protected Object newJSONObject( Object indexKey, ArchCursorParser parser, Object parent, Object[] args ) {
-        try{
-            Class<? > thisType    = this.mClassType;
-            Type elemGenericType = null;
-            if( parent != null ){
-                thisType = ObjectiveEvaluator.MapStructures.getType( parent, indexKey );
-                elemGenericType = ObjectiveEvaluator.MapStructures.getFieldGenericType( parent, indexKey.toString() );
-            }
+        try {
+            GenericTypeContext context = this.nextGenericTypeContext( parent, indexKey );
+            Class<? > thisType    = context.thisType;
+            Type elemGenericType  = context.elemGenericType;
+//            if( parent == null ){
+//                thisType = ObjectiveEvaluator.resolveRawClass( this.mRootType );
+//                elemGenericType = ObjectiveEvaluator.extractGenericElementType( this.mRootType );
+//            }
+//            else {
+//                thisType = ObjectiveEvaluator.MapStructures.getType( parent, indexKey );
+//                elemGenericType = ObjectiveEvaluator.MapStructures.getFieldGenericType( parent, indexKey.toString() );
+//            }
 
             thisType = this.findDirectJSONObjectAssignableType( thisType );
             if( elemGenericType != null ) {
@@ -203,4 +270,12 @@ public class ObjectJSONCursorUnmarshal extends ArchCursorParser {
             throw new JSONParseException( e1 );
         }
     }
+
+
+    public static class GenericTypeContext {
+        protected Class<? > thisType    ;
+        protected Type elemGenericType  ;
+    }
 }
+
+

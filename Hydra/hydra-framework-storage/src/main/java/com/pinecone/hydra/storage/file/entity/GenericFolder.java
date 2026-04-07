@@ -23,6 +23,7 @@ public class GenericFolder extends ArchElementNode implements Folder{
 
     public GenericFolder() {
     }
+
     public GenericFolder( KOMFileSystem fileSystem ) {
         this.fileSystem = fileSystem;
         GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();

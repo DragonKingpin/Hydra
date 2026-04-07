@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Systemum extends Processum, Systema {
-    int          getId();
+    default long getSystemId() {
+        return this.getExecutumId();
+    }
 
     Thread       getAffiliateThread();
 

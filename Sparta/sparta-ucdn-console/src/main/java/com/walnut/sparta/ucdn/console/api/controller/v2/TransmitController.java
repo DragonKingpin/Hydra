@@ -1,14 +1,13 @@
 package com.walnut.sparta.ucdn.console.api.controller.v2;
 
 
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.entity.Site;
 import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.direct.ExternalFile;
-import com.pinecone.hydra.storage.file.direct.GenericExternalFile;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
+import com.pinecone.hydra.storage.file.external.GenericNativeExternalFile;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
@@ -25,12 +24,11 @@ import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.version.entity.TitanVersionMapping;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
-import com.walnut.redstone.response.BasicResultResponse;
+import com.walnut.archcraft.redstone.response.GenericResultResponse;
 import com.walnut.sparta.ucdn.console.domain.service.NodeFileDistributionService;
 import com.walnut.sparta.ucdn.console.infrastructure.UCDNConsoleContents;
-import com.walnut.sparta.ucdn.console.infrastructure.dto.DownloadObjectByChannelDTO;
 import com.walnut.sparta.ucdn.console.infrastructure.dto.ClusterFileSyncDTO;
-import com.walnut.sparta.ucdn.console.infrastructure.dto.UpdateObjectByChannelDTO;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -49,14 +46,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
-
-import static org.apache.commons.io.FilenameUtils.getExtension;
 
 @RestController
 @RequestMapping( "/api/v2/ucdn/transmit" )
@@ -91,7 +84,7 @@ public class TransmitController {
         String[] guids = parameterMap.get("guid");
         GUID storageObjectGuid = null;
         if( guids != null ){
-            storageObjectGuid = GUIDs.GUID72( guids[0] );
+            storageObjectGuid = GUIDs.GUID128( guids[0] );
         }
 
         ServletOutputStream outputStream = response.getOutputStream();
@@ -113,11 +106,11 @@ public class TransmitController {
      * @return 返回操作结果
      */
     @PostMapping("/upload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
+    public GenericResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
         SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
         Site site = siteManipulator.querySiteByName(siteName);
         if( site == null ){
-            return BasicResultResponse.error("站点不存在");
+            return GenericResultResponse.error("站点不存在");
         }
         int dotIndex = filePath.lastIndexOf(UCDNConsoleContents.PERIOD);
         String baseName = filePath.substring(0, dotIndex);
@@ -158,7 +151,7 @@ public class TransmitController {
             throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
         }
 
-        return BasicResultResponse.success();
+        return GenericResultResponse.success();
     }
     /**
      * 使用文件路径下载文件
@@ -177,7 +170,7 @@ public class TransmitController {
         TitanOutputStreamChanface kChannel = new TitanOutputStreamChanface(outputStream);
 
         ElementNode elementNode = this.primaryFileSystem.queryElement(path);
-        if(elementNode instanceof GenericExternalFile){
+        if(elementNode instanceof GenericNativeExternalFile){
             ExternalFile externalFile = (ExternalFile) elementNode;
             File nativeFile = externalFile.getNativeFile();
             try (FileInputStream fileInputStream = new FileInputStream(nativeFile)) {

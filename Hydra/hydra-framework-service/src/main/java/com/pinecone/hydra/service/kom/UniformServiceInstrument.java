@@ -3,9 +3,10 @@ package com.pinecone.hydra.service.kom;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
@@ -13,10 +14,12 @@ import com.pinecone.hydra.service.kom.entity.GenericNamespace;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
+import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.entity.ServoElement;
 import com.pinecone.hydra.service.kom.operator.GenericElementOperatorFactory;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
@@ -34,36 +37,39 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 
 public class UniformServiceInstrument extends ArchReparseKOMTree implements ServiceInstrument {
     //GenericDistributedScopeTree
-    protected ImperialTree                imperialTree;
+    protected ImperialTree                  imperialTree;
 
-    protected ServiceMasterManipulator    serviceMasterManipulator;
+    protected ServiceMasterManipulator      serviceMasterManipulator;
 
-    protected ServiceNamespaceManipulator serviceNamespaceManipulator;
+    protected ServiceNamespaceManipulator   serviceNamespaceManipulator;
 
-    protected ApplicationNodeManipulator  applicationNodeManipulator;
+    protected ApplicationNodeManipulator    applicationNodeManipulator;
 
-    protected ServiceNodeManipulator      serviceNodeManipulator;
+    protected ServiceNodeManipulator        serviceNodeManipulator;
 
-    protected List<GUIDNameManipulator >  folderManipulators;
+    protected ServiceInstanceManipulator    serviceInstanceManipulator;
 
-    protected List<GUIDNameManipulator >  fileManipulators;
+    protected List<GUIDNameManipulator >    folderManipulators;
+
+    protected List<GUIDNameManipulator >    fileManipulators;
 
 
 
-    public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name ){
-        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name );
+    public UniformServiceInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, ServiceInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
+        super( superiorProcess, masterManipulator, ServiceInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.serviceMasterManipulator    = (ServiceMasterManipulator) masterManipulator;
         this.serviceNamespaceManipulator = this.serviceMasterManipulator.getNamespaceManipulator();
         this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
+        this.serviceInstanceManipulator  = this.serviceMasterManipulator.getServiceInstanceManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
-        this.guidAllocator               = GUIDs.newGuidAllocator();
         this.operatorFactory             = new GenericElementOperatorFactory(this,(ServiceMasterManipulator) masterManipulator);
 
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
@@ -79,11 +85,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     public UniformServiceInstrument(Processum superiorProcess, KOIMasterManipulator masterManipulator ){
-        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName() );
+        this( superiorProcess, masterManipulator, null, ServiceInstrument.class.getSimpleName(), new GuidAllocator128V7());
     }
 
-//    public UniformServiceInstrument( Hydrarum hydrarum ) {
-//        this.hydrarum = hydrarum;
+//    public UniformServiceInstrument( Hydrogen hydrogen ) {
+//        this.hydrogen = hydrogen;
 //    }
 
     public UniformServiceInstrument(KOIMappingDriver driver ) {
@@ -98,14 +104,15 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
                 driver.getSuperiorProcess(),
                 driver.getMasterManipulator(),
                 parent,
-                name
+                name,
+                null
         );
     }
 
     protected ServiceTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         String[] parts = this.pathResolver.segmentPathParts( path );
         String currentPath = "";
-        GUID parentGuid = GUIDs.Dummy72();
+        GUID parentGuid = GUIDs.Dummy128();
 
         ServiceTreeNode node = this.queryElement(path);
         if ( node != null ){
@@ -237,5 +244,20 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     @Override
     public List<ServiceElement> fetchAllService() {
         return this.serviceNodeManipulator.fetchAllService();
+    }
+
+    @Override
+    public void createServiceInstance(ServiceInstanceEntry serviceInstanceEntry) {
+        this.serviceInstanceManipulator.initServiceInstance(serviceInstanceEntry);
+    }
+
+    @Override
+    public ServiceInstanceEntry queryServiceInstance(GUID serviceId) {
+        return this.serviceInstanceManipulator.queryServiceInstance( serviceId );
+    }
+
+    @Override
+    public void updateServiceInstance(ServiceInstanceEntry element) {
+        this.serviceInstanceManipulator.updateServiceInstance( element );
     }
 }

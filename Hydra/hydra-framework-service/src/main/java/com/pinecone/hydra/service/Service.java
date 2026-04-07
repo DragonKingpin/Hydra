@@ -7,6 +7,8 @@ import java.util.Map;
 public interface Service extends ServiceFamilyMeta {
     String getName();        // Service Name, e.g. WpnService
 
+    String getType();
+
     String getDisplayName(); // Service Long Name, e.g. Windows Push Notification System Service
 
     String getDescription();

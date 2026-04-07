@@ -1,96 +1,120 @@
 package com.pinecone.hydra.unit.vgraph;
 
-import com.pinecone.framework.system.executum.Processum;
+import java.util.List;
+
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
+import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 
-import java.util.List;
+public class MagnitudeVectorDAG extends ArchVectorDAG implements VectorDAG {
+    protected Layer                                     mGraphLayer;
 
-public class MagnitudeVectorDAG extends ArchAtlasInstrument implements MegaVectorDAG{
+    protected VectorGraphMasterManipulator              mMasterManipulator;
+    protected VectorGraphManipulator                    mVectorGraphManipulator;
+    protected VectorGraphPathCacheManipulator           mVectorGraphPathCacheManipulator;
 
-    protected VectorGraphManipulator                mVectorGraphManipulator;
+    public MagnitudeVectorDAG( Layer affliatedLayer, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
+        super( affliatedLayer.getGuid(), vectorGraphConfig );
 
-    protected VectorGraphPathCacheManipulator       mVectorGraphPathCacheManipulator;
-
-    protected VectorGraphConfig                     mVectorGraphConfig;
-
-
-    public MagnitudeVectorDAG( Processum superiorProcess, VectorGraphMasterManipulator vectorGraphMasterManipulator, VectorGraphConfig vectorGraphConfig, AtlasInstrument parent, String name ){
-        super(superiorProcess, vectorGraphMasterManipulator, vectorGraphConfig, parent, name );
-        this.mVectorGraphManipulator = vectorGraphMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator = vectorGraphMasterManipulator.getVectorGraphPathCacheManipulator();
-        this.mVectorGraphConfig = vectorGraphConfig;
-    }
-
-
-
-    @Override
-    public boolean hasOwnProperty(Object elm) {
-        return false;
+        this.mGraphLayer                            = affliatedLayer;
+        this.mMasterManipulator                     = masterManipulator;
+        this.mVectorGraphManipulator                = this.mMasterManipulator.getVectorGraphManipulator();
+        this.mVectorGraphPathCacheManipulator       = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
     }
 
     @Override
-    public boolean containsKey(Object key) {
-        return false;
+    public GUID getAffiliateLayerGuid() {
+        return this.mGraphLayer.getGuid();
     }
 
     @Override
-    public void insertInletNode(GraphNode graphNode) {
-        this.mVectorGraphManipulator.insertStartNode( graphNode );
+    public Layer getAffiliateLayer() {
+        return this.mGraphLayer;
     }
 
     @Override
-    public void insertNode(GUID parentGuid, GraphNode graphNode) {
-        this.mVectorGraphManipulator.insertNode( parentGuid, graphNode );
+    public boolean isPersistenceGraph() {
+        return true;
     }
 
     @Override
-    public void purge(GUID guid) {
-        this.mVectorGraphManipulator.removeNode( guid );
-        this.removeCachePath( guid );
+    public List<GUID> fetchSourceGuids( long offset, long limit ) {
+        return this.mVectorGraphManipulator.fetchHandleGuids( offset, limit );
     }
 
     @Override
-    public GraphNode getGraphNode(GUID guid) {
-        return this.mVectorGraphManipulator.queryNode(guid);
+    public List<GUID> fetchSourceGuidsByTaskPriority( long offset, long limit ) {
+        return this.mVectorGraphManipulator.fetchHandleGuidsByTaskPriority(offset, limit);
     }
 
     @Override
-    public GraphNode getGraphNode(String path) {
-        GUID guid = this.queryIdByPath(path);
+    public long countSourceNodes() {
+        return this.mVectorGraphManipulator.countSourceNodes();
+    }
+
+    @Override
+    public List<GUID> fetchDownstreamNodeGuid( GUID nodeGuid, long offset, long limit ) {
+        return this.mVectorGraphManipulator.fetchDownstreamNodeGuid(nodeGuid,offset,limit);
+    }
+
+    @Override
+    public List<GUID> fetchUpstreamNodeGuid( GUID nodeGuid, long offset, long limit ) {
+        return this.mVectorGraphManipulator.fetchUpstreamNodeGuid(nodeGuid,offset,limit);
+    }
+
+    @Override
+    public long queryInDegree( GUID nodeGuid ) {
+        return this.mVectorGraphManipulator.queryInDegree(nodeGuid);
+    }
+
+    @Override
+    public long queryOutDegree( GUID nodeGuid ) {
+        return this.mVectorGraphManipulator.queryOutDegree(nodeGuid);
+    }
+
+    @Override
+    public GraphNode get( GUID guid ) {
         return this.mVectorGraphManipulator.queryNode( guid );
     }
 
     @Override
-    public GUID queryIdByPath(String path) {
-        return this.mVectorGraphPathCacheManipulator.queryGUIDByPath( path );
+    public void removeNode( GUID guid ) {
+        this.mVectorGraphManipulator.removeNode( guid );
+        this.mVectorGraphPathCacheManipulator.remove( guid );
     }
 
     @Override
-    public GraphNode updateGraphNode(GraphNode graphNode) {
-        return null;
-    }
-
-    @Override
-    public List<GraphNode> fetchChildren(GUID guid) {
+    public List<GraphNode> fetchChildNodes( GUID guid ) {
         return this.mVectorGraphManipulator.fetchChildNodes( guid );
     }
 
     @Override
-    public List<GUID> fetchChildrenIds(GUID guid) {
-        return this.mVectorGraphManipulator.fetchChildNodeIds( guid );
+    public List<GUID> fetchChildNodeGuids( GUID guid ) {
+        return this.mVectorGraphManipulator.fetchChildNodeGuids( guid );
     }
 
     @Override
-    public String getCachePath(GUID guid) {
-        return this.mVectorGraphPathCacheManipulator.getPath( guid );
+    public List<GUID> fetchChildNodeGuids( long offset, long limit, GUID guid ) {
+        return this.mVectorGraphManipulator.limitFetchChildNodeGuids( offset, limit, guid );
     }
 
     @Override
-    public void removeCachePath(GUID guid) {
-        this.mVectorGraphPathCacheManipulator.remove( guid );
+    public long countChildNodeNum( GUID guid ) {
+        return this.mVectorGraphManipulator.countChildNodeNums( guid );
     }
+
+    @Override
+    public long getPriorityByInDegree( GUID guid ) {
+        return this.mVectorGraphManipulator.getPriorityByInDegree( guid );
+    }
+
+    @Override
+    public void addChild( GUID parentGuid, GUID childGuid ) {
+        this.mVectorGraphManipulator.addChild( parentGuid,childGuid );
+    }
+
 }

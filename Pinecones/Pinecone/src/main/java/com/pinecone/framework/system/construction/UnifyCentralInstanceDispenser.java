@@ -2,6 +2,7 @@ package com.pinecone.framework.system.construction;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.ReflectionUtils;
+import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 
@@ -15,6 +16,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     protected final Map<Class<?>, Object >                 mSingletonObjects   = new ConcurrentHashMap<>();
     protected final Map<Class<?>, StructureDefinition >    mObjectDefinitions  = new ConcurrentHashMap<>();
     protected final Map<Class<?>, InstancePool<? > >       mObjectInstancer    = new ConcurrentHashMap<>(); // Pool is immutable.
+    protected final Map<String, Object >                   mObjectRegister     = new ConcurrentHashMap<>();
     protected final DynamicFactory                         mCentralFactory     ;
 
     public UnifyCentralInstanceDispenser( DynamicFactory factory ) {
@@ -149,7 +151,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     }
 
     @Override
-    public boolean  hasRegistered( Class<? > type ) {
+    public boolean hasRegistered( Class<? > type ) {
         return this.mObjectDefinitions.containsKey( type );
     }
 
@@ -235,18 +237,36 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
             return type.cast( b );
         }
 
-        if(
-                definition.getCycle() == ReuseCycle.Disposable ||
-                ( instanceStructure != null && instanceStructure.cycle() == ReuseCycle.Disposable )
-        ) {
-            return type.cast( this.mObjectInstancer.get( innerType ).allocate() );
+        InstancePool<? > pool = this.mObjectInstancer.get( innerType );
+        if ( pool != null ) {
+            if(
+                    definition.getCycle() == ReuseCycle.Disposable ||
+                    ( instanceStructure != null && instanceStructure.cycle() == ReuseCycle.Disposable )
+            ) {
+                return type.cast( pool.allocate() );
+            }
+
+            T obj = type.cast( pool.allocate() );
+            if ( definition.getCycle().isSingleton() ) {
+                this.mSingletonObjects.put( innerType, obj );
+            }
+            return obj;
         }
 
-        T obj = type.cast( this.mObjectInstancer.get( innerType ).allocate() );
-        if ( definition.getCycle().isSingleton() ) {
-            this.mSingletonObjects.put( innerType, obj );
+        String name = instanceStructure.name();
+        if ( StringUtils.isEmpty(name) ) {
+            name = type.getSimpleName();
+            name = Character.toLowerCase( name.charAt(0) ) + name.substring(1);
         }
-        return obj;
+
+        if ( StringUtils.isNoneEmpty(name) ) {
+            Object o = this.getRegisteredInstance( name );
+            if( o != null && type.isAssignableFrom( o.getClass() ) ) {
+                return type.cast( o );
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -285,4 +305,21 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     public DynamicFactory getCentralFactory() {
         return this.mCentralFactory;
     }
+
+
+    @Override
+    public Object registerInstance( String name, Object instance ) {
+        return this.mObjectRegister.put( name, instance );
+    }
+
+    @Override
+    public Object getRegisteredInstance( String name ) {
+        return this.mObjectRegister.get( name );
+    }
+
+    @Override
+    public Object removeRegisteredInstance( String name ) {
+        return this.mObjectRegister.remove( name );
+    }
+
 }

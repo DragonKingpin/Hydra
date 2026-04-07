@@ -25,14 +25,17 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
     default String getPath( GUID guid ){
         String longPath = this.getLongPath(guid);
         if ( longPath != null ){
-            return this.getPath0( guid )+this.getLongPath( guid );
+            return this.getPath0( guid ) + this.getLongPath( guid );
         }
         return this.getPath0( guid );
-    };
+    }
+
     @Select("SELECT `long_path` FROM `hydra_task_node_cache_path` WHERE `guid`=#{guid}")
     String getLongPath( GUID guid );
+
     @Select("SELECT `path` FROM `hydra_task_node_cache_path` WHERE `guid`=#{guid}")
     String getPath0( GUID guid );
+
     @Select("SELECT `guid` FROM `hydra_task_node_cache_path` WHERE `guid`=#{guid}")
     GUID getNode( String path );
 

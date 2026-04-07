@@ -31,4 +31,14 @@ public interface StructureInstanceDispenser extends InstanceDispenser {
     InstancePool<? > getInstancePool( Class<?> type );
 
     DynamicFactory getCentralFactory();
+
+
+
+    Object registerInstance( String name, Object instance );
+
+    Object getRegisteredInstance( String name );
+
+    Object removeRegisteredInstance( String name );
+
+
 }

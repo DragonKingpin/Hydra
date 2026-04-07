@@ -14,7 +14,10 @@
         <module>saurons</module>
         <module>sparta</module>
         <module>walnuts</module>
-        <module>Odin</module>
+        <module>odin</module>
+        <module>archcraft</module>
+        <module>redqueen</module>
+        <module>skynet</module>
         <!--<module>TaskJuggler</module>-->
         <!--<module>Messenger</module>-->
         <!--<module>file</module>-->
@@ -151,10 +154,10 @@
 
     <dependencies>
         <!--tomcat-->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tomcat.embed</groupId>-->
+<!--            <artifactId>tomcat-embed-core</artifactId>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>

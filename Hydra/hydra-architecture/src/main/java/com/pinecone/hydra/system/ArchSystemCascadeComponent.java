@@ -5,9 +5,9 @@ import com.pinecone.framework.system.architecture.CascadeComponent;
 import com.pinecone.framework.util.name.Namespace;
 
 public abstract class ArchSystemCascadeComponent extends ArchCascadeComponent implements HyComponent {
-    private Hydrarum   mSystem;
+    private Hydrogen mSystem;
 
-    protected ArchSystemCascadeComponent( Namespace name, Hydrarum system, SystemCascadeComponentManager manager, CascadeComponent parent ) {
+    protected ArchSystemCascadeComponent( Namespace name, Hydrogen system, SystemCascadeComponentManager manager, CascadeComponent parent ) {
         super( name, manager, parent );
         this.mSystem = system;
     }
@@ -26,7 +26,7 @@ public abstract class ArchSystemCascadeComponent extends ArchCascadeComponent im
     }
 
     @Override
-    public Hydrarum getSystem() {
+    public Hydrogen getSystem() {
         return this.mSystem;
     }
 }

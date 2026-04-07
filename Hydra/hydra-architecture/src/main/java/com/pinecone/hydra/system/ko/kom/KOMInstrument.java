@@ -2,25 +2,35 @@ package com.pinecone.hydra.system.ko.kom;
 
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.CascadeInstrument;
+import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.system.ko.CascadeKOTreeInstrument;
+import com.pinecone.hydra.system.ko.QueryableInstrument;
 import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.util.Collection;
 import java.util.List;
 
-public interface KOMInstrument extends CascadeInstrument {
+public interface KOMInstrument extends CascadeKOTreeInstrument, QueryableInstrument {
     @Override
     KOMInstrument parent();
 
+    void applyGuidAllocator( GuidAllocator guidAllocator );
+
     @Override
     default void setTargetingName( String name ) {
-        CascadeInstrument.super.setTargetingName( name );
+        CascadeKOTreeInstrument.super.setTargetingName( name );
     }
 
-    String getPath( GUID guid );
+    @Override
+    String getPath( GUID objectGuid );
 
-    String getFullName( GUID guid );
+    @Override
+    String querySystemKernelObjectPath( GUID objectGuid ) ;
 
+    String getFullName( GUID objectGuid );
+
+    @Override
     GUID queryGUIDByPath( String path );
 
     GUID queryGUIDByFN  ( String fullName );
@@ -42,25 +52,28 @@ public interface KOMInstrument extends CascadeInstrument {
 
     GUID put( TreeNode treeNode );
 
-    TreeNode get( GUID guid );
+    TreeNode get( GUID objectGuid );
 
     GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep );
 
     TreeNode get( GUID guid, int depth );
 
-    TreeNode getSelf( GUID guid );
+    TreeNode getAsRootDepth( GUID guid );
 
     void remove( GUID guid );
 
     void remove( String path );
 
-    List<TreeNode > getChildren( GUID guid );
+    Collection<TreeNode > getChildren( GUID guid );
 
-    List<GUID > fetchChildrenGuids( GUID guid );
+    Collection<GUID > fetchChildrenGuids( GUID guid );
 
     Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep );
 
+    @Override
     EntityNode queryNode( String path );
+
+    TreeNode queryTreeNode( String path );
 
     List<? extends TreeNode > fetchRoot();
 

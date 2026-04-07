@@ -24,7 +24,7 @@ public class KernelFileSystemConfig extends ArchStorageConfig implements FileSys
         super( config );
         this.mszVersionSignature           = (String) config.getOrDefault("VersionSignature", FileConstants.StorageVersionSignature);
         this.mnClusterSize                 = (Number) config.getOrDefault("ClusterSize", FileConstants.DefaultClusterSize);
-        this.mLocalhostGUID                = GUIDs.GUID72( String.valueOf(config.getOrDefault("LocalhostGUID", StorageConstants.LocalhostGUID)) );
+        this.mLocalhostGUID                = GUIDs.GUID128( String.valueOf(config.getOrDefault("LocalhostGUID", StorageConstants.LocalhostGUID)) );
         this.mTinyFileStripSizing          = (Number) config.getOrDefault("TinyFileStripSizing", VolumeConstants.TinyFileStripSizing);
         this.mPathQueryExpiryTimeHotMil    = ((Number) config.getOrDefault("PathQueryExpiryTimeHotMil", DefaultCacheConstants.PathQueryExpiryTimeHotMil)).longValue();
     }

@@ -3,7 +3,7 @@ package com.pinecone.hydra.server;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.system.ArchSystemCascadeComponent;
 import com.pinecone.hydra.system.HyComponent;
-import com.pinecone.hydra.system.Hydrarum;
+import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.JSONMaptron;
@@ -16,7 +16,7 @@ public abstract class ArchServersCenter extends ArchSystemCascadeComponent imple
     protected JSONObject     nameMap;
     protected JSONObject     nickNameMap;
 
-    public ArchServersCenter( Namespace name, Hydrarum system, HyComponent parent ) {
+    public ArchServersCenter(Namespace name, Hydrogen system, HyComponent parent ) {
         super( name, system, system.getComponentManager(), parent );
 
         this.nameMap     = new JSONMaptron();
@@ -24,11 +24,11 @@ public abstract class ArchServersCenter extends ArchSystemCascadeComponent imple
         this.loadConfig();
     }
 
-    public ArchServersCenter( Hydrarum system, HyComponent parent ) {
+    public ArchServersCenter(Hydrogen system, HyComponent parent ) {
         this( null, system, parent );
     }
 
-    public ArchServersCenter( Hydrarum system ) {
+    public ArchServersCenter( Hydrogen system ) {
         this( system, null );
     }
 

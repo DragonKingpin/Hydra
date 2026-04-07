@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- *  Bean Nuts Hazelnut Sauron Radium - Sauron`s Shadow For Java, Clerk [史官, 书记]
- *  Author: Harold.E / JH.W (DragonKing)
+ *  Bean Nuts Hazelnut Sauron Tritium - Sauron`s Shadow For Java, Clerk [史官, 书记]
+ *  Author: Harald.E / JH.W (DragonKing)
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  *****************************************************************************************
  *  Cooperate with the chronicle system for periodic crawler to retrieve data.
@@ -21,7 +21,7 @@ public interface Clerk extends Raider {
     JSONObject getConfig();
 
     default StereotypicInjector autoInject( Class<?> stereotype ) {
-        return this.getSystem().getPrimaryConfigScope().autoInject(
+        return this.parentSystem().getPrimaryConfigScope().autoInject(
                 stereotype, this.getConfig(), this
         );
     }

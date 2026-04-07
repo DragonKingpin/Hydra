@@ -1,10 +1,9 @@
 package com.walnut.sparta.ucdn.console.infrastructure;
 
 import com.pinecone.framework.system.executum.Processum;
-import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
-import com.pinecone.hydra.service.registry.ServiceLifecycleIface;
-import com.pinecone.hydra.service.registry.ServiceMetaManipulationIface;
+import com.pinecone.hydra.service.registry.server.ServiceLifecycleIface;
+import com.pinecone.hydra.service.registry.server.ServiceMetaManipulationIface;
 import com.pinecone.hydra.system.component.ComponentInitializationException;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.DuplexAppointServer;
@@ -20,8 +19,8 @@ import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.hydra.umct.WolfMCExpress;
-import com.pinecone.radium.Radium;
-import com.walnut.redstone.messge.PrimaryMessageWareStone;
+import com.pinecone.tritium.Tritium;
+import com.walnut.archcraft.redstone.messge.PrimaryMessageWareStone;
 import com.walnut.sparta.ucdn.console.ufm.FileMultiDistributionIface;
 import com.walnut.sparta.ucdn.console.ufm.SessionValidator;
 
@@ -43,7 +42,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     private void initPrimaryAppointClientSegment() throws Exception {
-        UlfClient embedRPCClient = new WolfMCClient( 2048, "PrimaryWolfMCClient", this.getSystem(), this.getSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
+        UlfClient embedRPCClient = new WolfMCClient( 2048, "PrimaryWolfMCClient", this.parentSystem(), this.parentSystem().getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" ) );
         this.wolfAppointClient = new WolvesAppointClient( embedRPCClient );
 
         this.wolfAppointClient.compile( ServiceLifecycleIface.class, false );
@@ -51,17 +50,17 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     private void initPrimaryAppointServerSegment() throws Exception {
-        UlfServer embedRPCServer = new WolfMCServer( "WolfKingMCServer", this.getSystem(), new JSONMaptron("{host: \"0.0.0.0\",\n" +
+        UlfServer embedRPCServer = new WolfMCServer( "WolfKingMCServer", this.parentSystem(), new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         this.wolfKingAppointServer = new WolvesAppointServer( embedRPCServer, HuskyDuplexExpress.class );
         //this.serviceManager = new UniformServiceManager( serviceInstrument, wolfServer );
     }
 
     private void initPrimaryBroadcastSegment() throws Exception {
-        this.primaryKafkaClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.getSystem(), WolfMCExpress.class);
+        this.primaryKafkaClient = new WolfMCBClient(new WolfMCKafkaClient(UCDNConstants.KafkaServer), "", this.parentSystem(), WolfMCExpress.class);
         this.primaryKafkaClient.compile( FileMultiDistributionIface.class,false );
 
-        this.primaryRocketClient = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceTransmitGroup), "", this.getSystem(), WolfMCExpress.class);
+        this.primaryRocketClient = new WolfMCBClient(new WolfMCRocketClient(UCDNConstants.RocketServer,UCDNConstants.UCDNFileServiceTransmitGroup), "", this.parentSystem(), WolfMCExpress.class);
         this.primaryRocketClient.compile(SessionValidator.class,false);
     }
 
@@ -102,7 +101,7 @@ public class WolfKingMessageWareStone implements PrimaryMessageWareStone {
     }
 
     @Override
-    public Radium getSystem() {
-        return (Radium)this.parentProcess.getSystem();
+    public Tritium parentSystem() {
+        return (Tritium)this.parentProcess.parentSystem();
     }
 }

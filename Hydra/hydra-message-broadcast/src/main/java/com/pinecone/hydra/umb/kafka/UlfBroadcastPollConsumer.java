@@ -10,6 +10,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
 
     protected Thread privatePollConsumerThread;
 
+    protected Logger log = LoggerFactory.getLogger( this.getClass() );
+
     public UlfBroadcastPollConsumer( KClient kafkaClient, String topic, String group, Properties properties, ResultBytesConverter<V > resultBytesConverter ){
         this.kafkaClient              = kafkaClient;
         this.properties               = properties;
@@ -78,6 +82,7 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
                 UlfBroadcastPollConsumer.newDefaultProperties( kafkaClient.getKafkaConfig(), group )
         );
     }
+
     @Override
     public void close() {
         if ( this.wrappedConsumer != null ) {
@@ -102,6 +107,20 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
         }
     }
 
+    @Override
+    public boolean isClosed() {
+        return this.wrappedConsumer == null;
+    }
+
+    @Override
+    public String topic() {
+        return this.topic;
+    }
+
+    @Override
+    public String tag() {
+        return this.group;
+    }
 
     @Override
     public List<PollResult > startPull(long mils ) {
@@ -140,7 +159,8 @@ public class UlfBroadcastPollConsumer<K, V > implements KBroadcastPollConsumer<K
                             );
                         }
                         catch ( Exception e ) {
-                            throw new IrrationalProvokedException( e );
+                            log.warn( "Warning, unexpected proceeding Kafka consumer messages, what => '{}'", e.getMessage(), e );
+                            //throw new IrrationalProvokedException( e ); // It will kill the kafka loop thread.
                         }
                     }
 

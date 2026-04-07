@@ -1,5 +1,7 @@
 package com.util.json;
 
+import java.util.List;
+
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.prototype.ObjectiveBean;
 import com.pinecone.framework.system.prototype.ObjectiveClass;
@@ -183,6 +185,9 @@ public class TestJSON {
                 "ms: { fi: { name:Slave, length:1234, parasite:{ name: parasitec, length:20241117 }  } }" +
                 " }", Slave.class );
         Debug.fmp( 2, j );
+
+        List<String> l = JSON.unmarshal( "['fuck', 'me']", new TypeReference<>() {} );
+        Debug.fmp( 2, l );
     }
 
 

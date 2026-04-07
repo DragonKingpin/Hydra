@@ -55,8 +55,10 @@ public abstract class ArchElementNode extends ArchTaskFamilyMeta implements Elem
 
     public void apply( TaskInstrument taskInstrument ) {
         this.taskInstrument = taskInstrument;
-        GuidAllocator guidAllocator = this.taskInstrument.getGuidAllocator();
-        this.setGuid( guidAllocator.nextGUID() );
+        if ( this.getGuid() == null ) {
+            GuidAllocator guidAllocator = this.taskInstrument.getGuidAllocator();
+            this.setGuid( guidAllocator.nextGUID() );
+        }
         if ( this.createTime == null ) {
             this.createTime = LocalDateTime.now();
             this.updateTime = LocalDateTime.now();

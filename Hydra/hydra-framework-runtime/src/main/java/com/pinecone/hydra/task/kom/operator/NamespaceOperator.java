@@ -5,12 +5,10 @@ import java.util.List;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
-import com.pinecone.hydra.task.kom.GenericNamespaceRules;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.Namespace;
-import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
@@ -19,17 +17,15 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public class NamespaceOperator extends ArchElementOperator implements ElementOperator {
     protected TaskNamespaceManipulator namespaceManipulator;
-    protected NamespaceRulesManipulator     namespaceRulesManipulator;
 
     public NamespaceOperator( ElementOperatorFactory factory ) {
-        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
+        this( factory.getTaskMasterManipulator(),factory.taskInstrument() );
         this.factory = factory;
     }
 
-    public NamespaceOperator(TaskMasterManipulator masterManipulator, TaskInstrument taskInstrument){
+    public NamespaceOperator( TaskMasterManipulator masterManipulator, TaskInstrument taskInstrument ) {
         super( masterManipulator, taskInstrument);
         this.namespaceManipulator = masterManipulator.getNamespaceManipulator();
-        this.namespaceRulesManipulator = masterManipulator.getNamespaceRulesManipulator();
     }
 
     @Override
@@ -38,18 +34,9 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
 
         //存节点基础信息
         GuidAllocator          guidAllocator = this.taskInstrument.getGuidAllocator();
-        GUID              namespaceRulesGuid = ns.getGuid();
-        GenericNamespaceRules namespaceRules = ns.getClassificationRules();
-        if ( namespaceRules!= null ){
-            namespaceRules.setGuid( namespaceRulesGuid );
-        }
-        else {
-            namespaceRulesGuid = null;
-        }
 
         GUID namespaceGuid = guidAllocator.nextGUID();
         ns.setGuid( namespaceGuid );
-        ns.setRulesGUID( namespaceRulesGuid );
         this.namespaceManipulator.insert( ns );
 
         //存元信息
@@ -59,7 +46,6 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
 
 
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        node.setBaseDataGUID( namespaceRulesGuid );
         node.setGuid( namespaceGuid );
         node.setNodeMetadataGUID( metadataGUID );
         node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
@@ -111,18 +97,11 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     public Namespace get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         GenericNamespace                      namespace = new GenericNamespace( this.taskInstrument);
-        GenericNamespaceRules            namespaceRules = this.namespaceRulesManipulator.getNamespaceRules( node.getAttributesGUID() );
         GUIDImperialTrieNode guidDistributedTrieNode = this.imperialTree.getNode( node.getGuid() );
-
-        if ( namespaceRules != null ){
-            namespace.setRulesGUID( namespaceRules.getGuid() );
-            namespace.setClassificationRules( namespaceRules );
-        }
 
         GUID metaGuid = guidDistributedTrieNode.getNodeMetadataGUID();
         namespace.setDistributedTreeNode( guidDistributedTrieNode );
         namespace.setName( this.namespaceManipulator.getNamespace( guid ).getName() );
-        this.applyCommonMeta( namespace, this.nodeMetaManipulator.getNodeCommonMeta( metaGuid ) ); // GUID / MetaGUID difference.
         namespace.setGuid( guid );
         namespace.setMetaGuid( metaGuid );
 
@@ -143,9 +122,6 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     public void update( TreeNode nodeWideData ) {
         GenericNamespace ns = ( GenericNamespace ) nodeWideData;
         this.namespaceManipulator.update( ns );
-        GenericNamespaceRules classificationRules = ns.getClassificationRules();
-        this.namespaceRulesManipulator.update( classificationRules );
-        this.nodeMetaManipulator.update( ns );
     }
 
     @Override
@@ -158,7 +134,5 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.namespaceManipulator.remove( node.getGuid() );
-        this.namespaceRulesManipulator.remove( node.getNodeMetadataGUID() );
-        this.nodeMetaManipulator.remove( node.getAttributesGUID() );
     }
 }

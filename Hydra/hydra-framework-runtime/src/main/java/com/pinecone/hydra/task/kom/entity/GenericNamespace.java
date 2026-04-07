@@ -1,7 +1,6 @@
 package com.pinecone.hydra.task.kom.entity;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import com.pinecone.framework.unit.KeyValue;
@@ -11,21 +10,16 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.task.kom.GenericNamespaceRules;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericNamespace extends ArchElementNode implements Namespace {
-    protected GUID                        rulesGUID;
-
     protected GUID                        metaGuid;
 
-    protected GUIDImperialTrieNode distributedTreeNode;
+    protected GUIDImperialTrieNode        distributedTreeNode;
 
-    protected GenericNamespaceRules       classificationRules;
-
-    protected TaskNamespaceManipulator namespaceManipulator;
+    protected TaskNamespaceManipulator    namespaceManipulator;
 
 
     public GenericNamespace() {
@@ -62,16 +56,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public GenericNamespaceRules getClassificationRules() {
-        return this.classificationRules;
-    }
-
-    @Override
-    public void setClassificationRules( GenericNamespaceRules classificationRules ) {
-        this.classificationRules = classificationRules;
-    }
-
-    @Override
     public GUID getMetaGuid() {
         return this.metaGuid;
     }
@@ -79,16 +63,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     @Override
     public void setMetaGuid( GUID metaGuid ) {
         this.metaGuid = metaGuid;
-    }
-
-    @Override
-    public GUID getRulesGUID() {
-        return this.rulesGUID;
-    }
-
-    @Override
-    public void setRulesGUID( GUID rulesGUID ) {
-        this.rulesGUID = rulesGUID;
     }
 
     @Override

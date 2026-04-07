@@ -6,22 +6,22 @@ import java.util.Collection;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 
-public class ScheduleLaunchContext implements Pinenut {
+public class ScheduleFittingContext implements Pinenut {
 
-    private Collection<InstanceEntry> mLaunchedInstances;
+    private Collection<InstanceEntry> mFittedInstances;
     private Collection<InstanceEntry> mDiscardedInstances;
 
-    public ScheduleLaunchContext() {
-        this.mLaunchedInstances  = new ArrayList<>();
+    public ScheduleFittingContext() {
+        this.mFittedInstances    = new ArrayList<>();
         this.mDiscardedInstances = new ArrayList<>();
     }
 
-    public Collection<InstanceEntry> getLaunchedInstances() {
-        return this.mLaunchedInstances;
+    public Collection<InstanceEntry> getFittedInstances() {
+        return this.mFittedInstances;
     }
 
-    public void setLaunchedInstances( Collection<InstanceEntry> launchedInstances ) {
-        this.mLaunchedInstances = launchedInstances;
+    public void setFittedInstances( Collection<InstanceEntry> launchedInstances ) {
+        this.mFittedInstances = launchedInstances;
     }
 
     public Collection<InstanceEntry> getDiscardedInstances() {

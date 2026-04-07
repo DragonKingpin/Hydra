@@ -19,7 +19,7 @@ public class AppElementOperator extends ArchElementOperator implements ElementOp
     protected AppNodeManipulator appNodeManipulator;
 
     public AppElementOperator(ElementOperatorFactory factory ) {
-        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
+        this( factory.getTaskMasterManipulator(),factory.taskInstrument() );
         this.factory = factory;
     }
 
@@ -37,9 +37,6 @@ public class AppElementOperator extends ArchElementOperator implements ElementOp
         GUID jobNodeGUID = guidAllocator.nextGUID();
         jobElement.setGuid( jobNodeGUID );
         this.appNodeManipulator.insert( jobElement );
-
-        //将应用元信息存入元信息表
-        this.nodeMetaManipulator.insert( jobElement );
 
 
         //将节点信息存入主表
@@ -96,7 +93,6 @@ public class AppElementOperator extends ArchElementOperator implements ElementOp
     public AppElement get(GUID guid ) {
         AppElement appElement;
         appElement = this.appNodeManipulator.getAppElement( guid, this.taskInstrument );
-        this.applyCommonMeta(appElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         appElement.setGuid(appElement.getGuid());
         return appElement;
@@ -116,7 +112,6 @@ public class AppElementOperator extends ArchElementOperator implements ElementOp
     public void update( TreeNode treeNode ) {
         GenericAppElement applicationElement = (GenericAppElement) treeNode;
         this.appNodeManipulator.update( applicationElement );
-        this.nodeMetaManipulator.update( applicationElement );
     }
 
     @Override
@@ -128,7 +123,6 @@ public class AppElementOperator extends ArchElementOperator implements ElementOp
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
         this.appNodeManipulator.remove( node.getGuid( ));
     }
 }

@@ -1,5 +1,6 @@
 package com.walnut.odin.task;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.task.kom.TaskInstrument;
@@ -31,8 +32,8 @@ public interface CentralizedTaskInstrument extends TaskInstrument {
 
     RavenTask constructTask( TaskElement taskElement );
 
-    RavenTask constructTask( TaskElement taskElement, Identification serviceId );
+    RavenTask constructTask( TaskElement taskElement, @Nullable Identification serviceId );
 
-    RavenTask createTask( TaskElement taskElement, Identification serviceId );
+    RavenTask createTask( TaskElement taskElement, @Nullable Identification serviceId );
 
 }

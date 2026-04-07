@@ -65,7 +65,7 @@ public class GenericElementOperatorFactory implements ElementOperatorFactory {
     }
 
     @Override
-    public TaskInstrument getServicesTree() {
+    public TaskInstrument taskInstrument() {
         return this.taskInstrument;
     }
 

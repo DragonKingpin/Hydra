@@ -17,7 +17,7 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     protected long   mnScheduleScanIdWindow     = RavenTaskConstants.ScheduleScanIdWindow;
 
     protected String mszSchedulePartitionName   = "__DEFAULT__";
-    protected JSONObject mScheduleGlobalDispatcherConfig;
+    protected JSONObject mScheduleGlobalAllocatorConfig;
 
     public GenericRavenTaskConfig() {
         super();
@@ -33,7 +33,7 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
         this.mnScheduleScanIdWindow     = ( (Number) config.getOrDefault("scheduleScanIdWindow", RavenTaskConstants.ScheduleScanIdWindow) ).longValue();
 
         this.mszSchedulePartitionName   = main.optJSONObject( "scheduler" ).optString( "partitionName", "__DEFAULT__" );
-        this.mScheduleGlobalDispatcherConfig = main.optJSONObject( "scheduler" ).optJSONObject( "globalDispatcher" );
+        this.mScheduleGlobalAllocatorConfig = main.optJSONObject( "scheduler" ).optJSONObject( "globalAllocator" );
     }
 
     @Override
@@ -57,8 +57,8 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     }
 
     @Override
-    public JSONObject getScheduleGlobalDispatcherConfig() {
-        return this.mScheduleGlobalDispatcherConfig;
+    public JSONObject getScheduleGlobalAllocatorConfig() {
+        return this.mScheduleGlobalAllocatorConfig;
     }
 
     @Override

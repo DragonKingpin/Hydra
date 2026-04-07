@@ -15,6 +15,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -89,22 +90,22 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
 
     @Override
     TableIndex64Meta selectSchedulableIdRange(
-            @Param("runStatus") TaskInstanceStatus runStatus, @Param("targetTime") LocalDateTime targetTime,
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param("targetTime") LocalDateTime targetTime,
             @Param( "actuallyPriority" ) @Nullable Short actuallyPriority
     );
 
     List<GenericInstanceEntry> fetchSchedulableInstances0(
             @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax,
-            @Param( "runStatus" ) TaskInstanceStatus runStatus, @Param( "targetTime" ) LocalDateTime targetTime,
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param( "targetTime" ) LocalDateTime targetTime,
             @Param( "actuallyPriority" ) @Nullable Short actuallyPriority
     );
 
     @Override
     default List<InstanceEntry> fetchSchedulableInstances(
             TaskInstrument instrument,
-            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, @Nullable Short actuallyPriority
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, @Nullable Short actuallyPriority
     ) {
-        List<GenericInstanceEntry> list = this.fetchSchedulableInstances0( idMin, idMax, runStatus, targetTime, actuallyPriority );
+        List<GenericInstanceEntry> list = this.fetchSchedulableInstances0( idMin, idMax, runStatuses, targetTime, actuallyPriority );
         for ( GenericInstanceEntry entry : list ) {
             entry.apply( instrument );
         }

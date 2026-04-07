@@ -28,22 +28,16 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     protected final Logger log = LoggerFactory.getLogger( this.getClass() );
 
-    protected final ReentrantLock mLock;
+    protected final ReentrantLock                        mLock;
 
     protected final Map<String, TaskExecutionProcessor>  mProcessors;
-
     protected final Map<Long, TaskExecutionProcessor>    mClientProcessorsIndex;
-
     protected final Map<Identification, TaskProcPair>    mAffinityTable;
 
 
-
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
-
     protected DispatchStrategy          mDispatchStrategy;
-
     protected TaskExecutionLauncher     mTaskExecutionLauncher;
-
     protected CollectiveTaskRegiment    mCollectiveTaskRegiment;
 
     public RavenTaskDispatcher( CollectiveTaskRegiment regiment, DispatchStrategy strategy ) {
@@ -59,6 +53,12 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     public RavenTaskDispatcher( CollectiveTaskRegiment regiment ) {
         this( regiment, new AdaptiveCapacityDispatchStrategy() );
+    }
+
+
+    @Override
+    public TaskExecutionLauncher taskExecutionLauncher() {
+        return this.mTaskExecutionLauncher;
     }
 
     @Override
@@ -177,7 +177,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
-    public PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+    public PipelineLaunchReport pipeCreate( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
 
         this.mLock.lock();
@@ -194,7 +194,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
-    public PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+    public PipelineLaunchReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
 
         this.mLock.lock();

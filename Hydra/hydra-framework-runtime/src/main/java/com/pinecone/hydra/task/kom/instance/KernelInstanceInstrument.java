@@ -11,6 +11,7 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public class KernelInstanceInstrument implements InstanceInstrument {
@@ -117,27 +118,27 @@ public class KernelInstanceInstrument implements InstanceInstrument {
 
 
     @Override
-    public TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime ) {
-        return this.mInstanceManipulator.selectSchedulableIdRange( runStatus, targetTime, null );
+    public TableIndexMeta querySchedulableIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime ) {
+        return this.mInstanceManipulator.selectSchedulableIdRange( runStatuses, targetTime, null );
     }
 
     @Override
     public List<InstanceEntry> fetchSchedulableInstances(
-            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
     ) {
-        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatus, targetTime, null );
+        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatuses, targetTime, null );
     }
 
     @Override
-    public TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority ) {
-        return this.mInstanceManipulator.selectSchedulableIdRange( runStatus, targetTime, actuallyPriority );
+    public TableIndexMeta querySchedulableIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority ) {
+        return this.mInstanceManipulator.selectSchedulableIdRange( runStatuses, targetTime, actuallyPriority );
     }
 
     @Override
     public List<InstanceEntry> fetchSchedulableInstances(
-            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority
     ) {
-        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatus, targetTime, actuallyPriority );
+        return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatuses, targetTime, actuallyPriority );
     }
 
 

@@ -396,7 +396,7 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
-    public RavenTask constructTask( TaskElement taskElement, Identification serviceId ) {
+    public RavenTask constructTask( TaskElement taskElement, @Nullable Identification serviceId ) {
         if ( serviceId == null ) {
             //serviceId = taskElement.
         }

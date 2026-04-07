@@ -4,13 +4,19 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.ArchTaskInstance;
 import com.pinecone.hydra.task.Task;
+import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public class GenericRavenTaskInstance extends ArchRavenTaskInstance implements RavenTaskInstance {
 
     public GenericRavenTaskInstance( InstanceEntry instanceEntry, Task ownedTask ) {
         super( instanceEntry, ownedTask );
+    }
+
+    public GenericRavenTaskInstance( InstanceEntry instanceEntry, CentralizedTaskInstrument instrument ) {
+        super( instanceEntry, new GenericRavenTask( instrument, instanceEntry.taskElement() ) );
     }
 
 

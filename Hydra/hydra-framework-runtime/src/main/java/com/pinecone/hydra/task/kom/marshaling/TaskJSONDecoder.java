@@ -86,7 +86,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
         return new Object[] { ns, currentGuid };
     }
 
-    protected Object[]    affirmJobExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
+    protected Object[]    affirmAppExisted( String szName, GUID parentGuid, Map<String, Object > jo ) {
         AppElement job = null;
 
         if( parentGuid == null ) {
@@ -221,7 +221,7 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             Object[] pair;
             boolean bIsFolderElement = false;
             if( szMetaType.equals( AppElement.class.getSimpleName() ) ) {
-                pair = this.affirmJobExisted( szName, parentGuid, jo );
+                pair = this.affirmAppExisted( szName, parentGuid, jo );
                 bIsFolderElement = true;
             }
             else if( szMetaType.equals( TaskElement.class.getSimpleName() ) ) {
@@ -249,9 +249,9 @@ public class TaskJSONDecoder implements TaskInstrumentDecoder {
             }
 
             if( bIsFolderElement ) {
-                Object services = jo.get( "tasks" );
-                if( services instanceof Map ) {
-                    Map joSer = (Map) services;
+                Object subs = jo.get( "tasks" );
+                if( subs instanceof Map ) {
+                    Map joSer = (Map) subs;
                     this.decodeChildren( joSer, currentGuid );
                 }
             }

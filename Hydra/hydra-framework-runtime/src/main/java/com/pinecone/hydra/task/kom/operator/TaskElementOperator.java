@@ -15,7 +15,7 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     protected TaskNodeManipulator taskNodeManipulator;
 
     public TaskElementOperator( ElementOperatorFactory factory ) {
-        this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
+        this( factory.getTaskMasterManipulator(),factory.taskInstrument() );
         this.factory = factory;
     }
 
@@ -37,10 +37,6 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
         this.taskNodeManipulator.insert( taskElement );
 
 
-        //将应用元信息存入元信息表
-       this.nodeMetaManipulator.insert( taskElement );
-
-
         //将节点信息存入主表
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();
         node.setNodeMetadataGUID( taskNodeGUID ); // Since 20250419, the meta has been merged into the `node`.
@@ -59,8 +55,6 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     public TaskElement get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         TaskElement taskElement   = this.taskNodeManipulator.getTaskNode( guid, this.taskInstrument );
-
-        this.applyCommonMeta( taskElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         taskElement.setDistributedTreeNode(node);
         taskElement.setGuid( guid );
@@ -82,7 +76,6 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
     public void update( TreeNode nodeWideData ) {
         TaskElement serviceElement = (TaskElement) nodeWideData;
         this.taskNodeManipulator.update( serviceElement );
-        this.nodeMetaManipulator.update( serviceElement );
         this.imperialTree.removeCachePath( serviceElement.getGuid() );
     }
 
@@ -96,6 +89,5 @@ public class TaskElementOperator extends ArchElementOperator implements ElementO
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.taskNodeManipulator.remove(node.getGuid());
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

@@ -131,7 +131,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusStart );
 
         this.mTaskScheduler = new RavenTaskScheduler(
-                this.mTaskRegiment.taskInstrument(), this.mAtlasInstrument, this.mTaskRegiment.taskExecutionLauncher()
+                this.mTaskRegiment.taskInstrument(), this.mAtlasInstrument, this.mTaskRegiment.taskDispatcher()
         );
 
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusDone );

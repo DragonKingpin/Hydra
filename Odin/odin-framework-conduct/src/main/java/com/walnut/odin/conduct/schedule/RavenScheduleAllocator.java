@@ -21,9 +21,9 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskPriority;
 import com.walnut.odin.conduct.schedule.entity.ConcurrentQuota;
-import com.walnut.odin.conduct.schedule.entity.ScheduleLaunchContext;
+import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
 
-public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
+public class RavenScheduleAllocator implements InstanceScheduleAllocator {
 
     private Logger log = LoggerFactory.getLogger( this.getClass() );
 
@@ -69,12 +69,12 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
 
         jo.put( "PartitionName", this.mszPartitionName );
         jo.put( "ConcurrentInstance", this.mGlobalConcurrentInstance.get() );
-        jo.put( "QuotationConfig", new JSONMaptron( CollectionUtils.genericConvert( this.mQuotaConfig ), true ) );
+        jo.put( "QuotaConfig", new JSONMaptron( CollectionUtils.genericConvert( this.mQuotaConfig ), true ) );
 
-        log.info( "[ScheduleDispatcher] Dispatcher configured with following configs: {}", jo.toJSONStringI( 2 ) );
+        log.info( "[ScheduleAllocator] Allocator configured with following configs: {}", jo.toJSONStringI( 2 ) );
     }
 
-    public RavenScheduleDispatcher( JSONObject config ) {
+    public RavenScheduleAllocator( JSONObject config ) {
         this.mPriorityQuota            = new ConcurrentHashMap<>();
         this.mPrioritySegLocks         = new ConcurrentHashMap<>();
         this.mPriorityInstances        = new ConcurrentHashMap<>();
@@ -84,9 +84,9 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
         this.trace_dispatcher_config();
     }
 
-    public RavenScheduleDispatcher( UniformTaskScheduler taskScheduler ) {
+    public RavenScheduleAllocator( UniformTaskScheduler taskScheduler ) {
         this(
-                taskScheduler.ravenTaskConfig().getScheduleGlobalDispatcherConfig().optJSONObject(
+                taskScheduler.ravenTaskConfig().getScheduleGlobalAllocatorConfig().optJSONObject(
                         taskScheduler.ravenTaskConfig().getSchedulePartitionName()
                 )
         );
@@ -298,7 +298,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
     }
 
 
-    protected void pipeLaunchByPriority( int nPriority, Collection<InstanceEntry> instances, ScheduleLaunchContext context ) {
+    protected void pipeFittingByPriority( int nPriority, Collection<InstanceEntry> instances, ScheduleFittingContext context ) {
         Lock segLock = this.affirmPrioritySegLock( nPriority );
         segLock.lock();
 
@@ -308,7 +308,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
             }
 
             Map<GUID, InstanceEntry>   instanceMap         = this.affirmPriorityInstances( nPriority );
-            Collection<InstanceEntry>  launchedInstances   = context.getLaunchedInstances();
+            Collection<InstanceEntry>  launchedInstances   = context.getFittedInstances();
             Collection<InstanceEntry>  discardedInstances  = context.getDiscardedInstances();
 
             if ( isQuotaBypassedPriority( nPriority ) ) {
@@ -363,8 +363,8 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
     }
 
     @Override
-    public ScheduleLaunchContext pipeLaunch( Collection<InstanceEntry> instances ) {
-        ScheduleLaunchContext context = new ScheduleLaunchContext();
+    public ScheduleFittingContext pipeFitting( Collection<InstanceEntry> instances ) {
+        ScheduleFittingContext context = new ScheduleFittingContext();
         if ( instances == null || instances.isEmpty() ) {
             return context;
         }
@@ -378,7 +378,7 @@ public class RavenScheduleDispatcher implements InstanceScheduleDispatcher {
                 continue;
             }
 
-            this.pipeLaunchByPriority( priority, instanceList, context );
+            this.pipeFittingByPriority( priority, instanceList, context );
         }
 
         return context;

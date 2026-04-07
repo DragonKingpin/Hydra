@@ -4,12 +4,12 @@ import java.util.Collection;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
-import com.walnut.odin.conduct.schedule.entity.ScheduleLaunchContext;
+import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
 
-public interface InstanceScheduleDispatcher extends Pinenut {
+public interface InstanceScheduleAllocator extends Pinenut {
 
     String getPartitionName();
 
-    ScheduleLaunchContext pipeLaunch(Collection<InstanceEntry> instances );
+    ScheduleFittingContext pipeFitting( Collection<InstanceEntry> instances );
 
 }

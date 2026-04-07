@@ -1,6 +1,7 @@
 package com.walnut.odin.conduct.schedule;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -9,6 +10,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
@@ -23,10 +25,18 @@ import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
 import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
+import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
+import com.walnut.odin.dispatch.PipelineLaunchReport;
+import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.RavenTaskInstance;
+import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
+import com.walnut.odin.task.troll.GenericRavenTaskInstance;
+import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
@@ -47,8 +57,9 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
     private ScheduleManipulator        mScheduleManipulator;
+    private InstanceAtlasNodeMapper    mInstanceAtlasNodeMapper;
 
-    private InstanceScheduleDispatcher mInstanceScheduleDispatcher;
+    private InstanceScheduleAllocator  mInstanceScheduleAllocator;
     private ExecutorService            mExecutorService;
 
     public RavenInstanceScheduleImpetus( UniformTaskScheduler taskScheduler ) {
@@ -66,22 +77,71 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mRavenTaskMasterManipulator = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
+        this.mInstanceAtlasNodeMapper    = this.mScheduleManipulator.getInstanceAtlasNodeMapper();
 
-        this.mInstanceScheduleDispatcher = taskScheduler.instanceScheduleDispatcher();
+        this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
     }
 
 
+// 依赖mapper记得看看
+
+
+//    protected DepartureChecklist prelaunch_check_instance( InstanceEntry that ) {
+//
+//
+//    }
+
+
+
+    // [Prelaunch-Stage2] 已完成并行调度配额分配，启动准备程序
+    protected Collection<TaskLaunchContext> initializePrelaunchSequence( Collection<InstanceEntry> fittedInstances ) {
+        Collection<TaskLaunchContext> li = new ArrayList<>();
+        for ( InstanceEntry fittedInstance : fittedInstances ) {
+            RavenTaskInstance instance      = new GenericRavenTaskInstance( fittedInstance, this.mCentralizedTaskInstrument );
+            LaunchFeature launchFeature     = new LaunchFeature();
+            String szProcessor = fittedInstance.getProcessorName();
+
+            if ( StringUtils.isNoneEmpty(szProcessor) ) {
+                // Not affinity(best-effort), but designated(compulsory).
+                // 这里不是建议分配，而是绑核
+                launchFeature.withProcessorDesignated( szProcessor );
+            }
+            TaskLaunchContext launchContext = TaskLaunchContext.of( instance, launchFeature );
+
+            li.add( launchContext );
+        }
+        return li;
+    }
+
+
+    protected Collection<TaskLaunchContext> prepareLaunchContexts( ScheduleFittingContext context ) {
+        Collection<InstanceEntry> fittedInstances    = context.getFittedInstances();
+        Collection<InstanceEntry> discardedInstances = context.getDiscardedInstances();
+
+        Collection<TaskLaunchContext> li = this.initializePrelaunchSequence( fittedInstances );
+
+        for ( InstanceEntry discardedInstance : discardedInstances ) {
+            log.info(
+                    "[DiscardInstance] ( Task `{}`, Instance `{}` ) has been discarded.",
+                    discardedInstance.getTaskName(), discardedInstance.getInstanceName()
+            );
+            // TODO, Sophisticate upgradation.
+        }
+
+        return li;
+    }
+
 
     @Override
-    public void impelSchedulableInstances( TaskInstanceStatus status, LocalDateTime targetTime ) {
+    public void impelSchedulableInstances( Collection<TaskInstanceStatus> statuses, LocalDateTime targetTime ) {
         if ( targetTime == null ) {
             targetTime = LocalDateTime.now();
         }
 
-        TableIndexMeta range = this.mInstanceInstrument.querySchedulableIdRange( status, targetTime );
+        TableIndexMeta range = this.mInstanceInstrument.querySchedulableIdRange( statuses, targetTime );
         if ( range == null ) {
             return;
         }
@@ -111,11 +171,13 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
 
                     Collection<InstanceEntry> entries = this.mInstanceInstrument.fetchSchedulableInstances(
-                            finalStart, finalEnd, status, finalTargetTime
+                            finalStart, finalEnd, statuses, finalTargetTime
                     );
 
 
-                    this.mInstanceScheduleDispatcher.pipeLaunch( entries );
+                    ScheduleFittingContext context = this.mInstanceScheduleAllocator.pipeFitting( entries );
+                    Collection<TaskLaunchContext> launchContexts = this.prepareLaunchContexts( context );
+                    PipelineLaunchReport report = this.mTaskScheduler.taskDispatcher().pipeLaunch( launchContexts );
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
                     log.info( "[TaskSchedulerLifecycle] Impelling schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, entries.size() );
@@ -129,9 +191,18 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         }
     }
 
+    @Override
+    public void impelPrelaunchInstances( LocalDateTime targetTime ) {
+        this.impelSchedulableInstances(
+                List.of(
+                        TaskInstanceStatus.New,          TaskInstanceStatus.DependencyWait,
+                        TaskInstanceStatus.ResourceWait, TaskInstanceStatus.DepartureStandby
+                ),
+                targetTime
+        );
+    }
 
-
-    protected void processAndFireInstances( List<InstanceEntry> instances ) throws MetaPersistenceException {
+    /*protected void processAndFireInstances( List<InstanceEntry> instances ) throws MetaPersistenceException {
         for ( InstanceEntry instance : instances ) {
             try {
                 log.info( "GUID: {}, Name: {}", instance.getGuid(), instance.getInstanceName() );
@@ -164,7 +235,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 this.mInstanceInstrument.updateInstance( instance );
             }
         }
-    }
+    }*/
 
 
     @Override

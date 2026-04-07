@@ -13,7 +13,7 @@ public interface RavenTaskConfig extends KernelObjectConfig {
 
     long getScheduleScanIdWindow();
 
-    JSONObject getScheduleGlobalDispatcherConfig();
+    JSONObject getScheduleGlobalAllocatorConfig();
 
     String getSchedulePartitionName();
 

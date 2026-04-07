@@ -23,7 +23,7 @@ public interface ElementOperatorFactory extends OperatorFactory {
 
     ElementOperator getOperator(String typeName);
 
-    TaskInstrument getServicesTree();
+    TaskInstrument taskInstrument();
 
     TaskMasterManipulator getTaskMasterManipulator();
 

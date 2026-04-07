@@ -6,16 +6,12 @@ import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.AppNodeMapper;
-import com.pinecone.hydra.task.ibatis.NamespaceRulesMapper;
-import com.pinecone.hydra.task.ibatis.TaskNodeMetaMapper;
 import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import com.pinecone.hydra.task.ibatis.InstanceNodeMapper;
 import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
-import com.pinecone.hydra.task.kom.source.NodeMetaManipulator;
-import com.pinecone.hydra.task.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
@@ -41,20 +37,12 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     TaskNodeManipulator taskNodeManipulator;
 
     @Resource
-    @Structure(type = TaskNodeMetaMapper.class )
-    NodeMetaManipulator nodeMetaManipulator;
-
-    @Resource
     @Structure(type = AppNodeMapper.class )
     AppNodeManipulator appNodeManipulator;
 
     @Resource
     @Structure( type = TaskNamespaceMapper.class )
     TaskNamespaceManipulator taskNamespaceManipulator;
-
-    @Resource
-    @Structure( type = NamespaceRulesMapper.class )
-    NamespaceRulesManipulator namespaceRulesManipulator;
 
     @Resource
     @Structure(type = TaskMasterTreeManipulatorImpl.class)
@@ -86,11 +74,6 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     }
 
     @Override
-    public NodeMetaManipulator getNodeMetaManipulator() {
-        return this.nodeMetaManipulator;
-    }
-
-    @Override
     public AppNodeManipulator getAppNodeManipulator() {
         return this.appNodeManipulator;
     }
@@ -98,11 +81,6 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Override
     public TaskNamespaceManipulator getNamespaceManipulator() {
         return this.taskNamespaceManipulator;
-    }
-
-    @Override
-    public NamespaceRulesManipulator getNamespaceRulesManipulator() {
-        return this.namespaceRulesManipulator;
     }
 
     @Override

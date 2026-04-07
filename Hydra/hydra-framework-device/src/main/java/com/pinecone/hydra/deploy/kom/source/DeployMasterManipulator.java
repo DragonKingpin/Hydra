@@ -15,8 +15,6 @@ public interface DeployMasterManipulator extends KOIMasterManipulator {
 
     DeployNamespaceManipulator getNamespaceManipulator();
 
-    NamespaceRulesManipulator getNamespaceRulesManipulator();
-
     TireOwnerManipulator getTireOwnerManipulator();
 
     PhysicalHostManipulator getPhysicalHostManipulator();

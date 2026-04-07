@@ -9,6 +9,7 @@ import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface InstanceInstrument extends Instrument {
@@ -52,16 +53,16 @@ public interface InstanceInstrument extends Instrument {
 
 
 
-    TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime );
+    TableIndexMeta querySchedulableIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime );
 
     List<InstanceEntry> fetchSchedulableInstances(
-            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
     );
 
-    TableIndexMeta querySchedulableIdRange( TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority );
+    TableIndexMeta querySchedulableIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority );
 
     List<InstanceEntry> fetchSchedulableInstances(
-            long idMin, long idMax, TaskInstanceStatus runStatus, LocalDateTime targetTime, short actuallyPriority
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority
     );
 
 }

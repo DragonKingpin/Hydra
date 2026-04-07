@@ -9,8 +9,11 @@ import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
+import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public interface TaskDispatcher extends Pinenut {
+
+    TaskExecutionLauncher taskExecutionLauncher();
 
     void registerProcessor( TaskExecutionProcessor processor );
 
@@ -30,9 +33,9 @@ public interface TaskDispatcher extends Pinenut {
     Collection<TaskLaunchContext> queryAffinityTasks( String szProcessorName );
 
 
-    PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
+    PipelineLaunchReport pipeCreate( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
-    PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
+    PipelineLaunchReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
 
     UProcess create( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException, TaskDispatchException;

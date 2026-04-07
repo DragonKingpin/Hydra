@@ -71,7 +71,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         this.infoLifecycle( "Preparing Odin`s army, constructing task-regiment.", LogStatuses.StatusStart );
 
         this.mTaskExecutionLauncher = new TrollTaskExecutionLauncher( this );
-        this.infoLifecycle( "TaskExecutionElevator: `" + this.mTaskExecutionLauncher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
+        this.infoLifecycle( "TaskExecutionLauncher: `" + this.mTaskExecutionLauncher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
 
         this.mTaskDispatcher = new RavenTaskDispatcher( this );
         this.infoLifecycle( "TaskDispatcher: `" + this.mTaskDispatcher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );

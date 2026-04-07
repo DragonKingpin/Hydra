@@ -8,16 +8,17 @@ import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 public abstract class ArchElementOperator implements ElementOperator {
-    protected DeployInstrument deployInstrument;
+    protected DeployInstrument              deployInstrument;
     protected ImperialTree                  imperialTree;
     protected NodeMetaManipulator           nodeMetaManipulator;
-    protected DeployMasterManipulator deployMasterManipulator;
+    protected DeployMasterManipulator       deployMasterManipulator;
     protected ElementOperatorFactory        factory;
 
     public ArchElementOperator( ElementOperatorFactory factory ){
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
         this.factory = factory;
     }
+
     public ArchElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         this.imperialTree = deployInstrument.getMasterTrieTree();
         this.deployInstrument = deployInstrument;

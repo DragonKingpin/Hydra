@@ -241,7 +241,12 @@
             MIN( `id` ) AS min_id,
             MAX( `id` ) AS max_id
         FROM `hydra_task_instances`
-        WHERE `run_status` = #{runStatus}
+        WHERE
+        `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
+
           AND (
             `expect_time` IS NULL
              OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
@@ -259,7 +264,10 @@
         FROM `hydra_task_instances`
         WHERE `id` <![CDATA[ >= ]]> #{idMin}
           AND `id` <![CDATA[ <= ]]> #{idMax}
-          AND `run_status` = #{runStatus}
+          AND `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
           AND (
               `expect_time` IS NULL
               OR `expect_time` <![CDATA[ <= ]]> #{targetTime}

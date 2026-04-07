@@ -1,5 +1,6 @@
 package com.walnut.odin.task.troll;
 
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
@@ -23,16 +24,22 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
 
     protected GuidAllocator              mGuidAllocator;
 
-    public GenericRavenTask( CentralizedTaskInstrument taskInstrument, Identification serviceId, TaskElement serviceElement, Map<String, Object> metaDataScope ) {
+    public GenericRavenTask(CentralizedTaskInstrument taskInstrument, @Nullable Identification serviceId, TaskElement serviceElement, Map<String, Object> metaDataScope ) {
         super( serviceId, serviceElement, metaDataScope );
         this.mTaskInstrument       = taskInstrument;
         this.mInstanceInstrument   = taskInstrument.getInstanceInstrument();
         this.mGuidAllocator        = taskInstrument.getGuidAllocator();
     }
 
-    public GenericRavenTask( CentralizedTaskInstrument taskInstrument,Identification serviceId, TaskElement serviceElement ) {
+    public GenericRavenTask( CentralizedTaskInstrument taskInstrument, @Nullable Identification serviceId, TaskElement serviceElement ) {
         this( taskInstrument, serviceId, serviceElement, null );
     }
+
+    public GenericRavenTask( CentralizedTaskInstrument taskInstrument, TaskElement serviceElement ) {
+        this( taskInstrument, null, serviceElement );
+    }
+
+
 
     @Override
     public RavenTaskInstance createInstance() {

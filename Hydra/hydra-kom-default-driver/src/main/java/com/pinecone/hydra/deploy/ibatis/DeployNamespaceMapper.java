@@ -6,8 +6,6 @@ import com.pinecone.hydra.deploy.kom.entity.Namespace;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 
 
-import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
-import com.pinecone.hydra.unit.vgraph.layer.source.NamespaceManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -24,7 +22,7 @@ import java.util.List;
 public interface DeployNamespaceMapper extends DeployNamespaceManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_deploy_namespace_node` (`guid`, `name`, `rules_guid`) VALUES (#{guid},#{name},#{rulesGUID})")
+    @Insert("INSERT INTO `hydra_deploy_namespace_node` (`guid`, `name`) VALUES (#{guid},#{name})")
     void insert( Namespace ns );
 
     @Override
@@ -32,14 +30,14 @@ public interface DeployNamespaceMapper extends DeployNamespaceManipulator {
     void remove( @Param("guid") GUID GUID );
 
     @Override
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_deploy_namespace_node` WHERE `guid`=#{guid}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_deploy_namespace_node` WHERE `guid`=#{guid}")
     GenericNamespace getNamespace( @Param("guid") GUID guid );
 
     @Override
     @Update("UPDATE `hydra_deploy_namespace_node` SET `name` = #{name} WHERE `guid` = #{guid}")
     void update( Namespace ns );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `name`, `rules_guid` AS rulesGUID FROM `hydra_deploy_namespace_node` WHERE name=#{name}")
+    @Select("SELECT `id` AS `enumId`, `guid`, `name` FROM `hydra_deploy_namespace_node` WHERE name=#{name}")
     List<GenericNamespace > fetchNamespaceNodeByName0( @Param("name") String name );
 
     @Override

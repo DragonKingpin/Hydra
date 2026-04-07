@@ -7,11 +7,9 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.system.ko.UOIUtils;
-import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.Namespace;
-import com.pinecone.hydra.deploy.kom.source.NamespaceRulesManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
@@ -19,7 +17,6 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public class NamespaceOperator extends ArchElementOperator implements ElementOperator {
     protected DeployNamespaceManipulator namespaceManipulator;
-    protected NamespaceRulesManipulator     namespaceRulesManipulator;
 
     public NamespaceOperator( ElementOperatorFactory factory ) {
         this( factory.getTaskMasterManipulator(),factory.getServicesTree() );
@@ -29,7 +26,6 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     public NamespaceOperator( DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument ){
         super( masterManipulator, deployInstrument);
         this.namespaceManipulator = masterManipulator.getNamespaceManipulator();
-        this.namespaceRulesManipulator = masterManipulator.getNamespaceRulesManipulator();
     }
 
     @Override
@@ -39,17 +35,9 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         //存节点基础信息
         GuidAllocator          guidAllocator = this.deployInstrument.getGuidAllocator();
         GUID              namespaceRulesGuid = ns.getGuid();
-        GenericNamespaceRules namespaceRules = ns.getClassificationRules();
-        if ( namespaceRules!= null ){
-            namespaceRules.setGuid( namespaceRulesGuid );
-        }
-        else {
-            namespaceRulesGuid = null;
-        }
 
         GUID namespaceGuid = guidAllocator.nextGUID();
         ns.setGuid( namespaceGuid );
-        ns.setRulesGUID( namespaceRulesGuid );
         this.namespaceManipulator.insert( ns );
 
         //存元信息
@@ -111,13 +99,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     public Namespace get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         GenericNamespace                      namespace = new GenericNamespace( this.deployInstrument);
-        GenericNamespaceRules            namespaceRules = this.namespaceRulesManipulator.getNamespaceRules( node.getAttributesGUID() );
         GUIDImperialTrieNode guidDistributedTrieNode = this.imperialTree.getNode( node.getGuid() );
-
-        if ( namespaceRules != null ){
-            namespace.setRulesGUID( namespaceRules.getGuid() );
-            namespace.setClassificationRules( namespaceRules );
-        }
 
         GUID metaGuid = guidDistributedTrieNode.getNodeMetadataGUID();
         namespace.setDistributedTreeNode( guidDistributedTrieNode );
@@ -143,8 +125,6 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
     public void update( TreeNode nodeWideData ) {
         GenericNamespace ns = ( GenericNamespace ) nodeWideData;
         this.namespaceManipulator.update( ns );
-        GenericNamespaceRules classificationRules = ns.getClassificationRules();
-        this.namespaceRulesManipulator.update( classificationRules );
         this.nodeMetaManipulator.update( ns );
     }
 
@@ -158,7 +138,6 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.namespaceManipulator.remove( node.getGuid() );
-        this.namespaceRulesManipulator.remove( node.getNodeMetadataGUID() );
         this.nodeMetaManipulator.remove( node.getAttributesGUID() );
     }
 }

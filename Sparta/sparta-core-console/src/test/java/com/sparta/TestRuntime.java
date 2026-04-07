@@ -1,27 +1,30 @@
 package com.sparta;
 
+import java.util.Map;
+
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.config.JSONConfig;
-import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.json.JSONMaptron;
-import com.pinecone.framework.util.json.JSONObject;
+import com.pinecone.hydra.proc.ProcessManager;
+import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.event.ProcessEventHandler;
+import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
+import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
+import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.LocalHostedClassImage;
+import com.pinecone.hydra.umc.wolf.client.UlfClient;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.odin.atlas.advance.GenericTapedBFSGraphAdvancer;
 import com.walnut.odin.atlas.advance.strategy.AtlasPriorityProcessStrategy;
 import com.walnut.odin.atlas.advance.strategy.MegaInDegreeFirstStrategy;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.atlas.graph.UniformRuntimeAtlas;
-import com.walnut.odin.atlas.mapper.OdinAtlasMappingDriver;
-import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
-import com.pinecone.hydra.queue.ibatis.hydranium.QueueMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
-import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.ConfigurableMegaStratumQueueMeta;
@@ -30,25 +33,15 @@ import com.pinecone.hydra.unit.iqueue.MegaDPStratumQueue;
 import com.pinecone.hydra.unit.iqueue.MegaDeflectPriorityQueueMeta;
 import com.pinecone.hydra.unit.iqueue.MegaStratumQueueMeta;
 import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
-import com.pinecone.hydra.unit.vgraph.VectorDAG;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
-import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
-import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.archcraft.ender.EnderHydra;
-import com.walnut.odin.conduct.CollectiveTaskRegiment;
-import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
-import com.walnut.odin.conduct.dag.RavenTaskGraphOrchestrator;
-import com.walnut.odin.conduct.schedule.InstanceScheduleDispatcher;
-import com.walnut.odin.conduct.schedule.RavenScheduleDispatcher;
+import com.walnut.odin.conduct.CollectiveTaskLegionary;
+import com.walnut.odin.conduct.RavenCollectiveTaskLegionary;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.system.Odin;
 import com.walnut.odin.task.CentralizedTaskInstrument;
-import com.walnut.odin.task.GenericRavenTaskConfig;
-import com.walnut.odin.task.RavenTaskInstrument;
-import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
 class Rick extends EnderHydra {
     public Rick( String[] args, CascadeSystem parent ) {
@@ -138,12 +131,48 @@ class Rick extends EnderHydra {
         advancer.traverse(magnitudeVectorDAG);
     }
 
-    public void testOrchestrator( Odin odin ) {
-//        VectorDAG vector = uniformRuntimeAtlas.queryByPath( "l1" );
-//        RavenTaskGraphOrchestrator ravenTaskGraphOrchestrator = new RavenTaskGraphOrchestrator( vector, layerInstrument, 5,1,uniformRuntimeAtlas,driver );
-//        ravenTaskGraphOrchestrator.execute();
+    public void testOrchestrator( Odin odin ) throws Exception {
+        odin.taskRegiment().startRemoteProcessServer();
 
-//        Debug.trace( this.getSystemGuidAllocator().nextGUID() );
+        UlfClient ulfClient = new WolfMCClient(
+                this.getSystemGuidAllocator72().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+        );
+        CollectiveTaskLegionary regimentClient = new RavenCollectiveTaskLegionary( "jesus", this, ulfClient );
+        regimentClient.startService();
+        regimentClient.joinRegiment();
+
+        regimentClient.remoteProcessManagerClient().addProcessLifecycleHandler(new ProcessLifecycleHandler() {
+            @Override
+            public void fired(String imageAddress, EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.greenfs( imageAddress, event );
+            }
+        });
+
+
+        ProcessManager manager = regimentClient.processManager();
+        ProcessEventHandler eventHandler = new ProcessEventHandler() {
+            @Override
+            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+                Debug.bluef( runnable, event );
+            }
+        };
+
+        ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
+            @Override
+            public int main( Map<String, String[]> args ) {
+                Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
+                Debug.sleep( 1000 );
+                Debug.greenfs( "Miao~" );
+
+                //throw new IrrationalProvokedException();
+                return 1984;
+            }
+        }, manager );
+        manager.getImageLoader().registerLocalScopeExecutionImage( "hola/senorita", image );
+
+
+
+
 
         RavenTaskScheduler scheduler = (RavenTaskScheduler) odin.taskScheduler();
         scheduler.fetch();

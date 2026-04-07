@@ -11,20 +11,15 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.GenericNamespaceRules;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public class GenericNamespace extends ArchElementNode implements Namespace {
-    protected GUID                        rulesGUID;
-
     protected GUID                        metaGuid;
 
-    protected GUIDImperialTrieNode distributedTreeNode;
+    protected GUIDImperialTrieNode        distributedTreeNode;
 
-    protected GenericNamespaceRules       classificationRules;
-
-    protected DeployNamespaceManipulator namespaceManipulator;
+    protected DeployNamespaceManipulator  namespaceManipulator;
 
 
     public GenericNamespace() {
@@ -61,16 +56,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     }
 
     @Override
-    public GenericNamespaceRules getClassificationRules() {
-        return this.classificationRules;
-    }
-
-    @Override
-    public void setClassificationRules( GenericNamespaceRules classificationRules ) {
-        this.classificationRules = classificationRules;
-    }
-
-    @Override
     public GUID getMetaGuid() {
         return this.metaGuid;
     }
@@ -78,16 +63,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     @Override
     public void setMetaGuid( GUID metaGuid ) {
         this.metaGuid = metaGuid;
-    }
-
-    @Override
-    public GUID getRulesGUID() {
-        return this.rulesGUID;
-    }
-
-    @Override
-    public void setRulesGUID( GUID rulesGUID ) {
-        this.rulesGUID = rulesGUID;
     }
 
     @Override

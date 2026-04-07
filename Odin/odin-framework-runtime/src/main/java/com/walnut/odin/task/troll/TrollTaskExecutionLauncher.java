@@ -159,9 +159,9 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     public void initializeInstance( RavenTaskInstance instance, LaunchFeature feature ) {
         LocalDateTime now = LocalDateTime.now();
         this.getLogger().info(
-                "[TaskLaunchSequence] (TaskName: `{}`, KernelHandleName: `/`, TaskGuid: `{}`, Time: `{}`) <Start>",
+                "[TaskLaunchSequence] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, Time: `{}`) <Start>",
                 instance.getOwnedTask().getName(),
-
+                instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId(),
                 now.format( this.mDefaultDateTimeFormat )
         );
@@ -221,7 +221,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     }
 
     protected void afterProcessCreated( RavenTaskInstance instance, UProcess process ) throws MetaPersistenceException {
-        instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Standby );
+        instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.ProcessStandby );
         instance.update();
     }
 

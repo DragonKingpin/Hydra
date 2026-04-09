@@ -79,8 +79,8 @@ public interface FileTreeMapper extends TrieTreeManipulator {
 
 
 
-    @Delete("DELETE FROM `hydra_uofs_node_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
-    void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+    @Delete("DELETE FROM `hydra_uofs_node_tree` WHERE `guid`=#{childGuid} AND `parent_guid`=#{parentGuid}")
+    void removeInheritance( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_uofs_node_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDImperialTrieNode> getChildren(GUID guid );

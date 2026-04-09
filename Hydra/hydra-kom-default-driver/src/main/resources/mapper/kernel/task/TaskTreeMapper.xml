@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinecone.hydra.task.ibatis.TaskTreeMapper">
+
+    <select id="getChildren" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        SELECT
+        `id` AS `enumId`,
+        `guid`,
+        `parent_guid` AS `parentGuid`
+        FROM
+        `hydra_task_node_tree`
+        <where>
+            <if test="parentGuid != null">
+                `parent_guid` = #{parentGuid}
+            </if>
+            <if test="parentGuid == null">
+                `parent_guid` IS NULL
+            </if>
+        </where>
+    </select>
+
+</mapper>

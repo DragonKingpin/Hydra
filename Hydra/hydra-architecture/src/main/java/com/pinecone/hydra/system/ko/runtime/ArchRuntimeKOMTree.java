@@ -430,7 +430,7 @@ public abstract class ArchRuntimeKOMTree extends ArchUniformInstitutionalizedIns
         return null;
     }
 
-    static class RuntimeTreeNode implements TreeNode {
+    public static class RuntimeTreeNode implements TreeNode {
         private TreeNode treeNode;
 
         private String   path;

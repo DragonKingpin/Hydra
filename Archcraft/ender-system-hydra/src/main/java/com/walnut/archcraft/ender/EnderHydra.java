@@ -181,7 +181,7 @@ public class EnderHydra extends Tritium implements HydraEmpire {
         this.pout().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31mDragon King\u001B[0m\n" );
-        this.pout().print( "\u001B[32mWebsit: https://www.dragonking.cn/ \u001B[0m\n" );
+        this.pout().print( "\u001B[32mWebsite: https://www.dragonking.cn/ \u001B[0m\n" );
 
         this.traceSubsystemWelcomeInfo();
         this.traceSystemBootingInfo();

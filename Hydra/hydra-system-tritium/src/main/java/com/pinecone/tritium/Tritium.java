@@ -138,7 +138,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.infoLifecycle( "<Hydra Kingdom> Skeleton Initialization", LogStatuses.StatusReady );
     }
 
-    protected String fristQualifiedPathString() {
+    protected String fristQualifiedConfigPathString() {
         return MAIN_CONFIG_FILE;
     }
 
@@ -159,7 +159,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
                 this.mPrimaryConfigPath = Path.of( args[ 0 ] );
             }
             else {
-                this.mPrimaryConfigPath = this.getWorkingPath().resolve( this.fristQualifiedPathString() );
+                this.mPrimaryConfigPath = this.getWorkingPath().resolve( this.fristQualifiedConfigPathString() );
             }
             this.mjoGlobalConfig   = (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( this.mPrimaryConfigPath.toFile() );
         }

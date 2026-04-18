@@ -4,7 +4,7 @@ import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.hydra.system.HySkeleton;
 import com.pinecone.hydra.system.subsystem.CentralMicroSystemCabinet;
 import com.pinecone.hydra.system.subsystem.KernelMicroSystemCabinet;
-import com.pinecone.hydra.system.types.HydraKingdom;
+import com.pinecone.hydra.system.centrum.HydraKingdom;
 
 public abstract class Hydradom extends Hydra implements HydraKingdom {
     protected KernelMicroSystemCabinet    mKernelMicroSystemCabinet;

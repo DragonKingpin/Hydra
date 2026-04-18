@@ -9,7 +9,7 @@
 
 ## 一、项目概览
 
-**Hydra** 是一个由 DragonKing 及其团队原创设计的大规模分布式基础架构系统，专为数据分析、任务调度、爬虫系统、分布式存储和云计算场景设计。项目采用 Maven 多模块聚合架构，基于 Java 11+，顶层聚合工程名为 **Sauron**（`com.sauron:sauron:1.2.7`），基于 Spring Boot 2.4.1 + Spring Cloud 2020.0.3 技术栈。
+**Hydra** 是一个由 DragonKing 及其团队原创设计的大规模分布式基础架构系统，专为数据分析、任务调度、爬虫系统、分布式存储和云计算场景设计。项目采用 Maven 多模块聚合架构，基于 Java 11+，顶层聚合工程名为 **Sauron**（`com.sauron:sauron:1.2.7`），该系统为一个大规模的分布式操作系统。
 
 ### 技术栈一览
 
@@ -17,8 +17,6 @@
 |------|------|------|
 | 语言 | Java | 11+ |
 | 构建工具 | Maven | - |
-| Web 框架 | Spring Boot | 2.4.1 |
-| 微服务 | Spring Cloud | 2020.0.3 |
 | 注册中心 | Nacos | 2.2.5.RELEASE |
 | ORM | MyBatis / MyBatis-Plus | 2.1.1 / 3.4.1 |
 | 数据库 | MySQL | 8.0.23 |

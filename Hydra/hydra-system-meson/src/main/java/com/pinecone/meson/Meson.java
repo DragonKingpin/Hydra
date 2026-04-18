@@ -75,7 +75,7 @@ public abstract class Meson extends DrakePanarchy implements Lepton {
         this.pout().print( "[System] [TracerReassignment] <Transfer console -> Slf4j>\n" );
     }
 
-    protected String fristQualifiedPathString() {
+    protected String fristQualifiedConfigPathString() {
         return MAIN_CONFIG_FILE;
     }
 
@@ -93,7 +93,7 @@ public abstract class Meson extends DrakePanarchy implements Lepton {
                 this.mPrimaryConfigPath = Path.of( args[ 0 ] );
             }
             else {
-                this.mPrimaryConfigPath = Path.of( this.getRuntimePath() ).resolve( this.fristQualifiedPathString() );
+                this.mPrimaryConfigPath = Path.of( this.getRuntimePath() ).resolve( this.fristQualifiedConfigPathString() );
             }
 
             this.mjoGlobalConfig = (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( this.mPrimaryConfigPath.toFile() );

@@ -21,7 +21,7 @@
     </build>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.pinecone.tritium</groupId>
+    <groupId>com.pinecone.meson</groupId>
     <artifactId>hydra-system-meson</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>

@@ -2,9 +2,6 @@
 
 ## 形式文法
 @import <path>
-part -> STRING
-path -> /part, STRING
-path -> /part/*，STRING
 
 wildcard fmt -> '*' 表示通配符，匹配当前目录下的所有文件，
 

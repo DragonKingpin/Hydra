@@ -4,15 +4,10 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
-import com.pinecone.hydra.deploy.kom.entity.GenericQuickElement;
-import com.pinecone.hydra.deploy.kom.entity.QuickElement;
 import com.pinecone.hydra.deploy.kom.source.ContainerElementManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 @Mapper
@@ -20,37 +15,40 @@ import java.util.List;
 public interface ContainerElementMapper extends ContainerElementManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_deploy_container` (`guid`, `status`,`name`) VALUES (#{guid},#{status},#{name})")
-    void insert( ContainerElement quickElement );
+    void insert( ContainerElement containerElement );
 
     @Override
-    @Insert("UPDATE `hydra_deploy_container` SET `status` = #{status} ,`name` = #{name} WHERE  `guid` = #{guid}")
-    void update( ContainerElement serviceElement );
+    void update( ContainerElement containerElement );
 
     @Override
-    @Delete("DELETE FROM `hydra_deploy_container` WHERE `guid` = #{guid}")
-    void remove( GUID guid );
+    void remove( @Param("guid") GUID guid );
 
-    @Select("SELECT `guid`, `status` AS status FROM `hydra_deploy_container` WHERE `guid` = #{guid}")
-    GenericContainerElement getContainerElement0( GUID guid );
+    GenericContainerElement getContainerElement0( @Param("guid") GUID guid );
 
     @Override
     default GenericContainerElement getContainerElement(GUID guid, DeployInstrument instrument ){
         GenericContainerElement element = this.getContainerElement0( guid );
+        if( element == null ) {
+            return null;
+        }
         element.apply( instrument );
         return element;
     }
 
 
     @Override
-    @Select("SELECT `guid`, `status` AS status,`name` AS name FROM `hydra_deploy_container` WHERE `guid` = #{guid}")
-    List<GUID > getGuidsByName(String name );
+    List<GUID > getGuidsByName(@Param("name") String name );
 
     @Override
-    @Select("SELECT `guid`, `status` AS status,`name` AS name FROM `hydra_deploy_container` WHERE `guid` = #{guid} AND `name` = #{name}")
-    List<GUID > getGuidsByNameID( String name, GUID guid );
+    List<GUID > getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 
-    @Select( "SELECT `guid`, `status` AS status,`name` AS name FROM `hydra_deploy_container` WHERE `name` = #{name}")
-    List<QuickElement> fetchQuickElementByName(@Param("name") String name );
+    List<GenericContainerElement> fetchContainerElementByName0(@Param("name") String name );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ContainerElement> fetchContainerElementByName( String name ) {
+        List<GenericContainerElement> list = this.fetchContainerElementByName0( name );
+        return (List) list;
+    }
 }

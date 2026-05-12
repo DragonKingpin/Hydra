@@ -64,7 +64,7 @@ public class RegimentedImperialTree implements UniImperialTree {
     @Override
     public void affirmOwnedNode( GUID nodeGUID, GUID parentGUID ){
         GUID owner = this.tireOwnerManipulator.getOwner( nodeGUID );
-        if ( owner == null ){
+        if ( owner == null || !owner.equals( parentGUID ) ) {
             this.tireOwnerManipulator.remove( nodeGUID, owner );
             this.tireOwnerManipulator.insertOwnedNode( nodeGUID, parentGUID );
         }

@@ -24,6 +24,14 @@ public interface VirtualMachineElement extends ServerElement {
     GUID getAffiliateHostGuid();
     void setAffiliateHostGuid( GUID guid );
 
+    String getImageName();
+    void setImageName( String imageName );
+
+    String getOsName();
+    void setOsName( String osName );
+
+    String getCpuArch();
+    void setCpuArch( String cpuArch );
 
     DeployExtraMeta getVmExtraMeta();
 }

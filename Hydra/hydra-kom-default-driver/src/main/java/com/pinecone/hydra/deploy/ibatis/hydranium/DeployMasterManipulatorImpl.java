@@ -3,10 +3,7 @@ package com.pinecone.hydra.deploy.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.deploy.ibatis.ContainerElementMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNamespaceMapper;
-import com.pinecone.hydra.deploy.ibatis.DeployNodeMapper;
-import com.pinecone.hydra.deploy.ibatis.DeployNodeMetaMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployNodeOwnerMapper;
-import com.pinecone.hydra.deploy.ibatis.DeployServiceInsMappingMapper;
 import com.pinecone.hydra.deploy.ibatis.DeployTreeMapper;
 import com.pinecone.hydra.deploy.ibatis.ClusterNodeMapper;
 import com.pinecone.hydra.deploy.ibatis.PhysicalHostMapper;
@@ -15,15 +12,12 @@ import com.pinecone.hydra.deploy.ibatis.VirtualMachineMapper;
 import com.pinecone.hydra.deploy.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployNamespaceManipulator;
-import com.pinecone.hydra.deploy.kom.source.DeployNodeManipulator;
-import com.pinecone.hydra.deploy.kom.source.DeployServiceInsMappingManipulator;
 import com.pinecone.hydra.deploy.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.deploy.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.deploy.kom.source.VirtualMachineManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.ClusterNodeManipulator;
-import com.pinecone.hydra.deploy.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
@@ -46,14 +40,6 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     ClusterNodeManipulator jobNodeManipulator;
 
     @Resource
-    @Structure(type = DeployNodeMetaMapper.class )
-    NodeMetaManipulator nodeMetaManipulator;
-
-    @Resource
-    @Structure(type = DeployNodeMapper.class)
-    DeployNodeManipulator deployNodeManipulator;
-
-    @Resource
     @Structure( type = DeployNamespaceMapper.class )
     DeployNamespaceManipulator deployNamespaceManipulator;
 
@@ -73,11 +59,6 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Resource
     @Structure( type = ContainerElementMapper.class )
     ContainerElementManipulator containerElementManipulator;
-
-    @Resource
-    @Structure( type = DeployServiceInsMappingMapper.class )
-    DeployServiceInsMappingManipulator deployServiceInsMappingManipulator;
-
 
     @Resource( type = DeployMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;
@@ -104,18 +85,8 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     }
 
     @Override
-    public NodeMetaManipulator getNodeMetaManipulator() {
-        return this.nodeMetaManipulator;
-    }
-
-    @Override
     public ClusterNodeManipulator getJobNodeManipulator() {
         return this.jobNodeManipulator;
-    }
-
-    @Override
-    public DeployNodeManipulator getDeployNodeManipulator() {
-        return this.deployNodeManipulator;
     }
 
     @Override
@@ -146,10 +117,5 @@ public class DeployMasterManipulatorImpl implements DeployMasterManipulator {
     @Override
     public ContainerElementManipulator getContainerElementManipulator() {
         return this.containerElementManipulator;
-    }
-
-    @Override
-    public DeployServiceInsMappingManipulator getDeployServiceInsMappingManipulator() {
-        return this.deployServiceInsMappingManipulator;
     }
 }

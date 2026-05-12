@@ -4,7 +4,7 @@
 ```shell
 /docs/standard/import_standard.md
 /docs/standard/llm_chat_formal_ins_syntax.md
-/docs/opt/taboo_root.dki
+/docs/ins/taboo_root.dki
 ```
 
 然后这些：

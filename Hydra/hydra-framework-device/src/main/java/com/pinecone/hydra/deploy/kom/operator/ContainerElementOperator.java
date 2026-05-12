@@ -1,13 +1,11 @@
 package com.pinecone.hydra.deploy.kom.operator;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.GenericContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
 import com.pinecone.hydra.deploy.kom.source.ContainerElementManipulator;
-import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -35,20 +33,13 @@ public class ContainerElementOperator extends ArchElementOperator implements Ele
 
         //将信息写入数据库
         //将节点信息存入应用节点表
-        GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
-        GUID taskNodeGUID = guidAllocator.nextGUID();
+        GUID taskNodeGUID = this.affirmGuid( containerElement );
         containerElement.setGuid(taskNodeGUID);
 
         this.containerElementManipulator.insert( containerElement );
-        //将应用元信息存入元信息表
-        this.nodeMetaManipulator.insert( containerElement );
-
 
         //将节点信息存入主表
-        GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        node.setNodeMetadataGUID( taskNodeGUID ); // Since 20250419, the meta has been merged into the `node`.
-        node.setGuid( taskNodeGUID );
-        node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
+        GUIDImperialTrieNode node = this.newKernelNode( treeNode, taskNodeGUID );
         this.imperialTree.insert( node );
         return taskNodeGUID;
     }
@@ -62,14 +53,10 @@ public class ContainerElementOperator extends ArchElementOperator implements Ele
     public ContainerElement get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         ContainerElement ContainerElement   = this.containerElementManipulator.getContainerElement( guid, this.deployInstrument);
-        //TODO
-/*
-        this.applyCommonMeta( ContainerElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
-*/
-
-        ContainerElement.setDistributedTreeNode(node);
-
-        ContainerElement.setGuid( guid );
+        if( ContainerElement == null ) {
+            return null;
+        }
+        this.applyTreeNode( ContainerElement, node );
 
         return ContainerElement;
     }
@@ -87,8 +74,9 @@ public class ContainerElementOperator extends ArchElementOperator implements Ele
     @Override
     public void update( TreeNode nodeWideData ) {
         ContainerElement serviceElement = (ContainerElement) nodeWideData;
+        this.touchForUpdate( serviceElement );
         this.containerElementManipulator.update( serviceElement );
-        this.nodeMetaManipulator.update( serviceElement );
+        this.imperialTree.removeCachePath( serviceElement.getGuid() );
     }
 
     @Override
@@ -101,6 +89,5 @@ public class ContainerElementOperator extends ArchElementOperator implements Ele
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.containerElementManipulator.remove( node.getGuid() );
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

@@ -13,7 +13,11 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
 
     protected GUID affiliateHostGuid;
 
-    protected String status;
+    protected String imageName;
+
+    protected String osName;
+
+    protected String cpuArch;
 
     protected DeployExtraMeta vmExtraMeta;
 
@@ -68,7 +72,7 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
 
     @Override
     public void setLocalDomain(String localDomain) {
-
+        this.localDomain = localDomain;
     }
 
     @Override
@@ -99,6 +103,36 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
     @Override
     public void setAffiliateHostGuid(GUID guid) {
         this.affiliateHostGuid = guid;
+    }
+
+    @Override
+    public String getImageName() {
+        return this.imageName;
+    }
+
+    @Override
+    public void setImageName( String imageName ) {
+        this.imageName = imageName;
+    }
+
+    @Override
+    public String getOsName() {
+        return this.osName;
+    }
+
+    @Override
+    public void setOsName( String osName ) {
+        this.osName = osName;
+    }
+
+    @Override
+    public String getCpuArch() {
+        return this.cpuArch;
+    }
+
+    @Override
+    public void setCpuArch( String cpuArch ) {
+        this.cpuArch = cpuArch;
     }
 
     @Override

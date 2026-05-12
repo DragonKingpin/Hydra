@@ -1,5 +1,6 @@
 package com.pinecone.hydra.deploy.kom.entity;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
@@ -11,12 +12,17 @@ import java.util.Map;
 
 public class GenericContainerElement extends ArchElementNode implements ContainerElement{
 
-    protected String status;
-
     protected boolean  enable;
 
     protected DeployExtraMeta extraMeta;
 
+    protected GUID affiliateHostGuid;
+
+    protected String runtime;
+
+    protected String imageName;
+
+    protected String containerId;
 
     protected ContainerElementManipulator ContainerElementManipulator;
 
@@ -61,6 +67,46 @@ public class GenericContainerElement extends ArchElementNode implements Containe
     @Override
     public String getStatus() {
         return this.status;
+    }
+
+    @Override
+    public GUID getAffiliateHostGuid() {
+        return this.affiliateHostGuid;
+    }
+
+    @Override
+    public void setAffiliateHostGuid( GUID affiliateHostGuid ) {
+        this.affiliateHostGuid = affiliateHostGuid;
+    }
+
+    @Override
+    public String getRuntime() {
+        return this.runtime;
+    }
+
+    @Override
+    public void setRuntime( String runtime ) {
+        this.runtime = runtime;
+    }
+
+    @Override
+    public String getImageName() {
+        return this.imageName;
+    }
+
+    @Override
+    public void setImageName( String imageName ) {
+        this.imageName = imageName;
+    }
+
+    @Override
+    public String getContainerId() {
+        return this.containerId;
+    }
+
+    @Override
+    public void setContainerId( String containerId ) {
+        this.containerId = containerId;
     }
 
     @Override

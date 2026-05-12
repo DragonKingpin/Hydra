@@ -18,6 +18,7 @@ public class DeployMappingDriver extends ArchMappingDriver implements KOIMapping
     public DeployMappingDriver(Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, DeployMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 
+        ibatisClient.addXMLObjectScope( "mapper.kernel.deploy" );
         this.mKOIMasterManipulator = new DeployMasterManipulatorImpl( this );
     }
 

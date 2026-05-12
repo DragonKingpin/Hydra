@@ -11,7 +11,9 @@ public class GenericPhysicalHostElement extends ArchServerElement implements Phy
 
     protected String hardwareSpecs;
 
-    protected String status;
+    protected String osName;
+
+    protected String cpuArch;
 
     private void initSelf( Map<String, Object > joEntity ) {
         BeanMapDecoder.BasicDecoder.decode( this, joEntity );
@@ -46,6 +48,26 @@ public class GenericPhysicalHostElement extends ArchServerElement implements Phy
     @Override
     public String getHardwareSpecs() {
         return this.hardwareSpecs;
+    }
+
+    @Override
+    public void setOsName( String osName ) {
+        this.osName = osName;
+    }
+
+    @Override
+    public String getOsName() {
+        return this.osName;
+    }
+
+    @Override
+    public void setCpuArch( String cpuArch ) {
+        this.cpuArch = cpuArch;
+    }
+
+    @Override
+    public String getCpuArch() {
+        return this.cpuArch;
     }
 
     @Override

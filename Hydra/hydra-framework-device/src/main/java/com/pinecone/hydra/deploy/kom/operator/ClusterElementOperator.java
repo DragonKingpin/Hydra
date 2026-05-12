@@ -3,12 +3,10 @@ package com.pinecone.hydra.deploy.kom.operator;
 import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.ClusterElement;
 import com.pinecone.hydra.deploy.kom.entity.GenericClusterElement;
-import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.deploy.kom.entity.GenericNamespace;
 import com.pinecone.hydra.deploy.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
@@ -33,20 +31,11 @@ public class ClusterElementOperator extends ArchElementOperator implements Eleme
     public GUID insert( TreeNode treeNode ) {
         GenericClusterElement jobElement = (GenericClusterElement) treeNode;
 
-        GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
-        GUID jobNodeGUID = guidAllocator.nextGUID();
+        GUID jobNodeGUID = this.affirmGuid( jobElement );
         jobElement.setGuid( jobNodeGUID );
         this.jobNodeManipulator.insert( jobElement );
 
-        //将应用元信息存入元信息表
-        this.nodeMetaManipulator.insert( jobElement );
-
-
-        //将节点信息存入主表
-        GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        node.setNodeMetadataGUID(jobNodeGUID);
-        node.setGuid(jobNodeGUID);
-        node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
+        GUIDImperialTrieNode node = this.newKernelNode( treeNode, jobNodeGUID );
         this.imperialTree.insert( node );
         return jobNodeGUID;
     }
@@ -76,7 +65,7 @@ public class ClusterElementOperator extends ArchElementOperator implements Eleme
             }
         }
 
-        if ( node.getType().getObjectName().equals( GenericNamespace.class.getName() ) ){
+        if ( node.getType().getObjectName().equals( GenericNamespace.class.getName() ) || node.getType().getObjectName().equals( GenericClusterElement.class.getName() ) ){
             this.removeNode(guid);
         }
         else {
@@ -94,11 +83,12 @@ public class ClusterElementOperator extends ArchElementOperator implements Eleme
 
     @Override
     public ClusterElement get(GUID guid ) {
-        ClusterElement clusterElement;
-        clusterElement = this.jobNodeManipulator.getClusterElement( guid, this.deployInstrument);
-        this.applyCommonMeta(clusterElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
-
-        clusterElement.setGuid(clusterElement.getGuid());
+        GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
+        ClusterElement clusterElement = this.jobNodeManipulator.getClusterElement( guid, this.deployInstrument);
+        if( clusterElement == null ) {
+            return null;
+        }
+        this.applyTreeNode( clusterElement, node );
         return clusterElement;
     }
 
@@ -115,8 +105,9 @@ public class ClusterElementOperator extends ArchElementOperator implements Eleme
     @Override
     public void update( TreeNode treeNode ) {
         GenericClusterElement applicationElement = (GenericClusterElement) treeNode;
+        this.touchForUpdate( applicationElement );
         this.jobNodeManipulator.update( applicationElement );
-        this.nodeMetaManipulator.update( applicationElement );
+        this.imperialTree.removeCachePath( applicationElement.getGuid() );
     }
 
     @Override
@@ -128,7 +119,6 @@ public class ClusterElementOperator extends ArchElementOperator implements Eleme
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
         this.jobNodeManipulator.remove( node.getGuid( ));
     }
 }

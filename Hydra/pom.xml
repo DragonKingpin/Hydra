@@ -34,6 +34,7 @@
         <module>hydra-system-tritium</module>
         <module>hydra-system-meson</module>
         <module>hydra-system-reign</module>
+        <module>hydra-device-control</module>
         <module>hydra-service-control</module>
         <module>hydra-architecture-message</module>
     </modules>

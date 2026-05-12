@@ -3,13 +3,16 @@ package com.walnut.odin.conduct.schedule;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.InstanceEventType;
@@ -25,9 +28,9 @@ import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
 import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
-import com.walnut.odin.dispatch.PipelineLaunchReport;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -86,13 +89,129 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     }
 
 
-// 依赖mapper记得看看
+    protected boolean shouldCheckDependency( InstanceEntry instance ) {
+        if ( instance == null ) {
+            return false;
+        }
 
+        TaskInstanceStatus status = instance.getInstanceStatus();
+        return status == TaskInstanceStatus.New || status == TaskInstanceStatus.DependencyWait;
+    }
 
-//    protected DepartureChecklist prelaunch_check_instance( InstanceEntry that ) {
-//
-//
-//    }
+    protected void updateInstanceStatus( InstanceEntry instance, TaskInstanceStatus status ) throws MetaPersistenceException {
+        if ( instance == null || status == null ) {
+            return;
+        }
+
+        if ( instance.getInstanceStatus() == status ) {
+            return;
+        }
+
+        instance.setInstanceStatus( status );
+        this.mInstanceInstrument.updateInstance( instance );
+    }
+
+    protected Collection<GUID> fetchDependencyCheckInstanceGuids( Collection<InstanceEntry> instances ) {
+        Collection<GUID> ids = new ArrayList<>();
+        if ( instances == null || instances.isEmpty() ) {
+            return ids;
+        }
+
+        for ( InstanceEntry instance : instances ) {
+            if ( !this.shouldCheckDependency( instance ) ) {
+                continue;
+            }
+
+            GUID guid = instance.getGuid();
+            if ( guid == null ) {
+                continue;
+            }
+
+            ids.add( guid );
+        }
+
+        return ids;
+    }
+
+    protected DependencyBlockageIndex fetchDependencyBlockageIndex( Collection<InstanceEntry> instances ) {
+        Collection<GUID> ids = this.fetchDependencyCheckInstanceGuids( instances );
+        if ( ids.isEmpty() ) {
+            return new DependencyBlockageIndex( List.of() );
+        }
+
+        Collection<DependencyBlockage> blockages = this.mInstanceAtlasNodeMapper.fetchDependencyBlockages(
+                ids,
+                TaskInstanceStatus.Finished.getName()
+        );
+        return new DependencyBlockageIndex( blockages );
+    }
+
+    protected DepartureChecklist prelaunch_check_instance(
+            InstanceEntry that, DependencyBlockageIndex dependencyBlockageIndex
+    ) throws MetaPersistenceException {
+        DepartureChecklist checklist = new DepartureChecklist( that );
+        if ( that == null || that.getGuid() == null ) {
+            checklist.setInterceptedStatus( TaskInstanceStatus.Error );
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.Error );
+            return checklist;
+        }
+
+        TaskInstanceStatus status = that.getInstanceStatus();
+        if ( status == null ) {
+            checklist.setInterceptedStatus( TaskInstanceStatus.Error );
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.Error );
+            return checklist;
+        }
+
+        if ( status == TaskInstanceStatus.DepartureStandby ) {
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.DepartureStandby );
+            return checklist;
+        }
+
+        if ( status == TaskInstanceStatus.ResourceWait ) {
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.ResourceWait );
+            return checklist;
+        }
+
+        if ( !this.shouldCheckDependency( that ) ) {
+            checklist.setInterceptedStatus( status );
+            checklist.setPreDepartureLastStatus( status );
+            return checklist;
+        }
+
+        Collection<DependencyBlockage> blockages = dependencyBlockageIndex.fetchBlockages( that.getGuid() );
+        if ( blockages == null || blockages.isEmpty() ) {
+            this.updateInstanceStatus( that, TaskInstanceStatus.ResourceWait );
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.ResourceWait );
+            return checklist;
+        }
+
+        for ( DependencyBlockage blockage : blockages ) {
+            if ( blockage == null ) {
+                continue;
+            }
+            checklist.addDependentInstanceId( blockage.getDependentInstanceGuid() );
+        }
+
+        this.updateInstanceStatus( that, TaskInstanceStatus.DependencyWait );
+        checklist.setInterceptedStatus( TaskInstanceStatus.DependencyWait );
+        checklist.setPreDepartureLastStatus( TaskInstanceStatus.DependencyWait );
+        return checklist;
+    }
+
+    protected void traceDiscardedInstances( Collection<InstanceEntry> discardedInstances ) {
+        if ( discardedInstances == null || discardedInstances.isEmpty() ) {
+            return;
+        }
+
+        for ( InstanceEntry discardedInstance : discardedInstances ) {
+            log.info(
+                    "[DiscardInstance] ( Task `{}`, Instance `{}` ) has been discarded.",
+                    discardedInstance.getTaskName(), discardedInstance.getInstanceName()
+            );
+            // TODO, Sophisticate upgradation.
+        }
+    }
 
 
 
@@ -123,15 +242,67 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
         Collection<TaskLaunchContext> li = this.initializePrelaunchSequence( fittedInstances );
 
-        for ( InstanceEntry discardedInstance : discardedInstances ) {
-            log.info(
-                    "[DiscardInstance] ( Task `{}`, Instance `{}` ) has been discarded.",
-                    discardedInstance.getTaskName(), discardedInstance.getInstanceName()
-            );
-            // TODO, Sophisticate upgradation.
-        }
+        this.traceDiscardedInstances( discardedInstances );
 
         return li;
+    }
+
+    protected void fitResourceWaitInstances(
+            Collection<InstanceEntry> resourceWaitInstances, Collection<InstanceEntry> departureStandbyInstances
+    ) throws MetaPersistenceException {
+        if ( resourceWaitInstances == null || resourceWaitInstances.isEmpty() ) {
+            return;
+        }
+
+        ScheduleFittingContext context = this.mInstanceScheduleAllocator.pipeFitting( resourceWaitInstances );
+        Collection<InstanceEntry> fittedInstances = context.getFittedInstances();
+        for ( InstanceEntry fittedInstance : fittedInstances ) {
+            this.updateInstanceStatus( fittedInstance, TaskInstanceStatus.DepartureStandby );
+            departureStandbyInstances.add( fittedInstance );
+        }
+
+        this.traceDiscardedInstances( context.getDiscardedInstances() );
+    }
+
+    protected Collection<TaskLaunchContext> prepareDepartureLaunchContexts(
+            Collection<InstanceEntry> departureStandbyInstances
+    ) {
+        if ( departureStandbyInstances == null || departureStandbyInstances.isEmpty() ) {
+            return List.of();
+        }
+
+        return this.initializePrelaunchSequence( departureStandbyInstances );
+    }
+
+    protected static class DependencyBlockageIndex {
+        private Map<GUID, Collection<DependencyBlockage>> mIndex;
+
+        public DependencyBlockageIndex( Collection<DependencyBlockage> blockages ) {
+            this.mIndex = new HashMap<>();
+            if ( blockages == null || blockages.isEmpty() ) {
+                return;
+            }
+
+            for ( DependencyBlockage blockage : blockages ) {
+                if ( blockage == null || blockage.getInstanceGuid() == null ) {
+                    continue;
+                }
+
+                Collection<DependencyBlockage> current = this.mIndex.computeIfAbsent(
+                        blockage.getInstanceGuid(),
+                        k -> new ArrayList<>()
+                );
+                current.add( blockage );
+            }
+        }
+
+        public Collection<DependencyBlockage> fetchBlockages( GUID instanceGuid ) {
+            Collection<DependencyBlockage> blockages = this.mIndex.get( instanceGuid );
+            if ( blockages == null ) {
+                return List.of();
+            }
+            return blockages;
+        }
     }
 
 
@@ -173,11 +344,35 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                     Collection<InstanceEntry> entries = this.mInstanceInstrument.fetchSchedulableInstances(
                             finalStart, finalEnd, statuses, finalTargetTime
                     );
+                    if ( entries == null || entries.isEmpty() ) {
+                        log.info( "[TaskSchedulerLifecycle] Impelling schedulable instances (Start: {}, End: {}, Size: 0) <Done>", finalStart, finalEnd );
+                        return;
+                    }
 
+                    DependencyBlockageIndex dependencyBlockageIndex = this.fetchDependencyBlockageIndex( entries );
+                    Collection<InstanceEntry> resourceWaitInstances = new ArrayList<>();
+                    Collection<InstanceEntry> departureStandbyInstances = new ArrayList<>();
 
-                    ScheduleFittingContext context = this.mInstanceScheduleAllocator.pipeFitting( entries );
-                    Collection<TaskLaunchContext> launchContexts = this.prepareLaunchContexts( context );
-                    PipelineLaunchReport report = this.mTaskScheduler.taskDispatcher().pipeLaunch( launchContexts );
+                    for ( InstanceEntry entry : entries ) {
+                        DepartureChecklist checklist = this.prelaunch_check_instance( entry, dependencyBlockageIndex );
+                        if ( checklist.isIntercepted() ) {
+                            continue;
+                        }
+
+                        TaskInstanceStatus lastStatus = checklist.getPreDepartureLastStatus();
+                        if ( lastStatus == TaskInstanceStatus.ResourceWait ) {
+                            resourceWaitInstances.add( entry );
+                        }
+                        else if ( lastStatus == TaskInstanceStatus.DepartureStandby ) {
+                            departureStandbyInstances.add( entry );
+                        }
+                    }
+
+                    this.fitResourceWaitInstances( resourceWaitInstances, departureStandbyInstances );
+                    Collection<TaskLaunchContext> launchContexts = this.prepareDepartureLaunchContexts( departureStandbyInstances );
+                    if ( !launchContexts.isEmpty() ) {
+                        this.mTaskScheduler.taskDispatcher().pipeLaunch( launchContexts );
+                    }
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
                     log.info( "[TaskSchedulerLifecycle] Impelling schedulable instances (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, entries.size() );

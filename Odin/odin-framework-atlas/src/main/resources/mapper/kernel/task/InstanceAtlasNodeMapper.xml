@@ -17,4 +17,23 @@
                  )
     </insert>
 
+    <select id="fetchDependencyBlockages" resultType="com.walnut.odin.conduct.schedule.entity.GenericDependencyBlockage">
+        SELECT
+            child_node.`instance_guid` AS `instanceGuid`,
+            parent_instance.`guid`     AS `dependentInstanceGuid`
+        FROM `odin_task_instance_atlas_nodes` AS child_node
+                 JOIN `odin_taks_ins_atlas_adjacent` AS instance_edge
+                      ON instance_edge.`guid` = child_node.`guid`
+                 JOIN `hydra_task_instances` AS parent_instance
+                      ON parent_instance.`guid` = instance_edge.`parent_guid`
+        WHERE child_node.`instance_guid` IN
+        <foreach collection="instanceGuids" item="instanceGuid" open="(" separator="," close=")">
+            #{instanceGuid}
+        </foreach>
+          AND (
+              parent_instance.`run_status` IS NULL
+              OR parent_instance.`run_status` != #{finishedStatus}
+          )
+    </select>
+
 </mapper>

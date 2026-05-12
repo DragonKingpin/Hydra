@@ -71,6 +71,46 @@ public interface ElementNode extends DeployTreeNode, DeployFamilyNode, ElementOb
 
     void setName(String name);
 
+    String getAlias();
+
+    void setAlias(String alias);
+
+    String getExtraInformation();
+
+    void setExtraInformation(String extraInformation);
+
+    String getResourceType();
+
+    void setResourceType(String resourceType);
+
+    String getDeviceType();
+
+    void setDeviceType(String deviceType);
+
+    String getVendor();
+
+    void setVendor(String vendor);
+
+    String getModel();
+
+    void setModel(String model);
+
+    String getSerialNumber();
+
+    void setSerialNumber(String serialNumber);
+
+    String getIpAddress();
+
+    void setIpAddress(String ipAddress);
+
+    String getStatus();
+
+    void setStatus(String status);
+
+    String getDescription();
+
+    void setDescription(String description);
+
     LocalDateTime getCreateTime();
 
     void setCreateTime(LocalDateTime createTime);

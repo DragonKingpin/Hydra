@@ -55,8 +55,10 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
 
     public void apply( DeployInstrument deployInstrument) {
         this.deployInstrument = deployInstrument;
-        GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
-        this.setGuid( guidAllocator.nextGUID() );
+        if( this.getGuid() == null ) {
+            GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
+            this.setGuid( guidAllocator.nextGUID() );
+        }
         if ( this.createTime == null ) {
             this.createTime = LocalDateTime.now();
             this.updateTime = LocalDateTime.now();
@@ -112,9 +114,40 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
     }
 
     @Override
+    public void setAlias( String alias ) {
+        this.alias = alias;
+    }
+
+    @Override
     public void setExtraInformation( String extraInformation ) {
         this.extraInformation = extraInformation;
     }
+
+    @Override
+    public void setResourceType( String resourceType ) {
+        this.resourceType = resourceType;
+    }
+
+    @Override
+    public void setDeviceType( String deviceType ) {
+        this.deviceType = deviceType;
+    }
+
+    @Override
+    public void setVendor( String vendor ) {
+        this.vendor = vendor;
+    }
+
+    @Override
+    public void setModel( String model ) {
+        this.model = model;
+    }
+
+    @Override
+    public void setSerialNumber( String serialNumber ) {
+        this.serialNumber = serialNumber;
+    }
+
     @Override
     public void setIpAddress( String ipAddress ) {
         this.ipAddress = ipAddress;
@@ -122,6 +155,11 @@ public abstract class ArchElementNode extends ArchDeployFamilyMeta implements El
     @Override
     public String getIpAddress() {
         return this.ipAddress;
+    }
+
+    @Override
+    public void setStatus( String status ) {
+        this.status = status;
     }
 
     @Override

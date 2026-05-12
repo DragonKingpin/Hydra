@@ -1,16 +1,20 @@
 package com.pinecone.hydra.deploy.kom.operator;
 
+import java.time.LocalDateTime;
+
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.CommonMeta;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.deploy.kom.source.NodeMetaManipulator;
 import com.pinecone.hydra.deploy.kom.source.DeployMasterManipulator;
+import com.pinecone.hydra.system.ko.UOIUtils;
+import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
+import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public abstract class ArchElementOperator implements ElementOperator {
     protected DeployInstrument              deployInstrument;
     protected ImperialTree                  imperialTree;
-    protected NodeMetaManipulator           nodeMetaManipulator;
     protected DeployMasterManipulator       deployMasterManipulator;
     protected ElementOperatorFactory        factory;
 
@@ -22,7 +26,6 @@ public abstract class ArchElementOperator implements ElementOperator {
     public ArchElementOperator(DeployMasterManipulator masterManipulator, DeployInstrument deployInstrument){
         this.imperialTree = deployInstrument.getMasterTrieTree();
         this.deployInstrument = deployInstrument;
-        this.nodeMetaManipulator = masterManipulator.getNodeMetaManipulator();
         this.deployMasterManipulator = masterManipulator;
         //this.factory = new GenericServiceOperatorFactory(servicesTree,masterManipulator);
     }
@@ -31,12 +34,35 @@ public abstract class ArchElementOperator implements ElementOperator {
         return this.factory;
     }
 
-    protected void applyCommonMeta( ElementNode ele, CommonMeta commonMeta ){
-        if( commonMeta != null ) {
-            ele.setGuid                     ( commonMeta.getGuid()                     );
-            ele.setExtraInformation         ( commonMeta.getExtraInformation()         );
-            ele.setDescription              ( commonMeta.getDescription()              );
-            ele.setIpAddress                ( commonMeta.getIpAddress()                );
+    protected GUID affirmGuid( ElementNode elementNode ) {
+        GUID guid = elementNode.getGuid();
+        if( guid == null ) {
+            GuidAllocator guidAllocator = this.deployInstrument.getGuidAllocator();
+            guid = guidAllocator.nextGUID();
+            elementNode.setGuid( guid );
         }
+        return guid;
+    }
+
+    protected GUIDImperialTrieNode newKernelNode( TreeNode treeNode, GUID guid ) {
+        GUIDImperialTrieNode node = new GUIDImperialTrieNode();
+        node.setGuid( guid );
+        node.setBaseDataGUID( guid );
+        node.setNodeMetadataGUID( guid );
+        node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
+        return node;
+    }
+
+    protected void touchForUpdate( ElementNode elementNode ) {
+        elementNode.setUpdateTime( LocalDateTime.now() );
+    }
+
+    protected void applyTreeNode( ElementNode elementNode, GUIDImperialTrieNode node ) {
+        if( node == null ) {
+            return;
+        }
+        elementNode.setDistributedTreeNode( node );
+        elementNode.setGuid( node.getGuid() );
+        elementNode.setMetaGuid( node.getNodeMetadataGUID() );
     }
 }

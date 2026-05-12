@@ -13,9 +13,23 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
 
     protected String name;
 
+    protected String alias;
+
     protected String extraInformation;
 
+    protected String resourceType;
+
+    protected String deviceType;
+
+    protected String vendor;
+
+    protected String model;
+
+    protected String serialNumber;
+
     protected String ipAddress;
+
+    protected String status;
 
     protected String szElementaryConfig;
 
@@ -56,12 +70,48 @@ public abstract class ArchDeployFamilyMeta implements DeployFamilyMeta {
     }
 
     @Override
+    public String getAlias() {
+        return this.alias;
+    }
+
+    @Override
     public String getExtraInformation() {
         return this.extraInformation;
     }
+
+    @Override
+    public String getResourceType() {
+        return this.resourceType;
+    }
+
+    @Override
+    public String getDeviceType() {
+        return this.deviceType;
+    }
+
+    @Override
+    public String getVendor() {
+        return this.vendor;
+    }
+
+    @Override
+    public String getModel() {
+        return this.model;
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return this.serialNumber;
+    }
+
     @Override
     public String getIpAddress() {
         return this.ipAddress;
+    }
+
+    @Override
+    public String getStatus() {
+        return this.status;
     }
 
     @Override

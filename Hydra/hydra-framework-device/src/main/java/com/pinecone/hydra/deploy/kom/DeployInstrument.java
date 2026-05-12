@@ -4,7 +4,6 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.entity.ContainerElement;
 import com.pinecone.hydra.deploy.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.deploy.kom.entity.QuickElement;
-import com.pinecone.hydra.deploy.kom.entity.ServerElement;
 import com.pinecone.hydra.deploy.kom.entity.VirtualMachineElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
@@ -21,8 +20,6 @@ public interface DeployInstrument extends ReparseKOMTree {
 
     Namespace               affirmNamespace( String path );
 
-    ServerElement           affirmServer( String path );
-
     QuickElement            affirmQuick( String path );
 
     VirtualMachineElement   affirmVirtualMachine( String path );
@@ -36,6 +33,4 @@ public interface DeployInstrument extends ReparseKOMTree {
     boolean                 containsChild( GUID parentGuid, String childName );
 
     void                    update( TreeNode treeNode );
-
-    void                    createDeployServiceInsMapping( GUID deployGuid, GUID serviceInsGuid );
 }

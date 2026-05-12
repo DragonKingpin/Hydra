@@ -7,11 +7,7 @@ import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 public interface DeployMasterManipulator extends KOIMasterManipulator {
     TrieTreeManipulator getTrieTreeManipulator() ;
 
-    NodeMetaManipulator getNodeMetaManipulator();
-
     ClusterNodeManipulator getJobNodeManipulator();
-
-    DeployNodeManipulator getDeployNodeManipulator();
 
     DeployNamespaceManipulator getNamespaceManipulator();
 
@@ -24,6 +20,4 @@ public interface DeployMasterManipulator extends KOIMasterManipulator {
     QuickElementManipulator getQuickElementManipulator();
 
     ContainerElementManipulator getContainerElementManipulator();
-
-    DeployServiceInsMappingManipulator getDeployServiceInsMappingManipulator();
 }

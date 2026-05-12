@@ -22,7 +22,7 @@
 
     "partitionName": "__DEFAULT__",
 
-    "globalDispatcher": {
+    "globalAllocator": {
       "__DEFAULT__": {
         "name": "__DEFAULT__",
 

@@ -234,7 +234,7 @@ $java='D:\ProgramFiles\ToolChains\Java\jdk11x64\bin\java.exe'
 $cpFile='E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Sparta\sparta-core-console\target\test-classpath.txt'
 $depCp=Get-Content -Raw $cpFile
 $cp="E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Sparta\sparta-core-console\target\classes;E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Sparta\sparta-core-console\target\test-classes;$depCp"
-& $java -cp $cp com.sparta.TestDeviceControlManager
+& $java -cp $cp com.sparta.TestDeviceManager
 ```
 
 重要坑：
@@ -249,7 +249,7 @@ $cp="E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Sparta\sparta-core-co
 ```text
 mvn -pl Hydra/hydra-device-control,Sparta/sparta-core-console -am -DskipTests test-compile
 mvn -pl Hydra/hydra-device-control,Sparta/sparta-core-console -am -DskipTests install
-java -cp ... com.sparta.TestDeviceControlManager
+java -cp ... com.sparta.TestDeviceManager
 ```
 
 结果：

@@ -1,12 +1,11 @@
-package com.pinecone.hydra.device.control.server;
+package com.pinecone.hydra.device.registry.server;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.device.control.DeviceValidationException;
-import com.pinecone.hydra.device.control.dto.DeviceMetaDTO;
+import com.pinecone.hydra.device.registry.DeviceValidationException;
+import com.pinecone.hydra.device.registry.dto.DeviceMetaDTO;
 
 public class DeviceMetaService implements Pinenut {
 

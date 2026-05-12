@@ -1,13 +1,13 @@
-package com.pinecone.hydra.device.control.server;
+package com.pinecone.hydra.device.registry.server;
 
 import java.util.Collection;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.device.control.DeviceControlRPCException;
-import com.pinecone.hydra.device.control.appoint.DeviceAppointServer;
-import com.pinecone.hydra.device.control.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.DeviceControlRPCException;
+import com.pinecone.hydra.device.registry.appoint.DeviceAppointServer;
+import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 
 public interface DeviceControlManager extends Slf4jTraceable {

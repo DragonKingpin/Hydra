@@ -1,4 +1,4 @@
-package com.pinecone.hydra.device.control;
+package com.pinecone.hydra.device.registry;
 
 public class DeviceControlException extends RuntimeException {
 

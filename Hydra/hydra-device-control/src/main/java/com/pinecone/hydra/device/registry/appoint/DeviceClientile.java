@@ -1,4 +1,4 @@
-package com.pinecone.hydra.device.control.appoint;
+package com.pinecone.hydra.device.registry.appoint;
 
 import java.net.SocketAddress;
 

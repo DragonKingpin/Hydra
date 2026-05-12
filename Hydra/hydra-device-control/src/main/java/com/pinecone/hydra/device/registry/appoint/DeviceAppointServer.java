@@ -1,6 +1,6 @@
-package com.pinecone.hydra.device.control.appoint;
+package com.pinecone.hydra.device.registry.appoint;
 
-import com.pinecone.hydra.device.control.server.DeviceControlManager;
+import com.pinecone.hydra.device.registry.server.DeviceControlManager;
 
 public interface DeviceAppointServer extends AutoCloseable {
 

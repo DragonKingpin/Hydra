@@ -1,4 +1,4 @@
-package com.pinecone.hydra.device.control.dto;
+package com.pinecone.hydra.device.registry.dto;
 
 import java.time.LocalDateTime;
 

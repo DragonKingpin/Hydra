@@ -1,4 +1,4 @@
-package com.pinecone.hydra.device.control.server;
+package com.pinecone.hydra.device.registry.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,8 +9,8 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.deploy.kom.DeployInstrument;
 import com.pinecone.hydra.deploy.kom.entity.ElementNode;
-import com.pinecone.hydra.device.control.dto.DeviceMetaDTO;
-import com.pinecone.hydra.device.control.dto.DeviceTopologyDTO;
+import com.pinecone.hydra.device.registry.dto.DeviceMetaDTO;
+import com.pinecone.hydra.device.registry.dto.DeviceTopologyDTO;
 
 public class DeviceTopologyService implements Pinenut {
 

@@ -1,4 +1,4 @@
-package com.pinecone.hydra.device.control.constant;
+package com.pinecone.hydra.device.registry.constant;
 
 public enum DeviceNodeType {
     NAMESPACE,

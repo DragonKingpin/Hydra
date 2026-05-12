@@ -1,6 +1,6 @@
-package com.pinecone.hydra.device.control.dto;
+package com.pinecone.hydra.device.registry.dto;
 
-import com.pinecone.hydra.device.control.constant.DeviceNodeType;
+import com.pinecone.hydra.device.registry.constant.DeviceNodeType;
 
 public class DeviceRegistrationDTO {
 

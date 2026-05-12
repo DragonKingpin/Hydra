@@ -1,6 +1,6 @@
 package com.pinecone.hydra.device.registry.dto;
 
-public class DeviceTopologyDTO {
+public class DeviceTopologyDTO implements DeviceDTO {
 
     protected String parentGuid;
 

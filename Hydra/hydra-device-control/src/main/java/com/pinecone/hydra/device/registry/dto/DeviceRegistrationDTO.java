@@ -1,14 +1,20 @@
 package com.pinecone.hydra.device.registry.dto;
 
-import com.pinecone.hydra.device.registry.constant.DeviceNodeType;
+public class DeviceRegistrationDTO implements DeviceDTO {
 
-public class DeviceRegistrationDTO {
+    protected String guid;
 
     protected String path;
 
-    protected DeviceNodeType nodeType;
-
     protected DeviceMetaDTO meta;
+
+    public String getGuid() {
+        return this.guid;
+    }
+
+    public void setGuid( String guid ) {
+        this.guid = guid;
+    }
 
     public String getPath() {
         return this.path;
@@ -16,14 +22,6 @@ public class DeviceRegistrationDTO {
 
     public void setPath( String path ) {
         this.path = path;
-    }
-
-    public DeviceNodeType getNodeType() {
-        return this.nodeType;
-    }
-
-    public void setNodeType( DeviceNodeType nodeType ) {
-        this.nodeType = nodeType;
     }
 
     public DeviceMetaDTO getMeta() {

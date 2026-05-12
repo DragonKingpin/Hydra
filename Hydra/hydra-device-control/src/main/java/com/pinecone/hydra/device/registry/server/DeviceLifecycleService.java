@@ -3,50 +3,50 @@ package com.pinecone.hydra.device.registry.server;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.ElementNode;
+import com.pinecone.hydra.device.kom.DeviceInstrument;
+import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
 
 public class DeviceLifecycleService implements Pinenut {
 
-    protected final DeviceControlManager mDeviceControlManager;
+    protected final DeviceManager mDeviceManager;
 
-    protected final DeployInstrument mDeployInstrument;
+    protected final DeviceInstrument mDeviceInstrument;
 
     protected final GuidAllocator mGuidAllocator;
 
-    public DeviceLifecycleService( DeviceControlManager deviceControlManager ) {
-        this.mDeviceControlManager = deviceControlManager;
-        this.mDeployInstrument = deviceControlManager.getDeployInstrument();
-        this.mGuidAllocator = this.mDeployInstrument.getGuidAllocator();
+    public DeviceLifecycleService( DeviceManager deviceManager ) {
+        this.mDeviceManager = deviceManager;
+        this.mDeviceInstrument = deviceManager.getDeviceInstrument();
+        this.mGuidAllocator = this.mDeviceInstrument.getGuidAllocator();
     }
 
-    public String registerDevice( DeviceRegistrationDTO registrationDTO ) {
-        GUID guid = this.mDeviceControlManager.registerDevice( registrationDTO );
+    public String enrollDevice( DeviceRegistrationDTO registrationDTO ) {
+        GUID guid = this.mDeviceManager.enrollDevice( registrationDTO );
         return guid == null ? null : guid.toString();
     }
 
-    public void deregisterDeviceByGuid( String guid ) {
+    public void dismissDeviceByGuid( String guid ) {
         if ( isNotBlank( guid ) ) {
-            this.mDeviceControlManager.removeDevice( this.mGuidAllocator.parse( guid ) );
+            this.mDeviceManager.removeDevice( this.mGuidAllocator.parse( guid ) );
         }
     }
 
-    public void deregisterDeviceByPath( String path ) {
+    public void dismissDeviceByPath( String path ) {
         if ( isNotBlank( path ) ) {
-            ElementNode node = this.mDeviceControlManager.queryDeviceByPath( path );
+            ElementNode node = this.mDeviceManager.queryDeviceByPath( path );
             if ( node != null ) {
-                this.mDeviceControlManager.removeDevice( node.getGuid() );
+                this.mDeviceManager.removeDevice( node.getGuid() );
             }
         }
     }
 
     public boolean hasDeviceByGuid( String guid ) {
-        return isNotBlank( guid ) && this.mDeployInstrument.contains( this.mGuidAllocator.parse( guid ) );
+        return isNotBlank( guid ) && this.mDeviceInstrument.contains( this.mGuidAllocator.parse( guid ) );
     }
 
     public boolean hasDeviceByPath( String path ) {
-        return isNotBlank( path ) && this.mDeviceControlManager.queryDeviceByPath( path ) != null;
+        return isNotBlank( path ) && this.mDeviceManager.queryDeviceByPath( path ) != null;
     }
 
     protected boolean isNotBlank( String value ) {

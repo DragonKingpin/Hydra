@@ -6,8 +6,8 @@ import java.util.UUID;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.deploy.ibatis.hydranium.DeployMappingDriver;
-import com.pinecone.hydra.deploy.kom.UniformDeployInstrument;
+import com.pinecone.hydra.device.ibatis.hydranium.DeviceMappingDriver;
+import com.pinecone.hydra.device.kom.UniformDeviceInstrument;
 import com.pinecone.hydra.proc.LocalHostedProcess;
 import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
@@ -119,14 +119,14 @@ class Floki extends EnderHydra {
         );
         KOMRegistry registry = new GenericKOMRegistry( koiMappingDriver );
 
-        DeployMappingDriver deployMappingDriver = new DeployMappingDriver(
+        DeviceMappingDriver deviceMappingDriver = new DeviceMappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        UniformDeployInstrument deployInstrument = new UniformDeployInstrument( deployMappingDriver );
+        UniformDeviceInstrument deviceInstrument = new UniformDeviceInstrument( deviceMappingDriver );
 
         instrument.mount( KernelObjectRootMountPoint.TaskMeta.getMountPoint(), ravenTaskInstrument );
         instrument.mount( KernelObjectRootMountPoint.Registry.getMountPoint(), registry );
-        instrument.mount( KernelObjectRootMountPoint.DeployMeta.getMountPoint(), deployInstrument );
+        instrument.mount( KernelRootMountPoint.Device.getMountPoint() + "/device", deviceInstrument );
     }
 
     private void testSimple( ExpressInstrument instrument ) {
@@ -142,7 +142,7 @@ class Floki extends EnderHydra {
         Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
         Debug.fmp( 2, instrument.queryNode( "conf/registry/game3a/witcher/people/s4/urge" ) );
 
-        Debug.fmp( 2, instrument.queryNode( "/dev/deploy/root/test/cluster/vm1" ) );
+        Debug.fmp( 2, instrument.queryNode( "/dev/device/root/test/cluster/vm1" ) );
 
 
         //EntityNode myf = instrument.queryNode( "mnt/volE/Users" );

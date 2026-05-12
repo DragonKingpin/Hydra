@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.ElementNode;
+import com.pinecone.hydra.device.kom.DeviceInstrument;
+import com.pinecone.hydra.device.kom.entity.ElementNode;
 
-public class DeviceMetaDTO {
+public class DeviceMetaDTO implements DeviceDTO {
 
     protected String guid;
     protected String metaGuid;
@@ -23,10 +23,10 @@ public class DeviceMetaDTO {
     protected String ipAddress;
     protected String status;
     protected String description;
-    protected LocalDateTime createTime;
-    protected LocalDateTime updateTime;
+    protected String createTime;
+    protected String updateTime;
 
-    public static DeviceMetaDTO from( ElementNode node, DeployInstrument deployInstrument ) {
+    public static DeviceMetaDTO from( ElementNode node, DeviceInstrument deviceInstrument ) {
         if ( node == null ) {
             return null;
         }
@@ -34,7 +34,7 @@ public class DeviceMetaDTO {
         DeviceMetaDTO dto = new DeviceMetaDTO();
         dto.setGuid( stringify( node.getGuid() ) );
         dto.setMetaGuid( stringify( node.getMetaGuid() ) );
-        dto.setPath( node.getGuid() == null ? null : deployInstrument.getPath( node.getGuid() ) );
+        dto.setPath( node.getGuid() == null ? null : deviceInstrument.getPath( node.getGuid() ) );
         dto.setName( node.getName() );
         dto.setAlias( node.getAlias() );
         dto.setExtraInformation( node.getExtraInformation() );
@@ -46,8 +46,8 @@ public class DeviceMetaDTO {
         dto.setIpAddress( node.getIpAddress() );
         dto.setStatus( node.getStatus() );
         dto.setDescription( node.getDescription() );
-        dto.setCreateTime( node.getCreateTime() );
-        dto.setUpdateTime( node.getUpdateTime() );
+        dto.setCreateTime( stringify( node.getCreateTime() ) );
+        dto.setUpdateTime( stringify( node.getUpdateTime() ) );
         return dto;
     }
 
@@ -92,10 +92,10 @@ public class DeviceMetaDTO {
         if ( this.description != null ) {
             node.setDescription( this.description );
         }
-        if ( this.createTime != null ) {
-            node.setCreateTime( this.createTime );
+        if ( isNotBlank( this.createTime ) ) {
+            node.setCreateTime( LocalDateTime.parse( this.createTime ) );
         }
-        node.setUpdateTime( this.updateTime == null ? LocalDateTime.now() : this.updateTime );
+        node.setUpdateTime( isNotBlank( this.updateTime ) ? LocalDateTime.parse( this.updateTime ) : LocalDateTime.now() );
     }
 
     protected static boolean isNotBlank( String value ) {
@@ -104,6 +104,10 @@ public class DeviceMetaDTO {
 
     protected static String stringify( GUID guid ) {
         return guid == null ? null : guid.toString();
+    }
+
+    protected static String stringify( LocalDateTime time ) {
+        return time == null ? null : time.toString();
     }
 
     public String getGuid() {
@@ -218,19 +222,19 @@ public class DeviceMetaDTO {
         this.description = description;
     }
 
-    public LocalDateTime getCreateTime() {
+    public String getCreateTime() {
         return this.createTime;
     }
 
-    public void setCreateTime( LocalDateTime createTime ) {
+    public void setCreateTime( String createTime ) {
         this.createTime = createTime;
     }
 
-    public LocalDateTime getUpdateTime() {
+    public String getUpdateTime() {
         return this.updateTime;
     }
 
-    public void setUpdateTime( LocalDateTime updateTime ) {
+    public void setUpdateTime( String updateTime ) {
         this.updateTime = updateTime;
     }
 }

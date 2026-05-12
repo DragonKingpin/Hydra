@@ -1,6 +1,8 @@
 package com.pinecone.hydra.device.registry;
 
-public class DeviceControlException extends RuntimeException {
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public class DeviceControlException extends RuntimeException implements Pinenut {
 
     public DeviceControlException() {
     }

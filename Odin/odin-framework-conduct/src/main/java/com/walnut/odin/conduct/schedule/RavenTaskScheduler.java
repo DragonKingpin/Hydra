@@ -13,10 +13,12 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 public class RavenTaskScheduler implements UniformTaskScheduler {
+
+    private static final Logger          log = LoggerFactory.getLogger( RavenTaskScheduler.class );
 
     private RavenTaskConfig              mRavenTaskConfig;
 

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.ClusterNodeMapper">
+
+    <resultMap id="ClusterNodeMap" type="com.pinecone.hydra.device.kom.entity.GenericClusterElement">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="name" property="name"/>
+        <result column="alias" property="alias"/>
+        <result column="description" property="description"/>
+        <result column="extra_information" property="extraInformation"/>
+        <result column="resource_type" property="resourceType"/>
+        <result column="device_type" property="deviceType"/>
+        <result column="vendor" property="vendor"/>
+        <result column="model" property="model"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="status" property="status"/>
+        <result column="type" property="type"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="ClusterColumns">
+        id, guid, name, alias, description, extra_information, resource_type, device_type,
+        vendor, model, serial_number, ip_address, status, type, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.device.kom.entity.ClusterElement">
+        INSERT INTO hydra_device_cluster_node
+            (guid, name, alias, description, extra_information, resource_type, device_type,
+             vendor, model, serial_number, ip_address, status, type, create_time, update_time)
+        VALUES
+            (#{guid}, #{name}, #{alias}, #{description}, #{extraInformation}, #{resourceType}, #{deviceType},
+             #{vendor}, #{model}, #{serialNumber}, #{ipAddress}, #{status}, #{type}, #{createTime}, #{updateTime})
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM hydra_device_cluster_node WHERE guid = #{guid}
+    </delete>
+
+    <select id="getAppElement" resultMap="ClusterNodeMap">
+        SELECT <include refid="ClusterColumns"/>
+        FROM hydra_device_cluster_node
+        WHERE guid = #{guid}
+    </select>
+
+    <update id="update" parameterType="com.pinecone.hydra.device.kom.entity.ClusterElement">
+        UPDATE hydra_device_cluster_node
+        SET
+            name = #{name},
+            alias = #{alias},
+            description = #{description},
+            extra_information = #{extraInformation},
+            resource_type = #{resourceType},
+            device_type = #{deviceType},
+            vendor = #{vendor},
+            model = #{model},
+            serial_number = #{serialNumber},
+            ip_address = #{ipAddress},
+            status = #{status},
+            type = #{type},
+            update_time = #{updateTime}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="fetchJobNodeByName0" resultMap="ClusterNodeMap">
+        SELECT <include refid="ClusterColumns"/>
+        FROM hydra_device_cluster_node
+        WHERE name = #{name}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_device_cluster_node WHERE name = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_device_cluster_node WHERE name = #{name} AND guid != #{guid}
+    </select>
+</mapper>

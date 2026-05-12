@@ -1,12 +1,13 @@
 package com.pinecone.hydra.device.registry.appoint;
 
-import com.pinecone.hydra.device.registry.server.DeviceControlManager;
+import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.device.registry.server.DeviceManager;
 
-public interface DeviceAppointServer extends AutoCloseable {
+public interface DeviceAppointServer extends AutoCloseable, Pinenut {
 
     Long getMessageNodeId();
 
-    DeviceAppointServer hookDeviceControlManager( DeviceControlManager deviceControlManager );
+    DeviceAppointServer hookDeviceManager( DeviceManager deviceManager );
 
     void execute() throws Exception;
 

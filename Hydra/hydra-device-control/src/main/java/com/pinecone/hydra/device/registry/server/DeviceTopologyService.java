@@ -7,23 +7,23 @@ import java.util.List;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.deploy.kom.DeployInstrument;
-import com.pinecone.hydra.deploy.kom.entity.ElementNode;
+import com.pinecone.hydra.device.kom.DeviceInstrument;
+import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.dto.DeviceMetaDTO;
 import com.pinecone.hydra.device.registry.dto.DeviceTopologyDTO;
 
 public class DeviceTopologyService implements Pinenut {
 
-    protected final DeviceControlManager mDeviceControlManager;
+    protected final DeviceManager mDeviceManager;
 
-    protected final DeployInstrument mDeployInstrument;
+    protected final DeviceInstrument mDeviceInstrument;
 
     protected final GuidAllocator mGuidAllocator;
 
-    public DeviceTopologyService( DeviceControlManager deviceControlManager ) {
-        this.mDeviceControlManager = deviceControlManager;
-        this.mDeployInstrument = deviceControlManager.getDeployInstrument();
-        this.mGuidAllocator = this.mDeployInstrument.getGuidAllocator();
+    public DeviceTopologyService( DeviceManager deviceManager ) {
+        this.mDeviceManager = deviceManager;
+        this.mDeviceInstrument = deviceManager.getDeviceInstrument();
+        this.mGuidAllocator = this.mDeviceInstrument.getGuidAllocator();
     }
 
     public boolean affirmOwnedRelation( DeviceTopologyDTO topologyDTO ) {
@@ -33,7 +33,7 @@ public class DeviceTopologyService implements Pinenut {
 
         GUID parentGuid = this.mGuidAllocator.parse( topologyDTO.getParentGuid() );
         GUID childGuid = this.mGuidAllocator.parse( topologyDTO.getChildGuid() );
-        this.mDeployInstrument.affirmOwnedNode( parentGuid, childGuid );
+        this.mDeviceInstrument.affirmOwnedNode( parentGuid, childGuid );
         return true;
     }
 
@@ -43,10 +43,10 @@ public class DeviceTopologyService implements Pinenut {
             return children;
         }
 
-        Collection<GUID> childGuids = this.mDeployInstrument.fetchChildrenGuids( this.mGuidAllocator.parse( parentGuid ) );
+        Collection<GUID> childGuids = this.mDeviceInstrument.fetchChildrenGuids( this.mGuidAllocator.parse( parentGuid ) );
         for ( GUID childGuid : childGuids ) {
-            ElementNode childNode = this.mDeviceControlManager.queryDeviceByGuid( childGuid );
-            DeviceMetaDTO childMeta = DeviceMetaDTO.from( childNode, this.mDeployInstrument );
+            ElementNode childNode = this.mDeviceManager.queryDeviceByGuid( childGuid );
+            DeviceMetaDTO childMeta = DeviceMetaDTO.from( childNode, this.mDeviceInstrument );
             if ( childMeta != null ) {
                 children.add( childMeta );
             }

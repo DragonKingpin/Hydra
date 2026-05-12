@@ -2,7 +2,9 @@ package com.pinecone.hydra.device.registry.appoint;
 
 import java.net.SocketAddress;
 
-public interface DeviceClientile extends AutoCloseable {
+import com.pinecone.framework.system.prototype.Pinenut;
+
+public interface DeviceClientile extends AutoCloseable, Pinenut {
 
     Long getClientId();
 

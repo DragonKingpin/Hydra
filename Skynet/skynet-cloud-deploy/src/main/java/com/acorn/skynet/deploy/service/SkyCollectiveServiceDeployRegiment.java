@@ -1,7 +1,7 @@
 package com.acorn.skynet.deploy.service;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.deploy.kom.DeployInstrument;
+import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
 import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
@@ -13,12 +13,12 @@ public class SkyCollectiveServiceDeployRegiment implements CollectiveServiceDepl
 
     protected ServiceManager        mServiceManager;
 
-    protected DeployInstrument      mDeployInstrument;
+    protected DeviceInstrument      mDeviceInstrument;
 
 
-    public SkyCollectiveServiceDeployRegiment( ServiceManager serviceManager, DeployInstrument deployInstrument ) {
+    public SkyCollectiveServiceDeployRegiment( ServiceManager serviceManager, DeviceInstrument deviceInstrument ) {
         this.mServiceManager        = serviceManager;
-        this.mDeployInstrument      = deployInstrument;
+        this.mDeviceInstrument      = deviceInstrument;
 
         this.initServiceEvent();
     }

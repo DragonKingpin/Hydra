@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.registry.ibatis.RegistryNSNodeMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_registry_namespace`
+        (
+            `guid`,
+            `create_time`,
+            `name`,
+            `update_time`
+        )
+        VALUES
+        (
+            #{guid},
+            #{createTime},
+            #{name},
+            #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_registry_namespace`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="isNamespaceNode" resultType="boolean">
+        SELECT
+            COUNT(`id`)
+        FROM `hydra_registry_namespace`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getNamespaceWithMeta" resultType="com.pinecone.hydra.registry.entity.GenericNamespace">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `create_time` AS `createTime`,
+            `name`,
+            `update_time` AS `updateTime`
+        FROM `hydra_registry_namespace`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="update">
+        UPDATE `hydra_registry_namespace`
+        SET
+            `create_time` = #{createTime},
+            `name` = #{name},
+            `update_time` = #{updateTime}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_namespace`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_namespace`
+        WHERE `name` = #{name}
+        AND `guid` = #{guid}
+    </select>
+
+    <select id="dumpGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_namespace`
+    </select>
+
+    <update id="updateName">
+        UPDATE `hydra_registry_namespace`
+        SET
+            `name` = #{name}
+        WHERE `guid` = #{guid}
+    </update>
+
+</mapper>

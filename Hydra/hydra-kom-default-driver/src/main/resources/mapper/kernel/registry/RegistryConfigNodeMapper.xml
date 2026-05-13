@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.registry.ibatis.RegistryConfigNodeMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_registry_config_node`
+        (
+            `guid`,
+            `data_affinity_guid`,
+            `create_time`,
+            `update_time`,
+            `name`
+        )
+        VALUES
+        (
+            #{guid},
+            #{dataAffinityGuid},
+            #{createTime},
+            #{updateTime},
+            #{name}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_registry_config_node`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="isConfigNode" resultType="boolean">
+        SELECT
+            COUNT(`id`)
+        FROM `hydra_registry_config_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getUOIByGUID" resultType="com.pinecone.framework.util.uoi.UOI">
+        SELECT
+            `type`
+        FROM `hydra_registry_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getPropertiesNode" resultType="com.pinecone.hydra.registry.entity.GenericProperties">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `data_affinity_guid` AS `dataAffinityGuid`,
+            `create_time` AS `createTime`,
+            `update_time` AS `updateTime`,
+            `name`
+        FROM `hydra_registry_config_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getTextConfigNode" resultType="com.pinecone.hydra.registry.entity.GenericTextFile">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `data_affinity_guid` AS `dataAffinityGuid`,
+            `create_time` AS `createTime`,
+            `update_time` AS `updateTime`,
+            `name`
+        FROM `hydra_registry_config_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_config_node`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_config_node`
+        WHERE `name` = #{name}
+        AND `guid` = #{guid}
+    </select>
+
+    <update id="updateUpdateTime">
+        UPDATE `hydra_registry_config_node`
+        SET
+            `update_time` = #{updateTime}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="dumpGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_registry_config_node`
+    </select>
+
+    <update id="updateName">
+        UPDATE `hydra_registry_config_node`
+        SET
+            `name` = #{name}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="getDataAffinityGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `data_affinity_guid`
+        FROM `hydra_registry_config_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="setDataAffinityGuid">
+        UPDATE `hydra_registry_config_node`
+        SET
+            `data_affinity_guid` = #{affinityGuid}
+        WHERE `guid` = #{guid}
+    </update>
+
+</mapper>

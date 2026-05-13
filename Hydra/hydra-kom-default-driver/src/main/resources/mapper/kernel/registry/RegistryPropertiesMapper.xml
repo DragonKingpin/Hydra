@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.registry.ibatis.RegistryPropertiesMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_registry_conf_node_properties`
+        (
+            `guid`,
+            `key`,
+            `type`,
+            `create_time`,
+            `update_time`,
+            `value`
+        )
+        VALUES
+        (
+            #{guid},
+            #{key},
+            #{type},
+            #{createTime},
+            #{updateTime},
+            #{rawValue}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_registry_conf_node_properties`
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+    </delete>
+
+    <select id="getProperties0" resultType="java.util.HashMap">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `key`,
+            `type`,
+            `create_time` AS `createTime`,
+            `update_time` AS `updateTime`,
+            `value` AS `rawValue`
+        FROM `hydra_registry_conf_node_properties`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="update">
+        UPDATE `hydra_registry_conf_node_properties`
+        SET
+            `key` = #{key},
+            `type` = #{type},
+            `update_time` = #{updateTime},
+            `value` = #{rawValue}
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+    </update>
+
+    <delete id="removeAll">
+        DELETE FROM `hydra_registry_conf_node_properties`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <insert id="copyPropertiesTo">
+        INSERT INTO `hydra_registry_conf_node_properties`
+        (
+            `guid`,
+            `key`,
+            `type`,
+            `create_time`,
+            `update_time`,
+            `value`
+        )
+        SELECT
+            #{destinationGuid},
+            src_prop.`key`,
+            src_prop.`type`,
+            src_prop.`create_time`,
+            src_prop.`update_time`,
+            src_prop.`value`
+        FROM `hydra_registry_conf_node_properties` AS src_prop
+        WHERE src_prop.`guid` = #{sourceGuid}
+        AND NOT EXISTS
+        (
+            SELECT
+                dest_prop.`guid`
+            FROM `hydra_registry_conf_node_properties` AS dest_prop
+            WHERE dest_prop.`guid` = #{destinationGuid}
+            AND dest_prop.`key` = src_prop.`key`
+        )
+    </insert>
+
+</mapper>

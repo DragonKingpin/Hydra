@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.registry.ibatis.RegistryAttributesMapper">
+
+    <delete id="remove">
+        DELETE FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <insert id="insertAttribute">
+        INSERT INTO `hydra_registry_node_attributes`
+        (
+            `guid`,
+            `key`,
+            `value`
+        )
+        VALUES
+        (
+            #{guid},
+            #{key},
+            #{value}
+        )
+    </insert>
+
+    <select id="getAttributesByGuid" resultType="java.util.HashMap">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `key`,
+            `value`
+        FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="updateAttribute">
+        UPDATE `hydra_registry_node_attributes`
+        SET
+            `value` = #{value}
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+    </update>
+
+    <select id="containsKey" resultType="boolean">
+        SELECT
+            COUNT(`id`)
+        FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+    </select>
+
+    <delete id="clearAttributes">
+        DELETE FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeAttributeWithValue">
+        DELETE FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+        AND `value` = #{value}
+    </delete>
+
+    <delete id="removeAttribute">
+        DELETE FROM `hydra_registry_node_attributes`
+        WHERE `guid` = #{guid}
+        AND `key` = #{key}
+    </delete>
+
+</mapper>

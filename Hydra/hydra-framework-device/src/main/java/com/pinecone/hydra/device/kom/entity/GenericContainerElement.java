@@ -24,6 +24,10 @@ public class GenericContainerElement extends ArchElementNode implements Containe
 
     protected String containerId;
 
+    protected String cpuLimit;
+
+    protected Long memoryLimitMb;
+
     protected ContainerElementManipulator ContainerElementManipulator;
 
 
@@ -107,6 +111,26 @@ public class GenericContainerElement extends ArchElementNode implements Containe
     @Override
     public void setContainerId( String containerId ) {
         this.containerId = containerId;
+    }
+
+    @Override
+    public String getCpuLimit() {
+        return this.cpuLimit;
+    }
+
+    @Override
+    public void setCpuLimit( String cpuLimit ) {
+        this.cpuLimit = cpuLimit;
+    }
+
+    @Override
+    public Long getMemoryLimitMb() {
+        return this.memoryLimitMb;
+    }
+
+    @Override
+    public void setMemoryLimitMb( Long memoryLimitMb ) {
+        this.memoryLimitMb = memoryLimitMb;
     }
 
     @Override

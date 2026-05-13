@@ -21,8 +21,8 @@
     </build>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.acorn.skynet.deploy</groupId>
-    <artifactId>skynet-cloud-deploy</artifactId>
+    <groupId>com.acorn.skynet</groupId>
+    <artifactId>skynet-framework-device</artifactId>
     <version>2.1.0</version>
     <packaging>jar</packaging>
     <modules>
@@ -56,13 +56,13 @@
         </dependency>
         <dependency>
             <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-service-control</artifactId>
+            <artifactId>hydra-framework-device</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-framework-device</artifactId>
+            <artifactId>hydra-device-control</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

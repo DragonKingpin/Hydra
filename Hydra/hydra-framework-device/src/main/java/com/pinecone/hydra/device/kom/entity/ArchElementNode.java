@@ -119,6 +119,11 @@ public abstract class ArchElementNode extends ArchDeviceFamilyMeta implements El
     }
 
     @Override
+    public void setCode( String code ) {
+        this.code = code;
+    }
+
+    @Override
     public void setExtraInformation( String extraInformation ) {
         this.extraInformation = extraInformation;
     }
@@ -131,6 +136,26 @@ public abstract class ArchElementNode extends ArchDeviceFamilyMeta implements El
     @Override
     public void setDeviceType( String deviceType ) {
         this.deviceType = deviceType;
+    }
+
+    @Override
+    public void setCategory( String category ) {
+        this.category = category;
+    }
+
+    @Override
+    public void setClassCode( String classCode ) {
+        this.classCode = classCode;
+    }
+
+    @Override
+    public void setDeploymentProfile( String deploymentProfile ) {
+        this.deploymentProfile = deploymentProfile;
+    }
+
+    @Override
+    public void setTopologyRole( String topologyRole ) {
+        this.topologyRole = topologyRole;
     }
 
     @Override
@@ -158,8 +183,63 @@ public abstract class ArchElementNode extends ArchDeviceFamilyMeta implements El
     }
 
     @Override
+    public void setRegion( String region ) {
+        this.region = region;
+    }
+
+    @Override
+    public void setZone( String zone ) {
+        this.zone = zone;
+    }
+
+    @Override
+    public void setLocation( String location ) {
+        this.location = location;
+    }
+
+    @Override
+    public void setManagementProtocol( String managementProtocol ) {
+        this.managementProtocol = managementProtocol;
+    }
+
+    @Override
+    public void setManagementHost( String managementHost ) {
+        this.managementHost = managementHost;
+    }
+
+    @Override
+    public void setManagementPort( Integer managementPort ) {
+        this.managementPort = managementPort;
+    }
+
+    @Override
+    public void setCredentialRef( String credentialRef ) {
+        this.credentialRef = credentialRef;
+    }
+
+    @Override
     public void setStatus( String status ) {
         this.status = status;
+    }
+
+    @Override
+    public void setLifecycleStatus( String lifecycleStatus ) {
+        this.lifecycleStatus = lifecycleStatus;
+    }
+
+    @Override
+    public void setEnabled( boolean enabled ) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void setTags( String tags ) {
+        this.tags = tags;
+    }
+
+    @Override
+    public void setResourceSummary( String resourceSummary ) {
+        this.resourceSummary = resourceSummary;
     }
 
     @Override

@@ -33,5 +33,14 @@ public interface VirtualMachineElement extends ServerElement {
     String getCpuArch();
     void setCpuArch( String cpuArch );
 
+    Integer getCpuCores();
+    void setCpuCores( Integer cpuCores );
+
+    Long getMemoryMb();
+    void setMemoryMb( Long memoryMb );
+
+    Long getStorageGb();
+    void setStorageGb( Long storageGb );
+
     DeviceExtraMeta getVmExtraMeta();
 }

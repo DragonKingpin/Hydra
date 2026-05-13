@@ -19,6 +19,12 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
 
     protected String cpuArch;
 
+    protected Integer cpuCores;
+
+    protected Long memoryMb;
+
+    protected Long storageGb;
+
     protected DeviceExtraMeta vmExtraMeta;
 
     private void initSelf( Map<String, Object > joEntity ) {
@@ -133,6 +139,36 @@ public class GenericVirtualMachineElement extends ArchServerElement implements V
     @Override
     public void setCpuArch( String cpuArch ) {
         this.cpuArch = cpuArch;
+    }
+
+    @Override
+    public Integer getCpuCores() {
+        return this.cpuCores;
+    }
+
+    @Override
+    public void setCpuCores( Integer cpuCores ) {
+        this.cpuCores = cpuCores;
+    }
+
+    @Override
+    public Long getMemoryMb() {
+        return this.memoryMb;
+    }
+
+    @Override
+    public void setMemoryMb( Long memoryMb ) {
+        this.memoryMb = memoryMb;
+    }
+
+    @Override
+    public Long getStorageGb() {
+        return this.storageGb;
+    }
+
+    @Override
+    public void setStorageGb( Long storageGb ) {
+        this.storageGb = storageGb;
     }
 
     @Override

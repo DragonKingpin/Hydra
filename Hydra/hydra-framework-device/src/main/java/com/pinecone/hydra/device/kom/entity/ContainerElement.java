@@ -20,6 +20,12 @@ public interface ContainerElement extends DeviceElement {
     String getContainerId();
     void setContainerId( String containerId );
 
+    String getCpuLimit();
+    void setCpuLimit( String cpuLimit );
+
+    Long getMemoryLimitMb();
+    void setMemoryLimitMb( Long memoryLimitMb );
+
     @Override
     default ContainerElement evinceContainerElement() {
         return this;

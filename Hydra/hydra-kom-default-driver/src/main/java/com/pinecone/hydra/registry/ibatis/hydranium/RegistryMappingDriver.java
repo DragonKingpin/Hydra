@@ -17,6 +17,7 @@ public class RegistryMappingDriver extends ArchMappingDriver implements KOIMappi
     // Temp , TODO
     public RegistryMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, RegistryMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
+        ibatisClient.addXMLObjectScope( "mapper.kernel.registry" );
 
         this.mKOIMasterManipulator = new RegistryMasterManipulatorImpl( this );
     }

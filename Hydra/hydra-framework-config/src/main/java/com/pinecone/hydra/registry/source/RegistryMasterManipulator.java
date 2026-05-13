@@ -12,10 +12,6 @@ public interface RegistryMasterManipulator extends KOIMasterManipulator {
 
     RegistryTextFileManipulator   getTextFileManipulator();
 
-    RegistryNodeMetaManipulator   getNodeMetaManipulator();
-
-    RegistryNSNodeMetaManipulator getNSNodeMetaManipulator();
-
     RegistryAttributesManipulator getAttributesManipulator();
 
 }

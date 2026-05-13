@@ -8,14 +8,8 @@ import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import com.pinecone.ulf.util.guid.GUIDs;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -25,17 +19,11 @@ import java.util.Map;
 @Mapper
 @IbatisDataAccessObject
 public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator {
-    @Insert("INSERT INTO hydra_registry_conf_node_properties (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) VALUES (#{guid},#{key},#{type},#{createTime},#{updateTime},#{rawValue})")
     void insert( Property property );
 
-    @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid`=#{guid} AND `key`=#{key}")
-    void remove( GUID guid, String key );
+    void remove( @Param("guid") GUID guid, @Param("key") String key );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `key`, `type`, `create_time` AS createTime, `update_time` AS updateTime, `value` AS rawValue FROM hydra_registry_conf_node_properties WHERE `guid`=#{guid}")
-    @Results({
-            @Result(column = "enumId", property = "enumId", javaType = Long.class)
-    })
-    List<Map > getProperties0( GUID guid );
+    List<Map > getProperties0( @Param("guid") GUID guid );
 
     @Override
     default List<Property > getProperties( GUID guid, Properties parent ) {
@@ -63,25 +51,9 @@ public interface RegistryPropertiesMapper extends RegistryPropertiesManipulator 
         return (List) this.getProperties0( guid );
     }
 
-    @Update( "UPDATE `hydra_registry_conf_node_properties` SET `key`=#{key}, `type`=#{type}, update_time=#{updateTime}, value=#{rawValue} WHERE `guid`=#{guid} AND `key`=#{key}" )
     void update( Property property );
 
-    @Delete("DELETE FROM `hydra_registry_conf_node_properties` WHERE `guid` = #{guid}")
-    void removeAll( GUID guid );
+    void removeAll( @Param("guid") GUID guid );
 
-    @Insert( "INSERT INTO `hydra_registry_conf_node_properties` (`guid`, `key`, `type`, `create_time`, `update_time`, `value`) SELECT\n" +
-            "\t#{destinationGuid},\n" +
-            "\t`key`,\n" +
-            "\t`type`,\n" +
-            "\t`create_time`,\n" +
-            "\t`update_time`,\n" +
-            "\t`value` \n" +
-            "FROM\n" +
-            "\t`hydra_registry_conf_node_properties` AS src \n" +
-            "WHERE\n" +
-            "\t`guid` = #{sourceGuid} \n" +
-            "\tAND NOT EXISTS ( \n" +
-            "\tSELECT `guid` FROM `hydra_registry_conf_node_properties` AS dest WHERE dest.`guid` = #{destinationGuid} AND dest.`key` = src.`key` \n" +
-            "\t)" )
     void copyPropertiesTo( @Param("sourceGuid") GUID sourceGuid, @Param("destinationGuid") GUID destinationGuid );
 }

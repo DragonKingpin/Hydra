@@ -4,13 +4,11 @@ import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.entity.ConfigNode;
-import com.pinecone.hydra.registry.entity.ConfigNodeMeta;
 import com.pinecone.hydra.registry.entity.ArchConfigNode;
 import com.pinecone.hydra.registry.entity.Attributes;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -27,7 +25,6 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
     protected Map<GUID, ConfigNode>        cacheMap = new HashMap<>();
 
     protected RegistryConfigNodeManipulator registryConfigNodeManipulator;
-    protected RegistryNodeMetaManipulator   configNodeMetaManipulator;
 
     public ArchConfigNodeOperator( RegistryOperatorFactory factory ) {
         this( factory.getMasterManipulator(), (KOMRegistry) factory.getRegistry() );
@@ -38,7 +35,6 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
         super( masterManipulator, registry );
 
         this.registryConfigNodeManipulator = this.registryMasterManipulator.getConfigNodeManipulator();
-        this.configNodeMetaManipulator     = this.registryMasterManipulator.getNodeMetaManipulator();
     }
 
     @Override
@@ -47,18 +43,6 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize( treeNode );
         GuidAllocator guidAllocator = this.registry.getGuidAllocator();
         GUID guid72                 = configNode.getGuid();
-
-
-        GUID configNodeMetaGuid = guidAllocator.nextGUID();
-        ConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
-        if ( configNodeMeta != null ){
-            configNodeMeta.setGuid(configNodeMetaGuid);
-            this.configNodeMetaManipulator.insert(configNodeMeta);
-        }
-        else {
-            configNodeMetaGuid = null;
-        }
-
 
         GUID commonDataGuid = guidAllocator.nextGUID();
         Attributes attributes = configNode.getAttributes();
@@ -72,7 +56,7 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
 
 
         imperialTreeNode.setBaseDataGUID( commonDataGuid );
-        imperialTreeNode.setNodeMetadataGUID( configNodeMetaGuid );
+        imperialTreeNode.setNodeMetadataGUID( null );
         this.imperialTree.insert(imperialTreeNode);
         this.registryConfigNodeManipulator.insert( configNode );
         return guid72;
@@ -85,7 +69,6 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
         this.imperialTree.purge( guid );
         this.registryConfigNodeManipulator.remove(guid);
         this.attributesManipulator.remove(node.getAttributesGUID());
-        this.configNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.imperialTree.removeCachePath(guid);
     }
 
@@ -119,12 +102,8 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
     @Override
     public void update( TreeNode treeNode ) {
         ConfigNode configNode = (ConfigNode) treeNode;
-        ConfigNodeMeta configNodeMeta = configNode.getConfigNodeMeta();
         Attributes attributes = configNode.getAttributes();
         configNode.setUpdateTime(LocalDateTime.now());
-        if (configNodeMeta != null){
-            this.configNodeMetaManipulator.update(configNodeMeta);
-        }
         if (attributes != null){
             this.attributesManipulator.update(attributes);
         }
@@ -137,13 +116,10 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
     }
 
     protected ConfigNode getConfigNodeWideData( GUID guid ){
-        GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         ConfigNode cn = this.registryConfigNodeManipulator.getConfigNode( guid );
         if( cn instanceof ArchConfigNode ) {
             ((ArchConfigNode) cn).apply( this.registry );
         }
-
-        ConfigNodeMeta configNodeMeta = this.configNodeMetaManipulator.getConfigNodeMeta( node.getNodeMetadataGUID() );
 
         //Notice: Registry attributes is difference from other tree, -- that is, same as DOM;
         //        So in this case, this field is deprecated.
@@ -151,7 +127,7 @@ public abstract class ArchConfigNodeOperator extends ArchRegistryOperator {
 
         Attributes         attributes = this.attributesManipulator.getAttributes( guid, cn );
         cn.setAttributes    ( attributes );
-        cn.setConfigNodeMeta( configNodeMeta );
+        cn.setConfigNodeMeta( null );
         return cn;
     }
 

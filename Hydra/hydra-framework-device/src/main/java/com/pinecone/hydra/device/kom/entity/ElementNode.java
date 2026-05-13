@@ -75,6 +75,10 @@ public interface ElementNode extends DeviceTreeNode, DeviceFamilyNode, ElementOb
 
     void setAlias(String alias);
 
+    String getCode();
+
+    void setCode( String code );
+
     String getExtraInformation();
 
     void setExtraInformation(String extraInformation);
@@ -86,6 +90,22 @@ public interface ElementNode extends DeviceTreeNode, DeviceFamilyNode, ElementOb
     String getDeviceType();
 
     void setDeviceType(String deviceType);
+
+    String getCategory();
+
+    void setCategory( String category );
+
+    String getClassCode();
+
+    void setClassCode( String classCode );
+
+    String getDeploymentProfile();
+
+    void setDeploymentProfile( String deploymentProfile );
+
+    String getTopologyRole();
+
+    void setTopologyRole( String topologyRole );
 
     String getVendor();
 
@@ -103,9 +123,53 @@ public interface ElementNode extends DeviceTreeNode, DeviceFamilyNode, ElementOb
 
     void setIpAddress(String ipAddress);
 
+    String getRegion();
+
+    void setRegion( String region );
+
+    String getZone();
+
+    void setZone( String zone );
+
+    String getLocation();
+
+    void setLocation( String location );
+
+    String getManagementProtocol();
+
+    void setManagementProtocol( String managementProtocol );
+
+    String getManagementHost();
+
+    void setManagementHost( String managementHost );
+
+    Integer getManagementPort();
+
+    void setManagementPort( Integer managementPort );
+
+    String getCredentialRef();
+
+    void setCredentialRef( String credentialRef );
+
     String getStatus();
 
     void setStatus(String status);
+
+    String getLifecycleStatus();
+
+    void setLifecycleStatus( String lifecycleStatus );
+
+    boolean isEnabled();
+
+    void setEnabled( boolean enabled );
+
+    String getTags();
+
+    void setTags( String tags );
+
+    String getResourceSummary();
+
+    void setResourceSummary( String resourceSummary );
 
     String getDescription();
 

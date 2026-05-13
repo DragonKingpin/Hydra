@@ -11,8 +11,6 @@
         <result column="type"                property="type"/>
         <result column="base_data_guid"      property="baseDataGUID"/>
         <result column="node_meta_guid"      property="nodeMetadataGUID"/>
-        <result column="parent_guid"         property="parentGuid"/>
-        <result column="linked_type"         property="linkedType"/>
     </resultMap>
 
     <resultMap id="ReparseLinkNodeMap" type="com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode">

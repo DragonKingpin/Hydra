@@ -1,45 +1,36 @@
 package com.pinecone.hydra.device.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.imperium.entity.CachePath;
+import com.pinecone.hydra.unit.imperium.entity.GenericCachePath;
 import com.pinecone.hydra.unit.imperium.source.TriePathCacheManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 @IbatisDataAccessObject
 public interface DeviceNodePathCacheMapper extends TriePathCacheManipulator {
     @Override
-    @Insert("INSERT INTO `hydra_device_node_path`(`path`, `guid`) VALUES ( #{path}, #{guid} )")
-    void insert(@Param("guid") GUID guid, @Param("path") String path );
+    void insert( @Param("guid") GUID guid, @Param("path") String path );
 
     @Override
-    @Insert("INSERT INTO `hydra_device_node_path` (path, long_path, guid) VALUES ( #{path},#{longPath},#{guid} )")
     void insertLongPath( @Param("guid") GUID guid, @Param("path") String path, @Param("longPath") String longPath );
 
     @Override
-    @Delete("DELETE FROM `hydra_device_node_path` WHERE `guid`=#{guid}")
-    void remove( GUID guid );
+    void remove( @Param("guid") GUID guid );
 
 
-    default String getPath( GUID guid ){
-        String longPath = this.getLongPath(guid);
-        if ( longPath != null ){
-            return this.getPath0( guid )+this.getLongPath( guid );
+    default String getPath( GUID guid ) {
+        CachePath cachePath = this.getPath0( guid );
+        if ( cachePath == null ) {
+            return null;
         }
-        return this.getPath0( guid );
-    };
 
-    @Select("SELECT `long_path` FROM `hydra_device_node_path` WHERE `guid`=#{guid}")
-    String getLongPath( GUID guid );
+        return cachePath.getResolvedPath();
+    }
 
-    @Select("SELECT `path` FROM `hydra_device_node_path` WHERE `guid`=#{guid}")
-    String getPath0( GUID guid );
+    GenericCachePath getPath0( @Param("guid") GUID guid );
 
-    @Select("SELECT `guid` FROM `hydra_device_node_path` WHERE `guid`=#{guid}")
-    GUID getNode( String path );
+    GUID getNode( @Param("path") String path );
 
-    @Select("SELECT `guid` FROM `hydra_device_node_path` WHERE `path`=#{path}")
-    GUID queryGUIDByPath( String path );
+    GUID queryGUIDByPath( @Param("path") String path );
 }

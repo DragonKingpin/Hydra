@@ -132,6 +132,10 @@ public final class PropertyTypes {
     }
 
     public static boolean isJSON( Object val ) {
+        if( val == null ) {
+            return true;
+        }
+
         Class<?> type = val.getClass();
         return val instanceof JSONObject || val instanceof JSONArray || (
                 type.isPrimitive() ||

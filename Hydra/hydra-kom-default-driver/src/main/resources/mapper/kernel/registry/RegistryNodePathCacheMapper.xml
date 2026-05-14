@@ -5,6 +5,11 @@
 
 <mapper namespace="com.pinecone.hydra.registry.ibatis.RegistryNodePathCacheMapper">
 
+    <resultMap id="RegistryPathCacheMap" type="com.pinecone.hydra.unit.imperium.entity.GenericCachePath">
+        <result column="path" property="path"/>
+        <result column="long_path" property="longPath"/>
+    </resultMap>
+
     <insert id="insert">
         INSERT INTO `hydra_registry_node_cache_path`
         (
@@ -18,14 +23,30 @@
         )
     </insert>
 
+    <insert id="insertLongPath">
+        INSERT INTO `hydra_registry_node_cache_path`
+        (
+            `path`,
+            `long_path`,
+            `guid`
+        )
+        VALUES
+        (
+            #{path},
+            #{longPath},
+            #{guid}
+        )
+    </insert>
+
     <delete id="remove">
         DELETE FROM `hydra_registry_node_cache_path`
         WHERE `guid` = #{guid}
     </delete>
 
-    <select id="getPath" resultType="java.lang.String">
+    <select id="getPath0" resultMap="RegistryPathCacheMap">
         SELECT
-            `path`
+            `path`,
+            `long_path`
         FROM `hydra_registry_node_cache_path`
         WHERE `guid` = #{guid}
     </select>

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.registry.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.framework.util.json.homotype.BeanJSONEncoder;
 
 import java.time.LocalDateTime;
@@ -116,8 +117,9 @@ public class GenericProperty implements Property {
 
     @Override
     public void setRawValue( Object rawValue ) {
-        this.rawValue = rawValue;
-        this.value    = this.converterValue( this.rawValue.toString(), this.type );
+        Object normalizedValue = this.normalizeNullValue( rawValue );
+        this.rawValue = normalizedValue == null ? null : normalizedValue.toString();
+        this.value    = this.converterValue( (String) this.rawValue, this.type );
     }
 
     @Override
@@ -127,9 +129,14 @@ public class GenericProperty implements Property {
 
     @Override
     public void setValue( Object value ) {
-        this.rawValue = value.toString();
-        this.type     = this.queryType( value );
-        this.value    = this.converterValue( this.rawValue.toString(), this.type );
+        Object normalizedValue = this.normalizeNullValue( value );
+        this.rawValue = normalizedValue == null ? null : normalizedValue.toString();
+        this.type     = this.queryType( normalizedValue );
+        this.value    = this.converterValue( (String) this.rawValue, this.type );
+    }
+
+    protected Object normalizeNullValue( Object value ) {
+        return JSON.NULL.equals( value ) ? null : value;
     }
 
     @Override

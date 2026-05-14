@@ -15,6 +15,7 @@ public final class TextValueTypes {
     public final static String YAML_TYPE_NAME        = "Yaml";
     public final static String XML_TYPE_NAME         = "XML";
     public final static String INI_TYPE_NAME         = "INI";
+    public final static String TOML_TYPE_NAME        = "TOML";
 
 
     public static String queryType( Object val ) {
@@ -46,6 +47,9 @@ public final class TextValueTypes {
                 }
                 case TextValueTypes.INI_TYPE_NAME: {
                     return TextValueTypes.INI_TYPE_NAME;
+                }
+                case TextValueTypes.TOML_TYPE_NAME: {
+                    return TextValueTypes.TOML_TYPE_NAME;
                 }
             }
         }

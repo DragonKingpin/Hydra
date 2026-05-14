@@ -9,24 +9,16 @@ import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.io.Chanface;
 import com.pinecone.hydra.storage.io.TitanFileChannelChanface;
 import com.pinecone.hydra.storage.io.TitanOutputStreamChanface;
-import com.pinecone.hydra.storage.bucket.BucketInstrument;
-import com.pinecone.hydra.storage.bucket.entity.Site;
-import com.pinecone.hydra.storage.bucket.source.SiteManipulator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
-import com.pinecone.hydra.storage.file.entity.FileTreeNode;
-import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.transmit.exporter.TitanFileExportEntity64;
 import com.pinecone.hydra.storage.file.transmit.receiver.TitanFileReceiveEntity64;
-import com.pinecone.hydra.storage.version.VersionManage;
-import com.pinecone.hydra.storage.version.entity.TitanVersion;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnut.sparta.uofs.console.domain.dto.DownloadObjectByChannelDTO;
 import com.walnut.sparta.uofs.console.domain.dto.UpdateObjectByChannelDTO;
-import com.walnut.sparta.uofs.console.infrastructure.UOFSConsoleContents;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,12 +51,6 @@ public class TransmitController {
 
     @Resource
     private UniformVolumeManager primaryVolume;
-
-    @Resource
-    private BucketInstrument bucketInstrument;
-
-    @Resource
-    private VersionManage primaryVersion;
 
 //    @Resource
 //    private UOFSConfig uofsConfig;
@@ -180,58 +166,6 @@ public class TransmitController {
             TitanFileExportEntity64 entity = new TitanFileExportEntity64(this.primaryFileSystem, this.primaryVolume, fileNode, kChannel);
             this.primaryFileSystem.export( entity );
         }
-    }
-
-    /**
-     * 上传文件
-     * @param filePath 目标路径
-     * @param version 版本号
-     * @param file 文件
-     * @param siteName 站点
-     * @return 返回操作结果
-     */
-    @PostMapping("/CDNUpload")
-    public BasicResultResponse<String> CDNUpload(@RequestParam("siteName") String siteName, @RequestParam("filePath") String filePath, @RequestParam("version") String version, @RequestParam("file") MultipartFile file) throws IOException {
-        SiteManipulator siteManipulator = this.bucketInstrument.getSiteManipulator();
-        Site site = siteManipulator.querySiteByName(siteName);
-        if( site == null ){
-            return BasicResultResponse.error("站点不存在");
-        }
-        int dotIndex = filePath.lastIndexOf(UOFSConsoleContents.PERIOD);
-        String baseName = filePath.substring(0, dotIndex);
-        String extension = filePath.substring(dotIndex + 1);
-        String realFilePath = this.primaryFileSystem.getPath(site.getMountPointGuid()) + UOFSConsoleContents.FORWARD_SLASH + baseName;
-
-        FSNodeAllotment fsNodeAllotment = this.primaryFileSystem.getFSNodeAllotment();
-        Folder node = this.primaryFileSystem.affirmFolder(realFilePath);
-        String storageObjectPath = realFilePath +UOFSConsoleContents.VERSION_PREFIX+ UOFSConsoleContents.FORWARD_SLASH + version +UOFSConsoleContents.PERIOD+ extension;
-        File tempFile = File.createTempFile("upload",".temp");
-        if( !tempFile.exists() ){
-            throw new IOException( "Creating file compromised, what :" + tempFile.toPath() );
-        }
-        file.transferTo(tempFile);
-
-        FileChannel channel = FileChannel.open(tempFile.toPath(), StandardOpenOption.READ);
-        TitanFileChannelChanface titanFileChannelKChannel = new TitanFileChannelChanface( channel );
-        FileNode fileNode = fsNodeAllotment.newFileNode();
-        fileNode.setDefinitionSize( tempFile.length() );
-        fileNode.setName( tempFile.getName() );
-        TitanFileReceiveEntity64 receiveEntity = new TitanFileReceiveEntity64( this.primaryFileSystem,storageObjectPath, fileNode,titanFileChannelKChannel,this.primaryVolume );
-
-        this.primaryFileSystem.receive( receiveEntity );
-
-        FileTreeNode storageObject = this.primaryFileSystem.get(this.primaryFileSystem.queryGUIDByPath(storageObjectPath));
-        TitanVersion titanVersion = new TitanVersion();
-        titanVersion.setVersion( version );
-        titanVersion.setFileGuid( node.getGuid() );
-        titanVersion.setTargetStorageObjectGuid( storageObject.getGuid() );
-
-        this.primaryVersion.insert( titanVersion );
-        if( !tempFile.delete() ){
-            throw new IOException( "Purging temporary file compromised, what :" + tempFile.toPath() );
-        }
-
-        return BasicResultResponse.success();
     }
 
     /**

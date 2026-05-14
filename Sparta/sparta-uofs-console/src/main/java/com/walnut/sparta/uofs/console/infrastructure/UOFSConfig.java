@@ -11,5 +11,4 @@ public interface UOFSConfig extends Pinenut {
 
     String getStripedVolumeType();
 
-    String getVersionPrefix();
 }

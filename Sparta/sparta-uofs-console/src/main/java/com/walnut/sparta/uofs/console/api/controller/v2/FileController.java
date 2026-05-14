@@ -2,7 +2,6 @@ package com.walnut.sparta.uofs.console.api.controller.v2;
 
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
-import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.ulf.util.guid.GUIDs;
 import com.walnut.sparta.uofs.console.api.response.BasicResultResponse;
 import com.walnut.sparta.uofs.console.domain.dto.RenameDTO;
@@ -29,9 +28,6 @@ public class FileController {
 
     @Resource
     private FileService fileService;
-
-    @Resource
-    private VersionManage primaryVersion;
 
     /**
      * 创建文件

@@ -3,25 +3,20 @@ package com.walnut.sparta.uofs.console.infrastructure;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.functions.Executor;
 import com.pinecone.framework.util.config.JSONConfig;
-import com.pinecone.hydra.bucket.ibatis.hydranium.BucketMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.servgram.Servgram;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
-import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
-import com.pinecone.hydra.storage.version.TitanVersionManage;
-import com.pinecone.hydra.storage.version.VersionManage;
 import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
 import com.pinecone.hydra.system.component.ComponentInitializationException;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.version.ibatis.hydranium.VersionMappingDriver;
 import com.pinecone.hydra.volume.ibatis.hydranium.VolumeMappingDriver;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
@@ -39,20 +34,12 @@ public class SpartaUOFSService extends Springron implements UOFSService {
 
     protected KOIMappingDriver koiFileMappingDriver;
 
-    protected KOIMappingDriver koiBucketMappingDriver;
-
-    protected KOIMappingDriver koiVersionMappingDriver;
-
     protected KOIMappingDriver koiServiceMappingDriver;
 
 
     protected KOMFileSystem fileSystem;
 
     protected UniformVolumeManager volumeTree;
-
-    protected TitanBucketInstrument bucketInstrument;
-
-    protected TitanVersionManage versionManage;
 
     protected ServiceInstrument servicesInstrument;
 
@@ -61,12 +48,6 @@ public class SpartaUOFSService extends Springron implements UOFSService {
                 this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiFileMappingDriver = new FileMappingDriver(
-                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
-        );
-        this.koiBucketMappingDriver = new BucketMappingDriver(
-                this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
-        );
-        this.koiVersionMappingDriver = new VersionMappingDriver(
                 this, (IbatisClient)this.parentSystem().getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.parentSystem().getDispenserCenter()
         );
         this.koiServiceMappingDriver = new ServiceMappingDriver(
@@ -78,8 +59,6 @@ public class SpartaUOFSService extends Springron implements UOFSService {
 
         VolumeConfig volumeConfig = new KernelVolumeConfig( selfConfig.queryJSONObject( "service.PrimaryUniformVolumeManager" ) );
         this.volumeTree         = new UniformVolumeManager( this.koiMappingDriver,volumeConfig );
-        this.bucketInstrument   = new TitanBucketInstrument( this.koiBucketMappingDriver );
-        this.versionManage      = new TitanVersionManage( this.koiVersionMappingDriver );
         this.servicesInstrument = new UniformServiceInstrument( this.koiServiceMappingDriver );
     }
 
@@ -94,8 +73,6 @@ public class SpartaUOFSService extends Springron implements UOFSService {
                         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
                         genericApplicationContext.registerBean("primaryFileSystem", UniformObjectFileSystem.class, () -> (UniformObjectFileSystem) fileSystem);
                         genericApplicationContext.registerBean("primaryVolume", UniformVolumeManager.class, () -> (UniformVolumeManager) volumeTree);
-                        genericApplicationContext.registerBean("primaryBucket", TitanBucketInstrument.class, () -> (TitanBucketInstrument) bucketInstrument);
-                        genericApplicationContext.registerBean("primaryVersion", VersionManage.class, () -> (VersionManage) versionManage);
                         genericApplicationContext.registerBean("primaryService", ServiceInstrument.class, () ->  servicesInstrument);
                     }
                 });

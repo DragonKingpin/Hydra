@@ -17,6 +17,7 @@ public class VolumeMappingDriver extends ArchMappingDriver implements KOIMapping
     public VolumeMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, VolumeMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 
+        ibatisClient.addXMLObjectScope( "mapper.kernel.volume" );
         this.mKOIMasterManipulator = new VolumeMasterManipulatorImpl( this );
     }
 

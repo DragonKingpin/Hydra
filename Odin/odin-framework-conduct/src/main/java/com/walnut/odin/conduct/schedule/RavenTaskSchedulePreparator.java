@@ -3,11 +3,12 @@ package com.walnut.odin.conduct.schedule;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +27,15 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.slime.meta.TableIndex64Meta;
 
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.entity.GenericInstanceAtlasAdjacent;
-import com.walnut.odin.conduct.entity.GenericInstanceAtlasNode;
 import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceAtlasAdjacent;
-import com.walnut.odin.conduct.entity.InstanceAtlasNode;
 import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceFrame;
+import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceLineage;
+import com.walnut.odin.conduct.schedule.entity.TaskScheduleContext;
+import com.walnut.odin.conduct.schedule.lineage.RavenTaskInstanceLineageFreezer;
+import com.walnut.odin.conduct.schedule.lineage.TaskInstanceLineageFreezer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -44,15 +46,22 @@ import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
+import com.walnut.odin.task.troll.GenericRavenTaskInstance;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
-    // Generate daily batches in advance (24h/Cycle)
-    // 每日提前生成当日批次（24h/Cycle）
     public static final Collection<TaskScheduleCycle> DailyTaskScheduleCycles = List.of(
-            TaskScheduleCycle.Month, TaskScheduleCycle.Week, TaskScheduleCycle.Day, TaskScheduleCycle.Hour
+            TaskScheduleCycle.Month, TaskScheduleCycle.Week, TaskScheduleCycle.Day
+    );
+
+    public static final Collection<TaskScheduleCycle> HourlyTaskScheduleCycles = List.of(
+            TaskScheduleCycle.Hour
+    );
+
+    public static final Collection<TaskScheduleCycle> FastTaskScheduleCycles = List.of(
+            TaskScheduleCycle.Minute
     );
 
     private Logger log = LoggerFactory.getLogger( this.getClass() );
@@ -61,6 +70,9 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     private RavenTaskConfig               mRavenTaskConfig;
     private int                           mnScanThreadCount;
     private long                          mnScanIdWindow;
+    private long                          mnFastLookAheadSeconds;
+    private long                          mnFastCatchUpLimitMinutes;
+    private int                           mnFastMaxInstancesPerTask;
 
     private UniformTaskScheduler          mTaskScheduler;
     private TaskExecutionLauncher         mTaskExecutionLauncher;
@@ -76,14 +88,25 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     private InstanceExecMapper            mInstanceExecMapper;
     private InstanceEventMapper           mInstanceEventMapper;
 
+    private TaskInstanceLineageFreezer    mTaskInstanceLineageFreezer;
+    private TaskScheduleTimeResolver      mTaskScheduleTimeResolver;
 
     private ExecutorService               mExecutorService;
+
+    protected interface ScheduleTaskBatchHandler {
+
+        Collection<TaskElement> handle( Collection<TaskElement> elements, LocalDateTime scanTargetTime );
+
+    }
 
     public RavenTaskSchedulePreparator( UniformTaskScheduler taskScheduler ) {
         this.mTaskScheduler                = taskScheduler;
         this.mRavenTaskConfig              = taskScheduler.ravenTaskConfig();
         this.mnScanThreadCount             = this.mRavenTaskConfig.getScheduleScanThreadCount();
         this.mnScanIdWindow                = this.mRavenTaskConfig.getScheduleScanIdWindow();
+        this.mnFastLookAheadSeconds        = 60;
+        this.mnFastCatchUpLimitMinutes     = 10;
+        this.mnFastMaxInstancesPerTask     = 1;
 
         this.mRuntimeAtlasInstrument       = taskScheduler.atlasInstrument();
         this.mTaskExecutionLauncher        = taskScheduler.taskExecutionLauncher();
@@ -100,6 +123,13 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mInstanceExecMapper           = this.mScheduleManipulator.getInstanceExecMapper();
         this.mInstanceEventMapper          = this.mScheduleManipulator.getInstanceEventMapper();
 
+        this.mTaskScheduleTimeResolver     = new TaskScheduleTimeResolver();
+        this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer(
+                this.mGuidAllocator,
+                this.mRuntimeAtlasInstrument,
+                this.mInstanceAtlasNodeMapper,
+                this.mInstanceAtlasAdjacentMapper
+        );
         this.mExecutorService              = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskSchedulePreparator Construction) <Done>" );
@@ -130,11 +160,11 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
                 return context;
             }
 
-            context.setThisScheduleTime( LocalDateTime.now() ); // 初始化用当前时间
-            context.setNextScheduleTime( firstFireTime ); // 已经向前推进了
-            element.setNextScheduleTime( firstFireTime );
-            this.mTaskNodeManipulator.update( element );
-            return context; // next 已经是下一次了
+            LocalDateTime advanced = ScheduleCronHelper.computeNextByCron( cron, firstFireTime );
+            context.setThisScheduleTime( firstFireTime );
+            context.setNextScheduleTime( advanced );
+            element.setNextScheduleTime( advanced );
+            return context;
         }
 
 
@@ -146,108 +176,181 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         if ( !advanced.equals( next ) ) {
             element.setNextScheduleTime( advanced );
             context.setNextScheduleTime( advanced );
-            //this.mTaskNodeManipulator.update( element );
         }
 
         return context;
     }
 
-    protected void prepareInstance( TaskScheduleContext context, RavenTaskInstance that ) {
+    protected String resolveScheduleCron( TaskElement element ) {
+        TaskScheduleCycle cycle = element.getScheduleCycle();
+        String cron = element.getScheduleCron();
+        if ( cycle == null ) {
+            return cron;
+        }
+
+        if ( cron == null || cron.isBlank() ) {
+            cron = ScheduleCronHelper.generateDefaultCron( cycle );
+            element.setScheduleCron( cron );
+        }
+        return cron;
+    }
+
+    protected Collection<TaskScheduleContext> prepareFastTaskScheduleTimeOffsets(
+            TaskElement element, LocalDateTime targetTime, LocalDateTime lookAheadTarget
+    ) {
+        Collection<TaskScheduleContext> contexts = new ArrayList<>();
+        String cron = this.resolveScheduleCron( element );
+        if ( cron == null || cron.isBlank() ) {
+            return contexts;
+        }
+
+        LocalDateTime fireTime = element.getNextScheduleTime();
+        if ( fireTime == null ) {
+            fireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
+        }
+
+        if ( fireTime == null ) {
+            return contexts;
+        }
+
+        LocalDateTime catchUpFloor = targetTime.minusMinutes( this.mnFastCatchUpLimitMinutes );
+        boolean skippedStaleFireTimes = false;
+        if ( fireTime.isBefore( catchUpFloor ) ) {
+            fireTime = ScheduleCronHelper.computeNextByCron( cron, catchUpFloor.minusSeconds( 1 ) );
+            skippedStaleFireTimes = true;
+        }
+
+        if ( fireTime == null ) {
+            return contexts;
+        }
+
+        if ( fireTime.isAfter( lookAheadTarget ) ) {
+            if ( skippedStaleFireTimes ) {
+                element.setNextScheduleTime( fireTime );
+                this.mTaskNodeManipulator.update( element );
+            }
+            return contexts;
+        }
+
+        int nPrepared = 0;
+        while ( !fireTime.isAfter( lookAheadTarget ) && nPrepared < this.mnFastMaxInstancesPerTask ) {
+            LocalDateTime next = ScheduleCronHelper.computeNextByCron( cron, fireTime );
+            TaskScheduleContext context = new TaskScheduleContext( element, targetTime );
+            context.setThisScheduleTime( fireTime );
+            context.setNextScheduleTime( next );
+            contexts.add( context );
+
+            if ( next == null ) {
+                break;
+            }
+
+            fireTime = next;
+            nPrepared++;
+        }
+
+        return contexts;
+    }
+
+    protected boolean isParentInstanceLineageResolvable( TaskScheduleContext context, Set<GUID> batchTaskGuids ) {
+        TaskElement element = context.getElement();
+        GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
+        if ( graphNode == null ) {
+            return true;
+        }
+
+        List<GUID> parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
+        if ( parentIds == null || parentIds.isEmpty() ) {
+            return true;
+        }
+
+        LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime( element, context.getThisScheduleTime() );
+        for ( GUID parentId : parentIds ) {
+            TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentId );
+            if ( parentElement == null ) {
+                return false;
+            }
+            if ( batchTaskGuids.contains( parentElement.getGuid() ) ) {
+                continue;
+            }
+            if ( businessTime == null ) {
+                if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() ) != null ) {
+                    continue;
+                }
+                return false;
+            }
+            if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected Collection<TaskScheduleContext> filterLineageResolvableContexts( Collection<TaskScheduleContext> contexts ) {
+        Collection<TaskScheduleContext> result = new ArrayList<>();
+        Set<GUID> batchTaskGuids = new HashSet<>();
+        for ( TaskScheduleContext context : contexts ) {
+            batchTaskGuids.add( context.getElement().getGuid() );
+        }
+
+        for ( TaskScheduleContext context : contexts ) {
+            if ( this.isParentInstanceLineageResolvable( context, batchTaskGuids ) ) {
+                result.add( context );
+            }
+            else {
+                log.info(
+                        "[TaskSchedulerLifecycle] Skip preparing task `{}` because parent instance lineage is not ready.",
+                        context.getElement().getName()
+                );
+            }
+        }
+        return result;
+    }
+
+    protected void persistPreparedTaskScheduleOffsets( Collection<ScheduledTaskInstanceLineage> lineages ) {
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            TaskScheduleContext context = lineage.getContext();
+            if ( context.getNextScheduleTime() == null ) {
+                continue;
+            }
+            TaskElement element = context.getElement();
+            element.setNextScheduleTime( context.getNextScheduleTime() );
+            this.mTaskNodeManipulator.update( element );
+        }
+    }
+
+    protected ScheduledTaskInstanceFrame prepareInstance( TaskScheduleContext context, RavenTask task, LocalDateTime targetTime ) {
+        TaskElement element = context.getElement();
+        LocalDateTime expectTime = context.getThisScheduleTime();
+        LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime( element, expectTime );
+        if ( businessTime != null ) {
+            InstanceEntry existing = this.mUniformTaskInstrument.getInstanceInstrument().queryInstanceByTaskGuidAndBusinessTime(
+                    element.getGuid(), businessTime
+            );
+            if ( existing != null ) {
+                return new ScheduledTaskInstanceFrame( context, new GenericRavenTaskInstance( existing, task ), false );
+            }
+        }
+
+        RavenTaskInstance that = task.createInstance();
         LaunchFeature feature = new LaunchFeature();
+        feature.setBizTimeEpoch( expectTime == null ? LocalDateTime.now() : expectTime );
         InstanceEntry it = that.getInstanceEntry();
-        it.setExpectTime( context.getThisScheduleTime() ); // 先更新，后面会插入，妈的
+        it.setExpectTime( expectTime );
+        it.setBusinessTime( businessTime );
+        it.setFireTime( targetTime );
 
         this.mTaskExecutionLauncher.initializeInstance( that, feature );  // 这里会完成实例插入
+        return new ScheduledTaskInstanceFrame( context, that, true );
     }
 
-    protected ScheduledTaskInstanceLineage prepareInstanceLineageFrame( TaskScheduleContext context, RavenTaskInstance instance ) {
+    protected void ensureTaskExec( TaskScheduleContext context, RavenTaskInstance instance ) {
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
-
-        GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
-        List<GUID> parentIds = new ArrayList<>();
-
-        InstanceAtlasNode instanceNode = new GenericInstanceAtlasNode();
-
-        instanceNode.setGuid( this.mGuidAllocator.nextGUID() );
-        instanceNode.setInstanceGuid( instanceGuid );
-        instanceNode.setNodeName( instance.getOwnedTask().getName() );
-
-        if ( graphNode != null ) {
-            parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
+        int nRetryCnt = instance.getInstanceEntry().getRetryCnt();
+        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry( instanceGuid, nRetryCnt ) != null ) {
+            return;
         }
-
-        return new ScheduledTaskInstanceLineage( context, instance, graphNode, parentIds, instanceNode );
-    }
-
-    protected InstanceAtlasNode resolveParentInstanceAtlasNode(
-            TaskScheduleContext context, GUID parentGraphNodeGuid, Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid
-    ) {
-        ScheduledTaskInstanceLineage inMemory = lineageByGraphNodeGuid.get( parentGraphNodeGuid );
-        if ( inMemory != null ) {
-            return inMemory.getInstanceAtlasNode();
-        }
-
-        TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentGraphNodeGuid );
-        if ( parentElement == null ) {
-            return null;
-        }
-
-        return this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() );
-    }
-
-    protected void prepareInstanceLineages( Collection<ScheduledTaskInstanceLineage> lineages ) {
-        Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid = new HashMap<>();
-        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            GraphNode graphNode = lineage.getGraphNode();
-            if ( graphNode != null ) {
-                lineageByGraphNodeGuid.put( graphNode.getId(), lineage );
-            }
-        }
-
-        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            List<GUID> parentIds = lineage.getParentIds();
-            List<InstanceAtlasAdjacent> adjacents = new ArrayList<>();
-
-            if ( parentIds != null && !parentIds.isEmpty() ) {
-                for ( GUID parentId : parentIds ) {
-                    InstanceAtlasNode parentNode = this.resolveParentInstanceAtlasNode( lineage.getContext(), parentId, lineageByGraphNodeGuid );
-                    if ( parentNode == null ) {
-                        throw new IllegalStateException( "Cannot resolve parent instance atlas node. Parent graph node: " + parentId );
-                    }
-
-                    InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
-                    adjacent.setGuid( lineage.getInstanceAtlasNode().getGuid() );
-                    adjacent.setParentGuid( parentNode.getGuid() );
-                    adjacents.add( adjacent );
-                }
-            }
-
-            lineage.getInstanceAtlasNode().setSource( adjacents.isEmpty() );
-            lineage.setAdjacents( adjacents );
-        }
-
-        this.persistInstanceAtlasNodes( lineages );
-        this.persistInstanceAtlasAdjacents( lineages );
-    }
-
-    protected void persistInstanceAtlasNodes( Collection<ScheduledTaskInstanceLineage> lineages ) {
-        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            this.mInstanceAtlasNodeMapper.insert( lineage.getInstanceAtlasNode() );
-        }
-    }
-
-    protected void persistInstanceAtlasAdjacents( Collection<ScheduledTaskInstanceLineage> lineages ) {
-        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            for ( InstanceAtlasAdjacent adjacent : lineage.getAdjacents() ) {
-                this.mInstanceAtlasAdjacentMapper.insert( adjacent );
-            }
-        }
-    }
-
-    protected void persistTaskExec( TaskScheduleContext context, RavenTaskInstance instance ) {
-        TaskElement element = context.getElement();
-        GUID instanceGuid = instance.getInstanceEntry().getGuid();
 
         InstanceExec exec = new GenericInstanceExec();
         exec.setTaskGuid( element.getGuid() );
@@ -255,16 +358,21 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         exec.setTaskName( instance.getOwnedTask().getName() );
         exec.setInstanceName( instance.getInstanceEntry().getInstanceName() );
         exec.setProcessorQueue( "default" );
+        exec.setImagePath( instance.getInstanceEntry().getImagePath() );
         exec.setClusterName( "local_cluster" );
         exec.setExecState( TaskInstanceExecState.Submitted.getName() );
-        exec.setCurrentRetryNumber( 0 );
-        exec.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
+        exec.setCurrentRetryNumber( nRetryCnt );
+        exec.setRetryTimes( nRetryCnt );
         this.mInstanceExecMapper.insert( exec );
     }
 
-    protected void triggerTaskEventTimeReady( TaskScheduleContext context, RavenTaskInstance instance ) {
+    protected void ensureTaskEventTimeReady( TaskScheduleContext context, RavenTaskInstance instance ) {
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
+        String eventState = InstanceEventType.TaskTimeReady.getName();
+        if ( this.mInstanceEventMapper.queryByInstanceGuidAndState( instanceGuid, eventState ) != null ) {
+            return;
+        }
 
         InstanceEvent event = new GenericInstanceEvent();
         event.setGuid( this.mGuidAllocator.nextGUID() );
@@ -272,33 +380,36 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         event.setInstanceGuid( instanceGuid );
         event.setInstanceName( instance.getInstanceEntry().getInstanceName() );
         event.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
-        event.setCurrentRetryNumber( 0 );
+        event.setCurrentRetryNumber( instance.getInstanceEntry().getRetryCnt() );
         event.setEventType( instance.getTaskType() );
-        event.setState( InstanceEventType.TaskTimeReady.getName() );
+        event.setState( eventState );
         event.setExecTime( LocalDateTime.now() );
         event.setEventContext( "{}" );
         this.mScheduleManipulator.getInstanceEventMapper().insert( event );
     }
 
     protected void prepareTaskInstances( Collection<TaskScheduleContext> contexts, LocalDateTime targetTime ) {
-        List<ScheduledTaskInstanceLineage> lineages = new ArrayList<>();
+        Collection<ScheduledTaskInstanceFrame> frames = new ArrayList<>();
+        contexts = this.filterLineageResolvableContexts( contexts );
+        if ( contexts.isEmpty() ) {
+            return;
+        }
 
         for ( TaskScheduleContext context : contexts ) {
             TaskElement element = context.getElement();
 
             RavenTask task = this.mCentralizedTaskInstrument.constructTask( element );
-            RavenTaskInstance instance = task.createInstance();
-
-            this.prepareInstance( context, instance );
-            lineages.add( this.prepareInstanceLineageFrame( context, instance ) );
+            frames.add( this.prepareInstance( context, task, targetTime ) );
         }
 
-        this.prepareInstanceLineages( lineages );
+        Collection<ScheduledTaskInstanceLineage> lineages = this.mTaskInstanceLineageFreezer.freeze( frames );
 
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            this.persistTaskExec( lineage.getContext(), lineage.getInstance() );
-            this.triggerTaskEventTimeReady( lineage.getContext(), lineage.getInstance() );
+            this.ensureTaskExec( lineage.getContext(), lineage.getInstance() );
+            this.ensureTaskEventTimeReady( lineage.getContext(), lineage.getInstance() );
         }
+
+        this.persistPreparedTaskScheduleOffsets( lineages );
     }
 
     protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
@@ -317,14 +428,32 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         return elements;
     }
 
+    protected Collection<TaskElement> prepareFastScheduleTasks(
+            Collection<TaskElement> elements, LocalDateTime targetTime, LocalDateTime lookAheadTarget
+    ) {
+        if ( elements == null || elements.isEmpty() ) {
+            return elements;
+        }
+
+        Collection<TaskScheduleContext> contexts = new ArrayList<>();
+        for ( TaskElement element : elements ) {
+            contexts.addAll( this.prepareFastTaskScheduleTimeOffsets( element, targetTime, lookAheadTarget ) );
+        }
+
+        this.prepareTaskInstances( contexts, targetTime );
+        Debug.traceSyn( elements );
+        return elements;
+    }
+
     @Override
     public UniformTaskScheduler taskScheduler() {
         return this.mTaskScheduler;
     }
 
 
-    @Override
-    public void prepareSchedulableTasks( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime ) {
+    protected void prepareSchedulableTasksAndWait(
+            Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime, ScheduleTaskBatchHandler handler
+    ) {
         if ( targetTime == null ) {
             targetTime = LocalDateTime.now();
         }
@@ -341,6 +470,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         }
 
         long cursor = idMin;
+        Collection<Future<?>> futures = new ArrayList<>();
         while ( cursor <= idMax ) {
             long windowStart = cursor;
             long windowEnd   = cursor + this.mnScanIdWindow - 1;
@@ -353,15 +483,18 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             final long finalEnd   = windowEnd;
 
             LocalDateTime finalTargetTime = targetTime;
-            this.mExecutorService.submit( () -> {
+            Future<?> future = this.mExecutorService.submit( () -> {
                 try {
                     log.info( "[TaskSchedulerLifecycle] Preparing schedulable tasks (Start: {}, End: {}) <Start>", finalStart, finalEnd );
 
                     Collection<TaskElement> elements = this.mTaskNodeManipulator.fetchSchedulableTasksInRange(
                             finalStart, finalEnd, cycles, finalTargetTime
                     );
+                    if ( elements == null ) {
+                        elements = List.of();
+                    }
 
-                    elements = this.prepareScheduleTasks( elements, finalTargetTime );
+                    elements = handler.handle( elements, finalTargetTime );
 
                     log.info( "[TaskSchedulerLifecycle] Preparing schedulable tasks (Start: {}, End: {}, Size: {}) <Done>", finalStart, finalEnd, elements.size() );
                 }
@@ -369,122 +502,54 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
                     log.error( "[TaskSchedulerLifecycle] Preparing schedulable tasks (Start: {}, End: {}) <Error>", finalStart, finalEnd, e );
                 }
             } );
+            futures.add( future );
 
             cursor = windowEnd + 1;
+        }
+
+        for ( Future<?> future : futures ) {
+            try {
+                future.get();
+            }
+            catch ( Exception e ) {
+                log.error( "[TaskSchedulerLifecycle] Waiting schedulable task preparation <Error>", e );
+            }
         }
     }
 
     @Override
-    public void prepareSchedulableTasksDaily( LocalDateTime targetTime ) {
-        this.prepareSchedulableTasks( DailyTaskScheduleCycles, targetTime );
+    public void prepareSchedulableTasksAndWait( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime ) {
+        this.prepareSchedulableTasksAndWait( cycles, targetTime, this::prepareScheduleTasks );
+    }
+
+    @Override
+    public void prepareDailySchedulableTasksAndWait( LocalDateTime targetTime ) {
+        this.prepareSchedulableTasksAndWait( DailyTaskScheduleCycles, targetTime );
+    }
+
+    @Override
+    public void prepareHourlySchedulableTasksAndWait( LocalDateTime targetTime ) {
+        this.prepareSchedulableTasksAndWait( HourlyTaskScheduleCycles, targetTime );
+    }
+
+    @Override
+    public void prepareFastSchedulableTasksAndWait( LocalDateTime targetTime ) {
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+
+        LocalDateTime scanTargetTime = targetTime.plusSeconds( this.mnFastLookAheadSeconds );
+        LocalDateTime finalTargetTime = targetTime;
+        this.prepareSchedulableTasksAndWait(
+                FastTaskScheduleCycles,
+                scanTargetTime,
+                ( elements, lookAheadTarget ) -> this.prepareFastScheduleTasks( elements, finalTargetTime, lookAheadTarget )
+        );
     }
 
     @Override
     public List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime ) {
         return this.mTaskNodeManipulator.fetchSchedulableTasksInRange( idMin, idMax, cycles, targetTime );
-    }
-
-    @Override
-    public List<TaskElement> fetchSchedulableTasksDaily( long idMin, long idMax, LocalDateTime targetTime ) {
-        return this.mTaskNodeManipulator.fetchSchedulableTasksInRange( idMin, idMax, DailyTaskScheduleCycles, targetTime );
-    }
-
-
-
-
-
-
-    public static class TaskScheduleContext {
-        protected TaskElement element;
-        protected LocalDateTime targetTime;
-        protected LocalDateTime nextScheduleTime;
-        protected LocalDateTime thisScheduleTime;
-
-        public TaskScheduleContext( TaskElement element, LocalDateTime targetTime ) {
-            this.element = element;
-            this.targetTime = targetTime;
-        }
-
-        public TaskElement getElement() {
-            return this.element;
-        }
-
-        public void setElement( TaskElement element ) {
-            this.element = element;
-        }
-
-        public LocalDateTime getTargetTime() {
-            return this.targetTime;
-        }
-
-        public void setTargetTime( LocalDateTime targetTime ) {
-            this.targetTime = targetTime;
-        }
-
-        public LocalDateTime getNextScheduleTime() {
-            return this.nextScheduleTime;
-        }
-
-        public void setNextScheduleTime( LocalDateTime nextScheduleTime ) {
-            this.nextScheduleTime = nextScheduleTime;
-        }
-
-        public LocalDateTime getThisScheduleTime() {
-            return this.thisScheduleTime;
-        }
-
-        public void setThisScheduleTime( LocalDateTime thisScheduleTime ) {
-            this.thisScheduleTime = thisScheduleTime;
-        }
-    }
-
-    protected static class ScheduledTaskInstanceLineage {
-        protected TaskScheduleContext context;
-        protected RavenTaskInstance instance;
-        protected GraphNode graphNode;
-        protected List<GUID> parentIds;
-        protected InstanceAtlasNode instanceAtlasNode;
-        protected List<InstanceAtlasAdjacent> adjacents;
-
-        public ScheduledTaskInstanceLineage(
-                TaskScheduleContext context, RavenTaskInstance instance, GraphNode graphNode,
-                List<GUID> parentIds, InstanceAtlasNode instanceAtlasNode
-        ) {
-            this.context = context;
-            this.instance = instance;
-            this.graphNode = graphNode;
-            this.parentIds = parentIds;
-            this.instanceAtlasNode = instanceAtlasNode;
-            this.adjacents = new ArrayList<>();
-        }
-
-        public TaskScheduleContext getContext() {
-            return this.context;
-        }
-
-        public RavenTaskInstance getInstance() {
-            return this.instance;
-        }
-
-        public GraphNode getGraphNode() {
-            return this.graphNode;
-        }
-
-        public List<GUID> getParentIds() {
-            return this.parentIds;
-        }
-
-        public InstanceAtlasNode getInstanceAtlasNode() {
-            return this.instanceAtlasNode;
-        }
-
-        public List<InstanceAtlasAdjacent> getAdjacents() {
-            return this.adjacents;
-        }
-
-        public void setAdjacents( List<InstanceAtlasAdjacent> adjacents ) {
-            this.adjacents = adjacents;
-        }
     }
 
 }

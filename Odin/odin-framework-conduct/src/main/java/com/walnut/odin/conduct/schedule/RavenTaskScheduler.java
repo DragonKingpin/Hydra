@@ -8,6 +8,8 @@ import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.recovery.KernelTaskSchedulerReconciler;
+import com.walnut.odin.conduct.recovery.TaskSchedulerReconciler;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -34,6 +36,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private InstanceScheduleImpetus      mInstanceScheduleImpetus;
 
     private InstanceScheduleAllocator    mInstanceScheduleAllocator;
+    private TaskSchedulerReconciler      mTaskSchedulerReconciler;
     private String                       mszPartitionName;
 
     public RavenTaskScheduler(
@@ -56,6 +59,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mInstanceScheduleAllocator  = new RavenScheduleAllocator( this ); // [1]
         this.mTaskSchedulePreparator     = new RavenTaskSchedulePreparator( this ); // [2]
         this.mInstanceScheduleImpetus    = new RavenInstanceScheduleImpetus( this ); // [3]
+        this.mTaskSchedulerReconciler    = new KernelTaskSchedulerReconciler( this ); // [4]
 
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskScheduler Construction) <Done>" );
@@ -112,9 +116,30 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         return this.mszPartitionName;
     }
 
-    public void fetch() {
-        //this.mTaskSchedulePreparator.prepareSchedulableTasksDaily( LocalDateTime.now() );
-        this.mInstanceScheduleImpetus.impelPrelaunchInstances( LocalDateTime.now() );
+    @Override
+    public void pulseSchedule() {
+        this.pulseSchedule( LocalDateTime.now() );
+    }
+
+    @Override
+    public void pulseSchedule( LocalDateTime pulseTime ) {
+        if ( pulseTime == null ) {
+            pulseTime = LocalDateTime.now();
+        }
+
+        this.mTaskSchedulerReconciler.reconcileLightweight( pulseTime );
+        this.mTaskSchedulePreparator.prepareHourlySchedulableTasksAndWait( pulseTime );
+        this.mTaskSchedulePreparator.prepareFastSchedulableTasksAndWait( pulseTime );
+        this.mInstanceScheduleImpetus.impelPrelaunchInstances( pulseTime );
+    }
+
+    @Override
+    public void pulseScheduleDaily( LocalDateTime pulseTime ) {
+        if ( pulseTime == null ) {
+            pulseTime = LocalDateTime.now();
+        }
+
+        this.mTaskSchedulePreparator.prepareDailySchedulableTasksAndWait( pulseTime );
     }
 
 

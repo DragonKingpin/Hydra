@@ -42,6 +42,8 @@ public interface TaskExecutionProcessor extends Pinenut {
 
     UProcess directlyCreate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
+    UProcess directlyCreatePrepared( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
     UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
 
@@ -56,6 +58,8 @@ public interface TaskExecutionProcessor extends Pinenut {
     PipelineLaunchReport prepare(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 
     PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
+
+    PipelineLaunchReport pipeCreatePrepared(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 
     PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException;
 

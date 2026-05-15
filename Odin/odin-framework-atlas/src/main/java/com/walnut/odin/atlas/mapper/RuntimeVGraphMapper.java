@@ -3,8 +3,6 @@ package com.walnut.odin.atlas.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -96,31 +94,15 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     }
 
     @Override
-    @Update("UPDATE `hydra_atlas_vgraph_nodes` " +
-            "SET " +
-            "    `task_guid` = #{graphNode.taskGuid}, " +
-            "    `node_name` = #{graphNode.nodeName}, " +
-            "    `node_description` = #{graphNode.nodeDescription} " +
-            "WHERE `guid` = #{graphNode.guid}")
     void updateNode(  @Param("graphNode") GraphNode graphNode );
 
     @Override
     List<GUID> fetchHandleGuids( @Param("offset") long offset, @Param("limit") long limit);
 
     @Override
-    @Select("SELECT havn.guid " +
-            "FROM hydra_atlas_vgraph_nodes havn " +
-            "JOIN hydra_atlas_vgraph_task_mapping vatm ON havn.guid = vatm.vgraph_node_guid " +
-            "JOIN hydra_task_task_node httn ON vatm.task_guid = httn.guid " +
-            "WHERE havn.is_source = 1 " +
-            "ORDER BY httn.priority " +
-            "LIMIT #{limit} OFFSET #{offset}")
-    List<GUID> fetchHandleGuidsByTaskPriority( long offset, long limit );
+    List<GUID> fetchHandleGuidsByTaskPriority( @Param("offset") long offset, @Param("limit") long limit );
 
     @Override
-    @Select("SELECT COUNT(havn.guid) " +
-            "FROM `hydra_atlas_vgraph_nodes` havn " +
-            "WHERE havn.`is_source` = 1")
     long countSourceNodes();
 
     @Override

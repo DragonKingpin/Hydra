@@ -9,6 +9,7 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.walnut.odin.conduct.entity.LaunchedContext;
 import com.walnut.odin.conduct.entity.RegimentJoinRequest;
 import com.walnut.odin.conduct.entity.RegimentJoinResponse;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
@@ -42,6 +43,8 @@ public interface CollectiveTaskRegiment extends Regiment, Slf4jTraceable {
     TaskExecutionLauncher taskExecutionLauncher();
 
     TaskDispatcher taskDispatcher();
+
+    TaskInstanceLifecycleInstrument taskInstanceLifecycleInstrument();
 
     void startRemoteProcessServer() throws RemoteProcessServiceRPCException;
 

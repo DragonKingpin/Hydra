@@ -17,11 +17,18 @@ public interface InstanceAtlasNodeMapper extends InstanceNodeManipulator {
 
     void insert( InstanceAtlasNode instanceAtlasNode );
 
+    void updateSourceByGuid( @Param( "guid" ) GUID guid, @Param( "source" ) boolean source );
+
     InstanceAtlasNode queryByInstanceGuid( @Param( "instanceGuid" ) GUID instanceGuid );
 
     InstanceAtlasNode queryByTaskGuidAndExpectTime(
             @Param( "taskGuid" ) GUID taskGuid,
             @Param( "expectTime" ) LocalDateTime expectTime
+    );
+
+    InstanceAtlasNode queryByTaskGuidAndBusinessTime(
+            @Param( "taskGuid" ) GUID taskGuid,
+            @Param( "businessTime" ) LocalDateTime businessTime
     );
 
     List<DependencyBlockage> fetchDependencyBlockages(

@@ -178,7 +178,7 @@ class Rick extends EnderHydra {
 
 
         RavenTaskScheduler scheduler = (RavenTaskScheduler) odin.taskScheduler();
-        scheduler.fetch();
+        scheduler.pulseSchedule();
     }
 
 

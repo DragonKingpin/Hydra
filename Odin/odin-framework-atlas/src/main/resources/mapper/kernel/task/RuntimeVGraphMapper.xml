@@ -71,6 +71,15 @@
           )
     </update>
 
+    <update id="updateNode">
+        UPDATE `hydra_atlas_vgraph_nodes`
+        SET
+            `task_guid` = #{graphNode.taskGuid},
+            `node_name` = #{graphNode.nodeName},
+            `node_description` = #{graphNode.nodeDescription}
+        WHERE `guid` = #{graphNode.guid}
+    </update>
+
     <!-- ================= BASIC QUERY ================= -->
 
     <select id="queryNode" resultMap="TaskAtlasNodeMap">
@@ -181,6 +190,24 @@
         FROM `hydra_atlas_vgraph_nodes`
         WHERE `is_source` = 1
             LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="fetchHandleGuidsByTaskPriority" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT havn.`guid`
+        FROM `hydra_atlas_vgraph_nodes` AS havn
+                 JOIN `hydra_atlas_vgraph_task_mapping` AS vatm
+                      ON havn.`guid` = vatm.`vgraph_node_guid`
+                 JOIN `hydra_task_task_node` AS httn
+                      ON vatm.`task_guid` = httn.`guid`
+        WHERE havn.`is_source` = 1
+        ORDER BY httn.`priority`
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSourceNodes" resultType="long">
+        SELECT COUNT(havn.`guid`)
+        FROM `hydra_atlas_vgraph_nodes` AS havn
+        WHERE havn.`is_source` = 1
     </select>
 
     <select id="fetchDownstreamNodeGuid" resultType="com.pinecone.framework.util.id.GUID">

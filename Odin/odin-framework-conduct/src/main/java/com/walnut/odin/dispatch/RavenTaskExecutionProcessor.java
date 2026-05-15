@@ -173,6 +173,21 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
+    public UProcess directlyCreatePrepared( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.prepareSysEventHandle( feature );
+
+        if ( this.mbLocal ) {
+            return this.mTaskExecutionLauncher.createPreparedLocally( instance, feature );
+        }
+
+        return this.mTaskExecutionLauncher.createPreparedRemotely(
+                instance,
+                this.mnControlClientId,
+                feature
+        );
+    }
+
+    @Override
     public UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         this.prepareSysEventHandle( feature );
 
@@ -234,8 +249,10 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         );
     }
 
-    protected PipelineLaunchReport pipeOpt( Collection<TaskLaunchContext> contexts, boolean directlyLaunch ) throws TaskDispatchException {
-        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( directlyLaunch );
+    protected PipelineLaunchReport pipeOpt(
+            Collection<TaskLaunchContext> contexts, boolean directlyLaunch, boolean preparedCreation
+    ) throws TaskDispatchException {
+        RTaskInstanceConsumer consumer = new RTaskInstanceConsumer( directlyLaunch, preparedCreation );
         Collection<TaskLaunchContext> consumed = this.mTaskExecutionQueue.pipeConsume( contexts, consumer );
         List<UProcess> launched = consumer.getLaunched();
 
@@ -250,12 +267,17 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public PipelineLaunchReport pipeCreate(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
-        return this.pipeOpt( contexts, false );
+        return this.pipeOpt( contexts, false, false );
+    }
+
+    @Override
+    public PipelineLaunchReport pipeCreatePrepared(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+        return this.pipeOpt( contexts, false, true );
     }
 
     @Override
     public PipelineLaunchReport pipeLaunch(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
-        return this.pipeOpt( contexts, true );
+        return this.pipeOpt( contexts, true, false );
     }
 
     @Override
@@ -302,10 +324,16 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         public List<UProcess> launched;
 
         public boolean directlyLaunch;
+        public boolean preparedCreation;
 
         public RTaskInstanceConsumer( boolean directlyLaunch ) {
+            this( directlyLaunch, false );
+        }
+
+        public RTaskInstanceConsumer( boolean directlyLaunch, boolean preparedCreation ) {
             this.launched = new ArrayList<>();
             this.directlyLaunch = directlyLaunch;
+            this.preparedCreation = preparedCreation;
         }
 
         @Override
@@ -314,6 +342,9 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
                 UProcess proc;
                 if ( this.directlyLaunch ) {
                     proc = directlyLaunch( context.getTaskInstance(), context.getLaunchFeature() );
+                }
+                else if ( this.preparedCreation ) {
+                    proc = directlyCreatePrepared( context.getTaskInstance(), context.getLaunchFeature() );
                 }
                 else {
                     proc = directlyCreate( context.getTaskInstance(), context.getLaunchFeature() );

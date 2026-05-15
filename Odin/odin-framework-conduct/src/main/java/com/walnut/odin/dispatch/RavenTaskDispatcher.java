@@ -190,7 +190,24 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             this.mLock.unlock();
         }
 
-        return this.executeScheme( plan, true );
+        return this.executeScheme( plan, true, false );
+    }
+
+    @Override
+    public PipelineLaunchReport pipeCreatePrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
+
+        this.mLock.lock();
+        try {
+            plan = this.mDispatchStrategy.dispatch(
+                    new ArrayList<>( this.mProcessors.values() ), contexts, this
+            );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+
+        return this.executeScheme( plan, true, true );
     }
 
     @Override
@@ -207,11 +224,11 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             this.mLock.unlock();
         }
 
-        return this.executeScheme( plan, false );
+        return this.executeScheme( plan, false, false );
     }
 
     protected PipelineLaunchReport executeScheme(
-            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bCreation
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bCreation, boolean bPrepared
     ) throws InstanceLaunchException, TaskDispatchException {
         List<UProcess> launched = new ArrayList<>();
         List<TaskLaunchContext> consumed = new ArrayList<>();
@@ -223,7 +240,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
             PipelineLaunchReport report;
 
-            if ( bCreation ) {
+            if ( bCreation && bPrepared ) {
+                report = processor.pipeCreatePrepared( assigned );
+            }
+            else if ( bCreation ) {
                 report = processor.pipeCreate( assigned );
             }
             else {

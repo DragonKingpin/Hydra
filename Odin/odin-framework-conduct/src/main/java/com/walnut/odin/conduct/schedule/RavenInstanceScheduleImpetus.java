@@ -28,6 +28,10 @@ import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
 import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
@@ -63,6 +67,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private InstanceAtlasNodeMapper    mInstanceAtlasNodeMapper;
 
     private InstanceScheduleAllocator  mInstanceScheduleAllocator;
+    private TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
     private ExecutorService            mExecutorService;
 
     public RavenInstanceScheduleImpetus( UniformTaskScheduler taskScheduler ) {
@@ -83,6 +88,10 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mInstanceAtlasNodeMapper    = this.mScheduleManipulator.getInstanceAtlasNodeMapper();
 
         this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
+        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
+                this.mInstanceInstrument,
+                this.mScheduleManipulator.getInstanceEventMapper()
+        );
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
@@ -98,17 +107,38 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         return status == TaskInstanceStatus.New || status == TaskInstanceStatus.DependencyWait;
     }
 
+    protected TaskInstanceTransitionReason resolveTransitionReason( TaskInstanceStatus status ) {
+        if ( status == TaskInstanceStatus.DependencyWait ) {
+            return TaskInstanceTransitionReason.DependencyReady;
+        }
+        if ( status == TaskInstanceStatus.ResourceWait ) {
+            return TaskInstanceTransitionReason.DependencyReady;
+        }
+        if ( status == TaskInstanceStatus.DepartureStandby ) {
+            return TaskInstanceTransitionReason.DepartureReady;
+        }
+        if ( status == TaskInstanceStatus.ProcessCreating ) {
+            return TaskInstanceTransitionReason.ProcessCreationClaim;
+        }
+        return TaskInstanceTransitionReason.Manual;
+    }
+
     protected void updateInstanceStatus( InstanceEntry instance, TaskInstanceStatus status ) throws MetaPersistenceException {
         if ( instance == null || status == null ) {
             return;
         }
 
-        if ( instance.getInstanceStatus() == status ) {
+        TaskInstanceStatus fromStatus = instance.getInstanceStatus();
+        if ( fromStatus == status ) {
             return;
         }
 
-        instance.setInstanceStatus( status );
-        this.mInstanceInstrument.updateInstance( instance );
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transit(
+                instance.getGuid(), fromStatus, status, this.resolveTransitionReason( status )
+        );
+        if ( result.isSucceeded() ) {
+            instance.setInstanceStatus( status );
+        }
     }
 
     protected Collection<GUID> fetchDependencyCheckInstanceGuids( Collection<InstanceEntry> instances ) {
@@ -265,13 +295,31 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     }
 
     protected Collection<TaskLaunchContext> prepareDepartureLaunchContexts(
-            Collection<InstanceEntry> departureStandbyInstances
-    ) {
+            Collection<InstanceEntry> departureStandbyInstances, LocalDateTime scheduleTime
+    ) throws MetaPersistenceException {
         if ( departureStandbyInstances == null || departureStandbyInstances.isEmpty() ) {
             return List.of();
         }
 
-        return this.initializePrelaunchSequence( departureStandbyInstances );
+        Collection<InstanceEntry> claimedInstances = new ArrayList<>();
+        for ( InstanceEntry instance : departureStandbyInstances ) {
+            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitWithScheduleTime(
+                    instance.getGuid(),
+                    TaskInstanceStatus.DepartureStandby,
+                    TaskInstanceStatus.ProcessCreating,
+                    TaskInstanceTransitionReason.ProcessCreationClaim,
+                    scheduleTime
+            );
+            if ( !result.isSucceeded() ) {
+                continue;
+            }
+
+            instance.setScheduleTime( scheduleTime );
+            instance.setInstanceStatus( TaskInstanceStatus.ProcessCreating );
+            claimedInstances.add( instance );
+        }
+
+        return this.initializePrelaunchSequence( claimedInstances );
     }
 
     protected static class DependencyBlockageIndex {
@@ -369,9 +417,9 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                     }
 
                     this.fitResourceWaitInstances( resourceWaitInstances, departureStandbyInstances );
-                    Collection<TaskLaunchContext> launchContexts = this.prepareDepartureLaunchContexts( departureStandbyInstances );
+                    Collection<TaskLaunchContext> launchContexts = this.prepareDepartureLaunchContexts( departureStandbyInstances, finalTargetTime );
                     if ( !launchContexts.isEmpty() ) {
-                        this.mTaskScheduler.taskDispatcher().pipeLaunch( launchContexts );
+                        this.mTaskScheduler.taskDispatcher().pipeCreatePrepared( launchContexts );
                     }
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
@@ -396,42 +444,6 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 targetTime
         );
     }
-
-    /*protected void processAndFireInstances( List<InstanceEntry> instances ) throws MetaPersistenceException {
-        for ( InstanceEntry instance : instances ) {
-            try {
-                log.info( "GUID: {}, Name: {}", instance.getGuid(), instance.getInstanceName() );
-                instance.setInstanceStatus( TaskInstanceStatus.ResourceWait );
-                instance.setRunStatus(TaskInstanceStatus.ResourceWait.getName());
-                instance.setStartTime( LocalDateTime.now() );
-                this.mInstanceInstrument.updateInstance( instance );
-                //log.info(this.mInstanceInstrument.getInstanceEntry(instance.getGuid()).getRunStatus());
-                InstanceExec execUpdate = new GenericInstanceExec();
-                execUpdate.setInstanceGuid( instance.getGuid() );
-                execUpdate.setExecState( TaskInstanceExecState.Submitted.getName() );
-                this.mScheduleManipulator.getInstanceExecMapper().updateStateByInstanceGuid( execUpdate );
-
-                InstanceEvent event = new GenericInstanceEvent();
-                event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
-                event.setTaskGuid( instance.getTaskGuid() );
-                event.setInstanceGuid( instance.getGuid() );
-                event.setInstanceName( instance.getInstanceName() );
-                event.setEventType( instance.getTaskType() );
-                event.setState( InstanceEventType.CheckDependencyReady.getName() );
-                event.setExecTime( LocalDateTime.now() );
-                event.setEventContext( "{}" );
-                //    this.mScheduleManipulator.getInstanceEventMapper().insert( event );
-                //LaunchFeature feature = new LaunchFeature();
-                //  this.mTaskExecutionLauncher.launchLocally( instance, feature );
-
-            }
-            catch ( MetaPersistenceException e ) {
-                instance.setInstanceStatus( TaskInstanceStatus.Error );
-                this.mInstanceInstrument.updateInstance( instance );
-            }
-        }
-    }*/
-
 
     @Override
     public UniformTaskScheduler taskScheduler() {

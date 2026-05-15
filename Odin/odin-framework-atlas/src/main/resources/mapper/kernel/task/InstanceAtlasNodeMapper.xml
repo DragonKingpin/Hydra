@@ -24,6 +24,12 @@
                  )
     </insert>
 
+    <update id="updateSourceByGuid">
+        UPDATE odin_task_instance_atlas_nodes
+        SET is_source = #{source}
+        WHERE guid = #{guid}
+    </update>
+
     <select id="queryByInstanceGuid" resultMap="InstanceAtlasNodeMap">
         SELECT
             `guid`,
@@ -46,6 +52,20 @@
                       ON task_instance.`guid` = instance_node.`instance_guid`
         WHERE task_instance.`task_guid` = #{taskGuid}
           AND task_instance.`expect_time` = #{expectTime}
+        LIMIT 1
+    </select>
+
+    <select id="queryByTaskGuidAndBusinessTime" resultMap="InstanceAtlasNodeMap">
+        SELECT
+            instance_node.`guid`,
+            instance_node.`instance_guid`,
+            instance_node.`node_name`,
+            instance_node.`is_source`
+        FROM `odin_task_instance_atlas_nodes` AS instance_node
+                 JOIN `hydra_task_instances` AS task_instance
+                      ON task_instance.`guid` = instance_node.`instance_guid`
+        WHERE task_instance.`task_guid` = #{taskGuid}
+          AND task_instance.`business_time` = #{businessTime}
         LIMIT 1
     </select>
 

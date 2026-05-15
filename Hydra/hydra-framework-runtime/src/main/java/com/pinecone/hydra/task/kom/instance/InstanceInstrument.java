@@ -37,6 +37,18 @@ public interface InstanceInstrument extends Instrument {
 
     List<InstanceEntry> queryInstances( GUID taskGuid, long offset, long pageSize );
 
+    InstanceEntry queryInstanceByTaskGuidAndExpectTime( GUID taskGuid, LocalDateTime expectTime );
+
+    InstanceEntry queryInstanceByTaskGuidAndBusinessTime( GUID taskGuid, LocalDateTime businessTime );
+
+    int transitStatus( GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus );
+
+    int transitStatusWithScheduleTime(
+            GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus, LocalDateTime scheduleTime
+    );
+
+    int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus );
+
     TaskInstrument getTaskInstrument();
 
     InstanceEntry makeInstanceEntry( GUID taskGuid, @Nullable String insName, @Nullable LocalDateTime bizTime );

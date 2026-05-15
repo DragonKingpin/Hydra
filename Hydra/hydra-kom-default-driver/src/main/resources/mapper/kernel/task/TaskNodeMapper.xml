@@ -73,7 +73,7 @@
                 #{dryRun},
                 #{scheduleCycle},
                 #{scheduleType},
-                #{processor_name},
+                #{processorName},
                 #{enable},
                 #{createTime},
                 #{updateTime}
@@ -102,7 +102,7 @@
             schedule_start_time = #{scheduleStartTime},
             schedule_end_time   = #{scheduleEndTime},
             next_schedule_time  = #{nextScheduleTime},
-            processor_name      = #{processorName}
+            processor_name      = #{processorName},
             enable              = #{enable},
             update_time         = #{updateTime}
         WHERE guid = #{guid}

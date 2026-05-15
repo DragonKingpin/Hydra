@@ -216,6 +216,30 @@
 
     </select>
 
+    <select id="queryByTaskGuidAndExpectTime0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+          AND expect_time = #{expectTime}
+        ORDER BY id ASC
+        LIMIT 1
+
+    </select>
+
+    <select id="queryByTaskGuidAndBusinessTime0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+          AND business_time = #{businessTime}
+        ORDER BY id ASC
+        LIMIT 1
+
+    </select>
+
     <select id="countInstanceByTaskGuid" resultType="long">
 
         SELECT COUNT(*)
@@ -223,6 +247,40 @@
         WHERE task_guid = #{taskGuid}
 
     </select>
+
+    <update id="transitStatus0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status = #{fromStatus}
+
+    </update>
+
+    <update id="transitStatusWithScheduleTime0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            schedule_time = #{scheduleTime},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status = #{fromStatus}
+
+    </update>
+
+    <update id="transitStatusIn0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status IN
+        <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
+            #{fromStatus}
+        </foreach>
+
+    </update>
 
     <select id="findLastExecuted0" resultMap="InstanceResultMap">
 

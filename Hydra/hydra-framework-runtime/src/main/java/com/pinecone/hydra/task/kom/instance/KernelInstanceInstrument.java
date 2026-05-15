@@ -75,6 +75,33 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public InstanceEntry queryInstanceByTaskGuidAndExpectTime( GUID taskGuid, LocalDateTime expectTime ) {
+        return this.mInstanceManipulator.queryByTaskGuidAndExpectTime( this.mTaskInstrument, taskGuid, expectTime );
+    }
+
+    @Override
+    public InstanceEntry queryInstanceByTaskGuidAndBusinessTime( GUID taskGuid, LocalDateTime businessTime ) {
+        return this.mInstanceManipulator.queryByTaskGuidAndBusinessTime( this.mTaskInstrument, taskGuid, businessTime );
+    }
+
+    @Override
+    public int transitStatus( GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatus( instanceGuid, fromStatus, toStatus );
+    }
+
+    @Override
+    public int transitStatusWithScheduleTime(
+            GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus, LocalDateTime scheduleTime
+    ) {
+        return this.mInstanceManipulator.transitStatusWithScheduleTime( instanceGuid, fromStatus, toStatus, scheduleTime );
+    }
+
+    @Override
+    public int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatusIn( instanceGuid, fromStatuses, toStatus );
+    }
+
+    @Override
     public long countInstanceByGuid( GUID taskGuid ) {
         return this.mInstanceManipulator.countInstanceByTaskGuid( taskGuid );
     }

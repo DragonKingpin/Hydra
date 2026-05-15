@@ -28,24 +28,7 @@ public interface AtlasInstrument extends Instrument {
 
     GuidAllocator getGuidAllocator();
 
-    List<String> getPath( GUID guid );
-
-    GUID queryGUIDByPath( String path );
-
     GUID queryParentID( GUID guid );
-
-    default GUID assertPath( String path, String pathType ) throws IllegalArgumentException {
-        GUID guid      = this.queryGUIDByPath( path );
-        if( guid == null ) {
-            throw new IllegalArgumentException( "Undefined " + pathType + " '" + path + "'" );
-        }
-
-        return guid;
-    }
-
-    default GUID assertPath( String path ) throws IllegalArgumentException {
-        return this.assertPath( path, "path" );
-    }
 
     boolean contains( GUID handleNode, GUID nodeGuid );
 
@@ -55,13 +38,9 @@ public interface AtlasInstrument extends Instrument {
 
     GraphNode get( GUID guid );
 
-    GUID queryGUIDByNS( String path, String szBadSep, String szTargetSep );
-
     TreeNode get(GUID guid, int depth );
 
     void remove( GUID guid );
-
-    void remove( String path );
 
     List<GraphNode> getChildren( GUID guid );
 

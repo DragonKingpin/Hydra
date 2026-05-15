@@ -17,6 +17,7 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Mapper
@@ -68,6 +69,73 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             entry.apply( instrument );
         }
         return (List) list;
+    }
+
+    GenericInstanceEntry queryByTaskGuidAndExpectTime0(
+            @Param("taskGuid") GUID taskGuid,
+            @Param("expectTime") LocalDateTime expectTime
+    );
+
+    @Override
+    default InstanceEntry queryByTaskGuidAndExpectTime( TaskInstrument instrument, GUID taskGuid, LocalDateTime expectTime ) {
+        GenericInstanceEntry entry = this.queryByTaskGuidAndExpectTime0( taskGuid, expectTime );
+        if ( entry == null ) {
+            return null;
+        }
+        entry.apply( instrument );
+        return entry;
+    }
+
+    GenericInstanceEntry queryByTaskGuidAndBusinessTime0(
+            @Param("taskGuid") GUID taskGuid,
+            @Param("businessTime") LocalDateTime businessTime
+    );
+
+    @Override
+    default InstanceEntry queryByTaskGuidAndBusinessTime( TaskInstrument instrument, GUID taskGuid, LocalDateTime businessTime ) {
+        GenericInstanceEntry entry = this.queryByTaskGuidAndBusinessTime0( taskGuid, businessTime );
+        if ( entry == null ) {
+            return null;
+        }
+        entry.apply( instrument );
+        return entry;
+    }
+
+    int transitStatus0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatus" ) String szFromStatus,
+            @Param( "toStatus" ) String szToStatus
+    );
+
+    @Override
+    default int transitStatus( GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus ) {
+        return this.transitStatus0( instanceGuid, fromStatus.getName(), toStatus.getName() );
+    }
+
+    int transitStatusWithScheduleTime0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatus" ) String szFromStatus,
+            @Param( "toStatus" ) String szToStatus,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime
+    );
+
+    @Override
+    default int transitStatusWithScheduleTime(
+            GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus, LocalDateTime scheduleTime
+    ) {
+        return this.transitStatusWithScheduleTime0( instanceGuid, fromStatus.getName(), toStatus.getName(), scheduleTime );
+    }
+
+    int transitStatusIn0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus
+    );
+
+    @Override
+    default int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusIn0( instanceGuid, szFromStatuses, toStatus.getName() );
     }
 
     long countInstanceByTaskGuid( GUID taskGuid );

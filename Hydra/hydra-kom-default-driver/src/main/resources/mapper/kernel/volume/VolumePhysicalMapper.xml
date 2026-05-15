@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumePhysicalMapper">
+
+    <resultMap id="VolumePhysicalMap" type="com.pinecone.hydra.storage.volume.core.VolumePhysical">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="device_guid" property="deviceGuid"/>
+        <result column="name" property="name"/>
+        <result column="physical_type" property="physicalType"/>
+        <result column="status" property="status"/>
+        <result column="endpoint" property="endpoint"/>
+        <result column="root_path" property="rootPath"/>
+        <result column="capacity_bytes" property="capacityBytes"/>
+        <result column="used_bytes" property="usedBytes"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="PhysicalColumns">
+        id, guid, device_guid, name, physical_type, status, endpoint, root_path, capacity_bytes,
+        used_bytes, ext_config, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysical">
+        INSERT INTO hydra_volume_physical
+            (guid, device_guid, name, physical_type, status, endpoint, root_path, capacity_bytes, used_bytes, ext_config)
+        VALUES
+            (#{guid}, #{deviceGuid}, #{name}, #{physicalType}, #{status}, #{endpoint}, #{rootPath}, #{capacityBytes}, #{usedBytes}, #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysical">
+        UPDATE hydra_volume_physical
+        SET
+            name = #{name},
+            device_guid = #{deviceGuid},
+            physical_type = #{physicalType},
+            status = #{status},
+            endpoint = #{endpoint},
+            root_path = #{rootPath},
+            capacity_bytes = #{capacityBytes},
+            used_bytes = #{usedBytes},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumePhysicalMap">
+        SELECT <include refid="PhysicalColumns"/>
+        FROM hydra_volume_physical
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="listAll" resultMap="VolumePhysicalMap">
+        SELECT <include refid="PhysicalColumns"/>
+        FROM hydra_volume_physical
+        WHERE status != 'DELETED'
+        ORDER BY id ASC
+    </select>
+
+    <delete id="remove">
+        DELETE FROM hydra_volume_physical WHERE guid = #{guid}
+    </delete>
+</mapper>

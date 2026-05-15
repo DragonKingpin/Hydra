@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumeExtentMapper">
+
+    <resultMap id="VolumeExtentMap" type="com.pinecone.hydra.storage.volume.core.VolumeExtent">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="parent_guid" property="parentGuid"/>
+        <result column="child_guid" property="childGuid"/>
+        <result column="physical_guid" property="physicalGuid"/>
+        <result column="role" property="role"/>
+        <result column="ordinal_no" property="ordinal"/>
+        <result column="parent_offset" property="parentOffset"/>
+        <result column="child_offset" property="childOffset"/>
+        <result column="physical_offset" property="physicalOffset"/>
+        <result column="length_bytes" property="length"/>
+        <result column="status" property="status"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="ExtentColumns">
+        id, guid, parent_guid, child_guid, physical_guid, role, ordinal_no, parent_offset,
+        child_offset, physical_offset, length_bytes, status, ext_config, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumeExtent">
+        INSERT INTO hydra_volume_extent
+            (guid, parent_guid, child_guid, physical_guid, role, ordinal_no, parent_offset,
+             child_offset, physical_offset, length_bytes, status, ext_config)
+        VALUES
+            (#{guid}, #{parentGuid}, #{childGuid}, #{physicalGuid}, #{role}, #{ordinal},
+             #{parentOffset}, #{childOffset}, #{physicalOffset}, #{length}, COALESCE(#{status}, 'READY'), #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumeExtent">
+        UPDATE hydra_volume_extent
+        SET
+            parent_guid = #{parentGuid},
+            child_guid = #{childGuid},
+            physical_guid = #{physicalGuid},
+            role = #{role},
+            ordinal_no = #{ordinal},
+            parent_offset = #{parentOffset},
+            child_offset = #{childOffset},
+            physical_offset = #{physicalOffset},
+            length_bytes = #{length},
+            status = #{status},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumeExtentMap">
+        SELECT <include refid="ExtentColumns"/>
+        FROM hydra_volume_extent
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="listByParentGuid" resultMap="VolumeExtentMap">
+        SELECT <include refid="ExtentColumns"/>
+        FROM hydra_volume_extent
+        WHERE parent_guid = #{parentGuid} AND status != 'DELETED'
+        ORDER BY ordinal_no ASC, id ASC
+    </select>
+
+    <select id="listByPhysicalGuid" resultMap="VolumeExtentMap">
+        SELECT <include refid="ExtentColumns"/>
+        FROM hydra_volume_extent
+        WHERE physical_guid = #{physicalGuid} AND status != 'DELETED'
+        ORDER BY physical_offset ASC, id ASC
+    </select>
+
+    <delete id="remove">
+        DELETE FROM hydra_volume_extent WHERE guid = #{guid}
+    </delete>
+
+    <delete id="removeByParentGuid">
+        DELETE FROM hydra_volume_extent WHERE parent_guid = #{parentGuid}
+    </delete>
+</mapper>

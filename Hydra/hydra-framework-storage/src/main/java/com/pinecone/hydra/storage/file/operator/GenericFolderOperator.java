@@ -3,25 +3,20 @@ package com.pinecone.hydra.storage.file.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.entity.FileSystemAttributes;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
-import com.pinecone.hydra.storage.file.entity.FolderMeta;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
-import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.framework.util.id.GuidAllocator;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenericFolderOperator extends ArchFileSystemOperator{
+public class GenericFolderOperator extends ArchFileSystemOperator {
     private FolderManipulator       folderManipulator;
-    private FolderMetaManipulator   folderMetaManipulator;
 
     public GenericFolderOperator(FileSystemOperatorFactory factory ) {
         this( factory.getMasterManipulator(), factory.getFileSystem() );
@@ -31,38 +26,16 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
     public GenericFolderOperator(FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
         super( masterManipulator, fileSystem );
         this.folderManipulator      =   masterManipulator.getFolderManipulator();
-        this.folderMetaManipulator  =   masterManipulator.getFolderMetaManipulator();
     }
 
     @Override
     public GUID insert(TreeNode treeNode) {
         Folder folder  = (Folder) treeNode;
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize(treeNode);
-        GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         GUID guid = folder.getGuid();
 
-        FileSystemAttributes attributes = folder.getAttributes();
-        GUID attributesGuid = guidAllocator.nextGUID();
-        if ( attributes != null ){
-            attributes.setGuid(attributesGuid);
-            this.fileSystemAttributeManipulator.insert(attributes);
-        }
-        else {
-            attributesGuid = null;
-        }
-
-        FolderMeta folderMeta = folder.getFolderMeta();
-        GUID folderMetaGuid = guidAllocator.nextGUID();
-        if ( folderMeta != null ){
-            folderMeta.setGuid(folderMetaGuid);
-            this.folderMetaManipulator.insert(folderMeta);
-        }
-        else {
-            folderMetaGuid = null;
-        }
-
-        imperialTreeNode.setNodeMetadataGUID(folderMetaGuid);
-        imperialTreeNode.setBaseDataGUID(attributesGuid);
+        imperialTreeNode.setNodeMetadataGUID(null);
+        imperialTreeNode.setBaseDataGUID(null);
         this.imperialTree.insert(imperialTreeNode);
         this.folderManipulator.insert(folder);
         return guid;
@@ -158,10 +131,6 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
             fd.setChildrenGuids( guids, depth );
         }
 
-        FileSystemAttributes attributes = this.fileSystemAttributeManipulator.getAttributes( guid, fd );
-        FolderMeta folderMeta = this.folderMetaManipulator.getFolderMetaByGuid( node.getNodeMetadataGUID() );
-        fd.setAttributes    ( attributes );
-        fd.setFolderMeta ( folderMeta );
         return fd;
     }
 
@@ -172,7 +141,5 @@ public class GenericFolderOperator extends ArchFileSystemOperator{
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
         this.folderManipulator.remove(guid);
-        this.folderMetaManipulator.remove(node.getNodeMetadataGUID());
-        //this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
     }
 }

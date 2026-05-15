@@ -3,7 +3,6 @@ package com.pinecone.hydra.storage.file.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ArchElementNode;
-import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 
 import com.pinecone.hydra.system.ko.UOIUtils;
@@ -15,11 +14,10 @@ import com.pinecone.framework.util.id.GuidAllocator;
 
 import java.time.LocalDateTime;
 
-public abstract class ArchFileSystemOperator implements FileSystemOperator{
+public abstract class ArchFileSystemOperator implements FileSystemOperator {
     protected KOMFileSystem                     fileSystem;
     protected FileSystemOperatorFactory         factory;
     protected ImperialTree                      imperialTree;
-    protected FileSystemAttributeManipulator    fileSystemAttributeManipulator;
     protected FileMasterManipulator             fileMasterManipulator;
 
     public ArchFileSystemOperator( FileSystemOperatorFactory factory ) {
@@ -29,7 +27,6 @@ public abstract class ArchFileSystemOperator implements FileSystemOperator{
 
     public ArchFileSystemOperator( FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
         this.imperialTree =  fileSystem.getMasterTrieTree();
-        this.fileSystemAttributeManipulator =  masterManipulator.getAttributeManipulator();
         this.fileSystem                     =  fileSystem;
         this.fileMasterManipulator          =  masterManipulator;
     }

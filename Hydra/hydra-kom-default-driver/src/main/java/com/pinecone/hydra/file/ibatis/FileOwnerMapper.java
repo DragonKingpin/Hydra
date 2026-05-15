@@ -50,7 +50,7 @@ public interface FileOwnerMapper extends TireOwnerManipulator {
     List<GUID > getSubordinates( GUID guid );
 
 
-    @Update("UPDATE `hydra_uofs_node_tree` SET `linked_type` = '#{linkedType}' WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
+    @Update("UPDATE `hydra_uofs_node_tree` SET `linked_type` = #{linkedType} WHERE `guid` = #{sourceGuid} AND `parent_guid` = #{targetGuid}")
     void setLinkedType( @Param("sourceGuid") GUID sourceGuid, @Param("targetGuid") GUID targetGuid, @Param("linkedType") LinkedType linkedType );
 
     @Select("SELECT `linked_type` FROM `hydra_uofs_node_tree` WHERE `guid` = #{childGuid} AND `parent_guid` =#{parentGuid}")

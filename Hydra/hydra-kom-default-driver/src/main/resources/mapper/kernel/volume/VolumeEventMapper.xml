@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumeEventMapper">
+
+    <resultMap id="VolumeEventMap" type="com.pinecone.hydra.storage.volume.core.VolumeEvent">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="volume_guid" property="volumeGuid"/>
+        <result column="physical_guid" property="physicalGuid"/>
+        <result column="event_type" property="eventType"/>
+        <result column="event_status" property="eventStatus"/>
+        <result column="event_payload" property="eventPayload"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="EventColumns">
+        id, guid, volume_guid, physical_guid, event_type, event_status, event_payload, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumeEvent">
+        INSERT INTO hydra_volume_event
+            (guid, volume_guid, physical_guid, event_type, event_status, event_payload)
+        VALUES
+            (#{guid}, #{volumeGuid}, #{physicalGuid}, #{eventType}, #{eventStatus}, #{eventPayload})
+    </insert>
+
+    <select id="get" resultMap="VolumeEventMap">
+        SELECT <include refid="EventColumns"/>
+        FROM hydra_volume_event
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="listByVolumeGuid" resultMap="VolumeEventMap">
+        SELECT <include refid="EventColumns"/>
+        FROM hydra_volume_event
+        WHERE volume_guid = #{volumeGuid}
+        ORDER BY create_time ASC, id ASC
+    </select>
+
+    <select id="listByPhysicalGuid" resultMap="VolumeEventMap">
+        SELECT <include refid="EventColumns"/>
+        FROM hydra_volume_event
+        WHERE physical_guid = #{physicalGuid}
+        ORDER BY create_time ASC, id ASC
+    </select>
+</mapper>

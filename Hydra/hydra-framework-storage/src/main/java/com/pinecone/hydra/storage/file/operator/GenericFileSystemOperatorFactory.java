@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
+import com.pinecone.hydra.storage.file.entity.GenericSymbolic;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class GenericFileSystemOperatorFactory implements FileSystemOperatorFactory{
+public class GenericFileSystemOperatorFactory implements FileSystemOperatorFactory {
     protected FileMasterManipulator            fileMasterManipulator;
     @JsonIgnore
     protected KOMFileSystem                    fileSystem;
@@ -29,6 +30,7 @@ public class GenericFileSystemOperatorFactory implements FileSystemOperatorFacto
     protected void registerDefaultMetaTypes() {
         this.registerDefaultMetaType( GenericFolder.class );
         this.registerDefaultMetaType( GenericFileNode.class );
+        this.registerDefaultMetaType( GenericSymbolic.class );
     }
 
     public GenericFileSystemOperatorFactory( KOMFileSystem fileSystem, FileMasterManipulator fileMasterManipulator ){
@@ -48,6 +50,11 @@ public class GenericFileSystemOperatorFactory implements FileSystemOperatorFacto
         this.registerer.put(
                 DefaultExternalSymbolic,
                 new GenericExternalSymbolicOperator(this)
+        );
+
+        this.registerer.put(
+                DefaultSymbolic,
+                new GenericSymbolicOperator(this)
         );
 
         this.registerDefaultMetaTypes();

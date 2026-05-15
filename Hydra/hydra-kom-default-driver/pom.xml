@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>com.pinecone.hydra.kernel</groupId>
-            <artifactId>hydra-framework-storage</artifactId>
+            <artifactId>hydra-architecture-storage</artifactId>
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>

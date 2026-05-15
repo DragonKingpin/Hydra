@@ -3,25 +3,20 @@ package com.pinecone.hydra.storage.file.operator;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
-import com.pinecone.hydra.storage.file.entity.FileMeta;
 import com.pinecone.hydra.storage.file.entity.FileNode;
-import com.pinecone.hydra.storage.file.entity.FileSystemAttributes;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
-import com.pinecone.hydra.storage.file.source.FileMetaManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.framework.util.id.GuidAllocator;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
 public class GenericFileOperator extends ArchFileSystemOperator {
     protected FileManipulator               fileManipulator;
-    protected FileMetaManipulator           fileMetaManipulator;
 
     public GenericFileOperator( FileSystemOperatorFactory factory ) {
         this( factory.getMasterManipulator(), (KOMFileSystem) factory.getFileSystem() );
@@ -31,38 +26,16 @@ public class GenericFileOperator extends ArchFileSystemOperator {
     public GenericFileOperator( FileMasterManipulator masterManipulator, KOMFileSystem fileSystem ) {
         super( masterManipulator, fileSystem );
         this.fileManipulator               =  masterManipulator.getFileManipulator();
-        this.fileMetaManipulator           =  masterManipulator.getFileMetaManipulator();
     }
 
     @Override
     public GUID insert(TreeNode treeNode) {
         FileNode file = (FileNode) treeNode;
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize( treeNode );
-        GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         GUID guid = file.getGuid();
 
-        FileSystemAttributes attributes = file.getAttributes();
-        GUID attrbutesGuid = guidAllocator.nextGUID();
-        if ( attributes != null ){
-            attributes.setGuid(attrbutesGuid);
-            this.fileSystemAttributeManipulator.insert(attributes);
-        }
-        else {
-            attrbutesGuid = null;
-        }
-
-        FileMeta fileMeta = file.getFileMeta();
-        GUID fileMetaGuid = guidAllocator.nextGUID();
-        if ( fileMeta != null ){
-            fileMeta.setGuid(fileMetaGuid);
-            this.fileMetaManipulator.insert(fileMeta);
-        }
-        else {
-            fileMetaGuid = null;
-        }
-
-        imperialTreeNode.setBaseDataGUID(attrbutesGuid);
-        imperialTreeNode.setNodeMetadataGUID(fileMetaGuid);
+        imperialTreeNode.setBaseDataGUID(null);
+        imperialTreeNode.setNodeMetadataGUID(null);
         this.imperialTree.insert(imperialTreeNode);
         this.fileManipulator.insert(file);
 
@@ -71,11 +44,8 @@ public class GenericFileOperator extends ArchFileSystemOperator {
 
     @Override
     public void purge(GUID guid) {
-        GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
         this.imperialTree.purge( guid );
         this.fileManipulator.remove(guid);
-        this.fileMetaManipulator.remove(node.getNodeMetadataGUID());
-        //this.fileSystemAttributeManipulator.remove(node.getAttributesGUID());
         this.imperialTree.removeCachePath(guid);
     }
 
@@ -130,15 +100,6 @@ public class GenericFileOperator extends ArchFileSystemOperator {
             ((GenericFileNode) cn).apply( this.fileSystem );
         }
 
-        FileMeta fileMeta = this.fileMetaManipulator.getFileMetaByGuid( node.getNodeMetadataGUID() );
-
-        //Notice: Registry attributes is difference from other tree, -- that is, same as DOM;
-        //        So in this case, this field is deprecated.
-        //Attributes         attributes = this.attributesManipulator.getAttributes( node.getAttributesGUID(), cn );
-
-        FileSystemAttributes attributes = this.fileSystemAttributeManipulator.getAttributes( guid, cn );
-        cn.setAttributes    ( attributes );
-        cn.startDistribution( fileMeta );
         return cn;
     }
 

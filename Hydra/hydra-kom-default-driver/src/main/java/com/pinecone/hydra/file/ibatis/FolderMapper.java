@@ -38,5 +38,5 @@ public interface FolderMapper extends FolderManipulator {
     boolean isFolder(GUID guid);
 
     @Update("UPDATE hydra_uofs_folders SET name = #{newName} WHERE guid = #{fileGuid}")
-    void rename( GUID fileGuid, String newName );
+    void rename( @Param("fileGuid") GUID fileGuid, @Param("newName") String newName );
 }

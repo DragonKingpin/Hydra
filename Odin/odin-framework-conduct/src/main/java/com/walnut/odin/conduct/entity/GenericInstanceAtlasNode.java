@@ -8,7 +8,7 @@ public class GenericInstanceAtlasNode implements InstanceAtlasNode {
     protected GUID    guid;
     protected GUID    instanceGuid;
     protected String  nodeName;
-    protected boolean isIsolated;
+    protected boolean source;
 
     public GenericInstanceAtlasNode() {
     }
@@ -48,12 +48,12 @@ public class GenericInstanceAtlasNode implements InstanceAtlasNode {
     }
 
     @Override
-    public boolean isIsolated() {
-        return this.isIsolated;
+    public boolean isSource() {
+        return this.source;
     }
 
     @Override
-    public void setIsIsolated(boolean isIsolated) {
-        this.isIsolated = isIsolated;
+    public void setSource( boolean source ) {
+        this.source = source;
     }
 }

@@ -2,6 +2,7 @@ package com.walnut.odin.task.mapper;
 
 import java.util.Collection;
 import java.util.List;
+import java.time.LocalDateTime;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -15,6 +16,13 @@ import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 public interface InstanceAtlasNodeMapper extends InstanceNodeManipulator {
 
     void insert( InstanceAtlasNode instanceAtlasNode );
+
+    InstanceAtlasNode queryByInstanceGuid( @Param( "instanceGuid" ) GUID instanceGuid );
+
+    InstanceAtlasNode queryByTaskGuidAndExpectTime(
+            @Param( "taskGuid" ) GUID taskGuid,
+            @Param( "expectTime" ) LocalDateTime expectTime
+    );
 
     List<DependencyBlockage> fetchDependencyBlockages(
             @Param( "instanceGuids" ) Collection<GUID> instanceGuids,

@@ -86,6 +86,9 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     @Override
     public GraphNode queryGraphNodeByTaskGuid( GUID taskGuid ) {
         TaskGraphNode taskGraphNode = this.mTaskGraphManipulator.getNodeByTaskGuid( taskGuid );
+        if ( taskGraphNode == null ) {
+            return null;
+        }
         GUID guid = taskGraphNode.getId();
         return this.query(guid);
     }
@@ -93,7 +96,13 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
     @Override
     public TaskElement queryTaskElementByGuid( GUID graphNodeGuid ) {
         GUID guid = this.mTaskGraphManipulator.queryTaskGuidByNodeId( graphNodeGuid );
+        if ( guid == null ) {
+            return null;
+        }
         TaskTreeNode taskTreeNode = (TaskTreeNode) this.mTaskInstrument.get( guid );
+        if ( taskTreeNode == null ) {
+            return null;
+        }
         ElementNode elementNode = taskTreeNode.evinceElementNode();
         if ( elementNode != null ) {
             return elementNode.evinceTaskElement();
@@ -176,33 +185,33 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
 
     @Unsafe( "TestOnly" )
     @Override
-    public List<GraphNode> fetchIsolatedNodesAll() {
-        TableIndexMeta meta = this.getIsolatedNodeIndexMeta();
-        return this.fetchIsolatedNodesById( meta.getMinId(), meta.getMaxId() );
+    public List<GraphNode> fetchSourceNodesAll() {
+        TableIndexMeta meta = this.getSourceNodeIndexMeta();
+        return this.fetchSourceNodesById( meta.getMinId(), meta.getMaxId() );
     }
 
     @Override
-    public List<GraphNode> fetchIsolatedNodes( long offset, long limit ) {
-        return this.mTaskGraphManipulator.fetchIsolatedNodes( offset, limit );
+    public List<GraphNode> fetchSourceNodes( long offset, long limit ) {
+        return this.mTaskGraphManipulator.fetchSourceNodes( offset, limit );
     }
 
     @Override
-    public List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd ) {
-        return this.mTaskGraphManipulator.fetchIsolatedNodesById( idStart, idEnd );
+    public List<GraphNode> fetchSourceNodesById( long idStart, long idEnd ) {
+        return this.mTaskGraphManipulator.fetchSourceNodesById( idStart, idEnd );
     }
 
     @Override
-    public TableIndexMeta getIsolatedNodeIndexMeta() {
-        return this.mTaskGraphManipulator.selectIsolatedNodeIndexMeta();
+    public TableIndexMeta getSourceNodeIndexMeta() {
+        return this.mTaskGraphManipulator.selectSourceNodeIndexMeta();
     }
 
     @Override
-    public long queryMaxIsolatedNodePage( long limit ) {
+    public long queryMaxSourceNodePage( long limit ) {
         if ( limit <= 0 ) {
             throw new IllegalArgumentException( "Limit must be greater than zero." );
         }
 
-        long nTotal = this.mTaskGraphManipulator.countIsolatedNodes();
+        long nTotal = this.mTaskGraphManipulator.countSourceNodes();
         if ( nTotal == 0 ) {
             return 0;
         }

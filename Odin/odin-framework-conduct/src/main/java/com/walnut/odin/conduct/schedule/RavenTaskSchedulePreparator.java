@@ -3,7 +3,9 @@ package com.walnut.odin.conduct.schedule;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -158,7 +160,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mTaskExecutionLauncher.initializeInstance( that, feature );  // 这里会完成实例插入
     }
 
-    protected void prepareInstanceLineage( TaskScheduleContext context, RavenTaskInstance instance ) {
+    protected ScheduledTaskInstanceLineage prepareInstanceLineageFrame( TaskScheduleContext context, RavenTaskInstance instance ) {
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
 
@@ -173,19 +175,71 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         if ( graphNode != null ) {
             parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
-            instanceNode.setIsIsolated( parentIds == null || parentIds.isEmpty() );
-        }
-        else {
-            instanceNode.setIsIsolated( true );
         }
 
-        this.mInstanceAtlasNodeMapper.insert( instanceNode );
+        return new ScheduledTaskInstanceLineage( context, instance, graphNode, parentIds, instanceNode );
+    }
 
-        if ( parentIds != null && !parentIds.isEmpty() ) {
-            for ( GUID parentId : parentIds ) {
-                InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
-                adjacent.setGuid( this.mGuidAllocator.nextGUID() );
-                adjacent.setParentGuid( parentId );
+    protected InstanceAtlasNode resolveParentInstanceAtlasNode(
+            TaskScheduleContext context, GUID parentGraphNodeGuid, Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid
+    ) {
+        ScheduledTaskInstanceLineage inMemory = lineageByGraphNodeGuid.get( parentGraphNodeGuid );
+        if ( inMemory != null ) {
+            return inMemory.getInstanceAtlasNode();
+        }
+
+        TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentGraphNodeGuid );
+        if ( parentElement == null ) {
+            return null;
+        }
+
+        return this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() );
+    }
+
+    protected void prepareInstanceLineages( Collection<ScheduledTaskInstanceLineage> lineages ) {
+        Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid = new HashMap<>();
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            GraphNode graphNode = lineage.getGraphNode();
+            if ( graphNode != null ) {
+                lineageByGraphNodeGuid.put( graphNode.getId(), lineage );
+            }
+        }
+
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            List<GUID> parentIds = lineage.getParentIds();
+            List<InstanceAtlasAdjacent> adjacents = new ArrayList<>();
+
+            if ( parentIds != null && !parentIds.isEmpty() ) {
+                for ( GUID parentId : parentIds ) {
+                    InstanceAtlasNode parentNode = this.resolveParentInstanceAtlasNode( lineage.getContext(), parentId, lineageByGraphNodeGuid );
+                    if ( parentNode == null ) {
+                        throw new IllegalStateException( "Cannot resolve parent instance atlas node. Parent graph node: " + parentId );
+                    }
+
+                    InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
+                    adjacent.setGuid( lineage.getInstanceAtlasNode().getGuid() );
+                    adjacent.setParentGuid( parentNode.getGuid() );
+                    adjacents.add( adjacent );
+                }
+            }
+
+            lineage.getInstanceAtlasNode().setSource( adjacents.isEmpty() );
+            lineage.setAdjacents( adjacents );
+        }
+
+        this.persistInstanceAtlasNodes( lineages );
+        this.persistInstanceAtlasAdjacents( lineages );
+    }
+
+    protected void persistInstanceAtlasNodes( Collection<ScheduledTaskInstanceLineage> lineages ) {
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            this.mInstanceAtlasNodeMapper.insert( lineage.getInstanceAtlasNode() );
+        }
+    }
+
+    protected void persistInstanceAtlasAdjacents( Collection<ScheduledTaskInstanceLineage> lineages ) {
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            for ( InstanceAtlasAdjacent adjacent : lineage.getAdjacents() ) {
                 this.mInstanceAtlasAdjacentMapper.insert( adjacent );
             }
         }
@@ -227,6 +281,8 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     }
 
     protected void prepareTaskInstances( Collection<TaskScheduleContext> contexts, LocalDateTime targetTime ) {
+        List<ScheduledTaskInstanceLineage> lineages = new ArrayList<>();
+
         for ( TaskScheduleContext context : contexts ) {
             TaskElement element = context.getElement();
 
@@ -234,9 +290,14 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             RavenTaskInstance instance = task.createInstance();
 
             this.prepareInstance( context, instance );
-            this.prepareInstanceLineage( context, instance );
-            this.persistTaskExec( context, instance );
-            this.triggerTaskEventTimeReady( context, instance );
+            lineages.add( this.prepareInstanceLineageFrame( context, instance ) );
+        }
+
+        this.prepareInstanceLineages( lineages );
+
+        for ( ScheduledTaskInstanceLineage lineage : lineages ) {
+            this.persistTaskExec( lineage.getContext(), lineage.getInstance() );
+            this.triggerTaskEventTimeReady( lineage.getContext(), lineage.getInstance() );
         }
     }
 
@@ -374,6 +435,55 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         public void setThisScheduleTime( LocalDateTime thisScheduleTime ) {
             this.thisScheduleTime = thisScheduleTime;
+        }
+    }
+
+    protected static class ScheduledTaskInstanceLineage {
+        protected TaskScheduleContext context;
+        protected RavenTaskInstance instance;
+        protected GraphNode graphNode;
+        protected List<GUID> parentIds;
+        protected InstanceAtlasNode instanceAtlasNode;
+        protected List<InstanceAtlasAdjacent> adjacents;
+
+        public ScheduledTaskInstanceLineage(
+                TaskScheduleContext context, RavenTaskInstance instance, GraphNode graphNode,
+                List<GUID> parentIds, InstanceAtlasNode instanceAtlasNode
+        ) {
+            this.context = context;
+            this.instance = instance;
+            this.graphNode = graphNode;
+            this.parentIds = parentIds;
+            this.instanceAtlasNode = instanceAtlasNode;
+            this.adjacents = new ArrayList<>();
+        }
+
+        public TaskScheduleContext getContext() {
+            return this.context;
+        }
+
+        public RavenTaskInstance getInstance() {
+            return this.instance;
+        }
+
+        public GraphNode getGraphNode() {
+            return this.graphNode;
+        }
+
+        public List<GUID> getParentIds() {
+            return this.parentIds;
+        }
+
+        public InstanceAtlasNode getInstanceAtlasNode() {
+            return this.instanceAtlasNode;
+        }
+
+        public List<InstanceAtlasAdjacent> getAdjacents() {
+            return this.adjacents;
+        }
+
+        public void setAdjacents( List<InstanceAtlasAdjacent> adjacents ) {
+            this.adjacents = adjacents;
         }
     }
 

@@ -51,14 +51,14 @@ public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
 
 
     @Unsafe( "TestOnly" )
-    List<GraphNode> fetchIsolatedNodesAll();
+    List<GraphNode> fetchSourceNodesAll();
 
-    List<GraphNode> fetchIsolatedNodes( long offset, long limit );
+    List<GraphNode> fetchSourceNodes( long offset, long limit );
 
-    List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd );
+    List<GraphNode> fetchSourceNodesById( long idStart, long idEnd );
 
-    TableIndexMeta getIsolatedNodeIndexMeta();
+    TableIndexMeta getSourceNodeIndexMeta();
 
-    long queryMaxIsolatedNodePage( long limit );
+    long queryMaxSourceNodePage( long limit );
 
 }

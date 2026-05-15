@@ -3,19 +3,51 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.odin.task.mapper.InstanceAtlasNodeMapper">
 
+    <resultMap id="InstanceAtlasNodeMap" type="com.walnut.odin.conduct.entity.GenericInstanceAtlasNode">
+        <result column="guid"          property="guid"/>
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="node_name"     property="nodeName"/>
+        <result column="is_source"     property="source"/>
+    </resultMap>
+
     <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceAtlasNode">
         INSERT INTO odin_task_instance_atlas_nodes (
             guid,
             instance_guid,
             node_name,
-            is_isolated
+            is_source
         ) VALUES (
                      #{guid},
                      #{instanceGuid},
                      #{nodeName},
-                     #{isIsolated}
+                     #{source}
                  )
     </insert>
+
+    <select id="queryByInstanceGuid" resultMap="InstanceAtlasNodeMap">
+        SELECT
+            `guid`,
+            `instance_guid`,
+            `node_name`,
+            `is_source`
+        FROM `odin_task_instance_atlas_nodes`
+        WHERE `instance_guid` = #{instanceGuid}
+        LIMIT 1
+    </select>
+
+    <select id="queryByTaskGuidAndExpectTime" resultMap="InstanceAtlasNodeMap">
+        SELECT
+            instance_node.`guid`,
+            instance_node.`instance_guid`,
+            instance_node.`node_name`,
+            instance_node.`is_source`
+        FROM `odin_task_instance_atlas_nodes` AS instance_node
+                 JOIN `hydra_task_instances` AS task_instance
+                      ON task_instance.`guid` = instance_node.`instance_guid`
+        WHERE task_instance.`task_guid` = #{taskGuid}
+          AND task_instance.`expect_time` = #{expectTime}
+        LIMIT 1
+    </select>
 
     <select id="fetchDependencyBlockages" resultType="com.walnut.odin.conduct.schedule.entity.GenericDependencyBlockage">
         SELECT
@@ -24,8 +56,10 @@
         FROM `odin_task_instance_atlas_nodes` AS child_node
                  JOIN `odin_taks_ins_atlas_adjacent` AS instance_edge
                       ON instance_edge.`guid` = child_node.`guid`
+                 JOIN `odin_task_instance_atlas_nodes` AS parent_node
+                      ON parent_node.`guid` = instance_edge.`parent_guid`
                  JOIN `hydra_task_instances` AS parent_instance
-                      ON parent_instance.`guid` = instance_edge.`parent_guid`
+                      ON parent_instance.`guid` = parent_node.`instance_guid`
         WHERE child_node.`instance_guid` IN
         <foreach collection="instanceGuids" item="instanceGuid" open="(" separator="," close=")">
             #{instanceGuid}

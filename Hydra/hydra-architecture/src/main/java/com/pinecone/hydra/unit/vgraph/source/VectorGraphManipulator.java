@@ -57,12 +57,10 @@ public interface VectorGraphManipulator extends Pinenut {
     void addChild( GUID parentGuid, GUID childGuid );
 
 
-    List<GraphNode> fetchIsolatedNodes( long offset, long limit );
+    List<GraphNode> fetchSourceNodes( long offset, long limit );
 
-    List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd );
+    List<GraphNode> fetchSourceNodesById( long idStart, long idEnd );
 
-    long countIsolatedNodes();
-
-    TableIndex64Meta selectIsolatedNodeIndexMeta();
+    TableIndex64Meta selectSourceNodeIndexMeta();
 
 }

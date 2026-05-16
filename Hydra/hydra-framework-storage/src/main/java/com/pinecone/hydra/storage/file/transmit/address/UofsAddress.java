@@ -3,20 +3,20 @@ package com.pinecone.hydra.storage.file.transmit.address;
 import com.pinecone.framework.system.prototype.Pinenut;
 
 public final class UofsAddress implements Pinenut {
-    protected final String mOwnerName;
+    protected final String mUserIdentifier;
     protected final String mBucketName;
     protected final String mKey;
     protected final String mMountPath;
 
-    public UofsAddress( String ownerName, String bucketName, String key, String mountPath ) {
-        this.mOwnerName  = ownerName;
-        this.mBucketName = bucketName;
-        this.mKey        = key;
-        this.mMountPath  = mountPath;
+    public UofsAddress( String userIdentifier, String bucketName, String key, String mountPath ) {
+        this.mUserIdentifier = userIdentifier;
+        this.mBucketName     = bucketName;
+        this.mKey            = key;
+        this.mMountPath      = mountPath;
     }
 
-    public String getOwnerName() {
-        return this.mOwnerName;
+    public String getUserIdentifier() {
+        return this.mUserIdentifier;
     }
 
     public String getBucketName() {

@@ -1,0 +1,33 @@
+{
+  "Name"     : "KernelTitanLord",
+  "MainClass": "com.peanut.titan.Titan",
+  "LifecycleWithPrimarySystem" : true,
+
+  "metaDependent": {
+    "storageInstrument": "MySQLKingHydranium",
+    "processManager"  : "__SystemTaskManager__",
+  },
+
+  "kernelConfig": {
+    "enableStorageRegiment": true,
+    "enableVolumeManager"  : true,
+    "enableUofs"           : true,
+    "enableJournalRecovery": true,
+  },
+
+  "storage": {
+    "volume": {
+      "defaultAllocationMode": "THIN",
+      "defaultMappingMode"   : "VOLUME_BLOCK_EXTENT",
+      "defaultStripeUnit"    : 1048576,
+      "thinAllocationWindow" : 67108864,
+    },
+
+    "uofs": {
+      "defaultUser"            : "root",
+      "defaultBucket"          : "default",
+      "defaultChunkSize"       : 10485760,
+      "symbolicReparseMaxDepth": 16,
+    }
+  }
+}

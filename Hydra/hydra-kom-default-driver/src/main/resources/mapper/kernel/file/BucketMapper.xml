@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.BucketMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_uofs_bucket` ( `guid`, `user_identifier`, `bucket_name`, `volume_guid`, `ext_config` ) VALUES ( #{guid}, #{userIdentifier}, #{bucketName}, #{volumeGuid}, #{extConfig} )
+    </insert>
+
+    <update id="update">
+        UPDATE `hydra_uofs_bucket` SET `user_identifier` = #{userIdentifier}, `bucket_name` = #{bucketName}, `volume_guid` = #{volumeGuid}, `ext_config` = #{extConfig} WHERE `guid` = #{guid}
+    </update>
+
+    <update id="updateVolume">
+        UPDATE `hydra_uofs_bucket` SET `volume_guid` = #{volumeGuid} WHERE `guid` = #{guid}
+    </update>
+
+    <delete id="remove">
+        DELETE FROM `hydra_uofs_bucket` WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="get" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getByUserIdentifierAndBucket" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `user_identifier` = #{userIdentifier} AND `bucket_name` = #{bucketName}
+    </select>
+
+    <select id="listAll" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` ORDER BY `create_time` DESC
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_bucket`
+        <where>
+          <if test='userIdentifier != null and userIdentifier != ""'>
+            AND `user_identifier` = #{userIdentifier}
+          </if>
+          <if test='bucketName != null and bucketName != ""'>
+            AND `bucket_name` = #{bucketName}
+          </if>
+        </where>
+    </select>
+
+    <select id="listPage" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_uofs_bucket`
+        <where>
+          <if test='userIdentifier != null and userIdentifier != ""'>
+            AND `user_identifier` = #{userIdentifier}
+          </if>
+          <if test='bucketName != null and bucketName != ""'>
+            AND `bucket_name` = #{bucketName}
+          </if>
+        </where>
+        ORDER BY `create_time` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="existsNode" resultType="boolean">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_nodes` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <select id="existsChunk" resultType="boolean">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_fat_chunk` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+</mapper>

@@ -13,6 +13,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 
+import com.pinecone.hydra.storage.bucket.*;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import com.pinecone.hydra.storage.StorageConstants;
@@ -71,6 +72,8 @@ import com.pinecone.hydra.system.ko.kom.StandardPathSelector;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
+import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
+import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 
 import com.pinecone.slime.map.indexable.IndexableMapQuerier;
 
@@ -94,6 +97,8 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     protected FSNodeAllotment                         fsNodeAllotment;
     protected FatChunkInstrument                      fatChunkInstrument;
     protected JournalInstrument                       journalInstrument;
+    protected BucketInstrument                        bucketInstrument;
+    protected BucketResolver                          bucketResolver;
 
     protected UofsSymbolicPathResolver                symbolicPathResolver;
     protected ExternalFileSystemInstrument            directFileSystemAccessor;
@@ -108,7 +113,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         super( superiorProcess, masterManipulator, fileSystemConfig, parent, name, guidAllocator );
 
         this.initCore( masterManipulator );
-        this.initManipulators();
+        this.initInstrumentEtManipulators();
         this.initFatChunkInstrument();
         this.initJournalInstrument();
         this.initSelectors();
@@ -160,11 +165,14 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.operatorFactory       = new GenericFileSystemOperatorFactory( this, this.fileMasterManipulator );
     }
 
-    private void initManipulators() {
+    private void initInstrumentEtManipulators() {
         this.fileManipulator                = this.fileMasterManipulator.getFileManipulator();
         this.folderManipulator              = this.fileMasterManipulator.getFolderManipulator();
         this.symbolicManipulator            = this.fileMasterManipulator.getSymbolicManipulator();
         this.folderVolumeMappingManipulator = this.fileMasterManipulator.getFolderVolumeRelationManipulator();
+
+        this.bucketInstrument               = new TitanBucketInstrument( this.fileMasterManipulator.getBucketManipulator() );
+        this.bucketResolver                 = new BucketResolver( this.bucketInstrument );
     }
 
     private void initFatChunkInstrument() {
@@ -225,6 +233,11 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.globalPathGuidCacheQuerier = globalPathGuidCacheQuerier;
     }
 
+
+    @Override
+    public BucketInstrument bucketInstrument() {
+        return this.bucketInstrument;
+    }
 
     @Override
     public FileTreeNode get( GUID guid, int depth ) {
@@ -361,14 +374,12 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public FileNode affirmFileNode( String path ) {
         FileNode fileNode = (FileNode) this.affirmTreeNodeByPath(path, GenericFileNode.class, GenericFolder.class);
-        this.initVolume( path );
         return fileNode;
     }
 
     @Override
     public Folder affirmFolder( String path ) {
         Folder folder = (Folder) this.affirmTreeNodeByPath(path, null, GenericFolder.class);
-        this.initVolume( path );
         return folder;
     }
 
@@ -653,37 +664,58 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     @Override
     public UFileChannel open( String path, UFileOpenOption option, VolumeManager volumeManager ) throws IOException {
-        UofsAddress address = new UofsAddressResolver().resolve( path, new UofsResolveContext() );
+        UofsResolveContext resolveContext = new UofsResolveContext();
+        resolveContext.setPathNameSeparator( this.getConfig().getPathNameSeparator() );
+        UofsAddress address = new UofsAddressResolver().resolve( path, resolveContext );
         String key = address.getKey();
         if ( key == null || key.isEmpty() ) {
             throw new IllegalArgumentException( "UOFS file path is empty: " + path );
         }
+        Bucket bucket = this.resolveBucket( address );
+        String treePath = this.toBucketTreePath( address );
 
         FileNode fileNode;
         if ( option == UFileOpenOption.READ || option == UFileOpenOption.APPEND ) {
-            ElementNode elementNode = this.queryElement( key );
+            ElementNode elementNode = this.queryElement( treePath );
             if ( !( elementNode instanceof FileNode ) ) {
                 throw new IllegalArgumentException( "UOFS file not found: " + path );
             }
             fileNode = (FileNode) elementNode;
         }
         else if ( option == UFileOpenOption.CREATE ) {
-            if ( this.queryElement( key ) != null ) {
+            if ( this.queryElement( treePath ) != null ) {
                 throw new IllegalArgumentException( "UOFS file already exists: " + path );
             }
-            fileNode = this.affirmFileNode( key );
+            fileNode = this.affirmFileNode( treePath );
         }
         else if ( option == UFileOpenOption.CREATE_OVERWRITE ) {
-            fileNode = this.affirmFileNode( key );
+            fileNode = this.affirmFileNode( treePath );
         }
         else {
             throw new IllegalArgumentException( "Unsupported UOFS open option: " + option );
         }
-        return this.open( fileNode, option, volumeManager );
+        this.markBucketGuid( treePath, bucket.getGuid() );
+        return this.open( fileNode, option, volumeManager, bucket.getGuid(), bucket.getVolumeGuid() );
     }
 
     @Override
     public UFileChannel open( FileNode fileNode, UFileOpenOption option, VolumeManager volumeManager ) throws IOException {
+        return this.open(
+                fileNode,
+                option,
+                volumeManager,
+                fileNode.getBucketGuid(),
+                GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() )
+        );
+    }
+
+    protected UFileChannel open(
+            FileNode fileNode,
+            UFileOpenOption option,
+            VolumeManager volumeManager,
+            GUID bucketGuid,
+            GUID writeVolumeGuid
+    ) throws IOException {
         FatChunkStore chunkStore = new TitanFatChunkStore( volumeManager );
         VolumeSpaceAllocator allocator = new LinearVolumeSpaceAllocator(
                 this.fileMasterManipulator.getFileChunkLocationManipulator()
@@ -694,38 +726,70 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
                 chunkStore,
                 allocator,
                 volumeManager,
-                GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() ),
+                bucketGuid,
+                writeVolumeGuid,
                 this.journalInstrument,
                 option == UFileOpenOption.CREATE ? JournalType.CREATE : JournalType.OVERWRITE
         );
         return new TitanFileChannel( this, fileNode, option, fileStore );
     }
 
+    protected Bucket resolveBucket( UofsAddress address ) {
+        if ( this.bucketResolver == null ) {
+            throw new IllegalStateException( "UOFS bucket resolver is not initialized" );
+        }
+        return this.bucketResolver.resolve( address.getUserIdentifier(), address.getBucketName() );
+    }
+
+    protected String toBucketTreePath( UofsAddress address ) {
+        return address.getUserIdentifier()
+                + "@"
+                + address.getBucketName()
+                + this.getConfig().getPathNameSeparator()
+                + address.getKey();
+    }
+
+    protected void markBucketGuid( String treePath, GUID bucketGuid ) {
+        BucketNodeManipulator manipulator = this.getBucketNodeManipulator();
+        if ( manipulator == null || bucketGuid == null ) {
+            return;
+        }
+        String[] parts = this.pathResolver.segmentPathParts( treePath );
+        String currentPath = "";
+        for ( int i = 0; i < parts.length; ++i ) {
+            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + parts[i];
+            ElementNode node = this.queryElement( currentPath );
+            if ( node != null ) {
+                manipulator.updateBucketGuid( node.getGuid(), bucketGuid );
+                node.setBucketGuid( bucketGuid );
+            }
+        }
+    }
+
+    protected BucketNodeManipulator getBucketNodeManipulator() {
+        if ( !( this.fileMasterManipulator.getSkeletonMasterManipulator() instanceof TreeMasterManipulator ) ) {
+            return null;
+        }
+        TrieTreeManipulator treeManipulator = ( (TreeMasterManipulator) this.fileMasterManipulator.getSkeletonMasterManipulator() ).getTrieTreeManipulator();
+        if ( treeManipulator instanceof BucketNodeManipulator ) {
+            return (BucketNodeManipulator) treeManipulator;
+        }
+        return null;
+    }
+
     @Override
     public void setFolderVolumeMapping( GUID folderGuid, GUID volumeGuid ) {
-        this.folderVolumeMappingManipulator.insert( folderGuid, volumeGuid );
+        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
     }
 
     @Override
     public GUID getMappingVolume( GUID folderGuid ) {
-        return this.folderVolumeMappingManipulator.getVolumeGuid( folderGuid );
+        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
     }
 
     @Override
     public GUID getMappingVolume( String path ) {
-        String[] parts = this.pathResolver.segmentPathParts( path );
-        GUID currentVolumeGuid = null;
-        String currentPath = "";
-        for( int i = 0; i < parts.length - 1; i++ ){
-            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + parts[ i ];
-            ElementNode elementNode = this.queryElement(currentPath);
-            Folder folder = this.getFolder(elementNode.getGuid());
-            GUID relationVolume = folder.getRelationVolume();
-            if ( relationVolume != null ){
-                currentVolumeGuid = relationVolume;
-            }
-        }
-        return currentVolumeGuid;
+        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
     }
 
     @Override
@@ -737,11 +801,4 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         operator.rename( elementNode.getGuid(), newFileName );
     }
 
-    private void initVolume( String path ){
-        String[] parts = this.pathResolver.segmentPathParts( path );
-        Folder root = this.getFolder(this.queryGUIDByPath(parts[0]));
-        if( root.getRelationVolume() == null ){
-            root.applyVolume( GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() ) );
-        }
-    }
 }

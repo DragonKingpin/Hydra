@@ -5,13 +5,9 @@ import com.pinecone.hydra.storage.CheckedFile;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FileNode extends ElementNode, CheckedFile {
-    LocalDateTime getDeletedTime();
-    void setDeletedTime(LocalDateTime deletedTime);
-
     long getChecksum();
     void setChecksum(long checksum);
 

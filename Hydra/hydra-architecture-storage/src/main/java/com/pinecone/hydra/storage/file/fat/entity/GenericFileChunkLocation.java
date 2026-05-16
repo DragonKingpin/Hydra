@@ -8,6 +8,7 @@ public class GenericFileChunkLocation implements FileChunkLocation {
     protected long          id;
     protected GUID          guid;
     protected GUID          chunkGuid;
+    protected GUID          bucketGuid;
     protected int           replicaNo;
     protected GUID          volumeGuid;
     protected FileChunkLocationType locationType;
@@ -62,6 +63,16 @@ public class GenericFileChunkLocation implements FileChunkLocation {
     @Override
     public void setChunkGuid( GUID chunkGuid ) {
         this.chunkGuid = chunkGuid;
+    }
+
+    @Override
+    public GUID getBucketGuid() {
+        return this.bucketGuid;
+    }
+
+    @Override
+    public void setBucketGuid( GUID bucketGuid ) {
+        this.bucketGuid = bucketGuid;
     }
 
     @Override

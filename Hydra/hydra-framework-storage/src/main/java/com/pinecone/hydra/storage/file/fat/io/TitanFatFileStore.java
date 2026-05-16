@@ -39,9 +39,32 @@ public class TitanFatFileStore implements FatFileStore {
     protected final FatChunkStore       mFatChunkStore;
     protected final VolumeSpaceAllocator mVolumeSpaceAllocator;
     protected final VolumeManager       mVolumeManager;
-    protected final GUID                mDefaultVolumeGuid;
+    protected final GUID                mBucketGuid;
+    protected final GUID                mWriteVolumeGuid;
     protected final JournalInstrument   mJournalInstrument;
     protected final JournalType         mWriteJournalType;
+
+    public TitanFatFileStore(
+            KOMFileSystem fileSystem,
+            FatChunkInstrument fatChunkInstrument,
+            FatChunkStore fatChunkStore,
+            VolumeSpaceAllocator volumeSpaceAllocator,
+            VolumeManager volumeManager,
+            GUID bucketGuid,
+            GUID defaultVolumeGuid,
+            JournalInstrument journalInstrument,
+            JournalType writeJournalType
+    ) {
+        this.mFileSystem            = fileSystem;
+        this.mFatChunkInstrument    = fatChunkInstrument;
+        this.mFatChunkStore         = fatChunkStore;
+        this.mVolumeSpaceAllocator  = volumeSpaceAllocator;
+        this.mVolumeManager         = volumeManager;
+        this.mBucketGuid            = bucketGuid;
+        this.mWriteVolumeGuid       = defaultVolumeGuid;
+        this.mJournalInstrument     = journalInstrument;
+        this.mWriteJournalType      = writeJournalType == null ? JournalType.OVERWRITE : writeJournalType;
+    }
 
     public TitanFatFileStore(
             KOMFileSystem fileSystem,
@@ -53,14 +76,17 @@ public class TitanFatFileStore implements FatFileStore {
             JournalInstrument journalInstrument,
             JournalType writeJournalType
     ) {
-        this.mFileSystem            = fileSystem;
-        this.mFatChunkInstrument    = fatChunkInstrument;
-        this.mFatChunkStore         = fatChunkStore;
-        this.mVolumeSpaceAllocator  = volumeSpaceAllocator;
-        this.mVolumeManager         = volumeManager;
-        this.mDefaultVolumeGuid     = defaultVolumeGuid;
-        this.mJournalInstrument     = journalInstrument;
-        this.mWriteJournalType      = writeJournalType == null ? JournalType.OVERWRITE : writeJournalType;
+        this(
+                fileSystem,
+                fatChunkInstrument,
+                fatChunkStore,
+                volumeSpaceAllocator,
+                volumeManager,
+                null,
+                defaultVolumeGuid,
+                journalInstrument,
+                writeJournalType
+        );
     }
 
     public TitanFatFileStore(
@@ -112,6 +138,7 @@ public class TitanFatFileStore implements FatFileStore {
             FileChunk chunk = this.mFatChunkInstrument.newChunk( fileNode.getGuid(), range );
             chunk.setChecksum( check.getChecksum() );
             chunk.setCrc32( check.getCrc32() );
+            chunk.setBucketGuid( this.mBucketGuid );
             FileChunkLocation location = this.newLocation( fileNode, chunk, range.getValidSize() );
             JournalItem dataItem = this.recordDataItem( journalScope, location );
             this.mFatChunkStore.write( location, ByteBuffer.wrap( bytes ) );
@@ -194,6 +221,7 @@ public class TitanFatFileStore implements FatFileStore {
             FileChunk chunk = this.mFatChunkInstrument.newChunk( fileNode.getGuid(), range );
             chunk.setChecksum( check.getChecksum() );
             chunk.setCrc32( check.getCrc32() );
+            chunk.setBucketGuid( this.mBucketGuid );
             FileChunkLocation location = this.newLocation( fileNode, chunk, validSize );
             JournalItem dataItem = this.recordDataItem( journalScope, location );
             this.mFatChunkStore.write( location, ByteBuffer.wrap( bytes ) );
@@ -257,7 +285,7 @@ public class TitanFatFileStore implements FatFileStore {
     @Override
     public void flush( FileNode fileNode ) throws IOException {
         if ( this.mVolumeManager != null ) {
-            this.mVolumeManager.flush( this.mDefaultVolumeGuid );
+            this.mVolumeManager.flush( this.mWriteVolumeGuid );
         }
     }
 
@@ -353,43 +381,47 @@ public class TitanFatFileStore implements FatFileStore {
         if ( this.mVolumeManager == null ) {
             FileChunkLocation location = this.mFatChunkInstrument.newLocation(
                     chunk.getGuid(),
-                    this.mDefaultVolumeGuid,
-                    this.mVolumeSpaceAllocator.allocate( this.mDefaultVolumeGuid, validSize ),
+                    this.mWriteVolumeGuid,
+                    this.mVolumeSpaceAllocator.allocate( this.mWriteVolumeGuid, validSize ),
                     validSize
             );
+            location.setBucketGuid( this.mBucketGuid );
             location.setLocationType( FileChunkLocationType.VOLUME_BLOCK_EXTENT );
             return location;
         }
-        Volume volume = this.mVolumeManager.loadVolume( this.mDefaultVolumeGuid );
+        Volume volume = this.mVolumeManager.loadVolume( this.mWriteVolumeGuid );
         if ( volume == null ) {
             FileChunkLocation location = this.mFatChunkInstrument.newLocation(
                     chunk.getGuid(),
-                    this.mDefaultVolumeGuid,
-                    this.mVolumeSpaceAllocator.allocate( this.mDefaultVolumeGuid, validSize ),
+                    this.mWriteVolumeGuid,
+                    this.mVolumeSpaceAllocator.allocate( this.mWriteVolumeGuid, validSize ),
                     validSize
             );
+            location.setBucketGuid( this.mBucketGuid );
             location.setLocationType( FileChunkLocationType.VOLUME_BLOCK_EXTENT );
             return location;
         }
         if ( volume.getMappingMode() == VolumeMappingMode.VOLUME_DIRECT_OBJECT ) {
             FileChunkLocation location = this.mFatChunkInstrument.newLocation(
                     chunk.getGuid(),
-                    this.mDefaultVolumeGuid,
+                    this.mWriteVolumeGuid,
                     0L,
                     validSize
             );
+            location.setBucketGuid( this.mBucketGuid );
             location.setLocationType( FileChunkLocationType.VOLUME_DIRECT_OBJECT );
             location.setObjectKey( this.toObjectKey( fileNode, chunk ) );
             location.setObjectOffset( 0L );
             return location;
         }
-        long volumeOffset = this.mVolumeSpaceAllocator.allocate( this.mDefaultVolumeGuid, validSize );
+        long volumeOffset = this.mVolumeSpaceAllocator.allocate( this.mWriteVolumeGuid, validSize );
         FileChunkLocation location = this.mFatChunkInstrument.newLocation(
                 chunk.getGuid(),
-                this.mDefaultVolumeGuid,
+                this.mWriteVolumeGuid,
                 volumeOffset,
                 validSize
         );
+        location.setBucketGuid( this.mBucketGuid );
         location.setLocationType( FileChunkLocationType.VOLUME_BLOCK_EXTENT );
         return location;
     }
@@ -398,15 +430,40 @@ public class TitanFatFileStore implements FatFileStore {
         VolumeConfig config = this.mVolumeManager == null
                 ? new KernelVolumeConfig()
                 : this.mVolumeManager.getConfig();
-        return config.getTitanHomeDirectory()
-                + "/"
-                + config.getObjectDataDirectory()
-                + "/"
-                + fileNode.getGuid()
-                + "/"
-                + config.getChunkFilePrefix()
-                + String.format( "%012d", chunk.getChunkIndex() )
-                + config.getChunkFileExtension();
+        return this.joinObjectKey(
+                config.getPathNameSeparator(),
+                config.getTitanHomeDirectory(),
+                config.getObjectDataDirectory(),
+                fileNode.getGuid().toString(),
+                config.getChunkFilePrefix()
+                        + String.format( "%012d", chunk.getChunkIndex() )
+                        + config.getChunkFileExtension()
+        );
+    }
+
+    protected String joinObjectKey( String separator, String ...parts ) {
+        StringBuilder builder = new StringBuilder();
+        for ( String part : parts ) {
+            if ( part == null || part.isBlank() ) {
+                continue;
+            }
+            if ( builder.length() > 0 ) {
+                builder.append( separator );
+            }
+            builder.append( this.trimObjectKeyPart( part, separator ) );
+        }
+        return builder.toString();
+    }
+
+    protected String trimObjectKeyPart( String part, String separator ) {
+        String ret = part;
+        while ( ret.startsWith( separator ) ) {
+            ret = ret.substring( separator.length() );
+        }
+        while ( ret.endsWith( separator ) ) {
+            ret = ret.substring( 0, ret.length() - separator.length() );
+        }
+        return ret;
     }
 
     protected ChunkCheck checkChunk( FileChunkLocation location, long validSize ) throws IOException {

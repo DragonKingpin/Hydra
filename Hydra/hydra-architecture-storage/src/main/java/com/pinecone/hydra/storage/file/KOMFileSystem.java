@@ -2,6 +2,7 @@ package com.pinecone.hydra.storage.file;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.StorageConfig;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
@@ -25,6 +26,9 @@ import java.util.List;
 
 public interface KOMFileSystem extends ReparseKOMTree {
     FileSystemConfig  KernelFileSystemConfig = new KernelFileSystemConfig();
+
+    BucketInstrument bucketInstrument();
+
 
     @Override
     String getPath( GUID guid );
@@ -165,9 +169,10 @@ public interface KOMFileSystem extends ReparseKOMTree {
     void deleteFileChunks( GUID fileGuid );
 
     void setFolderVolumeMapping(GUID folderGuid, GUID volumeGuid );
-    GUID getMappingVolume(GUID folderGuid );
 
-    GUID getMappingVolume(String path );
+    GUID getMappingVolume( GUID folderGuid );
+
+    GUID getMappingVolume( String path );
 
     default UFileChannel open( String path, UFileOpenOption option ) throws IOException {
         throw new UnsupportedOperationException( "UOFS channel open requires a Titan VolumeManager in this round" );

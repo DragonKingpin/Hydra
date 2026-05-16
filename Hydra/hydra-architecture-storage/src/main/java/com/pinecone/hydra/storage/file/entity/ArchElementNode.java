@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public abstract class ArchElementNode implements ElementNode {
     protected long                    enumId;
     protected GUID                    guid;
+    protected GUID                    bucketGuid;
     protected LocalDateTime           createTime;
     protected LocalDateTime           updateTime;
     protected String                  name;
@@ -36,6 +37,15 @@ public abstract class ArchElementNode implements ElementNode {
         this.guid = guid;
     }
 
+    @Override
+    public GUID getBucketGuid() {
+        return this.bucketGuid;
+    }
+
+    @Override
+    public void setBucketGuid( GUID bucketGuid ) {
+        this.bucketGuid = bucketGuid;
+    }
 
     @Override
     public LocalDateTime getCreateTime() {

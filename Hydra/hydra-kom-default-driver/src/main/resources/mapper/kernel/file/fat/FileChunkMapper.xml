@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.fat.FileChunkMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_uofs_fat_chunk` ( `guid`, `file_guid`, `bucket_guid`, `chunk_index`, `logical_offset`, `chunk_size`, `valid_size`, `crc32`, `checksum`, `ext_config` ) VALUES ( #{guid}, #{fileGuid}, #{bucketGuid}, #{chunkIndex}, #{logicalOffset}, #{chunkSize}, #{validSize}, #{crc32}, #{checksum}, #{extConfig} )
+    </insert>
+
+    <update id="update">
+        UPDATE `hydra_uofs_fat_chunk` SET `bucket_guid` = #{bucketGuid}, `chunk_size` = #{chunkSize}, `valid_size` = #{validSize}, `crc32` = #{crc32}, `checksum` = #{checksum}, `ext_config` = #{extConfig} WHERE `guid` = #{guid}
+    </update>
+
+    <delete id="remove">
+        DELETE FROM `hydra_uofs_fat_chunk` WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeByFileGuid">
+        DELETE FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid}
+    </delete>
+
+    <select id="get" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
+        SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getByFileGuidAndIndex" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
+        SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid} AND `chunk_index` = #{chunkIndex}
+    </select>
+
+    <select id="listByFileGuid" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
+        SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid} ORDER BY `chunk_index` ASC
+    </select>
+
+    <select id="listByFileRange" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
+        SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid} AND `logical_offset` &lt; #{endOffset} AND `logical_offset` + `valid_size` &gt; #{startOffset} ORDER BY `chunk_index` ASC
+    </select>
+
+</mapper>

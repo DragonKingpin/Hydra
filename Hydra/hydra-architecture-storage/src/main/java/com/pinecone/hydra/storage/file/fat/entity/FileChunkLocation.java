@@ -18,6 +18,10 @@ public interface FileChunkLocation extends Pinenut {
 
     void setChunkGuid( GUID chunkGuid );
 
+    GUID getBucketGuid();
+
+    void setBucketGuid( GUID bucketGuid );
+
     int getReplicaNo();
 
     void setReplicaNo( int replicaNo );

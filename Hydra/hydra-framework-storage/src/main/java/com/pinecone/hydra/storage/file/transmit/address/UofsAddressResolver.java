@@ -7,31 +7,32 @@ public class UofsAddressResolver implements Pinenut {
         if ( path == null ) {
             throw new IllegalArgumentException( "UOFS path is null" );
         }
-        String normalized = path.trim().replace( '\\', '/' );
+        String separator = context.getPathNameSeparator();
+        String normalized = path.trim();
         String mountPath = context.getHydraMountPath();
         if ( mountPath != null && !mountPath.trim().isEmpty() ) {
-            String normalizedMount = this.trimSlashes( mountPath.trim().replace( '\\', '/' ) );
-            String candidate = this.trimSlashes( normalized );
+            String normalizedMount = this.trimSlashes( mountPath.trim(), separator );
+            String candidate = this.trimSlashes( normalized, separator );
             if ( candidate.equals( normalizedMount ) ) {
                 normalized = "";
             }
-            else if ( candidate.startsWith( normalizedMount + "/" ) ) {
-                normalized = candidate.substring( normalizedMount.length() + 1 );
+            else if ( candidate.startsWith( normalizedMount + separator ) ) {
+                normalized = candidate.substring( normalizedMount.length() + separator.length() );
             }
         }
-        normalized = this.trimSlashes( normalized );
+        normalized = this.trimSlashes( normalized, separator );
 
-        String ownerName = context.getDefaultOwnerName();
+        String userIdentifier = context.getDefaultUserIdentifier();
         String bucketName = context.getDefaultBucketName();
         String key = normalized;
-        int firstSlash = normalized.indexOf( '/' );
+        int firstSlash = normalized.indexOf( separator );
         String firstPart = firstSlash >= 0 ? normalized.substring( 0, firstSlash ) : normalized;
-        String rest = firstSlash >= 0 ? normalized.substring( firstSlash + 1 ) : "";
+        String rest = firstSlash >= 0 ? normalized.substring( firstSlash + separator.length() ) : "";
 
         if ( firstPart.contains( "@" ) ) {
             String[] pair = firstPart.split( "@", 2 );
             if ( pair.length == 2 && !pair[0].isEmpty() && !pair[1].isEmpty() ) {
-                ownerName = pair[0];
+                userIdentifier = pair[0];
                 bucketName = pair[1];
                 key = rest;
             }
@@ -40,16 +41,16 @@ public class UofsAddressResolver implements Pinenut {
             key = rest;
         }
 
-        return new UofsAddress( ownerName, bucketName, key, mountPath );
+        return new UofsAddress( userIdentifier, bucketName, key, mountPath );
     }
 
-    protected String trimSlashes( String value ) {
+    protected String trimSlashes( String value, String separator ) {
         String ret = value;
-        while ( ret.startsWith( "/" ) ) {
-            ret = ret.substring( 1 );
+        while ( ret.startsWith( separator ) ) {
+            ret = ret.substring( separator.length() );
         }
-        while ( ret.endsWith( "/" ) ) {
-            ret = ret.substring( 0, ret.length() - 1 );
+        while ( ret.endsWith( separator ) ) {
+            ret = ret.substring( 0, ret.length() - separator.length() );
         }
         return ret;
     }

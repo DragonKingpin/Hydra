@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class GenericFileNode extends ArchElementNode implements FileNode{
-    private LocalDateTime               deletedTime;
     private long                        checksum;
     private int                         parityCheck;
 
@@ -131,16 +130,6 @@ public class GenericFileNode extends ArchElementNode implements FileNode{
 
     public void setName(String name) {
         this.name = name;
-    }
-
-
-    public LocalDateTime getDeletedTime() {
-        return deletedTime;
-    }
-
-
-    public void setDeletedTime(LocalDateTime deletedTime) {
-        this.deletedTime = deletedTime;
     }
 
 

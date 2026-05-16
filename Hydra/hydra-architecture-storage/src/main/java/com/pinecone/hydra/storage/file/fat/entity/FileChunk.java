@@ -18,6 +18,10 @@ public interface FileChunk extends Pinenut {
 
     void setFileGuid( GUID fileGuid );
 
+    GUID getBucketGuid();
+
+    void setBucketGuid( GUID bucketGuid );
+
     long getChunkIndex();
 
     void setChunkIndex( long chunkIndex );

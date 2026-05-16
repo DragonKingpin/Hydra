@@ -1,6 +1,7 @@
 package com.pinecone.hydra.file.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.hydra.file.ibatis.BucketMapper;
 import com.pinecone.hydra.file.ibatis.ExternalSymbolicMapper;
 import com.pinecone.hydra.file.ibatis.FileMapper;
 import com.pinecone.hydra.file.ibatis.FolderMapper;
@@ -11,6 +12,9 @@ import com.pinecone.hydra.file.ibatis.fat.FileChunkMapper;
 import com.pinecone.hydra.file.ibatis.journal.JournalItemMapper;
 import com.pinecone.hydra.file.ibatis.journal.JournalMapper;
 
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
+import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.file.source.ExternalSymbolicManipulator;
 import com.pinecone.hydra.storage.file.fat.source.FileChunkLocationManipulator;
 import com.pinecone.hydra.storage.file.fat.source.FileChunkManipulator;
@@ -53,6 +57,10 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     @Resource
     @Structure( type = JournalItemMapper.class )
     JournalItemManipulator journalItemManipulator;
+
+    @Resource
+    @Structure( type = BucketMapper.class )
+    BucketManipulator bucketManipulator;
 
     @Resource
     @Structure( type = SymbolicMapper.class )
@@ -105,6 +113,11 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     @Override
     public JournalItemManipulator getJournalItemManipulator() {
         return this.journalItemManipulator;
+    }
+
+    @Override
+    public BucketManipulator getBucketManipulator() {
+        return this.bucketManipulator;
     }
 
     @Override

@@ -13,6 +13,9 @@ public interface ElementNode extends FileTreeNode, ElementObject {
     GUID getGuid();
     void setGuid(GUID guid);
 
+    GUID getBucketGuid();
+    void setBucketGuid( GUID bucketGuid );
+
     LocalDateTime getCreateTime();
 
     LocalDateTime getUpdateTime();

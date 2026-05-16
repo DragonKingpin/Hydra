@@ -57,13 +57,12 @@ public class TitanObjectSimpleVolume extends ArchVolume implements ObjectSimpleV
     public String allocateObjectKey( String namespace, String objectName, long objectSize ) {
         String safeNamespace = namespace == null || namespace.isBlank() ? "default" : namespace;
         String safeObjectName = objectName == null || objectName.isBlank() ? UUID.randomUUID().toString() : objectName;
-        return this.mConfig.getTitanHomeDirectory()
-                + "/"
-                + this.mConfig.getObjectDataDirectory()
-                + "/"
-                + safeNamespace
-                + "/"
-                + safeObjectName;
+        return this.joinObjectKey(
+                this.mConfig.getTitanHomeDirectory(),
+                this.mConfig.getObjectDataDirectory(),
+                safeNamespace,
+                safeObjectName
+        );
     }
 
     @Override
@@ -81,5 +80,31 @@ public class TitanObjectSimpleVolume extends ArchVolume implements ObjectSimpleV
 
     @Override
     public void flush() {
+    }
+
+    protected String joinObjectKey( String ...parts ) {
+        String separator = this.mConfig.getPathNameSeparator();
+        StringBuilder builder = new StringBuilder();
+        for ( String part : parts ) {
+            if ( part == null || part.isBlank() ) {
+                continue;
+            }
+            if ( builder.length() > 0 ) {
+                builder.append( separator );
+            }
+            builder.append( this.trimObjectKeyPart( part, separator ) );
+        }
+        return builder.toString();
+    }
+
+    protected String trimObjectKeyPart( String part, String separator ) {
+        String ret = part;
+        while ( ret.startsWith( separator ) ) {
+            ret = ret.substring( separator.length() );
+        }
+        while ( ret.endsWith( separator ) ) {
+            ret = ret.substring( 0, ret.length() - separator.length() );
+        }
+        return ret;
     }
 }

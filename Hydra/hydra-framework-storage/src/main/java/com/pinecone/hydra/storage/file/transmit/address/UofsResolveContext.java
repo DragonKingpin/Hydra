@@ -1,18 +1,20 @@
 package com.pinecone.hydra.storage.file.transmit.address;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.storage.StorageConstants;
 
 public class UofsResolveContext implements Pinenut {
-    protected String mDefaultOwnerName  = "root";
+    protected String mDefaultUserIdentifier = "root";
     protected String mDefaultBucketName = "default";
     protected String mHydraMountPath;
+    protected String mPathNameSeparator = StorageConstants.PathSeparator;
 
-    public String getDefaultOwnerName() {
-        return this.mDefaultOwnerName;
+    public String getDefaultUserIdentifier() {
+        return this.mDefaultUserIdentifier;
     }
 
-    public void setDefaultOwnerName( String defaultOwnerName ) {
-        this.mDefaultOwnerName = defaultOwnerName;
+    public void setDefaultUserIdentifier( String defaultUserIdentifier ) {
+        this.mDefaultUserIdentifier = defaultUserIdentifier;
     }
 
     public String getDefaultBucketName() {
@@ -29,5 +31,15 @@ public class UofsResolveContext implements Pinenut {
 
     public void setHydraMountPath( String hydraMountPath ) {
         this.mHydraMountPath = hydraMountPath;
+    }
+
+    public String getPathNameSeparator() {
+        return this.mPathNameSeparator == null || this.mPathNameSeparator.isEmpty()
+                ? StorageConstants.PathSeparator
+                : this.mPathNameSeparator;
+    }
+
+    public void setPathNameSeparator( String pathNameSeparator ) {
+        this.mPathNameSeparator = pathNameSeparator;
     }
 }

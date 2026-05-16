@@ -18,7 +18,10 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class TitanExternalFileSystemInstrument implements ExternalFileSystemInstrument {
     protected KOMFileSystem                 fileSystem;
@@ -62,10 +65,10 @@ public class TitanExternalFileSystemInstrument implements ExternalFileSystemInst
 
         ExternalSymbolic externalSymbolic = this.externalSymbolicManipulator.getSymbolicByGuid(guid);
         String externalPath = this.fileSystem.getPath(externalSymbolic.getGuid());
-        String remainingPath = path.substring(externalPath.length()).replaceFirst( StorageConstants.PathSeparator, "" );
+        String separator = this.fileSystem.getConfig().getPathNameSeparator();
+        String remainingPath = this.trimLeadingSeparator( path.substring(externalPath.length()), separator );
 
-        String realFilePath = externalSymbolic.getReparsedPoint() + StorageConstants.PathSeparator + remainingPath;
-        File file = new File(realFilePath);
+        File file = this.resolveNativePath( externalSymbolic.getReparsedPoint(), remainingPath, separator ).toFile();
         if( file.isDirectory() ){
             return new GenericNativeExternalFolder( file );
         }
@@ -112,6 +115,28 @@ public class TitanExternalFileSystemInstrument implements ExternalFileSystemInst
 
         guid = this.pathSelector.searchGUID( resolvedParts );
         return guid;
+    }
+
+    protected String trimLeadingSeparator( String path, String separator ) {
+        String ret = path == null ? "" : path;
+        while ( ret.startsWith( separator ) ) {
+            ret = ret.substring( separator.length() );
+        }
+        return ret;
+    }
+
+    protected Path resolveNativePath( String rootPath, String logicalPath, String separator ) {
+        Path ret = Paths.get( rootPath );
+        if ( logicalPath == null || logicalPath.isBlank() ) {
+            return ret;
+        }
+        for ( String part : logicalPath.split( Pattern.quote( separator ) ) ) {
+            if ( part == null || part.isBlank() ) {
+                continue;
+            }
+            ret = ret.resolve( part );
+        }
+        return ret;
     }
 
 }

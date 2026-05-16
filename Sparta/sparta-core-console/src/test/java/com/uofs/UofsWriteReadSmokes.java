@@ -52,9 +52,11 @@ enum UofsWriteReadSmoke implements UofsSmokeCase {
 
     @Override
     public void run( UofsSmokeContext context ) throws Exception {
-        UofsVolumeFixture fixture = this.createFixture( context, this.mCaseName, context.seed( this.mSeedSuffix ) );
+        String seed = context.seed( this.mSeedSuffix );
+        UofsVolumeFixture fixture = this.createFixture( context, this.mCaseName, seed );
+        UofsSmokeTools.ensureBucket( context, this.mCaseName, fixture.volumeGuid, seed );
         KOMFileSystem fileSystem = context.hydra.createFileSystem( context.fileMappingDriver, fixture.volumeGuid, context.tempFolder );
-        String uofsPath = "/" + this.mCaseName + "/avatar.png";
+        String uofsPath = "root@" + this.mCaseName + "/avatar.png";
         File readbackFile = new File( context.readbackRoot + "\\" + this.mCaseName + "-avatar.png" );
 
         UofsSmokeTools.cleanupOldUofsFile( fileSystem, uofsPath );

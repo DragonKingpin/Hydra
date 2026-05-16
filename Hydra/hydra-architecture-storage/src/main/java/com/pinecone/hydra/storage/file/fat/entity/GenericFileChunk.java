@@ -8,6 +8,7 @@ public class GenericFileChunk implements FileChunk {
     protected long          id;
     protected GUID          guid;
     protected GUID          fileGuid;
+    protected GUID          bucketGuid;
     protected long          chunkIndex;
     protected long          logicalOffset;
     protected long          chunkSize;
@@ -58,6 +59,16 @@ public class GenericFileChunk implements FileChunk {
     @Override
     public void setFileGuid( GUID fileGuid ) {
         this.fileGuid = fileGuid;
+    }
+
+    @Override
+    public GUID getBucketGuid() {
+        return this.bucketGuid;
+    }
+
+    @Override
+    public void setBucketGuid( GUID bucketGuid ) {
+        this.bucketGuid = bucketGuid;
     }
 
     @Override

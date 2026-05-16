@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.FileMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_uofs_files` (`guid`, `create_time`, `update_time`, `name`, `checksum`, `parity_check`, `physical_size`,`logic_size`,`definition_size`,`crc32_xor`,`integrity_check_enable`,`disable_chunk`) VALUES (#{guid},#{createTime},#{updateTime},#{name},#{checksum},#{parityCheck},#{physicalSize},#{logicSize},#{definitionSize},#{crc32Xor},#{integrityCheckEnable},#{disableChunk})
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_uofs_files` WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="getFileNodeByGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericFileNode">
+        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`, `checksum`, `parity_check` AS parityCheck, `physical_size` AS physicalSize,`logic_size` AS logicSize,`definition_size` AS definitionSize,`crc32_xor` AS crc32Xor,`integrity_check_enable` AS integrityCheckEnable,`disable_chunk` AS disableChunk FROM hydra_uofs_files WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid` FROM `hydra_uofs_files` WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid` FROM `hydra_uofs_files` WHERE `name` = #{name} AND `guid` = #{guid}
+    </select>
+
+    <select id="dumpGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid` FROM hydra_uofs_files 
+    </select>
+
+    <update id="update">
+        UPDATE hydra_uofs_files SET checksum = #{checksum}, parity_check = #{parityCheck}, physical_size = #{physicalSize}, logic_size = #{logicSize}, crc32_xor = #{crc32Xor}, definition_size = #{definitionSize} WHERE guid = #{guid}
+    </update>
+
+    <update id="rename">
+        UPDATE hydra_uofs_files SET name = #{newName} WHERE guid = #{guid}
+    </update>
+
+</mapper>

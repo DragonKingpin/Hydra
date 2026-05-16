@@ -2,6 +2,10 @@ package com.uofs;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.bucket.Bucket;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.GenericBucket;
+import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
@@ -11,6 +15,8 @@ import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileChannel;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileOpenOption;
+import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
+import com.pinecone.ulf.util.guid.GUIDs;
 
 import java.io.File;
 import java.io.InputStream;
@@ -42,6 +48,25 @@ final class UofsSmokeTools {
             fileSystem.remove( oldNode.getGuid() );
             Debug.trace( "old uofs file removed", oldNode.getGuid() );
         }
+    }
+
+    static void ensureBucket( UofsSmokeContext context, String bucketName, GUID volumeGuid, String seed ) {
+        BucketInstrument bucketInstrument = new TitanBucketInstrument(
+                ( (FileMasterManipulator) context.fileMappingDriver.getMasterManipulator() ).getBucketManipulator()
+        );
+        Bucket bucket = bucketInstrument.getByUserIdentifierAndBucket( "root", bucketName );
+        if ( bucket == null ) {
+            GUID bucketGuid = GUIDs.GUID128( "01990000-0000-" + seed + "-8000-000000000701" );
+            bucketInstrument.insert( new GenericBucket( bucketGuid, "root", bucketName, volumeGuid ) );
+            Debug.trace( "bucket created", "root@" + bucketName, bucketGuid, "volume", volumeGuid );
+            return;
+        }
+        if ( volumeGuid.equals( bucket.getVolumeGuid() ) ) {
+            Debug.trace( "bucket ready", "root@" + bucketName, bucket.getGuid(), "volume", bucket.getVolumeGuid() );
+            return;
+        }
+        bucketInstrument.bindVolume( bucket.getGuid(), volumeGuid );
+        Debug.trace( "bucket rebound", "root@" + bucketName, bucket.getGuid(), "volume", volumeGuid );
     }
 
     static FileNode writeFile( KOMFileSystem fileSystem, UofsVolumeFixture fixture, String uofsPath ) throws Exception {

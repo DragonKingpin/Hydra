@@ -7,7 +7,7 @@
   "metaDependent": {
     "atlasDatabase"    : "MySQLKingHydranium",
     "taskInstrument"   : "MySQLKingHydranium",
-    "controlRPCDriver" : "TaskWolfKing",
+    "controlRPCDriver" : "WolfKing",
     "processManager"   : "__SystemTaskManager__",
   },
 

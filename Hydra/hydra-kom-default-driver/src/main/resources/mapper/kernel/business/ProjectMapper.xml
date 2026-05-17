@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinecone.hydra.business.ibatis.ProjectMapper">
+
+    <resultMap id="ProjectMap" type="com.pinecone.hydra.business.entity.GenericProjectElement">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="project_code" property="projectCode"/>
+        <result column="project_status" property="projectStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO hydra_business_project_node (
+            guid, project_code, project_status, create_time, update_time
+        )
+        VALUES (
+            #{guid}, #{projectCode}, #{projectStatus}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM hydra_business_project_node WHERE guid = #{guid}
+    </delete>
+
+    <select id="get" resultMap="ProjectMap">
+        SELECT id, guid, project_code, project_status, create_time, update_time
+        FROM hydra_business_project_node
+        WHERE guid = #{guid}
+    </select>
+
+    <update id="update">
+        UPDATE hydra_business_project_node
+        SET
+            project_code   = #{projectCode},
+            project_status = #{projectStatus},
+            update_time    = #{updateTime}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="queryByProjectCode" resultMap="ProjectMap">
+        SELECT id, guid, project_code, project_status, create_time, update_time
+        FROM hydra_business_project_node
+        WHERE project_code = #{projectCode}
+    </select>
+
+</mapper>

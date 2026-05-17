@@ -1,7 +1,9 @@
 package com.pinecone.hydra.storage.file.journal;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.system.regime.Instrument;
 
-public interface JournalRecoveryInstrument extends Pinenut {
+public interface JournalRecoveryInstrument extends Instrument {
+
     void recover();
+
 }

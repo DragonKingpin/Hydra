@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 @MapperScan( "com.walnut.sparta.services.mapper" )
 @MapperScan( {
         "com.pinecone.hydra.registry.ibatis", "com.pinecone.hydra.service.ibatis", "com.pinecone.hydra.task.ibatis",
-        "com.pinecone.hydra.scenario.ibatis", "com.pinecone.hydra.deploy.ibatis"
+        "com.pinecone.hydra.business.ibatis", "com.pinecone.hydra.deploy.ibatis"
 } )
 public class IBatisConfig {
 

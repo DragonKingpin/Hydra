@@ -23,6 +23,19 @@ public interface InstanceInstrument extends Instrument {
 
     InstanceEntry getInstanceEntry( GUID insGuid );
 
+    long countInstances( TaskInstanceQuery query );
+
+    List<InstanceEntry> fetchInstances( TaskInstanceQuery query );
+
+    default TaskInstancePage pageInstances( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        long nTotal = this.countInstances( query );
+        List<InstanceEntry> items = this.fetchInstances( query );
+        return new TaskInstancePage( items, nTotal, query.getOffset(), query.getLimit() );
+    }
+
     List<InstanceEntry> queryInstances( String taskTreePath, long offset, long pageSize );
 
     long countInstanceByGuid( GUID taskGuid );

@@ -18,7 +18,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryConfigNodeManipulator configNodeManipulator;
 
     @Resource
-    RegistryNSNodeManipulator namespaceNodeManipulator;
+    RegistryNSNodeManipulator businessNodeManipulator;
 
     @Resource
     RegistryPropertiesManipulator registryPropertiesManipulator;
@@ -45,7 +45,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
 
     @Override
     public RegistryNSNodeManipulator getNSNodeManipulator() {
-        return this.namespaceNodeManipulator;
+        return this.businessNodeManipulator;
     }
 
     @Override

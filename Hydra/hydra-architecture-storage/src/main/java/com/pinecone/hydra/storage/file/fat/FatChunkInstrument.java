@@ -1,6 +1,6 @@
 package com.pinecone.hydra.storage.file.fat;
 
-import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.system.regime.Instrument;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
@@ -9,7 +9,7 @@ import com.pinecone.hydra.storage.file.fat.service.ChunkSlice;
 
 import java.util.List;
 
-public interface FatChunkInstrument extends Pinenut {
+public interface FatChunkInstrument extends Instrument {
     long chooseChunkSize( long fileSize );
 
     List<ChunkRange> planChunks( long fileSize );

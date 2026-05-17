@@ -19,12 +19,12 @@ public class RegistryMetaController {
 
     *//**
      * 添加一条namespace节点
-     * @param namespaceNode 节点信息
+     * @param businessNode 节点信息
      * @return 返回操作情况
      *//*
-    @PostMapping("/putNamespaceNode")
-    public BasicResultResponse<String> putNamespaceNode(@RequestBody GenericNamespace namespaceNode){
-        this.KOMRegistry.put(namespaceNode);
+    @PostMapping("/putBusinessNode")
+    public BasicResultResponse<String> putBusinessNode(@RequestBody GenericNamespace businessNode){
+        this.KOMRegistry.put(businessNode);
         return BasicResultResponse.success();
     }
 

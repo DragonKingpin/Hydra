@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinecone.hydra.business.ibatis.IdeaMapper">
+
+    <resultMap id="IdeaMap" type="com.pinecone.hydra.business.entity.GenericIdeaElement">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="idea_code" property="ideaCode"/>
+        <result column="idea_status" property="ideaStatus"/>
+        <result column="red_mine_guid" property="redMineGuid"/>
+        <result column="value_level" property="valueLevel"/>
+        <result column="extra_information" property="extraInformation"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO hydra_business_idea_node (
+            guid, idea_code, idea_status, red_mine_guid, value_level, extra_information, create_time, update_time
+        )
+        VALUES (
+            #{guid}, #{ideaCode}, #{ideaStatus}, #{redMineGuid}, #{valueLevel}, #{extraInformation}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM hydra_business_idea_node WHERE guid = #{guid}
+    </delete>
+
+    <select id="get" resultMap="IdeaMap">
+        SELECT
+            id, guid, idea_code, idea_status, red_mine_guid, value_level, extra_information, create_time, update_time
+        FROM hydra_business_idea_node
+        WHERE guid = #{guid}
+    </select>
+
+    <update id="update">
+        UPDATE hydra_business_idea_node
+        SET
+            idea_code         = #{ideaCode},
+            idea_status       = #{ideaStatus},
+            red_mine_guid     = #{redMineGuid},
+            value_level       = #{valueLevel},
+            extra_information = #{extraInformation},
+            update_time       = #{updateTime}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="queryByIdeaCode" resultMap="IdeaMap">
+        SELECT
+            id, guid, idea_code, idea_status, red_mine_guid, value_level, extra_information, create_time, update_time
+        FROM hydra_business_idea_node
+        WHERE idea_code = #{ideaCode}
+    </select>
+
+    <select id="queryByRedMineGuid" resultMap="IdeaMap">
+        SELECT
+            id, guid, idea_code, idea_status, red_mine_guid, value_level, extra_information, create_time, update_time
+        FROM hydra_business_idea_node
+        WHERE red_mine_guid = #{redMineGuid}
+    </select>
+
+</mapper>

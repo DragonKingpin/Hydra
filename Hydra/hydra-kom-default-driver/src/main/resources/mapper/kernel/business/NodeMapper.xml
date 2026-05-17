@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinecone.hydra.business.ibatis.NodeMapper">
+
+    <resultMap id="NodeMap" type="com.pinecone.hydra.business.entity.GenericElementNode">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="type" property="type"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="description" property="description"/>
+        <result column="owner" property="owner"/>
+        <result column="extra_information" property="extraInformation"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO hydra_business_nodes (
+            guid, type, name, code, description, owner, extra_information, create_time, update_time
+        )
+        VALUES (
+            #{guid}, #{type}, #{name}, #{code}, #{description}, #{owner}, #{extraInformation}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM hydra_business_nodes WHERE guid = #{guid}
+    </delete>
+
+    <select id="get" resultMap="NodeMap">
+        SELECT
+            id, guid, type, name, code, description, owner, extra_information, create_time, update_time
+        FROM hydra_business_nodes
+        WHERE guid = #{guid}
+    </select>
+
+    <update id="update">
+        UPDATE hydra_business_nodes
+        SET
+            type              = #{type},
+            name              = #{name},
+            code              = #{code},
+            description       = #{description},
+            owner             = #{owner},
+            extra_information = #{extraInformation},
+            update_time       = #{updateTime}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="fetchByType" resultMap="NodeMap">
+        SELECT
+            id, guid, type, name, code, description, owner, extra_information, create_time, update_time
+        FROM hydra_business_nodes
+        WHERE type = #{type}
+        ORDER BY id
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_business_nodes WHERE name = #{name}
+    </select>
+
+    <select id="queryGuidsByCode" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_business_nodes WHERE code = #{code}
+    </select>
+
+</mapper>

@@ -6,6 +6,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.hydra.task.kom.instance.TaskInstanceQuery;
 import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,10 @@ public interface InstanceNodeManipulator extends Pinenut {
     int countInstance();
 
     long countInstanceByName( String name );
+
+    long countInstances( TaskInstanceQuery query );
+
+    List<InstanceEntry> fetchInstances( TaskInstrument instrument, TaskInstanceQuery query );
 
     List<InstanceEntry> fetchInstances( TaskInstrument instrument, long offset, long pageSize );
 

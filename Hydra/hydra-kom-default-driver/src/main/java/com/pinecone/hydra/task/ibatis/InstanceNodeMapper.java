@@ -7,6 +7,7 @@ import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.GenericInstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.hydra.task.kom.instance.TaskInstanceQuery;
 import com.pinecone.hydra.task.kom.instance.source.InstanceNodeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import com.pinecone.slime.meta.TableIndex64Meta;
@@ -46,6 +47,25 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     int countInstance();
 
     long countInstanceByName( String name );
+
+    long countInstances0( @Param( "query" ) TaskInstanceQuery query );
+
+    @Override
+    default long countInstances( TaskInstanceQuery query ) {
+        return this.countInstances0( query );
+    }
+
+    List<GenericInstanceEntry> fetchInstancesByQuery0( @Param( "query" ) TaskInstanceQuery query );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<InstanceEntry> fetchInstances( TaskInstrument instrument, TaskInstanceQuery query ) {
+        List<GenericInstanceEntry> list = this.fetchInstancesByQuery0( query );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return (List) list;
+    }
 
     List<GenericInstanceEntry> fetchInstances0( @Param("offset") long offset, @Param("pageSize") long pageSize );
 

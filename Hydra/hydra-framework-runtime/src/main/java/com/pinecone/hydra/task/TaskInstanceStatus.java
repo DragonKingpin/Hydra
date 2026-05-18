@@ -5,6 +5,7 @@ public enum TaskInstanceStatus {
     DependencyWait             ( 0x1001, "WAIT"     , "DependencyWait"    ), // DAG dependency wait.
     ResourceWait               ( 0x1002, "WAIT"     , "ResourceWait"      ), // Waiting for resource allocation.
     DepartureStandby           ( 0x1003, "WAIT"     , "DepartureStandby"  ), // Ready to launch.
+    ProcessCreating            ( 0x1005, "WAIT"     , "ProcessCreating"   ), // Process creation claimed.
     ProcessStandby             ( 0x1004, "WAIT"     , "ProcessStandby"    ), // Process spawned.
 
     Running                    ( 0x2000, "RUNNING"  , "Running"           ), // Running.

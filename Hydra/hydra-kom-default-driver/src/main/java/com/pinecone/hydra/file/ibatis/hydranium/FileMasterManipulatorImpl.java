@@ -1,30 +1,30 @@
 package com.pinecone.hydra.file.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
+import com.pinecone.hydra.file.ibatis.BucketMapper;
 import com.pinecone.hydra.file.ibatis.ExternalSymbolicMapper;
 import com.pinecone.hydra.file.ibatis.FileMapper;
-import com.pinecone.hydra.file.ibatis.FileMetaMapper;
-import com.pinecone.hydra.file.ibatis.FileSystemAttributeMapper;
 import com.pinecone.hydra.file.ibatis.FolderMapper;
-import com.pinecone.hydra.file.ibatis.FolderMetaMapper;
 import com.pinecone.hydra.file.ibatis.FolderVolumeMappingMapper;
-import com.pinecone.hydra.file.ibatis.LocalClusterMapper;
-import com.pinecone.hydra.file.ibatis.RemoteClusterMapper;
 import com.pinecone.hydra.file.ibatis.SymbolicMapper;
-import com.pinecone.hydra.file.ibatis.SymbolicMetaMapper;
+import com.pinecone.hydra.file.ibatis.fat.FileChunkLocationMapper;
+import com.pinecone.hydra.file.ibatis.fat.FileChunkMapper;
+import com.pinecone.hydra.file.ibatis.journal.JournalItemMapper;
+import com.pinecone.hydra.file.ibatis.journal.JournalMapper;
 
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
+import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.file.source.ExternalSymbolicManipulator;
+import com.pinecone.hydra.storage.file.fat.source.FileChunkLocationManipulator;
+import com.pinecone.hydra.storage.file.fat.source.FileChunkManipulator;
+import com.pinecone.hydra.storage.file.journal.source.JournalItemManipulator;
+import com.pinecone.hydra.storage.file.journal.source.JournalManipulator;
 import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
-import com.pinecone.hydra.storage.file.source.FileMetaManipulator;
-import com.pinecone.hydra.storage.file.source.FileSystemAttributeManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
-import com.pinecone.hydra.storage.file.source.FolderMetaManipulator;
 import com.pinecone.hydra.storage.file.source.FolderVolumeMappingManipulator;
-import com.pinecone.hydra.storage.file.source.LocalClusterManipulator;
-import com.pinecone.hydra.storage.file.source.RemoteClusterManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
-import com.pinecone.hydra.storage.file.source.SymbolicMetaManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import org.springframework.stereotype.Component;
@@ -35,40 +35,36 @@ import java.util.Map;
 @Component
 public class FileMasterManipulatorImpl implements FileMasterManipulator {
     @Resource
-    @Structure( type = FileSystemAttributeMapper.class )
-    FileSystemAttributeManipulator fileSystemAttributeManipulator;
-
-    @Resource
     @Structure( type = FileMapper.class )
     FileManipulator fileManipulator;
-
-    @Resource
-    @Structure( type = FileMetaMapper.class )
-    FileMetaManipulator fileMetaManipulator;
 
     @Resource
     @Structure( type = FolderMapper.class )
     FolderManipulator folderManipulator;
 
     @Resource
-    @Structure( type = FolderMetaMapper.class )
-    FolderMetaManipulator folderMetaManipulator;
+    @Structure( type = FileChunkMapper.class )
+    FileChunkManipulator fileChunkManipulator;
 
     @Resource
-    @Structure( type = LocalClusterMapper.class )
-    LocalClusterManipulator localClusterManipulator;
+    @Structure( type = FileChunkLocationMapper.class )
+    FileChunkLocationManipulator fileChunkLocationManipulator;
 
     @Resource
-    @Structure( type = RemoteClusterMapper.class )
-    RemoteClusterManipulator remoteClusterManipulator;
+    @Structure( type = JournalMapper.class )
+    JournalManipulator journalManipulator;
+
+    @Resource
+    @Structure( type = JournalItemMapper.class )
+    JournalItemManipulator journalItemManipulator;
+
+    @Resource
+    @Structure( type = BucketMapper.class )
+    BucketManipulator bucketManipulator;
 
     @Resource
     @Structure( type = SymbolicMapper.class )
     SymbolicManipulator symbolicManipulator;
-
-    @Resource
-    @Structure( type = SymbolicMetaMapper.class )
-    SymbolicMetaManipulator symbolicMetaManipulator;
 
     @Resource
     @Structure( type = ExternalSymbolicMapper.class )
@@ -90,18 +86,8 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     }
 
     @Override
-    public FileSystemAttributeManipulator getAttributeManipulator() {
-        return this.fileSystemAttributeManipulator;
-    }
-
-    @Override
     public FileManipulator getFileManipulator() {
         return this.fileManipulator;
-    }
-
-    @Override
-    public FileMetaManipulator getFileMetaManipulator() {
-        return this.fileMetaManipulator;
     }
 
     @Override
@@ -110,28 +96,33 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     }
 
     @Override
-    public FolderMetaManipulator getFolderMetaManipulator() {
-        return this.folderMetaManipulator;
+    public FileChunkManipulator getFileChunkManipulator() {
+        return this.fileChunkManipulator;
     }
 
     @Override
-    public LocalClusterManipulator getLocalClusterManipulator() {
-        return this.localClusterManipulator;
+    public FileChunkLocationManipulator getFileChunkLocationManipulator() {
+        return this.fileChunkLocationManipulator;
     }
 
     @Override
-    public RemoteClusterManipulator getRemoteClusterManipulator() {
-        return this.remoteClusterManipulator;
+    public JournalManipulator getJournalManipulator() {
+        return this.journalManipulator;
+    }
+
+    @Override
+    public JournalItemManipulator getJournalItemManipulator() {
+        return this.journalItemManipulator;
+    }
+
+    @Override
+    public BucketManipulator getBucketManipulator() {
+        return this.bucketManipulator;
     }
 
     @Override
     public SymbolicManipulator getSymbolicManipulator() {
         return this.symbolicManipulator;
-    }
-
-    @Override
-    public SymbolicMetaManipulator getSymbolicMetaManipulator() {
-        return this.symbolicMetaManipulator;
     }
 
     @Override

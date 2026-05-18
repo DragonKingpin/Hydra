@@ -8,14 +8,12 @@ import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.hydra.unit.vgraph.layer.Layer;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 
 public class MagnitudeVectorDAG extends ArchVectorDAG implements VectorDAG {
     protected Layer                                     mGraphLayer;
 
     protected VectorGraphMasterManipulator              mMasterManipulator;
     protected VectorGraphManipulator                    mVectorGraphManipulator;
-    protected VectorGraphPathCacheManipulator           mVectorGraphPathCacheManipulator;
 
     public MagnitudeVectorDAG( Layer affliatedLayer, VectorGraphMasterManipulator masterManipulator, VectorGraphConfig vectorGraphConfig ) {
         super( affliatedLayer.getGuid(), vectorGraphConfig );
@@ -23,7 +21,6 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements VectorDAG {
         this.mGraphLayer                            = affliatedLayer;
         this.mMasterManipulator                     = masterManipulator;
         this.mVectorGraphManipulator                = this.mMasterManipulator.getVectorGraphManipulator();
-        this.mVectorGraphPathCacheManipulator       = this.mMasterManipulator.getVectorGraphPathCacheManipulator();
     }
 
     @Override
@@ -84,7 +81,6 @@ public class MagnitudeVectorDAG extends ArchVectorDAG implements VectorDAG {
     @Override
     public void removeNode( GUID guid ) {
         this.mVectorGraphManipulator.removeNode( guid );
-        this.mVectorGraphPathCacheManipulator.remove( guid );
     }
 
     @Override

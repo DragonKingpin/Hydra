@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.SymbolicMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_uofs_symbolic` (`guid`, `create_time`, `update_time`, `name`, `reparsed_point`) VALUES (#{guid}, #{createTime}, #{updateTime}, #{name}, #{reparsedPoint})
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_uofs_symbolic` WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="getSymbolicByGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericSymbolic">
+        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`, `reparsed_point` AS reparsedPoint FROM `hydra_uofs_symbolic` WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getSymbolicByNameGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericSymbolic">
+        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`, `reparsed_point` AS reparsedPoint FROM `hydra_uofs_symbolic` WHERE `guid` = #{guid} AND `name` = #{nodeName}
+    </select>
+
+    <select id="isSymbolicMatchedByNameGuid" resultType="boolean">
+        SELECT COUNT(*) FROM `hydra_uofs_symbolic` WHERE `guid` = #{guid} AND `name` = #{nodeName}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid` FROM `hydra_uofs_symbolic` WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `guid` FROM `hydra_uofs_symbolic` WHERE `name` = #{name} AND `guid` = #{guid}
+    </select>
+
+</mapper>

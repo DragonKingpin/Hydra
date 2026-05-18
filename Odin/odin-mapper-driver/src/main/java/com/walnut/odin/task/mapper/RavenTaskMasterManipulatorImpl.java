@@ -6,6 +6,10 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
+import com.walnut.odin.project.RavenTaskProjectInstrument;
+import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.project.mapper.TaskProjectMapper;
+import com.walnut.odin.project.source.TaskProjectManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.source.CategoryMappingManipulator;
 import com.walnut.odin.task.source.CategoryTypeManipulator;
@@ -43,7 +47,13 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     @Structure( type = TaskProcessorMapper.class )
     protected TaskProcessorManipulator taskProcessorManipulator;
 
-    protected ScheduleManipulator      scheduleManipulator;
+    @Resource
+    @Structure( type = TaskProjectMapper.class )
+    protected TaskProjectManipulator taskProjectManipulator;
+
+    protected ScheduleManipulator    scheduleManipulator;
+
+    protected TaskProjectInstrument  taskProjectInstrument;
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {
         driver.autoConstruct( RavenTaskMasterManipulatorImpl.class, Map.of(), this );
@@ -52,6 +62,7 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
         this.skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
 
         this.scheduleManipulator       = new ScheduleManipulatorImpl( driver );
+        this.taskProjectInstrument     = new RavenTaskProjectInstrument( this.taskProjectManipulator );
     }
 
     @Override
@@ -92,5 +103,15 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     @Override
     public ScheduleManipulator getScheduleManipulator() {
         return this.scheduleManipulator;
+    }
+
+    @Override
+    public TaskProjectManipulator getTaskProjectManipulator() {
+        return this.taskProjectManipulator;
+    }
+
+    @Override
+    public TaskProjectInstrument getTaskProjectInstrument() {
+        return this.taskProjectInstrument;
     }
 }

@@ -8,16 +8,12 @@ import org.springframework.stereotype.Component;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.registry.ibatis.RegistryAttributesMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryNSNodeMetaMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryConfigNodeMapper;
-import com.pinecone.hydra.registry.ibatis.RegistryNodeMetaMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryPropertiesMapper;
 import com.pinecone.hydra.registry.ibatis.RegistryTextFileMapper;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryAttributesManipulator;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 import com.pinecone.hydra.registry.source.RegistryTextFileManipulator;
@@ -41,14 +37,6 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     @Resource
     @Structure( type = RegistryTextFileMapper.class )
     RegistryTextFileManipulator registryTextFileManipulator;
-
-    @Resource
-    @Structure( type = RegistryNodeMetaMapper.class )
-    RegistryNodeMetaManipulator configNodeMetaManipulator;
-
-    @Resource
-    @Structure( type = RegistryNSNodeMetaMapper.class )
-    RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
     @Resource
     @Structure( type = RegistryAttributesMapper.class )
@@ -90,16 +78,6 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     @Override
     public RegistryTextFileManipulator getTextFileManipulator() {
         return this.registryTextFileManipulator;
-    }
-
-    @Override
-    public RegistryNodeMetaManipulator getNodeMetaManipulator() {
-        return this.configNodeMetaManipulator;
-    }
-
-    @Override
-    public RegistryNSNodeMetaManipulator getNSNodeMetaManipulator() {
-        return this.namespaceNodeMetaManipulator;
     }
 
     @Override

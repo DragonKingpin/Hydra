@@ -56,9 +56,9 @@ import java.util.Map;
  */
 public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     public static final String  NUTLET_NAME         = "Bean Nuts Hazelnut Sauron Hydra";
-    public static final long    VER_PINE            =  202506L;
+    public static final long    VER_PINE            =  202806L;
     public static final String  VERSION             = "2.1.0";
-    public static final String  RELEASE_DATE        = "2026/06/06";
+    public static final String  RELEASE_DATE        = "2028/06/06";
     public static final String  ROOT_SERVER         = "https://www.dragonking.cn/";
     public static final String  CONTACT_INFO        = "E-Mail:info#dragonking.cn"; // Giving your contact information, if this program interrupt abnormally.
 
@@ -138,6 +138,10 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.infoLifecycle( "<Hydra Kingdom> Skeleton Initialization", LogStatuses.StatusReady );
     }
 
+    protected String fristQualifiedConfigPathString() {
+        return MAIN_CONFIG_FILE;
+    }
+
     @Override
     protected void loadConfig() {
         try {
@@ -155,7 +159,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
                 this.mPrimaryConfigPath = Path.of( args[ 0 ] );
             }
             else {
-                this.mPrimaryConfigPath = this.getWorkingPath().resolve( Tritium.MAIN_CONFIG_FILE );
+                this.mPrimaryConfigPath = this.getWorkingPath().resolve( this.fristQualifiedConfigPathString() );
             }
             this.mjoGlobalConfig   = (JSONSystemConfig) ( new JSONSystemConfig( this ) ).apply( this.mPrimaryConfigPath.toFile() );
         }
@@ -190,7 +194,7 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
         this.pout().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         this.pout().print( "---------------------------------------------------------------\n" );
         this.pout().print( "\u001B[31mDragon King\u001B[0m\n" );
-        this.pout().print( "\u001B[32mWebsit: https://www.dragonking.cn/ \u001B[0m\n" );
+        this.pout().print( "\u001B[32mWebsite: https://www.dragonking.cn/ \u001B[0m\n" );
 
         this.traceSubsystemWelcomeInfo();
         this.traceSystemBootingInfo();

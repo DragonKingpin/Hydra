@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.entity.ElementNode;
 import com.pinecone.hydra.registry.entity.GenericNamespace;
@@ -15,6 +16,7 @@ import com.pinecone.hydra.registry.entity.Namespace;
 import com.pinecone.hydra.registry.entity.Properties;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.registry.entity.TextFile;
+import com.pinecone.hydra.registry.entity.TextValue;
 import com.pinecone.hydra.registry.entity.TextValueTypes;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -65,7 +67,12 @@ public class RegistryJSONDecoder implements RegistryDecoder {
         TextFile file = new GenericTextFile(this.registry);
         file.setName( szName );
         this.registry.put( file );
-        file.put( new GenericTextValue( file.getGuid(), o.toString(), TextValueTypes.queryType(o) ) );
+
+        Object value = JSON.NULL.equals( o ) ? null : o;
+        TextValue textValue = new GenericTextValue(
+                file.getGuid(), value == null ? null : value.toString(), TextValueTypes.queryType( value )
+        );
+        file.put( textValue );
         this.registry.affirmOwnedNode( parentGuid, file.getGuid() );
         return file;
     }

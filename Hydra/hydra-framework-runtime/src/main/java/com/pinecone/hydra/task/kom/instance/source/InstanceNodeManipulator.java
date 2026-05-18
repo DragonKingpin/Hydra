@@ -6,6 +6,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.pinecone.hydra.task.kom.instance.TaskInstanceQuery;
 import com.pinecone.slime.meta.TableIndexMeta;
 
 import java.time.LocalDateTime;
@@ -24,6 +25,10 @@ public interface InstanceNodeManipulator extends Pinenut {
 
     long countInstanceByName( String name );
 
+    long countInstances( TaskInstanceQuery query );
+
+    List<InstanceEntry> fetchInstances( TaskInstrument instrument, TaskInstanceQuery query );
+
     List<InstanceEntry> fetchInstances( TaskInstrument instrument, long offset, long pageSize );
 
     default List<InstanceEntry> fetchInstances( TaskInstrument instrument ) {
@@ -31,6 +36,18 @@ public interface InstanceNodeManipulator extends Pinenut {
     }
 
     List<InstanceEntry> queryByTaskGuid( TaskInstrument instrument, GUID taskGuid, long offset, long pageSize );
+
+    InstanceEntry queryByTaskGuidAndExpectTime( TaskInstrument instrument, GUID taskGuid, LocalDateTime expectTime );
+
+    InstanceEntry queryByTaskGuidAndBusinessTime( TaskInstrument instrument, GUID taskGuid, LocalDateTime businessTime );
+
+    int transitStatus( GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus );
+
+    int transitStatusWithScheduleTime(
+            GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus, LocalDateTime scheduleTime
+    );
+
+    int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus );
 
     long countInstanceByTaskGuid( GUID taskGuid );
 

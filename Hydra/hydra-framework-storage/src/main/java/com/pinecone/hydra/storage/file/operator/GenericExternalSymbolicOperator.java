@@ -5,7 +5,6 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
-import com.pinecone.hydra.storage.file.entity.FileSystemAttributes;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic;
 import com.pinecone.hydra.storage.file.source.ExternalSymbolicManipulator;
@@ -18,7 +17,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
-public class GenericExternalSymbolicOperator extends ArchFileSystemOperator{
+public class GenericExternalSymbolicOperator extends ArchFileSystemOperator {
     private ExternalSymbolicManipulator externalSymbolicManipulator;
 
     public GenericExternalSymbolicOperator( FileSystemOperatorFactory factory ) {
@@ -37,19 +36,9 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator{
         GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         GUID guid = externalSymbolic.getGuid();
 
-        FileSystemAttributes attributes = externalSymbolic.getAttributes();
-        GUID attrbutesGuid = guidAllocator.nextGUID();
-        if ( attributes != null ){
-            attributes.setGuid(attrbutesGuid);
-            this.fileSystemAttributeManipulator.insert(attributes);
-        }
-        else {
-            attrbutesGuid = null;
-        }
-
         GUID fileMetaGuid = guidAllocator.nextGUID();
 
-        imperialTreeNode.setBaseDataGUID(attrbutesGuid);
+        imperialTreeNode.setBaseDataGUID(null);
         imperialTreeNode.setNodeMetadataGUID(fileMetaGuid);
         this.imperialTree.insert(imperialTreeNode);
         this.externalSymbolicManipulator.insert( externalSymbolic );
@@ -102,12 +91,6 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator{
             ((GenericExternalSymbolic) cn).apply( this.externalSymbolicManipulator );
         }
 
-        //Notice: Registry attributes is difference from other tree, -- that is, same as DOM;
-        //        So in this case, this field is deprecated.
-        //Attributes         attributes = this.attributesManipulator.getAttributes( node.getAttributesGUID(), cn );
-
-        FileSystemAttributes attributes = this.fileSystemAttributeManipulator.getAttributes( guid, cn );
-        cn.setAttributes    ( attributes );
         return cn;
     }
 

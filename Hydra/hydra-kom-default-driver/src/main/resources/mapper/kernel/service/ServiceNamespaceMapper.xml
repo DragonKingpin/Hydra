@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper">
+
+    <resultMap id="NamespaceMap" type="com.pinecone.hydra.service.kom.entity.GenericNamespace">
+        <id     column="id"          property="enumId"/>
+        <result column="guid"        property="guid"/>
+        <result column="name"        property="name"/>
+        <result column="rules_guid"  property="rulesGUID"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.service.kom.entity.Namespace">
+        INSERT INTO `hydra_service_namespace_node`
+        (
+            `guid`,
+            `name`,
+            `rules_guid`
+        )
+        VALUES
+        (
+            #{guid},
+            #{name},
+            #{rulesGUID}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_service_namespace_node`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="getNamespace" resultMap="NamespaceMap">
+        SELECT
+            `id`,
+            `guid`,
+            `name`,
+            `rules_guid`
+        FROM `hydra_service_namespace_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="update" parameterType="com.pinecone.hydra.service.kom.entity.Namespace">
+        UPDATE `hydra_service_namespace_node`
+        SET
+            `name` = #{name}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="fetchNamespaceNodeByName0" resultMap="NamespaceMap">
+        SELECT
+            `id`,
+            `guid`,
+            `name`,
+            `rules_guid`
+        FROM `hydra_service_namespace_node`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_service_namespace_node`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_service_namespace_node`
+        WHERE `name` = #{name}
+        AND `guid` != #{guid}
+    </select>
+
+</mapper>

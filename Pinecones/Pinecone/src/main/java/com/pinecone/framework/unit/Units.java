@@ -94,6 +94,10 @@ public final class Units {
      * @return null for not found, object for the value which is affiliated to the key.
      */
     public static Object getFromMapStructure ( Object mapLiked, String key, boolean bIncludeIterable, boolean bIncludeAnyPotentialMapLiked ) {
+        if ( mapLiked == null ) {
+            return null;
+        }
+
         if( mapLiked instanceof Map ) {
             return ((Map) mapLiked).get( key );
         }

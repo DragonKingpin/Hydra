@@ -3,9 +3,9 @@ package com.sparta;
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
 import com.pinecone.framework.util.Debug;
-import com.pinecone.hydra.scenario.ibatis.hydranium.ScenarioMappingDriver;
-import com.pinecone.hydra.scenario.tree.DistributedScenarioMetaTree;
-import com.pinecone.hydra.scenario.tree.GenericDistributedScenarioMetaTree;
+import com.pinecone.hydra.business.BusinessInstrument;
+import com.pinecone.hydra.business.UniformBusinessInstrument;
+import com.pinecone.hydra.business.ibatis.hydranium.MappingDriver;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -50,17 +50,17 @@ class LadyGaga extends Tritium {
         Debug.trace(distributedScopeServiceTree.getPath(GUIDs.GUID128("f83ccfc-0002f9-0000-b4")));
     }
 
-    private void testScenario(){
-        KOIMappingDriver koiMappingDriver = new ScenarioMappingDriver(
+    private void testBusiness(){
+        KOIMappingDriver koiMappingDriver = new MappingDriver(
                 this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
         );
-        DistributedScenarioMetaTree distributedScenarioMetaTree = new GenericDistributedScenarioMetaTree(koiMappingDriver);
-//        GenericNamespaceNode genericNamespaceNode = new GenericNamespaceNode();
-//        genericNamespaceNode.setName("瘟疫公司");
-//        genericNamespaceNode.setNamespaceNodeMeta(new GenericNamespaceNodeMeta());
-//        genericNamespaceNode.setScenarioCommonData(new GenericScenarioCommonData());
-//        distributedScenarioMetaTree.insert(genericNamespaceNode);
-        distributedScenarioMetaTree.get(GUIDs.GUID128("1f5bced8-000315-0002-70"));
+        BusinessInstrument businessInstrument = new UniformBusinessInstrument( koiMappingDriver );
+//        GenericBusinessNode genericBusinessNode = new GenericBusinessNode();
+//        genericBusinessNode.setName("瘟疫公司");
+//        genericBusinessNode.setBusinessNodeMeta(new GenericBusinessNodeMeta());
+//        genericBusinessNode.setBusinessCommonData(new GenericBusinessCommonData());
+//        distributedBusinessMetaTree.insert(genericBusinessNode);
+        businessInstrument.get( GUIDs.GUID128( "1f5bced8-000315-0002-70" ) );
     }
 }
 

@@ -61,6 +61,22 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public long countInstances( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        return this.mInstanceManipulator.countInstances( query );
+    }
+
+    @Override
+    public List<InstanceEntry> fetchInstances( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        return this.mInstanceManipulator.fetchInstances( this.mTaskInstrument, query );
+    }
+
+    @Override
     public List<InstanceEntry> queryInstances( String taskPath, long offset, long pageSize ) {
         GUID guid = this.mTaskInstrument.queryGUIDByPath( taskPath );
         if ( guid == null ) {
@@ -72,6 +88,33 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     @Override
     public List<InstanceEntry> queryInstances( GUID taskGuid, long offset, long pageSize ) {
         return this.mInstanceManipulator.queryByTaskGuid( this.mTaskInstrument, taskGuid, offset, pageSize );
+    }
+
+    @Override
+    public InstanceEntry queryInstanceByTaskGuidAndExpectTime( GUID taskGuid, LocalDateTime expectTime ) {
+        return this.mInstanceManipulator.queryByTaskGuidAndExpectTime( this.mTaskInstrument, taskGuid, expectTime );
+    }
+
+    @Override
+    public InstanceEntry queryInstanceByTaskGuidAndBusinessTime( GUID taskGuid, LocalDateTime businessTime ) {
+        return this.mInstanceManipulator.queryByTaskGuidAndBusinessTime( this.mTaskInstrument, taskGuid, businessTime );
+    }
+
+    @Override
+    public int transitStatus( GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatus( instanceGuid, fromStatus, toStatus );
+    }
+
+    @Override
+    public int transitStatusWithScheduleTime(
+            GUID instanceGuid, TaskInstanceStatus fromStatus, TaskInstanceStatus toStatus, LocalDateTime scheduleTime
+    ) {
+        return this.mInstanceManipulator.transitStatusWithScheduleTime( instanceGuid, fromStatus, toStatus, scheduleTime );
+    }
+
+    @Override
+    public int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatusIn( instanceGuid, fromStatuses, toStatus );
     }
 
     @Override

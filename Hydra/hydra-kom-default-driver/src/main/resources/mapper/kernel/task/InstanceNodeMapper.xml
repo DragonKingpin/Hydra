@@ -69,6 +69,61 @@
         #{updateTime}
     </sql>
 
+    <sql id="InstanceQueryWhere">
+        <where>
+            <if test="query.taskGuid != null">
+                AND task_guid = #{query.taskGuid}
+            </if>
+            <if test="query.runStatus != null and query.runStatus != ''">
+                AND run_status = #{query.runStatus}
+            </if>
+            <if test="query.taskType != null and query.taskType != ''">
+                AND task_type = #{query.taskType}
+            </if>
+            <if test="query.scheduleCycle != null and query.scheduleCycle != ''">
+                AND schedule_cycle = #{query.scheduleCycle}
+            </if>
+            <if test="query.scheduleType != null and query.scheduleType != ''">
+                AND schedule_type = #{query.scheduleType}
+            </if>
+            <if test="query.processorName != null and query.processorName != ''">
+                AND processor_name = #{query.processorName}
+            </if>
+            <if test="query.businessTimeStart != null">
+                AND business_time <![CDATA[ >= ]]> #{query.businessTimeStart}
+            </if>
+            <if test="query.businessTimeEnd != null">
+                AND business_time <![CDATA[ <= ]]> #{query.businessTimeEnd}
+            </if>
+            <if test="query.expectTimeStart != null">
+                AND expect_time <![CDATA[ >= ]]> #{query.expectTimeStart}
+            </if>
+            <if test="query.expectTimeEnd != null">
+                AND expect_time <![CDATA[ <= ]]> #{query.expectTimeEnd}
+            </if>
+            <if test="query.startTimeStart != null">
+                AND start_time <![CDATA[ >= ]]> #{query.startTimeStart}
+            </if>
+            <if test="query.startTimeEnd != null">
+                AND start_time <![CDATA[ <= ]]> #{query.startTimeEnd}
+            </if>
+            <if test="query.finishTimeStart != null">
+                AND finish_time <![CDATA[ >= ]]> #{query.finishTimeStart}
+            </if>
+            <if test="query.finishTimeEnd != null">
+                AND finish_time <![CDATA[ <= ]]> #{query.finishTimeEnd}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    guid = #{query.keyword}
+                    OR task_guid = #{query.keyword}
+                    OR name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR task_name LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
     <!-- ========================================================== -->
     <!-- ResultMap -->
     <!-- ========================================================== -->
@@ -197,6 +252,25 @@
 
     </select>
 
+    <select id="countInstances0" resultType="long">
+
+        SELECT COUNT(*)
+        FROM hydra_task_instances
+        <include refid="InstanceQueryWhere"/>
+
+    </select>
+
+    <select id="fetchInstancesByQuery0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        <include refid="InstanceQueryWhere"/>
+        ORDER BY expect_time DESC, id DESC
+        LIMIT #{query.offset}, #{query.limit}
+
+    </select>
+
     <select id="fetchInstances0" resultMap="InstanceResultMap">
 
         SELECT
@@ -216,6 +290,30 @@
 
     </select>
 
+    <select id="queryByTaskGuidAndExpectTime0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+          AND expect_time = #{expectTime}
+        ORDER BY id ASC
+        LIMIT 1
+
+    </select>
+
+    <select id="queryByTaskGuidAndBusinessTime0" resultMap="InstanceResultMap">
+
+        SELECT
+        <include refid="BaseFields"/>
+        FROM hydra_task_instances
+        WHERE task_guid = #{taskGuid}
+          AND business_time = #{businessTime}
+        ORDER BY id ASC
+        LIMIT 1
+
+    </select>
+
     <select id="countInstanceByTaskGuid" resultType="long">
 
         SELECT COUNT(*)
@@ -223,6 +321,40 @@
         WHERE task_guid = #{taskGuid}
 
     </select>
+
+    <update id="transitStatus0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status = #{fromStatus}
+
+    </update>
+
+    <update id="transitStatusWithScheduleTime0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            schedule_time = #{scheduleTime},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status = #{fromStatus}
+
+    </update>
+
+    <update id="transitStatusIn0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status IN
+        <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
+            #{fromStatus}
+        </foreach>
+
+    </update>
 
     <select id="findLastExecuted0" resultMap="InstanceResultMap">
 

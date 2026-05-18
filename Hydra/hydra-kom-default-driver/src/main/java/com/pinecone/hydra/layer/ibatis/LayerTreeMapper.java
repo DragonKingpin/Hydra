@@ -73,8 +73,8 @@ public interface LayerTreeMapper extends LayerTreeManipulator {
     void removeTreeNodeYoke( @Param("guid") GUID guid, @Param("parent_guid") GUID parentGuid );
 
 
-    @Delete("DELETE FROM `hydra_atlas_layer_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
-    void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+    @Delete("DELETE FROM `hydra_atlas_layer_tree` WHERE `guid`=#{childGuid} AND `parent_guid`=#{parentGuid}")
+    void removeInheritance( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
     @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_atlas_layer_tree` WHERE `parent_guid`=#{guid}")
     List<GUIDImperialTrieNode> getChildren(GUID guid );

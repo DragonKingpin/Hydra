@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.DeviceTreeMapper">
+
+    <resultMap id="DeviceTrieNodeMap" type="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="type" property="type"/>
+        <result column="base_data_guid" property="baseDataGUID"/>
+        <result column="node_metadata_guid" property="nodeMetadataGUID"/>
+        <result column="parent_guid" property="parentGuid"/>
+        <result column="linked_type" property="linkedType"/>
+    </resultMap>
+
+    <resultMap id="TreeReparseLinkNodeMap" type="com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode">
+        <result column="guid" property="targetNodeGuid"/>
+        <result column="parent_guid" property="parentNodeGuid"/>
+        <result column="linked_type" property="linkedType"/>
+        <result column="tag_name" property="tagName"/>
+        <result column="tag_guid" property="tagGuid"/>
+    </resultMap>
+
+    <insert id="insertRootNode">
+        INSERT INTO `hydra_device_node_tree`
+        (
+            `guid`,
+            `linked_type`
+        )
+        VALUES
+        (
+            #{guid},
+            #{linkedType}
+        )
+    </insert>
+
+    <insert id="insertTreeNode">
+        INSERT INTO `hydra_device_nodes`
+        (
+            `guid`,
+            `type`,
+            `base_data_guid`,
+            `node_metadata_guid`
+        )
+        VALUES
+        (
+            #{guid},
+            #{type},
+            #{baseDataGuid},
+            #{nodeMetaGuid}
+        )
+    </insert>
+
+    <select id="getNodeExtendsFromMeta" resultMap="DeviceTrieNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `type`,
+            `base_data_guid`,
+            `node_metadata_guid`
+        FROM `hydra_device_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="contains" resultType="boolean">
+        SELECT COUNT(`id`)
+        FROM `hydra_device_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getTreeNodeOnly" resultMap="DeviceTrieNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `parent_guid`,
+            `linked_type`
+        FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="countNode" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <delete id="removeNodeMeta">
+        DELETE FROM `hydra_device_nodes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNode">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNodeByParentGuid">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeYoke">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeWithLinkedType">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+          AND `linked_type` = #{linkedType}
+    </delete>
+
+    <delete id="removeInheritance">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `guid` = #{childGuid}
+          AND `parent_guid` = #{parentGuid}
+    </delete>
+
+    <select id="getChildren" resultMap="DeviceTrieNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `parent_guid`
+        FROM `hydra_device_node_tree`
+        WHERE `parent_guid` = #{guid}
+    </select>
+
+    <select id="fetchChildrenGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT DISTINCT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="fetchParentGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT DISTINCT
+            `parent_guid`
+        FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="updateType">
+        UPDATE `hydra_device_nodes`
+        SET `type` = #{type}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="fetchRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `parent_guid` IS NULL
+    </select>
+
+    <select id="isRoot" resultType="boolean">
+        SELECT COUNT(`guid`)
+        FROM `hydra_device_node_tree`
+        WHERE `parent_guid` IS NULL
+          AND `guid` = #{guid}
+    </select>
+
+    <select id="queryLinkedCount" resultType="long">
+        SELECT COUNT(`guid`)
+        FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+          AND `linked_type` = #{linkedType}
+    </select>
+
+    <select id="queryAllLinkedCount" resultType="long">
+        SELECT COUNT(`guid`)
+        FROM `hydra_device_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <insert id="newLinkTag">
+        INSERT INTO `hydra_device_node_tree`
+        (
+            `guid`,
+            `linked_type`,
+            `tag_name`,
+            `tag_guid`,
+            `parent_guid`
+        )
+        VALUES
+        (
+            #{originalGuid},
+            #{linkedType},
+            #{tagName},
+            #{tagGuid},
+            #{dirGuid}
+        )
+    </insert>
+
+    <update id="updateLinkTagName">
+        UPDATE `hydra_device_node_tree`
+        SET `tag_name` = #{tagName}
+        WHERE `tag_guid` = #{tagGuid}
+    </update>
+
+    <select id="getOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` = #{dirGuid}
+    </select>
+
+    <select id="getOriginalGuidByNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="getReparseLinkNode" resultMap="TreeReparseLinkNodeMap">
+        SELECT
+            `guid`,
+            `parent_guid`,
+            `linked_type`,
+            `tag_name`,
+            `tag_guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` = #{parentDirGuid}
+    </select>
+
+    <select id="getReparseLinkNodeByNodeGuid" resultMap="TreeReparseLinkNodeMap">
+        SELECT
+            `guid`,
+            `parent_guid`,
+            `linked_type`,
+            `tag_name`,
+            `tag_guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="fetchOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+    </select>
+
+    <select id="fetchOriginalGuidRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` IS NULL
+    </select>
+
+    <select id="isTagGuid" resultType="boolean">
+        SELECT COUNT(*)
+        FROM `hydra_device_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </select>
+
+    <delete id="removeReparseLink">
+        DELETE FROM `hydra_device_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </delete>
+
+    <select id="getOriginalGuidByTagGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_tree`
+        WHERE `tag_guid` = #{tagGuid}
+    </select>
+
+</mapper>

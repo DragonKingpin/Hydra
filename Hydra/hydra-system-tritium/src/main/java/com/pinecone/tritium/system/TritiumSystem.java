@@ -4,7 +4,7 @@ import com.pinecone.framework.system.PrimarySystem;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
 import com.pinecone.hydra.system.subsystem.KernelMicroSystemCabinet;
-import com.pinecone.hydra.system.types.HydraKingdom;
+import com.pinecone.hydra.system.centrum.HydraKingdom;
 
 public interface TritiumSystem extends HydraKingdom, PrimarySystem {
     InterWareDirector getMiddlewareDirector();

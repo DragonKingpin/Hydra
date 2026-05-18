@@ -7,7 +7,7 @@
   "metaDependent": {
     "atlasDatabase"    : "MySQLKingHydranium",
     "taskInstrument"   : "MySQLKingHydranium",
-    "controlRPCDriver" : "TaskWolfKing",
+    "controlRPCDriver" : "WolfKing",
     "processManager"   : "__SystemTaskManager__",
   },
 
@@ -22,7 +22,7 @@
 
     "partitionName": "__DEFAULT__",
 
-    "globalDispatcher": {
+    "globalAllocator": {
       "__DEFAULT__": {
         "name": "__DEFAULT__",
 

@@ -6,12 +6,8 @@ import com.pinecone.hydra.storage.file.entity.Folder;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -19,24 +15,15 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface FolderMapper extends FolderManipulator {
     Folder getFolder(GUID guid, ElementNode element);
-    @Insert("INSERT INTO `hydra_uofs_folders` (`guid`, `create_time`, `update_time`, `name`) VALUES (#{guid},#{createTime},#{updateTime},#{name})")
     void insert( Folder folder );
-    @Delete("DELETE FROM `hydra_uofs_folders` WHERE `guid` = #{guid}")
     void remove( GUID guid );
-    @Update("UPDATE `hydra_uofs_folders` SET update_time = #{updateTime}, name = #{name} WHERE guid = #{guid}")
     void update( Folder folder );
-    @Select("SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name` FROM `hydra_uofs_folders` WHERE `guid` = #{guid}")
     GenericFolder getFolderByGuid(GUID guid);
-    @Select("SELECT `guid` FROM `hydra_uofs_folders` WHERE `name` = #{name}")
     List<GUID > getGuidsByName(String name );
-    @Select("SELECT `guid` FROM `hydra_uofs_folders` WHERE `name` = #{name} AND `guid` = #{guid}")
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
 
-    @Select("SELECT `guid` FROM hydra_uofs_folders")
     List<GUID > dumpGuid();
-    @Select("SELECT COUNT('id') FROM hydra_uofs_folders WHERE guid = #{guid}")
     boolean isFolder(GUID guid);
 
-    @Update("UPDATE hydra_uofs_folders SET name = #{newName} WHERE guid = #{fileGuid}")
-    void rename( GUID fileGuid, String newName );
+    void rename( @Param("fileGuid") GUID fileGuid, @Param("newName") String newName );
 }

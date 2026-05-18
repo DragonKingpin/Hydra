@@ -35,6 +35,8 @@ public interface TaskDispatcher extends Pinenut {
 
     PipelineLaunchReport pipeCreate( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
+    PipelineLaunchReport pipeCreatePrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
+
     PipelineLaunchReport pipeLaunch( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException;
 
 

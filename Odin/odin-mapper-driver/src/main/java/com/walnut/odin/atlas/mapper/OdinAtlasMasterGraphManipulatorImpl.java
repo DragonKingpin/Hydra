@@ -4,7 +4,6 @@ import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphManipulator;
 import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphPathCacheManipulator;
 
 import org.springframework.stereotype.Component;
 
@@ -18,10 +17,6 @@ public class OdinAtlasMasterGraphManipulatorImpl implements VectorGraphMasterMan
     @Structure( type = RuntimeVGraphMapper.class)
     VectorGraphManipulator mVectorGraphManipulator;
 
-    @Resource
-    @Structure( type = RuntimeVectorGraphPathCacheMapper.class)
-    VectorGraphPathCacheManipulator mVectorGraphPathCacheManipulator;
-
     public OdinAtlasMasterGraphManipulatorImpl(){}
 
     public OdinAtlasMasterGraphManipulatorImpl(AtlasMappingDriver driver){
@@ -31,10 +26,5 @@ public class OdinAtlasMasterGraphManipulatorImpl implements VectorGraphMasterMan
     @Override
     public VectorGraphManipulator getVectorGraphManipulator() {
         return this.mVectorGraphManipulator;
-    }
-
-    @Override
-    public VectorGraphPathCacheManipulator getVectorGraphPathCacheManipulator() {
-        return this.mVectorGraphPathCacheManipulator;
     }
 }

@@ -1,6 +1,6 @@
 package com.pinecone.framework.unit;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +20,6 @@ public class LinkedMultiValueMap<K, V > extends MultiValueMaptron<K, V, List<V >
 
     @Override
     protected List<V > newCollection() {
-        return new LinkedList<>();
+        return new ArrayList<>();
     }
 }

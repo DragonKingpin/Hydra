@@ -17,6 +17,7 @@ public class FileMappingDriver extends ArchMappingDriver implements KOIMappingDr
     // Temp , TODO
     public FileMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, FileMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
+        ibatisClient.addXMLObjectScope( "mapper.kernel.file" );
 
         this.mKOIMasterManipulator = new FileMasterManipulatorImpl( this );
     }

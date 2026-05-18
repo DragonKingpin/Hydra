@@ -14,6 +14,7 @@ public class GenericInstanceExec implements InstanceExec {
     protected String        taskName;
     protected String        instanceName;
     protected String        processorQueue;
+    protected String        imagePath;
     protected String        clusterName;
     protected String        execState;
     protected int           currentRetryNumber;
@@ -87,6 +88,16 @@ public class GenericInstanceExec implements InstanceExec {
     @Override
     public void setProcessorQueue(String processorQueue) {
         this.processorQueue = processorQueue;
+    }
+
+    @Override
+    public String getImagePath() {
+        return this.imagePath;
+    }
+
+    @Override
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override

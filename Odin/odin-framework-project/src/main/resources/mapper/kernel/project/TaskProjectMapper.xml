@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.project.mapper.TaskProjectMapper">
+
+    <resultMap id="TaskProjectMap" type="com.walnut.odin.project.GenericTaskProject">
+        <result column="id"                   property="enumId"/>
+        <result column="guid"                 property="guid"/>
+        <result column="name"                 property="name"/>
+        <result column="title"                property="title"/>
+        <result column="biz_tree_guid"        property="bizTreeGuid"/>
+        <result column="enable"               property="enable"/>
+        <result column="description"          property="description"/>
+        <result column="extra_information"    property="extraInformation"/>
+        <result column="create_time"          property="createTime"/>
+        <result column="update_time"          property="updateTime"/>
+    </resultMap>
+
+    <sql id="TaskProjectColumns">
+        id,
+        guid,
+        name,
+        title,
+        biz_tree_guid,
+        enable,
+        description,
+        extra_information,
+        create_time,
+        update_time
+    </sql>
+
+    <sql id="TaskProjectFilter">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    name LIKE CONCAT('%', #{keyword}, '%')
+                    OR title LIKE CONCAT('%', #{keyword}, '%')
+                    OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="enable != null">
+                AND enable = #{enable}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.walnut.odin.project.GenericTaskProject" useGeneratedKeys="true" keyProperty="enumId">
+        INSERT INTO odin_task_projects (
+            guid,
+            name,
+            title,
+            biz_tree_guid,
+            enable,
+            description,
+            extra_information
+        ) VALUES (
+            #{guid},
+            #{name},
+            #{title},
+            #{bizTreeGuid},
+            #{enable},
+            #{description},
+            #{extraInformation}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.walnut.odin.project.GenericTaskProject">
+        UPDATE odin_task_projects
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            title = #{title},
+            biz_tree_guid = #{bizTreeGuid},
+            enable = #{enable},
+            description = #{description},
+            extra_information = #{extraInformation},
+        </set>
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="TaskProjectMap">
+        SELECT
+            <include refid="TaskProjectColumns"/>
+        FROM odin_task_projects
+        WHERE guid = #{guid}
+        LIMIT 1
+    </select>
+
+    <select id="queryByName" resultMap="TaskProjectMap">
+        SELECT
+            <include refid="TaskProjectColumns"/>
+        FROM odin_task_projects
+        WHERE name = #{name}
+        LIMIT 1
+    </select>
+
+    <select id="fetchByBizTreeGuid0" resultMap="TaskProjectMap">
+        SELECT
+            <include refid="TaskProjectColumns"/>
+        FROM odin_task_projects
+        WHERE biz_tree_guid = #{bizTreeGuid}
+        ORDER BY id ASC
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM odin_task_projects
+    </select>
+
+    <select id="fetch0" resultMap="TaskProjectMap">
+        SELECT
+            <include refid="TaskProjectColumns"/>
+        FROM odin_task_projects
+        ORDER BY id ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="countFiltered" resultType="long">
+        SELECT COUNT(*)
+        FROM odin_task_projects
+        <include refid="TaskProjectFilter"/>
+    </select>
+
+    <select id="fetchFiltered0" resultMap="TaskProjectMap">
+        SELECT
+            <include refid="TaskProjectColumns"/>
+        FROM odin_task_projects
+        <include refid="TaskProjectFilter"/>
+        ORDER BY id ASC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <update id="updateEnable">
+        UPDATE odin_task_projects
+        SET enable = #{enable}
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="remove">
+        DELETE FROM odin_task_projects
+        WHERE guid = #{guid}
+    </delete>
+
+</mapper>

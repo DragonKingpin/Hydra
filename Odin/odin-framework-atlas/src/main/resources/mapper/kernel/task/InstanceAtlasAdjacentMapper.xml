@@ -13,4 +13,11 @@
                  )
     </insert>
 
+    <select id="countByGuidAndParentGuid" resultType="long">
+        SELECT COUNT(*)
+        FROM odin_taks_ins_atlas_adjacent
+        WHERE guid = #{guid}
+          AND parent_guid = #{parentGuid}
+    </select>
+
 </mapper>

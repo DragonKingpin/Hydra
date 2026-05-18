@@ -6,50 +6,36 @@ import com.pinecone.hydra.service.kom.entity.GenericCommonMeta;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.source.NodeMetaManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 @Mapper
 @IbatisDataAccessObject
 public interface ServiceNodeMetaMapper extends NodeMetaManipulator {
 
     @Override
-    @Insert("INSERT INTO `hydra_service_node_meta` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{guid}, #{scenario}, #{primaryImplLang}, #{extraInformation}, #{level}, #{description})")
     void insert( ServiceFamilyNode node );
 
     @Override
-    @Insert("INSERT INTO `hydra_service_node_meta` (`guid`, `scenario`, primary_impl_lang, extra_information, `level`, `description`) VALUES (#{metaGuid}, #{scenario}, #{primaryImplLang}, #{extraInformation}, #{level}, #{description})")
     void insertNS( Namespace node );
 
     @Override
-    @Delete("DELETE FROM `hydra_service_node_meta` WHERE `guid`=#{guid}")
     void remove( @Param("guid")GUID guid );
 
     @Override
-    @Select("SELECT `id` AS `enumId`, `guid`, `scenario`, `primary_impl_lang` AS primaryImplLang, `extra_information` AS extraInformation, `level`, `description` FROM `hydra_service_node_meta` WHERE `guid`=#{guid}")
     GenericCommonMeta getNodeCommonMeta( @Param("guid") GUID guid );
 
     @Override
-    @Update("UPDATE `hydra_service_node_meta` SET `scenario` = #{scenario}, `primary_impl_lang` = #{primaryImplLang}, `extra_information` = #{extraInformation}, `level` = #{level}, `description` = #{description}")
     void update( ServiceFamilyNode node );
 
-    @Update("UPDATE `hydra_service_node_meta` SET `scenario` = #{scenario} WHERE `guid` = #{guid}")
     void updateScenario( @Param("scenario") String scenario, @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_service_node_meta` SET `primary_impl_lang` = #{primaryImplLang} WHERE `guid` = #{guid}")
-    void updatePrimaryImplLang( @Param("primaryImpLang") String primaryImplLang, @Param("guid") GUID guid );
+    void updatePrimaryImplLang( @Param("primaryImplLang") String primaryImplLang, @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_service_node_meta` SET `extra_information` = #{extraInformation} WHERE `guid` = #{guid}")
     void updateExtraInformation( @Param("extraInformation") String extraInformation, @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_service_node_meta` SET `level` = #{level} WHERE `guid` = #{guid}")
     void updateLevel( @Param("level") String level, @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_service_node_meta` SET `description` = #{description} WHERE `guid` = #{guid}")
     void updateDescription( @Param("description") String description, @Param("guid") GUID guid );
 
 }

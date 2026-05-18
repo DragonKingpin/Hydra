@@ -1,5 +1,7 @@
 package com.walnut.odin.conduct.schedule;
 
+import java.time.LocalDateTime;
+
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
@@ -23,6 +25,12 @@ public interface UniformTaskScheduler extends Pinenut {
     TaskDispatcher taskDispatcher();
 
     String getPartitionName();
+
+    void pulseSchedule();
+
+    void pulseSchedule( LocalDateTime pulseTime );
+
+    void pulseScheduleDaily( LocalDateTime pulseTime );
 
 
     TaskSchedulePreparator taskSchedulePreparator();

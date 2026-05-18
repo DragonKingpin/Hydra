@@ -13,6 +13,6 @@ public interface InstanceAtlasNode extends Pinenut {
     String getNodeName();
     void setNodeName(String nodeName);
 
-    boolean isIsolated();
-    void setIsIsolated(boolean isIsolated);
+    boolean isSource();
+    void setSource( boolean source );
 }

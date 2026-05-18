@@ -15,6 +15,7 @@ public class ServiceMappingDriver extends ArchMappingDriver implements KOIMappin
     public ServiceMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, ServiceMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 
+        ibatisClient.addXMLObjectScope( "mapper.kernel.service" );
         this.mKOIMasterManipulator = new ServiceMasterManipulatorImpl( this );
     }
 

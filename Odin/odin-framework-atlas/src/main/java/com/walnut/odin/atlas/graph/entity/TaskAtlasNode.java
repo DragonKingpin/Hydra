@@ -18,7 +18,7 @@ public class TaskAtlasNode implements TaskGraphNode {
 
     private String          description;
 
-    private boolean         isolated;
+    private boolean         source;
 
     public TaskAtlasNode(){
     }
@@ -93,11 +93,11 @@ public class TaskAtlasNode implements TaskGraphNode {
         return this.toJSONString();
     }
 
-    public boolean isIsolated() {
-        return this.isolated;
+    public boolean isSource() {
+        return this.source;
     }
 
-    public void setIsolated(boolean isolated ) {
-        this.isolated = isolated;
+    public void setSource( boolean source ) {
+        this.source = source;
     }
 }

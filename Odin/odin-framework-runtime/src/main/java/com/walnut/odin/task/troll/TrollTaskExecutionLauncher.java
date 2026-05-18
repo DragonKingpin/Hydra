@@ -24,11 +24,15 @@ import com.pinecone.hydra.proc.image.URLImageLoader;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
+import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.proc.ProcessRemoteEventHandler;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
@@ -36,6 +40,7 @@ import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
+import com.walnut.odin.task.mapper.InstanceExecMapper;
 
 public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jTraceable {
 
@@ -48,6 +53,10 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     protected CentralizedTaskInstrument mTaskInstrument;
 
     protected InstanceInstrument mInstanceInstrument;
+
+    protected InstanceExecMapper mInstanceExecMapper;
+
+    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
 
     protected ProcessManager mProcessManager;
 
@@ -69,13 +78,15 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         this.mCollectiveTaskRegiment      = taskRegiment;
         this.mTaskInstrument              = taskRegiment.taskInstrument();
         this.mInstanceInstrument          = this.mTaskInstrument.getInstanceInstrument();
+        this.mInstanceExecMapper          = this.mTaskInstrument.getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceExecMapper();
+        this.mTaskInstanceLifecycleInstrument = taskRegiment.taskInstanceLifecycleInstrument();
         this.mRavenTaskConfig             = (RavenTaskConfig) this.mTaskInstrument.getConfig();
         this.mGuidAllocator               = this.mTaskInstrument.getGuidAllocator();
         this.mInstanceTitleTimeFormat     = DatePattern.createFormatter( this.mRavenTaskConfig.getInstanceTitleTimeFormat() );
         this.mDefaultDateTimeFormat       = DatePattern.createFormatter( this.mRavenTaskConfig.getDefaultDateTimeFormat() );
         this.mImageModifier               = this.mProcessManager.getImageModifier();
 
-        this.infoLifecycle( "Welcome to use Skynet cloud deployment system, Odin Troll task execution system.", LogStatuses.StatusReady );
+        this.infoLifecycle( "Welcome to use Odin Troll task execution system.", LogStatuses.StatusReady );
     }
 
     @Override
@@ -220,9 +231,74 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         );
     }
 
+    protected void updateExecutionState(
+            RavenTaskInstance instance, TaskInstanceExecState state, LocalDateTime startTime, LocalDateTime finishTime
+    ) {
+        InstanceEntry entry = instance.getInstanceEntry();
+        this.mInstanceExecMapper.updateStateByInstanceGuidAndRetryFields(
+                entry.getGuid(), entry.getRetryCnt(), state.getName(), startTime, null, finishTime
+        );
+    }
+
     protected void afterProcessCreated( RavenTaskInstance instance, UProcess process ) throws MetaPersistenceException {
-        instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.ProcessStandby );
+        if ( process == null ) {
+            this.markProcessCreationFailed( instance, LaunchErrorCauses.ProcessCreationFailure );
+            return;
+        }
+
+        InstanceEntry entry = instance.getInstanceEntry();
         instance.update();
+
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
+                entry.getGuid(),
+                List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
+                TaskInstanceStatus.ProcessStandby,
+                TaskInstanceTransitionReason.ProcessCreated
+        );
+        if ( result.isSucceeded() ) {
+            entry.setInstanceStatus( TaskInstanceStatus.ProcessStandby );
+            this.updateExecutionState( instance, TaskInstanceExecState.Submitted, LocalDateTime.now(), null );
+        }
+    }
+
+    protected void markProcessCreationFailed( RavenTaskInstance instance, String szCause ) {
+        InstanceEntry entry = instance.getInstanceEntry();
+        if ( entry.getGuid() == null ) {
+            entry.setErrorCause( szCause );
+            return;
+        }
+
+        try {
+            entry.setErrorCause( szCause );
+            instance.update();
+        }
+        catch ( MetaPersistenceException e ) {
+            this.mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException] (Instance: `{}`) <Error>", entry.getGuid(), e );
+        }
+
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
+                entry.getGuid(),
+                List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
+                TaskInstanceStatus.Error,
+                TaskInstanceTransitionReason.ProcessCreationFailed
+        );
+        if ( result.isSucceeded() ) {
+            entry.setInstanceStatus( TaskInstanceStatus.Error );
+        }
+
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, LocalDateTime.now() );
+    }
+
+    protected void markProcessCreationFailedIfNecessary( RavenTaskInstance instance, Exception cause ) {
+        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
+            return;
+        }
+
+        String szCause = cause.getMessage();
+        if ( szCause == null ) {
+            szCause = cause.getClass().getName();
+        }
+        this.markProcessCreationFailed( instance, szCause );
     }
 
     protected URI evalImageURI( RavenTaskInstance instance, LaunchFeature feature ) {
@@ -244,6 +320,19 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         return process;
     }
 
+    protected void recordExecutionImage( RavenTaskInstance instance, URI imageURI ) {
+        if ( imageURI == null ) {
+            return;
+        }
+
+        String szImagePath = imageURI.toString();
+        InstanceEntry entry = instance.getInstanceEntry();
+        entry.setImagePath( szImagePath );
+        this.mInstanceExecMapper.updateImagePathByInstanceGuidAndRetry(
+                entry.getGuid(), entry.getRetryCnt(), szImagePath
+        );
+    }
+
     @Override
     public UProcess createLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         try {
@@ -262,6 +351,8 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
             if ( image == null ) {
                 instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.NoSuchImage );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.NoSuchImage );
+                throw new InstanceLaunchException( LaunchErrorCauses.NoSuchImage );
             }
             else {
                 instance.getInstanceEntry().setImagePath( imageURI.toString() );
@@ -271,12 +362,62 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
                 );
             }
 
+            if ( process == null ) {
+                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.LocalProcessCreationFailure );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.LocalProcessCreationFailure );
+                throw new InstanceLaunchException( LaunchErrorCauses.LocalProcessCreationFailure );
+            }
 
             this.prepareProcessHandle( process, feature );
             this.afterProcessCreated( instance, process );
             return process;
         }
         catch ( Exception e ) {
+            this.markProcessCreationFailedIfNecessary( instance, e );
+            throw new InstanceLaunchException( e );
+        }
+    }
+
+    @Override
+    public UProcess createPreparedLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        try {
+            URI imageURI = this.evalImageURI( instance, feature );
+            ImageLoader imageLoader = this.mProcessManager.getImageLoader();
+            ExecutionImage image;
+            UProcess process = null;
+            if ( imageLoader instanceof URLImageLoader ) {
+                URLImageLoader urlImageLoader = (URLImageLoader) imageLoader;
+                image = urlImageLoader.queryExecutionImage( imageURI );
+            }
+            else {
+                image = imageLoader.queryExecutionImage( imageURI.getPath() );
+            }
+
+            if ( image == null ) {
+                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.NoSuchImage );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.NoSuchImage );
+                throw new InstanceLaunchException( LaunchErrorCauses.NoSuchImage );
+            }
+            else {
+                this.recordExecutionImage( instance, imageURI );
+                this.mLogger.info( "[TaskLaunchSequence] [PreparedLocalProcessAnchored] (Process: `{}`) <Standby>", imageURI );
+                process = this.mProcessManager.createLocalHostedProcess(
+                        image, feature.getParentProcess(), feature.getStartupArgs(), feature.getContextEnvironmentVars()
+                );
+            }
+
+            if ( process == null ) {
+                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.LocalProcessCreationFailure );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.LocalProcessCreationFailure );
+                throw new InstanceLaunchException( LaunchErrorCauses.LocalProcessCreationFailure );
+            }
+
+            this.prepareProcessHandle( process, feature );
+            this.afterProcessCreated( instance, process );
+            return process;
+        }
+        catch ( Exception e ) {
+            this.markProcessCreationFailedIfNecessary( instance, e );
             throw new InstanceLaunchException( e );
         }
     }
@@ -304,6 +445,8 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             process = result.getProcess();
             if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
                 instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.RemoteProcessCreationFailure );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.RemoteProcessCreationFailure );
+                throw new InstanceLaunchException( LaunchErrorCauses.RemoteProcessCreationFailure );
             }
 
             this.prepareProcessHandle( process, feature );
@@ -311,6 +454,43 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             return process;
         }
         catch ( Exception e ) {
+            this.markProcessCreationFailedIfNecessary( instance, e );
+            throw new InstanceLaunchException( e );
+        }
+    }
+
+    @Override
+    public UProcess createPreparedRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
+        try {
+            URI imageURI = this.evalImageURI( instance, feature );
+            RemoteProcess process = null;
+
+            GUID parentPid = null;
+            if ( feature.getParentProcess() != null ) {
+                parentPid = feature.getParentProcess().getPID();
+            }
+            else if ( feature.getParentPid() != null ) {
+                parentPid = feature.getParentPid();
+            }
+
+            this.recordExecutionImage( instance, imageURI );
+            this.mLogger.info( "[TaskLaunchSequence] [PreparedRemoteProcessAnchored] (Process: `{}`, DestinationDeployClient: `{}`) <Standby>", imageURI, pmClientId );
+            RemoteProcessManagerServer.RemoteCreationResult result = this.mRemoteProcessManagerServer.createRemoteUProcess(
+                    pmClientId, imageURI.toString(), true, parentPid, feature.getStartupArgs(), feature.getContextEnvironmentVars()
+            );
+            process = result.getProcess();
+            if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
+                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.RemoteProcessCreationFailure );
+                this.markProcessCreationFailed( instance, LaunchErrorCauses.RemoteProcessCreationFailure );
+                throw new InstanceLaunchException( LaunchErrorCauses.RemoteProcessCreationFailure );
+            }
+
+            this.prepareProcessHandle( process, feature );
+            this.afterProcessCreated( instance, process );
+            return process;
+        }
+        catch ( Exception e ) {
+            this.markProcessCreationFailedIfNecessary( instance, e );
             throw new InstanceLaunchException( e );
         }
     }

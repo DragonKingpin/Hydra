@@ -49,8 +49,36 @@
         <result column="task_guid"         property="taskGuid"/>
         <result column="node_name"         property="name"/>
         <result column="node_description"  property="description"/>
-        <result column="is_isolated"       property="isolated"/>
+        <result column="is_source"         property="source"/>
     </resultMap>
+
+    <!-- ================= SOURCE CACHE ================= -->
+
+    <update id="markNonSource">
+        UPDATE `hydra_atlas_vgraph_nodes`
+        SET `is_source` = 0
+        WHERE `guid` = #{guid}
+    </update>
+
+    <update id="affirmSourceIfNoParent">
+        UPDATE `hydra_atlas_vgraph_nodes`
+        SET `is_source` = 1
+        WHERE `guid` = #{guid}
+          AND NOT EXISTS (
+              SELECT 1
+              FROM `hydra_atlas_vgraph_adjacent` AS edge
+              WHERE edge.`guid` = #{guid}
+          )
+    </update>
+
+    <update id="updateNode">
+        UPDATE `hydra_atlas_vgraph_nodes`
+        SET
+            `task_guid` = #{graphNode.taskGuid},
+            `node_name` = #{graphNode.nodeName},
+            `node_description` = #{graphNode.nodeDescription}
+        WHERE `guid` = #{graphNode.guid}
+    </update>
 
     <!-- ================= BASIC QUERY ================= -->
 
@@ -61,7 +89,7 @@
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
@@ -75,7 +103,7 @@
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
@@ -104,7 +132,7 @@
             vnodes.`task_guid`,
             vnodes.`node_name`,
             vnodes.`node_description`,
-            vnodes.`is_isolated`,
+            vnodes.`is_source`,
             vnodes.`create_time`,
             vnodes.`update_time`
         FROM `hydra_atlas_vgraph_nodes` AS vnodes
@@ -128,15 +156,11 @@
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM `hydra_atlas_vgraph_adjacent`
-            WHERE `guid` = `hydra_atlas_vgraph_nodes`.`guid`
-        )
+        WHERE `is_source` = 1
     </select>
 
     <select id="fetchChildNodeIds" resultType="com.pinecone.framework.util.id.GUID">
@@ -152,7 +176,7 @@
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
@@ -164,12 +188,26 @@
     <select id="fetchHandleGuids" resultType="com.pinecone.framework.util.id.GUID">
         SELECT `guid`
         FROM `hydra_atlas_vgraph_nodes`
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM `hydra_atlas_vgraph_adjacent`
-            WHERE `guid` = `hydra_atlas_vgraph_nodes`.`guid`
-        )
+        WHERE `is_source` = 1
             LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="fetchHandleGuidsByTaskPriority" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT havn.`guid`
+        FROM `hydra_atlas_vgraph_nodes` AS havn
+                 JOIN `hydra_atlas_vgraph_task_mapping` AS vatm
+                      ON havn.`guid` = vatm.`vgraph_node_guid`
+                 JOIN `hydra_task_task_node` AS httn
+                      ON vatm.`task_guid` = httn.`guid`
+        WHERE havn.`is_source` = 1
+        ORDER BY httn.`priority`
+            LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSourceNodes" resultType="long">
+        SELECT COUNT(havn.`guid`)
+        FROM `hydra_atlas_vgraph_nodes` AS havn
+        WHERE havn.`is_source` = 1
     </select>
 
     <select id="fetchDownstreamNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
@@ -238,74 +276,47 @@
     </select>
 
 
-    <!-- ================= INSERT CHILD ================= -->
+    <!-- ================= SOURCE ================= -->
 
-    <insert id="addChild">
-        INSERT INTO `hydra_atlas_vgraph_adjacent`
-        ( `guid`,
-          `linked_type`,
-          `parent_guid` )
-        VALUES
-            ( #{childGuid},
-              'owned',
-              #{parentGuid} )
-
-    </insert>
-
-
-
-
-
-
-
-
-    <!-- ================= ISOLATED ================= -->
-
-    <select id="fetchIsolatedNodesById0" resultMap="TaskAtlasNodeMap">
+    <select id="fetchSourceNodesById0" resultMap="TaskAtlasNodeMap">
         SELECT
             `id`,
             `guid`,
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
-        WHERE `is_isolated` = 1
+        WHERE `is_source` = 1
           AND `id` BETWEEN #{idStart} AND #{idEnd}
         ORDER BY `id` ASC
 
     </select>
 
-    <select id="fetchIsolatedNodes0" resultMap="TaskAtlasNodeMap">
+    <select id="fetchSourceNodes0" resultMap="TaskAtlasNodeMap">
         SELECT
             `id`,
             `guid`,
             `task_guid`,
             `node_name`,
             `node_description`,
-            `is_isolated`,
+            `is_source`,
             `create_time`,
             `update_time`
         FROM `hydra_atlas_vgraph_nodes`
-        WHERE `is_isolated` = 1
+        WHERE `is_source` = 1
         ORDER BY `id` ASC
             LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <select id="countIsolatedNodes" resultType="long">
-        SELECT COUNT(*)
-        FROM `hydra_atlas_vgraph_nodes`
-        WHERE `is_isolated` = 1
-    </select>
-
-    <select id="selectIsolatedNodeIndexMeta" resultType="com.pinecone.slime.meta.TableIndex64Meta">
+    <select id="selectSourceNodeIndexMeta" resultType="com.pinecone.slime.meta.TableIndex64Meta">
         SELECT
             COALESCE( MIN(`id`), 0 ) AS minId,
             COALESCE( MAX(`id`), 0 ) AS maxId
         FROM `hydra_atlas_vgraph_nodes`
-        WHERE `is_isolated` = 1
+        WHERE `is_source` = 1
     </select>
 
 </mapper>

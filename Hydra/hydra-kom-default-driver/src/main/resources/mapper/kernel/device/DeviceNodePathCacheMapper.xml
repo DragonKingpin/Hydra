@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.DeviceNodePathCacheMapper">
+
+    <resultMap id="DevicePathCacheMap" type="com.pinecone.hydra.unit.imperium.entity.GenericCachePath">
+        <result column="path" property="path"/>
+        <result column="long_path" property="longPath"/>
+    </resultMap>
+
+    <insert id="insert">
+        INSERT INTO `hydra_device_node_path`
+        (
+            `path`,
+            `guid`
+        )
+        VALUES
+        (
+            #{path},
+            #{guid}
+        )
+    </insert>
+
+    <insert id="insertLongPath">
+        INSERT INTO `hydra_device_node_path`
+        (
+            `path`,
+            `long_path`,
+            `guid`
+        )
+        VALUES
+        (
+            #{path},
+            #{longPath},
+            #{guid}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_device_node_path`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="getPath0" resultMap="DevicePathCacheMap">
+        SELECT
+            `path`,
+            `long_path`
+        FROM `hydra_device_node_path`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getNode" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_path`
+        WHERE `path` = #{path}
+    </select>
+
+    <select id="queryGUIDByPath" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_node_path`
+        WHERE `path` = #{path}
+    </select>
+
+</mapper>

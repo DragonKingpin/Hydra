@@ -2,9 +2,7 @@ package com.walnut.sparta.services.drivers;
 
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryConfigNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
 import com.pinecone.hydra.registry.source.RegistryAttributesManipulator;
 import com.pinecone.hydra.registry.source.RegistryPropertiesManipulator;
 import com.pinecone.hydra.registry.source.RegistryTextFileManipulator;
@@ -20,19 +18,13 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     RegistryConfigNodeManipulator configNodeManipulator;
 
     @Resource
-    RegistryNSNodeManipulator namespaceNodeManipulator;
+    RegistryNSNodeManipulator businessNodeManipulator;
 
     @Resource
     RegistryPropertiesManipulator registryPropertiesManipulator;
 
     @Resource
     RegistryTextFileManipulator registryTextFileManipulator;
-
-    @Resource
-    RegistryNodeMetaManipulator configNodeMetaManipulator;
-
-    @Resource
-    RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
     @Resource
     RegistryAttributesManipulator registryAttributesManipulator;
@@ -53,7 +45,7 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
 
     @Override
     public RegistryNSNodeManipulator getNSNodeManipulator() {
-        return this.namespaceNodeManipulator;
+        return this.businessNodeManipulator;
     }
 
     @Override
@@ -64,16 +56,6 @@ public class RegistryMasterManipulatorImpl implements RegistryMasterManipulator 
     @Override
     public RegistryTextFileManipulator getTextFileManipulator() {
         return this.registryTextFileManipulator;
-    }
-
-    @Override
-    public RegistryNodeMetaManipulator getNodeMetaManipulator() {
-        return this.configNodeMetaManipulator;
-    }
-
-    @Override
-    public RegistryNSNodeMetaManipulator getNSNodeMetaManipulator() {
-        return this.namespaceNodeMetaManipulator;
     }
 
     @Override

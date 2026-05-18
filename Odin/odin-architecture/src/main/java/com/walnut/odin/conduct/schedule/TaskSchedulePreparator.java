@@ -13,12 +13,14 @@ public interface TaskSchedulePreparator extends Pinenut {
     UniformTaskScheduler taskScheduler();
 
 
-    void prepareSchedulableTasks( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
+    void prepareSchedulableTasksAndWait( Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
 
-    void prepareSchedulableTasksDaily( LocalDateTime targetTime );
+    void prepareDailySchedulableTasksAndWait( LocalDateTime targetTime );
+
+    void prepareHourlySchedulableTasksAndWait( LocalDateTime targetTime );
+
+    void prepareFastSchedulableTasksAndWait( LocalDateTime targetTime );
 
     List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
-
-    List<TaskElement> fetchSchedulableTasksDaily( long idMin, long idMax, LocalDateTime targetTime );
 
 }

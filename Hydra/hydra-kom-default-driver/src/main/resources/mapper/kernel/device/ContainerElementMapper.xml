@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.ContainerElementMapper">
+
+    <resultMap id="ContainerMap" type="com.pinecone.hydra.device.kom.entity.GenericContainerElement">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="name" property="name"/>
+        <result column="alias" property="alias"/>
+        <result column="code" property="code"/>
+        <result column="description" property="description"/>
+        <result column="extra_information" property="extraInformation"/>
+        <result column="resource_type" property="resourceType"/>
+        <result column="device_type" property="deviceType"/>
+        <result column="category" property="category"/>
+        <result column="class_code" property="classCode"/>
+        <result column="deployment_profile" property="deploymentProfile"/>
+        <result column="topology_role" property="topologyRole"/>
+        <result column="vendor" property="vendor"/>
+        <result column="model" property="model"/>
+        <result column="serial_number" property="serialNumber"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="region" property="region"/>
+        <result column="zone" property="zone"/>
+        <result column="location" property="location"/>
+        <result column="management_protocol" property="managementProtocol"/>
+        <result column="management_host" property="managementHost"/>
+        <result column="management_port" property="managementPort"/>
+        <result column="credential_ref" property="credentialRef"/>
+        <result column="status" property="status"/>
+        <result column="lifecycle_status" property="lifecycleStatus"/>
+        <result column="enabled" property="enabled"/>
+        <result column="tags" property="tags"/>
+        <result column="resource_summary" property="resourceSummary"/>
+        <result column="affiliate_host_guid" property="affiliateHostGuid"/>
+        <result column="runtime" property="runtime"/>
+        <result column="image_name" property="imageName"/>
+        <result column="container_id" property="containerId"/>
+        <result column="cpu_limit" property="cpuLimit"/>
+        <result column="memory_limit_mb" property="memoryLimitMb"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="ContainerColumns">
+        id, guid, name, alias, code, description, extra_information, resource_type, device_type,
+        category, class_code, deployment_profile, topology_role, vendor, model, serial_number,
+        ip_address, region, zone, location, management_protocol, management_host, management_port,
+        credential_ref, status, lifecycle_status, enabled, tags, resource_summary, affiliate_host_guid,
+        runtime, image_name, container_id, cpu_limit, memory_limit_mb, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.device.kom.entity.ContainerElement">
+        INSERT INTO hydra_device_container
+            (guid, name, alias, code, description, extra_information, resource_type, device_type,
+             category, class_code, deployment_profile, topology_role, vendor, model, serial_number,
+             ip_address, region, zone, location, management_protocol, management_host, management_port,
+             credential_ref, status, lifecycle_status, enabled, tags, resource_summary, affiliate_host_guid, runtime,
+             image_name, container_id, cpu_limit, memory_limit_mb, create_time, update_time)
+        VALUES
+            (#{guid}, #{name}, #{alias}, #{code}, #{description}, #{extraInformation}, #{resourceType}, #{deviceType},
+             #{category}, #{classCode}, #{deploymentProfile}, #{topologyRole}, #{vendor}, #{model}, #{serialNumber},
+             #{ipAddress}, #{region}, #{zone}, #{location}, #{managementProtocol}, #{managementHost}, #{managementPort},
+             #{credentialRef}, #{status}, #{lifecycleStatus}, #{enabled}, #{tags}, #{resourceSummary}, #{affiliateHostGuid}, #{runtime},
+             #{imageName}, #{containerId}, #{cpuLimit}, #{memoryLimitMb}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.device.kom.entity.ContainerElement">
+        UPDATE hydra_device_container
+        SET
+            name = #{name},
+            alias = #{alias},
+            code = #{code},
+            description = #{description},
+            extra_information = #{extraInformation},
+            resource_type = #{resourceType},
+            device_type = #{deviceType},
+            category = #{category},
+            class_code = #{classCode},
+            deployment_profile = #{deploymentProfile},
+            topology_role = #{topologyRole},
+            vendor = #{vendor},
+            model = #{model},
+            serial_number = #{serialNumber},
+            ip_address = #{ipAddress},
+            region = #{region},
+            zone = #{zone},
+            location = #{location},
+            management_protocol = #{managementProtocol},
+            management_host = #{managementHost},
+            management_port = #{managementPort},
+            credential_ref = #{credentialRef},
+            status = #{status},
+            lifecycle_status = #{lifecycleStatus},
+            enabled = #{enabled},
+            tags = #{tags},
+            resource_summary = #{resourceSummary},
+            affiliate_host_guid = #{affiliateHostGuid},
+            runtime = #{runtime},
+            image_name = #{imageName},
+            container_id = #{containerId},
+            cpu_limit = #{cpuLimit},
+            memory_limit_mb = #{memoryLimitMb},
+            update_time = #{updateTime}
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="remove">
+        DELETE FROM hydra_device_container WHERE guid = #{guid}
+    </delete>
+
+    <select id="getContainerElement0" resultMap="ContainerMap">
+        SELECT <include refid="ContainerColumns"/>
+        FROM hydra_device_container
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="fetchContainerElementByName0" resultMap="ContainerMap">
+        SELECT <include refid="ContainerColumns"/>
+        FROM hydra_device_container
+        WHERE name = #{name}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_device_container WHERE name = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT guid FROM hydra_device_container WHERE name = #{name} AND guid != #{guid}
+    </select>
+</mapper>

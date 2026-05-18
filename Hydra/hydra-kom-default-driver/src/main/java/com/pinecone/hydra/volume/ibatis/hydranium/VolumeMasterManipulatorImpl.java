@@ -1,78 +1,45 @@
 package com.pinecone.hydra.volume.ibatis.hydranium;
 
 import com.pinecone.framework.system.construction.Structure;
-import com.pinecone.hydra.storage.volume.source.LogicVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.MirroredVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.MountPointManipulator;
-import com.pinecone.hydra.storage.volume.source.PhysicalVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.SimpleVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.SpannedVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.SQLiteVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.StripedVolumeManipulator;
-import com.pinecone.hydra.storage.volume.source.VolumeAllocateManipulator;
-import com.pinecone.hydra.storage.volume.source.VolumeCapacityManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeEventManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeExtentManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeMountManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumePhysicalManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
-import com.pinecone.hydra.volume.ibatis.MirroredVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.MountPointMapper;
-import com.pinecone.hydra.volume.ibatis.PhysicalVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.PrimeLogicVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.SimpleVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.SpannedVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.SQLiteVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.StripedVolumeMapper;
-import com.pinecone.hydra.volume.ibatis.VolumeAllocateMapper;
-import com.pinecone.hydra.volume.ibatis.VolumeCapacityMapper;
+import com.pinecone.hydra.volume.ibatis.VolumeEventMapper;
+import com.pinecone.hydra.volume.ibatis.VolumeExtentMapper;
+import com.pinecone.hydra.volume.ibatis.VolumeMapper;
+import com.pinecone.hydra.volume.ibatis.VolumeMountMapper;
+import com.pinecone.hydra.volume.ibatis.VolumePhysicalMapper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Map;
+
 @Component
 public class VolumeMasterManipulatorImpl implements VolumeMasterManipulator {
     @Resource
-    @Structure( type = VolumeMasterTreeManipulatorImpl.class )
-    KOISkeletonMasterManipulator skeletonMasterManipulator;
+    @Structure( type = VolumeMapper.class )
+    VolumeManipulator volumeManipulator;
 
     @Resource
-    @Structure( type = MirroredVolumeMapper.class )
-    MirroredVolumeManipulator mirroredVolumeManipulator;
+    @Structure( type = VolumePhysicalMapper.class )
+    VolumePhysicalManipulator physicalManipulator;
 
     @Resource
-    @Structure( type = MountPointMapper.class )
-    MountPointManipulator     mountPointManipulator;
+    @Structure( type = VolumeExtentMapper.class )
+    VolumeExtentManipulator extentManipulator;
 
     @Resource
-    @Structure( type = SimpleVolumeMapper.class )
-    SimpleVolumeManipulator   simpleVolumeManipulator;
+    @Structure( type = VolumeMountMapper.class )
+    VolumeMountManipulator mountManipulator;
 
     @Resource
-    @Structure( type = SpannedVolumeMapper.class )
-    SpannedVolumeManipulator  spannedVolumeManipulator;
-
-    @Resource
-    @Structure( type = StripedVolumeMapper.class )
-    StripedVolumeManipulator  stripedVolumeManipulator;
-
-    @Resource
-    @Structure( type = VolumeCapacityMapper.class )
-    VolumeCapacityManipulator volumeCapacityManipulator;
-
-    @Resource
-    @Structure( type = PhysicalVolumeMapper.class )
-    PhysicalVolumeManipulator physicalVolumeManipulator;
-
-    @Resource
-    @Structure( type = VolumeAllocateMapper.class )
-    VolumeAllocateManipulator volumeAllocateManipulator;
-
-    @Resource
-    @Structure( type = SQLiteVolumeMapper.class )
-    SQLiteVolumeManipulator   sqliteVolumeManipulator;
-
-    @Resource
-    @Structure( type = PrimeLogicVolumeMapper.class )
-    protected LogicVolumeManipulator primeLogicVolumeManipulator;
+    @Structure( type = VolumeEventMapper.class )
+    VolumeEventManipulator eventManipulator;
 
     public VolumeMasterManipulatorImpl() {
 
@@ -80,60 +47,35 @@ public class VolumeMasterManipulatorImpl implements VolumeMasterManipulator {
 
     public VolumeMasterManipulatorImpl( KOIMappingDriver driver ) {
         driver.autoConstruct( VolumeMasterManipulatorImpl.class, Map.of(), this );
-        this.skeletonMasterManipulator = new VolumeMasterTreeManipulatorImpl( driver );
     }
+
+    @Override
+    public VolumeManipulator getVolumeManipulator() {
+        return this.volumeManipulator;
+    }
+
+    @Override
+    public VolumePhysicalManipulator getPhysicalManipulator() {
+        return this.physicalManipulator;
+    }
+
+    @Override
+    public VolumeExtentManipulator getExtentManipulator() {
+        return this.extentManipulator;
+    }
+
+    @Override
+    public VolumeMountManipulator getMountManipulator() {
+        return this.mountManipulator;
+    }
+
+    @Override
+    public VolumeEventManipulator getEventManipulator() {
+        return this.eventManipulator;
+    }
+
     @Override
     public KOISkeletonMasterManipulator getSkeletonMasterManipulator() {
-        return this.skeletonMasterManipulator;
-    }
-
-    @Override
-    public MirroredVolumeManipulator getMirroredVolumeManipulator() {
-        return this.mirroredVolumeManipulator;
-    }
-
-    @Override
-    public MountPointManipulator getMountPointManipulator() {
-        return this.mountPointManipulator;
-    }
-
-    @Override
-    public SimpleVolumeManipulator getSimpleVolumeManipulator() {
-        return this.simpleVolumeManipulator;
-    }
-
-    @Override
-    public SpannedVolumeManipulator getSpannedVolumeManipulator() {
-        return this.spannedVolumeManipulator;
-    }
-
-    @Override
-    public StripedVolumeManipulator getStripedVolumeManipulator() {
-        return this.stripedVolumeManipulator;
-    }
-
-    @Override
-    public VolumeCapacityManipulator getVolumeCapacityManipulator() {
-        return this.volumeCapacityManipulator;
-    }
-
-    @Override
-    public PhysicalVolumeManipulator getPhysicalVolumeManipulator() {
-        return this.physicalVolumeManipulator;
-    }
-
-    @Override
-    public VolumeAllocateManipulator getVolumeAllocateManipulator() {
-        return this.volumeAllocateManipulator;
-    }
-
-    @Override
-    public SQLiteVolumeManipulator getSQLiteVolumeManipulator() {
-        return this.sqliteVolumeManipulator;
-    }
-
-    @Override
-    public LogicVolumeManipulator getPrimeLogicVolumeManipulator() {
-        return this.primeLogicVolumeManipulator;
+        return null;
     }
 }

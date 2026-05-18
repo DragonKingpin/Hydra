@@ -16,6 +16,7 @@ import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.LocalHostedClassImage;
+import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
@@ -172,10 +173,12 @@ class Rick extends EnderHydra {
 
 
 
+        ElementNode n = odin.taskRegiment().taskInstrument().queryElement( "@root" );
+        Debug.fmp( 2, n.toJSONObject() );
 
 
         RavenTaskScheduler scheduler = (RavenTaskScheduler) odin.taskScheduler();
-        scheduler.fetch();
+        scheduler.pulseSchedule();
     }
 
 

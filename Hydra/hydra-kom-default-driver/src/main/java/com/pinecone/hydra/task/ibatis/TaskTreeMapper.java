@@ -82,14 +82,22 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
 
 
 
-    @Delete("DELETE FROM `hydra_task_node_tree` WHERE `guid`=#{chileGuid} AND `parent_guid`=#{parentGuid}")
-    void removeInheritance( @Param("chileGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+    @Delete("DELETE FROM `hydra_task_node_tree` WHERE `guid`=#{childGuid} AND `parent_guid`=#{parentGuid}")
+    void removeInheritance( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_task_node_tree` WHERE `parent_guid`=#{guid}")
-    List<GUIDImperialTrieNode> getChildren(GUID guid );
+    List<GUIDImperialTrieNode> getChildren( @Param( "parentGuid" ) GUID parentGui );
 
     @Select("SELECT `guid` FROM `hydra_task_node_tree` WHERE `parent_guid` = #{parentGuid}")
-    List<GUID > fetchChildrenGuids( @Param("parentGuid") GUID parentGuid );
+    List<GUID > fetchChildrenGuids0( @Param("parentGuid") GUID parentGuid );
+
+    @Override
+    default List<GUID > fetchChildrenGuids( GUID parentGuid ) {
+        if ( parentGuid == null ) {
+            return this.fetchRoot();
+        }
+        return this.fetchChildrenGuids0( parentGuid );
+    }
+
 
     @Select("SELECT `parent_guid` FROM `hydra_task_node_tree` WHERE `guid`=#{guid}")
     List<GUID > fetchParentGuids( GUID guid );

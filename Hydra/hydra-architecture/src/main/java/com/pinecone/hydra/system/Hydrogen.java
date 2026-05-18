@@ -1,11 +1,10 @@
 package com.pinecone.hydra.system;
 
-import com.pinecone.framework.system.Pinecore;
 import com.pinecone.hydra.system.component.Slf4jTracerScope;
 
 import java.nio.file.Path;
 
-public interface Hydrogen extends Pinecore, ScopedSystem, MultiComponentSystem {
+public interface Hydrogen extends Hydraco, ScopedSystem, MultiComponentSystem {
 
     @Override
     HySkeleton getComponentManager();

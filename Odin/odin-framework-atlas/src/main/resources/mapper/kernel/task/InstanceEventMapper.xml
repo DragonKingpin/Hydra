@@ -3,6 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.odin.task.mapper.InstanceEventMapper">
 
+    <resultMap id="InstanceEventMap" type="com.walnut.odin.conduct.entity.GenericInstanceEvent">
+        <result column="guid"                   property="guid"/>
+        <result column="task_guid"              property="taskGuid"/>
+        <result column="instance_guid"          property="instanceGuid"/>
+        <result column="instance_name"          property="instanceName"/>
+        <result column="retry_times"            property="retryTimes"/>
+        <result column="current_retry_number"   property="currentRetryNumber"/>
+        <result column="event_type"             property="eventType"/>
+        <result column="state"                  property="state"/>
+        <result column="event_context"          property="eventContext"/>
+        <result column="exec_time"              property="execTime"/>
+    </resultMap>
+
     <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceEvent">
         INSERT INTO odin_task_instance_event (
             guid,
@@ -28,5 +41,23 @@
                      #{execTime}
                  )
     </insert>
+
+    <select id="queryByInstanceGuidAndState" resultMap="InstanceEventMap">
+        SELECT
+            guid,
+            task_guid,
+            instance_guid,
+            instance_name,
+            retry_times,
+            current_retry_number,
+            event_type,
+            state,
+            event_context,
+            exec_time
+        FROM odin_task_instance_event
+        WHERE instance_guid = #{instanceGuid}
+          AND state = #{state}
+        LIMIT 1
+    </select>
 
 </mapper>

@@ -19,6 +19,8 @@ import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.conduct.entity.LaunchedContext;
 import com.walnut.odin.conduct.entity.RegimentJoinRequest;
 import com.walnut.odin.conduct.entity.RegimentJoinResponse;
+import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
 import com.walnut.odin.dispatch.RavenTaskDispatcher;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
@@ -53,6 +55,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected TaskDispatcher                mTaskDispatcher;
 
+    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+
 
 
 
@@ -69,6 +73,12 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected void prepare_odin_collective_regiment_subsystem() {
         this.infoLifecycle( "Preparing Odin`s army, constructing task-regiment.", LogStatuses.StatusStart );
+
+        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
+                this.mTaskInstrument.getInstanceInstrument(),
+                this.mTaskInstrument.getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceEventMapper()
+        );
+        this.infoLifecycle( "TaskInstanceLifecycleInstrument: `" + this.mTaskInstanceLifecycleInstrument.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
 
         this.mTaskExecutionLauncher = new TrollTaskExecutionLauncher( this );
         this.infoLifecycle( "TaskExecutionLauncher: `" + this.mTaskExecutionLauncher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
@@ -135,6 +145,11 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     @Override
     public TaskDispatcher taskDispatcher() {
         return this.mTaskDispatcher;
+    }
+
+    @Override
+    public TaskInstanceLifecycleInstrument taskInstanceLifecycleInstrument() {
+        return this.mTaskInstanceLifecycleInstrument;
     }
 
     @Override

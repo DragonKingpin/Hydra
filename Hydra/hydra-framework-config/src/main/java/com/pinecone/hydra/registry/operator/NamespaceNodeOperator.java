@@ -5,13 +5,11 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.registry.KOMRegistry;
 import com.pinecone.hydra.registry.entity.GenericNamespace;
 import com.pinecone.hydra.registry.entity.Namespace;
-import com.pinecone.hydra.registry.entity.NamespaceMeta;
 import com.pinecone.hydra.registry.entity.Attributes;
 import com.pinecone.hydra.registry.entity.RegistryTreeNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.registry.source.RegistryMasterManipulator;
 import com.pinecone.hydra.registry.source.RegistryNSNodeManipulator;
-import com.pinecone.hydra.registry.source.RegistryNSNodeMetaManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.framework.util.id.GuidAllocator;
@@ -21,7 +19,6 @@ import java.util.List;
 
 public class NamespaceNodeOperator extends ArchRegistryOperator {
     private RegistryNSNodeManipulator     namespaceNodeManipulator;
-    private RegistryNSNodeMetaManipulator namespaceNodeMetaManipulator;
 
 
     public NamespaceNodeOperator ( RegistryOperatorFactory factory ) {
@@ -32,7 +29,6 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
     public NamespaceNodeOperator( RegistryMasterManipulator masterManipulator , KOMRegistry registry ){
         super( masterManipulator, registry );
         this.namespaceNodeManipulator       = this.registryMasterManipulator.getNSNodeManipulator();
-        this.namespaceNodeMetaManipulator   = this.registryMasterManipulator.getNSNodeMetaManipulator();
     }
 
     @Override
@@ -41,17 +37,6 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize( treeNode );
         GuidAllocator guidAllocator = this.registry.getGuidAllocator();
         GUID guid72                 = nsNode.getGuid();
-
-        NamespaceMeta namespaceMeta = nsNode.getNamespaceWithMeta();
-        GUID namespaceNodeMetaGuid = guidAllocator.nextGUID();
-        if (namespaceMeta != null){
-            namespaceMeta.setGuid(namespaceNodeMetaGuid);
-            this.namespaceNodeMetaManipulator.insert(namespaceMeta);
-        }
-        else {
-            namespaceNodeMetaGuid = null;
-        }
-
 
         Attributes attributes = nsNode.getAttributes();
         GUID nodeAttributesGuid = guidAllocator.nextGUID();
@@ -63,7 +48,7 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
             nodeAttributesGuid = null;
         }
 
-        imperialTreeNode.setNodeMetadataGUID(namespaceNodeMetaGuid);
+        imperialTreeNode.setNodeMetadataGUID(null);
         imperialTreeNode.setBaseDataGUID(nodeAttributesGuid);
         this.imperialTree.insert(imperialTreeNode);
         this.namespaceNodeManipulator.insert( nsNode );
@@ -140,8 +125,6 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
         if ( ns instanceof GenericNamespace ){
              ((GenericNamespace) ns).apply( this.registry );
         }
-        GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
-
         if( depth <= 0 ) {
             List<GUIDImperialTrieNode> childNode = this.imperialTree.getChildren(guid);
             ArrayList<GUID> guids = new ArrayList<>();
@@ -153,9 +136,8 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
         }
 
         Attributes           attributes = this.attributesManipulator.getAttributes( guid, ns );
-        NamespaceMeta namespaceNodeMeta = this.namespaceNodeMetaManipulator.getNamespaceNodeMeta( node.getNodeMetadataGUID() );
         ns.setAttributes    ( attributes );
-        ns.setNamespaceMeta ( namespaceNodeMeta );
+        ns.setNamespaceMeta ( null );
         return ns;
     }
 
@@ -164,7 +146,6 @@ public class NamespaceNodeOperator extends ArchRegistryOperator {
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
         this.namespaceNodeManipulator.remove(guid);
-        this.namespaceNodeMetaManipulator.remove(node.getNodeMetadataGUID());
         this.attributesManipulator.remove(node.getAttributesGUID());
     }
 

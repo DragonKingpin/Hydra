@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumeMountMapper">
+
+    <resultMap id="VolumeMountMap" type="com.pinecone.hydra.storage.volume.core.VolumeMount">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="volume_guid" property="volumeGuid"/>
+        <result column="mount_path" property="mountPath"/>
+        <result column="mount_type" property="mountType"/>
+        <result column="status" property="status"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="MountColumns">
+        id, guid, volume_guid, mount_path, mount_type, status, ext_config, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumeMount">
+        INSERT INTO hydra_volume_mount
+            (guid, volume_guid, mount_path, mount_type, status, ext_config)
+        VALUES
+            (#{guid}, #{volumeGuid}, #{mountPath}, #{mountType}, #{status}, #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumeMount">
+        UPDATE hydra_volume_mount
+        SET
+            volume_guid = #{volumeGuid},
+            mount_path = #{mountPath},
+            mount_type = #{mountType},
+            status = #{status},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumeMountMap">
+        SELECT <include refid="MountColumns"/>
+        FROM hydra_volume_mount
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="getByPath" resultMap="VolumeMountMap">
+        SELECT <include refid="MountColumns"/>
+        FROM hydra_volume_mount
+        WHERE mount_path = #{mountPath}
+    </select>
+
+    <select id="listByVolumeGuid" resultMap="VolumeMountMap">
+        SELECT <include refid="MountColumns"/>
+        FROM hydra_volume_mount
+        WHERE volume_guid = #{volumeGuid}
+        ORDER BY id ASC
+    </select>
+
+    <delete id="remove">
+        DELETE FROM hydra_volume_mount WHERE guid = #{guid}
+    </delete>
+</mapper>

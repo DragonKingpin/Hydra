@@ -11,8 +11,6 @@ public class UOFSCommonConfig implements UOFSConfig{
 
     protected String mszStripedVolumeType;
 
-    protected String mszVersionPrefix;
-
     public UOFSCommonConfig(){}
 
     public UOFSCommonConfig(Map<String, Object> config){
@@ -20,7 +18,6 @@ public class UOFSCommonConfig implements UOFSConfig{
         this.mszSimpleVolumeType = (String) config.get("SimpleVolumeType");
         this.mszSpannedVolumeType = (String) config.get("SpannedVolumeType");
         this.mszStripedVolumeType = (String) config.get("StripedVolumeType");
-        this.mszVersionPrefix = (String) config.get("VersionPrefix");
     }
 
     @Override
@@ -43,8 +40,4 @@ public class UOFSCommonConfig implements UOFSConfig{
         return this.mszStripedVolumeType;
     }
 
-    @Override
-    public String getVersionPrefix() {
-        return this.mszVersionPrefix;
-    }
 }

@@ -3,8 +3,6 @@ package com.walnut.odin.atlas.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
@@ -18,8 +16,8 @@ import com.walnut.odin.atlas.graph.entity.TaskGraphNode;
 @IbatisDataAccessObject
 public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     @Override
-    default void insertHandleNode( GraphNode graphNode ){
-        this.insertGraphNode(graphNode);
+    default void insertHandleNode( GraphNode graphNode ) {
+        this.insertGraphNode( graphNode );
     }
 
     @Override
@@ -28,14 +26,16 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     void insertNodeAdjacent( @Param("parentGuid") GUID parentGuid, @Param("childGuid") GUID childGuid );
 
     @Override
-    default void insertNodeByEdge(GUID parentGuid, GraphNode graphNode){
-        this.insertGraphNode(graphNode);
-        this.insertNodeAdjacent(parentGuid,graphNode.getId());
+    default void insertNodeByEdge( GUID parentGuid, GraphNode graphNode ) {
+        this.insertGraphNode( graphNode );
+        this.insertNodeAdjacent( parentGuid, graphNode.getId() );
+        this.markNonSource( graphNode.getId() );
     }
 
 
-    default void addChild(GUID parentGuid, GraphNode graphNode) {
-        this.insertNodeAdjacent(parentGuid,graphNode.getId());
+    default void addChild( GUID parentGuid, GraphNode graphNode ) {
+        this.insertNodeAdjacent( parentGuid, graphNode.getId() );
+        this.markNonSource( graphNode.getId() );
     }
 
     @Override
@@ -47,6 +47,10 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     void removeGraphNode(  @Param("guid") GUID guid );
 
     void removeGraphAdjacent(  @Param("guid") GUID guid );
+
+    void markNonSource( @Param("guid") GUID guid );
+
+    void affirmSourceIfNoParent( @Param("guid") GUID guid );
 
     @Override
     TaskAtlasNode queryNode( @Param("guid") GUID guid );
@@ -68,7 +72,7 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     }
 
     @Override
-    List<GUID> fetchChildNodeGuids(GUID guid);
+    List<GUID> fetchChildNodeGuids( GUID guid );
 
 
     @Override
@@ -90,32 +94,15 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     }
 
     @Override
-    @Update("UPDATE `hydra_atlas_vgraph_nodes` " +
-            "SET " +
-            "    `task_guid` = #{graphNode.taskGuid}, " +
-            "    `node_name` = #{graphNode.nodeName}, " +
-            "    `node_description` = #{graphNode.nodeDescription} " +
-            "WHERE `guid` = #{graphNode.guid}")
     void updateNode(  @Param("graphNode") GraphNode graphNode );
 
     @Override
     List<GUID> fetchHandleGuids( @Param("offset") long offset, @Param("limit") long limit);
 
     @Override
-    @Select("SELECT havn.guid " +
-            "FROM hydra_atlas_vgraph_nodes havn " +
-            "JOIN hydra_atlas_vgraph_task_mapping vatm ON havn.guid = vatm.vgraph_node_guid " +
-            "JOIN hydra_task_task_node httn ON vatm.task_guid = httn.guid " +
-            "WHERE NOT EXISTS (" +
-            "SELECT id FROM hydra_atlas_vgraph_adjacent hava WHERE hava.guid = havn.guid) " +
-            "ORDER BY httn.priority " +
-            "LIMIT #{limit} OFFSET #{offset}")
-    List<GUID> fetchHandleGuidsByTaskPriority(long offset, long limit);
+    List<GUID> fetchHandleGuidsByTaskPriority( @Param("offset") long offset, @Param("limit") long limit );
 
     @Override
-    @Select("SELECT COUNT(havn.guid) " +
-            "FROM `hydra_atlas_vgraph_nodes` havn " +
-            "WHERE NOT EXISTS (SELECT `id` FROM `hydra_atlas_vgraph_adjacent` `hava` WHERE `hava`.guid = `havn`.guid)")
     long countSourceNodes();
 
     @Override
@@ -131,47 +118,47 @@ public interface RuntimeVGraphMapper extends TaskGraphManipulator {
     long queryOutDegree( @Param("nodeGuid") GUID nodeGuid);
 
     @Override
-    long getPriorityByInDegree(@Param("guid") GUID guid);
+    long getPriorityByInDegree( @Param("guid") GUID guid );
 
 
     @Override
-    List<GUID> limitFetchChildNodeGuids(@Param("offset") long offset, @Param("limit") long limit, @Param("guid") GUID guid);
+    List<GUID> limitFetchChildNodeGuids( @Param("offset") long offset, @Param("limit") long limit, @Param("guid") GUID guid );
 
     @Override
-    long countChildNodeNums(GUID guid);
+    long countChildNodeNums( GUID guid );
 
     @Override
-    void addChild(GUID parentGuid, GUID childGuid);
+    default void addChild( GUID parentGuid, GUID childGuid ) {
+        this.insertNodeAdjacent( parentGuid, childGuid );
+        this.markNonSource( childGuid );
+    }
 
 
 
 
 
 
-    List<TaskAtlasNode> fetchIsolatedNodes0(
+    List<TaskAtlasNode> fetchSourceNodes0(
         @Param("offset") long offset,
         @Param("limit") long limit
     );
 
     @Override
-    default List<GraphNode> fetchIsolatedNodes( long offset, long limit ) {
-        return ( List ) this.fetchIsolatedNodes0( offset, limit );
+    default List<GraphNode> fetchSourceNodes( long offset, long limit ) {
+        return ( List ) this.fetchSourceNodes0( offset, limit );
     }
 
 
-    List<TaskAtlasNode> fetchIsolatedNodesById0(
+    List<TaskAtlasNode> fetchSourceNodesById0(
         @Param("idStart") long idStart, @Param("idEnd") long idEnd
     );
 
     @Override
-    default List<GraphNode> fetchIsolatedNodesById( long idStart, long idEnd ) {
-        return ( List ) this.fetchIsolatedNodesById0( idStart, idEnd );
+    default List<GraphNode> fetchSourceNodesById( long idStart, long idEnd ) {
+        return ( List ) this.fetchSourceNodesById0( idStart, idEnd );
     }
 
     @Override
-    long countIsolatedNodes();
-
-    @Override
-    TableIndex64Meta selectIsolatedNodeIndexMeta();
+    TableIndex64Meta selectSourceNodeIndexMeta();
 
 }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumeMapper">
+
+    <resultMap id="VolumeRecordMap" type="com.pinecone.hydra.storage.volume.core.VolumeRecord">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="name" property="name"/>
+        <result column="volume_type" property="volumeType"/>
+        <result column="mapping_mode" property="mappingMode"/>
+        <result column="allocation_mode" property="allocationMode"/>
+        <result column="status" property="status"/>
+        <result column="logical_size" property="logicalSize"/>
+        <result column="committed_bytes" property="committedBytes"/>
+        <result column="allocation_unit" property="allocationUnit"/>
+        <result column="stripe_unit" property="stripeUnit"/>
+        <result column="member_length" property="memberLength"/>
+        <result column="member_count" property="memberCount"/>
+        <result column="titan_root" property="titanRoot"/>
+        <result column="object_root" property="objectRoot"/>
+        <result column="version" property="version"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="VolumeColumns">
+        id, guid, name, volume_type, mapping_mode, allocation_mode, status, logical_size, committed_bytes, allocation_unit, stripe_unit, member_length,
+        member_count, titan_root, object_root, version, ext_config, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumeRecord">
+        INSERT INTO hydra_volume
+            (guid, name, volume_type, mapping_mode, allocation_mode, status, logical_size, committed_bytes, allocation_unit, stripe_unit, member_length,
+             member_count, titan_root, object_root, version, ext_config)
+        VALUES
+            (#{guid}, #{name}, #{volumeType}, #{mappingMode}, #{allocationMode}, #{status}, #{logicalSize}, #{committedBytes}, #{allocationUnit}, #{stripeUnit}, #{memberLength},
+             #{memberCount}, #{titanRoot}, #{objectRoot}, #{version}, #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumeRecord">
+        UPDATE hydra_volume
+        SET
+            name = #{name},
+            volume_type = #{volumeType},
+            mapping_mode = #{mappingMode},
+            allocation_mode = #{allocationMode},
+            status = #{status},
+            logical_size = #{logicalSize},
+            committed_bytes = #{committedBytes},
+            allocation_unit = #{allocationUnit},
+            stripe_unit = #{stripeUnit},
+            member_length = #{memberLength},
+            member_count = #{memberCount},
+            titan_root = #{titanRoot},
+            object_root = #{objectRoot},
+            version = #{version},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumeRecordMap">
+        SELECT <include refid="VolumeColumns"/>
+        FROM hydra_volume
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="listAll" resultMap="VolumeRecordMap">
+        SELECT <include refid="VolumeColumns"/>
+        FROM hydra_volume
+        WHERE status != 'DELETED'
+        ORDER BY id ASC
+    </select>
+
+    <delete id="remove">
+        DELETE FROM hydra_volume WHERE guid = #{guid}
+    </delete>
+</mapper>

@@ -4,6 +4,7 @@ import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.MapStructure;
+import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.ProcessManagerSystema;
@@ -25,6 +26,7 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
+import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
@@ -127,6 +129,19 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusDone );
     }
 
+    protected void prepare_remote_process_server() {
+        if ( this.mTaskRegiment == null ) {
+            return;
+        }
+
+        try {
+            this.mTaskRegiment.startRemoteProcessServer();
+        }
+        catch ( RemoteProcessServiceRPCException e ) {
+            throw new IrrationalProvokedException( e );
+        }
+    }
+
     protected void prepare_scheduler() {
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusStart );
 
@@ -141,6 +156,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
 
         this.prepare_instrumentation();
+        this.prepare_remote_process_server();
         this.prepare_scheduler();
 
 

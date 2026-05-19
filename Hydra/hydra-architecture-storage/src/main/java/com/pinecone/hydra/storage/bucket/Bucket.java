@@ -14,6 +14,10 @@ public interface Bucket extends Pinenut {
 
     void setGuid( GUID guid );
 
+    String getBucketIdentifier();
+
+    void setBucketIdentifier( String bucketIdentifier );
+
     String getUserIdentifier();
 
     void setUserIdentifier( String userIdentifier );

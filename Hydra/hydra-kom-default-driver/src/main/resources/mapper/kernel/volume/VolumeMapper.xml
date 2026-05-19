@@ -75,6 +75,48 @@
         ORDER BY id ASC
     </select>
 
+    <select id="count" resultType="long">
+        SELECT COUNT(id)
+        FROM hydra_volume
+        <where>
+            AND status != 'DELETED'
+            <if test='name != null and name != ""'>
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test='volumeType != null'>
+                AND volume_type = #{volumeType}
+            </if>
+            <if test='mappingMode != null'>
+                AND mapping_mode = #{mappingMode}
+            </if>
+            <if test='status != null'>
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="listPage" resultMap="VolumeRecordMap">
+        SELECT <include refid="VolumeColumns"/>
+        FROM hydra_volume
+        <where>
+            AND status != 'DELETED'
+            <if test='name != null and name != ""'>
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test='volumeType != null'>
+                AND volume_type = #{volumeType}
+            </if>
+            <if test='mappingMode != null'>
+                AND mapping_mode = #{mappingMode}
+            </if>
+            <if test='status != null'>
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <delete id="remove">
         DELETE FROM hydra_volume WHERE guid = #{guid}
     </delete>

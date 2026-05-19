@@ -7,7 +7,10 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.account.AccountManager;
+import com.pinecone.hydra.account.entity.ElementNode;
 import com.pinecone.hydra.account.source.UserMasterManipulator;
+
+import java.time.LocalDateTime;
 
 public abstract class ArchAccountServiceOperator implements AccountServiceOperator {
     protected AccountManager                accountManager;
@@ -25,7 +28,18 @@ public abstract class ArchAccountServiceOperator implements AccountServiceOperat
     }
 
     protected ImperialTreeNode affirmPreinsertionInitialize(TreeNode node ){
-        GUID guid = node.getGuid();
+        ElementNode entityNode = (ElementNode) node;
+        GUID guid = entityNode.getGuid();
+        LocalDateTime now = LocalDateTime.now();
+        if( guid == null ) {
+            guid = this.accountManager.getGuidAllocator().nextGUID();
+            entityNode.setGuid( guid );
+        }
+        if( entityNode.getCreateTime() == null ) {
+            entityNode.setCreateTime( now );
+        }
+        entityNode.setUpdateTime( now );
+
         ImperialTreeNode imperialTreeNode = new GUIDImperialTrieNode();
         imperialTreeNode.setGuid( guid );
         imperialTreeNode.setType( UOIUtils.createLocalJavaClass( node.getClass().getName() ) );

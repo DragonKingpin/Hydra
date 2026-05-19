@@ -6,16 +6,23 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public class VolumePhysical implements Pinenut {
+    public static final long DEFAULT_ALLOCATION_UNIT = 4L * 1024L * 1024L;
+
     protected long                 mnEnumId;
     protected GUID                 mGuid;
     protected GUID                 mDeviceGuid;
     protected String               mszName;
     protected VolumePhysicalType   mPhysicalType;
+    protected String               mszSupportType;
+    protected ObjectMappedType     mObjectMappedType;
     protected VolumePhysicalStatus mStatus;
     protected String               mszEndpoint;
     protected String               mszRootPath;
     protected long                 mnCapacityBytes;
     protected long                 mnUsedBytes;
+    protected long                 mnCommittedBytes;
+    protected VolumeAllocationMode mAllocationMode = VolumeAllocationMode.THIN;
+    protected long                 mnAllocationUnit = DEFAULT_ALLOCATION_UNIT;
     protected String               mszExtConfig;
     protected LocalDateTime        mCreateTime;
     protected LocalDateTime        mUpdateTime;
@@ -60,6 +67,22 @@ public class VolumePhysical implements Pinenut {
         this.mPhysicalType = physicalType;
     }
 
+    public String getSupportType() {
+        return this.mszSupportType;
+    }
+
+    public void setSupportType( String supportType ) {
+        this.mszSupportType = supportType;
+    }
+
+    public ObjectMappedType getObjectMappedType() {
+        return this.mObjectMappedType;
+    }
+
+    public void setObjectMappedType( ObjectMappedType objectMappedType ) {
+        this.mObjectMappedType = objectMappedType;
+    }
+
     public VolumePhysicalStatus getStatus() {
         return this.mStatus;
     }
@@ -98,6 +121,30 @@ public class VolumePhysical implements Pinenut {
 
     public void setUsedBytes( long usedBytes ) {
         this.mnUsedBytes = usedBytes;
+    }
+
+    public long getCommittedBytes() {
+        return this.mnCommittedBytes;
+    }
+
+    public void setCommittedBytes( long committedBytes ) {
+        this.mnCommittedBytes = committedBytes;
+    }
+
+    public VolumeAllocationMode getAllocationMode() {
+        return this.mAllocationMode;
+    }
+
+    public void setAllocationMode( VolumeAllocationMode allocationMode ) {
+        this.mAllocationMode = allocationMode == null ? VolumeAllocationMode.THIN : allocationMode;
+    }
+
+    public long getAllocationUnit() {
+        return this.mnAllocationUnit;
+    }
+
+    public void setAllocationUnit( long allocationUnit ) {
+        this.mnAllocationUnit = allocationUnit <= 0L ? DEFAULT_ALLOCATION_UNIT : allocationUnit;
     }
 
     public String getExtConfig() {

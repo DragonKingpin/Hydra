@@ -17,6 +17,10 @@ public interface VolumeMountManipulator extends Pinenut {
 
     List<VolumeMount> listByVolumeGuid( GUID volumeGuid );
 
+    List<VolumeMount> listPage( String keyword, String status, int offset, int limit );
+
+    long count( String keyword, String status );
+
     void remove( GUID guid );
 }
 

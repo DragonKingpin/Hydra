@@ -17,6 +17,8 @@ public interface FileMasterManipulator extends KOIMasterManipulator {
 
     FileChunkLocationManipulator        getFileChunkLocationManipulator();
 
+    FileChildManipulator                getFileChildManipulator();
+
     JournalManipulator                  getJournalManipulator();
 
     JournalItemManipulator              getJournalItemManipulator();

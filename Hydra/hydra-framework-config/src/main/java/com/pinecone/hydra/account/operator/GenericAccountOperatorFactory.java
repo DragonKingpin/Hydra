@@ -1,5 +1,8 @@
 package com.pinecone.hydra.account.operator;
 
+import com.pinecone.hydra.account.entity.GenericAccount;
+import com.pinecone.hydra.account.entity.GenericDomain;
+import com.pinecone.hydra.account.entity.GenericGroup;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.hydra.account.source.UserMasterManipulator;
@@ -17,6 +20,16 @@ public class GenericAccountOperatorFactory implements AccountServiceOperatorFact
     protected Map<String, TreeNodeOperator>     registerer = new HashMap<>();
     protected Map<String, String >              metaTypeMap = new TreeMap<>();
 
+    protected void registerDefaultMetaType( Class<?> genericType ) {
+        this.metaTypeMap.put( genericType.getName(), genericType.getSimpleName().replace("Generic", "") );
+    }
+
+    protected void registerDefaultMetaTypes() {
+        this.registerDefaultMetaType( GenericAccount.class );
+        this.registerDefaultMetaType( GenericGroup.class );
+        this.registerDefaultMetaType( GenericDomain.class );
+    }
+
    public GenericAccountOperatorFactory(AccountManager accountManager, UserMasterManipulator userMasterManipulator ){
        this.accountManager = accountManager;
        this.userMasterManipulator = userMasterManipulator;
@@ -33,6 +46,7 @@ public class GenericAccountOperatorFactory implements AccountServiceOperatorFact
                DefaultDomain,
                new GenericDomainOperator( this )
        );
+       this.registerDefaultMetaTypes();
 
    }
 

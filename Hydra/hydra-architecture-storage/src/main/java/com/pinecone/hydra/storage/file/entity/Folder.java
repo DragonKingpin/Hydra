@@ -27,6 +27,8 @@ public interface Folder extends ElementNode {
 
     Folder createFolder( String name );
 
+    Symbolic createInternalSymbolic( String name, String reparsedPoint );
+
     ExternalSymbolic createExternalSymbolic( String name, String reparsedPoint );
 
     KOMFileSystem getFileTree();

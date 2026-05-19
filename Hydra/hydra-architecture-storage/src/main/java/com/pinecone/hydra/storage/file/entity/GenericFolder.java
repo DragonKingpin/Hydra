@@ -121,10 +121,21 @@ public class GenericFolder extends ArchElementNode implements Folder{
     }
 
     @Override
+    public Symbolic createInternalSymbolic( String name, String reparsedPoint ) {
+        Symbolic neo = new GenericSymbolic();
+        neo.setName( name );
+        neo.setReparsedPoint( reparsedPoint );
+        neo.setTargetScheme( "UOFS" );
+        this.put( neo );
+        return neo;
+    }
+
+    @Override
     public ExternalSymbolic createExternalSymbolic( String name, String reparsedPoint ) {
         ExternalSymbolic neo = new GenericExternalSymbolic( this.fileSystem );
         neo.setName( name );
         neo.setReparsedPoint( reparsedPoint );
+        neo.setTargetScheme( "FILE" );
         this.put( neo );
         return neo;
     }

@@ -18,13 +18,25 @@ public interface BucketManipulator extends Pinenut {
 
     GenericBucket get( GUID guid );
 
+    GenericBucket getByBucketIdentifier( String bucketIdentifier );
+
     GenericBucket getByUserIdentifierAndBucket( String userIdentifier, String bucketName );
 
     List<GenericBucket> listAll();
 
-    long count( String userIdentifier, String bucketName );
+    default long count( String userIdentifier, String bucketName ) {
+        return this.count( userIdentifier, bucketName, null );
+    }
 
-    List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit );
+    long count( String userIdentifier, String bucketName, String bucketIdentifier );
+
+    long countByVolumeGuid( GUID volumeGuid );
+
+    default List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
+        return this.listPage( userIdentifier, bucketName, null, offset, limit );
+    }
+
+    List<GenericBucket> listPage( String userIdentifier, String bucketName, String bucketIdentifier, int offset, int limit );
 
     boolean existsNode( GUID bucketGuid );
 

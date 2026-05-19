@@ -2,14 +2,25 @@ package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.volume.block.BlockSimpleVolume;
+import com.pinecone.hydra.storage.volume.block.BlockSpannedVolume;
 import com.pinecone.hydra.storage.volume.block.BlockVolume;
-import com.pinecone.hydra.storage.volume.block.SimpleVolume;
-import com.pinecone.hydra.storage.volume.block.SpannedVolume;
 import com.pinecone.hydra.storage.volume.block.StripedVolume;
 import com.pinecone.hydra.storage.volume.core.Volume;
 import com.pinecone.hydra.storage.volume.core.VolumeExtent;
 import com.pinecone.hydra.storage.volume.core.VolumePhysical;
+import com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait;
+import com.pinecone.hydra.storage.volume.core.VolumePhysicalStatus;
+import com.pinecone.hydra.storage.volume.core.VolumePhysicalType;
+import com.pinecone.hydra.storage.volume.core.StorageSupportDescriptor;
+import com.pinecone.hydra.storage.volume.core.VolumeMappingMode;
+import com.pinecone.hydra.storage.volume.core.VolumeRecord;
+import com.pinecone.hydra.storage.volume.core.VolumeStatus;
+import com.pinecone.hydra.storage.volume.core.VolumeType;
+import com.pinecone.hydra.storage.volume.core.VolumeAllocationMode;
 import com.pinecone.hydra.storage.volume.io.PhysicalAccessor;
+import com.pinecone.hydra.storage.volume.object.ObjectSimpleVolume;
+import com.pinecone.hydra.storage.volume.object.ObjectSpannedVolume;
 
 import java.nio.ByteBuffer;
 import java.io.IOException;
@@ -25,9 +36,19 @@ public interface VolumeManager extends Pinenut {
 
     void persistPhysical( VolumePhysical physical );
 
+    void persistVolume( Volume volume );
+
     void registerVolume( Volume volume );
 
     Optional<PhysicalAccessor> findPhysical( GUID guid );
+
+    PhysicalAccessor loadPhysicalAccessor( GUID physicalGuid ) throws IOException;
+
+    PhysicalAccessor loadPhysicalAccessor(
+            GUID physicalGuid,
+            VolumeAllocationMode allocationMode,
+            long allocationUnit
+    ) throws IOException;
 
     Optional<Volume> findVolume( GUID guid );
 
@@ -37,9 +58,55 @@ public interface VolumeManager extends Pinenut {
 
     List<Volume> listVolumes() throws IOException;
 
-    SimpleVolume createSimpleVolume( GUID guid, String name, VolumeExtent backingExtent );
+    long countVolumes( String name, VolumeType volumeType, VolumeMappingMode mappingMode, VolumeStatus status );
 
-    SpannedVolume createSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents );
+    List<VolumeRecord> listVolumeRecordPage(
+            String name,
+            VolumeType volumeType,
+            VolumeMappingMode mappingMode,
+            VolumeStatus status,
+            int offset,
+            int limit
+    );
+
+    VolumeRecord affirmVolumeRecord( GUID guid );
+
+    List<VolumeExtent> getExtentsByParentGuid( GUID parentGuid );
+
+    void retireVolume( GUID guid );
+
+    long countPhysicals( String name, VolumePhysicalType physicalType, VolumePhysicalStatus status, GUID deviceGuid );
+
+    List<VolumePhysical> listPhysicalPage(
+            String name,
+            VolumePhysicalType physicalType,
+            VolumePhysicalStatus status,
+            GUID deviceGuid,
+            int offset,
+            int limit
+    );
+
+    VolumePhysical affirmPhysicalRecord( GUID guid );
+
+    long countPhysicalReferences( GUID physicalGuid );
+
+    long countVolumeChildReferences( GUID volumeGuid );
+
+    List<StorageSupportDescriptor> listStorageSupportTypes();
+
+    List<VolumePhysicalSupportTrait> listPhysicalSupportTraits();
+
+    VolumePhysicalSupportTrait getPhysicalSupportTraitByPhysicalGuid( GUID physicalGuid );
+
+    void persistPhysicalSupportTrait( VolumePhysicalSupportTrait trait );
+
+    BlockSimpleVolume createBlockSimpleVolume( GUID guid, String name, VolumeExtent backingExtent );
+
+    ObjectSimpleVolume createObjectSimpleVolume( GUID guid, String name, VolumeExtent backingExtent );
+
+    BlockSpannedVolume createBlockSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents );
+
+    ObjectSpannedVolume createObjectSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents );
 
     StripedVolume createStripedVolume( GUID guid, String name, long stripeUnit, Iterable<VolumeExtent> members );
 

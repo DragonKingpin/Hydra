@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.UserNodeMapper">
+
+    <sql id="AccountColumns">
+        `id` AS `enumId`,
+        `guid`,
+        `user_name` AS `name`,
+        `nick_name` AS `nickName`,
+        `kernel_credential` AS `kernelCredential`,
+        `credential_guid` AS `credentialGuid`,
+        `kernel_group_type` AS `kernelGroupType`,
+        `role`,
+        `create_time` AS `createTime`,
+        `update_time` AS `updateTime`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `hydra_account_user_node`
+        (
+            `guid`,
+            `user_name`,
+            `nick_name`,
+            `kernel_credential`,
+            `credential_guid`,
+            `kernel_group_type`,
+            `role`,
+            `create_time`,
+            `update_time`
+        )
+        VALUES
+        (
+            #{guid},
+            #{name},
+            #{nickName},
+            #{kernelCredential},
+            #{credentialGuid},
+            #{kernelGroupType},
+            #{role},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_account_user_node`
+        WHERE `guid` = #{userGuid}
+    </delete>
+
+    <select id="queryUser" resultType="com.pinecone.hydra.account.entity.GenericAccount">
+        SELECT
+            <include refid="AccountColumns"/>
+        FROM `hydra_account_user_node`
+        WHERE `guid` = #{userGuid}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_user_node`
+        WHERE `user_name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_user_node`
+        WHERE `user_name` = #{name}
+        AND `guid` = #{guid}
+    </select>
+
+    <select id="queryAllAccount" resultType="com.pinecone.hydra.account.entity.GenericAccount">
+        SELECT
+            <include refid="AccountColumns"/>
+        FROM `hydra_account_user_node`
+    </select>
+
+    <select id="queryAccountByName" resultType="com.pinecone.hydra.account.entity.GenericAccount">
+        SELECT
+            <include refid="AccountColumns"/>
+        FROM `hydra_account_user_node`
+        WHERE `user_name` = #{userName}
+    </select>
+
+    <update id="update">
+        UPDATE `hydra_account_user_node`
+        SET
+            `user_name` = #{name},
+            `nick_name` = #{nickName},
+            `kernel_group_type` = #{kernelGroupType},
+            `role` = #{role},
+            `update_time` = #{updateTime}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="queryAccountByUserGuid" resultType="com.pinecone.hydra.account.entity.GenericAccount">
+        SELECT
+            <include refid="AccountColumns"/>
+        FROM `hydra_account_user_node`
+        WHERE `guid` = #{userGuid}
+    </select>
+
+</mapper>

@@ -17,6 +17,10 @@ public interface VolumeExtentManipulator extends Pinenut {
 
     List<VolumeExtent> listByPhysicalGuid( GUID physicalGuid );
 
+    long countByPhysicalGuid( GUID physicalGuid );
+
+    long countByChildGuid( GUID childGuid );
+
     void remove( GUID guid );
 
     void removeByParentGuid( GUID parentGuid );

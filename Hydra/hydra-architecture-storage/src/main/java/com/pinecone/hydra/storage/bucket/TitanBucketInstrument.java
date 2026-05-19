@@ -41,6 +41,11 @@ public class TitanBucketInstrument implements BucketInstrument {
     }
 
     @Override
+    public Bucket getByBucketIdentifier( String bucketIdentifier ) {
+        return this.bucketManipulator.getByBucketIdentifier( bucketIdentifier );
+    }
+
+    @Override
     public Bucket getByUserIdentifierAndBucket( String userIdentifier, String bucketName ) {
         return this.bucketManipulator.getByUserIdentifierAndBucket( userIdentifier, bucketName );
     }
@@ -52,12 +57,27 @@ public class TitanBucketInstrument implements BucketInstrument {
 
     @Override
     public long count( String userIdentifier, String bucketName ) {
-        return this.bucketManipulator.count( userIdentifier, bucketName );
+        return this.bucketManipulator.count( userIdentifier, bucketName, null );
+    }
+
+    @Override
+    public long count( String userIdentifier, String bucketName, String bucketIdentifier ) {
+        return this.bucketManipulator.count( userIdentifier, bucketName, bucketIdentifier );
+    }
+
+    @Override
+    public long countByVolumeGuid( GUID volumeGuid ) {
+        return this.bucketManipulator.countByVolumeGuid( volumeGuid );
     }
 
     @Override
     public List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
-        return this.bucketManipulator.listPage( userIdentifier, bucketName, offset, limit );
+        return this.bucketManipulator.listPage( userIdentifier, bucketName, null, offset, limit );
+    }
+
+    @Override
+    public List<GenericBucket> listPage( String userIdentifier, String bucketName, String bucketIdentifier, int offset, int limit ) {
+        return this.bucketManipulator.listPage( userIdentifier, bucketName, bucketIdentifier, offset, limit );
     }
 
     @Override

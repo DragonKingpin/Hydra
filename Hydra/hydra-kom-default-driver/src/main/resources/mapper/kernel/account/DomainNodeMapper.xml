@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.DomainNodeMapper">
+
+    <insert id="insert">
+        INSERT INTO `hydra_account_domain_node`
+        (
+            `domain_name`,
+            `guid`,
+            `name`
+        )
+        VALUES
+        (
+            #{domainName},
+            #{guid},
+            #{name}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_account_domain_node`
+        WHERE `guid` = #{domainGuid}
+    </delete>
+
+    <select id="queryDomain0" resultType="com.pinecone.hydra.account.entity.GenericDomain">
+        SELECT
+            `id` AS `enumId`,
+            `domain_name` AS `domainName`,
+            `guid`,
+            `name`,
+            `create_time` AS `createTime`,
+            `update_time` AS `updateTime`
+        FROM `hydra_account_domain_node`
+        WHERE `guid` = #{domainGuid}
+    </select>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_domain_node`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_domain_node`
+        WHERE `name` = #{name}
+        AND `guid` = #{guid}
+    </select>
+
+    <select id="queryAllDomain" resultType="com.pinecone.hydra.account.entity.GenericDomain">
+        SELECT
+            `id` AS `enumId`,
+            `domain_name` AS `domainName`,
+            `guid`,
+            `name`,
+            `create_time` AS `createTime`,
+            `update_time` AS `updateTime`
+        FROM `hydra_account_domain_node`
+    </select>
+
+    <select id="queryDomainNameByGuid" resultType="string">
+        SELECT
+            `name`
+        FROM `hydra_account_domain_node`
+        WHERE `guid` = #{domainGuid}
+    </select>
+
+    <update id="update">
+        UPDATE `hydra_account_domain_node`
+        SET
+            `domain_name` = #{domainName},
+            `name` = #{name}
+        WHERE `guid` = #{guid}
+    </update>
+
+</mapper>

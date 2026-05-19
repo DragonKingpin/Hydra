@@ -25,4 +25,6 @@ public interface FileChunkLocationManipulator extends Pinenut {
     List<GenericFileChunkLocation> listByChunkGuid( GUID chunkGuid );
 
     Long getMaxEndOffsetByVolumeGuid( GUID volumeGuid );
+
+    Long sumLengthByBucketGuid( GUID bucketGuid );
 }

@@ -16,6 +16,7 @@ import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.bucket.source.BucketManipulator;
 import com.pinecone.hydra.storage.file.source.ExternalSymbolicManipulator;
+import com.pinecone.hydra.storage.file.source.FileChildManipulator;
 import com.pinecone.hydra.storage.file.fat.source.FileChunkLocationManipulator;
 import com.pinecone.hydra.storage.file.fat.source.FileChunkManipulator;
 import com.pinecone.hydra.storage.file.journal.source.JournalItemManipulator;
@@ -103,6 +104,11 @@ public class FileMasterManipulatorImpl implements FileMasterManipulator {
     @Override
     public FileChunkLocationManipulator getFileChunkLocationManipulator() {
         return this.fileChunkLocationManipulator;
+    }
+
+    @Override
+    public FileChildManipulator getFileChildManipulator() {
+        return (FileChildManipulator) ( (FileMasterTreeManipulatorImpl) this.skeletonMasterManipulator ).getTrieTreeManipulator();
     }
 
     @Override

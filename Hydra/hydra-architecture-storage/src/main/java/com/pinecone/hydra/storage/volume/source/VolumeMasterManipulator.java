@@ -7,6 +7,8 @@ public interface VolumeMasterManipulator extends KOIMasterManipulator {
 
     VolumePhysicalManipulator getPhysicalManipulator();
 
+    VolumePhysicalSupportTraitManipulator getPhysicalSupportTraitManipulator();
+
     VolumeExtentManipulator getExtentManipulator();
 
     VolumeMountManipulator getMountManipulator();

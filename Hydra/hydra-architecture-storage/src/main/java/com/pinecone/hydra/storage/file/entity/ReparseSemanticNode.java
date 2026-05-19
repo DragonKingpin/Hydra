@@ -22,4 +22,10 @@ public interface ReparseSemanticNode extends ElementNode {
 
     String getReparsedPoint();
     void setReparsedPoint( String reparsedPoint );
+
+    String getTargetScheme();
+    void setTargetScheme( String targetScheme );
+
+    String getExtConfig();
+    void setExtConfig( String extConfig );
 }

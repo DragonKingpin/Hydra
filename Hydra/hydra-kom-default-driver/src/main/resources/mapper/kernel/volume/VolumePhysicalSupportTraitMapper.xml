@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumePhysicalSupportTraitMapper">
+
+    <resultMap id="VolumePhysicalSupportTraitMap" type="com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="physical_guid" property="physicalGuid"/>
+        <result column="code" property="code"/>
+        <result column="display_name" property="displayName"/>
+        <result column="vendor" property="vendor"/>
+        <result column="model" property="model"/>
+        <result column="protocol_version" property="protocolVersion"/>
+        <result column="region" property="region"/>
+        <result column="zone" property="zone"/>
+        <result column="credential_ref" property="credentialRef"/>
+        <result column="trait_config" property="traitConfig"/>
+        <result column="capability_snapshot" property="capabilitySnapshot"/>
+        <result column="probe_status" property="probeStatus"/>
+        <result column="last_probe_time" property="lastProbeTime"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="TraitColumns">
+        id, guid, physical_guid, code, display_name, vendor, model, protocol_version,
+        region, zone, credential_ref, trait_config, capability_snapshot, probe_status,
+        last_probe_time, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait">
+        INSERT INTO hydra_volume_physical_support_trait
+            (guid, physical_guid, code, display_name, vendor, model, protocol_version,
+             region, zone, credential_ref, trait_config, capability_snapshot, probe_status,
+             last_probe_time, status)
+        VALUES
+            (#{guid}, #{physicalGuid}, #{code}, #{displayName}, #{vendor}, #{model}, #{protocolVersion},
+             #{region}, #{zone}, #{credentialRef}, #{traitConfig}, #{capabilitySnapshot}, #{probeStatus},
+             #{lastProbeTime}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait">
+        UPDATE hydra_volume_physical_support_trait
+        SET
+            physical_guid = #{physicalGuid},
+            code = #{code},
+            display_name = #{displayName},
+            vendor = #{vendor},
+            model = #{model},
+            protocol_version = #{protocolVersion},
+            region = #{region},
+            zone = #{zone},
+            credential_ref = #{credentialRef},
+            trait_config = #{traitConfig},
+            capability_snapshot = #{capabilitySnapshot},
+            probe_status = #{probeStatus},
+            last_probe_time = #{lastProbeTime},
+            status = #{status}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumePhysicalSupportTraitMap">
+        SELECT <include refid="TraitColumns"/>
+        FROM hydra_volume_physical_support_trait
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="getByPhysicalGuid" resultMap="VolumePhysicalSupportTraitMap">
+        SELECT <include refid="TraitColumns"/>
+        FROM hydra_volume_physical_support_trait
+        WHERE physical_guid = #{physicalGuid}
+    </select>
+
+    <select id="listAll" resultMap="VolumePhysicalSupportTraitMap">
+        SELECT <include refid="TraitColumns"/>
+        FROM hydra_volume_physical_support_trait
+        WHERE status != 'DELETED'
+        ORDER BY create_time DESC, id DESC
+    </select>
+
+    <select id="listByCode" resultMap="VolumePhysicalSupportTraitMap">
+        SELECT <include refid="TraitColumns"/>
+        FROM hydra_volume_physical_support_trait
+        WHERE code = #{code}
+          AND status != 'DELETED'
+        ORDER BY create_time DESC, id DESC
+    </select>
+</mapper>

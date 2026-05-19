@@ -28,6 +28,17 @@ public interface VolumeMountMapper extends VolumeMountManipulator {
     List<VolumeMount> listByVolumeGuid( @Param("volumeGuid") GUID volumeGuid );
 
     @Override
+    List<VolumeMount> listPage(
+            @Param("keyword") String keyword,
+            @Param("status") String status,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    long count( @Param("keyword") String keyword, @Param("status") String status );
+
+    @Override
     void remove( @Param("guid") GUID guid );
 }
 

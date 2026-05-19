@@ -113,7 +113,7 @@ public class LocalFilePhysicalAccessor implements PhysicalAccessor {
 
     @Override
     public VolumePhysicalType getPhysicalType() {
-        return VolumePhysicalType.LOCAL_FILE;
+        return VolumePhysicalType.BLOCK;
     }
 
     @Override

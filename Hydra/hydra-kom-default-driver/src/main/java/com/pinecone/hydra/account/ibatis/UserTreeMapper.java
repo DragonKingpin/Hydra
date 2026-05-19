@@ -3,19 +3,16 @@ package com.pinecone.hydra.account.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
+import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 @IbatisDataAccessObject
 public interface UserTreeMapper extends TrieTreeManipulator {
-    @Insert("INSERT INTO `hydra_account_node_tree` (`guid`) VALUES ( #{guid} )")
     void insertRootNode(@Param("guid") GUID guid);
 
     @Override
@@ -24,14 +21,11 @@ public interface UserTreeMapper extends TrieTreeManipulator {
         ownerManipulator.insertRootNode( node.getGuid() );
     }
 
-    @Insert("INSERT INTO `hydra_account_nodes` (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})")
     void insertTreeNode(@Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `type`, base_data_guid AS baseDataGUID, node_meta_guid AS nodeMetadataGUID FROM hydra_account_nodes WHERE guid=#{guid}")
-    GUIDImperialTrieNode getNodeExtendsFromMeta(GUID guid );
+    GUIDImperialTrieNode getNodeExtendsFromMeta(@Param("guid") GUID guid );
 
-    @Select("SELECT COUNT( `id` ) FROM hydra_account_nodes WHERE guid=#{guid}")
-    boolean contains( GUID key );
+    boolean contains( @Param("key") GUID key );
 
     @Override
     default GUIDImperialTrieNode getNode(GUID guid ) {
@@ -44,11 +38,9 @@ public interface UserTreeMapper extends TrieTreeManipulator {
         return node;
     }
 
-    @Select("SELECT id, guid, parent_guid FROM hydra_account_node_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
     GUIDImperialTrieNode getTreeNodeOnly(@Param("guid") GUID guid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT count( * ) FROM hydra_account_node_tree WHERE guid = #{guid} AND parent_guid = #{parentGuid}")
-    long countNode( GUID guid, GUID parentGuid );
+    long countNode( @Param("guid") GUID guid, @Param("parentGuid") GUID parentGuid );
 
 
     @Override
@@ -57,41 +49,57 @@ public interface UserTreeMapper extends TrieTreeManipulator {
         this.removeTreeNode( guid );
     }
 
-    @Delete("DELETE FROM `hydra_account_nodes` WHERE `guid`=#{guid}")
     void removeNodeMeta( @Param("guid") GUID guid );
 
-    @Delete("DELETE FROM `hydra_account_node_tree` WHERE `guid` = #{guid}")
     void removeTreeNode( @Param("guid") GUID guid );
 
-    @Delete("DELETE FROM `hydra_account_node_tree` WHERE `parent_guid` = #{parent_guid}")
     void removeTreeNodeByParentGuid( @Param("parent_guid") GUID parentGuid );
 
-    @Delete("DELETE FROM `hydra_account_node_tree` WHERE `guid` = #{guid} AND `parent_guid` = #{parent_guid}")
     void removeTreeNodeYoke( @Param("guid") GUID guid, @Param("parent_guid") GUID parentGuid );
 
+    void removeTreeNodeWithLinkedType( @Param("guid") GUID guid, @Param("linkedType") LinkedType linkedType );
 
-    @Delete("DELETE FROM `hydra_account_node_tree` WHERE `guid`=#{childGuid} AND `parent_guid`=#{parentGuid}")
+
     void removeInheritance( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `id` AS `enumId`, `guid`, `parent_guid` AS parentGuid FROM `hydra_account_node_tree` WHERE `parent_guid`=#{guid}")
-    List<GUIDImperialTrieNode> getChildren(GUID guid );
+    List<GUIDImperialTrieNode> getChildren(@Param("guid") GUID guid );
 
-    @Select("SELECT `guid` FROM `hydra_account_node_tree` WHERE `parent_guid` = #{parentGuid}")
     List<GUID > fetchChildrenGuids( @Param("parentGuid") GUID parentGuid );
 
-    @Select("SELECT `parent_guid` FROM `hydra_account_node_tree` WHERE `guid`=#{guid}")
-    List<GUID > fetchParentGuids( GUID guid );
+    List<GUID > fetchParentGuids( @Param("guid") GUID guid );
 
-    @Update("UPDATE `hydra_account_nodes` SET `type` = #{type} WHERE guid=#{guid}")
-    void updateType( UOI type , GUID guid );
+    void updateType( @Param("type") UOI type , @Param("guid") GUID guid );
 
-    @Select( "SELECT guid FROM hydra_account_node_tree WHERE parent_guid IS NULL " )
     List<GUID > fetchRoot();
 
     @Override
-    @Select( "SELECT COUNT( `guid` ) FROM hydra_account_node_tree WHERE `parent_guid` IS NULL AND guid = #{guid}" )
-    boolean isRoot( GUID guid );
+    boolean isRoot( @Param("guid") GUID guid );
 
-    @Update("UPDATE hydra_account_node_tree SET parent_guid = #{parentGuid} WHERE guid = #{childGuid}")
     void addChild( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
+
+    long queryLinkedCount( @Param("guid") GUID guid, @Param("linkedType") LinkedType linkedType );
+
+    long queryAllLinkedCount( @Param("guid") GUID guid );
+
+    void newLinkTag( @Param("originalGuid") GUID originalGuid, @Param("dirGuid") GUID dirGuid, @Param("tagName") String tagName, @Param("tagGuid") GUID tagGuid, @Param("linkedType") LinkedType linkedType );
+
+    void updateLinkTagName( @Param("tagGuid") GUID tagGuid, @Param("tagName") String tagName );
+
+    GUID getOriginalGuid( @Param("tagName") String tagName, @Param("parentDirGuid") GUID parentDirGuid );
+
+    GUID getOriginalGuidByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
+
+    ReparseLinkNode getReparseLinkNode( @Param("tagName") String tagName, @Param("parentDirGuid") GUID parentDirGuid );
+
+    ReparseLinkNode getReparseLinkNodeByNodeGuid( @Param("tagName") String tagName, @Param("nodeGuid") GUID nodeGUID );
+
+    List<GUID > fetchOriginalGuid( @Param("tagName") String tagName );
+
+    List<GUID > fetchOriginalGuidRoot( @Param("tagName") String tagName );
+
+    boolean isTagGuid( @Param("guid") GUID guid );
+
+    GUID getOriginalGuidByTagGuid( @Param("tagGuid") GUID tagGuid );
+
+    void removeReparseLink( @Param("guid") GUID guid );
 }

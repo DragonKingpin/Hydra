@@ -12,6 +12,8 @@ import com.pinecone.hydra.storage.file.fat.FatChunkInstrument;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
 import com.pinecone.hydra.storage.file.fat.service.ChunkSlice;
+import com.pinecone.hydra.storage.file.query.FileChildPage;
+import com.pinecone.hydra.storage.file.query.FileChildQuery;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileChannel;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileOpenOption;
@@ -75,6 +77,8 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     @Override
     List<TreeNode > getChildren( GUID guid );
+
+    FileChildPage fetchChildren( GUID parentGuid, FileChildQuery query );
 
     @Override
     void rename( GUID guid, String name );
@@ -151,6 +155,8 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     @Override
     List<FileTreeNode> fetchRoot();
+
+    FileChildPage fetchRoot( FileChildQuery query );
 
     Object querySelectorJ(String szSelector);
 

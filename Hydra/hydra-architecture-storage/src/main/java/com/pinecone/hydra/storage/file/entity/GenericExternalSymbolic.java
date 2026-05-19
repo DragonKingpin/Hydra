@@ -10,10 +10,12 @@ public class GenericExternalSymbolic extends ArchReparseSemanticNode implements 
 
     public GenericExternalSymbolic() {
         super();
+        this.targetScheme = "FILE";
     }
 
     public GenericExternalSymbolic( KOMFileSystem fileSystem ) {
         super( fileSystem );
+        this.targetScheme = "FILE";
     }
 
     @Override

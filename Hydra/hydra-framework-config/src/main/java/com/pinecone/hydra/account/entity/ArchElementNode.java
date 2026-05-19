@@ -5,12 +5,18 @@ import com.pinecone.hydra.account.AccountManager;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.ulf.util.guid.GUIDs;
 
+import java.time.LocalDateTime;
+
 public class ArchElementNode implements ElementNode {
     protected long              enumId;
 
     protected String            name;
 
     protected GUID              guid;
+
+    protected LocalDateTime     createTime;
+
+    protected LocalDateTime     updateTime;
 
     protected AccountManager    accountManager;
 
@@ -32,6 +38,26 @@ public class ArchElementNode implements ElementNode {
     @Override
     public void setEnumId(long enumId) {
         this.enumId = enumId;
+    }
+
+    @Override
+    public LocalDateTime getCreateTime() {
+        return this.createTime;
+    }
+
+    @Override
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    @Override
+    public LocalDateTime getUpdateTime() {
+        return this.updateTime;
+    }
+
+    @Override
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 
     @Override

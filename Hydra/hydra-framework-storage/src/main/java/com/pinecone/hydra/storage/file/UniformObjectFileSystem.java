@@ -46,10 +46,13 @@ import com.pinecone.hydra.storage.file.journal.TitanJournalRecoveryInstrument;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperator;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.operator.GenericFileSystemOperatorFactory;
+import com.pinecone.hydra.storage.file.query.FileChildPage;
+import com.pinecone.hydra.storage.file.query.FileChildQuery;
 import com.pinecone.hydra.storage.file.reparse.TitanUofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicResolveConfig;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicResolveResult;
+import com.pinecone.hydra.storage.file.source.FileChildManipulator;
 import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
@@ -92,6 +95,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     protected FileManipulator                         fileManipulator;
     protected FolderManipulator                       folderManipulator;
     protected SymbolicManipulator                     symbolicManipulator;
+    protected FileChildManipulator                    fileChildManipulator;
     protected FolderVolumeMappingManipulator          folderVolumeMappingManipulator;
 
     protected FSNodeAllotment                         fsNodeAllotment;
@@ -169,6 +173,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.fileManipulator                = this.fileMasterManipulator.getFileManipulator();
         this.folderManipulator              = this.fileMasterManipulator.getFolderManipulator();
         this.symbolicManipulator            = this.fileMasterManipulator.getSymbolicManipulator();
+        this.fileChildManipulator           = this.fileMasterManipulator.getFileChildManipulator();
         this.folderVolumeMappingManipulator = this.fileMasterManipulator.getFolderVolumeRelationManipulator();
 
         this.bucketInstrument               = new TitanBucketInstrument( this.fileMasterManipulator.getBucketManipulator() );
@@ -274,6 +279,43 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @SuppressWarnings( "unchecked" )
     public List<FileTreeNode > fetchRoot() {
         return (List) super.fetchRoot();
+    }
+
+    @Override
+    public FileChildPage fetchRoot( FileChildQuery query ) {
+        FileChildQuery normalized = this.normalizeChildQuery( query );
+        List<GUID> guids = this.fileChildManipulator.fetchRootChildren( normalized );
+        List<FileTreeNode> nodes = this.hydrateFileTreeNodes( guids );
+        long total = this.fileChildManipulator.countRoot( normalized );
+        return FileChildPage.of( nodes, total, normalized.getOffset(), normalized.getLimit() );
+    }
+
+    @Override
+    public FileChildPage fetchChildren( GUID parentGuid, FileChildQuery query ) {
+        FileChildQuery normalized = this.normalizeChildQuery( query );
+        normalized.setParentGuid( parentGuid );
+        List<GUID> guids = this.fileChildManipulator.fetchChildren( normalized );
+        List<FileTreeNode> nodes = this.hydrateFileTreeNodes( guids );
+        long total = this.fileChildManipulator.countChildren( normalized );
+        return FileChildPage.of( nodes, total, normalized.getOffset(), normalized.getLimit() );
+    }
+
+    protected FileChildQuery normalizeChildQuery( FileChildQuery query ) {
+        return query == null ? new FileChildQuery() : query.normalized();
+    }
+
+    protected List<FileTreeNode> hydrateFileTreeNodes( List<GUID> guids ) {
+        List<FileTreeNode> nodes = new ArrayList<>();
+        if ( guids == null ) {
+            return nodes;
+        }
+        for ( GUID guid : guids ) {
+            FileTreeNode node = this.get( guid );
+            if ( node != null ) {
+                nodes.add( node );
+            }
+        }
+        return nodes;
     }
 
 

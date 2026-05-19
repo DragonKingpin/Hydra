@@ -29,18 +29,29 @@ public interface BucketMapper extends BucketManipulator {
     GenericBucket get( GUID guid );
 
     @Override
+    GenericBucket getByBucketIdentifier( @Param( "bucketIdentifier" ) String bucketIdentifier );
+
+    @Override
     GenericBucket getByUserIdentifierAndBucket( @Param( "userIdentifier" ) String userIdentifier, @Param( "bucketName" ) String bucketName );
 
     @Override
     List<GenericBucket> listAll();
 
     @Override
-    long count( @Param( "userIdentifier" ) String userIdentifier, @Param( "bucketName" ) String bucketName );
+    long count(
+            @Param( "userIdentifier" ) String userIdentifier,
+            @Param( "bucketName" ) String bucketName,
+            @Param( "bucketIdentifier" ) String bucketIdentifier
+    );
+
+    @Override
+    long countByVolumeGuid( @Param( "volumeGuid" ) GUID volumeGuid );
 
     @Override
     List<GenericBucket> listPage(
             @Param( "userIdentifier" ) String userIdentifier,
             @Param( "bucketName" ) String bucketName,
+            @Param( "bucketIdentifier" ) String bucketIdentifier,
             @Param( "offset" ) int offset,
             @Param( "limit" ) int limit
     );

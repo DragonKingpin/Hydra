@@ -8,9 +8,9 @@ public class GenericACNodeAllotment implements ACNodeAllotment{
 
     protected UserMasterManipulator userMasterManipulator;
 
-    public GenericACNodeAllotment(AccountManager accountManager){
+    public GenericACNodeAllotment(AccountManager accountManager, UserMasterManipulator userMasterManipulator){
         this.accountManager = accountManager;
-        this.userMasterManipulator = (UserMasterManipulator) accountManager.getMasterTrieTree();
+        this.userMasterManipulator = userMasterManipulator;
     }
 
 

@@ -41,4 +41,8 @@
         SELECT MAX( `volume_offset` + `length_bytes` ) FROM `hydra_uofs_fat_chunk_location` WHERE `volume_guid` = #{volumeGuid} AND `location_type` = 'VOLUME_BLOCK_EXTENT'
     </select>
 
+    <select id="sumLengthByBucketGuid" resultType="java.lang.Long">
+        SELECT COALESCE( SUM( `length_bytes` ), 0 ) FROM `hydra_uofs_fat_chunk_location` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
 </mapper>

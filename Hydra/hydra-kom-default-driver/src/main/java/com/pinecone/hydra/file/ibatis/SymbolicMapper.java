@@ -29,6 +29,16 @@ public interface SymbolicMapper extends SymbolicManipulator {
 
     boolean isSymbolicMatchedByNameGuid( @Param("nodeName") String nodeName, @Param("guid") GUID guid );
 
+    @Override
+    List<GenericSymbolic> listPage(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    long count( @Param("keyword") String keyword );
+
     List<GUID> getGuidsByName( String name );
 
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );

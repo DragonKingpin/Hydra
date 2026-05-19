@@ -3,6 +3,8 @@ package com.pinecone.hydra.file.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.bucket.BucketNodeManipulator;
+import com.pinecone.hydra.storage.file.entity.HardlinkEntry;
+import com.pinecone.hydra.storage.file.source.FileChildManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
 import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
@@ -16,7 +18,7 @@ import java.util.List;
 
 @Mapper
 @IbatisDataAccessObject
-public interface FileTreeMapper extends TrieTreeManipulator, BucketNodeManipulator {
+public interface FileTreeMapper extends TrieTreeManipulator, BucketNodeManipulator, FileChildManipulator {
     void insertRootNode(@Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
     @Override
@@ -129,4 +131,12 @@ public interface FileTreeMapper extends TrieTreeManipulator, BucketNodeManipulat
 
     @Override
     GUID getOriginalGuidByTagGuid(GUID tagGuid);
+
+    List<HardlinkEntry> listHardlinks(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    long countHardlinks( @Param("keyword") String keyword );
 }

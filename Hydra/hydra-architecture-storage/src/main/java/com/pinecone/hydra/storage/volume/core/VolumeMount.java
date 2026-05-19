@@ -9,6 +9,9 @@ public class VolumeMount implements Pinenut {
     protected long          mnEnumId;
     protected GUID          mGuid;
     protected GUID          mVolumeGuid;
+    protected String        mszOwnerName;
+    protected String        mszBucketName;
+    protected GUID          mBucketGuid;
     protected String        mszMountPath;
     protected String        mszMountType;
     protected String        mszStatus;
@@ -22,6 +25,12 @@ public class VolumeMount implements Pinenut {
     public void setGuid( GUID guid ) { this.mGuid = guid; }
     public GUID getVolumeGuid() { return this.mVolumeGuid; }
     public void setVolumeGuid( GUID volumeGuid ) { this.mVolumeGuid = volumeGuid; }
+    public String getOwnerName() { return this.mszOwnerName; }
+    public void setOwnerName( String ownerName ) { this.mszOwnerName = ownerName; }
+    public String getBucketName() { return this.mszBucketName; }
+    public void setBucketName( String bucketName ) { this.mszBucketName = bucketName; }
+    public GUID getBucketGuid() { return this.mBucketGuid; }
+    public void setBucketGuid( GUID bucketGuid ) { this.mBucketGuid = bucketGuid; }
     public String getMountPath() { return this.mszMountPath; }
     public void setMountPath( String mountPath ) { this.mszMountPath = mountPath; }
     public String getMountType() { return this.mszMountType; }

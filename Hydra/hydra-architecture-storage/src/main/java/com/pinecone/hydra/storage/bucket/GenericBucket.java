@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class GenericBucket implements Bucket {
     protected long          id;
     protected GUID          guid;
+    protected String        bucketIdentifier;
     protected String        userIdentifier;
     protected String        bucketName;
     protected GUID          volumeGuid;
@@ -19,7 +20,12 @@ public class GenericBucket implements Bucket {
     }
 
     public GenericBucket( GUID guid, String userIdentifier, String bucketName, GUID volumeGuid ) {
+        this( guid, defaultBucketIdentifier( userIdentifier, bucketName ), userIdentifier, bucketName, volumeGuid );
+    }
+
+    public GenericBucket( GUID guid, String bucketIdentifier, String userIdentifier, String bucketName, GUID volumeGuid ) {
         this.guid           = guid;
+        this.bucketIdentifier = bucketIdentifier;
         this.userIdentifier = userIdentifier;
         this.bucketName     = bucketName;
         this.volumeGuid     = volumeGuid;
@@ -44,6 +50,16 @@ public class GenericBucket implements Bucket {
     @Override
     public void setGuid( GUID guid ) {
         this.guid = guid;
+    }
+
+    @Override
+    public String getBucketIdentifier() {
+        return this.bucketIdentifier;
+    }
+
+    @Override
+    public void setBucketIdentifier( String bucketIdentifier ) {
+        this.bucketIdentifier = bucketIdentifier;
     }
 
     @Override
@@ -114,5 +130,9 @@ public class GenericBucket implements Bucket {
     @Override
     public void setUpdateTime( LocalDateTime updateTime ) {
         this.updateTime = updateTime;
+    }
+
+    protected static String defaultBucketIdentifier( String userIdentifier, String bucketName ) {
+        return String.valueOf( userIdentifier ) + "_" + String.valueOf( bucketName );
     }
 }

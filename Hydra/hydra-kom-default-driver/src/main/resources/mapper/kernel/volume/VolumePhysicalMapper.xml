@@ -11,26 +11,31 @@
         <result column="device_guid" property="deviceGuid"/>
         <result column="name" property="name"/>
         <result column="physical_type" property="physicalType"/>
+        <result column="support_type" property="supportType"/>
+        <result column="object_mapped_type" property="objectMappedType"/>
         <result column="status" property="status"/>
         <result column="endpoint" property="endpoint"/>
         <result column="root_path" property="rootPath"/>
         <result column="capacity_bytes" property="capacityBytes"/>
         <result column="used_bytes" property="usedBytes"/>
+        <result column="committed_bytes" property="committedBytes"/>
+        <result column="allocation_mode" property="allocationMode"/>
+        <result column="allocation_unit" property="allocationUnit"/>
         <result column="ext_config" property="extConfig"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="PhysicalColumns">
-        id, guid, device_guid, name, physical_type, status, endpoint, root_path, capacity_bytes,
-        used_bytes, ext_config, create_time, update_time
+        id, guid, device_guid, name, physical_type, support_type, object_mapped_type, status, endpoint, root_path, capacity_bytes,
+        used_bytes, committed_bytes, allocation_mode, allocation_unit, ext_config, create_time, update_time
     </sql>
 
     <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysical">
         INSERT INTO hydra_volume_physical
-            (guid, device_guid, name, physical_type, status, endpoint, root_path, capacity_bytes, used_bytes, ext_config)
+            (guid, device_guid, name, physical_type, support_type, object_mapped_type, status, endpoint, root_path, capacity_bytes, used_bytes, committed_bytes, allocation_mode, allocation_unit, ext_config)
         VALUES
-            (#{guid}, #{deviceGuid}, #{name}, #{physicalType}, #{status}, #{endpoint}, #{rootPath}, #{capacityBytes}, #{usedBytes}, #{extConfig})
+            (#{guid}, #{deviceGuid}, #{name}, #{physicalType}, #{supportType}, #{objectMappedType}, #{status}, #{endpoint}, #{rootPath}, #{capacityBytes}, #{usedBytes}, #{committedBytes}, #{allocationMode}, #{allocationUnit}, #{extConfig})
     </insert>
 
     <update id="update" parameterType="com.pinecone.hydra.storage.volume.core.VolumePhysical">
@@ -39,11 +44,16 @@
             name = #{name},
             device_guid = #{deviceGuid},
             physical_type = #{physicalType},
+            support_type = #{supportType},
+            object_mapped_type = #{objectMappedType},
             status = #{status},
             endpoint = #{endpoint},
             root_path = #{rootPath},
             capacity_bytes = #{capacityBytes},
             used_bytes = #{usedBytes},
+            committed_bytes = #{committedBytes},
+            allocation_mode = #{allocationMode},
+            allocation_unit = #{allocationUnit},
             ext_config = #{extConfig}
         WHERE guid = #{guid}
     </update>
@@ -59,6 +69,48 @@
         FROM hydra_volume_physical
         WHERE status != 'DELETED'
         ORDER BY id ASC
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(`id`)
+        FROM hydra_volume_physical
+        <where>
+            `status` != 'DELETED'
+            <if test='name != null and name != ""'>
+                AND `name` LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test='physicalType != null'>
+                AND `physical_type` = #{physicalType}
+            </if>
+            <if test='status != null'>
+                AND `status` = #{status}
+            </if>
+            <if test='deviceGuid != null'>
+                AND `device_guid` = #{deviceGuid}
+            </if>
+        </where>
+    </select>
+
+    <select id="listPage" resultMap="VolumePhysicalMap">
+        SELECT <include refid="PhysicalColumns"/>
+        FROM hydra_volume_physical
+        <where>
+            `status` != 'DELETED'
+            <if test='name != null and name != ""'>
+                AND `name` LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test='physicalType != null'>
+                AND `physical_type` = #{physicalType}
+            </if>
+            <if test='status != null'>
+                AND `status` = #{status}
+            </if>
+            <if test='deviceGuid != null'>
+                AND `device_guid` = #{deviceGuid}
+            </if>
+        </where>
+        ORDER BY `create_time` DESC, `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <delete id="remove">

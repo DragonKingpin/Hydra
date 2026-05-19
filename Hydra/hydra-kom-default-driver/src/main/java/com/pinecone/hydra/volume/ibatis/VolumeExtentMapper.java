@@ -28,6 +28,12 @@ public interface VolumeExtentMapper extends VolumeExtentManipulator {
     List<VolumeExtent> listByPhysicalGuid( @Param("physicalGuid") GUID physicalGuid );
 
     @Override
+    long countByPhysicalGuid( @Param("physicalGuid") GUID physicalGuid );
+
+    @Override
+    long countByChildGuid( @Param("childGuid") GUID childGuid );
+
+    @Override
     void remove( @Param("guid") GUID guid );
 
     @Override

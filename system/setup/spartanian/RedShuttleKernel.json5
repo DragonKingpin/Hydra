@@ -1,0 +1,76 @@
+{
+  "name": "red-shuttle",
+  "enabled": true,
+  "defaultTarget": "local-titan-aether",
+
+  "httpClient": {
+    "type": "ApacheHttpClient5Async",
+    "ioThreadCount": 4,
+    "userAgent": "RedShuttle/1.0"
+  },
+
+  "pool": {
+    "maxTotalConnections": 256,
+    "maxConnectionsPerRoute": 64,
+    "connectionTimeToLiveMillis": 300000,
+    "evictIdleConnectionsMillis": 60000
+  },
+
+  "timeout": {
+    "connectTimeoutMillis": 3000,
+    "connectionRequestTimeoutMillis": 3000,
+    "responseTimeoutMillis": 30000
+  },
+
+  "retry": {
+    "enabled": false,
+    "maxRetries": 0,
+    "retryIdempotentOnly": true
+  },
+
+  "headerPolicy": {
+    "forwardHost": false,
+    "forwardAuthorization": false,
+    "forwardCookie": false,
+    "forwardRange": true,
+    "forwardContentType": true,
+    "forwardContentLength": true,
+    "blockedHeaders": [
+      "connection",
+      "keep-alive",
+      "proxy-authenticate",
+      "proxy-authorization",
+      "te",
+      "trailer",
+      "transfer-encoding",
+      "upgrade"
+    ]
+  },
+
+  "proxy": {
+    "enabled": false,
+    "host": "",
+    "port": 0,
+    "username": "",
+    "password": ""
+  },
+
+  "tls": {
+    "trustAll": false,
+    "verifyHostname": true,
+    "keyStorePath": "",
+    "keyStorePassword": "",
+    "trustStorePath": "",
+    "trustStorePassword": ""
+  },
+
+  "targets": [
+    {
+      "name": "local-titan-aether",
+      "kind": "TitanAether",
+      "baseUrl": "http://localhost:5481",
+      "enabled": true,
+      "weight": 100
+    }
+  ]
+}

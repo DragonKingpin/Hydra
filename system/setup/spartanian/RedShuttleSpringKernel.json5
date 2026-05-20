@@ -1,0 +1,27 @@
+{
+  "subsystem": {
+    "enableSpringKernel": true,
+    "enableWebService": true
+  },
+
+  "server": {
+    "port": 5477,
+    "servlet": {
+      "context-path": "/"
+    }
+  },
+
+  "spring": {
+    "servlet": {
+      "multipart": {
+        "max-file-size": "4096MB",
+        "max-request-size": "4096MB"
+      }
+    }
+  },
+
+  "service": {
+    "name": "red-shuttle",
+    "role": "aetherium-shuttle"
+  }
+}

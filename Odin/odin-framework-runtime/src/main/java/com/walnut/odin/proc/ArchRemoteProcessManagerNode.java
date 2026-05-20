@@ -16,7 +16,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
@@ -125,7 +125,7 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
     }
 
     protected void afterMediatedRemoteProcess( MediatedRemoteProcess process, String imageAddress, boolean isURI ) {
-        this.notifyProcessLifecycleHandlers( imageAddress, null, ProcessEvent.Prepare );
+        this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
         ExecutionImage image;
         if ( isURI ) {
@@ -183,7 +183,7 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
 
     @Override
     @Unsafe
-    public void notifyProcessLifecycleHandlers( String imageAddress, EntryPointRunnable runnable, ProcessEvent event ) {
+    public void notifyProcessLifecycleHandlers( String imageAddress, EntryPointRunnable runnable, UProcessStatus event ) {
         this.mnClientLock.readLock().lock();
         try {
             for ( ProcessLifecycleHandler handler : this.mLifecycleHandlers ) {

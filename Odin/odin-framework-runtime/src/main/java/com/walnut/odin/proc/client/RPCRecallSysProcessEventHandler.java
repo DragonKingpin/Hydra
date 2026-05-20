@@ -1,7 +1,7 @@
 package com.walnut.odin.proc.client;
 
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
@@ -29,15 +29,15 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
     }
 
     @Override
-    public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
-        switch ( event ) {
+    public void fired( EntryPointRunnable runnable, UProcessStatus status ) {
+        switch ( status ) {
             case Terminated: {
                 this.notifyProcessTerminated( runnable );
                 break;
             }
-            case Prepare:
+            case Preparing:
             case Created:
-            case Vitalized:
+            case Activated:
             default: {
                 break;
             }
@@ -57,12 +57,12 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
             report.setErrorMsg( lastError.getMessage() );
             report.setRemoteTerminationStatus( RemoteTerminationStatus.Error );
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), ProcessEvent.Error
+                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Error
             );
         }
         else {
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), ProcessEvent.Terminated
+                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Terminated
             );
         }
 

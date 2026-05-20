@@ -16,7 +16,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.deploy.Server;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
@@ -126,8 +126,8 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     protected void prepareSysEventHandle( LaunchFeature feature ) {
         feature.withSysProcEventHandlers(new ProcessEventHandler() {
             @Override
-            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
-                if ( ProcessEvent.Terminated == event || ProcessEvent.Error == event ) {
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
+                if ( UProcessStatus.Terminated == event || UProcessStatus.Error == event ) {
                     UProcess process = runnable.ownedProcess();
                     TaskLaunchContext context = getTaskLaunchContextByPID( process.getPID() );
                     try {
@@ -153,7 +153,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         });
     }
 
-    protected void handleAsyncTaskDispatchException( EntryPointRunnable runnable, ProcessEvent event, TaskDispatchException e ) {
+    protected void handleAsyncTaskDispatchException( EntryPointRunnable runnable, UProcessStatus event, TaskDispatchException e ) {
         // TODO, 暂时默认驱逐，后面再说
     }
 

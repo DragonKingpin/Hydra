@@ -1,10 +1,10 @@
 package com.walnut.odin.proc;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 
 public interface ProcessRemoteEventHandler extends Pinenut {
 
-    void fired( long pmClientId, ProcessEvent event, Object caused );
+    void fired( long pmClientId, UProcessStatus event, Object caused );
 
 }

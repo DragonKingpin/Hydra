@@ -11,7 +11,7 @@ import com.pinecone.hydra.device.kom.UniformDeviceInstrument;
 import com.pinecone.hydra.proc.LocalHostedProcess;
 import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
@@ -76,7 +76,7 @@ class Floki extends EnderHydra {
 
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
                 Debug.bluef( runnable, event );
             }
         };

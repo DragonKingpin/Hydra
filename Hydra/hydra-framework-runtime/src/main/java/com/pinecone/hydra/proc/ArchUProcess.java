@@ -37,6 +37,7 @@ public abstract class ArchUProcess implements UProcess {
     protected Map<String, String[]>  mEnvironmentVars;
 
     protected ControllableLevel      mControllableLevel;
+    protected UProcessStatus         mStatus;
     protected LocalDateTime          mEndTime;
     protected LocalDateTime          mLastUpdateTime;
 
@@ -54,6 +55,7 @@ public abstract class ArchUProcess implements UProcess {
         this.mStartupArgs       = startupArgs;
         this.mEnvironmentVars   = environmentVars;
         this.mControllableLevel = image.getControllableLevel();
+        this.mStatus            = UProcessStatus.Created;
         this.mActionTape        = new GenericProcessActionTape();
 
         if ( this.mLocalProcess == null ) {
@@ -92,6 +94,16 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
+    public void applyStatus( UProcessStatus status ) {
+        this.mStatus = status == null ? UProcessStatus.Unknown : status;
+    }
+
+    @Override
+    public UProcessStatus getStatus() {
+        return this.mStatus;
+    }
+
+    @Override
     public GUID getGuid() {
         return this.mProcessID;
     }
@@ -108,7 +120,11 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public UProcess parentProcess() {
-        return (UProcess) this.parentExecutum();
+        Executum parent = this.parentExecutum();
+        if ( parent instanceof UProcess ) {
+            return (UProcess) parent;
+        }
+        return null;
     }
 
     @Override
@@ -128,8 +144,9 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public GUID getParentProcessId() {
-        if ( this.parentProcess() != null ) {
-            return this.parentProcess().getGuid();
+        UProcess parent = this.parentProcess();
+        if ( parent != null ) {
+            return parent.getGuid();
         }
 
         return null;
@@ -137,8 +154,9 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public long getParentLocalPID() {
-        if ( this.parentProcess() != null ) {
-            return this.parentProcess().getLocalPID();
+        UProcess parent = this.parentProcess();
+        if ( parent != null ) {
+            return parent.getLocalPID();
         }
         return -1;
     }
@@ -190,7 +208,7 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public void triggerUpdateTerminationStatus() {
-        if ( this.getState() != Thread.State.TERMINATED ) {
+        if ( !this.getStatus().isTerminal() ) {
             throw new IllegalStateException( "Bad time to trigger, I am still alive!" );
         }
 
@@ -266,12 +284,18 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
+    public Thread.State getState() {
+        return this.mLocalProcess.getState();
+    }
+
+    @Override
     public boolean isTerminated() {
         return this.mLocalProcess.isTerminated();
     }
 
     @Override
     public void start() {
+        this.applyStatus( UProcessStatus.Activated );
         this.mLocalProcess.start();
     }
 
@@ -303,11 +327,6 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public void entreatLive() {
         this.mLocalProcess.entreatLive();
-    }
-
-    @Override
-    public Thread.State getState() {
-        return this.mLocalProcess.getState();
     }
 
     @Override

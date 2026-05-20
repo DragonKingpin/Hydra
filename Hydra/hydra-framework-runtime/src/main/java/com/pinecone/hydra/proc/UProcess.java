@@ -15,6 +15,8 @@ public interface UProcess extends Processum, ProcessElement {
 
     ProcessActionTape actionTape();
 
+    void applyStatus( UProcessStatus status );
+
     UProcess parentProcess();
 
     GUID actualParentPID();

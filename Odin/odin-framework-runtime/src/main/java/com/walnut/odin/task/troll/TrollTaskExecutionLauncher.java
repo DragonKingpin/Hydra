@@ -14,7 +14,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
@@ -542,8 +542,8 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
         this.mImageModifier.addSystemProcessEventHandler(process.getExecutionImage().getEntryPoint(), new ProcessEventHandler() {
             @Override
-            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
-                if ( event == ProcessEvent.Terminated ) {
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
+                if ( event == UProcessStatus.Terminated ) {
                     afterOwnedProcessTerminated( instance, process );
 
                     mLogger.info(
@@ -588,8 +588,8 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         RemoteProcess remoteProcess = (RemoteProcess) process;
         remoteProcess.addRemoteEventHandler(new ProcessRemoteEventHandler() {
             @Override
-            public void fired( long pmClientId, ProcessEvent event, Object caused ) {
-                if ( event == ProcessEvent.Terminated ) {
+            public void fired( long pmClientId, UProcessStatus event, Object caused ) {
+                if ( event == UProcessStatus.Terminated ) {
                     afterOwnedProcessTerminated( instance, process );
 
                     mLogger.info(

@@ -14,7 +14,7 @@ import com.pinecone.hydra.proc.ProcessActionTape;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
@@ -51,6 +51,8 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected List<ProcessRemoteEventHandler>     mRemoteEventHandlers;
 
+    protected UProcessStatus                      mStatus;
+
     public MediatedRemoteProcess(
             long controlClientId, RemoteProcessManagerServer server, String name, long localPID, GUID processId,
             Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
@@ -63,6 +65,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
         this.mStartupArguments           = startupArguments;
         this.mEnvironmentVariables       = environmentVariables;
         this.mRemoteEventHandlers        = new ArrayList<>();
+        this.mStatus                     = UProcessStatus.Registered;
     }
 
     public MediatedRemoteProcess( long controlClientId, RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
@@ -85,7 +88,8 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
-    public void notifyRemoteEvent( long pmClientId, ProcessEvent event, Object caused ) {
+    public void notifyRemoteEvent( long pmClientId, UProcessStatus event, Object caused ) {
+        this.applyStatus( event );
         for ( ProcessRemoteEventHandler handler : this.mRemoteEventHandlers ) {
             handler.fired( pmClientId, event, caused );
         }
@@ -166,8 +170,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public boolean isTerminated() {
-        UProcessRuntimeMeta meta = this.optRemoteRuntimeMeta();
-        return meta.isTerminated();
+        return this.getStatus().isTerminal();
     }
 
     @Override
@@ -267,8 +270,19 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
+    public void applyStatus( UProcessStatus status ) {
+        this.mStatus = status == null ? UProcessStatus.Unknown : status;
+    }
+
+    @Override
+    public UProcessStatus getStatus() {
+        return this.mStatus == null ? UProcessStatus.Unknown : this.mStatus;
+    }
+
+    @Override
     public void start() throws ProvokeHandleException {
         try {
+            this.applyStatus( UProcessStatus.Activated );
             this.mRemoteProcessManagerServer.startRemoteUProcess( this.mProcessId );
         }
         catch ( RemoteProcessServiceRPCException e ) {

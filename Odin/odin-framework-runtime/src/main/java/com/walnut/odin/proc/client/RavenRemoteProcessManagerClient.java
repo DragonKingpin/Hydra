@@ -4,7 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointClient;
@@ -125,7 +125,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             RemoteVitalizationResponse response = new RemoteVitalizationResponse();
             response.setRemoteVitalizationStatus( RemoteVitalizationStatus.New );
 
-            this.notifyProcessLifecycleHandlers( imageAddress, null, ProcessEvent.Prepare );
+            this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
             ExecutionImage image;
             if ( isURI ) {
@@ -168,7 +168,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
                 lpProcess[0] = localHostedProcess;
             }
 
-            this.notifyProcessLifecycleHandlers( imageAddress, null, ProcessEvent.Created );
+            this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Created );
             return response;
         }
         catch ( URISyntaxException e ) {

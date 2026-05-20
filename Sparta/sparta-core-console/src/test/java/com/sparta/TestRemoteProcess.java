@@ -6,8 +6,8 @@ import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.UniformProcessManager;
-import com.pinecone.hydra.proc.event.ProcessEvent;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
@@ -70,7 +70,7 @@ class Dante extends EnderHydra {
         ProcessManager manager = this.processManager();
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired(EntryPointRunnable runnable, UProcessStatus event ) {
                 Debug.bluef( runnable, event );
             }
         };
@@ -94,7 +94,7 @@ class Dante extends EnderHydra {
 
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
                 Debug.bluef( runnable, event );
             }
         };
@@ -127,7 +127,7 @@ class Dante extends EnderHydra {
         ProcessManager manager = this.processManager();
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired(EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired(EntryPointRunnable runnable, UProcessStatus event ) {
                 Debug.bluef( runnable, event );
             }
         };

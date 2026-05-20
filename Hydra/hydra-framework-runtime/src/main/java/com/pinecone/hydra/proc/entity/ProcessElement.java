@@ -1,6 +1,7 @@
 package com.pinecone.hydra.proc.entity;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.proc.UProcessStatus;
 
 public interface ProcessElement extends ElementNode {
 
@@ -19,7 +20,7 @@ public interface ProcessElement extends ElementNode {
 
     long getParentLocalPID();
 
-    Thread.State getState();
+    UProcessStatus getStatus();
 
     ElementNode getAccount();
 

@@ -10,6 +10,7 @@ import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 public final class ProcessesUtils {
@@ -45,7 +46,11 @@ public final class ProcessesUtils {
     public static UProcessRuntimeMeta extractProcessMeta( UProcess that ) {
         UProcessRuntimeMeta meta = new UProcessRuntimeMeta();
         meta.setPID( that.getPID().toString() );
-        meta.setParentPID( that.getParentProcessId().toString() );
+        GUID parentPID = that.actualParentPID();
+        if ( parentPID == null ) {
+            parentPID = that.getParentProcessId();
+        }
+        meta.setParentPID( parentPID == null ? null : parentPID.toString() );
         meta.setName( that.getName() );
         meta.setLocalPID( that.getLocalPID() );
 
@@ -54,7 +59,7 @@ public final class ProcessesUtils {
         meta.setEndTime( formatTime( that.getEndTime() ) );
         meta.setLastUpdateTime( formatTime( that.getLastUpdateTime() ) );
 
-        meta.setMainThreadStatus( that.getState().toString() );
+        meta.setStatus( that.getStatus().toString() );
         meta.setTerminated( that.isTerminated() );
 
         return meta;

@@ -222,6 +222,9 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     @Override
     public void register( UProcess that ) {
         if( !this.autopsy( that ) ) {
+            if ( that.getStatus() == UProcessStatus.Unknown || that.getStatus() == UProcessStatus.Created ) {
+                that.applyStatus( UProcessStatus.Registered );
+            }
             this.mProcessMap.put( that.getPID(), that );
             ++this.mnVitalizeCount;
         }
@@ -249,7 +252,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
 
     @Override
     public boolean autopsy( UProcess that ) {
-        return that.getState() == Thread.State.TERMINATED;
+        return that.getStatus().isTerminal();
     }
 
     @Override

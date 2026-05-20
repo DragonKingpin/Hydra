@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 
 public abstract class ArchEntryPointRunnable implements EntryPointRunnable {
@@ -35,7 +36,7 @@ public abstract class ArchEntryPointRunnable implements EntryPointRunnable {
 
     @Override
     public void applyProcessEventHandler( ProcessEventHandler handler ) {
-        if ( this.mOwnedProcess.getState() != Thread.State.NEW ) {
+        if ( this.mOwnedProcess != null && this.mOwnedProcess.getStatus() != UProcessStatus.Created && this.mOwnedProcess.getStatus() != UProcessStatus.Registered ) {
             throw new IllegalStateException(
                     "Process event handler can only be set before the process is started."
             );

@@ -1,337 +1,147 @@
-# UOFS / Red Kernel Shuttle Tombstone
+# Red Kernel Shuttle Tombstone
 
 Date: 2026-05-21
 
-Purpose: preserve the current system design context for recovery, migration, and future implementation work around UOFS, Red protocol, TitanAether, Red Shuttle, distributed kernel namespace traversal, and S3-compatible object exchange.
+Purpose: preserve the current Red Shuttle, TitanAether, and Privy kernel mapped-file context after the first working data-plane and kernel-namespace implementation round. This file supersedes the older UOFS draft context. The active line is Red.
 
 ## Executive Summary
 
-The mainline has moved from the early `uofs://` draft into the `red://` protocol line.
-
-Red is the UOFS transport and addressing protocol. It is intentionally a POSIX + WinNT + S3 hybrid:
-
-- POSIX-like paths for kernel namespace traversal.
-- WinNT-like hidden kernel handle/topology semantics.
-- S3-like object storage exchange at the network and data plane.
-
-The core rule is that there should not be two parallel path protocols, one S3 and one Red. Red is the unified protocol:
+The mainline is now:
 
 ```text
-red:///<kernel-path>
-red://<bucket>/<path>
+Red Shuttle :5477
+  -> S3 object bucket paths
+      -> TitanAether :5481
+  -> EmptyString VIP bucket / kernel paths
+      -> Privy / ExpressInstrument
+      -> JSON/Text mapped-file projection
 ```
 
-Red is effectively S3++:
+Red remains the unified protocol:
 
-- It must remain compatible with basic S3 semantics so ordinary S3 clients can still work where appropriate.
-- It also carries distributed kernel topology duties such as `/proc`, `/etc`, `/dev`, `/mnt`, global metadata distribution, and Privy projection.
+```text
+red://<bucket>/<path>   -> object/S3-compatible namespace
+red:///<kernel-path>    -> kernel namespace, bucket = ""
+```
 
-Current priority is no longer "MVP wire something quickly". The priority is architecture stabilization:
+The key design decision from this round:
 
-1. Keep the Aetherium module layering clean.
-2. Keep S3 core reusable and do not reimplement S3 again in Red.
-3. Keep Spring out of Redstone core packages.
-4. Host Spring controllers/services in Shadow/Spartanian only.
-5. Build Red Shuttle as a durable async proxy/exchange layer before adding full Privy proxy semantics.
+```text
+red:///<kernel-path> is not a second protocol.
+It is the EmptyString VIP bucket.
+Operations stay S3/HTTP-shaped.
+```
 
-## Current Module Architecture
+Current working user-facing shape:
 
-The accepted Aetherium layering is:
+```text
+GET  http://localhost:5477/root@direct-object/avatar.png
+GET  http://localhost:5477/
+GET  http://localhost:5477/proc
+HEAD http://localhost:5477/proc
+PUT  http://localhost:5477/proc       -> 405, readonly kernel namespace
+GET  http://localhost:5477/__red__/locate?path=/proc
+```
+
+## Repositories
+
+Primary workspaces:
+
+```text
+/Users/wujunhong/projs/Hydra/Aetherium
+/Users/wujunhong/projs/Hydra
+/Users/wujunhong/projs/shadow-prime
+/Users/wujunhong/projs/sparta-titan
+```
+
+Reparse link created:
+
+```text
+/Users/wujunhong/projs/shadow-prime/reparse/sparta-titan -> /Users/wujunhong/projs/sparta-titan
+```
+
+## Current Architecture
+
+Aetherium layering remains:
 
 ```text
 redstone-aetherium-arch
   -> redstone-aetherium-s3
     -> redstone-aetherium-red
       -> redstone-aetherium-shuttle
-      -> sparta-titan-aetherium-red
+      -> sparta-titan-aether-red
 ```
 
-Module meaning:
+Shadow/Spartanian wrapper:
 
 ```text
-redstone-aetherium-arch
-  Shared object/resource abstractions. No Spring.
-
-redstone-aetherium-s3
-  S3 protocol core support library. No concrete service implementation. No Spring.
-
-redstone-aetherium-red
-  Red protocol core support library. Reuses S3 package behavior instead of duplicating it. No Spring.
-
-redstone-aetherium-shuttle
-  Red shuttle/proxy/client-side exchange support. No Spring. Provides HTTP client, target routing, async exchange, lifecycle, and config objects.
-
-sparta-titan-aetherium-red
-  Titan-side Red core service implementation. This is the concrete service version.
-
-red-shuttle-service
-  Shadow/Spartanian-hosted Spring service wrapper around redstone-aetherium-shuttle.
+/Users/wujunhong/projs/shadow-prime/Saurons/spartanian
+  red-shuttle-service
+  spartanian-kernel
+  spartanian-system
 ```
 
-Important workspace paths:
+Redstone core must stay Spring-free. Spring controllers, dependency injection, and Hydra system object wiring live in Shadow/Spartanian.
+
+## Red Shuttle Current Routes
+
+New control namespace:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Aetherium
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\sparta-titan
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\spartanian
+GET /__red__/status
+GET /__red__/config
+GET /__red__/locate
+GET/HEAD/PUT/POST/DELETE /__red__/proxy/{target}/**
 ```
 
-## Package Direction
-
-Kernel Red/Aether package names:
+Legacy aliases retained temporarily:
 
 ```text
-com.walnut.redstone.ether
-com.walnut.redstone.ether.shuttle
+GET /api/red-shuttle/status
+GET /api/red-shuttle/config
+GET/HEAD/PUT/POST/DELETE /api/red-shuttle/proxy/{target}/**
 ```
 
-Naming rule:
-
-- Do not put `Red` on every core type.
-- Use simple names in arch/core packages.
-- Use `Red` only where the protocol boundary or concrete identity requires it.
-
-Accepted core arch names:
+Data-plane root proxy:
 
 ```text
-ObjectExpressInstrument
-ObjectExchange
-ObjectOperation
-OperationContext
-ResourceUri
-ResourcePath
-ResourceNamespace
-ResourceRoute
-ResourceProjection
-ResourceType
-ResourceCapability
+GET/HEAD/PUT/POST/DELETE /**
 ```
 
-Important semantic decision:
+Control paths are excluded from data-plane proxy:
 
 ```text
-ObjectStore -> ObjectExpressInstrument
+/__red__/**
+/api/red-shuttle/**
 ```
 
-This should align with Pinecone regime/instrument vocabulary, not invent a second "store" universe.
+## TitanAether Data Plane
 
-Avoid introducing `ResourceHandle` as a first-class opened handle abstraction for the first round. Kernel object handles already exist as Hydra kernel objects, especially:
-
-```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Hydra\hydra-architecture\src\main\java\com\pinecone\hydra\system\ko
-```
-
-`ElementObject` is the kernel-side handle concept. On the user/client side, ordinary S3 drivers already have their own effective handle/stream lifecycle.
-
-## Protocol Semantics
-
-Canonical Red URI forms:
-
-```text
-red:///<kernel-path>
-red://<bucket>/<path>
-```
-
-Examples:
-
-```text
-red:///proc/pid/status
-red:///etc/...
-red:///dev/...
-red:///mnt/...
-red:///conf/...
-red://root@block-striped/avatar.png
-red://public/process-images/demo.jar
-```
-
-Interpretation:
-
-```text
-red:///...
-  Empty authority. Kernel namespace path. Resolve through Privy / authority kernel topology.
-
-red://bucket/...
-  Non-empty authority. Standard S3ified object storage path.
-```
-
-The root namespace `/` can be understood as a special bucket-like kernel namespace. For example:
-
-```text
-GET /proc/pid/status
-```
-
-is conceptually an object/file read, even if the content is projected from a kernel instrument.
-
-Reserved extension space is allowed:
-
-```text
-red:///__xxx__
-```
-
-This can host future protocol metadata, control records, reserved capabilities, or introspection surfaces.
-
-## Kernel Namespace Model
-
-Hydra is expected to be fully microservice/distributed in formal deployment. There will be authority nodes providing consistent kernel services. Those authority nodes can reverse-proxy Titan S3/Red services for `/mnt`, `/dev`, and other addressable resources.
-
-Current Privy reference:
-
-```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Hydra\hydra-system-reign\src\main\java\com\pinecone\hydra\reign\UnixInstitutionalizedMetaImperiumPrivy.java
-```
-
-Current test/reference:
-
-```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Sparta\sparta-core-console\src\test\java\com\ender\TestEnderHydra.java
-```
-
-`UnixInstitutionalizedMetaImperiumPrivy` is currently not fully finished. The intended final model is Linux-like:
-
-```text
-/etc
-/proc
-/dev
-/mnt
-/sys
-/conf
-```
-
-The command-line and path interaction should feel POSIX-like, while the underlying kernel object/control style remains closer to WinNT.
-
-Mental model:
-
-```text
-Windows instrumentation implements Unix-like paths.
-Titan itself is an Instrument.
-Accessing /bucket can mean accessing an Instrument.
-\Device-like hidden topology exists, but Red exposes a distributed POSIX/S3-shaped facade.
-```
-
-## TitanAether State
-
-The old `sparta-titan-s3` line has been upgraded conceptually toward:
-
-```text
-sparta-titan-aetherium-red
-```
-
-Preferred service name:
-
-```text
-TitanAether
-```
-
-Do not call it `TitanAetherium`; Aetherium is the kernel/protocol family, TitanAether is the Titan-side service.
-
-Important endpoint observed/used:
+TitanAether runs at:
 
 ```text
 http://localhost:5481
 ```
 
-Example S3 read test shape:
+Known working direct Titan file:
 
 ```text
-/root@block-striped/avatar.png
+http://localhost:5481/root@direct-object/avatar.png
 ```
 
-The system successfully reached the point where a S3-style read service address could be tested against Titan.
-
-## Red Shuttle Current State
-
-Red Shuttle currently has two layers:
+Known working Shuttle path after restart:
 
 ```text
-redstone-aetherium-shuttle
-red-shuttle-service
+http://localhost:5477/root@direct-object/avatar.png
 ```
 
-### Redstone Core Layer
-
-Path:
+Current Shuttle target config:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\Saurons\Aetherium\redstone-aetherium-shuttle
+/Users/wujunhong/projs/shadow-prime/system/setup/spartanian/RedShuttleKernel.json5
 ```
 
-Current core classes:
-
-```text
-com.walnut.redstone.ether.shuttle.lifecycle.ShuttleKernel
-com.walnut.redstone.ether.shuttle.lifecycle.ShuttleLifecycle
-com.walnut.redstone.ether.shuttle.lifecycle.ShuttleStatus
-com.walnut.redstone.ether.shuttle.exchange.ShuttleExchange
-com.walnut.redstone.ether.shuttle.exchange.ShuttleRequest
-com.walnut.redstone.ether.shuttle.exchange.ShuttleResponse
-com.walnut.redstone.ether.shuttle.exchange.ShuttleMethod
-com.walnut.redstone.ether.shuttle.http.HttpClient5AsyncFactory
-com.walnut.redstone.ether.shuttle.http.HttpClient5AsyncShuttleExchange
-com.walnut.redstone.ether.shuttle.route.ShuttleTargetResolver
-com.walnut.redstone.ether.shuttle.config.*
-com.walnut.redstone.ether.shuttle.error.*
-```
-
-Current capability:
-
-- Apache HttpClient 5 async client.
-- Configurable target list.
-- Configurable pool, timeout, retry, header policy, proxy, TLS objects.
-- `ShuttleKernel` lifecycle.
-- Basic async exchange.
-
-Important constraint:
-
-```text
-redstone-aetherium-shuttle must not depend on Spring.
-```
-
-It is a long-term middle-platform kernel/service library, not a web app.
-
-### Shadow / Spartanian Service Wrapper
-
-Path:
-
-```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\spartanian\red-shuttle-service
-```
-
-Current service classes:
-
-```text
-com.sparta.red.shuttle.config.RedShuttleConfigLoader
-com.sparta.red.shuttle.service.RedShuttleKernelProvider
-com.sparta.red.shuttle.service.RedShuttleConsoleService
-com.sparta.red.shuttle.service.RedShuttleConsoleServiceImpl
-com.sparta.red.shuttle.controller.RedShuttleController
-```
-
-Current exposed routes:
-
-```text
-GET /api/red-shuttle/status
-GET /api/red-shuttle/config
-GET /api/red-shuttle/proxy/{target}/**
-```
-
-Current limitation:
-
-- Only GET proxy is exposed.
-- Request and response bodies currently become byte arrays in key places.
-- Header policy is only partly realized.
-- Proxy/TLS/retry config objects exist but are not fully applied.
-- PrivyProxy is not implemented yet.
-- `red:///` kernel path semantics are not exposed yet.
-
-## Red Shuttle Config
-
-Kernel config:
-
-```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\system\setup\spartanian\RedShuttleKernel.json5
-```
-
-Current target:
+Target:
 
 ```json5
 {
@@ -339,314 +149,433 @@ Current target:
   "kind": "TitanAether",
   "baseUrl": "http://localhost:5481",
   "enabled": true,
-  "weight": 100
+  "weight": 100,
+  "pathPrefixes": [
+    "/",
+    "/root@block-striped"
+  ]
 }
 ```
 
-Default target:
+`local-titan-aether` is a Shuttle target name, not a business path. It is used by debug proxy:
 
 ```text
-local-titan-aether
+http://localhost:5477/__red__/proxy/local-titan-aether/root@direct-object/avatar.png
 ```
 
-Spring kernel config:
+Normal callers should prefer the data-plane root path:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\system\setup\spartanian\RedShuttleSpringKernel.json5
+http://localhost:5477/root@direct-object/avatar.png
 ```
 
-Current Red Shuttle service port:
+## Route Semantics
+
+Current core locator:
 
 ```text
-5477
+/Users/wujunhong/projs/Hydra/Aetherium/redstone-aetherium-shuttle/src/main/java/com/walnut/redstone/ether/shuttle/route/StaticShuttlePathLocator.java
 ```
 
-JSON5 style rule:
-
-- Keep keys quoted even though JSON5 allows unquoted keys.
-- Use Shadow's existing config style.
-- Keep config hosted in Shadow side, not in Redstone core.
-
-## Shadow / Spartanian Hosting State
-
-Initial attempt placed `red-shuttle-service` under:
+Recognized route types:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\Sparta
+S3_OBJECT
+KERNEL_NAMESPACE
+CONTROL
+UNKNOWN
 ```
 
-It was moved to:
+Route logic:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\spartanian\red-shuttle-service
+/__red__/...        -> CONTROL
+/                   -> KERNEL_NAMESPACE, bucket = ""
+/proc/...           -> KERNEL_NAMESPACE, bucket = ""
+/conf/...           -> KERNEL_NAMESPACE, bucket = ""
+/dev/...            -> KERNEL_NAMESPACE, bucket = ""
+/home/...           -> KERNEL_NAMESPACE, bucket = ""
+/mnt/...            -> KERNEL_NAMESPACE, bucket = ""
+/sys/...            -> KERNEL_NAMESPACE, bucket = ""
+/var/...            -> KERNEL_NAMESPACE, bucket = ""
+/meta/...           -> KERNEL_NAMESPACE, bucket = ""
+/root@.../...       -> S3_OBJECT
 ```
 
-Spartanian module split:
+Kernel namespace locate result uses:
 
 ```text
-spartanian-kernel
-  Ordinary jar. Shadow-scanned bootstrap and RedShuttleSpringKernel.
-
-red-shuttle-service
-  Ordinary jar. Spring controller/service wrapper.
-
-spartanian-system
-  Independent main/fat jar development entry.
+bucket = ""
+targetName = "__kernel__"
+routeType = KERNEL_NAMESPACE
 ```
 
-Shadow scans:
+## Privy / Kernel Mapped File
+
+Privy is not modeled as another HTTP proxy. It is the kernel namespace backend behind the EmptyString VIP bucket.
+
+Current Hydra concept:
 
 ```text
-com.sauron.tres
+ImperiumPrivy
+  -> ExpressInstrument
+    -> mounted instruments / direct mapped handles
 ```
 
-Therefore the Shadow bootstrap package is:
+Important Hydra references:
 
 ```text
-com.sauron.tres.spartanian
+/Users/wujunhong/projs/Hydra/Hydra/hydra-architecture/src/main/java/com/pinecone/hydra/system/imperium/ImperiumPrivy.java
+/Users/wujunhong/projs/Hydra/Hydra/hydra-system-reign/src/main/java/com/pinecone/hydra/reign/UnixInstitutionalizedMetaImperiumPrivy.java
+/Users/wujunhong/projs/Hydra/Hydra/hydra-architecture/src/main/java/com/pinecone/hydra/system/imperium/KernelRootMountPoint.java
+/Users/wujunhong/projs/Hydra/Hydra/hydra-architecture/src/main/java/com/pinecone/hydra/system/imperium/KernelObjectRootMountPoint.java
 ```
 
-Red Shuttle Spring boot/config classes were moved away from `com.sauron.tres` into:
+Kernel root mount points:
 
 ```text
-com.walnut.spartanian.red
+conf
+dev
+home
+mnt
+sys
+proc
+var
+meta
 ```
 
-This prevents Shadow's main Spring context from directly scanning Red Shuttle controllers. The child Spring kernel should own those controllers.
-
-## VIP Bootstrap Fix
-
-Problem observed:
-
-The first embedded Shadow bootstrap did this:
-
-```java
-new Spartanian(new String[0], Pinecone.sys()).init(...)
-```
-
-This was wrong because `Spartanian extends ArchTres`, and `ArchTres -> EnderHydra -> Tritium` constructs the full Hydra skeleton. Even `new Spartanian(...)` triggers `Tritium.prepare_system_skeleton()`, which calls into `EnderHydra.prepare_modularized_subsystem()` and loads:
+Object root mount examples:
 
 ```text
-KernelSkynetLord
-KernelRedQueenLord
+conf/kernel
+conf/registry
+meta/task
+meta/service
+dev/deploy
+sys/public/global/exe/images
 ```
 
-This caused Shadow to load Skynet/RedQueen again and then produced a cast failure in Heist paths:
+## Redstone Core Kernel Files
+
+Core package:
 
 ```text
-ClassCastException: com.sauron.tres.spartanian.Spartanian cannot be cast to com.sauron.shadow.system.Shadium
+/Users/wujunhong/projs/Hydra/Aetherium/redstone-aetherium-shuttle/src/main/java/com/walnut/redstone/ether/shuttle/kernel
 ```
 
-Fix applied:
+Files:
 
 ```text
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\spartanian\spartanian-kernel\src\main\java\com\sauron\tres\spartanian\shadow\SpartanianShadowBootstrap.java
-E:\MyFiles\CodeScript\Project\Hazelnut\Sauron\shadow-prime\Saurons\spartanian\spartanian-kernel\src\main\java\com\sauron\tres\spartanian\shadow\SpartanianRedShuttleVipLauncher.java
+KernelNamespaceBackend.java
+KernelNamespaceExchange.java
+KernelMappedFile.java
+KernelMappedFileMeta.java
+KernelMappedFileEncoder.java
+GenericKernelMappedFileEncoder.java
 ```
 
-Current intended behavior:
+Responsibilities:
 
-- `SpartanianShadowBootstrap` injects existing Shadow `parentSystem`.
-- It creates `SpartanianRedShuttleVipLauncher`.
-- The VIP launcher starts only `RedShuttleSpringKernel`.
-- It does not instantiate `Spartanian`.
-- It does not call `Spartanian.init()`.
-- It does not call `Spartanian.vitalize()`.
-- It does not summon a second EnderHydra.
+```text
+KernelNamespaceBackend
+  Spring-free backend interface. Passed in by wrapper. Default write capability is false.
 
-VIP child context registers:
+KernelNamespaceExchange
+  Executes kernel namespace requests.
+  GET  -> backend.read + encoder
+  HEAD -> backend.stat
+  PUT/POST/DELETE -> 405 Method Not Allowed
+
+KernelMappedFile / KernelMappedFileMeta
+  File-like projection envelope for kernel objects.
+
+GenericKernelMappedFileEncoder
+  First-round JSON/Text/Binary encoder.
+```
+
+Encoder behavior:
+
+```text
+String       -> text/plain; charset=utf-8
+byte[]       -> application/octet-stream
+Map/List     -> application/json; charset=utf-8
+Pinenut      -> toJSONString()
+Other object -> JSON.stringify(...) or fallback JSON string
+null/missing -> 404
+```
+
+First version is intentionally JSON/Text oriented.
+
+## Shadow Privy Adapter
+
+Shadow-side package:
+
+```text
+/Users/wujunhong/projs/shadow-prime/Saurons/spartanian/red-shuttle-service/src/main/java/com/sparta/red/shuttle/privy
+```
+
+Files:
+
+```text
+PrivyKernelNamespaceBackend.java
+PrivyKernelNamespaceConfig.java
+```
+
+Responsibilities:
+
+```text
+PrivyKernelNamespaceConfig
+  Creates KernelNamespaceBackend bean from ExpressInstrument.
+
+PrivyKernelNamespaceBackend
+  Adapts ExpressInstrument to KernelNamespaceBackend.
+  Projects root mount tables and basic TreeNode/KOMInstrument data to JSON maps.
+  Readonly by default.
+```
+
+VIP launcher now registers `ExpressInstrument` into the child Red Shuttle Spring context:
+
+```text
+/Users/wujunhong/projs/shadow-prime/Saurons/spartanian/spartanian-kernel/src/main/java/com/sauron/tres/spartanian/shadow/SpartanianRedShuttleVipLauncher.java
+```
+
+The child context also already registers:
 
 ```text
 guidAllocator
 ulfInstanceManufacturer
 systemInstanceScope
-komRegistry
 redShuttleSpringKernel
 redShuttleVipLauncher
+komRegistry
+expressInstrument
 ```
 
-This keeps independent `Spartanian` mode possible while keeping Shadow embedded mode lightweight.
+## Red Shuttle Service Flow
 
-## Maven / Jar Policy
-
-Hydra/Shadow side should not reference local module paths by adding sibling modules such as:
-
-```xml
-<module>../Saurons/Aetherium/redstone-aetherium-arch</module>
-```
-
-For Titan/Hydra/Shadow integration, prefer jar dependencies consistent with existing project standards.
-
-Current Red Shuttle service POM still uses a systemPath jar for:
+Current key class:
 
 ```text
-redstone-aetherium-shuttle
+/Users/wujunhong/projs/shadow-prime/Saurons/spartanian/red-shuttle-service/src/main/java/com/sparta/red/shuttle/service/RedShuttleConsoleServiceImpl.java
 ```
 
-This is acceptable as a temporary bridge but should be normalized later.
-
-Also all packages should remain:
-
-```xml
-<packaging>jar</packaging>
-```
-
-Formatting standard:
-
-- No compact one-line getters/setters in Hydra/Redstone-side code.
-- Use normal multiline method bodies:
-
-```java
-public String getUri() {
-    return this.uri;
-}
-```
-
-Entity/bean member variables can avoid Hungarian naming. Kernel implementation classes can still use established kernel naming style where appropriate.
-
-Known environment note:
-
-At the time of this tombstone, `mvn` was not available on the active shell PATH, so compile verification may need to be run from the developer environment.
-
-## Current Shuttle Capability Assessment
-
-Current status:
+Exchange flow:
 
 ```text
-Shadow main system
-  -> VIP RedShuttleSpringKernel :5477
-    -> red-shuttle-service controller
-      -> ShuttleKernel
-        -> Apache HttpClient5 async
-          -> local-titan-aether http://localhost:5481
+RedShuttleController
+  -> RedShuttleConsoleServiceImpl.exchange(request)
+    -> StaticShuttlePathLocator.locatePath(request.path)
+      -> KERNEL_NAMESPACE
+          -> KernelNamespaceExchange
+          -> PrivyKernelNamespaceBackend
+          -> GenericKernelMappedFileEncoder
+      -> S3_OBJECT
+          -> ShuttleKernel.exchange(request)
+          -> HttpClient5AsyncShuttleExchange
+          -> TitanAether
 ```
 
-Useful smoke URLs:
+## Readonly Rule
 
-```text
-http://localhost:5477/api/red-shuttle/status
-http://localhost:5477/api/red-shuttle/config
-http://localhost:5477/api/red-shuttle/proxy/local-titan-aether/...
-```
+The first kernel namespace version is readonly.
 
-The current state is a working architectural skeleton for an async HTTP proxy shuttle, not yet a complete Red/UOFS semantic shuttle.
-
-## Next Mainline Tasks
-
-Do not jump directly into full PrivyProxy. The next round should stabilize the exchange layer first.
-
-Recommended order:
-
-1. Complete shuttle exchange surface.
+Allowed:
 
 ```text
 GET
 HEAD
+```
+
+Blocked:
+
+```text
 PUT
 POST
 DELETE
 ```
 
-All should map into one `ShuttleRequest` shape.
-
-2. Make body forwarding stream-safe.
-
-Current byte-array buffering is acceptable for tiny status/debug paths but not for S3/Red object movement. Red Shuttle must eventually support large object transfer without reading everything into memory.
-
-3. Fully implement header policy.
-
-Config exists:
+Blocked operations return:
 
 ```text
-forwardHost
-forwardAuthorization
-forwardCookie
-forwardRange
-forwardContentType
-forwardContentLength
-blockedHeaders
+405 Method Not Allowed
+Allow: GET, HEAD
+X-Red-Kernel-Readonly: true
 ```
 
-The implementation must actually respect these rules.
-
-4. Apply proxy/TLS/retry config.
-
-Config classes already exist. The HTTP client factory/exchange should consume them correctly.
-
-5. Normalize dependency pathing.
-
-Move away from fragile `systemPath` when the local ecosystem is ready for proper jar dependency resolution.
-
-6. Add Red semantic route layer.
-
-Only after proxy exchange is stable:
+Future writable support must be whitelist-based, not default-open. Candidate future writable mount:
 
 ```text
-red://<bucket>/<path>     -> TitanAether/S3 object path
-red:///<kernel-path>      -> Privy/authority kernel path
+/mnt/**
 ```
 
-7. Implement PrivyProxy.
+Do not make kernel objects writable without explicit path capability policy.
 
-This is intentionally deferred because it includes:
+## Dependency Notes
+
+`red-shuttle-service` currently uses `systemPath` Aetherium jars. Because `systemPath` does not bring transitive dependencies, these are explicitly listed:
 
 ```text
-HTTP client
-HTTP service
-PrivyProxy
-cross-boundary kernel topology traversal
+redstone-aetherium-shuttle
+redstone-aetherium-red
+redstone-aetherium-s3
 ```
 
-This should not be mixed with the first exchange-layer stabilization.
+Runtime classpath issue fixed in this round:
 
-## Deferred Work
+```text
+NoClassDefFoundError: com/walnut/redstone/ether/red/uri/RedUriParser
+```
 
-Do not prioritize these until Red Shuttle exchange and Red protocol skeleton are stable:
+Cause:
 
-- Full `/proc`, `/etc`, `/dev`, `/mnt` proxy implementation.
-- Full Privy authority recursion.
-- Process Manager product UI.
-- UProcess/Troll process manager productization.
-- Odin task manager product surface.
-- Image registry and process image pull.
-- Remote process kill/restart/retry controls.
+```text
+redstone-aetherium-shuttle depended on redstone-aetherium-red,
+but Shadow runtime classpath only had the shuttle jar.
+```
+
+Fix:
+
+```text
+Add redstone-aetherium-red and redstone-aetherium-s3 as explicit systemPath dependencies in red-shuttle-service/pom.xml.
+```
+
+Long-term cleanup:
+
+```text
+Install/publish Aetherium jars normally and remove systemPath.
+```
+
+## Verification Commands
+
+Aetherium core:
+
+```bash
+cd /Users/wujunhong/projs/Hydra/Aetherium
+mvn -pl redstone-aetherium-shuttle -am -DskipTests compile
+mvn -pl redstone-aetherium-shuttle -am -DskipTests package
+```
+
+Spartanian wrapper:
+
+```bash
+cd /Users/wujunhong/projs/shadow-prime/Saurons/spartanian
+mvn -pl spartanian-kernel,red-shuttle-service -am -DskipTests compile
+```
+
+These passed after the current implementation.
+
+## Smoke Test URLs
+
+After restarting `ShadowBoot`:
+
+```text
+GET  http://localhost:5477/__red__/status
+GET  http://localhost:5477/__red__/config
+GET  http://localhost:5477/__red__/locate?path=/proc
+GET  http://localhost:5477/__red__/locate?uri=red:///proc
+GET  http://localhost:5477/
+GET  http://localhost:5477/proc
+HEAD http://localhost:5477/proc
+PUT  http://localhost:5477/proc
+GET  http://localhost:5477/root@direct-object/avatar.png
+```
+
+Titan direct control test:
+
+```text
+GET http://localhost:5481/root@direct-object/avatar.png
+```
+
+Expected behavior:
+
+```text
+/__red__/status            -> Shuttle status JSON
+/__red__/locate?path=/proc -> routeType KERNEL_NAMESPACE
+/                            -> kernel root JSON
+/proc                        -> JSON/Text mapped file or 404 if not mounted
+PUT /proc                    -> 405
+/root@direct-object/avatar.png -> image from Titan
+```
+
+## Naming and Style Notes
+
+Hydra/Aetherium kernel-side code should use the project standard:
+
+```text
+this. always present
+spaces around control parentheses
+Hungarian naming for kernel-side members and regular variables where applicable
+Arch/Generic naming conventions
+```
+
+Reference:
+
+```text
+/Users/wujunhong/projs/Hydra/docs/standard/coding_standard.md
+```
+
+Shadow business wrapper code can be less strict about Hungarian naming unless it is kernel-flavored code. Entity/bean code is not forced either way.
+
+## Current TODO
+
+Immediate:
+
+```text
+1. Restart ShadowBoot and smoke test kernel mapped-file routes.
+2. Confirm / returns useful kernel root JSON.
+3. Confirm /proc locate is KERNEL_NAMESPACE.
+4. Confirm /root@direct-object/avatar.png still goes to Titan.
+5. Fix any runtime projection issue from real ExpressInstrument contents.
+```
+
+Near term:
+
+```text
+1. Improve PrivyKernelNamespaceBackend path resolution beyond direct mounted handles.
+2. Add directory listing projection for mounted KOMInstrument children.
+3. Add richer TreeNode and registry node JSON projection.
+4. Make /__red__/locate include capability flags: readable, writable, directory, backend.
+5. Add explicit kernel mount prefix config instead of hardcoded root mount list.
+6. Preserve root bucket-list compatibility if S3 clients require GET / for buckets.
+```
+
+Medium term:
+
+```text
+1. Streaming body support for large object movement.
+2. Full request/response header policy hardening.
+3. Proxy/TLS/retry config application.
+4. Normal Maven dependency pathing.
+5. Writable kernel paths via strict whitelist, probably /mnt first.
+6. Privy authority recursion for distributed topology.
+```
+
+Deferred:
+
+```text
+Full /proc, /etc, /dev, /mnt semantics.
+Remote authority traversal.
+Process manager product UI.
+Kernel write operations.
+Full Privy control operations.
+```
 
 ## Mental Model
 
-Red/UOFS is the distributed kernel shuttle:
+The stable mental model:
 
 ```text
-Kernel namespace path
-  -> authority Privy / local Privy
-  -> Red resource projection
-  -> TitanAether or kernel Instrument
-  -> S3-compatible object exchange where possible
+Red path
+  -> bucket resolver
+    -> bucket != ""
+        -> S3 object namespace
+        -> TitanAether
+    -> bucket == ""
+        -> EmptyString VIP bucket
+        -> Privy / ExpressInstrument
+        -> kernel mapped file
+        -> JSON/Text encoder
 ```
 
-For object storage:
+Privy is the council, not a raw proxy. It provides kernel object information and mappings. Red Shuttle presents those mappings as files while keeping operations aligned with S3/HTTP.
 
-```text
-red://bucket/key
-  -> S3-compatible exchange
-  -> TitanAether
-```
-
-For kernel namespace:
-
-```text
-red:///proc/pid/status
-  -> Privy path
-  -> projected kernel object
-  -> object-like read/write/control operation
-```
-
-The protocol should feel like "everything is a file", but the implementation is distributed, authority-aware, and object-storage-compatible.
-
-The guiding principle:
-
-```text
-One Red path system.
-S3 compatibility underneath.
-Kernel topology above.
-No duplicate S3-vs-Red protocol split.
-```

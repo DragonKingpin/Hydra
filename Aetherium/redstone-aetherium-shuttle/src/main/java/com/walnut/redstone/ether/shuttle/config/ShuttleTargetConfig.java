@@ -1,5 +1,8 @@
 package com.walnut.redstone.ether.shuttle.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.pinecone.framework.system.prototype.Pinenut;
 
 public class ShuttleTargetConfig implements Pinenut {
@@ -8,6 +11,7 @@ public class ShuttleTargetConfig implements Pinenut {
     protected String baseUrl;
     protected boolean enabled = true;
     protected int weight = 100;
+    protected List<String> pathPrefixes = new ArrayList<>();
 
     public String getName() {
         return this.name;
@@ -47,5 +51,13 @@ public class ShuttleTargetConfig implements Pinenut {
 
     public void setWeight( int weight ) {
         this.weight = weight;
+    }
+
+    public List<String> getPathPrefixes() {
+        return this.pathPrefixes;
+    }
+
+    public void setPathPrefixes( List<String> pathPrefixes ) {
+        this.pathPrefixes = pathPrefixes == null ? new ArrayList<>() : new ArrayList<>( pathPrefixes );
     }
 }

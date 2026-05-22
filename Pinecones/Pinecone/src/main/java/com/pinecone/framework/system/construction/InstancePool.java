@@ -1,10 +1,11 @@
 package com.pinecone.framework.system.construction;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.framework.system.prototype.Pinenut;
 
 public interface InstancePool<T > extends Pinenut {
 
-    T allocate() ;
+    T allocate() throws BadAllocateException;
 
     void free( T obj ) ;
 

@@ -1,5 +1,6 @@
 package com.pinecone.framework.system.construction;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.StringUtils;
@@ -16,7 +17,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     protected final Map<Class<?>, Object >                 mSingletonObjects   = new ConcurrentHashMap<>();
     protected final Map<Class<?>, StructureDefinition >    mObjectDefinitions  = new ConcurrentHashMap<>();
     protected final Map<Class<?>, InstancePool<? > >       mObjectInstancer    = new ConcurrentHashMap<>(); // Pool is immutable.
-    protected final Map<StructureKey, Class<?> >            mObjectKeys         = new ConcurrentHashMap<>();
+    protected final Map<StructureKey, Class<?> >           mObjectKeys         = new ConcurrentHashMap<>();
     protected final Map<String, Object >                   mObjectRegister     = new ConcurrentHashMap<>();
     protected final DynamicFactory                         mCentralFactory     ;
 
@@ -234,10 +235,10 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
             return type.cast( t );
         }
 
-        Object b = this.mSingletonObjects.get( type );
+        Object b = this.mSingletonObjects.get( innerType );
         if ( b != null ) {
             if( instanceStructure != null && !instanceStructure.cycle().isSingleton() ) {
-                return type.cast( this.mObjectInstancer.get( innerType ).allocate() );
+                return type.cast( this.allocateFromPool( innerType, this.mObjectInstancer.get( innerType ) ) );
             }
             return type.cast( b );
         }
@@ -248,14 +249,16 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
                     definition.getCycle() == ReuseCycle.Disposable ||
                     ( instanceStructure != null && instanceStructure.cycle() == ReuseCycle.Disposable )
             ) {
-                return type.cast( pool.allocate() );
+                return type.cast( this.allocateFromPool( innerType, pool ) );
             }
 
-            T obj = type.cast( pool.allocate() );
             if ( definition.getCycle().isSingleton() ) {
-                this.mSingletonObjects.put( innerType, obj );
+                return type.cast( this.mSingletonObjects.computeIfAbsent(
+                        innerType,
+                        key -> this.allocateFromPool( key, pool )
+                ) );
             }
-            return obj;
+            return type.cast( this.allocateFromPool( innerType, pool ) );
         }
 
         String name = instanceStructure == null ? "" : instanceStructure.name();
@@ -272,6 +275,19 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
         }
 
         return null;
+    }
+
+    protected Object allocateFromPool( Class<?> type, InstancePool<?> pool ) {
+        if ( pool == null ) {
+            throw new StructureResolutionException( "Instance pool is undefined: " + type.getName() );
+        }
+
+        try {
+            return pool.allocate();
+        }
+        catch ( BadAllocateException e ) {
+            throw new StructureResolutionException( "Failed to allocate instance: " + type.getName(), e );
+        }
     }
 
     @Override

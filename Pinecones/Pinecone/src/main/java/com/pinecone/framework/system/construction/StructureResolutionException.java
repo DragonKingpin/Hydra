@@ -1,6 +1,8 @@
 package com.pinecone.framework.system.construction;
 
-public class StructureResolutionException extends RuntimeException {
+import com.pinecone.framework.system.PineRuntimeException;
+
+public class StructureResolutionException extends PineRuntimeException {
     public StructureResolutionException( String szMessage ) {
         super( szMessage );
     }

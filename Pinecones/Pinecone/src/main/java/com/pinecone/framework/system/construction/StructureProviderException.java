@@ -1,6 +1,8 @@
 package com.pinecone.framework.system.construction;
 
-public class StructureProviderException extends RuntimeException {
+import com.pinecone.framework.system.PineRuntimeException;
+
+public class StructureProviderException extends PineRuntimeException {
     public StructureProviderException( String szMessage ) {
         super( szMessage );
     }

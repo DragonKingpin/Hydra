@@ -46,7 +46,7 @@ public class GrpcClientConfig extends JSONConfig implements PatriarchalConfig {
 
         this.autoReconnect = this.optBoolean( "autoReconnect", true );
         this.enableHeartbeat = this.optBoolean( "enableHeartbeat", false );
-        this.heartbeatIntervalMillis = this.optLong( "heartbeatIntervalMills", 2000L );
+        this.heartbeatIntervalMillis = this.optLong( "heartbeatIntervalMillis", 2000L );
     }
 
     public GrpcClientConfig() {

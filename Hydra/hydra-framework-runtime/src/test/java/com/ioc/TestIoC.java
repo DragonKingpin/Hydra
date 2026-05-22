@@ -101,6 +101,31 @@ class Tale {
     }
 }
 
+class KernelConfigProbe {
+    @MapStructure("${server.port:8080}")
+    protected int port;
+
+    @MapStructure("${server.host:localhost}")
+    protected String host;
+
+    @MapStructure("${server.url:http://localhost:8080}")
+    protected String url;
+
+    @MapStructure("${feature.enabled:false}")
+    protected boolean enabled;
+
+    @MapStructure("${missing:null}")
+    protected String nullable;
+
+    public String toJSONString() {
+        return DirectJSONInjector.instance().inject( this ).toString();
+    }
+
+    public String toString(){
+        return DirectJSONInjector.instance().inject( this ).toString();
+    }
+}
+
 
 public class TestIoC {
     public static void testInstancePool( )  {
@@ -160,6 +185,16 @@ public class TestIoC {
         Debug.trace( tale );
     }
 
+    public static void testUnifyStructureInjector_ValueExpression( ) throws Exception {
+        StructureInstanceDispenser dispenser = new UnifyCentralInstanceDispenser();
+        UnifyStructureInjector injector = new UnifyStructureInjector( KernelConfigProbe.class, dispenser );
+        KernelConfigProbe probe = new KernelConfigProbe();
+
+        JSONObject jo = new JSONMaptron( "{ server: { port: 9527 }, feature: {} }" );
+        injector.inject( new ObjectiveMap<>(jo), probe );
+        Debug.trace( probe );
+    }
+
 
     public static void main( String[] args ) throws Exception {
         Pinecone.init( (Object...cfg )->{
@@ -169,6 +204,7 @@ public class TestIoC {
             //TestIoC.testUnifyStructureInjector_Simple();
             //TestIoC.testUnifyStructureInjector_List();
             TestIoC.testUnifyStructureInjector_Sophisticate();
+            TestIoC.testUnifyStructureInjector_ValueExpression();
 
 
             return 0;

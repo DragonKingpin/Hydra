@@ -85,7 +85,7 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
         request.setNodeName( this.mszNodeName );
         RegimentJoinResponse response = this.mProcessLifecycleIface.joinRegiment( request );
         if ( response == null ) {
-            throw new RegimentException( "response is null" );
+            throw new RegimentException( "ProcessorLifecycleIface.joinRegiment returned null; controller may not be registered or iface may not be compiled." );
         }
         else if ( StringUtils.isNoneEmpty( response.getErrorMsg() ) ) {
             throw new RegimentException( response.getErrorMsg() );

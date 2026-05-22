@@ -6,11 +6,6 @@ import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.proc.ArchProcessManager;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.system.component.LogStatuses;
-import com.pinecone.hydra.uma.DuplexAppointServer;
-import com.pinecone.hydra.uma.HuskyDuplexExpress;
-import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
-import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.ProcessesUtils;
 import com.walnut.odin.proc.RemoteProcess;
@@ -21,82 +16,80 @@ import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.transport.GenericRemoteProcessControlTransportRegistry;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportRegistry;
 
-import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNode implements RemoteProcessManagerServer {
 
     protected GuidAllocator                             mGuidAllocator;
 
-    //protected Map<GUID, Long>                           mPidClientIdMap;
+    protected RemoteProcessControlTransportRegistry     mTransportRegistry;
 
-    protected Map<Long, MasterProcessLifecycleIface>    mLifecycleIfaceCMap;
-
-    protected UlfServer                                 mRPCServer;
-
-    protected DuplexAppointServer                       mDuplexAppointServer;
-
-    public RavenRemoteProcessManagerServer( ProcessManager localProcessManager, UlfServer ulfServer ) {
+    public RavenRemoteProcessManagerServer( ProcessManager localProcessManager ) {
         super( localProcessManager );
-        //this.mPidClientIdMap        = new ConcurrentHashMap<>();
-        this.mLifecycleIfaceCMap    = new ConcurrentHashMap<>();
-        this.mGuidAllocator         = localProcessManager.getGuidAllocator();
-        this.mRPCServer             = ulfServer;
+        this.mGuidAllocator      = localProcessManager.getGuidAllocator();
+        this.mTransportRegistry  = new GenericRemoteProcessControlTransportRegistry();
     }
-
-    protected void initRPCSubsystem() throws RemoteProcessServiceRPCException {
-        if ( this.mDuplexAppointServer != null && !this.mDuplexAppointServer.getMessageNode().isTerminated() ) {
-            throw new IllegalStateException( "DuplexAppointServer has started." );
-        }
-
-        try {
-            this.mDuplexAppointServer = new WolvesAppointServer( this.mRPCServer, HuskyDuplexExpress.class );
-            ReactiveSlaveProcessLifecycleController controller = new ReactiveSlaveProcessLifecycleController( this );
-            this.mDuplexAppointServer.registerController( controller );
-            this.mDuplexAppointServer.compile( MasterProcessLifecycleIface.class, false );
-
-            this.infoLifecycle( "RPC Subsystem Register Controllers", LogStatuses.StatusDone );
-        }
-        catch ( Exception e ) {
-            throw new RemoteProcessServiceRPCException( e );
-        }
-    }
-
-    protected void vitalizeRPCSubsystem() throws RemoteProcessServiceRPCException {
-        try {
-            if ( this.mDuplexAppointServer.getMessageNode().isTerminated() ) {
-                this.mDuplexAppointServer.execute();
-                this.infoLifecycle( "RPC Subsystem Service Vitalization", LogStatuses.StatusDone );
-            }
-        }
-        catch ( Exception e ) {
-            throw new RemoteProcessServiceRPCException( e );
-        }
-    }
-
 
     @Override
-    public DuplexAppointServer duplexAppointServer() {
-        return this.mDuplexAppointServer;
+    public RemoteProcessManagerServer hookTransport( RemoteProcessControlTransport transport ) {
+        this.mTransportRegistry.hookTransport( transport );
+        return this;
+    }
+
+    @Override
+    public RemoteProcessControlTransportRegistry transportRegistry() {
+        return this.mTransportRegistry;
+    }
+
+    @Override
+    public Collection<RemoteProcessControlTransport> transports() {
+        return this.mTransportRegistry.transports();
+    }
+
+    @Override
+    public boolean hasClient( long clientId ) {
+        return this.mTransportRegistry.hasClient( clientId );
+    }
+
+    @Override
+    public void detachClient( long clientId ) {
+        this.mTransportRegistry.detachClient( clientId );
+    }
+
+    @Override
+    public void registerController( Object controller ) throws RemoteProcessServiceRPCException {
+        for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
+            transport.registerController( controller );
+        }
+    }
+
+    @Override
+    public void compileIface( Class<?> ifaceClass, boolean bAsIface ) throws RemoteProcessServiceRPCException {
+        for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( transport.supportsRuntimeIfaceCompile() ) {
+                transport.compileIface( ifaceClass, bAsIface );
+            }
+        }
     }
 
     @Override
     public void startService() throws RemoteProcessServiceRPCException {
-        this.initRPCSubsystem();
-        this.vitalizeRPCSubsystem();
+        for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
+            transport.startService();
+        }
     }
 
     @Override
     public void terminateService() throws IllegalStateException {
-        if ( this.mDuplexAppointServer == null ) {
-            throw new IllegalStateException( "RPCServer dose not started yet." );
+        for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
+            transport.terminateService();
         }
-
-        this.mDuplexAppointServer.terminate();
-        this.mDuplexAppointServer = null;
     }
 
     @Override
@@ -119,12 +112,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         RemoteProcess rp = (RemoteProcess) process;
         long clientId = rp.getControlClientId();
 
-        try {
-            this.mDuplexAppointServer.invokeInform( clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.startRemoteUProcess", pid );
-        }
-        catch ( IOException e ) {
-            throw new RemoteProcessServiceRPCException( e );
-        }
+        this.mTransportRegistry.requireTransport( clientId ).startRemoteUProcess( clientId, pid );
     }
 
     protected RemoteVitalizationResponse vitalizeRemoteUProcess0(
@@ -147,33 +135,25 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         handlerDTO.setImageAddress( imageAddress );
         handlerDTO.setImageAddressURI( isURI );
 
+        RemoteVitalizationResponse response;
         try {
-            Object ret;
-
+            RemoteProcessControlTransport transport = this.mTransportRegistry.requireTransport( clientId );
             if ( directStart ) {
-                ret = this.mDuplexAppointServer.invokeInform(
-                        clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.vitalizeRemoteUProcess",
-                        handlerDTO
-                );
+                response = transport.vitalizeRemoteUProcess( clientId, handlerDTO );
             }
             else {
-                ret = this.mDuplexAppointServer.invokeInform(
-                        clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.createRemoteUProcess",
-                        handlerDTO
-                );
+                response = transport.createRemoteUProcess( clientId, handlerDTO );
             }
-
-
-            RemoteVitalizationResponse response = (RemoteVitalizationResponse) ret;
-            if ( response.getPID() != null ) {
-                response.setProcessID( this.mGuidAllocator.parse( response.getPID() ) );
-            }
-
-            return response;
         }
-        catch ( IOException e ) {
+        catch ( RemoteProcessServiceRPCException e ) {
             throw new RemoteProcessLifecycleException( e );
         }
+
+        if ( response.getPID() != null ) {
+            response.setProcessID( this.mGuidAllocator.parse( response.getPID() ) );
+        }
+
+        return response;
     }
 
     @Override
@@ -248,8 +228,6 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     protected void expungeSelf( GUID pid ) {
-        // this.mPidClientIdMap.remove( pid );
-
         // Reserved.
     }
 
@@ -324,11 +302,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             if ( process instanceof RemoteProcess ) {
                 RemoteProcess remoteProcess = (RemoteProcess) process;
                 long clientId = remoteProcess.getControlClientId();
-                Object ret = this.mDuplexAppointServer.invokeInform(
-                        clientId, "com.walnut.odin.proc.server.MasterProcessLifecycleIface.queryRemoteProcessRuntimeMeta",
-                        pid.toString()
-                );
-                return (UProcessRuntimeMeta) ret; // Cascading retrieval of runtime meta information
+                return this.mTransportRegistry.requireTransport( clientId ).queryProcessRuntimeMeta( clientId, pid );
             }
 
             if ( process == null ) {
@@ -339,7 +313,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             // 不要直接return 老子好打断点.
             return meta;
         }
-        catch ( IOException e ) {
+        catch ( RemoteProcessServiceRPCException e ) {
             throw new RemoteProcessLifecycleException( e );
         }
 

@@ -1,21 +1,35 @@
 package com.walnut.odin.proc.server;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportRegistry;
 
 public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
-    DuplexAppointServer duplexAppointServer();
+    RemoteProcessManagerServer hookTransport( RemoteProcessControlTransport transport );
+
+    RemoteProcessControlTransportRegistry transportRegistry();
+
+    Collection<RemoteProcessControlTransport> transports();
+
+    boolean hasClient( long clientId );
+
+    void detachClient( long clientId );
+
+    void registerController( Object controller ) throws RemoteProcessServiceRPCException;
+
+    void compileIface( Class<?> ifaceClass, boolean bAsIface ) throws RemoteProcessServiceRPCException;
 
     void registerProcess( long clientId, UProcessMirrorDTO processDTO );
 

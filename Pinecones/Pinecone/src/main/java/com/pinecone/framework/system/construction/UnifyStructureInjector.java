@@ -1,6 +1,7 @@
 package com.pinecone.framework.system.construction;
 
 import com.pinecone.framework.system.functions.Executable;
+import com.pinecone.framework.system.construction.eval.StructureValueResolver;
 import com.pinecone.framework.unit.Units;
 import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.json.homotype.JSONGet;
@@ -101,13 +102,11 @@ public class UnifyStructureInjector extends ObjectInjector {
                 }
 
 
-                Object val = this.getFromMapStructure( mapLiked, this.getFieldName( szMappedKey ) );
-                if( val == null ){
-                    val = this.getFromMapStructure( mapLiked, szMappedKey );
-                }
-                if( val == null && szMappedKey.contains( "." ) ){
-                    val = this.getValueFromMapRecursively( mapLiked, szMappedKey );
-                }
+                Object val = this.getStructureValueResolver().resolve(
+                        mapLiked,
+                        this.getFieldName( szMappedKey ),
+                        szMappedKey
+                );
 
                 try {
                     Object j;
@@ -233,9 +232,16 @@ public class UnifyStructureInjector extends ObjectInjector {
         return value;
     }
 
+    protected StructureValueResolver getStructureValueResolver() {
+        return StructureValueResolver.DefaultResolver;
+    }
+
     @Override
     public Object inject              ( Object that, Class<?> type, Object instance ) throws Exception {
-        if ( ObjectInjector.trialHomogeneity( that ) ){
+        if ( that == null ) {
+            return null;
+        }
+        else if ( ObjectInjector.trialHomogeneity( that ) && !type.isEnum() ){
             return that;
         }
         else if( type == Object.class ){
@@ -250,8 +256,9 @@ public class UnifyStructureInjector extends ObjectInjector {
         else if ( that instanceof Map ){
             return this.inject( (Map) that, type, instance );
         }
-        else {
+        else if ( !ObjectInjector.trialHomogeneity( that ) ) {
             return this.injectMapLinked( that, type, instance );
         }
+        return that;
     }
 }

@@ -16,6 +16,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     protected final Map<Class<?>, Object >                 mSingletonObjects   = new ConcurrentHashMap<>();
     protected final Map<Class<?>, StructureDefinition >    mObjectDefinitions  = new ConcurrentHashMap<>();
     protected final Map<Class<?>, InstancePool<? > >       mObjectInstancer    = new ConcurrentHashMap<>(); // Pool is immutable.
+    protected final Map<StructureKey, Class<?> >            mObjectKeys         = new ConcurrentHashMap<>();
     protected final Map<String, Object >                   mObjectRegister     = new ConcurrentHashMap<>();
     protected final DynamicFactory                         mCentralFactory     ;
 
@@ -49,6 +50,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
         }
         this.mObjectDefinitions.putIfAbsent( type, definition );
         this.mObjectInstancer.putIfAbsent( type, pool );
+        this.mObjectKeys.putIfAbsent( new StructureKey( type, definition ), type );
         return this;
     }
 
@@ -157,19 +159,22 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
 
     protected Object invokeInstancingProvider( Class<? > provider, String szMethodName ) {
         Object provide = this.mCentralFactory.optNewInstance( provider, null );
+        if ( provide == null ) {
+            throw new StructureProviderException( "Failed to instantiate structure provider: " + provider.getName() );
+        }
         Method pm;
         try{
             pm = provide.getClass().getMethod( szMethodName );
         }
         catch ( NoSuchMethodException nme ) {
-            return null;
+            throw new StructureProviderException( "Structure provider method not found: " + provider.getName() + "." + szMethodName, nme );
         }
 
         try {
             return ReflectionUtils.tryAccessibleInvoke( pm, provide );
         }
         catch ( InvocationTargetException | IllegalArgumentException e ) {
-            return null;
+            throw new StructureProviderException( "Failed to invoke structure provider method: " + provider.getName() + "." + szMethodName, e );
         }
     }
 
@@ -253,7 +258,7 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
             return obj;
         }
 
-        String name = instanceStructure.name();
+        String name = instanceStructure == null ? "" : instanceStructure.name();
         if ( StringUtils.isEmpty(name) ) {
             name = type.getSimpleName();
             name = Character.toLowerCase( name.charAt(0) ) + name.substring(1);
@@ -320,6 +325,37 @@ public class UnifyCentralInstanceDispenser implements StructureInstanceDispenser
     @Override
     public Object removeRegisteredInstance( String name ) {
         return this.mObjectRegister.remove( name );
+    }
+
+    public UnifyCentralInstanceDispenser prepare() {
+        for ( Class<?> type : this.mObjectDefinitions.keySet() ) {
+            this.prepare( type );
+        }
+        return this;
+    }
+
+    public UnifyCentralInstanceDispenser prepare( Class<?> type ) {
+        StructureDefinition definition = this.mObjectDefinitions.get( type );
+        if ( definition == null ) {
+            throw new StructureResolutionException( "Structure is not registered: " + type.getName() );
+        }
+        if ( definition.getCycle() == ReuseCycle.PreSingleton ) {
+            this.allotInstance( type );
+        }
+        else if ( definition.getCycle() == ReuseCycle.PreRecyclable ) {
+            InstancePool<?> pool = this.mObjectInstancer.get( type );
+            if ( pool == null && definition.getType() != Object.class ) {
+                pool = this.mObjectInstancer.get( definition.getType() );
+            }
+            if ( pool != null ) {
+                pool.preAllocate( 4 );
+            }
+        }
+        return this;
+    }
+
+    public Class<?> getRegisteredType( StructureKey key ) {
+        return this.mObjectKeys.get( key );
     }
 
 }

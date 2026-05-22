@@ -20,4 +20,9 @@ public enum UProcessStatus implements Pinenut {
     public String getName() {
         return this.name();
     }
+
+    @Override
+    public String toJSONString() {
+        return "\"" + this.name() + "\"";
+    }
 }

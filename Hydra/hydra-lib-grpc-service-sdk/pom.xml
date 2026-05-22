@@ -14,9 +14,6 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <grpc.version>1.62.2</grpc.version>
-    <protobuf.version>4.28.2</protobuf.version>
-    <protoc.version>4.28.2</protoc.version>
   </properties>
   <dependencies>
     <dependency>
@@ -29,27 +26,11 @@
       <version>2.5.1</version>
       <scope>compile</scope>
     </dependency>
-    <!-- gRPC -->
     <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-netty-shaded</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-protobuf</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-stub</artifactId>
-      <version>${grpc.version}</version>
-    </dependency>
-    <!-- 必须：Java 9+ 需要 -->
-    <dependency>
-      <groupId>jakarta.annotation</groupId>
-      <artifactId>jakarta.annotation-api</artifactId>
-      <version>1.3.5</version>
+      <groupId>com.pinecone.hydra.sdk.grpc</groupId>
+      <artifactId>hydra-lib-grpc-sdk</artifactId>
+      <version>1.2.1</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>com.pinecone.hydra.kernel</groupId>

@@ -25,6 +25,7 @@ import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
 
 import java.net.URI;
 import java.util.Collection;
@@ -43,7 +44,8 @@ class Dante extends EnderHydra {
     public void vitalize () throws Exception {
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager(), wolfKing );
+        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager() );
+        server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, wolfKing ) );
         server.startService();
 
 

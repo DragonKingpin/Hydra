@@ -58,7 +58,7 @@ class Rick extends EnderHydra {
 
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-        this.getDispenserCenter().getInstanceDispenser().registerInstance( "TaskWolfKing", wolfKing );
+        this.getDispenserCenter().getInstanceDispenser().registerInstance( "WolfKing", wolfKing );
 
         Lord lord = this.getLordFederation().instantiate( "KernelOdinLord", "./system/setup/lords/odin.json5" );
 

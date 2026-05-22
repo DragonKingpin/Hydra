@@ -29,6 +29,7 @@ import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
@@ -118,11 +119,16 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
             messageNode = (MessageNode) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszControlRPCDriverKey );
         }
         UlfServer rpcServer = (UlfServer) messageNode;
-        if ( rpcServer != null ) {
-            ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
-            RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm, rpcServer );
-            this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
+        if ( rpcServer == null ) {
+            throw new IrrationalProvokedException( "Control RPC driver `" + this.mszControlRPCDriverKey + "` does not exist or is not UlfServer." );
         }
+        ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
+        if ( pm == null ) {
+            throw new IrrationalProvokedException( "ProcessManager `" + this.mszProcessManagerKey + "` does not exist." );
+        }
+        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm );
+        server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, rpcServer ) );
+        this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
         this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
 
 

@@ -43,7 +43,7 @@ public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
     }
 
     @Override
-    public T allocate() {
+    public synchronized T allocate() {
         T obj = this.mPool.poll();
         if ( obj == null ) {
             int availableCapacity = this.freeSize();
@@ -68,41 +68,49 @@ public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
     }
 
     @Override
-    public void free( T obj ) {
+    public synchronized void free( T obj ) {
         if ( obj != null ) {
+            if ( this.mFreeSize >= this.mCapacity ) {
+                throw new IllegalStateException( "Instance pool is already full[" + this.mCapacity + "]." );
+            }
             this.mPool.offer( obj );
             ++this.mFreeSize;
         }
     }
 
     @Override
-    public int freeSize() {
+    public synchronized int freeSize() {
         return this.mFreeSize;
     }
 
     @Override
-    public int pooledSize() {
+    public synchronized int pooledSize() {
         return this.mPool.size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return this.freeSize() == 0;
     }
 
     @Override
-    public void preAllocate( int count ) {
-        for ( int i = 0; i < count; ++i) {
+    public synchronized void preAllocate( int count ) {
+        int nCount = Math.min( count, Math.max( 0, this.mFreeSize - this.mPool.size() ) );
+        for ( int i = 0; i < nCount; ++i) {
             this.mPool.offer( this.newInstance() );
         }
     }
 
     @Override
-    public void setCapacity( int capacity ) {
-        if ( capacity < this.mCapacity - this.mFreeSize ) {
+    public synchronized void setCapacity( int capacity ) {
+        int nCapacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
+        if ( nCapacity < this.mCapacity - this.mFreeSize ) {
             throw new IllegalArgumentException( "New capacity cannot be less than current capacity minus free size." );
         }
-        if ( capacity > this.mCapacity ) {
+        int nOldCapacity = this.mCapacity;
+        this.mCapacity = nCapacity;
+        this.mFreeSize += this.mCapacity - nOldCapacity;
+        if ( nCapacity > nOldCapacity ) {
             int availableCapacity = this.freeSize();
             if ( availableCapacity > 0 ) {
                 if( this.mPreAllocate > 0 ) {
@@ -110,11 +118,10 @@ public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
                 }
             }
         }
-        this.mCapacity = capacity;
     }
 
     @Override
-    public int getCapacity() {
+    public synchronized int getCapacity() {
         return this.mCapacity;
     }
 

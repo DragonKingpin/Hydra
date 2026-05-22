@@ -39,7 +39,7 @@ final class UofsVolumeFactory {
         GUID physicalGuid = this.guid( seed, "101" );
         this.cleanup( seed );
 
-        File objectRoot = new File( this.mContext.root + "\\" + caseName + "\\object" );
+        File objectRoot = new File( new File( this.mContext.root, caseName ), "object" );
         PhysicalAccessor physical = new LocalObjectDirectoryPhysicalAccessor(
                 physicalGuid,
                 caseName + "-object",
@@ -65,7 +65,7 @@ final class UofsVolumeFactory {
         GUID physicalGuid = this.guid( seed, "101" );
         this.cleanup( seed );
 
-        File physicalFile = new File( this.mContext.root + "\\" + caseName + "\\" + TitanVolumeSchema.BlockBackingFileName );
+        File physicalFile = new File( new File( this.mContext.root, caseName ), TitanVolumeSchema.BlockBackingFileName );
         this.deleteFile( physicalFile );
         PhysicalAccessor physical = new LocalFilePhysicalAccessor(
                 physicalGuid,
@@ -109,8 +109,8 @@ final class UofsVolumeFactory {
         );
         this.mContext.mappers.volumeMapper.update( VolumeRecord.fromVolume( spanned ) );
         UofsVolumeFixture fixture = new UofsVolumeFixture( caseName, spannedGuid, manager, null );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-101.bin" ) );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-102.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-101.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-102.bin" ) );
         return fixture;
     }
 
@@ -131,8 +131,8 @@ final class UofsVolumeFactory {
         );
         this.mContext.mappers.volumeMapper.update( VolumeRecord.fromVolume( striped ) );
         UofsVolumeFixture fixture = new UofsVolumeFixture( caseName, stripedGuid, manager, null );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-101.bin" ) );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-102.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-101.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-102.bin" ) );
         return fixture;
     }
 
@@ -145,7 +145,7 @@ final class UofsVolumeFactory {
             String extentSuffix,
             long capacity
     ) throws Exception {
-        File physicalFile = new File( this.mContext.root + "\\" + caseName + "\\child-" + physicalSuffix + ".bin" );
+        File physicalFile = new File( new File( this.mContext.root, caseName ), "child-" + physicalSuffix + ".bin" );
         this.deleteFile( physicalFile );
         PhysicalAccessor physical = new LocalFilePhysicalAccessor(
                 this.guid( seed, physicalSuffix ),

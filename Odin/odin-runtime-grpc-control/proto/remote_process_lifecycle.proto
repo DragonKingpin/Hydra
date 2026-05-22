@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package walnut.odin.proc.control.lifecycle;
+
+option java_multiple_files = true;
+option java_package = "com.walnut.odin.proc.server.transport.grpc.lifecycle";
+option java_outer_classname = "RemoteProcessLifecycleProto";
+
+service RemoteProcessLifecycle {
+  rpc Control(stream RemoteProcessControlFrame) returns (stream RemoteProcessControlFrame);
+}
+
+enum RemoteProcessControlFrameType {
+  REMOTE_PROCESS_CONTROL_FRAME_TYPE_UNSPECIFIED = 0;
+
+  CLIENT_MUSTER = 1;
+  CLIENT_READY = 2;
+
+  CREATE_REMOTE_PROCESS = 10;
+  VITALIZE_REMOTE_PROCESS = 11;
+  START_REMOTE_PROCESS = 12;
+  QUERY_PROCESS_RUNTIME_META = 13;
+  HAS_OWN_PROCESS = 14;
+  CONTAIN_PROCESS = 15;
+
+  COMMAND_RESULT = 30;
+  PROCESS_CREATED = 31;
+  PROCESS_TERMINATED = 32;
+  PROCESS_RUNTIME_META = 33;
+
+  HEARTBEAT = 50;
+  APOPTOSIS = 60;
+  ERROR = 90;
+}
+
+message RemoteProcessControlFrame {
+  string frame_guid = 1;
+  string correlation_guid = 2;
+  int64 client_id = 3;
+  RemoteProcessControlFrameType frame_type = 4;
+  int64 create_time_millis = 5;
+
+  oneof payload {
+    ClientMuster client_muster = 10;
+    ClientReady client_ready = 11;
+    UProcessMirror uprocess_mirror = 12;
+    ProcessId process_id = 13;
+    ProcessRuntimeMeta process_runtime_meta = 14;
+    CommandResult command_result = 15;
+    ErrorFrame error = 16;
+    HeartbeatFrame heartbeat = 17;
+  }
+}
+
+message ClientMuster {
+  int64 client_id = 1;
+  string client_guid = 2;
+  string client_path = 3;
+  string host = 4;
+  string runtime = 5;
+  map<string, string> metadata = 20;
+}
+
+message ClientReady {
+  int64 client_id = 1;
+  string session_guid = 2;
+}
+
+message UProcessMirror {
+  string pid = 1;
+  string process_name = 2;
+  string image_path = 3;
+  string working_directory = 4;
+  repeated string arguments = 5;
+  map<string, string> environment = 20;
+}
+
+message ProcessId {
+  string pid = 1;
+}
+
+message ProcessRuntimeMeta {
+  string pid = 1;
+  string status = 2;
+  int64 start_time_millis = 3;
+  int64 finish_time_millis = 4;
+  int32 exit_code = 5;
+  string message = 6;
+}
+
+message CommandResult {
+  bool success = 1;
+  string message = 2;
+  ProcessRuntimeMeta process_runtime_meta = 3;
+}
+
+message HeartbeatFrame {
+  int64 timestamp_millis = 1;
+  string status = 2;
+}
+
+message ErrorFrame {
+  string error_code = 1;
+  string message = 2;
+}

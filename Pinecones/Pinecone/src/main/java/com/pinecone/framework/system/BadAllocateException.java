@@ -1,8 +1,6 @@
 package com.pinecone.framework.system;
 
-import com.pinecone.framework.system.prototype.Pinenut;
-
-public class BadAllocateException extends Exception implements Pinenut {
+public class BadAllocateException extends PineRuntimeException {
     public BadAllocateException() {
         super();
     }

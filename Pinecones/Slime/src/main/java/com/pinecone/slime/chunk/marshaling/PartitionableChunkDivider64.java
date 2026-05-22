@@ -1,7 +1,7 @@
 package com.pinecone.slime.chunk.marshaling;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.slime.chunk.scheduler.ArchMasterSplitunkDivider64;
-import com.pinecone.slime.chunk.scheduler.BadAllocateException;
 import com.pinecone.slime.chunk.Chunk;
 import com.pinecone.slime.chunk.Splitunk;
 import com.pinecone.slime.chunk.scheduler.ChunkDivider;

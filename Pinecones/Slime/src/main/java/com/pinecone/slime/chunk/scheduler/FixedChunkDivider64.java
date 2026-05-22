@@ -1,5 +1,6 @@
 package com.pinecone.slime.chunk.scheduler;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.slime.chunk.Splitunk;
 import com.pinecone.slime.unitization.MinMaxRange;
 import com.pinecone.slime.chunk.Chunk;

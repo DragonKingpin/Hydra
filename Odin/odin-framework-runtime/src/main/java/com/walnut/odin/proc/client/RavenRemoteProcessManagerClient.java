@@ -103,7 +103,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) {
+    public UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) {
         LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, parent, startupArgs, contextEnvironmentVars );
 
         if ( this.mProcessLifecycleIface != null ) {
@@ -124,6 +124,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             boolean isURI       = handlerDTO.isImageAddressURI();
             RemoteVitalizationResponse response = new RemoteVitalizationResponse();
             response.setRemoteVitalizationStatus( RemoteVitalizationStatus.New );
+            response.setImageResolutionMode( handlerDTO.getImageResolutionMode() );
 
             this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
@@ -135,19 +136,18 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             else {
                 image = this.queryExecutionImage( imageAddress );
             }
-            this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
-
             if ( image == null ) {
                 response.setRemoteVitalizationStatus( RemoteVitalizationStatus.NoImage );
                 return response;
             }
+            this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
 
             String szStartupArguments      = handlerDTO.getStartupArguments();
             String szEnvironmentVariables  = handlerDTO.getEnvironmentVariables();
             String szParentPID             = handlerDTO.getParentPID();
 
-            Map<String, String[]> startupArgs  = ProcessesUtils.decode( szStartupArguments );
-            Map<String, String[]> envVariables = ProcessesUtils.decode( szEnvironmentVariables );
+            Map<String, String> startupArgs  = ProcessesUtils.decode( szStartupArguments );
+            Map<String, String> envVariables = ProcessesUtils.decode( szEnvironmentVariables );
             GUID parentPID = null;
             if ( szParentPID != null ) {
                 parentPID = this.mProcessManager.getGuidAllocator().parse( szParentPID );
@@ -163,6 +163,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
             response.setImageAddress(imageAddress);
             response.setImageAddressURI(isURI);
+            response.setImageResolutionMode( handlerDTO.getImageResolutionMode() );
 
             if ( lpProcess != null && lpProcess.length > 0 ) {
                 lpProcess[0] = localHostedProcess;
@@ -243,3 +244,4 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         return this.mDuplexAppointClient;
     }
 }
+

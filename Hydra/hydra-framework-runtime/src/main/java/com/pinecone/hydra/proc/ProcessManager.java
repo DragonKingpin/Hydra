@@ -54,7 +54,7 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     boolean autopsy( UProcess that );
 
     LocalUProcess createLocalHostedProcess(
-             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+             ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
     );
 
     UProcess getProcess( GUID pid );
@@ -66,7 +66,7 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     boolean containProcess( GUID pid );
 
     default LocalUProcess createLocalHostedProcess(
-            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs
+            ExecutionImage image, UProcess parent, Map<String, String> startupArgs
     ) {
         return this.createLocalHostedProcess( image, parent, startupArgs, null );
     }
@@ -74,3 +74,4 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     ImageModifier getImageModifier();
 
 }
+

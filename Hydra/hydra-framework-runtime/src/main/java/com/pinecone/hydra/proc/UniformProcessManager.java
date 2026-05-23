@@ -257,7 +257,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
 
     @Override
     public LocalUProcess createLocalHostedProcess(
-            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+            ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
     ) {
         if ( parent == null ) {
             parent = this.mRootUProcess;
@@ -343,7 +343,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
             return null;
         }
         if( split.length > 1 ) {
-            // 后续补齐查找逻辑
+            // 鍚庣画琛ラ綈鏌ユ壘閫昏緫
             return null;
         }
         else {
@@ -356,3 +356,4 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     }
 
 }
+

@@ -21,7 +21,7 @@ public interface EntryPointRunnable extends Runnable, Executor {
 
     void applyProcessEventHandler( ProcessEventHandler handler );
 
-    int main( Map<String, String[]> args ) throws Exception;
+    int main( Map<String, String> args ) throws Exception;
 
     @Override
     default void execute() throws Exception {
@@ -31,7 +31,7 @@ public interface EntryPointRunnable extends Runnable, Executor {
 
     /**
      * Overriding is discouraged; lifecycle supervision is required in principle.
-     * 原则上，请勿重写，需要检察程序生命周期行为。
+     * 鍘熷垯涓婏紝璇峰嬁閲嶅啓锛岄渶瑕佹瀵熺▼搴忕敓鍛藉懆鏈熻涓恒€?
      */
     @Override
     default void run() {
@@ -80,3 +80,4 @@ public interface EntryPointRunnable extends Runnable, Executor {
     }
 
 }
+

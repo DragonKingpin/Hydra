@@ -7,12 +7,14 @@ import com.pinecone.hydra.proc.ArchProcessManager;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
+import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.ProcessesUtils;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.MediatedRemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -116,24 +118,35 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     protected RemoteVitalizationResponse vitalizeRemoteUProcess0(
-            long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars,
+            long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars,
             boolean directStart
+    ) throws RemoteProcessLifecycleException {
+        return this.vitalizeRemoteUProcess0(
+                clientId,
+                RemoteProcessCreationContext.of( imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars ),
+                directStart
+        );
+    }
+
+    protected RemoteVitalizationResponse vitalizeRemoteUProcess0(
+            long clientId, RemoteProcessCreationContext context, boolean directStart
     ) throws RemoteProcessLifecycleException {
         UProcessMirrorDTO handlerDTO = new UProcessMirrorDTO();
         String szParentPID = this.mProcessManager.getRootUProcess().getPID().toString();
-        if ( parentPID != null ) {
-            szParentPID = parentPID.toString();
+        if ( context.getParentPID() != null ) {
+            szParentPID = context.getParentPID().toString();
         }
         handlerDTO.setParentPID( szParentPID );
-        if ( startupArgs != null ) {
-            handlerDTO.setStartupArguments( JSON.stringify( startupArgs ) );
+        if ( context.getStartupArguments() != null ) {
+            handlerDTO.setStartupArguments( JSON.stringify( context.getStartupArguments() ) );
         }
-        if ( contextEnvironmentVars != null ) {
-            handlerDTO.setEnvironmentVariables( JSON.stringify( contextEnvironmentVars ) );
+        if ( context.getEnvironmentVariables() != null ) {
+            handlerDTO.setEnvironmentVariables( JSON.stringify( context.getEnvironmentVariables() ) );
         }
 
-        handlerDTO.setImageAddress( imageAddress );
-        handlerDTO.setImageAddressURI( isURI );
+        handlerDTO.setImageAddress( context.getImageAddress() );
+        handlerDTO.setImageAddressURI( context.isImageAddressURI() );
+        handlerDTO.setImageResolutionMode( context.getImageResolutionMode() );
 
         RemoteVitalizationResponse response;
         try {
@@ -157,25 +170,38 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
-       return this.vitalizeRemoteUProcess0( clientId, imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars, true );
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+       return this.vitalizeRemoteUProcess( clientId, RemoteProcessCreationContext.of( imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars ) );
     }
 
     @Override
-    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, RemoteProcessCreationContext context ) throws RemoteProcessLifecycleException {
+       return this.vitalizeRemoteUProcess0( clientId, context, true );
+    }
+
+    @Override
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.vitalizeRemoteUProcess( clientId, imagePath, false, parentPID, startupArgs, contextEnvironmentVars );
     }
 
     @Override
-    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+    public RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.vitalizeRemoteUProcess( clientId, imageURI.toString(), true, parentPID, startupArgs, contextEnvironmentVars );
     }
 
 
 
     @Override
-    public RemoteCreationResult createRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
-        RemoteVitalizationResponse response = this.vitalizeRemoteUProcess0( clientId, imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars, false );
+    public RemoteCreationResult createRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+        return this.createRemoteUProcess(
+                clientId,
+                RemoteProcessCreationContext.of( imageAddress, isURI, parentPID, startupArgs, contextEnvironmentVars )
+        );
+    }
+
+    @Override
+    public RemoteCreationResult createRemoteUProcess( long clientId, RemoteProcessCreationContext context ) throws RemoteProcessLifecycleException {
+        RemoteVitalizationResponse response = this.vitalizeRemoteUProcess0( clientId, context, false );
         RemoteCreationResult result = new RemoteCreationResult();
         result.response = response;
         if ( response.getStatus() != RemoteVitalizationStatus.New.getCode() ) {
@@ -200,12 +226,12 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     @Override
-    public RemoteCreationResult createRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+    public RemoteCreationResult createRemoteUProcess( long clientId, String imagePath, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.createRemoteUProcess( clientId, imagePath, false, parentPID, startupArgs, contextEnvironmentVars );
     }
 
     @Override
-    public RemoteCreationResult createRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
+    public RemoteCreationResult createRemoteUProcess( long clientId, URI imageURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException {
         return this.createRemoteUProcess( clientId, imageURI.toString(), true, parentPID, startupArgs, contextEnvironmentVars );
     }
 
@@ -257,14 +283,15 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected RemoteProcess createMediatedRemoteProcess(
             long clientId, String name, long localPID, GUID processId,
-            String szStartupArguments, String szEnvironmentVariables, String imageAddress, boolean isURI
+            String szStartupArguments, String szEnvironmentVariables, String imageAddress, boolean isURI,
+            RemoteImageResolutionMode imageResolutionMode
     ) {
         MediatedRemoteProcess process = new MediatedRemoteProcess(
                 clientId,this, name, localPID, processId,
                 ProcessesUtils.decode( szStartupArguments ), ProcessesUtils.decode( szEnvironmentVariables )
         );
 
-        this.afterMediatedRemoteProcess( process, imageAddress, isURI );
+        this.afterMediatedRemoteProcess( process, imageAddress, isURI, imageResolutionMode );
         this.registerProcess( clientId, process );
         return process;
     }
@@ -274,7 +301,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         return this.createMediatedRemoteProcess(
                 clientId, response.getName(), response.getLocalPID(), this.mGuidAllocator.parse( response.getPID() ),
                 response.getStartupArguments(), response.getEnvironmentVariables(),
-                response.getImageAddress(), response.isImageAddressURI()
+                response.getImageAddress(), response.isImageAddressURI(), response.optImageResolutionMode()
         );
     }
 
@@ -283,7 +310,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         return this.createMediatedRemoteProcess(
                 clientId, processDTO.getName(), processDTO.getLocalPID(), this.mGuidAllocator.parse( processDTO.getPID() ),
                 processDTO.getStartupArguments(), processDTO.getEnvironmentVariables(),
-                processDTO.getImageAddress(), processDTO.isImageAddressURI()
+                processDTO.getImageAddress(), processDTO.isImageAddressURI(), processDTO.optImageResolutionMode()
         );
     }
 
@@ -310,7 +337,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             }
 
             UProcessRuntimeMeta meta = ProcessesUtils.extractProcessMeta( process );
-            // 不要直接return 老子好打断点.
+            // 涓嶈鐩存帴return 鑰佸瓙濂芥墦鏂偣.
             return meta;
         }
         catch ( RemoteProcessServiceRPCException e ) {
@@ -320,3 +347,4 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
 }
+

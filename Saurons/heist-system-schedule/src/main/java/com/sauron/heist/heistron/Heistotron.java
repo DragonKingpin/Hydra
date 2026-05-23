@@ -125,12 +125,11 @@ public class Heistotron extends ArchServgramium implements Heistgram {
     }
 
     protected String queryCmdDesignatedHeist() {
-        Map<String, String[] > map = this.parentSystem().getStartupCommandMap();
-        String[] heists = map.get( "heist" );
-        if( heists != null && heists.length > 0 ) {
-            return heists[ 0 ];
+        String heist = this.parentSystem().getStartupCommandMap().get( "heist" );
+        if ( heist == null ) {
+            return "";
         }
-        return "";
+        return heist;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 
 public class RemoteVitalizationResponse implements Pinenut {
@@ -24,6 +25,7 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     private String mszImageAddress;
     private boolean mbImageAddressURI;
+    private String mImageResolutionMode = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE.name();
 
     public RemoteVitalizationResponse() {
         this.mnStatus = RemoteVitalizationStatus.Vitalized.getCode();
@@ -43,6 +45,18 @@ public class RemoteVitalizationResponse implements Pinenut {
 
     public boolean isImageAddressURI() {
         return this.mbImageAddressURI;
+    }
+
+    public String getImageResolutionMode() {
+        return this.mImageResolutionMode;
+    }
+
+    public void setImageResolutionMode( String imageResolutionMode ) {
+        this.mImageResolutionMode = RemoteImageResolutionMode.parse( imageResolutionMode ).name();
+    }
+
+    public RemoteImageResolutionMode optImageResolutionMode() {
+        return RemoteImageResolutionMode.parse( this.mImageResolutionMode );
     }
 
     public String getName() {

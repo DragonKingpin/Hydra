@@ -30,8 +30,8 @@ public class Framework extends ArchProcessum implements Pinecore {
     protected String                 mszMajorPackagePath       ; // The path of this class file.
     protected String                 mszRuntimeContextPath     ; // System startup command, the 'user.dir'.
     protected String                 mszRuntimePath            ; // System real runtime path.
-    protected Map<String, String[]>  mStartupCommandMap        ;
-    protected Map<String, String[]>  mEnvironmentVars          ;
+    protected Map<String, String>    mStartupCommandMap        ;
+    protected Map<String, String>    mEnvironmentVars          ;
     protected String[]               mStartupCommand           ;
     protected Thread                 mMainThread               ;
     protected InputStream            mIn = System.in           ;
@@ -148,12 +148,12 @@ public class Framework extends ArchProcessum implements Pinecore {
     }
 
     @Override
-    public Map<String, String[] > getStartupCommandMap() {
+    public Map<String, String > getStartupCommandMap() {
         return this.mStartupCommandMap;
     }
 
     @Override
-    public Map<String, String[] > getEnvironmentVars() {
+    public Map<String, String > getEnvironmentVars() {
         return this.mEnvironmentVars;
     }
 

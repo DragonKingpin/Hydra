@@ -124,7 +124,13 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
         return this.mProcessManager.searchProcessesByNameNoCase( procName );
     }
 
-    protected void afterMediatedRemoteProcess( MediatedRemoteProcess process, String imageAddress, boolean isURI ) {
+    protected void afterMediatedRemoteProcess(
+            MediatedRemoteProcess process, String imageAddress, boolean isURI, RemoteImageResolutionMode imageResolutionMode
+    ) {
+        if ( imageAddress == null || imageAddress.isEmpty() ) {
+            throw new IllegalStateException( "[MirrorCompromised] image address is required for mediated remote process." );
+        }
+
         this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
         ExecutionImage image;
@@ -136,12 +142,23 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
         }
 
         if ( image == null ) {
-            throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
+            if ( imageResolutionMode != RemoteImageResolutionMode.REMOTE_CLIENT_IMAGE ) {
+                throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
+            }
+            else {
+                this.getLogger().info( "[Notice] [MirrorAsymmetric] `{}` is not accessible in this server.", imageAddress );
+            }
+        }
+        else {
+            this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
+            process.mExecutionImage = image;
         }
 
-        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
-
-        process.mExecutionImage = image;
+        process.mszImageAddress = imageAddress;
+        process.mImageResolutionMode = imageResolutionMode;
+        if ( process.mImageResolutionMode == null ) {
+            process.mImageResolutionMode = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
+        }
         process.mProcessManager = this.mProcessManager;
     }
 

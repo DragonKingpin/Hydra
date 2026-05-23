@@ -1,11 +1,15 @@
 package com.walnut.odin.proc.server.transport;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.transport.entity.TransportConnection;
 
 public interface RemoteProcessControlTransport extends RemoteProcessControlTransportLifecycle {
 
@@ -32,5 +36,9 @@ public interface RemoteProcessControlTransport extends RemoteProcessControlTrans
     boolean containProcess( long clientId, GUID pid ) throws RemoteProcessServiceRPCException;
 
     UProcessRuntimeMeta queryProcessRuntimeMeta( long clientId, GUID pid ) throws RemoteProcessLifecycleException;
+
+    default Collection<TransportConnection> queryClientConnections( long clientId ) {
+        return Collections.emptyList();
+    }
 
 }

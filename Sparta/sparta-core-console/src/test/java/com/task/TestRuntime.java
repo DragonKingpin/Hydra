@@ -1,4 +1,4 @@
-package com.sparta;
+package com.task;
 
 import java.util.Map;
 
@@ -160,7 +160,7 @@ class Rick extends EnderHydra {
 
         ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public int main( Map<String, String[]> args ) {
+            public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.sleep( 1000 );
                 Debug.greenfs( "Miao~" );

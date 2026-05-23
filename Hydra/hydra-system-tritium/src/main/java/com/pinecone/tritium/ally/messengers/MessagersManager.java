@@ -80,8 +80,8 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
             boolean bIsRecipient = conf.optBoolean( "IsRecipient" );
 
             if( bIsRecipient ) {
-                String[] as = this.getSystem().getStartupCommandMap().get( "TestWolfMCClient" );
-                if( as != null && as.length > 0 && as[0].equals( "true" ) && node instanceof WolfMCServer ){
+                String as = this.getSystem().getStartupCommandMap().get( "TestWolfMCClient" );
+                if( "true".equals( as ) && node instanceof WolfMCServer ){
                     return;
                 }
             }

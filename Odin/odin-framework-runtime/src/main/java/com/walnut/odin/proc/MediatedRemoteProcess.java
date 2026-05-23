@@ -35,6 +35,10 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected ExecutionImage                      mExecutionImage;
 
+    protected String                              mszImageAddress;
+
+    protected RemoteImageResolutionMode           mImageResolutionMode;
+
     protected String                              mszName;
 
     protected long                                mnControlClientId;
@@ -45,9 +49,9 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected GUID                                mProcessId;
 
-    protected Map<String, String[]>               mStartupArguments;
+    protected Map<String, String>               mStartupArguments;
 
-    protected Map<String, String[]>               mEnvironmentVariables;
+    protected Map<String, String>               mEnvironmentVariables;
 
     protected List<ProcessRemoteEventHandler>     mRemoteEventHandlers;
 
@@ -55,7 +59,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     public MediatedRemoteProcess(
             long controlClientId, RemoteProcessManagerServer server, String name, long localPID, GUID processId,
-            Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
+            Map<String, String> startupArguments, Map<String, String> environmentVariables
     ) {
         this.mnControlClientId           = controlClientId;
         this.mRemoteProcessManagerServer = server;
@@ -64,6 +68,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
         this.mProcessId                  = processId;
         this.mStartupArguments           = startupArguments;
         this.mEnvironmentVariables       = environmentVariables;
+        this.mImageResolutionMode        = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
         this.mRemoteEventHandlers        = new ArrayList<>();
         this.mStatus                     = UProcessStatus.Registered;
     }
@@ -228,6 +233,17 @@ public class MediatedRemoteProcess implements RemoteProcess {
         return this.mExecutionImage;
     }
 
+    public String getImageAddress() {
+        return this.mszImageAddress;
+    }
+
+    public RemoteImageResolutionMode getImageResolutionMode() {
+        if ( this.mImageResolutionMode == null ) {
+            return RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
+        }
+        return this.mImageResolutionMode;
+    }
+
     @Override
     public ControllableLevel getControllableLevel() {
         return null;
@@ -244,12 +260,12 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
-    public Map<String, String[]> getStartupArguments() {
+    public Map<String, String> getStartupArguments() {
         return this.mStartupArguments;
     }
 
     @Override
-    public Map<String, String[]> getEnvironmentVariables() {
+    public Map<String, String> getEnvironmentVariables() {
         return this.mEnvironmentVariables;
     }
 
@@ -365,3 +381,4 @@ public class MediatedRemoteProcess implements RemoteProcess {
         return null;
     }
 }
+

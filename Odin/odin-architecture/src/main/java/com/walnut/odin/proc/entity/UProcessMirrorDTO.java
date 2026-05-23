@@ -1,6 +1,7 @@
 package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.walnut.odin.proc.RemoteImageResolutionMode;
 
 public class UProcessMirrorDTO implements Pinenut {
 
@@ -18,6 +19,7 @@ public class UProcessMirrorDTO implements Pinenut {
 
     private String      mszImageAddress;
     private boolean     mbImageAddressURI;
+    private String      mImageResolutionMode = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE.name();
 
     public UProcessMirrorDTO( String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
         this.mszName               = name;
@@ -49,6 +51,18 @@ public class UProcessMirrorDTO implements Pinenut {
 
     public boolean isImageAddressURI() {
         return this.mbImageAddressURI;
+    }
+
+    public String getImageResolutionMode() {
+        return this.mImageResolutionMode;
+    }
+
+    public void setImageResolutionMode( String imageResolutionMode ) {
+        this.mImageResolutionMode = RemoteImageResolutionMode.parse( imageResolutionMode ).name();
+    }
+
+    public RemoteImageResolutionMode optImageResolutionMode() {
+        return RemoteImageResolutionMode.parse( this.mImageResolutionMode );
     }
 
     public String getName() {

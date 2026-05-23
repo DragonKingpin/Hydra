@@ -1,6 +1,7 @@
 package com.ioc;
 
 import com.pinecone.Pinecone;
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.framework.system.construction.*;
 import com.pinecone.framework.system.prototype.ObjectiveMap;
 import com.pinecone.framework.util.Debug;
@@ -128,7 +129,7 @@ class KernelConfigProbe {
 
 
 public class TestIoC {
-    public static void testInstancePool( )  {
+    public static void testInstancePool( ) throws BadAllocateException {
         DynamicFactory wolfNPCFactory           = new GenericDynamicFactory();
         GenericDynamicInstancePool<Actor > npcs = new GenericDynamicInstancePool<>( wolfNPCFactory, 0, 0, Actor.class );
 

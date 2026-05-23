@@ -2,6 +2,9 @@ package com.walnut.odin.proc.server.transport.grpc;
 
 import com.walnut.odin.proc.server.transport.RemoteProcessControlSession;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportType;
+import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame;
+
+import io.grpc.stub.StreamObserver;
 
 public class GrpcRemoteProcessControlSession implements RemoteProcessControlSession {
 
@@ -11,9 +14,9 @@ public class GrpcRemoteProcessControlSession implements RemoteProcessControlSess
 
     protected boolean   mbActive;
 
-    protected Object    mResponseObserver;
+    protected StreamObserver<RemoteProcessControlFrame> mResponseObserver;
 
-    public GrpcRemoteProcessControlSession( long clientId, String szSessionGuid, Object responseObserver ) {
+    public GrpcRemoteProcessControlSession( long clientId, String szSessionGuid, StreamObserver<RemoteProcessControlFrame> responseObserver ) {
         this.mnClientId         = clientId;
         this.mszSessionGuid     = szSessionGuid;
         this.mResponseObserver  = responseObserver;
@@ -24,8 +27,12 @@ public class GrpcRemoteProcessControlSession implements RemoteProcessControlSess
         return this.mszSessionGuid;
     }
 
-    public Object responseObserver() {
+    public StreamObserver<RemoteProcessControlFrame> responseObserver() {
         return this.mResponseObserver;
+    }
+
+    public void send( RemoteProcessControlFrame frame ) {
+        this.mResponseObserver.onNext( frame );
     }
 
     public void close() {

@@ -23,9 +23,9 @@ public class LaunchFeature implements Pinenut {
 
     private GUID parentPid;
 
-    private Map<String, String[]> startupArgs;
+    private Map<String, String> startupArgs;
 
-    private Map<String, String[]> contextEnvironmentVars;
+    private Map<String, String> contextEnvironmentVars;
 
     private LocalDateTime bizTimeEpoch;
 
@@ -47,11 +47,11 @@ public class LaunchFeature implements Pinenut {
         return this.parentProcess;
     }
 
-    public Map<String, String[]> getStartupArgs() {
+    public Map<String, String> getStartupArgs() {
         return this.startupArgs;
     }
 
-    public Map<String, String[]> getContextEnvironmentVars() {
+    public Map<String, String> getContextEnvironmentVars() {
         return this.contextEnvironmentVars;
     }
 
@@ -101,12 +101,12 @@ public class LaunchFeature implements Pinenut {
         return this;
     }
 
-    public LaunchFeature withStartupArgs( Map<String, String[]> startupArgs ) {
+    public LaunchFeature withStartupArgs( Map<String, String> startupArgs ) {
         this.startupArgs = startupArgs;
         return this;
     }
 
-    public LaunchFeature withContextEnvironmentVars( Map<String, String[]> contextEnvironmentVars ) {
+    public LaunchFeature withContextEnvironmentVars( Map<String, String> contextEnvironmentVars ) {
         this.contextEnvironmentVars = contextEnvironmentVars;
         return this;
     }

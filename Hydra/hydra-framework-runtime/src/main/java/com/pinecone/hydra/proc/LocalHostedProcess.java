@@ -12,7 +12,7 @@ public class LocalHostedProcess extends ArchUProcess implements LocalUProcess {
     public LocalHostedProcess(
             @Nullable Processum localSystemProc, GUID guid, String szName,
             UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         super( localSystemProc, guid, szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
@@ -20,7 +20,7 @@ public class LocalHostedProcess extends ArchUProcess implements LocalUProcess {
     public LocalHostedProcess(
             @Nullable Processum localSystemProc, String szName,
             UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
@@ -28,9 +28,10 @@ public class LocalHostedProcess extends ArchUProcess implements LocalUProcess {
     public LocalHostedProcess(
             @Nullable Processum localSystemProc,
             UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), image.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
 
 }
+

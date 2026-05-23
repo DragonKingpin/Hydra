@@ -1,4 +1,4 @@
-package com.sparta;
+package com.task;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
@@ -46,7 +46,7 @@ class Dante extends EnderHydra {
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager() );
         server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, wolfKing ) );
-        server.startService();
+        //server.startService();
 
 
 
@@ -79,7 +79,7 @@ class Dante extends EnderHydra {
 
         ExecutionImage image = new LocalHostedClassImage( "image1", new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public int main( Map<String, String[]> args ) {
+            public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 return 0;
             }
@@ -103,7 +103,7 @@ class Dante extends EnderHydra {
 
         ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public int main( Map<String, String[]> args ) {
+            public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.greenfs( this.ownedProcess().getPID() );
                 Debug.greenfs( this.ownedProcess().getLocalPID() );
@@ -118,10 +118,10 @@ class Dante extends EnderHydra {
             }
         }, manager );
 
-        //LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", new String[]{ "you", "she", "he", "it" } ) );
+        //LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", "you,she,he,it" ) );
 
 
-        UProcess process = client.createLocalUProcess(image, null, Map.of("fuck", new String[]{"you", "she", "he", "it"}), null);
+        UProcess process = client.createLocalUProcess(image, null, Map.of("fuck", "you,she,he,it"), null);
         server.startRemoteUProcess( process.getGuid() );
     }
 
@@ -136,7 +136,7 @@ class Dante extends EnderHydra {
 
         ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public int main( Map<String, String[]> args ) {
+            public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.sleep( 1000 );
                 Debug.greenfs( "Miao~" );
@@ -159,17 +159,17 @@ class Dante extends EnderHydra {
 
         Debug.redfs( ic, ig );
 
-        RemoteVitalizationResponse response = server.vitalizeRemoteUProcess(
-                client.getClientId(), new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c"), this.getPID(),
-                Map.of("fuck", new String[]{"you", "she", "he", "it"}), Map.of("kill", new String[]{"you", "she", "he", "it"})
-        );
-
-        Collection<UProcess> ps = server.searchProcessesByName( "image_c" );
-        UProcess proc = ps.iterator().next();
-        Debug.greenfs( proc.getName() );
-
-        UProcessRuntimeMeta meta = server.queryProcessRuntimeMeta( proc.getPID() );
-        Debug.warn( meta.getName() );
+//        RemoteVitalizationResponse response = server.vitalizeRemoteUProcess(
+//                client.getClientId(), new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c"), this.getPID(),
+//                Map.of("fuck", "you,she,he,it"), Map.of("kill", "you,she,he,it")
+//        );
+//
+//        Collection<UProcess> ps = server.searchProcessesByName( "image_c" );
+//        UProcess proc = ps.iterator().next();
+//        Debug.greenfs( proc.getName() );
+//
+//        UProcessRuntimeMeta meta = server.queryProcessRuntimeMeta( proc.getPID() );
+//        Debug.warn( meta.getName() );
     }
 
 }

@@ -82,15 +82,15 @@ public abstract class Meson extends DrakePanarchy implements Lepton {
     @Override
     protected void loadConfig() {
         try {
-            Map<String, String[] > map = this.getStartupCommandMap();
-            String[] args = map.get( "workingPath" );
-            if ( args != null && args.length > 0 ) {
-                this.setRuntimePath( Path.of( args[ 0 ] ).toString() );
+            Map<String, String> map = this.getStartupCommandMap();
+            String workingPath = map.get( "workingPath" );
+            if ( workingPath != null && !workingPath.isEmpty() ) {
+                this.setRuntimePath( Path.of( workingPath ).toString() );
             }
 
-            args = map.get( "config" );
-            if ( args != null && args.length > 0 ) {
-                this.mPrimaryConfigPath = Path.of( args[ 0 ] );
+            String configPath = map.get( "config" );
+            if ( configPath != null && !configPath.isEmpty() ) {
+                this.mPrimaryConfigPath = Path.of( configPath );
             }
             else {
                 this.mPrimaryConfigPath = Path.of( this.getRuntimePath() ).resolve( this.fristQualifiedConfigPathString() );

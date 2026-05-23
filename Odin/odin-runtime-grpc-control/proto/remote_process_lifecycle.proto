@@ -5,6 +5,7 @@ package walnut.odin.proc.control.lifecycle;
 option java_multiple_files = true;
 option java_package = "com.walnut.odin.proc.server.transport.grpc.lifecycle";
 option java_outer_classname = "RemoteProcessLifecycleProto";
+option go_package = "github.com/DragonKingpin/gladiator/proc/iface/lifecycle;lifecycle";
 
 service RemoteProcessLifecycle {
   rpc Control(stream RemoteProcessControlFrame) returns (stream RemoteProcessControlFrame);

@@ -33,8 +33,8 @@ public abstract class ArchUProcess implements UProcess {
 
     protected ExecutionImage         mExecutionImage;
 
-    protected Map<String, String[]>  mStartupArgs;
-    protected Map<String, String[]>  mEnvironmentVars;
+    protected Map<String, String>  mStartupArgs;
+    protected Map<String, String>  mEnvironmentVars;
 
     protected ControllableLevel      mControllableLevel;
     protected UProcessStatus         mStatus;
@@ -44,7 +44,7 @@ public abstract class ArchUProcess implements UProcess {
     public ArchUProcess(
             @Nullable Processum localProcess, GUID guid, String szName,
             @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this.mLocalProcess      = localProcess;
         this.mProcessManager    = processManager;
@@ -70,7 +70,7 @@ public abstract class ArchUProcess implements UProcess {
     public ArchUProcess(
             @Nullable Processum localSystemProc, String szName,
             @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
@@ -78,7 +78,7 @@ public abstract class ArchUProcess implements UProcess {
     public ArchUProcess(
             Processum localSystemProc,
             @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
     }
@@ -172,12 +172,12 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
-    public Map<String, String[]> getStartupArguments() {
+    public Map<String, String> getStartupArguments() {
         return this.mStartupArgs;
     }
 
     @Override
-    public Map<String, String[]> getEnvironmentVariables() {
+    public Map<String, String> getEnvironmentVariables() {
         return this.mEnvironmentVars;
     }
 
@@ -350,3 +350,4 @@ public abstract class ArchUProcess implements UProcess {
     }
 
 }
+

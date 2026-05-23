@@ -6,21 +6,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GenericStartupCommandParser implements StartupCommandParser {
-    private String[] mValueStartSymbols = { "", "--", "-", "/", "\\" };
+    private String[] mValueStartSymbols = { "--", "-", "/", "\\", "" };
     private String[] mAssignmentSymbols = { "=", ":", "=>", "->" };
-    private String[] mValueSeparators   = { ",", ";", "|" };
 
     public GenericStartupCommandParser() {}
 
     public GenericStartupCommandParser( String[] valueStartSymbols, String[] assignmentSymbols, String[] valueSeparators ) {
         this.mValueStartSymbols = valueStartSymbols;
         this.mAssignmentSymbols = assignmentSymbols;
-        this.mValueSeparators = valueSeparators;
     }
 
     @Override
-    public Map<String, String[] > parse( String[] args ) {
-        Map<String, String[] > result = new LinkedTreeMap<>();
+    public Map<String, String > parse( String[] args ) {
+        Map<String, String > result = new LinkedTreeMap<>();
 
         for ( String arg : args ) {
             String key   = null;
@@ -29,17 +27,19 @@ public class GenericStartupCommandParser implements StartupCommandParser {
             for ( String startSymbol : this.mValueStartSymbols ) {
                 if ( arg.startsWith( startSymbol ) ) {
                     int assignmentIndex = -1;
+                    String matchedAssignmentSymbol = null;
                     for ( String assignmentSymbol : this.mAssignmentSymbols ) {
                         int index = arg.indexOf(assignmentSymbol, startSymbol.length());
                         if ( index > 0 ) {
                             assignmentIndex = index;
+                            matchedAssignmentSymbol = assignmentSymbol;
                             break;
                         }
                     }
 
                     if ( assignmentIndex > 0 ) {
                         key   = arg.substring(startSymbol.length(), assignmentIndex);
-                        value = arg.substring(assignmentIndex + 1);
+                        value = arg.substring(assignmentIndex + matchedAssignmentSymbol.length());
                     }
                     else {
                         key   = arg.substring(startSymbol.length());
@@ -50,8 +50,7 @@ public class GenericStartupCommandParser implements StartupCommandParser {
             }
 
             if ( key != null ) {
-                String[] values = this.splitValues( value );
-                result.put(key, values);
+                result.put(key, value);
             }
         }
 
@@ -59,36 +58,18 @@ public class GenericStartupCommandParser implements StartupCommandParser {
     }
 
     @Override
-    public Map<String, String[]> parse( Map<String, String> args ) {
-        Map<String, String[]> map = new HashMap<>( args.size() );
+    public Map<String, String> parse( Map<String, String> args ) {
+        Map<String, String> map = new HashMap<>( args.size() );
 
         for ( String key : args.keySet() ) {
             String value = args.get(key);
             if ( value == null ) {
                 value = "";
             }
-            String[] values = this.splitValues( value );
-            map.put( key, values );
+            map.put( key, value );
         }
 
         return map;
-    }
-
-    private String[] splitValues(String value ) {
-        if ( value.isEmpty() ) {
-            return new String[0];
-        }
-
-        if ( value.charAt(0) == '"' || value.charAt(0) == '\'' ) {
-            return new String[] { value };
-        }
-
-        for ( String separator : this.mValueSeparators ) {
-            if ( value.contains( separator ) ) {
-                return value.split(java.util.regex.Pattern.quote(separator));
-            }
-        }
-        return new String[]{ value };
     }
 
 }

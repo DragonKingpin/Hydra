@@ -17,7 +17,7 @@ public interface RemoteProcessManagerClient extends RemoteProcessManagerNode {
      *  createLocalUProcess
      *  Proactively creating local-UProcess.
      */
-    UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars );
+    UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars );
 
     void startLocalUProcess( GUID pid );
 
@@ -30,3 +30,4 @@ public interface RemoteProcessManagerClient extends RemoteProcessManagerNode {
     DuplexAppointClient duplexAppointClient();
 
 }
+

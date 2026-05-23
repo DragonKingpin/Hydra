@@ -6,12 +6,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
-import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
-import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportRegistry;
+import com.walnut.odin.proc.server.transport.entity.TransportHandle;
 
 public class GenericRemoteProcessControlTransportRegistry implements RemoteProcessControlTransportRegistry {
 
-    protected Map<Long, RemoteProcessControlTransport>                              mClientTransportMap;
+    protected Map<Long, TransportHandle>                                            mClientTransportMap;
 
     protected Map<String, RemoteProcessControlTransport>                            mTransportMap;
 
@@ -36,22 +35,34 @@ public class GenericRemoteProcessControlTransportRegistry implements RemoteProce
 
     @Override
     public RemoteProcessControlTransport queryTransport( long clientId ) {
-        RemoteProcessControlTransport transport = this.mClientTransportMap.get( clientId );
-        if ( transport != null ) {
-            return transport;
+        TransportHandle handle = this.queryTransportHandle( clientId );
+        if ( handle != null ) {
+            return handle.getTransport();
         }
-
-        for ( RemoteProcessControlTransport candidate : this.mTransportMap.values() ) {
-            if ( candidate.containsClient( clientId ) ) {
-                this.bindClient( clientId, candidate );
-                return candidate;
-            }
-        }
-
         if ( this.mTransportMap.size() == 1 ) {
             return this.mTransportMap.values().iterator().next();
         }
         return null;
+    }
+
+    @Override
+    public TransportHandle queryTransportHandle( long clientId ) {
+        TransportHandle handle = this.mClientTransportMap.get( clientId );
+        if ( handle != null ) {
+            return handle;
+        }
+        for ( RemoteProcessControlTransport candidate : this.mTransportMap.values() ) {
+            if ( candidate.containsClient( clientId ) ) {
+                this.bindClient( clientId, candidate );
+                return this.mClientTransportMap.get( clientId );
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<TransportHandle> transportHandles() {
+        return Collections.unmodifiableCollection( this.mClientTransportMap.values() );
     }
 
     @Override
@@ -74,7 +85,15 @@ public class GenericRemoteProcessControlTransportRegistry implements RemoteProce
             this.detachClient( clientId );
             return;
         }
-        this.mClientTransportMap.put( clientId, transport );
+        this.mClientTransportMap.compute( clientId, ( key, handle ) -> {
+            if ( handle == null ) {
+                handle = new TransportHandle();
+                handle.setClientId( clientId );
+                handle.setRegisterTimeMillis( System.currentTimeMillis() );
+            }
+            handle.setTransport( transport );
+            return handle;
+        } );
     }
 
     @Override
@@ -84,7 +103,20 @@ public class GenericRemoteProcessControlTransportRegistry implements RemoteProce
 
     @Override
     public boolean hasClient( long clientId ) {
-        return this.queryTransport( clientId ) != null;
+        TransportHandle handle = this.mClientTransportMap.get( clientId );
+        RemoteProcessControlTransport transport = handle == null ? null : handle.getTransport();
+        if ( transport != null && transport.containsClient( clientId ) ) {
+            return true;
+        }
+
+        for ( RemoteProcessControlTransport candidate : this.mTransportMap.values() ) {
+            if ( candidate.containsClient( clientId ) ) {
+                this.bindClient( clientId, candidate );
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

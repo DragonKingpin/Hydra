@@ -23,7 +23,7 @@ public class HydroxyImage extends GenericClassImage {
         this(
                 system, "SystemProcess", new ArchEntryPointRunnable() {
                     @Override
-                    public int main( Map<String, String[]> args ) {
+                    public int main( Map<String, String> args ) {
                         system.start();
                         return 0;
                     }

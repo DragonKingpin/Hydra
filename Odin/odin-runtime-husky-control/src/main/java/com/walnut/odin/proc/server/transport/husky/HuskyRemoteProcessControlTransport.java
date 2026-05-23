@@ -1,7 +1,10 @@
 package com.walnut.odin.proc.server.transport.husky;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -12,6 +15,14 @@ import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
+import com.pinecone.hydra.umc.msg.ChannelPool;
+import com.pinecone.hydra.umc.msg.FairChannelPool;
+import com.pinecone.hydra.umc.msg.MessageNode;
+import com.pinecone.hydra.umc.msg.UMCChannel;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
@@ -23,6 +34,7 @@ import com.walnut.odin.proc.server.ReactiveSlaveProcessLifecycleController;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportType;
+import com.walnut.odin.proc.server.transport.entity.TransportConnection;
 
 public class HuskyRemoteProcessControlTransport implements RemoteProcessControlTransport {
 
@@ -77,6 +89,47 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
         }
     }
 
+    protected void registerUlfServerEventHandlers() {
+        MessageNode messageNode = this.mDuplexAppointServer.getMessageNode();
+        UlfServer ulfServer = (UlfServer) messageNode;
+
+        ulfServer.registerDataArrivedEventHandlers( new ChannelEventHandler() {
+            @Override
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
+                long clientId = block.getChannel().getIdentityID();
+                if ( clientId <= 0 ) {
+                    return;
+                }
+
+                ChannelPool pool = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+                if ( pool == null || pool.isEmpty() ) {
+                    return;
+                }
+
+                HuskyRemoteProcessControlTransport.this.mRemoteProcessManagerServer.transportRegistry().bindClient(
+                        clientId,
+                        HuskyRemoteProcessControlTransport.this
+                );
+            }
+        } );
+
+        ulfServer.registerChannelInactiveHandler( new ChannelInactiveHandler() {
+            @Override
+            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
+                long clientId = ccb.getChannel().getIdentityID();
+                if ( clientId <= 0 ) {
+                    return false;
+                }
+
+                ChannelPool pool = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+                if ( pool == null || pool.isEmpty() ) {
+                    HuskyRemoteProcessControlTransport.this.mRemoteProcessManagerServer.transportRegistry().detachClient( clientId );
+                }
+                return false;
+            }
+        } );
+    }
+
     protected void initRPCSubsystem() throws RemoteProcessServiceRPCException {
         if ( this.mDuplexAppointServer != null && !this.mDuplexAppointServer.getMessageNode().isTerminated() ) {
             this.log.info( "[Notice] DuplexAppointServer has already started. <Pass>" );
@@ -85,6 +138,7 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
 
         try {
             this.mDuplexAppointServer = new WolvesAppointServer( this.mRPCServer, HuskyDuplexExpress.class );
+            this.registerUlfServerEventHandlers();
             ReactiveSlaveProcessLifecycleController controller = new ReactiveSlaveProcessLifecycleController( this.mRemoteProcessManagerServer );
             this.registerController0( controller );
             this.compileIface0( MasterProcessLifecycleIface.class, false );
@@ -126,7 +180,63 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
 
     @Override
     public boolean containsClient( long clientId ) {
-        return true;
+        if ( this.mDuplexAppointServer == null ) {
+            return false;
+        }
+        ChannelPool pool = this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+        return pool != null && !pool.isEmpty();
+    }
+
+    @Override
+    public Collection<TransportConnection> queryClientConnections( long clientId ) {
+        List<TransportConnection> connections = new ArrayList<>();
+        if ( this.mDuplexAppointServer == null ) {
+            return connections;
+        }
+
+        ChannelPool pool = this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+        if ( pool == null ) {
+            return connections;
+        }
+
+        this.collectChannelConnections( connections, pool.getPooledChannels() );
+        if ( connections.isEmpty() && pool instanceof FairChannelPool ) {
+            FairChannelPool fairChannelPool = (FairChannelPool) pool;
+            this.collectChannelConnections( connections, fairChannelPool.getMajorQueue() );
+        }
+        return connections;
+    }
+
+    protected void collectChannelConnections( List<TransportConnection> connections, Collection<?> channels ) {
+        if ( channels == null ) {
+            return;
+        }
+
+        for ( Object item : channels ) {
+            if ( !( item instanceof ChannelControlBlock ) ) {
+                continue;
+            }
+
+            TransportConnection connection = this.createTransportConnection( (ChannelControlBlock) item );
+            if ( connection != null ) {
+                connections.add( connection );
+            }
+        }
+    }
+
+    protected TransportConnection createTransportConnection( ChannelControlBlock block ) {
+        if ( block == null || block.getChannel() == null ) {
+            return null;
+        }
+
+        UMCChannel channel = block.getChannel();
+        TransportConnection connection = new TransportConnection();
+        connection.setType( "Channel" );
+        connection.setIdentity( String.valueOf( channel.getChannelID() ) );
+        connection.setRemoteAddress( String.valueOf( channel.remoteAddress() ) );
+        connection.setStatus( String.valueOf( channel.getChannelStatus() ) );
+        connection.setActive( !channel.isShutdown() );
+        return connection;
     }
 
     @Override

@@ -18,9 +18,13 @@ public final class HuskyCTPConstants {
 
     public static final int HCTP_DUP_CONTROL_MASK               = 0xFFBEA000;
 
+    // REGISTER_ACK only confirms that a passive channel has entered the server-side channel registry.
+    // Higher-level control-state synchronization is acknowledged by its own business frame.
     public static final int HCTP_DUP_CONTROL_REGISTER           = HCTP_DUP_CONTROL_MASK | 0x00000001;
 
-    public static final int HCTP_DUP_CONTROL_ALIVE              = HCTP_DUP_CONTROL_MASK | 0x00000002;
+    public static final int HCTP_DUP_CONTROL_REGISTER_ACK       = HCTP_DUP_CONTROL_MASK | 0x00000002;
+
+    public static final int HCTP_DUP_CONTROL_ALIVE              = HCTP_DUP_CONTROL_MASK | 0x00000003;
 
     public static final int HCTP_DUP_CONTROL_PASSIVE_REQUEST    = HCTP_DUP_CONTROL_MASK | 0x00000010;
 

@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 
@@ -14,6 +19,9 @@ import com.pinecone.hydra.uma.UlfDuplexAppointClient;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
+import com.pinecone.hydra.umc.msg.Medium;
+import com.pinecone.hydra.umc.msg.UMCMessage;
+import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.UlfChannel;
 import com.pinecone.hydra.umc.wolf.UlfInstructMessage;
@@ -40,6 +48,7 @@ import com.pinecone.hydra.umct.mapping.ControllerInspector;
 import com.pinecone.ulf.util.protobuf.GenericFieldProtobufDecoder;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.util.AttributeKey;
 import javassist.ClassPool;
@@ -61,6 +70,7 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
 
     protected Map<ChannelId, ChannelControlBlock > mInstructedChannels;  // Standby controlled channels, waiting for server to instruct.
     protected RouteDispatcher                      mRouteDispatcher;
+    protected PassiveChannelRegisterAckSupport     mPassiveRegisterAckSupport;
 
 
     @Override
@@ -70,6 +80,9 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
         Object ob = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
         if ( ob != null && (Boolean)ob ) {
             WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}), has detached.", channel.id() );
+            if ( this.mPassiveRegisterAckSupport != null ) {
+                this.mPassiveRegisterAckSupport.cancel( channel );
+            }
             UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
             if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
                 if ( wrappedClient instanceof WolfMCClient ) {
@@ -92,18 +105,144 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             }
 
             @Override
-            public void afterReconnectSucceeded( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) throws IOException {
-                WolvesAppointClient.copyDuplexAttrs( oldChannel, newChannel );
+            public void afterReconnectSucceeded( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) {
 
+            }
+
+            @Override
+            public CompletableFuture<Void> afterReconnectCommitted( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) throws IOException {
+                WolvesAppointClient.copyDuplexAttrs( oldChannel, newChannel );
                 UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
                 instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
-                ( (UlfAsyncMessengerChannelControlBlock)block ).sendAsynMsg( instructMessage, true );
+                CompletableFuture<Void> ackFuture = WolvesAppointClient.this.mPassiveRegisterAckSupport.begin( newChannel );
+                try {
+                    WolvesAppointClient.this.getLogger().debug(
+                            "[PassiveChannelRegister] [Reconnect] Sending register frame. (Channel: `{}`)",
+                            newChannel.id()
+                    );
+                    ( (UlfAsyncMessengerChannelControlBlock)block ).sendAsynMsg( instructMessage, true );
+                }
+                catch ( IOException e ) {
+                    WolvesAppointClient.this.mPassiveRegisterAckSupport.cancel( newChannel, ackFuture );
+                    throw e;
+                }
+
+                return ackFuture;
             }
         };
     }
 
     private void initSelf() {
+        this.mPassiveRegisterAckSupport = new PassiveChannelRegisterAckSupport();
+        this.mPassiveRegisterAckSupport.registerInterceptor( this.mMessenger );
+    }
 
+    protected class PassiveChannelRegisterAckSupport {
+        protected Map<ChannelId, CompletableFuture<Void> > mAckFutures = new ConcurrentHashMap<>();
+
+        protected void registerInterceptor( UlfClient client ) {
+            client.registerArrivedDataInterceptor(new ChannelDataInterceptor() {
+                @Override
+                public boolean interceptAfterDataArrived( Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) {
+                    return PassiveChannelRegisterAckSupport.this.interceptAck( block, msg );
+                }
+            });
+        }
+
+        protected boolean interceptAck( ChannelControlBlock block, UMCMessage msg ) {
+            if ( msg.getHead().getControlBits() != HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER_ACK ) {
+                return false;
+            }
+
+            ChannelId channelId = (ChannelId) block.getChannel().getChannelID();
+            CompletableFuture<Void> ackFuture = this.mAckFutures.remove( channelId );
+            if ( ackFuture != null ) {
+                WolvesAppointClient.this.getLogger().debug(
+                        "[PassiveChannelRegister] Register ack received. (Channel: `{}`) <Acked>",
+                        channelId
+                );
+                ackFuture.complete( null );
+            }
+            else {
+                WolvesAppointClient.this.getLogger().debug(
+                        "[PassiveChannelRegister] Register ack received without waiter. (Channel: `{}`) <Pass>",
+                        channelId
+                );
+            }
+            return true;
+        }
+
+        protected long getTimeoutMillis() {
+            long nTimeoutMillis = WolvesAppointClient.this.mMessenger.getConnectionArguments().getSocketTimeout();
+            return Math.max( nTimeoutMillis, 1000L );
+        }
+
+        protected CompletableFuture<Void> begin( Channel channel ) {
+            ChannelId channelId = channel.id();
+            CompletableFuture<Void> ackFuture = new CompletableFuture<>();
+            CompletableFuture<Void> oldFuture = this.mAckFutures.put( channelId, ackFuture );
+            if ( oldFuture != null ) {
+                oldFuture.completeExceptionally( new IOException(
+                        "Passive channel register ack superseded. Channel: " + channelId
+                ) );
+            }
+
+            channel.eventLoop().schedule(new Runnable() {
+                @Override
+                public void run() {
+                    if ( PassiveChannelRegisterAckSupport.this.mAckFutures.remove( channelId, ackFuture ) ) {
+                        IOException cause = new IOException(
+                                "Waiting for passive channel register ack timeout. Channel: " + channelId
+                        );
+                        WolvesAppointClient.this.getLogger().warn(
+                                "[PassiveChannelRegister] Register ack timeout. (Channel: `{}`) <AckTimeout>",
+                                channelId
+                        );
+                        ackFuture.completeExceptionally( cause );
+                    }
+                }
+            }, this.getTimeoutMillis(), TimeUnit.MILLISECONDS );
+
+            return ackFuture;
+        }
+
+        protected void cancel( Channel channel, CompletableFuture<Void> ackFuture ) {
+            if ( this.mAckFutures.remove( channel.id(), ackFuture ) ) {
+                ackFuture.completeExceptionally( new IOException(
+                        "Passive channel register ack cancelled. Channel: " + channel.id()
+                ) );
+            }
+        }
+
+        protected void cancel( Channel channel ) {
+            CompletableFuture<Void> ackFuture = this.mAckFutures.remove( channel.id() );
+            if ( ackFuture != null ) {
+                WolvesAppointClient.this.getLogger().debug(
+                        "[PassiveChannelRegister] Register ack waiter cancelled by channel detach. (Channel: `{}`)",
+                        channel.id()
+                );
+                ackFuture.completeExceptionally( new IOException(
+                        "Passive channel detached before register ack. Channel: " + channel.id()
+                ) );
+            }
+        }
+
+        protected void waitAck( Channel channel, CompletableFuture<Void> ackFuture ) throws IOException {
+            try {
+                ackFuture.get( this.getTimeoutMillis(), TimeUnit.MILLISECONDS );
+            }
+            catch ( InterruptedException e ) {
+                Thread.currentThread().interrupt();
+                throw new IOException( "Passive channel register ack interrupted. Channel: " + channel.id(), e );
+            }
+            catch ( ExecutionException e ) {
+                throw new IOException( "Passive channel register ack failed. Channel: " + channel.id(), e.getCause() );
+            }
+            catch ( TimeoutException e ) {
+                this.cancel( channel, ackFuture );
+                throw new IOException( "Passive channel register ack timeout. Channel: " + channel.id(), e );
+            }
+        }
     }
 
     protected WolvesAppointClient( UlfClient messenger, ProtoRouteDispatcher dispatcher ) {
@@ -191,9 +330,21 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASY_EXCLUSIVE_HANDLE_KEY ) ).set( true );
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_EXTERNAL_CHANNEL_KEY ) ).set( true );
             channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).set( true );
-            cb.sendAsynMsg( instructMessage, true );
+            CompletableFuture<Void> ackFuture = this.mPassiveRegisterAckSupport.begin( channel );
+            try {
+                this.getLogger().debug(
+                        "[PassiveChannelRegister] Sending register frame. (Channel: `{}`)",
+                        channel.id()
+                );
+                cb.sendAsynMsg( instructMessage, true );
+            }
+            catch ( IOException e ) {
+                this.mPassiveRegisterAckSupport.cancel( channel, ackFuture );
+                throw e;
+            }
 
             this.getLogger().info( "Embracing and registering passive controlled channel ({}).", cb.getChannel().getNativeHandle().id() );
+            this.mPassiveRegisterAckSupport.waitAck( channel, ackFuture );
         }
     }
 

@@ -2,6 +2,7 @@ package com.pinecone.hydra.umc.wolf.client.reconnect;
 
 import java.net.SocketAddress;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -126,14 +127,19 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         try {
             ulfChannel.commitReconnectCandidate( future.channel(), future );
             this.mClient.getChannelPool().replaceChannel( oldChannel.id(), block );
-            session.mFeature.afterReconnectSucceeded( block, oldChannel, future.channel() );
-            this.mClient.notifyReconnectChannelConnected( block );
-            this.mSessions.remove( block );
-
-            this.mClient.getLogger().info(
-                    "[ChannelReconnect] [{}] Attempt {} succeeded. (OldChannel: `{}`, NewChannel: `{}`) <Done>",
-                    session.mFeature.name(), session.mnAttempt, oldChannel.id(), future.channel().id()
-            );
+            CompletableFuture<Void> readyFuture = session.mFeature.afterReconnectCommitted( block, oldChannel, future.channel() );
+            if ( readyFuture == null ) {
+                readyFuture = CompletableFuture.completedFuture( null );
+            }
+            Channel newChannel = future.channel();
+            readyFuture.whenComplete( ( value, cause ) -> {
+                if ( cause == null ) {
+                    GenericUlfReconnectSupervisor.this.completeReady( session, oldChannel, newChannel );
+                }
+                else {
+                    GenericUlfReconnectSupervisor.this.completeReadyFailed( session, cause );
+                }
+            } );
         }
         catch ( Exception e ) {
             try {
@@ -144,6 +150,41 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
             }
             this.completeFailed( session, e );
         }
+    }
+
+    protected void completeReady( UlfReconnectSession session, Channel oldChannel, Channel newChannel ) {
+        if ( this.mSessions.get( session.mBlock ) != session ) {
+            return;
+        }
+
+        ChannelControlBlock block = session.mBlock;
+        try {
+            this.mClient.notifyReconnectChannelConnected( block );
+            this.mSessions.remove( block );
+        }
+        catch ( Exception e ) {
+            this.completeReadyFailed( session, e );
+            return;
+        }
+
+        this.mClient.getLogger().info(
+                "[ChannelReconnect] [{}] Attempt {} succeeded. (OldChannel: `{}`, NewChannel: `{}`) <Done>",
+                session.mFeature.name(), session.mnAttempt, oldChannel.id(), newChannel.id()
+        );
+    }
+
+    protected void completeReadyFailed( UlfReconnectSession session, Throwable cause ) {
+        if ( this.mSessions.get( session.mBlock ) != session ) {
+            return;
+        }
+
+        try {
+            session.mBlock.close();
+        }
+        catch ( Exception ignore ) {
+            // Ignore close failure during reconnect recovery.
+        }
+        this.completeFailed( session, cause );
     }
 
     protected void completeFailed( UlfReconnectSession session, Throwable cause ) {

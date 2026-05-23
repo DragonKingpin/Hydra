@@ -21,6 +21,7 @@ import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.UMCReceiver;
 import com.pinecone.hydra.umc.msg.UMCTransmit;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
+import com.pinecone.hydra.umc.wolf.UlfInstructMessage;
 import com.pinecone.hydra.umc.wolf.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolf.UlfMessageNode;
 import com.pinecone.hydra.umc.wolf.WolfMCStandardConstants;
@@ -141,7 +142,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     }
 
 
-    protected boolean interceptPassiveChannel( UMCConnection connection, Object[] args ) {
+    protected boolean interceptPassiveChannel( UMCConnection connection, Object[] args ) throws IOException {
         UMCConnection uc          = this.wrap( connection );
         UMCMessage msg            = uc.getMessage();
         int controlBits           = msg.getHead().getControlBits();
@@ -153,12 +154,14 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         return false;
     }
 
-    protected void registerPassiveChannel( UMCConnection uc, UMCConnection connection, Object[] args ) {
+    protected void registerPassiveChannel( UMCConnection uc, UMCConnection connection, Object[] args ) throws IOException {
         ChannelControlBlock ccb = (ChannelControlBlock) args[ 0 ];
         UMCChannel channel = ccb.getChannel();
         long                cid = channel.getIdentityID();
 
         this.mMultiClientChannelRegistry.register( cid, ccb );
+        connection.getTransmit().sendMsg( new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER_ACK ), true );
+        this.getLogger().debug( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSent>", cid, ccb.getChannel().getChannelID() );
         this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <{}>", cid, ccb.getChannel().getChannelID(), "Registered" );
     }
 

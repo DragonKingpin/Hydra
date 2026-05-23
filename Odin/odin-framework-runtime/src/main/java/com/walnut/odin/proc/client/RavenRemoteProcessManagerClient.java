@@ -9,6 +9,8 @@ import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.ProcessesUtils;
@@ -18,6 +20,7 @@ import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -33,6 +36,14 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     protected SlaveProcessLifecycleIface     mProcessLifecycleIface;
 
     protected ProcessLifecycleExaminer       mProcessLifecycleExaminer;
+
+    protected RemoteProcessControlFrameIface mControlFrameIface;
+
+    protected RemoteProcessControlStateSynchronizer mStateSynchronizer;
+
+    protected ChannelEventHandler            mControlChannelConnectedHandler;
+
+    protected boolean                        mbControlSubsystemReady;
 
     protected long                           mnClientId;
 
@@ -52,17 +63,55 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
         this.mDuplexAppointClient = new WolvesAppointClient( this.mRPCClient );
         try {
-            this.mDuplexAppointClient.compile( SlaveProcessLifecycleIface.class,false );
+            this.mDuplexAppointClient.compile( SlaveProcessLifecycleIface.class, false );
+            this.mDuplexAppointClient.compile( RemoteProcessControlFrameIface.class, false );
             this.mProcessLifecycleIface = this.mDuplexAppointClient.getIface( SlaveProcessLifecycleIface.class );
+            this.mControlFrameIface     = this.mDuplexAppointClient.getIface( RemoteProcessControlFrameIface.class );
             this.mDuplexAppointClient.getRouteDispatcher().registerController( new ReactiveMasterProcessLifecycleController( this ) );
 
             this.mProcessLifecycleExaminer = new RemoteProcessLifecycleExaminer( this, this.mProcessLifecycleIface );
+            this.mStateSynchronizer        = new RemoteProcessControlStateSynchronizer( this, this.mControlFrameIface );
+            this.registerControlChannelConnectedHandler();
             this.infoLifecycle( "RPC Subsystem Register Controllers", LogStatuses.StatusDone );
         }
         catch ( Exception e ) {
             this.mProcessLifecycleIface = null;
+            this.mControlFrameIface     = null;
+            this.mStateSynchronizer     = null;
             throw new RemoteProcessServiceRPCException( e );
         }
+    }
+
+    protected void registerControlChannelConnectedHandler() {
+        if ( this.mControlChannelConnectedHandler != null ) {
+            return;
+        }
+
+        this.mControlChannelConnectedHandler = new ChannelEventHandler() {
+            @Override
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
+                if ( !RavenRemoteProcessManagerClient.this.mbControlSubsystemReady ) {
+                    return;
+                }
+
+                RavenRemoteProcessManagerClient.this.requestControlStateSynchronization( RemoteProcessControlSyncReasons.ChannelConnected );
+            }
+        };
+        this.mRPCClient.registerChannelConnectedHandler( this.mControlChannelConnectedHandler );
+    }
+
+    protected void requestControlStateSynchronization( String szReason ) {
+        if ( this.mStateSynchronizer == null ) {
+            return;
+        }
+        this.mStateSynchronizer.requestSynchronize( szReason );
+    }
+
+    protected void synchronizeControlStateBlocking( String szReason ) {
+        if ( this.mStateSynchronizer == null ) {
+            return;
+        }
+        this.mStateSynchronizer.synchronizeBlocking( szReason );
     }
 
     protected void vitalizeRPCSubsystem() throws RemoteProcessServiceRPCException {
@@ -70,7 +119,8 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             if ( this.mDuplexAppointClient.getMessageNode().isTerminated() ) {
                 this.mDuplexAppointClient.execute();
                 this.mDuplexAppointClient.embraces( 2 );
-                this.mProcessLifecycleIface.reportClientInitialized( this.mnClientId );
+                this.mbControlSubsystemReady = true;
+                this.synchronizeControlStateBlocking( RemoteProcessControlSyncReasons.Startup );
 
                 this.infoLifecycle( "RPC Subsystem Service Vitalization, ( ClientId: `" + this.mnClientId + "` )", LogStatuses.StatusDone );
             }
@@ -98,7 +148,12 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             throw new IllegalStateException( "RPCClient dose not started yet." );
         }
 
+        this.mbControlSubsystemReady = false;
         this.mDuplexAppointClient.terminate();
+        if ( this.mControlChannelConnectedHandler != null ) {
+            this.mRPCClient.deregisterChannelConnectedHandler( this.mControlChannelConnectedHandler );
+            this.mControlChannelConnectedHandler = null;
+        }
         this.mDuplexAppointClient = null;
     }
 
@@ -106,10 +161,14 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     public UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) {
         LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, parent, startupArgs, contextEnvironmentVars );
 
-        if ( this.mProcessLifecycleIface != null ) {
-            UProcessMirrorDTO processMirrorDTO = new UProcessMirrorDTO( localHostedProcess.getName(), localHostedProcess.getLocalPID(), localHostedProcess.getGuid().toString() );
-            this.mProcessLifecycleIface.registerRemoteProcess( this.mnClientId, processMirrorDTO);
+        if ( this.mStateSynchronizer != null ) {
+            this.mStateSynchronizer.reportProcessMirror( localHostedProcess );
             this.getLogger().info( "[SuperiorRegister] [createLocalUProcess] <Done>" );
+        }
+        else if ( this.mProcessLifecycleIface != null ) {
+            UProcessMirrorDTO processMirrorDTO = new UProcessMirrorDTO( localHostedProcess.getName(), localHostedProcess.getLocalPID(), localHostedProcess.getGuid().toString() );
+            this.mProcessLifecycleIface.registerRemoteProcess( this.mnClientId, processMirrorDTO );
+            this.getLogger().info( "[SuperiorRegister] [createLocalUProcess] <Done::Legacy>" );
         }
         else {
             this.getLogger().info( "[SuperiorRegister] [createLocalUProcess] <Pass>" ); // Missing central connection, skip reporting; 失联，跳过上报中央.

@@ -26,6 +26,7 @@ import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -140,8 +141,11 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
             this.mDuplexAppointServer = new WolvesAppointServer( this.mRPCServer, HuskyDuplexExpress.class );
             this.registerUlfServerEventHandlers();
             ReactiveSlaveProcessLifecycleController controller = new ReactiveSlaveProcessLifecycleController( this.mRemoteProcessManagerServer );
+            ReactiveRemoteProcessControlFrameController controlFrameController = new ReactiveRemoteProcessControlFrameController( this.mRemoteProcessManagerServer, this );
             this.registerController0( controller );
+            this.registerController0( controlFrameController );
             this.compileIface0( MasterProcessLifecycleIface.class, false );
+            this.compileIface0( RemoteProcessControlFrameIface.class, false );
             this.flushPendingControllers();
             this.flushPendingIfaceCompiles();
 
@@ -166,11 +170,23 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
 
     protected Object invokeInform( long clientId, String szMethodName, Object... arguments ) throws RemoteProcessServiceRPCException {
         try {
+            this.ensureClientConnected( clientId );
             return this.mDuplexAppointServer.invokeInform( clientId, MASTER_IFACE_PREFIX + szMethodName, arguments );
         }
         catch ( IOException e ) {
             throw new RemoteProcessServiceRPCException( e );
         }
+        catch ( IllegalArgumentException e ) {
+            throw new RemoteProcessServiceRPCException( e );
+        }
+    }
+
+    protected void ensureClientConnected( long clientId ) throws RemoteProcessServiceRPCException {
+        if ( this.containsClient( clientId ) ) {
+            return;
+        }
+
+        throw new RemoteProcessServiceRPCException( "Remote process control client is not connected, clientId => `" + clientId + "`." );
     }
 
     @Override

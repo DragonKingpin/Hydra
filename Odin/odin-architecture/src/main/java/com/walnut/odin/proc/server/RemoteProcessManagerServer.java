@@ -26,6 +26,10 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
     boolean hasClient( long clientId );
 
+    boolean isControlClientReady( long clientId );
+
+    Collection<Long> readyControlClientIds();
+
     void detachClient( long clientId );
 
     void registerController( Object controller ) throws RemoteProcessServiceRPCException;
@@ -33,6 +37,12 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
     void compileIface( Class<?> ifaceClass, boolean bAsIface ) throws RemoteProcessServiceRPCException;
 
     void registerProcess( long clientId, UProcessMirrorDTO processDTO );
+
+    void beginClientProcessSnapshot( long clientId );
+
+    void acceptClientProcessMirror( long clientId, UProcessMirrorDTO processDTO );
+
+    void endClientProcessSnapshot( long clientId );
 
     void startRemoteUProcess( GUID pid ) throws RemoteProcessServiceRPCException;
 

@@ -1,7 +1,11 @@
 package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.json.JSON;
 import com.walnut.odin.proc.RemoteImageResolutionMode;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class UProcessMirrorDTO implements Pinenut {
 
@@ -113,5 +117,19 @@ public class UProcessMirrorDTO implements Pinenut {
         this.mEnvironmentVariables = environmentVariables;
     }
 
+    @Override
+    public String toJSONString() {
+        Map<String, Object> json = new LinkedHashMap<>();
+        json.put( "name", this.mszName );
+        json.put( "localPID", this.mnLocalPID );
+        json.put( "parentPID", this.mszParentPID );
+        json.put( "PID", this.mszProcessId );
+        json.put( "startupArguments", this.mStartupArguments );
+        json.put( "environmentVariables", this.mEnvironmentVariables );
+        json.put( "imageAddress", this.mszImageAddress );
+        json.put( "imageAddressURI", this.mbImageAddressURI );
+        json.put( "imageResolutionMode", this.mImageResolutionMode );
+        return JSON.stringify( json );
+    }
 
 }

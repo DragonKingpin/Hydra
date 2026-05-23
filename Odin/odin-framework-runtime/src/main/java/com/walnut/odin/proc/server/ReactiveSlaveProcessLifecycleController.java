@@ -26,12 +26,6 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
         this.mRemoteProcessManagerServer.registerProcess( clientId, processDTO );
     }
 
-    @AddressMapping( "reportClientInitialized" )
-    public long reportClientInitialized( long clientId ) {
-        this.mRemoteProcessManagerServer.getLogger().info( "[ClientInitializedRecall] [RPC] (ClientId: `{}`) <Done>", clientId );
-        return clientId;
-    }
-
     @AddressMapping( "reportProcessTerminated" )
     public void reportProcessTerminated( long clientId, RemoteTerminationReport terminationReport ) {
         this.mRemoteProcessManagerServer.getLogger().info(

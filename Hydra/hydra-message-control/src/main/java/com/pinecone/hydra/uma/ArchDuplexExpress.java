@@ -162,7 +162,6 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <{}>", cid, ccb.getChannel().getChannelID(), "Registered" );
     }
 
-
     static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
         if( block.isShutdown() ) {
             block.getChannel().reconnect( mils );

@@ -17,19 +17,17 @@ import com.pinecone.hydra.servgram.Servgramium;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.Medium;
-import com.pinecone.hydra.umc.msg.MediumTerminationException;
-import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.event.ChannelDataInterceptor;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.vita.HeartbeatControl;
 import com.pinecone.hydra.umc.wolf.UlfInformMessage;
-import com.pinecone.hydra.umc.wolf.client.ArchAsyncMessenger;
 import com.pinecone.hydra.umc.wolf.client.ClientConnectArguments;
 import com.pinecone.hydra.umc.wolf.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
+import com.pinecone.hydra.umc.wolf.client.reconnect.UlfReconnectFeature;
 import com.pinecone.hydra.umct.IlleagalResponseException;
 import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.CompilerEncoder;
@@ -65,21 +63,26 @@ public class WolfAppointClient extends ArchUlfAppointNode implements UlfAppointC
         WolfAppointClient.this.getLogger().info( "Proactive channel ({}), has detached.", channel.id() );
         UlfClient wrappedClient = WolfAppointClient.this.getMessageNode();
         if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
-            try {
-                ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
-
-                WolfAppointClient.this.getLogger().info( "Proactive Channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
-            }
-            catch ( MediumTerminationException e ) {
-                WolfAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
-            }
-            catch ( IOException e ) {
-                WolfAppointClient.this.getLogger().error( "Proactive channel ({}), attempted to reconnect but failed.", channel.id(), e );
-                throw new ChannelHandleException( e.getCause() );
+            if ( wrappedClient instanceof WolfMCClient ) {
+                ( (WolfMCClient)wrappedClient ).getReconnectSupervisor().submit( cb, this.createReconnectFeature() );
             }
         }
 
         return true; // Blocking next inactive sequence.
+    }
+
+    protected UlfReconnectFeature createReconnectFeature() {
+        return new UlfReconnectFeature() {
+            @Override
+            public String name() {
+                return "Unidirectional";
+            }
+
+            @Override
+            public void afterReconnectSucceeded( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) {
+
+            }
+        };
     }
 
     protected void registerChannelInactiveHandler () {

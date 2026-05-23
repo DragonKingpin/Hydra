@@ -20,10 +20,6 @@ import com.pinecone.hydra.umc.wolf.WolfMCNode;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -105,8 +101,16 @@ public abstract class ArchAsyncMessenger extends WolfMCNode implements AsyncMess
 
     protected static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
         if( block.isShutdown() ) {
+            if ( block.getParentMessageNode() instanceof WolfMCClient ) {
+                WolfMCClient client = (WolfMCClient)block.getParentMessageNode();
+                if ( client.getReconnectSupervisor().isReconnecting( block ) ) {
+                    throw new IOException( "Channel is reconnecting." );
+                }
+            }
+
+            Object oldId = block.getChannel().getChannelID();
             block.getChannel().reconnect( mils );
-            ( (UlfMessageNode)block.getParentMessageNode() ).getChannelPool().setIdleChannel( block );
+            ( (ArchAsyncMessenger)block.getParentMessageNode() ).getChannelPool().replaceChannel( oldId, block );
         }
     }
 

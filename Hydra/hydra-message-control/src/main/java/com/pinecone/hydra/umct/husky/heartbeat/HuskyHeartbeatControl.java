@@ -63,9 +63,15 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
 
     @Override
     public void registerChannel( ChannelControlBlock ccb, long intervalMillis ) {
-        if ( this.mHeartbeatTasks.containsKey( ccb ) ) {
+        Timeout oldTimeout = this.mHeartbeatTasks.get( ccb );
+        if ( oldTimeout != null && !oldTimeout.isCancelled() && !oldTimeout.isExpired() ) {
             return;
         }
+
+        if ( oldTimeout != null ) {
+            this.mHeartbeatTasks.remove( ccb, oldTimeout );
+        }
+
         Timeout timeout = this.scheduleHeartbeat( ccb, intervalMillis );
         this.mHeartbeatTasks.put( ccb, timeout );
     }
@@ -82,6 +88,14 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
         return this.mTimer.newTimeout( new HeartbeatTask( ccb, intervalMillis ), intervalMillis, TimeUnit.MILLISECONDS );
     }
 
+    protected boolean isCurrentTask( ChannelControlBlock ccb, Timeout timeout ) {
+        return this.mHeartbeatTasks.get( ccb ) == timeout;
+    }
+
+    protected void removeTask( ChannelControlBlock ccb, Timeout timeout ) {
+        this.mHeartbeatTasks.remove( ccb, timeout );
+    }
+
     protected class HeartbeatTask implements TimerTask {
         private final ChannelControlBlock  mChannelControlBlock;
         private final long                 mIntervalMillis;
@@ -93,14 +107,23 @@ public class HuskyHeartbeatControl implements HeartbeatControl {
 
         @Override
         public void run( Timeout timeout ) throws IOException {
-            if ( !HuskyHeartbeatControl.this.mHeartbeatTasks.containsKey( this.mChannelControlBlock ) ) {
+            if ( !HuskyHeartbeatControl.this.isCurrentTask( this.mChannelControlBlock, timeout ) ) {
                 return;
             }
 
-            if ( !this.mChannelControlBlock.isShutdown() ) {
+            if ( this.mChannelControlBlock.isShutdown() ) {
+                HuskyHeartbeatControl.this.removeTask( this.mChannelControlBlock, timeout );
+                return;
+            }
+
+            try {
                 HuskyHeartbeatControl.this.sendHeartbeat( this.mChannelControlBlock );
                 Timeout newTimeout = HuskyHeartbeatControl.this.scheduleHeartbeat( this.mChannelControlBlock, this.mIntervalMillis );
-                HuskyHeartbeatControl.this.mHeartbeatTasks.put( mChannelControlBlock, newTimeout );
+                HuskyHeartbeatControl.this.mHeartbeatTasks.replace( this.mChannelControlBlock, timeout, newTimeout );
+            }
+            catch ( IOException e ) {
+                HuskyHeartbeatControl.this.removeTask( this.mChannelControlBlock, timeout );
+                throw e;
             }
         }
     }

@@ -249,7 +249,6 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         }
     }
 
-
     protected void initNettySubsystem() throws IOException, UMCServiceException {
         this.mMasterEventGroup    = new NioEventLoopGroup();
         this.mWorkersEventGroup   = new NioEventLoopGroup();

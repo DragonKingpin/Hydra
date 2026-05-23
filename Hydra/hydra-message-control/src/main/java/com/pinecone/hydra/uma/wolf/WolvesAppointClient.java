@@ -14,15 +14,14 @@ import com.pinecone.hydra.uma.UlfDuplexAppointClient;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
-import com.pinecone.hydra.umc.msg.MediumTerminationException;
-import com.pinecone.hydra.umc.msg.Messenger;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.UlfChannel;
 import com.pinecone.hydra.umc.wolf.UlfInstructMessage;
 import com.pinecone.hydra.umc.wolf.WolfMCStandardConstants;
-import com.pinecone.hydra.umc.wolf.client.ArchAsyncMessenger;
 import com.pinecone.hydra.umc.wolf.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
+import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
+import com.pinecone.hydra.umc.wolf.client.reconnect.UlfReconnectFeature;
 import com.pinecone.hydra.umct.DuplexExpress;
 import com.pinecone.hydra.umct.MessageJunction;
 import com.pinecone.hydra.umct.UMCTExpress;
@@ -73,23 +72,8 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}), has detached.", channel.id() );
             UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
             if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
-                try {
-                    ArchAsyncMessenger.reconnect( cb, (Messenger) wrappedClient, context );
-                    Channel newChannel = cb.getChannel().getNativeHandle();
-                    WolvesAppointClient.copyDuplexAttrs( channel, newChannel );
-
-                    UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
-                    instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
-                    cb.sendAsynMsg( instructMessage, true );
-
-                    WolvesAppointClient.this.getLogger().info( "Passive-controlled channel ({}, `{}`), reconnect successfully.", channel.id(), cb.getChannel().getAddress() );
-                }
-                catch ( MediumTerminationException e ) {
-                    WolvesAppointClient.this.getLogger().info( "Service already terminated with inactive event. <ACK>" );
-                }
-                catch ( IOException e ) {
-                    WolvesAppointClient.this.getLogger().error( "Passive-controlled channel ({}), attempted to reconnect but failed.", channel.id(), e );
-                    throw new ChannelHandleException( e.getCause() );
+                if ( wrappedClient instanceof WolfMCClient ) {
+                    ( (WolfMCClient)wrappedClient ).getReconnectSupervisor().submit( cb, this.createDuplexReconnectFeature( wrappedClient ) );
                 }
             }
 
@@ -98,6 +82,24 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             return true; // Blocking next inactive sequence.
         }
         return super.afterChannelInactive( ccb, context );
+    }
+
+    protected UlfReconnectFeature createDuplexReconnectFeature( UlfClient wrappedClient ) {
+        return new UlfReconnectFeature() {
+            @Override
+            public String name() {
+                return "Bidirectional";
+            }
+
+            @Override
+            public void afterReconnectSucceeded( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) throws IOException {
+                WolvesAppointClient.copyDuplexAttrs( oldChannel, newChannel );
+
+                UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
+                instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
+                ( (UlfAsyncMessengerChannelControlBlock)block ).sendAsynMsg( instructMessage, true );
+            }
+        };
     }
 
     private void initSelf() {

@@ -104,4 +104,18 @@ public abstract class ArchExecutionImage implements ExecutionImage {
         return this.mControllableLevel;
     }
 
+    @Override
+    public ExecutionImage clone() {
+        try {
+            ArchExecutionImage that = (ArchExecutionImage) super.clone();
+            if ( this.mEntryPoint != null ) {
+                that.mEntryPoint = this.mEntryPoint.clone();
+            }
+            return that;
+        }
+        catch ( CloneNotSupportedException e ) {
+            throw new IllegalStateException( "Execution image is not cloneable.", e );
+        }
+    }
+
 }

@@ -57,6 +57,15 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
              ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
     );
 
+    default LocalUProcess createLocalHostedProcessPrototypically(
+            ExecutionImage imagePrototype, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
+    ) {
+        if ( imagePrototype == null ) {
+            throw new IllegalArgumentException( "Execution image prototype is required." );
+        }
+        return this.createLocalHostedProcess( imagePrototype.clone(), parent, startupArgs, contextEnvironmentVars );
+    }
+
     UProcess getProcess( GUID pid );
 
     Collection<UProcess> searchProcessesByName( String procName );
@@ -69,6 +78,12 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
             ExecutionImage image, UProcess parent, Map<String, String> startupArgs
     ) {
         return this.createLocalHostedProcess( image, parent, startupArgs, null );
+    }
+
+    default LocalUProcess createLocalHostedProcessPrototypically(
+            ExecutionImage imagePrototype, UProcess parent, Map<String, String> startupArgs
+    ) {
+        return this.createLocalHostedProcessPrototypically( imagePrototype, parent, startupArgs, null );
     }
 
     ImageModifier getImageModifier();

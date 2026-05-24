@@ -6,6 +6,7 @@ import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.proc.ArchProcessManager;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.ProcessesUtils;
@@ -15,6 +16,7 @@ import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -49,6 +51,8 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected Map<Long, String>                         mClientControlSessionMap;
 
+    protected Set<String>                               mRemoteTerminationReportKeySet;
+
     protected ReentrantLock                             mControlReadyLock;
 
     protected Condition                                 mControlReadyCondition;
@@ -60,6 +64,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         this.mClientSnapshotProcessMap  = new ConcurrentHashMap<>();
         this.mReadyClientIdSet          = ConcurrentHashMap.newKeySet();
         this.mClientControlSessionMap   = new ConcurrentHashMap<>();
+        this.mRemoteTerminationReportKeySet = ConcurrentHashMap.newKeySet();
         this.mControlReadyLock          = new ReentrantLock();
         this.mControlReadyCondition     = this.mControlReadyLock.newCondition();
     }
@@ -128,6 +133,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             this.mClientSnapshotProcessMap.remove( clientId );
             this.mClientControlSessionMap.remove( clientId );
             this.mReadyClientIdSet.remove( clientId );
+            this.removeClientTerminationReportKeys( clientId );
             this.mControlReadyCondition.signalAll();
         }
         finally {
@@ -501,6 +507,41 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         return that;
     }
 
+    protected String remoteTerminationReportKey( long clientId, String pid ) {
+        return clientId + ":" + pid;
+    }
+
+    protected void removeClientTerminationReportKeys( long clientId ) {
+        String szPrefix = clientId + ":";
+        this.mRemoteTerminationReportKeySet.removeIf( key -> key.startsWith( szPrefix ) );
+    }
+
+    public RemoteTerminationAcceptance acceptRemoteProcessTermination( long clientId, RemoteTerminationReport terminationReport ) {
+        if ( terminationReport == null || terminationReport.getPID() == null || terminationReport.getPID().isEmpty() ) {
+            return RemoteTerminationAcceptance.invalid();
+        }
+
+        String pid = terminationReport.getPID();
+        GUID processId = this.mGuidAllocator.parse( pid );
+        if ( processId == null ) {
+            return RemoteTerminationAcceptance.invalid();
+        }
+
+        String key = this.remoteTerminationReportKey( clientId, pid );
+        if ( !this.mRemoteTerminationReportKeySet.add( key ) ) {
+            return RemoteTerminationAcceptance.duplicate();
+        }
+
+        UProcess that = this.expunge( processId );
+        if ( that instanceof RemoteProcess ) {
+            RemoteProcess remoteProcess = (RemoteProcess) that;
+            remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Terminated, terminationReport );
+            return RemoteTerminationAcceptance.accepted( remoteProcess );
+        }
+
+        return RemoteTerminationAcceptance.accepted( that );
+    }
+
     protected void registerProcess( long clientId, RemoteProcess process ) {
         //this.mPidClientIdMap.put( process.getPID(), clientId );
         this.register( process );
@@ -604,6 +645,41 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             throw new RemoteProcessLifecycleException( e );
         }
 
+    }
+
+    public static class RemoteTerminationAcceptance {
+        protected boolean accepted;
+        protected boolean duplicate;
+        protected UProcess process;
+
+        protected static RemoteTerminationAcceptance accepted( UProcess process ) {
+            RemoteTerminationAcceptance that = new RemoteTerminationAcceptance();
+            that.accepted = true;
+            that.process = process;
+            return that;
+        }
+
+        protected static RemoteTerminationAcceptance duplicate() {
+            RemoteTerminationAcceptance that = new RemoteTerminationAcceptance();
+            that.duplicate = true;
+            return that;
+        }
+
+        protected static RemoteTerminationAcceptance invalid() {
+            return new RemoteTerminationAcceptance();
+        }
+
+        public boolean isAccepted() {
+            return this.accepted;
+        }
+
+        public boolean isDuplicate() {
+            return this.duplicate;
+        }
+
+        public UProcess getProcess() {
+            return this.process;
+        }
     }
 
 }

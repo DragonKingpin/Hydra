@@ -271,7 +271,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
     @Override
     public UProcess createLocalUProcess( ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) {
-        LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, parent, startupArgs, contextEnvironmentVars );
+        LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcessPrototypically( image, parent, startupArgs, contextEnvironmentVars );
 
         if ( this.mStateSynchronizer != null ) {
             this.mStateSynchronizer.reportProcessMirror( localHostedProcess );
@@ -324,7 +324,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
                 parentPID = this.mProcessManager.getGuidAllocator().parse( szParentPID );
             }
 
-            LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcess( image, this.mProcessManager.getRootUProcess(), startupArgs, envVariables );
+            LocalUProcess localHostedProcess = this.mProcessManager.createLocalHostedProcessPrototypically( image, this.mProcessManager.getRootUProcess(), startupArgs, envVariables );
             localHostedProcess.applyActualParentPID( parentPID );
             response.setName( localHostedProcess.getName() );
             response.setProcessID( localHostedProcess.getPID() );
@@ -415,4 +415,3 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         return this.mDuplexAppointClient;
     }
 }
-

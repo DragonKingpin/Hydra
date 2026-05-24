@@ -357,7 +357,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             else {
                 instance.getInstanceEntry().setImagePath( imageURI.toString() );
                 this.mLogger.info( "[TaskLaunchSequence] [LocalProcessAnchored] (Process: `{}`) <Standby>", imageURI );
-                process = this.mProcessManager.createLocalHostedProcess(
+                process = this.mProcessManager.createLocalHostedProcessPrototypically(
                         image, feature.getParentProcess(), feature.getStartupArgs(), feature.getContextEnvironmentVars()
                 );
             }
@@ -401,7 +401,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             else {
                 this.recordExecutionImage( instance, imageURI );
                 this.mLogger.info( "[TaskLaunchSequence] [PreparedLocalProcessAnchored] (Process: `{}`) <Standby>", imageURI );
-                process = this.mProcessManager.createLocalHostedProcess(
+                process = this.mProcessManager.createLocalHostedProcessPrototypically(
                         image, feature.getParentProcess(), feature.getStartupArgs(), feature.getContextEnvironmentVars()
                 );
             }

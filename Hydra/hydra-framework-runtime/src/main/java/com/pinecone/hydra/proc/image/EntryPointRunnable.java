@@ -11,7 +11,7 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 
-public interface EntryPointRunnable extends Runnable, Executor {
+public interface EntryPointRunnable extends Runnable, Executor, Cloneable {
 
     UProcess ownedProcess();
 
@@ -20,6 +20,8 @@ public interface EntryPointRunnable extends Runnable, Executor {
     ProcessEventHandler processEventHandler();
 
     void applyProcessEventHandler( ProcessEventHandler handler );
+
+    EntryPointRunnable clone();
 
     int main( Map<String, String> args ) throws Exception;
 

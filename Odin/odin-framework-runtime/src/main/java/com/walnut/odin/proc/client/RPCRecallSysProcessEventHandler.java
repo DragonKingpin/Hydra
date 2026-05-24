@@ -1,5 +1,6 @@
 package com.walnut.odin.proc.client;
 
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
@@ -8,16 +9,21 @@ import com.walnut.odin.proc.RemoteProcessManagerNode;
 import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.entity.RemoteTerminationReport;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
 
     protected RemoteProcessManagerNode     mRemoteProcessManagerNode;
     protected SlaveProcessLifecycleIface   mSlaveProcessLifecycleIface;
     protected long                         mnClientId;
+    protected Set<GUID>                    mReportedTerminatedProcessIds;
 
     public RPCRecallSysProcessEventHandler( long clientId, RemoteProcessManagerNode node, SlaveProcessLifecycleIface iface ) {
         this.mRemoteProcessManagerNode   = node;
         this.mSlaveProcessLifecycleIface = iface;
         this.mnClientId                  = clientId;
+        this.mReportedTerminatedProcessIds = ConcurrentHashMap.newKeySet();
     }
 
     public RPCRecallSysProcessEventHandler( RemoteProcessManagerNode node, SlaveProcessLifecycleIface iface ) {
@@ -35,6 +41,10 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
                 this.notifyProcessTerminated( runnable );
                 break;
             }
+            case Error: {
+                this.notifyProcessTerminated( runnable );
+                break;
+            }
             case Preparing:
             case Created:
             case Activated:
@@ -46,6 +56,10 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
 
     protected void notifyProcessTerminated( EntryPointRunnable runnable ) {
         UProcess process = runnable.ownedProcess();
+        if ( process == null || !this.mReportedTerminatedProcessIds.add( process.getPID() ) ) {
+            return;
+        }
+
         RemoteTerminationReport report = new RemoteTerminationReport();
         report.setProcessID( process.getPID() );
         report.setExitCode( process.actionTape().getExitCode() );

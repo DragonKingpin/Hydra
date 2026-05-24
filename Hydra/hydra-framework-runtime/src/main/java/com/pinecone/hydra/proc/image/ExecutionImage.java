@@ -6,7 +6,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.proc.ControllableLevel;
 import com.pinecone.hydra.proc.UProcess;
 
-public interface ExecutionImage extends Pinenut {
+public interface ExecutionImage extends Pinenut, Cloneable {
 
     String getName();
 
@@ -30,5 +30,6 @@ public interface ExecutionImage extends Pinenut {
 
     ControllableLevel getControllableLevel();
 
+    ExecutionImage clone();
 
 }

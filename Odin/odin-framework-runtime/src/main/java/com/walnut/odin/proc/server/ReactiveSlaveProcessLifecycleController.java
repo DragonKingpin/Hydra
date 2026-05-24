@@ -28,18 +28,60 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
 
     @AddressMapping( "reportProcessTerminated" )
     public void reportProcessTerminated( long clientId, RemoteTerminationReport terminationReport ) {
-        this.mRemoteProcessManagerServer.getLogger().info(
-                "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>", clientId, terminationReport.getPID(), terminationReport.getExitCode()
-        );
+        if ( terminationReport == null ) {
+            this.mRemoteProcessManagerServer.getLogger().warn(
+                    "[RemoteProcessTerminated] [RPC] (ClientId: `{}`) <Invalid>", clientId
+            );
+            return;
+        }
+
+        if ( this.mRemoteProcessManagerServer instanceof RavenRemoteProcessManagerServer ) {
+            RavenRemoteProcessManagerServer ravenServer = (RavenRemoteProcessManagerServer) this.mRemoteProcessManagerServer;
+            RavenRemoteProcessManagerServer.RemoteTerminationAcceptance acceptance = ravenServer.acceptRemoteProcessTermination(
+                    clientId, terminationReport
+            );
+            if ( acceptance.isDuplicate() ) {
+                this.mRemoteProcessManagerServer.getLogger().info(
+                        "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Duplicate>",
+                        clientId, terminationReport.getPID(), terminationReport.getExitCode()
+                );
+                return;
+            }
+            if ( !acceptance.isAccepted() ) {
+                this.mRemoteProcessManagerServer.getLogger().warn(
+                        "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`) <Invalid>",
+                        clientId, terminationReport.getPID()
+                );
+                return;
+            }
+
+            UProcess process = acceptance.getProcess();
+            String procName = "NonExistent";
+            if ( process != null ) {
+                procName = process.getName();
+            }
+            this.mRemoteProcessManagerServer.getLogger().info(
+                    "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
+                    clientId, terminationReport.getPID(), terminationReport.getExitCode()
+            );
+            this.mRemoteProcessManagerServer.getLogger().info(
+                    "[RemoteProcessTerminated] [RPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
+                    clientId, terminationReport.getPID(), procName
+            );
+            return;
+        }
 
         UProcess that = RavenRemoteProcessManagerServer.invokeExpunge( this.mRemoteProcessManagerServer, terminationReport.getPID() );
         String procName = "NonExistent";
-        if ( that != null ) {
+        if ( that instanceof RemoteProcess ) {
             procName = that.getName();
             RemoteProcess remoteProcess = (RemoteProcess) that;
             remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Terminated, terminationReport );
         }
-
+        this.mRemoteProcessManagerServer.getLogger().info(
+                "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
+                clientId, terminationReport.getPID(), terminationReport.getExitCode()
+        );
         this.mRemoteProcessManagerServer.getLogger().info(
                 "[RemoteProcessTerminated] [RPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>", clientId, terminationReport.getPID(), procName
         );

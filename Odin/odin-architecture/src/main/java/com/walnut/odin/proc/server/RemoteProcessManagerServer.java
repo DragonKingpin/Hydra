@@ -30,6 +30,10 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
     Collection<Long> readyControlClientIds();
 
+    String openClientControlSession( long clientId );
+
+    boolean isClientControlSession( long clientId, String szSessionGuid );
+
     void detachClient( long clientId );
 
     void registerController( Object controller ) throws RemoteProcessServiceRPCException;

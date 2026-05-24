@@ -38,10 +38,16 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
                 return this.acceptClientMuster( transport, frame );
             }
             case ClientSnapshotBegin: {
+                if ( !this.acceptCurrentSession( frame ) ) {
+                    return this.errorFrame( frame, frame.getClientId(), "Remote process control session is not current." );
+                }
                 this.mRemoteProcessManagerServer.beginClientProcessSnapshot( frame.getClientId() );
                 return this.ackFrame( frame, "Client process snapshot started." );
             }
             case ProcessMirror: {
+                if ( !this.acceptCurrentSession( frame ) ) {
+                    return this.errorFrame( frame, frame.getClientId(), "Remote process control session is not current." );
+                }
                 if ( frame.getProcessMirror() == null ) {
                     return this.errorFrame( frame, frame.getClientId(), "Process mirror frame is missing mirror payload." );
                 }
@@ -49,10 +55,16 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
                 return this.ackFrame( frame, "Process mirror accepted." );
             }
             case ClientSnapshotEnd: {
+                if ( !this.acceptCurrentSession( frame ) ) {
+                    return this.errorFrame( frame, frame.getClientId(), "Remote process control session is not current." );
+                }
                 this.mRemoteProcessManagerServer.endClientProcessSnapshot( frame.getClientId() );
                 return this.ackFrame( frame, "Client process snapshot committed." );
             }
             case Apoptosis: {
+                if ( !this.acceptCurrentSession( frame ) ) {
+                    return this.errorFrame( frame, frame.getClientId(), "Remote process control session is not current." );
+                }
                 this.mRemoteProcessManagerServer.detachClient( frame.getClientId() );
                 return this.ackFrame( frame, "Client detached." );
             }
@@ -69,15 +81,9 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
         }
 
         this.mRemoteProcessManagerServer.transportRegistry().bindClient( nClientId, transport );
+        String szSessionGuid = this.mRemoteProcessManagerServer.openClientControlSession( nClientId );
 
-        RemoteProcessControlFrame ready = new RemoteProcessControlFrame();
-        ready.setFrameGuid( this.nextGuidString() );
-        ready.setCorrelationGuid( frame.getFrameGuid() );
-        ready.setClientId( nClientId );
-        ready.setSessionGuid( this.nextGuidString() );
-        ready.applyFrameType( RemoteProcessControlFrameType.ClientReady );
-        ready.setMessage( "Client control session ready." );
-        return ready;
+        return this.readyFrame( frame, nClientId, szSessionGuid );
     }
 
     protected void acceptClientSnapshot( long nClientId, List<UProcessMirrorDTO> processMirrors ) {
@@ -101,16 +107,15 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
             }
 
             this.mRemoteProcessManagerServer.transportRegistry().bindClient( nClientId, transport );
+            String szSessionGuid = this.mRemoteProcessManagerServer.openClientControlSession( nClientId );
             this.acceptClientSnapshot( nClientId, this.decodeProcessMirrors( szSnapshotJson ) );
+            this.mRemoteProcessManagerServer.getLogger().info(
+                    "[RemoteProcessControlSync] [ClientMuster] (ClientId: `{}`, SessionGuid: `{}`) <Ready>",
+                    nClientId,
+                    szSessionGuid
+            );
 
-            RemoteProcessControlFrame ready = new RemoteProcessControlFrame();
-            ready.setFrameGuid( this.nextGuidString() );
-            ready.setCorrelationGuid( szFrameGuid );
-            ready.setClientId( nClientId );
-            ready.setSessionGuid( this.nextGuidString() );
-            ready.applyFrameType( RemoteProcessControlFrameType.ClientReady );
-            ready.setMessage( "Client control session ready." );
-            return this.responseJson( ready );
+            return this.responseJson( this.readyFrame( request, nClientId, szSessionGuid ) );
         }
         catch ( Exception e ) {
             return this.responseJson( this.errorFrame( request, nClientId, e.getMessage() ) );
@@ -125,6 +130,9 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
         try {
             if ( transport == null || !transport.containsClient( nClientId ) ) {
                 return this.responseJson( this.errorFrame( request, nClientId, "Remote process control passive channel is not ready." ) );
+            }
+            if ( !this.mRemoteProcessManagerServer.isClientControlSession( nClientId, szSessionGuid ) ) {
+                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control session is not current." ) );
             }
 
             UProcessMirrorDTO processMirror = this.decodeProcessMirror( szProcessMirrorJson );
@@ -144,6 +152,9 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
     public String detachClient( RemoteProcessControlTransport transport, long nClientId, String szSessionGuid, String szFrameGuid ) {
         RemoteProcessControlFrame request = this.requestFrame( nClientId, szSessionGuid, szFrameGuid, RemoteProcessControlFrameType.Apoptosis );
         try {
+            if ( szSessionGuid != null && !this.mRemoteProcessManagerServer.isClientControlSession( nClientId, szSessionGuid ) ) {
+                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control session is not current." ) );
+            }
             this.mRemoteProcessManagerServer.detachClient( nClientId );
             return this.responseJson( this.ackFrame( request, "Client detached." ) );
         }
@@ -164,6 +175,25 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
             return null;
         }
         return JSON.unmarshal( szProcessMirrorJson, UProcessMirrorDTO.class );
+    }
+
+    protected boolean acceptCurrentSession( RemoteProcessControlFrame frame ) {
+        return frame != null && this.mRemoteProcessManagerServer.isClientControlSession(
+                frame.getClientId(), frame.getSessionGuid()
+        );
+    }
+
+    protected RemoteProcessControlFrame readyFrame( RemoteProcessControlFrame request, long nClientId, String szSessionGuid ) {
+        RemoteProcessControlFrame ready = new RemoteProcessControlFrame();
+        ready.setFrameGuid( this.nextGuidString() );
+        if ( request != null ) {
+            ready.setCorrelationGuid( request.getFrameGuid() );
+        }
+        ready.setClientId( nClientId );
+        ready.setSessionGuid( szSessionGuid );
+        ready.applyFrameType( RemoteProcessControlFrameType.ClientReady );
+        ready.setMessage( "Client control session ready." );
+        return ready;
     }
 
     protected RemoteProcessControlFrame requestFrame( long nClientId, String szSessionGuid, String szFrameGuid, RemoteProcessControlFrameType frameType ) {

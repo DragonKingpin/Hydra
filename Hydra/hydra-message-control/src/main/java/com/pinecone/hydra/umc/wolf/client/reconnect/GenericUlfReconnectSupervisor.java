@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.UlfChannel;
+import com.pinecone.hydra.umc.wolf.client.MessengerNettyChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 
 import io.netty.channel.Channel;
@@ -94,13 +95,14 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         UlfChannel ulfChannel     = (UlfChannel)block.getChannel();
         SocketAddress address     = ulfChannel.getAddress();
         Channel oldChannel        = ulfChannel.getNativeHandle();
-
+        session.mConnectionArriveFuture = this.prepareConnectionArriveFuture( block );
         this.mClient.getLogger().info(
                 "[ChannelReconnect] [{}] Attempt {} started. (Channel: `{}`, Addr: `{}`)",
                 session.mFeature.name(), session.mnAttempt, oldChannel.id(), address
         );
 
         ChannelFuture future = ulfChannel.openReconnectCandidate( address );
+        this.expectConnectionArriveChannel( block, future.channel() );
         future.addListener( new ChannelFutureListener() {
             @Override
             public void operationComplete( ChannelFuture completedFuture ) throws Exception {
@@ -127,18 +129,33 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         try {
             ulfChannel.commitReconnectCandidate( future.channel(), future );
             this.mClient.getChannelPool().replaceChannel( oldChannel.id(), block );
-            CompletableFuture<Void> readyFuture = session.mFeature.afterReconnectCommitted( block, oldChannel, future.channel() );
-            if ( readyFuture == null ) {
-                readyFuture = CompletableFuture.completedFuture( null );
-            }
             Channel newChannel = future.channel();
-            readyFuture.whenComplete( ( value, cause ) -> {
-                if ( cause == null ) {
-                    GenericUlfReconnectSupervisor.this.completeReady( session, oldChannel, newChannel );
+            session.mConnectionArriveFuture.whenComplete( ( activeValue, activeCause ) -> {
+                if ( activeCause != null ) {
+                    GenericUlfReconnectSupervisor.this.completeReadyFailed( session, activeCause );
+                    return;
                 }
-                else {
-                    GenericUlfReconnectSupervisor.this.completeReadyFailed( session, cause );
+
+                CompletableFuture<Void> readyFuture;
+                try {
+                    readyFuture = session.mFeature.afterReconnectCommitted( block, oldChannel, newChannel );
+                    if ( readyFuture == null ) {
+                        readyFuture = CompletableFuture.completedFuture( null );
+                    }
                 }
+                catch ( Exception e ) {
+                    GenericUlfReconnectSupervisor.this.completeReadyFailed( session, e );
+                    return;
+                }
+
+                readyFuture.whenComplete( ( value, cause ) -> {
+                    if ( cause == null ) {
+                        GenericUlfReconnectSupervisor.this.completeReady( session, oldChannel, newChannel );
+                    }
+                    else {
+                        GenericUlfReconnectSupervisor.this.completeReadyFailed( session, cause );
+                    }
+                } );
             } );
         }
         catch ( Exception e ) {
@@ -159,8 +176,8 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
 
         ChannelControlBlock block = session.mBlock;
         try {
-            this.mClient.notifyReconnectChannelConnected( block );
             this.mSessions.remove( block );
+            this.mClient.notifyReconnectChannelConnected( block );
         }
         catch ( Exception e ) {
             this.completeReadyFailed( session, e );
@@ -209,10 +226,24 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         this.schedule( session, nDelayMillis );
     }
 
+    protected CompletableFuture<Void> prepareConnectionArriveFuture( ChannelControlBlock block ) {
+        if ( block instanceof MessengerNettyChannelControlBlock ) {
+            return ( (MessengerNettyChannelControlBlock)block ).prepareConnectionArriveFuture();
+        }
+        return CompletableFuture.completedFuture( null );
+    }
+
+    protected void expectConnectionArriveChannel( ChannelControlBlock block, Channel expectedChannel ) {
+        if ( block instanceof MessengerNettyChannelControlBlock ) {
+            ( (MessengerNettyChannelControlBlock)block ).expectConnectionArriveChannel( expectedChannel );
+        }
+    }
+
     protected static class UlfReconnectSession {
         protected ChannelControlBlock   mBlock;
         protected UlfReconnectFeature   mFeature;
         protected int                   mnAttempt;
+        protected CompletableFuture<Void> mConnectionArriveFuture;
 
         protected UlfReconnectSession( ChannelControlBlock block, UlfReconnectFeature feature ) {
             this.mBlock     = block;

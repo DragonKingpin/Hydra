@@ -11,6 +11,7 @@ import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.wolf.client.UlfAsyncMessengerChannelControlBlock;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.walnut.odin.proc.ArchRemoteProcessManagerNode;
 import com.walnut.odin.proc.ProcessesUtils;
@@ -24,12 +25,25 @@ import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.pinecone.hydra.umct.husky.HuskyCTPConstants;
+
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNode implements RemoteProcessManagerClient {
+
+    public interface ControlStateSynchronizedHandler {
+        void afterControlStateSynchronized( String szReason );
+    }
+
+    protected static final int          ControlPassiveChannelLine = 2;
 
     protected DuplexAppointClient            mDuplexAppointClient;
 
@@ -42,6 +56,10 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     protected RemoteProcessControlStateSynchronizer mStateSynchronizer;
 
     protected ChannelEventHandler            mControlChannelConnectedHandler;
+
+    protected List<ControlStateSynchronizedHandler> mControlStateSynchronizedHandlers = new CopyOnWriteArrayList<>();
+
+    protected ReentrantLock                  mControlRecoveryLock = new ReentrantLock();
 
     protected boolean                        mbControlSubsystemReady;
 
@@ -91,13 +109,39 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             @Override
             public void afterEventTriggered( ChannelControlBlock block, Object context ) {
                 if ( !RavenRemoteProcessManagerClient.this.mbControlSubsystemReady ) {
+                    RavenRemoteProcessManagerClient.this.getLogger().info(
+                            "[RemoteProcessControlSync] [ChannelConnected] (ClientId: `{}`) <SubsystemNotReady>",
+                            RavenRemoteProcessManagerClient.this.mnClientId
+                    );
                     return;
                 }
 
+                if ( RavenRemoteProcessManagerClient.this.isControlPassiveChannel( block ) ) {
+                    RavenRemoteProcessManagerClient.this.getLogger().info(
+                            "[RemoteProcessControlSync] [ChannelConnected] (ClientId: `{}`) <PassiveChannelPass>",
+                            RavenRemoteProcessManagerClient.this.mnClientId
+                    );
+                    return;
+                }
+
+                RavenRemoteProcessManagerClient.this.getLogger().info(
+                        "[RemoteProcessControlSync] [ChannelConnected] (ClientId: `{}`) <Requested>",
+                        RavenRemoteProcessManagerClient.this.mnClientId
+                );
                 RavenRemoteProcessManagerClient.this.requestControlStateSynchronization( RemoteProcessControlSyncReasons.ChannelConnected );
             }
         };
         this.mRPCClient.registerChannelConnectedHandler( this.mControlChannelConnectedHandler );
+    }
+
+    protected boolean isControlPassiveChannel( ChannelControlBlock block ) {
+        if ( !( block instanceof UlfAsyncMessengerChannelControlBlock ) ) {
+            return false;
+        }
+
+        Channel channel = ( (UlfAsyncMessengerChannelControlBlock)block ).getChannel().getNativeHandle();
+        Object passive = channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).get();
+        return passive instanceof Boolean && (Boolean)passive;
     }
 
     protected void requestControlStateSynchronization( String szReason ) {
@@ -107,20 +151,85 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         this.mStateSynchronizer.requestSynchronize( szReason );
     }
 
-    protected void synchronizeControlStateBlocking( String szReason ) {
+    protected boolean synchronizeControlStateBlocking( String szReason ) {
         if ( this.mStateSynchronizer == null ) {
+            return false;
+        }
+        return this.mStateSynchronizer.synchronizeBlocking( szReason );
+    }
+
+    public void registerControlStateSynchronizedHandler( ControlStateSynchronizedHandler handler ) {
+        if ( handler == null ) {
             return;
         }
-        this.mStateSynchronizer.synchronizeBlocking( szReason );
+        this.mControlStateSynchronizedHandlers.add( handler );
+    }
+
+    public void deregisterControlStateSynchronizedHandler( ControlStateSynchronizedHandler handler ) {
+        if ( handler == null ) {
+            return;
+        }
+        this.mControlStateSynchronizedHandlers.remove( handler );
+    }
+
+    protected void notifyControlStateSynchronized( String szReason ) {
+        for ( ControlStateSynchronizedHandler handler : this.mControlStateSynchronizedHandlers ) {
+            try {
+                handler.afterControlStateSynchronized( szReason );
+            }
+            catch ( Exception e ) {
+                this.getLogger().warn(
+                        "[RemoteProcessControlSync] [Handler] (Reason: `{}`) <Failure>",
+                        szReason,
+                        e
+                );
+            }
+        }
+    }
+
+    protected void recoverControlPassiveChannels( String szReason, Throwable cause ) {
+        if ( !( this.mDuplexAppointClient instanceof WolvesAppointClient ) ) {
+            return;
+        }
+        if ( !this.mControlRecoveryLock.tryLock() ) {
+            return;
+        }
+
+        try {
+            this.getLogger().info(
+                    "[RemoteProcessControlRecovery] Passive channel rebuild started. (Reason: `{}`) <Start>",
+                    szReason
+            );
+            ( (WolvesAppointClient)this.mDuplexAppointClient ).rebuildPassiveChannels( ControlPassiveChannelLine );
+            this.getLogger().info(
+                    "[RemoteProcessControlRecovery] Passive channel rebuild done. (Reason: `{}`) <Done>",
+                    szReason
+            );
+        }
+        catch ( Exception e ) {
+            if ( cause != null && cause != e ) {
+                e.addSuppressed( cause );
+            }
+            this.getLogger().warn(
+                    "[RemoteProcessControlRecovery] Passive channel rebuild failed. (Reason: `{}`) <Failure>",
+                    szReason,
+                    e
+            );
+        }
+        finally {
+            this.mControlRecoveryLock.unlock();
+        }
     }
 
     protected void vitalizeRPCSubsystem() throws RemoteProcessServiceRPCException {
         try {
             if ( this.mDuplexAppointClient.getMessageNode().isTerminated() ) {
                 this.mDuplexAppointClient.execute();
-                this.mDuplexAppointClient.embraces( 2 );
-                this.mbControlSubsystemReady = true;
-                this.synchronizeControlStateBlocking( RemoteProcessControlSyncReasons.Startup );
+                this.mDuplexAppointClient.embraces( ControlPassiveChannelLine );
+                this.mbControlSubsystemReady = this.synchronizeControlStateBlocking( RemoteProcessControlSyncReasons.Startup );
+                if ( !this.mbControlSubsystemReady ) {
+                    throw new RemoteProcessServiceRPCException( "Remote process control synchronization failed during startup." );
+                }
 
                 this.infoLifecycle( "RPC Subsystem Service Vitalization, ( ClientId: `" + this.mnClientId + "` )", LogStatuses.StatusDone );
             }

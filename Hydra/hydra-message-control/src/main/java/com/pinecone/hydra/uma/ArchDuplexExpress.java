@@ -146,6 +146,13 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         UMCConnection uc          = this.wrap( connection );
         UMCMessage msg            = uc.getMessage();
         int controlBits           = msg.getHead().getControlBits();
+        if ( ( controlBits & HuskyCTPConstants.HCTP_DUP_CONTROL_MASK ) == HuskyCTPConstants.HCTP_DUP_CONTROL_MASK ) {
+            ChannelControlBlock ccb = (ChannelControlBlock) args[ 0 ];
+            this.getLogger().info(
+                    "[PassiveChannel] [ControlFrame] (ControlBits: `0x{}`, ClientId: `{}`, ChannelId: `{}`) <Arrived>",
+                    new Object[]{ Integer.toHexString( controlBits ), ccb.getChannel().getIdentityID(), ccb.getChannel().getChannelID() }
+            );
+        }
         if ( controlBits == HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER ) {
             this.registerPassiveChannel( uc, connection, args );
             return true;
@@ -160,8 +167,9 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         long                cid = channel.getIdentityID();
 
         this.mMultiClientChannelRegistry.register( cid, ccb );
+        this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSending>", cid, ccb.getChannel().getChannelID() );
         connection.getTransmit().sendMsg( new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER_ACK ), true );
-        this.getLogger().debug( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSent>", cid, ccb.getChannel().getChannelID() );
+        this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSent>", cid, ccb.getChannel().getChannelID() );
         this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <{}>", cid, ccb.getChannel().getChannelID(), "Registered" );
     }
 

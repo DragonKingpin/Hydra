@@ -15,6 +15,7 @@ import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -26,6 +27,8 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
 
     protected static final long                   RetryDelayMillis2 = 2000;
 
+    protected static final long                   AsyncSynchronizeQuietMillis = 1000;
+
     protected RavenRemoteProcessManagerClient    mClient;
 
     protected RemoteProcessControlFrameIface     mControlFrameIface;
@@ -33,6 +36,8 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
     protected ReentrantLock                      mSyncLock = new ReentrantLock();
 
     protected Condition                          mSyncFinishedCondition = this.mSyncLock.newCondition();
+
+    protected Condition                          mRetryCondition = this.mSyncLock.newCondition();
 
     protected boolean                            mbSynchronizing;
 
@@ -51,12 +56,19 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
 
     public void requestSynchronize( String szReason ) {
         if ( !this.startSynchronizing() ) {
+            this.mClient.getLogger().info(
+                    "[RemoteProcessControlSync] (Reason: `{}`, ClientId: `{}`) <AlreadySynchronizing>",
+                    szReason,
+                    this.mClient.getClientId()
+            );
+            this.requestResynchronize();
             return;
         }
 
         Thread syncThread = new Thread( new Runnable() {
             @Override
             public void run() {
+                RemoteProcessControlStateSynchronizer.this.awaitAsyncSynchronizeQuietWindow();
                 RemoteProcessControlStateSynchronizer.this.runSynchronizeLoop( szReason );
             }
         }, "odin-control-state-sync" );
@@ -64,14 +76,14 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         syncThread.start();
     }
 
-    public void synchronizeBlocking( String szReason ) {
+    public boolean synchronizeBlocking( String szReason ) {
         if ( !this.startSynchronizing() ) {
             this.requestResynchronize();
             this.awaitSynchronizingFinished();
-            return;
+            return this.hasControlSession();
         }
 
-        this.runSynchronizeLoop( szReason );
+        return this.runSynchronizeLoop( szReason );
     }
 
     protected boolean startSynchronizing() {
@@ -93,6 +105,7 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         this.mSyncLock.lock();
         try {
             this.mbResyncRequested = true;
+            this.mRetryCondition.signalAll();
         }
         finally {
             this.mSyncLock.unlock();
@@ -114,7 +127,11 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         }
     }
 
-    protected void runSynchronizeLoop( String szReason ) {
+    protected boolean hasControlSession() {
+        return this.mszSessionGuid != null && !this.mszSessionGuid.isEmpty();
+    }
+
+    protected boolean runSynchronizeLoop( String szReason ) {
         int nFailureCount = 0;
         try {
             while ( true ) {
@@ -128,7 +145,7 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
 
                 boolean bSynchronized = this.synchronizeOnce( szReason );
                 if ( !bSynchronized ) {
-                    this.sleepBeforeRetry( nFailureCount );
+                    this.awaitBeforeRetry( nFailureCount );
                     ++nFailureCount;
                     continue;
                 }
@@ -137,7 +154,7 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
                 this.mSyncLock.lock();
                 try {
                     if ( !this.mbResyncRequested ) {
-                        return;
+                        return true;
                     }
                 }
                 finally {
@@ -167,33 +184,67 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         return RetryDelayMillis2;
     }
 
-    protected void sleepBeforeRetry( int nFailureCount ) {
+    protected void awaitBeforeRetry( int nFailureCount ) {
         long nDelayMillis = this.retryDelayMillis( nFailureCount );
+        this.mSyncLock.lock();
         try {
-            Thread.sleep( nDelayMillis );
+            if ( this.mbResyncRequested ) {
+                return;
+            }
+            this.mRetryCondition.await( nDelayMillis, TimeUnit.MILLISECONDS );
         }
         catch ( InterruptedException e ) {
             Thread.currentThread().interrupt();
+        }
+        finally {
+            this.mSyncLock.unlock();
+        }
+    }
+
+    protected void awaitAsyncSynchronizeQuietWindow() {
+        long nNanos = TimeUnit.MILLISECONDS.toNanos( AsyncSynchronizeQuietMillis );
+        this.mSyncLock.lock();
+        try {
+            while ( nNanos > 0L ) {
+                try {
+                    nNanos = this.mRetryCondition.awaitNanos( nNanos );
+                }
+                catch ( InterruptedException e ) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+        finally {
+            this.mSyncLock.unlock();
         }
     }
 
     protected boolean synchronizeOnce( String szReason ) {
         try {
+            this.mClient.getLogger().info(
+                    "[RemoteProcessControlSync] (Reason: `{}`, ClientId: `{}`) <Start>",
+                    szReason,
+                    this.mClient.getClientId()
+            );
             RemoteProcessControlFrame muster = this.clientMusterFrame();
             String szSnapshotJson = JSON.stringify( this.collectProcessMirrors() );
             String szReadyJson = this.mControlFrameIface.musterClient( muster.getClientId(), muster.getFrameGuid(), szSnapshotJson );
             RemoteProcessControlFrame ready = this.decodeControlFrame( szReadyJson );
             if ( ready == null || ready.optFrameType() != RemoteProcessControlFrameType.ClientReady ) {
                 this.warnUnexpectedFrame( "ClientMuster", ready, szReason );
+                this.mClient.recoverControlPassiveChannels( szReason, null );
                 return false;
             }
 
             this.mszSessionGuid = ready.getSessionGuid();
             this.mClient.getLogger().info( "[RemoteProcessControlSync] (Reason: `{}`, SessionGuid: `{}`) <Done>", szReason, this.mszSessionGuid );
+            this.mClient.notifyControlStateSynchronized( szReason );
             return true;
         }
         catch ( Exception e ) {
             this.mClient.getLogger().warn( "[RemoteProcessControlSync] (Reason: `{}`) <Failure>", szReason, e );
+            this.mClient.recoverControlPassiveChannels( szReason, e );
             return false;
         }
     }

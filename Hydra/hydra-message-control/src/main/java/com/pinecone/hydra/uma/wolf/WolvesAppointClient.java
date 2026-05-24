@@ -3,12 +3,15 @@ package com.pinecone.hydra.uma.wolf;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 
@@ -16,6 +19,7 @@ import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.hydra.uma.AppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
 import com.pinecone.hydra.uma.UlfDuplexAppointClient;
+import com.pinecone.hydra.umc.msg.ArchUMCProtocol;
 import com.pinecone.hydra.umc.msg.ChannelControlBlock;
 import com.pinecone.hydra.umc.msg.ChannelHandleException;
 import com.pinecone.hydra.umc.msg.ChannelPool;
@@ -71,6 +75,7 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
     protected Map<ChannelId, ChannelControlBlock > mInstructedChannels;  // Standby controlled channels, waiting for server to instruct.
     protected RouteDispatcher                      mRouteDispatcher;
     protected PassiveChannelRegisterAckSupport     mPassiveRegisterAckSupport;
+    protected ReentrantLock                        mPassiveChannelLock = new ReentrantLock();
 
 
     @Override
@@ -116,11 +121,15 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
                 instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
                 CompletableFuture<Void> ackFuture = WolvesAppointClient.this.mPassiveRegisterAckSupport.begin( newChannel );
                 try {
-                    WolvesAppointClient.this.getLogger().debug(
-                            "[PassiveChannelRegister] [Reconnect] Sending register frame. (Channel: `{}`)",
-                            newChannel.id()
+                    WolvesAppointClient.this.getLogger().info(
+                            "[PassiveChannelRegister] [Reconnect] Sending register frame. (Channel: `{}`, TransmitChannel: `{}`, Active: `{}`)",
+                            new Object[]{ newChannel.id(), WolvesAppointClient.this.transmitChannelId( block ), newChannel.isActive() }
                     );
                     ( (UlfAsyncMessengerChannelControlBlock)block ).sendAsynMsg( instructMessage, true );
+                    WolvesAppointClient.this.getLogger().info(
+                            "[PassiveChannelRegister] [Reconnect] Register frame sent. (Channel: `{}`, TransmitChannel: `{}`, Active: `{}`)",
+                            new Object[]{ newChannel.id(), WolvesAppointClient.this.transmitChannelId( block ), newChannel.isActive() }
+                    );
                 }
                 catch ( IOException e ) {
                     WolvesAppointClient.this.mPassiveRegisterAckSupport.cancel( newChannel, ackFuture );
@@ -318,12 +327,44 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
     public void embraces( int nLine, UlfAsyncMsgHandleAdapter handler ) throws IOException {
         // Join us, embracing uniformity.
 
-        this.createPassiveChannel( nLine );
-        for ( Map.Entry<ChannelId, ChannelControlBlock > kv : this.mInstructedChannels.entrySet() ) {
+        this.mPassiveChannelLock.lock();
+        try {
+            this.createPassiveChannel0( nLine );
+            this.registerPassiveChannels( handler );
+        }
+        finally {
+            this.mPassiveChannelLock.unlock();
+        }
+    }
+
+    public void rebuildPassiveChannels( int nLine, UlfAsyncMsgHandleAdapter handler ) throws IOException {
+        this.mPassiveChannelLock.lock();
+        try {
+            this.ensurePassiveChannelLine( nLine );
+            this.registerPassiveChannels( handler );
+        }
+        finally {
+            this.mPassiveChannelLock.unlock();
+        }
+    }
+
+    public void rebuildPassiveChannels( int nLine, UMCTExpressHandler handler ) throws IOException {
+        this.rebuildPassiveChannels( nLine, UlfAsyncMsgHandleAdapter.wrap( handler ) );
+    }
+
+    public void rebuildPassiveChannels( int nLine ) throws IOException {
+        this.rebuildPassiveChannels( nLine, this.mRouteDispatcher.getUMCTExpress() );
+    }
+
+    protected void registerPassiveChannels( UlfAsyncMsgHandleAdapter handler ) throws IOException {
+        List<ChannelControlBlock> passiveChannels = new ArrayList<>( this.mInstructedChannels.values() );
+        for ( ChannelControlBlock ccb : passiveChannels ) {
+            this.reconnectPassiveChannelIfNeeded( ccb );
+            this.refreshPassiveChannelKey( ccb );
+
             UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
             instructMessage.getHead().setIdentityId( this.mMessenger.getMessageNodeId() );
 
-            ChannelControlBlock ccb = kv.getValue();
             UlfAsyncMessengerChannelControlBlock cb = (UlfAsyncMessengerChannelControlBlock) ccb;
             Channel channel = cb.getChannel().getNativeHandle();
             channel.attr( AttributeKey.valueOf( WolfMCStandardConstants.CB_ASYNC_MSG_HANDLE_KEY ) ).set( handler );  // Exclusive handler.
@@ -332,11 +373,15 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             channel.attr( AttributeKey.valueOf( HuskyCTPConstants.HCTP_DUP_PASSIVE_CHANNEL_KEY ) ).set( true );
             CompletableFuture<Void> ackFuture = this.mPassiveRegisterAckSupport.begin( channel );
             try {
-                this.getLogger().debug(
-                        "[PassiveChannelRegister] Sending register frame. (Channel: `{}`)",
-                        channel.id()
+                this.getLogger().info(
+                        "[PassiveChannelRegister] Sending register frame. (Channel: `{}`, TransmitChannel: `{}`, Active: `{}`)",
+                        new Object[]{ channel.id(), this.transmitChannelId( ccb ), channel.isActive() }
                 );
                 cb.sendAsynMsg( instructMessage, true );
+                this.getLogger().info(
+                        "[PassiveChannelRegister] Register frame sent. (Channel: `{}`, TransmitChannel: `{}`, Active: `{}`)",
+                        new Object[]{ channel.id(), this.transmitChannelId( ccb ), channel.isActive() }
+                );
             }
             catch ( IOException e ) {
                 this.mPassiveRegisterAckSupport.cancel( channel, ackFuture );
@@ -345,6 +390,47 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
 
             this.getLogger().info( "Embracing and registering passive controlled channel ({}).", cb.getChannel().getNativeHandle().id() );
             this.mPassiveRegisterAckSupport.waitAck( channel, ackFuture );
+        }
+    }
+
+    protected void reconnectPassiveChannelIfNeeded( ChannelControlBlock ccb ) throws IOException {
+        if ( this.isPassiveChannelReconnecting( ccb ) ) {
+            throw new IOException( "Passive channel is reconnecting. Channel: " + ccb.getChannel().getChannelID() );
+        }
+        if ( !ccb.isShutdown() ) {
+            return;
+        }
+
+        ccb.getChannel().reconnect( this.mMessenger.getConnectionArguments().getSocketTimeout() );
+    }
+
+    protected Object transmitChannelId( ChannelControlBlock ccb ) {
+        if ( ccb == null || !( ccb.getTransmit() instanceof ArchUMCProtocol ) ) {
+            return "-";
+        }
+
+        Object nativeSource = ( (ArchUMCProtocol)ccb.getTransmit() ).getMessageSource().getNativeMessageSource();
+        if ( nativeSource instanceof Channel ) {
+            return ( (Channel)nativeSource ).id();
+        }
+        return nativeSource == null ? "null" : nativeSource.getClass().getSimpleName();
+    }
+
+    protected boolean isPassiveChannelReconnecting( ChannelControlBlock ccb ) {
+        return this.mMessenger instanceof WolfMCClient
+                && ( (WolfMCClient)this.mMessenger ).getReconnectSupervisor().isReconnecting( ccb );
+    }
+
+    protected void refreshPassiveChannelKey( ChannelControlBlock ccb ) {
+        ChannelId id = (ChannelId)ccb.getChannel().getChannelID();
+        this.mInstructedChannels.entrySet().removeIf( kv -> kv.getValue() == ccb && !kv.getKey().equals( id ) );
+        this.mInstructedChannels.put( id, ccb );
+    }
+
+    protected void ensurePassiveChannelLine( int nLine ) {
+        int nMissingLine = nLine - this.mInstructedChannels.size();
+        if ( nMissingLine > 0 ) {
+            this.createPassiveChannel0( nMissingLine );
         }
     }
 
@@ -360,6 +446,16 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
 
     @Override
     public void createPassiveChannel( int nLine ) {
+        this.mPassiveChannelLock.lock();
+        try {
+            this.createPassiveChannel0( nLine );
+        }
+        finally {
+            this.mPassiveChannelLock.unlock();
+        }
+    }
+
+    protected void createPassiveChannel0( int nLine ) {
         ChannelPool pool = this.getMessageNode().getChannelPool();
 
         ChannelControlBlock[] cbs = new ChannelControlBlock[ nLine ];

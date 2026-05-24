@@ -31,8 +31,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNode implements RemoteProcessManagerServer {
+
+    protected static final long                       ControlClientReadyWaitMillis = 5000L;
 
     protected GuidAllocator                             mGuidAllocator;
 
@@ -42,12 +47,21 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected Set<Long>                                 mReadyClientIdSet;
 
+    protected Map<Long, String>                         mClientControlSessionMap;
+
+    protected ReentrantLock                             mControlReadyLock;
+
+    protected Condition                                 mControlReadyCondition;
+
     public RavenRemoteProcessManagerServer( ProcessManager localProcessManager ) {
         super( localProcessManager );
         this.mGuidAllocator             = localProcessManager.getGuidAllocator();
         this.mTransportRegistry         = new GenericRemoteProcessControlTransportRegistry();
         this.mClientSnapshotProcessMap  = new ConcurrentHashMap<>();
         this.mReadyClientIdSet          = ConcurrentHashMap.newKeySet();
+        this.mClientControlSessionMap   = new ConcurrentHashMap<>();
+        this.mControlReadyLock          = new ReentrantLock();
+        this.mControlReadyCondition     = this.mControlReadyLock.newCondition();
     }
 
     @Override
@@ -82,10 +96,43 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     @Override
+    public String openClientControlSession( long clientId ) {
+        String szSessionGuid = this.mGuidAllocator.nextGUID().toString();
+        this.mControlReadyLock.lock();
+        try {
+            this.mClientControlSessionMap.put( clientId, szSessionGuid );
+            this.mClientSnapshotProcessMap.remove( clientId );
+            this.mReadyClientIdSet.remove( clientId );
+            return szSessionGuid;
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
+    }
+
+    @Override
+    public boolean isClientControlSession( long clientId, String szSessionGuid ) {
+        if ( szSessionGuid == null || szSessionGuid.isEmpty() ) {
+            return false;
+        }
+
+        String szCurrentSessionGuid = this.mClientControlSessionMap.get( clientId );
+        return szSessionGuid.equals( szCurrentSessionGuid );
+    }
+
+    @Override
     public void detachClient( long clientId ) {
         this.mTransportRegistry.detachClient( clientId );
-        this.mClientSnapshotProcessMap.remove( clientId );
-        this.mReadyClientIdSet.remove( clientId );
+        this.mControlReadyLock.lock();
+        try {
+            this.mClientSnapshotProcessMap.remove( clientId );
+            this.mClientControlSessionMap.remove( clientId );
+            this.mReadyClientIdSet.remove( clientId );
+            this.mControlReadyCondition.signalAll();
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
         this.expungeClientRemoteProcesses( clientId );
     }
 
@@ -132,8 +179,14 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     @Override
     public void beginClientProcessSnapshot( long clientId ) {
-        this.mClientSnapshotProcessMap.put( clientId, ConcurrentHashMap.newKeySet() );
-        this.mReadyClientIdSet.remove( clientId );
+        this.mControlReadyLock.lock();
+        try {
+            this.mClientSnapshotProcessMap.put( clientId, ConcurrentHashMap.newKeySet() );
+            this.mReadyClientIdSet.remove( clientId );
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
         this.getLogger().info( "[RemoteProcessControlSnapshot] [Begin] (ClientId: `{}`) <Start>", clientId );
     }
 
@@ -179,7 +232,14 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             this.getLogger().info( "[RemoteProcessControlSnapshot] [StaleMirrorExpunged] (ClientId: `{}`, PID: `{}`) <Done>", clientId, remoteProcess.getPID() );
         }
 
-        this.mReadyClientIdSet.add( clientId );
+        this.mControlReadyLock.lock();
+        try {
+            this.mReadyClientIdSet.add( clientId );
+            this.mControlReadyCondition.signalAll();
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
         this.getLogger().info( "[RemoteProcessControlSnapshot] [End] (ClientId: `{}`, MirrorCount: `{}`) <Done>", clientId, snapshot.size() );
     }
 
@@ -241,12 +301,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         RemoteVitalizationResponse response;
         try {
             RemoteProcessControlTransport transport = this.mTransportRegistry.requireTransport( clientId );
-            if ( directStart ) {
-                response = transport.vitalizeRemoteUProcess( clientId, handlerDTO );
-            }
-            else {
-                response = transport.createRemoteUProcess( clientId, handlerDTO );
-            }
+            response = transport.createRemoteUProcess( clientId, handlerDTO );
         }
         catch ( RemoteProcessServiceRPCException e ) {
             throw new RemoteProcessLifecycleException( e );
@@ -254,6 +309,18 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
         if ( response.getPID() != null ) {
             response.setProcessID( this.mGuidAllocator.parse( response.getPID() ) );
+        }
+
+        if ( directStart && response.getStatus() == RemoteVitalizationStatus.New.getCode() ) {
+            RemoteProcess remoteProcess = this.hookRemoteProcessMirror( clientId, response, "New::DirectVitalization" );
+            if ( remoteProcess != null ) {
+                try {
+                    this.startRemoteUProcess( remoteProcess.getPID() );
+                }
+                catch ( RemoteProcessServiceRPCException e ) {
+                    throw new RemoteProcessLifecycleException( e );
+                }
+            }
         }
 
         return response;
@@ -298,21 +365,26 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             return result;
         }
 
+        RemoteProcess remoteProcess = this.hookRemoteProcessMirror( clientId, response, "New::PendingVitalization" );
+
+        result.process  = remoteProcess;
+        return result;
+    }
+
+    protected RemoteProcess hookRemoteProcessMirror( long clientId, RemoteVitalizationResponse response, String szScene ) {
         RemoteProcess remoteProcess = this.createMediatedRemoteProcess( clientId, response );
         if ( remoteProcess != null ) {
             String pid = remoteProcess.getPID().toString();
             this.getLogger().info(
-                    "[RemoteProcessCreated] [New::PendingVitalization] [MirrorHooked] (ClientId: `{}`, PID: `{}`) <Done>", clientId, pid
+                    "[RemoteProcessCreated] [{}] [MirrorHooked] (ClientId: `{}`, PID: `{}`) <Done>", szScene, clientId, pid
             );
         }
         else {
             this.getLogger().warn(
-                    "[RemoteProcessCreated] [New::PendingVitalization] [MirrorHooked] (ClientId: `{}`, ClientProvidedPID: `{}`) <Failure>", clientId, response.getPID()
+                    "[RemoteProcessCreated] [{}] [MirrorHooked] (ClientId: `{}`, ClientProvidedPID: `{}`) <Failure>", szScene, clientId, response.getPID()
             );
         }
-
-        result.process  = remoteProcess;
-        return result;
+        return remoteProcess;
     }
 
     @Override
@@ -390,7 +462,35 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             return;
         }
 
+        if ( this.awaitControlClientReady( clientId, ControlClientReadyWaitMillis ) ) {
+            return;
+        }
+
         throw new RemoteProcessServiceRPCException( "Remote process control client is not ready, clientId => `" + clientId + "`." );
+    }
+
+    protected boolean awaitControlClientReady( long clientId, long nWaitMillis ) throws RemoteProcessServiceRPCException {
+        long nNanos = TimeUnit.MILLISECONDS.toNanos( nWaitMillis );
+        this.mControlReadyLock.lock();
+        try {
+            while ( !this.mReadyClientIdSet.contains( clientId ) ) {
+                if ( nNanos <= 0L ) {
+                    return false;
+                }
+
+                try {
+                    nNanos = this.mControlReadyCondition.awaitNanos( nNanos );
+                }
+                catch ( InterruptedException e ) {
+                    Thread.currentThread().interrupt();
+                    throw new RemoteProcessServiceRPCException( e );
+                }
+            }
+            return true;
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
     }
 
     protected UProcess expunge( GUID pid ) {

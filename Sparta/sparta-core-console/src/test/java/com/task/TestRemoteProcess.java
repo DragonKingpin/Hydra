@@ -46,6 +46,7 @@ class Dante extends EnderHydra {
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( this.processManager() );
         server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, wolfKing ) );
+        // Single machine test, need to open the following code.
         //server.startService();
 
 
@@ -159,6 +160,7 @@ class Dante extends EnderHydra {
 
         Debug.redfs( ic, ig );
 
+        // Single machine test, need to open the following code.
 //        RemoteVitalizationResponse response = server.vitalizeRemoteUProcess(
 //                client.getClientId(), new URI("uofs:///sys/public/global/exe/images/hola/senorita/image_c"), this.getPID(),
 //                Map.of("fuck", "you,she,he,it"), Map.of("kill", "you,she,he,it")

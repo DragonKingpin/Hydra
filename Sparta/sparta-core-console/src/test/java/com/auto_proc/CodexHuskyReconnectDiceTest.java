@@ -1,4 +1,4 @@
-package com.bad;
+package com.auto_proc;
 
 import com.pinecone.Pinecone;
 import com.pinecone.framework.system.CascadeSystem;
@@ -25,7 +25,6 @@ import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
-import org.junit.jupiter.api.Test;
 
 import java.net.BindException;
 import java.net.URI;

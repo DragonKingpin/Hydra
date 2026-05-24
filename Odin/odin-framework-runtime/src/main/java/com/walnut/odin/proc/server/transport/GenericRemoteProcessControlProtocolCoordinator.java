@@ -1,14 +1,11 @@
 package com.walnut.odin.proc.server.transport;
 
-import com.pinecone.framework.util.json.JSON;
-import com.pinecone.framework.util.json.TypeReference;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.walnut.odin.proc.control.RemoteProcessControlFrame;
 import com.walnut.odin.proc.control.RemoteProcessControlFrameType;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GenericRemoteProcessControlProtocolCoordinator implements RemoteProcessControlProtocolCoordinator {
@@ -99,82 +96,67 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
     }
 
     @Override
-    public String musterClient( RemoteProcessControlTransport transport, long nClientId, String szFrameGuid, String szSnapshotJson ) {
+    public RemoteProcessControlFrame musterClient( RemoteProcessControlTransport transport, long nClientId, String szFrameGuid, List<UProcessMirrorDTO> processMirrors ) {
         RemoteProcessControlFrame request = this.requestFrame( nClientId, null, szFrameGuid, RemoteProcessControlFrameType.ClientMuster );
         try {
             if ( transport == null || !transport.containsClient( nClientId ) ) {
-                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control passive channel is not ready." ) );
+                return this.errorFrame( request, nClientId, "Remote process control passive channel is not ready." );
             }
 
             this.mRemoteProcessManagerServer.transportRegistry().bindClient( nClientId, transport );
             String szSessionGuid = this.mRemoteProcessManagerServer.openClientControlSession( nClientId );
-            this.acceptClientSnapshot( nClientId, this.decodeProcessMirrors( szSnapshotJson ) );
+            this.acceptClientSnapshot( nClientId, processMirrors );
             this.mRemoteProcessManagerServer.getLogger().info(
                     "[RemoteProcessControlSync] [ClientMuster] (ClientId: `{}`, SessionGuid: `{}`) <Ready>",
                     nClientId,
                     szSessionGuid
             );
 
-            return this.responseJson( this.readyFrame( request, nClientId, szSessionGuid ) );
+            return this.readyFrame( request, nClientId, szSessionGuid );
         }
         catch ( Exception e ) {
-            return this.responseJson( this.errorFrame( request, nClientId, e.getMessage() ) );
+            return this.errorFrame( request, nClientId, e.getMessage() );
         }
     }
 
     @Override
-    public String reportProcessMirror(
-            RemoteProcessControlTransport transport, long nClientId, String szSessionGuid, String szFrameGuid, String szProcessMirrorJson
+    public RemoteProcessControlFrame reportProcessMirror(
+            RemoteProcessControlTransport transport, long nClientId, String szSessionGuid, String szFrameGuid, UProcessMirrorDTO processMirror
     ) {
         RemoteProcessControlFrame request = this.requestFrame( nClientId, szSessionGuid, szFrameGuid, RemoteProcessControlFrameType.ProcessMirror );
         try {
             if ( transport == null || !transport.containsClient( nClientId ) ) {
-                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control passive channel is not ready." ) );
+                return this.errorFrame( request, nClientId, "Remote process control passive channel is not ready." );
             }
             if ( !this.mRemoteProcessManagerServer.isClientControlSession( nClientId, szSessionGuid ) ) {
-                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control session is not current." ) );
+                return this.errorFrame( request, nClientId, "Remote process control session is not current." );
             }
 
-            UProcessMirrorDTO processMirror = this.decodeProcessMirror( szProcessMirrorJson );
             if ( processMirror == null ) {
-                return this.responseJson( this.errorFrame( request, nClientId, "Process mirror frame is missing mirror payload." ) );
+                return this.errorFrame( request, nClientId, "Process mirror frame is missing mirror payload." );
             }
 
             this.mRemoteProcessManagerServer.acceptClientProcessMirror( nClientId, processMirror );
-            return this.responseJson( this.ackFrame( request, "Process mirror accepted." ) );
+            return this.ackFrame( request, "Process mirror accepted." );
         }
         catch ( Exception e ) {
-            return this.responseJson( this.errorFrame( request, nClientId, e.getMessage() ) );
+            return this.errorFrame( request, nClientId, e.getMessage() );
         }
     }
 
     @Override
-    public String detachClient( RemoteProcessControlTransport transport, long nClientId, String szSessionGuid, String szFrameGuid ) {
+    public RemoteProcessControlFrame detachClient( RemoteProcessControlTransport transport, long nClientId, String szSessionGuid, String szFrameGuid ) {
         RemoteProcessControlFrame request = this.requestFrame( nClientId, szSessionGuid, szFrameGuid, RemoteProcessControlFrameType.Apoptosis );
         try {
             if ( szSessionGuid != null && !this.mRemoteProcessManagerServer.isClientControlSession( nClientId, szSessionGuid ) ) {
-                return this.responseJson( this.errorFrame( request, nClientId, "Remote process control session is not current." ) );
+                return this.errorFrame( request, nClientId, "Remote process control session is not current." );
             }
             this.mRemoteProcessManagerServer.detachClient( nClientId );
-            return this.responseJson( this.ackFrame( request, "Client detached." ) );
+            return this.ackFrame( request, "Client detached." );
         }
         catch ( Exception e ) {
-            return this.responseJson( this.errorFrame( request, nClientId, e.getMessage() ) );
+            return this.errorFrame( request, nClientId, e.getMessage() );
         }
-    }
-
-    protected List<UProcessMirrorDTO> decodeProcessMirrors( String szSnapshotJson ) {
-        if ( szSnapshotJson == null || szSnapshotJson.isEmpty() ) {
-            return new ArrayList<>();
-        }
-        return JSON.unmarshal( szSnapshotJson, new TypeReference<List<UProcessMirrorDTO>>() {} );
-    }
-
-    protected UProcessMirrorDTO decodeProcessMirror( String szProcessMirrorJson ) {
-        if ( szProcessMirrorJson == null || szProcessMirrorJson.isEmpty() ) {
-            return null;
-        }
-        return JSON.unmarshal( szProcessMirrorJson, UProcessMirrorDTO.class );
     }
 
     protected boolean acceptCurrentSession( RemoteProcessControlFrame frame ) {
@@ -203,13 +185,6 @@ public class GenericRemoteProcessControlProtocolCoordinator implements RemotePro
         request.setSessionGuid( szSessionGuid );
         request.applyFrameType( frameType );
         return request;
-    }
-
-    protected String responseJson( RemoteProcessControlFrame frame ) {
-        if ( frame == null ) {
-            return "";
-        }
-        return frame.toJSONString();
     }
 
     protected RemoteProcessControlFrame ackFrame( RemoteProcessControlFrame request, String szMessage ) {

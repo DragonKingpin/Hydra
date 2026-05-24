@@ -5,6 +5,7 @@ import com.pinecone.framework.util.json.JSON;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RemoteProcessControlFrame implements Pinenut {
@@ -22,6 +23,8 @@ public class RemoteProcessControlFrame implements Pinenut {
     protected long               mnCreateTimeMillis;
 
     protected UProcessMirrorDTO  mProcessMirror;
+
+    protected List<UProcessMirrorDTO> mProcessMirrors;
 
     protected String             mszMessage;
 
@@ -93,6 +96,14 @@ public class RemoteProcessControlFrame implements Pinenut {
         this.mProcessMirror = processMirror;
     }
 
+    public List<UProcessMirrorDTO> getProcessMirrors() {
+        return this.mProcessMirrors;
+    }
+
+    public void setProcessMirrors( List<UProcessMirrorDTO> processMirrors ) {
+        this.mProcessMirrors = processMirrors;
+    }
+
     public String getMessage() {
         return this.mszMessage;
     }
@@ -111,6 +122,7 @@ public class RemoteProcessControlFrame implements Pinenut {
         json.put( "frameType", this.mszFrameType );
         json.put( "createTimeMillis", this.mnCreateTimeMillis );
         json.put( "processMirror", this.mProcessMirror );
+        json.put( "processMirrors", this.mProcessMirrors );
         json.put( "message", this.mszMessage );
         return JSON.stringify( json );
     }

@@ -5,13 +5,16 @@ import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.odin.proc.control.RemoteProcessControlFrame;
 import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.GenericRemoteProcessControlProtocolCoordinator;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlProtocolCoordinator;
 
+import java.util.List;
+
 @Controller
 @AddressMapping( "com.walnut.odin.proc.control.RemoteProcessControlFrameIface." )
-public class ReactiveRemoteProcessControlFrameController implements RemoteProcessControlFrameIface, Pinenut {
+public class ReactiveRemoteProcessControlFrameController implements RemoteProcessControlFrameIface {
 
     protected RemoteProcessManagerServer                mRemoteProcessManagerServer;
 
@@ -35,19 +38,19 @@ public class ReactiveRemoteProcessControlFrameController implements RemoteProces
 
     @Override
     @AddressMapping( "musterClient" )
-    public String musterClient( long nClientId, String szFrameGuid, String szSnapshotJson ) {
-        return this.mProtocolCoordinator.musterClient( this.mTransport, nClientId, szFrameGuid, szSnapshotJson );
+    public RemoteProcessControlFrame musterClient( long nClientId, String szFrameGuid, List<UProcessMirrorDTO> processMirrors ) {
+        return this.mProtocolCoordinator.musterClient( this.mTransport, nClientId, szFrameGuid, processMirrors );
     }
 
     @Override
     @AddressMapping( "reportProcessMirror" )
-    public String reportProcessMirror( long nClientId, String szSessionGuid, String szFrameGuid, String szProcessMirrorJson ) {
-        return this.mProtocolCoordinator.reportProcessMirror( this.mTransport, nClientId, szSessionGuid, szFrameGuid, szProcessMirrorJson );
+    public RemoteProcessControlFrame reportProcessMirror( long nClientId, String szSessionGuid, String szFrameGuid, UProcessMirrorDTO processMirror ) {
+        return this.mProtocolCoordinator.reportProcessMirror( this.mTransport, nClientId, szSessionGuid, szFrameGuid, processMirror );
     }
 
     @Override
     @AddressMapping( "detachClient" )
-    public String detachClient( long nClientId, String szSessionGuid, String szFrameGuid ) {
+    public RemoteProcessControlFrame detachClient( long nClientId, String szSessionGuid, String szFrameGuid ) {
         return this.mProtocolCoordinator.detachClient( this.mTransport, nClientId, szSessionGuid, szFrameGuid );
     }
 }

@@ -29,6 +29,10 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
 
     protected static final long                   AsyncSynchronizeQuietMillis = 1000;
 
+    protected static final long                   ControlSyncRpcTimeoutMillis = 5000;
+
+    protected static final String                 ControlFrameIfaceAddressPrefix = RemoteProcessControlFrameIface.class.getName() + ".";
+
     protected RavenRemoteProcessManagerClient    mClient;
 
     protected RemoteProcessControlFrameIface     mControlFrameIface;
@@ -228,9 +232,12 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
                     this.mClient.getClientId()
             );
             RemoteProcessControlFrame muster = this.clientMusterFrame();
-            String szSnapshotJson = JSON.stringify( this.collectProcessMirrors() );
-            String szReadyJson = this.mControlFrameIface.musterClient( muster.getClientId(), muster.getFrameGuid(), szSnapshotJson );
-            RemoteProcessControlFrame ready = this.decodeControlFrame( szReadyJson );
+            RemoteProcessControlFrame ready = this.invokeControlFrame(
+                    "musterClient",
+                    muster.getClientId(),
+                    muster.getFrameGuid(),
+                    this.collectProcessMirrors()
+            );
             if ( ready == null || ready.optFrameType() != RemoteProcessControlFrameType.ClientReady ) {
                 this.warnUnexpectedFrame( "ClientMuster", ready, szReason );
                 this.mClient.recoverControlPassiveChannels( szReason, null );
@@ -250,19 +257,39 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
     }
 
     protected boolean exchangeAckFrame( RemoteProcessControlFrame request, String szStepName ) {
-        String szAckJson = this.mControlFrameIface.reportProcessMirror(
+        RemoteProcessControlFrame ack = this.invokeControlFrame(
+                "reportProcessMirror",
                 request.getClientId(),
                 request.getSessionGuid(),
                 request.getFrameGuid(),
-                request.getProcessMirror().toJSONString()
+                request.getProcessMirror()
         );
-        RemoteProcessControlFrame ack = this.decodeControlFrame( szAckJson );
         if ( ack != null && ack.optFrameType() == RemoteProcessControlFrameType.FrameAck ) {
             return true;
         }
 
         this.warnUnexpectedFrame( szStepName, ack, null );
         return false;
+    }
+
+    protected RemoteProcessControlFrame invokeControlFrame( String szMethodAddress, Object... args ) {
+        try {
+            Object response = this.mClient.duplexAppointClient().invokeInform(
+                    ControlFrameIfaceAddressPrefix + szMethodAddress,
+                    args,
+                    ControlSyncRpcTimeoutMillis
+            );
+            if ( response == null ) {
+                return null;
+            }
+            if ( response instanceof RemoteProcessControlFrame ) {
+                return (RemoteProcessControlFrame) response;
+            }
+            throw new IllegalStateException( "Unexpected remote process control frame response type: " + response.getClass().getName() );
+        }
+        catch ( Exception e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     protected void warnUnexpectedFrame( String szStepName, RemoteProcessControlFrame frame, String szReason ) {
@@ -410,12 +437,5 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         frame.setSessionGuid( this.mszSessionGuid );
         frame.applyFrameType( frameType );
         return frame;
-    }
-
-    protected RemoteProcessControlFrame decodeControlFrame( String szFrameJson ) {
-        if ( szFrameJson == null || szFrameJson.isEmpty() ) {
-            return null;
-        }
-        return JSON.unmarshal( szFrameJson, RemoteProcessControlFrame.class );
     }
 }

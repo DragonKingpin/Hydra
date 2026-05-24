@@ -257,13 +257,16 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             throw new IllegalStateException( "RPCClient dose not started yet." );
         }
 
+        DuplexAppointClient appointClient = this.mDuplexAppointClient;
         this.mbControlSubsystemReady = false;
-        this.mDuplexAppointClient.terminate();
-        if ( this.mControlChannelConnectedHandler != null ) {
-            this.mRPCClient.deregisterChannelConnectedHandler( this.mControlChannelConnectedHandler );
-            this.mControlChannelConnectedHandler = null;
-        }
         this.mDuplexAppointClient = null;
+        this.mControlChannelConnectedHandler = null;
+        try {
+            appointClient.terminate();
+        }
+        finally {
+            appointClient.close();
+        }
     }
 
     @Override

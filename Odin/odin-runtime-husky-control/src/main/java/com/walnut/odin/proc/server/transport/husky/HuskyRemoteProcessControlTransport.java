@@ -24,6 +24,7 @@ import com.pinecone.hydra.umc.msg.UMCChannel;
 import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
 import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
+import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
@@ -97,12 +98,26 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
         ulfServer.registerDataArrivedEventHandlers( new ChannelEventHandler() {
             @Override
             public void afterEventTriggered( ChannelControlBlock block, Object context ) {
-                long clientId = block.getChannel().getIdentityID();
+                if ( block == null ) {
+                    return;
+                }
+
+                UMCChannel channel = block.getChannel();
+                if ( channel == null ) {
+                    return;
+                }
+
+                long clientId = channel.getIdentityID();
                 if ( clientId <= 0 ) {
                     return;
                 }
 
-                ChannelPool pool = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+                DuplexAppointServer appointServer = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer;
+                if ( appointServer == null || appointServer.getUMCTExpress() == null ) {
+                    return;
+                }
+
+                ChannelPool pool = appointServer.getUMCTExpress().getPoolByClientId( clientId );
                 if ( pool == null || pool.isEmpty() ) {
                     return;
                 }
@@ -117,12 +132,26 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
         ulfServer.registerChannelInactiveHandler( new ChannelInactiveHandler() {
             @Override
             public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
-                long clientId = ccb.getChannel().getIdentityID();
+                if ( ccb == null ) {
+                    return false;
+                }
+
+                UMCChannel channel = ccb.getChannel();
+                if ( channel == null ) {
+                    return false;
+                }
+
+                long clientId = channel.getIdentityID();
                 if ( clientId <= 0 ) {
                     return false;
                 }
 
-                ChannelPool pool = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer.getUMCTExpress().getPoolByClientId( clientId );
+                DuplexAppointServer appointServer = HuskyRemoteProcessControlTransport.this.mDuplexAppointServer;
+                if ( appointServer == null || appointServer.getUMCTExpress() == null ) {
+                    return false;
+                }
+
+                ChannelPool pool = appointServer.getUMCTExpress().getPoolByClientId( clientId );
                 if ( pool == null || pool.isEmpty() ) {
                     HuskyRemoteProcessControlTransport.this.mRemoteProcessManagerServer.transportRegistry().detachClient( clientId );
                 }
@@ -308,8 +337,12 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
             throw new IllegalStateException( "Husky control transport dose not started yet." );
         }
 
-        this.mDuplexAppointServer.terminate();
+        DuplexAppointServer appointServer = this.mDuplexAppointServer;
         this.mDuplexAppointServer = null;
+        appointServer.terminate();
+        if ( this.mRPCServer instanceof WolfMCServer ) {
+            ( (WolfMCServer)this.mRPCServer ).close();
+        }
     }
 
     @Override

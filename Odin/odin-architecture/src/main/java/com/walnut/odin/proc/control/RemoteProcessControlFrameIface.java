@@ -2,15 +2,18 @@ package com.walnut.odin.proc.control;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.umct.stereotype.Iface;
+import com.walnut.odin.proc.entity.UProcessMirrorDTO;
+
+import java.util.List;
 
 @Iface
 public interface RemoteProcessControlFrameIface extends Pinenut {
 
     RemoteProcessControlFrame exchangeControlFrame( RemoteProcessControlFrame frame );
 
-    String musterClient( long nClientId, String szFrameGuid, String szSnapshotJson );
+    RemoteProcessControlFrame musterClient( long nClientId, String szFrameGuid, List<UProcessMirrorDTO> processMirrors );
 
-    String reportProcessMirror( long nClientId, String szSessionGuid, String szFrameGuid, String szProcessMirrorJson );
+    RemoteProcessControlFrame reportProcessMirror( long nClientId, String szSessionGuid, String szFrameGuid, UProcessMirrorDTO processMirror );
 
-    String detachClient( long nClientId, String szSessionGuid, String szFrameGuid );
+    RemoteProcessControlFrame detachClient( long nClientId, String szSessionGuid, String szFrameGuid );
 }

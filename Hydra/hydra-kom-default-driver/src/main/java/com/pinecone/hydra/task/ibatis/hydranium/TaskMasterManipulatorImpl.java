@@ -15,6 +15,7 @@ import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.task.kom.source.TaskTreeDigestManipulator;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 import org.springframework.stereotype.Component;
@@ -31,6 +32,10 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Resource
     @Structure(type = TaskTreeMapper.class )
     TrieTreeManipulator             trieTreeManipulator;
+
+    @Resource
+    @Structure(type = TaskTreeMapper.class )
+    TaskTreeDigestManipulator       taskTreeDigestManipulator;
 
     @Resource
     @Structure(type = TaskNodeMapper.class)
@@ -66,6 +71,11 @@ public class TaskMasterManipulatorImpl implements TaskMasterManipulator {
     @Override
     public TrieTreeManipulator getTrieTreeManipulator() {
         return this.trieTreeManipulator;
+    }
+
+    @Override
+    public TaskTreeDigestManipulator getTaskTreeDigestManipulator() {
+        return this.taskTreeDigestManipulator;
     }
 
     @Override

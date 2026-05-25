@@ -9,6 +9,8 @@ public interface TaskMasterManipulator extends KOIMasterManipulator {
 
     TrieTreeManipulator getTrieTreeManipulator() ;
 
+    TaskTreeDigestManipulator getTaskTreeDigestManipulator();
+
     AppNodeManipulator getAppNodeManipulator();
 
     TaskNodeManipulator getTaskNodeManipulator();

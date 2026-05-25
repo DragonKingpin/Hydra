@@ -8,6 +8,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericAppElement;
@@ -23,6 +24,7 @@ import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.task.kom.source.TaskTreeDigestManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -45,6 +47,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected TaskMasterManipulator       taskMasterManipulator;
 
+    protected TaskTreeDigestManipulator   taskTreeDigestManipulator;
+
     protected TaskNamespaceManipulator    taskNamespaceManipulator;
 
     protected AppNodeManipulator          appNodeManipulator;
@@ -64,6 +68,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
+        this.taskTreeDigestManipulator   = this.taskMasterManipulator.getTaskTreeDigestManipulator();
         this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
         this.appNodeManipulator          = this.taskMasterManipulator.getAppNodeManipulator();
         this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
@@ -159,6 +164,21 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     @Override
     public InstanceInstrument getInstanceInstrument() {
         return this.instanceInstrument;
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByPath( String path ) {
+        return this.taskTreeDigestManipulator.queryDigestByPath( path );
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid ) {
+        return this.taskTreeDigestManipulator.queryDigestByGuid( guid );
+    }
+
+    @Override
+    public List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid ) {
+        return this.taskTreeDigestManipulator.fetchChildDigests( parentGuid );
     }
 
     @Override

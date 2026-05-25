@@ -3,6 +3,71 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pinecone.hydra.task.ibatis.TaskTreeMapper">
 
+    <resultMap id="TaskTreeElementDigestMap" type="com.pinecone.hydra.task.kom.digest.GenericTaskTreeElementDigest">
+        <id     column="enum_id"        property="enumId"/>
+        <result column="guid"           property="guid"/>
+        <result column="parent_guid"    property="parentGuid"/>
+        <result column="name"           property="name"/>
+        <result column="type"           property="type"/>
+        <result column="path"           property="path"/>
+        <result column="long_path"      property="longPath"/>
+        <result column="children_count" property="childrenCount"/>
+    </resultMap>
+
+    <sql id="TaskTreeElementDigestColumns">
+        tree.id AS enum_id,
+        tree.guid,
+        tree.parent_guid,
+        COALESCE(NULLIF(SUBSTRING_INDEX(COALESCE(path.path, path.long_path, ''), '/', -1), ''), tree.tag_name, CAST(tree.guid AS CHAR)) AS name,
+        node.type,
+        path.path,
+        path.long_path,
+        (
+            SELECT COUNT(*)
+            FROM hydra_task_node_tree AS child_tree
+            WHERE child_tree.parent_guid = tree.guid
+        ) AS children_count
+    </sql>
+
+    <sql id="TaskTreeElementDigestJoins">
+        LEFT JOIN hydra_task_nodes AS node ON node.guid = tree.guid
+        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = tree.guid
+    </sql>
+
+    <select id="queryDigestByPath" resultMap="TaskTreeElementDigestMap">
+        SELECT
+        <include refid="TaskTreeElementDigestColumns"/>
+        FROM hydra_task_node_tree AS tree
+        <include refid="TaskTreeElementDigestJoins"/>
+        WHERE path.path = #{path}
+        LIMIT 1
+    </select>
+
+    <select id="queryDigestByGuid" resultMap="TaskTreeElementDigestMap">
+        SELECT
+        <include refid="TaskTreeElementDigestColumns"/>
+        FROM hydra_task_node_tree AS tree
+        <include refid="TaskTreeElementDigestJoins"/>
+        WHERE tree.guid = #{guid}
+        LIMIT 1
+    </select>
+
+    <select id="fetchChildDigests" resultMap="TaskTreeElementDigestMap">
+        SELECT
+        <include refid="TaskTreeElementDigestColumns"/>
+        FROM hydra_task_node_tree AS tree
+        <include refid="TaskTreeElementDigestJoins"/>
+        <where>
+            <if test="parentGuid != null">
+                tree.parent_guid = #{parentGuid}
+            </if>
+            <if test="parentGuid == null">
+                tree.parent_guid IS NULL
+            </if>
+        </where>
+        ORDER BY tree.id ASC
+    </select>
+
     <select id="getChildren" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
         SELECT
         `id` AS `enumId`,

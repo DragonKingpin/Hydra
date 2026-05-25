@@ -16,6 +16,7 @@ import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -124,6 +125,21 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public InstanceInstrument getInstanceInstrument() {
         return this.uniformTaskInstrument.getInstanceInstrument();
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByPath( String path ) {
+        return this.uniformTaskInstrument.queryTaskTreeDigestByPath( path );
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid ) {
+        return this.uniformTaskInstrument.queryTaskTreeDigestByGuid( guid );
+    }
+
+    @Override
+    public List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid ) {
+        return this.uniformTaskInstrument.fetchTaskTreeChildDigests( parentGuid );
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.pinecone.hydra.task.kom;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -8,6 +9,8 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
+
+import java.util.List;
 
 public interface TaskInstrument extends ReparseKOMTree {
 
@@ -26,6 +29,12 @@ public interface TaskInstrument extends ReparseKOMTree {
     void               update( TreeNode treeNode );
 
     InstanceInstrument getInstanceInstrument();
+
+    TaskTreeElementDigest queryTaskTreeDigestByPath( String path );
+
+    TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid );
+
+    List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid );
 
 
 

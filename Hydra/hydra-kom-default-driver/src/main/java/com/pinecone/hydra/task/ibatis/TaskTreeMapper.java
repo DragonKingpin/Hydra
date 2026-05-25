@@ -2,6 +2,8 @@ package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
+import com.pinecone.hydra.task.kom.source.TaskTreeDigestManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
 import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
@@ -19,7 +21,7 @@ import java.util.List;
 
 @Mapper
 @IbatisDataAccessObject
-public interface TaskTreeMapper extends TrieTreeManipulator {
+public interface TaskTreeMapper extends TrieTreeManipulator, TaskTreeDigestManipulator {
     @Insert("INSERT INTO `hydra_task_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )")
     void insertRootNode(@Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
@@ -86,6 +88,15 @@ public interface TaskTreeMapper extends TrieTreeManipulator {
     void removeInheritance( @Param("childGuid") GUID childGuid, @Param("parentGuid") GUID parentGuid );
 
     List<GUIDImperialTrieNode> getChildren( @Param( "parentGuid" ) GUID parentGui );
+
+    @Override
+    TaskTreeElementDigest queryDigestByPath( @Param( "path" ) String szPath );
+
+    @Override
+    TaskTreeElementDigest queryDigestByGuid( @Param( "guid" ) GUID guid );
+
+    @Override
+    List<TaskTreeElementDigest> fetchChildDigests( @Param( "parentGuid" ) GUID parentGuid );
 
     @Select("SELECT `guid` FROM `hydra_task_node_tree` WHERE `parent_guid` = #{parentGuid}")
     List<GUID > fetchChildrenGuids0( @Param("parentGuid") GUID parentGuid );

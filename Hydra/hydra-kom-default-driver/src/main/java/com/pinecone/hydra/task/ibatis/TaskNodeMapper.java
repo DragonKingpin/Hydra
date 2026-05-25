@@ -2,6 +2,7 @@ package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
@@ -85,4 +86,9 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     @Override
     List<TaskElement> listPage(int offset, int pageSize);
 
+    @Override
+    List<TaskElementDigest> listDigests( @Param( "offset" ) int offset, @Param( "pageSize" ) int pageSize );
+
+    @Override
+    List<TaskElementDigest> fetchDigestsByGuids( @Param( "guids" ) Collection<GUID> guids );
 }

@@ -32,6 +32,10 @@ import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.service.RavenCategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 
+import com.walnut.odin.project.RavenTaskProjectInstrument;
+import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.specific.RavenTaskSpecificService;
+import com.walnut.odin.specific.TaskSpecificService;
 import com.walnut.odin.task.system.TaskPathInvalidException;
 import com.walnut.odin.task.troll.GenericRavenTask;
 
@@ -42,7 +46,9 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     protected CategoryService            categoryService;
 
+    protected TaskProjectInstrument      taskProjectInstrument;
 
+    protected TaskSpecificService        taskSpecificService;
 
 
     protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
@@ -93,6 +99,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, config, guidAllocator );
 
         this.categoryService            = new RavenCategoryService( this );
+        this.taskProjectInstrument      = new RavenTaskProjectInstrument( this.ravenTaskMasterManipulator.getTaskProjectManipulator() );
+        this.taskSpecificService        = new RavenTaskSpecificService( this.ravenTaskMasterManipulator.getTaskSpecificManipulator() );
 
     }
 
@@ -150,6 +158,16 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public RavenTaskMasterManipulator getRavenTaskMasterManipulator() {
         return this.ravenTaskMasterManipulator;
+    }
+
+    @Override
+    public TaskProjectInstrument getTaskProjectInstrument() {
+        return this.taskProjectInstrument;
+    }
+
+    @Override
+    public TaskSpecificService getTaskSpecificService() {
+        return this.taskSpecificService;
     }
 
     @Override

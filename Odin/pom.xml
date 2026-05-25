@@ -16,7 +16,7 @@
 
     <modules>
         <module>odin-architecture</module>
-        <module>odin-framework-project</module>
+        <module>odin-framework-specific</module>
         <module>odin-framework-atlas</module>
         <module>odin-framework-runtime</module>
         <module>odin-runtime-husky-control</module>

@@ -27,12 +27,23 @@ public interface InstanceInstrument extends Instrument {
 
     List<InstanceEntry> fetchInstances( TaskInstanceQuery query );
 
+    List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query );
+
     default TaskInstancePage pageInstances( TaskInstanceQuery query ) {
         if ( query == null ) {
             query = new TaskInstanceQuery();
         }
         long nTotal = this.countInstances( query );
         List<InstanceEntry> items = this.fetchInstances( query );
+        return new TaskInstancePage( items, nTotal, query.getOffset(), query.getLimit() );
+    }
+
+    default TaskInstancePage pageInstanceDigests( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        long nTotal = this.countInstances( query );
+        List<InstanceEntry> items = this.fetchInstanceDigests( query );
         return new TaskInstancePage( items, nTotal, query.getOffset(), query.getLimit() );
     }
 

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.specific.mapper.TaskSpecificMapper">
+
+    <resultMap id="TaskSpecificDigestMap" type="com.walnut.odin.specific.digest.GenericTaskSpecificDigest">
+        <id     column="id"                         property="enumId"/>
+        <result column="guid"                       property="guid"/>
+        <result column="name"                       property="name"/>
+        <result column="type"                       property="type"/>
+        <result column="schedule_cron"              property="scheduleCron"/>
+        <result column="image_path"                 property="imagePath"/>
+        <result column="resource_type"              property="resourceType"/>
+        <result column="deployment_method"          property="deploymentMethod"/>
+        <result column="priority"                   property="priority"/>
+        <result column="actually_priority"          property="actuallyPriority"/>
+        <result column="dry_run"                    property="dryRun"/>
+        <result column="schedule_cycle"             property="scheduleCycle"/>
+        <result column="schedule_type"              property="scheduleType"/>
+        <result column="schedule_start_time"        property="scheduleStartTime"/>
+        <result column="schedule_end_time"          property="scheduleEndTime"/>
+        <result column="next_schedule_time"         property="nextScheduleTime"/>
+        <result column="processor_name"             property="processorName"/>
+        <result column="enable"                     property="enable"/>
+        <result column="kom_path"                   property="komPath"/>
+        <result column="system_kernel_object_path"  property="systemKernelObjectPath"/>
+        <result column="project_guid"               property="projectGuid"/>
+        <result column="project_name"               property="projectName"/>
+        <result column="project_title"              property="projectTitle"/>
+        <result column="create_time"                property="createTime"/>
+        <result column="update_time"                property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="TaskInstanceSpecificDigestMap" type="com.walnut.odin.specific.digest.GenericTaskInstanceSpecificDigest">
+        <result column="guid"                property="guid"/>
+        <result column="task_guid"           property="taskGuid"/>
+        <result column="name"                property="instanceName"/>
+        <result column="task_name"           property="taskName"/>
+        <result column="business_time"       property="businessTime"/>
+        <result column="expect_time"         property="expectTime"/>
+        <result column="fire_time"           property="fireTime"/>
+        <result column="start_time"          property="startTime"/>
+        <result column="finish_time"         property="finishTime"/>
+        <result column="schedule_host_time"  property="scheduleHostTime"/>
+        <result column="submit_time"         property="submitTime"/>
+        <result column="schedule_time"       property="scheduleTime"/>
+        <result column="priority"            property="priority"/>
+        <result column="image_path"          property="imagePath"/>
+        <result column="actually_priority"   property="actuallyPriority"/>
+        <result column="run_status"          property="runStatus"/>
+        <result column="schedule_cycle"      property="scheduleCycle"/>
+        <result column="schedule_type"       property="scheduleType"/>
+        <result column="task_type"           property="taskType"/>
+        <result column="dry_run"             property="dryRun"/>
+        <result column="run_count"           property="runCount"/>
+        <result column="sequence_cnt"        property="sequenceCnt"/>
+        <result column="retry_cnt"           property="retryCnt"/>
+        <result column="latest_start_time"   property="lastStartTime"/>
+        <result column="latest_end_time"     property="lastEndTime"/>
+        <result column="error_cause"         property="errorCause"/>
+        <result column="processor_name"      property="processorName"/>
+        <result column="project_guid"        property="projectGuid"/>
+        <result column="project_name"        property="projectName"/>
+        <result column="project_title"       property="projectTitle"/>
+        <result column="create_time"         property="createTime"/>
+        <result column="update_time"         property="updateTime"/>
+    </resultMap>
+
+    <sql id="TaskSpecificDigestColumns">
+        task_node.id,
+        task_node.guid,
+        task_node.name,
+        task_node.schedule_cron,
+        task_node.image_path,
+        task_node.type,
+        task_node.resource_type,
+        task_node.deployment_method,
+        task_node.priority,
+        task_node.actually_priority,
+        task_node.dry_run,
+        task_node.schedule_cycle,
+        task_node.schedule_type,
+        task_node.schedule_start_time,
+        task_node.schedule_end_time,
+        task_node.next_schedule_time,
+        task_node.processor_name,
+        task_node.enable,
+        path.path AS kom_path,
+        path.long_path AS system_kernel_object_path,
+        project.guid AS project_guid,
+        project.name AS project_name,
+        project.title AS project_title,
+        task_node.create_time,
+        task_node.update_time
+    </sql>
+
+    <sql id="TaskSpecificWhere">
+        <where>
+            <if test="query.projectGuid != null">
+                AND task_node.project_guid = #{query.projectGuid}
+            </if>
+            <if test="query.bizTreeGuid != null">
+                AND project.biz_tree_guid = #{query.bizTreeGuid}
+            </if>
+            <if test="query.enable != null">
+                AND task_node.enable = #{query.enable}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    task_node.guid = #{query.keyword}
+                    OR task_node.name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR project.name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR project.title LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="countTaskSpecificDigests" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_task_task_node AS task_node
+        LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
+        <include refid="TaskSpecificWhere"/>
+    </select>
+
+    <select id="fetchTaskSpecificDigests0" resultMap="TaskSpecificDigestMap">
+        SELECT
+        <include refid="TaskSpecificDigestColumns"/>
+        FROM hydra_task_task_node AS task_node
+        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
+        LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
+        <include refid="TaskSpecificWhere"/>
+        ORDER BY task_node.id DESC
+        LIMIT #{query.limit} OFFSET #{query.offset}
+    </select>
+
+    <select id="fetchTaskSpecificDigestsByGuids0" resultMap="TaskSpecificDigestMap">
+        SELECT
+        <include refid="TaskSpecificDigestColumns"/>
+        FROM hydra_task_task_node AS task_node
+        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
+        LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
+        WHERE task_node.guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+        ORDER BY task_node.id DESC
+    </select>
+
+    <select id="selectTaskProjectGuid" resultType="java.lang.String">
+        SELECT task_node.project_guid
+        FROM hydra_task_task_node AS task_node
+        WHERE task_node.guid = #{taskGuid}
+        LIMIT 1
+    </select>
+
+    <update id="updateTaskProjectGuid">
+        UPDATE hydra_task_task_node
+        SET project_guid = #{projectGuid}
+        WHERE guid = #{taskGuid}
+    </update>
+
+    <sql id="TaskInstanceSpecificColumns">
+        ins.guid,
+        ins.task_guid,
+        ins.name,
+        ins.task_name,
+        ins.business_time,
+        ins.expect_time,
+        ins.fire_time,
+        ins.start_time,
+        ins.finish_time,
+        ins.schedule_host_time,
+        ins.submit_time,
+        ins.schedule_time,
+        ins.priority,
+        ins.image_path,
+        ins.actually_priority,
+        ins.run_status,
+        ins.schedule_cycle,
+        ins.schedule_type,
+        ins.task_type,
+        ins.dry_run,
+        ins.run_count,
+        ins.sequence_cnt,
+        ins.retry_cnt,
+        ins.latest_start_time,
+        ins.latest_end_time,
+        ins.error_cause,
+        ins.processor_name,
+        project.guid AS project_guid,
+        project.name AS project_name,
+        project.title AS project_title,
+        ins.create_time,
+        ins.update_time
+    </sql>
+
+    <sql id="TaskInstanceSpecificWhere">
+        <where>
+            <if test="query.projectGuid != null">
+                AND task_node.project_guid = #{query.projectGuid}
+            </if>
+            <if test="query.bizTreeGuid != null">
+                AND project.biz_tree_guid = #{query.bizTreeGuid}
+            </if>
+            <if test="query.taskGuid != null">
+                AND ins.task_guid = #{query.taskGuid}
+            </if>
+            <if test="query.runStatus != null and query.runStatus != ''">
+                AND ins.run_status = #{query.runStatus}
+            </if>
+            <if test="query.taskType != null and query.taskType != ''">
+                AND ins.task_type = #{query.taskType}
+            </if>
+            <if test="query.scheduleCycle != null and query.scheduleCycle != ''">
+                AND ins.schedule_cycle = #{query.scheduleCycle}
+            </if>
+            <if test="query.scheduleType != null and query.scheduleType != ''">
+                AND ins.schedule_type = #{query.scheduleType}
+            </if>
+            <if test="query.processorName != null and query.processorName != ''">
+                AND ins.processor_name = #{query.processorName}
+            </if>
+            <if test="query.businessTimeStart != null">
+                AND ins.business_time <![CDATA[ >= ]]> #{query.businessTimeStart}
+            </if>
+            <if test="query.businessTimeEnd != null">
+                AND ins.business_time <![CDATA[ <= ]]> #{query.businessTimeEnd}
+            </if>
+            <if test="query.expectTimeStart != null">
+                AND ins.expect_time <![CDATA[ >= ]]> #{query.expectTimeStart}
+            </if>
+            <if test="query.expectTimeEnd != null">
+                AND ins.expect_time <![CDATA[ <= ]]> #{query.expectTimeEnd}
+            </if>
+            <if test="query.startTimeStart != null">
+                AND ins.start_time <![CDATA[ >= ]]> #{query.startTimeStart}
+            </if>
+            <if test="query.startTimeEnd != null">
+                AND ins.start_time <![CDATA[ <= ]]> #{query.startTimeEnd}
+            </if>
+            <if test="query.finishTimeStart != null">
+                AND ins.finish_time <![CDATA[ >= ]]> #{query.finishTimeStart}
+            </if>
+            <if test="query.finishTimeEnd != null">
+                AND ins.finish_time <![CDATA[ <= ]]> #{query.finishTimeEnd}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    ins.guid = #{query.keyword}
+                    OR ins.task_guid = #{query.keyword}
+                    OR ins.name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR ins.task_name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR project.name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR project.title LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="countTaskInstanceSpecificDigests" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_task_instances AS ins
+        LEFT JOIN hydra_task_task_node AS task_node ON task_node.guid = ins.task_guid
+        LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
+        <include refid="TaskInstanceSpecificWhere"/>
+    </select>
+
+    <select id="fetchTaskInstanceSpecificDigests0" resultMap="TaskInstanceSpecificDigestMap">
+        SELECT
+        <include refid="TaskInstanceSpecificColumns"/>
+        FROM hydra_task_instances AS ins
+        LEFT JOIN hydra_task_task_node AS task_node ON task_node.guid = ins.task_guid
+        LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
+        <include refid="TaskInstanceSpecificWhere"/>
+        ORDER BY ins.expect_time DESC, ins.id DESC
+        LIMIT #{query.limit} OFFSET #{query.offset}
+    </select>
+</mapper>

@@ -11,6 +11,7 @@ import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.slime.jelly.source.ibatis.ProxySessionMapperPool;
 import com.walnut.odin.project.mapper.TaskProjectMapper;
+import com.walnut.odin.specific.mapper.TaskSpecificMapper;
 
 public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements OdinTaskMappingDriver {
     protected KOIMasterManipulator mKOIMasterManipulator;
@@ -25,6 +26,7 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
         super( superiorProcess, ibatisClient, dispenserCenter, OdinUniformTaskMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 
         this.prepare_project_mapper( ibatisClient, dispenserCenter );
+        this.prepare_specific_mapper( ibatisClient, dispenserCenter );
 
         this.mParentDriver = new TaskMappingDriver(
                 superiorProcess, ibatisClient, dispenserCenter
@@ -36,6 +38,14 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
     protected void prepare_project_mapper( IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         ibatisClient.addXMLObjectScope( "mapper.kernel.project" );
         List<Class<? > > mapperCandidates = ibatisClient.addDataAccessObjectScope( TaskProjectMapper.class.getPackageName() );
+        for ( Class<? > mapperClass : mapperCandidates ) {
+            dispenserCenter.getInstanceDispenser().register( mapperClass, new ProxySessionMapperPool( ibatisClient, mapperClass ) );
+        }
+    }
+
+    protected void prepare_specific_mapper( IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
+        ibatisClient.addXMLObjectScope( "mapper.kernel.specific" );
+        List<Class<? > > mapperCandidates = ibatisClient.addDataAccessObjectScope( TaskSpecificMapper.class.getPackageName() );
         for ( Class<? > mapperClass : mapperCandidates ) {
             dispenserCenter.getInstanceDispenser().register( mapperClass, new ProxySessionMapperPool( ibatisClient, mapperClass ) );
         }

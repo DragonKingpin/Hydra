@@ -29,6 +29,8 @@ public interface InstanceNodeManipulator extends Pinenut {
 
     List<InstanceEntry> fetchInstances( TaskInstrument instrument, TaskInstanceQuery query );
 
+    List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query );
+
     List<InstanceEntry> fetchInstances( TaskInstrument instrument, long offset, long pageSize );
 
     default List<InstanceEntry> fetchInstances( TaskInstrument instrument ) {

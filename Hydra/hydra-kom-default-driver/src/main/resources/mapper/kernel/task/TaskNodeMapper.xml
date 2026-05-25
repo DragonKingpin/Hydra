@@ -34,6 +34,33 @@
 
     </resultMap>
 
+    <resultMap id="TaskElementDigestMap" type="com.pinecone.hydra.task.kom.digest.GenericTaskElementDigest">
+        <id     column="id"                         property="enumId"/>
+
+        <result column="guid"                       property="guid"/>
+        <result column="name"                       property="name"/>
+        <result column="type"                       property="type"/>
+        <result column="schedule_cron"              property="scheduleCron"/>
+        <result column="image_path"                 property="imagePath"/>
+        <result column="resource_type"              property="resourceType"/>
+        <result column="deployment_method"          property="deploymentMethod"/>
+        <result column="priority"                   property="priority"/>
+        <result column="actually_priority"          property="actuallyPriority"/>
+        <result column="dry_run"                    property="dryRun"/>
+        <result column="schedule_cycle"             property="scheduleCycle"/>
+        <result column="schedule_type"              property="scheduleType"/>
+        <result column="schedule_start_time"        property="scheduleStartTime"/>
+        <result column="schedule_end_time"          property="scheduleEndTime"/>
+        <result column="next_schedule_time"         property="nextScheduleTime"/>
+        <result column="processor_name"             property="processorName"/>
+        <result column="enable"                     property="enable"/>
+        <result column="kom_path"                   property="komPath"/>
+        <result column="system_kernel_object_path"  property="systemKernelObjectPath"/>
+        <result column="project_guid"               property="projectGuid"/>
+        <result column="create_time"                property="createTime"/>
+        <result column="update_time"                property="updateTime"/>
+    </resultMap>
+
     <!-- ========================================================== -->
     <!-- Insert -->
     <!-- ========================================================== -->
@@ -258,5 +285,52 @@
         FROM hydra_task_task_node
         ORDER BY id DESC
         LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <sql id="TaskElementDigestColumns">
+        task_node.id,
+        task_node.guid,
+        task_node.name,
+        task_node.schedule_cron,
+        task_node.image_path,
+        task_node.type,
+        task_node.resource_type,
+        task_node.deployment_method,
+        task_node.priority,
+        task_node.actually_priority,
+        task_node.dry_run,
+        task_node.schedule_cycle,
+        task_node.schedule_type,
+        task_node.schedule_start_time,
+        task_node.schedule_end_time,
+        task_node.next_schedule_time,
+        task_node.processor_name,
+        task_node.enable,
+        path.path AS kom_path,
+        path.long_path AS system_kernel_object_path,
+        task_node.project_guid AS project_guid,
+        task_node.create_time,
+        task_node.update_time
+    </sql>
+
+    <select id="listDigests" resultMap="TaskElementDigestMap">
+        SELECT
+        <include refid="TaskElementDigestColumns"/>
+        FROM hydra_task_task_node AS task_node
+        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
+        ORDER BY task_node.id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="fetchDigestsByGuids" resultMap="TaskElementDigestMap">
+        SELECT
+        <include refid="TaskElementDigestColumns"/>
+        FROM hydra_task_task_node AS task_node
+        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
+        WHERE task_node.guid IN
+        <foreach collection="guids" item="guid" open="(" separator="," close=")">
+            #{guid}
+        </foreach>
+        ORDER BY task_node.id DESC
     </select>
 </mapper>

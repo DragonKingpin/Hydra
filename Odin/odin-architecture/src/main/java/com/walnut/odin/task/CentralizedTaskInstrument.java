@@ -6,6 +6,8 @@ import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
+import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.specific.TaskSpecificService;
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.system.TaskPathInvalidException;
@@ -17,6 +19,10 @@ public interface CentralizedTaskInstrument extends TaskInstrument {
     UniformTaskInstrument getUniformTaskInstrument();
 
     RavenTaskMasterManipulator getRavenTaskMasterManipulator();
+
+    TaskProjectInstrument getTaskProjectInstrument();
+
+    TaskSpecificService getTaskSpecificService();
 
     CategoryService getCategoryService();
 

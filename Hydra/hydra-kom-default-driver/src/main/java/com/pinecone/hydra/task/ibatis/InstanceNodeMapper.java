@@ -67,6 +67,12 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return (List) list;
     }
 
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query ) {
+        return (List) this.fetchInstancesByQuery0( query );
+    }
+
     List<GenericInstanceEntry> fetchInstances0( @Param("offset") long offset, @Param("pageSize") long pageSize );
 
     @Override

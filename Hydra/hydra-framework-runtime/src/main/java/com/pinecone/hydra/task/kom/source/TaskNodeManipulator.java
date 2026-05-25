@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
@@ -37,5 +38,8 @@ public interface TaskNodeManipulator extends GUIDNameManipulator {
 
     List<TaskElement> listPage(int offset, int pageSize);
 
+    List<TaskElementDigest> listDigests( int offset, int pageSize );
+
+    List<TaskElementDigest> fetchDigestsByGuids( Collection<GUID> guids );
 
 }

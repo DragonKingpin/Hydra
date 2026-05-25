@@ -77,6 +77,14 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        return this.mInstanceManipulator.fetchInstanceDigests( query );
+    }
+
+    @Override
     public List<InstanceEntry> queryInstances( String taskPath, long offset, long pageSize ) {
         GUID guid = this.mTaskInstrument.queryGUIDByPath( taskPath );
         if ( guid == null ) {

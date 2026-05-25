@@ -3,7 +3,7 @@ package com.walnut.odin.task.source;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
-import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.specific.source.TaskSpecificManipulator;
 import com.walnut.odin.project.source.TaskProjectManipulator;
 
 public interface RavenTaskMasterManipulator extends KOIMasterManipulator {
@@ -24,6 +24,6 @@ public interface RavenTaskMasterManipulator extends KOIMasterManipulator {
 
     TaskProjectManipulator getTaskProjectManipulator();
 
-    TaskProjectInstrument getTaskProjectInstrument();
+    TaskSpecificManipulator getTaskSpecificManipulator();
 
 }

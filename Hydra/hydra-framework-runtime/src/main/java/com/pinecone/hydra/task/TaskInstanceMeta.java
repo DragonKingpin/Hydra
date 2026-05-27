@@ -22,6 +22,8 @@ public interface TaskInstanceMeta extends Pinenut {
 
     String getImagePath();
 
+    String getExecArch();
+
     short getActuallyPriority();
 
     TaskInstanceStatus getInstanceStatus ();

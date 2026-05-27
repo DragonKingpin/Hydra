@@ -122,6 +122,11 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public void setExecArch( String execArch ) {
+        this.execArch = execArch;
+    }
+
+    @Override
     public void setActuallyPriority ( int actuallyPriority ) {
         this.actuallyPriority = (short) actuallyPriority;
     }

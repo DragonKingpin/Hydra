@@ -45,6 +45,8 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
     protected GrpcRemoteProcessFrameMapper      mFrameMapper;
 
+    protected Object                            mProcessorLifecycleController;
+
     public GrpcRemoteProcessControlTransport( RemoteProcessManagerServer remoteProcessManagerServer,
                                               GrpcAppointServer grpcAppointServer,
                                               RemoteProcessControlEventHooker eventHooker ) {
@@ -161,7 +163,8 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
     @Override
     public void registerController( Object controller ) throws RemoteProcessServiceRPCException {
-        this.log.info( "[GrpcControlControllerRegisterSkipped] gRPC control uses generated service binding. <Pass>" );
+        this.mProcessorLifecycleController = controller;
+        this.log.info( "[GrpcControlControllerRegistered] (Controller: `{}`) <Done>", controller.getClass().getName() );
     }
 
     @Override
@@ -182,6 +185,11 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
         try {
             this.mGrpcAppointServer.serverBuilder().addService( new GrpcRemoteProcessControlService( this ) );
+            if ( this.mProcessorLifecycleController != null ) {
+                this.mGrpcAppointServer.serverBuilder().addService(
+                        new GrpcProcessorLifecycleService( this.mProcessorLifecycleController )
+                );
+            }
             this.mGrpcAppointServer.execute();
         }
         catch ( Exception e ) {

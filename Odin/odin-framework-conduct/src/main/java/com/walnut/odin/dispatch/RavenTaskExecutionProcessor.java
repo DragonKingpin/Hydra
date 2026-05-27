@@ -32,6 +32,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     protected String                          mszClusterPath;
     protected String                          mszClusterName;
     protected long                            mnControlClientId;
+    protected String                          mszExecCaps;
     protected boolean                         mbLocal;
     protected int                             mnPriority;
     protected boolean                         mbExclusive;
@@ -50,6 +51,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mszClusterPath              = processorEntity.getClusterPath();
         this.mszClusterName              = processorEntity.getClusterName();
         this.mnControlClientId           = processorEntity.getControlClientId();
+        this.mszExecCaps                 = processorEntity.getExecCaps();
         this.mbLocal                     = processorEntity.isLocal();
         this.mnPriority                  = processorEntity.getPriority();
         this.mbExclusive                 = processorEntity.isExclusive();
@@ -86,6 +88,11 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     @Override
     public long getControlClientId() {
         return this.mnControlClientId;
+    }
+
+    @Override
+    public String getExecCaps() {
+        return this.mszExecCaps;
     }
 
     @Override

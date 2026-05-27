@@ -23,6 +23,8 @@ public interface TaskExecutionProcessor extends Pinenut {
 
     long getControlClientId();
 
+    String getExecCaps();
+
     TaskExecutionQueue getTaskExecutionQueue();
 
     boolean isLocal();

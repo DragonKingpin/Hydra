@@ -3,11 +3,16 @@ package com.walnut.odin.conduct.schedule;
 import java.time.LocalDateTime;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitRequest;
+import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitResult;
+import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
 public interface UniformTaskScheduler extends Pinenut {
@@ -32,10 +37,18 @@ public interface UniformTaskScheduler extends Pinenut {
 
     void pulseScheduleDaily( LocalDateTime pulseTime );
 
+    TaskInstantaneousSubmitResult submitInstantaneousTask( TaskInstantaneousSubmitRequest request )
+            throws MetaPersistenceException, InstanceLaunchException, TaskDispatchException;
 
     TaskSchedulePreparator taskSchedulePreparator();
 
+    TaskInstantaneousPreparator taskInstantaneousPreparator();
+
     InstanceScheduleImpetus instanceScheduleImpetus();
+
+    InstanceInstantaneousImpetus instanceInstantaneousImpetus();
+
+    InstanceDepartureGate instanceDepartureGate();
 
     InstanceScheduleAllocator instanceScheduleAllocator();
 

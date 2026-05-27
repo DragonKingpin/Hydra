@@ -1,7 +1,6 @@
 package com.pinecone.hydra.task.marshal;
 
 public enum TaskScheduleCycle {
-    Undefined      ( 0x00, "Undefined" ),
     Minute         ( 0x01, "Minute" ),
     Hour           ( 0x02, "Hour" ),
     Day            ( 0x03, "Day" ),

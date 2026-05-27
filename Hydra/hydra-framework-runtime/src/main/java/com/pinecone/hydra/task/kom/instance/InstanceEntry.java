@@ -37,6 +37,8 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setImagePath( String imagePath );
 
+     void setExecArch( String execArch );
+
      void setActuallyPriority ( int actuallyPriority );
 
      void setInstanceStatus ( TaskInstanceStatus instanceStatus );

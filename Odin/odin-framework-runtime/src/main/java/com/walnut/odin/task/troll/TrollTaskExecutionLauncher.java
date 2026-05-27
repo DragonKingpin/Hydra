@@ -34,8 +34,10 @@ import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.proc.ProcessRemoteEventHandler;
+import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -103,6 +105,14 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     public LocalDateTime evalBusinessTime( RavenTaskInstance instance, LocalDateTime biz ) {
         TaskScheduleCycle cycle = instance.getKernelScheduleCycle();
 
+        if ( biz == null ) {
+            biz = LocalDateTime.now();
+        }
+
+        if ( cycle == null ) {
+            return biz;
+        }
+
         LocalDateTime adjustedTime;
 
         switch ( cycle ) {
@@ -120,7 +130,6 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
                 adjustedTime = biz.withSecond(0).withNano(0);
                 break;
             }
-            case Undefined:
             default: {
                 adjustedTime = biz;
                 break;
@@ -333,6 +342,13 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         );
     }
 
+    protected RemoteImageResolutionMode evalRemoteImageResolutionMode( LaunchFeature feature ) {
+        if ( feature != null && feature.isAllowAsymmetricImage() ) {
+            return RemoteImageResolutionMode.REMOTE_CLIENT_IMAGE;
+        }
+        return RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
+    }
+
     @Override
     public UProcess createLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
         try {
@@ -439,8 +455,11 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
             instance.getInstanceEntry().setImagePath( imageURI.toString() );
             this.mLogger.info( "[TaskLaunchSequence] [RemoteProcessAnchored] (Process: `{}`, DestinationDeployClient: `{}`) <Standby>", imageURI, pmClientId );
+            RemoteProcessCreationContext context = RemoteProcessCreationContext.of(
+                    imageURI, parentPid, feature.getStartupArgs(), feature.getContextEnvironmentVars()
+            ).withImageResolutionMode( this.evalRemoteImageResolutionMode( feature ) );
             RemoteProcessManagerServer.RemoteCreationResult result = this.mRemoteProcessManagerServer.createRemoteUProcess(
-                    pmClientId, imageURI.toString(), true, parentPid, feature.getStartupArgs(), feature.getContextEnvironmentVars()
+                    pmClientId, context
             );
             process = result.getProcess();
             if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
@@ -475,8 +494,11 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
             this.recordExecutionImage( instance, imageURI );
             this.mLogger.info( "[TaskLaunchSequence] [PreparedRemoteProcessAnchored] (Process: `{}`, DestinationDeployClient: `{}`) <Standby>", imageURI, pmClientId );
+            RemoteProcessCreationContext context = RemoteProcessCreationContext.of(
+                    imageURI, parentPid, feature.getStartupArgs(), feature.getContextEnvironmentVars()
+            ).withImageResolutionMode( this.evalRemoteImageResolutionMode( feature ) );
             RemoteProcessManagerServer.RemoteCreationResult result = this.mRemoteProcessManagerServer.createRemoteUProcess(
-                    pmClientId, imageURI.toString(), true, parentPid, feature.getStartupArgs(), feature.getContextEnvironmentVars()
+                    pmClientId, context
             );
             process = result.getProcess();
             if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {

@@ -16,6 +16,7 @@
         <result column="name"                 property="name"/>
         <result column="schedule_cron"        property="scheduleCron"/>
         <result column="image_path"           property="imagePath"/>
+        <result column="exec_arch"            property="execArch"/>
         <result column="type"                 property="type"/>
         <result column="resource_type"        property="resourceType"/>
         <result column="deployment_method"    property="deploymentMethod"/>
@@ -42,6 +43,7 @@
         <result column="type"                       property="type"/>
         <result column="schedule_cron"              property="scheduleCron"/>
         <result column="image_path"                 property="imagePath"/>
+        <result column="exec_arch"                  property="execArch"/>
         <result column="resource_type"              property="resourceType"/>
         <result column="deployment_method"          property="deploymentMethod"/>
         <result column="priority"                   property="priority"/>
@@ -73,6 +75,7 @@
             name,
             schedule_cron,
             image_path,
+            exec_arch,
             type,
             resource_type,
             deployment_method,
@@ -92,6 +95,7 @@
                 #{name},
                 #{scheduleCron},
                 #{imagePath},
+                #{execArch},
                 #{type},
                 #{resourceType},
                 #{deploymentMethod},
@@ -118,6 +122,7 @@
             name                = #{name},
             schedule_cron       = #{scheduleCron},
             image_path          = #{imagePath},
+            exec_arch           = #{execArch},
             type                = #{type},
             resource_type       = #{resourceType},
             deployment_method   = #{deploymentMethod},
@@ -148,6 +153,7 @@
             name,
             schedule_cron,
             image_path,
+            exec_arch,
             type,
             resource_type,
             deployment_method,
@@ -177,6 +183,7 @@
             name,
             schedule_cron,
             image_path,
+            exec_arch,
             type,
             resource_type,
             deployment_method,
@@ -221,6 +228,7 @@
             name,
             schedule_cron,
             image_path,
+            exec_arch,
             type,
             resource_type,
             deployment_method,
@@ -263,6 +271,7 @@
     name,
     schedule_cron,
     image_path,
+    exec_arch,
     type,
     resource_type,
     deployment_method,
@@ -293,6 +302,7 @@
         task_node.name,
         task_node.schedule_cron,
         task_node.image_path,
+        task_node.exec_arch,
         task_node.type,
         task_node.resource_type,
         task_node.deployment_method,

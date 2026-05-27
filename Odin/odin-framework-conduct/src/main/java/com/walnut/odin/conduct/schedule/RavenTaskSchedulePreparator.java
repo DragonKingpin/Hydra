@@ -40,6 +40,7 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
+import com.walnut.odin.task.TaskDeploymentMethod;
 import com.walnut.odin.task.mapper.InstanceAtlasAdjacentMapper;
 import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
@@ -333,8 +334,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         }
 
         RavenTaskInstance that = task.createInstance();
-        LaunchFeature feature = new LaunchFeature();
-        feature.setBizTimeEpoch( expectTime == null ? LocalDateTime.now() : expectTime );
+        LaunchFeature feature = this.prepareLaunchFeature( element, expectTime );
         InstanceEntry it = that.getInstanceEntry();
         it.setExpectTime( expectTime );
         it.setBusinessTime( businessTime );
@@ -342,6 +342,22 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         this.mTaskExecutionLauncher.initializeInstance( that, feature );  // 这里会完成实例插入
         return new ScheduledTaskInstanceFrame( context, that, true );
+    }
+
+    protected LaunchFeature prepareLaunchFeature( TaskElement element, LocalDateTime expectTime ) {
+        LaunchFeature feature = new LaunchFeature();
+        LocalDateTime bizTimeEpoch = expectTime;
+        if ( bizTimeEpoch == null ) {
+            bizTimeEpoch = LocalDateTime.now();
+        }
+        feature.setBizTimeEpoch( bizTimeEpoch );
+
+        feature.setAllowAsymmetricImage( true );
+        if ( TaskDeploymentMethod.isAuthoritative( element.getDeploymentMethod() ) ) {
+            feature.setAllowAsymmetricImage( false );
+        }
+
+        return feature;
     }
 
     protected void ensureTaskExec( TaskScheduleContext context, RavenTaskInstance instance ) {

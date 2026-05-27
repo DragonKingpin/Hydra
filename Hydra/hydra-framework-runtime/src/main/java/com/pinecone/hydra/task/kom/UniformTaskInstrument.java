@@ -61,6 +61,10 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected InstanceInstrument          instanceInstrument;
 
+    protected TaskScheduleSemanticValidator mTaskScheduleSemanticValidator;
+
+    protected ThreadLocal<Boolean>          mTaskScheduleValidationSilenced;
+
     public UniformTaskInstrument(
             Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, KernelObjectConfig config,
             @Nullable GuidAllocator guidAllocator
@@ -86,6 +90,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         );
         this.mReparseKOM                 = new GenericReparseKOMTreeAddition( this );
         this.instanceInstrument          = new KernelInstanceInstrument( this, this.taskMasterManipulator.getInstanceNodeManipulator() );
+        this.mTaskScheduleSemanticValidator = new TaskScheduleSemanticValidator();
+        this.mTaskScheduleValidationSilenced = ThreadLocal.withInitial( () -> false );
         this.kernelObjectConfig          = config;
     }
 
@@ -188,7 +194,18 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     @Override
     public TaskElement affirmTask( String path ,TaskElement metaInfos) {
-        TaskElement taskElement =  (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+        this.mTaskScheduleSemanticValidator.validate( metaInfos );
+
+        boolean bOriginalSilenced = this.mTaskScheduleValidationSilenced.get();
+        this.mTaskScheduleValidationSilenced.set( true );
+        TaskElement taskElement;
+        try {
+            taskElement =  (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+        }
+        finally {
+            this.mTaskScheduleValidationSilenced.set( bOriginalSilenced );
+        }
+
         taskElement.setActuallyPriority( metaInfos.getActuallyPriority() );
         taskElement.setDeploymentMethod( metaInfos.getDeploymentMethod() );
         taskElement.setEnable( metaInfos.isEnable());
@@ -199,8 +216,10 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         taskElement.setScheduleType( metaInfos.getScheduleType() );
         taskElement.setType( metaInfos.getType() );
         taskElement.setImagePath( metaInfos.getImagePath() );
+        taskElement.setExecArch( metaInfos.getExecArch() );
         taskElement.setName( metaInfos.getName() );
         taskElement.setGuid( metaInfos.getGuid() );
+        this.mTaskScheduleSemanticValidator.validate( taskElement );
         return taskElement;
     }
 
@@ -264,7 +283,16 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
+    public GUID put( TreeNode treeNode ) {
+        if ( !this.mTaskScheduleValidationSilenced.get() ) {
+            this.mTaskScheduleSemanticValidator.validateForPersistence( treeNode );
+        }
+        return super.put( treeNode );
+    }
+
+    @Override
     public void update( TreeNode treeNode ) {
+        this.mTaskScheduleSemanticValidator.validateForPersistence( treeNode );
         TreeNodeOperator operator = this.operatorFactory.getOperator( treeNode.getMetaType() );
         operator.update( treeNode );
     }

@@ -29,6 +29,10 @@ public interface TaskElementDigest extends TaskFamilyMeta {
 
     void setImagePath( String szImagePath );
 
+    String getExecArch();
+
+    void setExecArch( String szExecArch );
+
     String getResourceType();
 
     void setResourceType( String szResourceType );

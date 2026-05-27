@@ -1,11 +1,11 @@
 package com.pinecone.hydra.task.marshal;
 
 public enum TaskScheduleType {
-    Undefined      ( 0x00, "Undefined" ),
     Cycle          ( 0x01, "Cycle" ),
     Manual         ( 0x02, "Manual" ),
     Triggered      ( 0x03, "Triggered" ),
     Resident       ( 0x04, "Resident" ),
+    Temporary      ( 0x05, "Temporary" ),
     ;
 
     private final int code;

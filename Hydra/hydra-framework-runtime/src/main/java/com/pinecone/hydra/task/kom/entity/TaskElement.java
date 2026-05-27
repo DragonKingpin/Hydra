@@ -17,6 +17,9 @@ public interface TaskElement extends ElementNode {
     String getImagePath();
     void setImagePath( String path );
 
+    String getExecArch();
+    void setExecArch( String execArch );
+
     String getType();
     void setType( String type );
 

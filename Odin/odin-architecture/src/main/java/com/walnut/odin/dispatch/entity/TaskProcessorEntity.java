@@ -21,6 +21,10 @@ public interface TaskProcessorEntity extends Pinenut {
 
     void setControlClientId( long controlClientId );
 
+    String getExecCaps();
+
+    void setExecCaps( String execCaps );
+
     boolean isLocal();
 
     boolean isExclusive();

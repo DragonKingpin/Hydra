@@ -106,6 +106,17 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
                 continue;
             }
 
+            if ( !this.canRun( slot, context ) ) {
+                if ( bStrong ) {
+                    throw new TaskDispatchException(
+                            "Designated processor `" + szTarget + "` cannot run exec_arch `"
+                                    + this.getExecArch( context ) + "`."
+                    );
+                }
+                remaining.add( context );
+                continue;
+            }
+
             plan.computeIfAbsent( slot.mProcessor, k -> new ArrayList<>() ).add( context );
             --slot.mnRemaining;
         }
@@ -169,13 +180,17 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
                     continue;
                 }
 
+                if ( !this.canRun( slot, context ) ) {
+                    continue;
+                }
+
                 if ( best == null || this.compareSlot( slot, best ) < 0 ) {
                     best = slot;
                 }
             }
 
             if ( best == null ) {
-                break;
+                continue;
             }
 
             plan.computeIfAbsent( best.mProcessor, k -> new ArrayList<>() ).add( context );
@@ -196,9 +211,21 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         }
 
         for ( TaskLaunchContext context : contexts ) {
-            ProcessorSlot slot = heap.poll();
+            List<ProcessorSlot> skipped = new ArrayList<>();
+            ProcessorSlot slot = null;
+            while ( !heap.isEmpty() ) {
+                ProcessorSlot polled = heap.poll();
+                if ( this.canRun( polled, context ) ) {
+                    slot = polled;
+                    break;
+                }
+                skipped.add( polled );
+            }
+            for ( ProcessorSlot skippedSlot : skipped ) {
+                heap.offer( skippedSlot );
+            }
             if ( slot == null ) {
-                break;
+                continue;
             }
 
             plan.computeIfAbsent( slot.mProcessor, k -> new ArrayList<>() ).add( context );
@@ -221,5 +248,19 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         }
 
         return a.mProcessor.getName().compareTo( b.mProcessor.getName() );
+    }
+
+    protected boolean canRun( ProcessorSlot slot, TaskLaunchContext context ) {
+        if ( slot == null || slot.mProcessor == null || context == null ) {
+            return false;
+        }
+        return ExecutionArchitects.canRun( slot.mProcessor.getExecCaps(), this.getExecArch( context ) );
+    }
+
+    protected String getExecArch( TaskLaunchContext context ) {
+        if ( context == null || context.getTaskInstance() == null ) {
+            return ExecutionArchitecture.ANY.name();
+        }
+        return context.getTaskInstance().getExecArch();
     }
 }

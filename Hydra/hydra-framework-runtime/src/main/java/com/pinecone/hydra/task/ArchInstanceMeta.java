@@ -14,6 +14,7 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected LocalDateTime businessTime;
     protected short priority;
     protected String imagePath;
+    protected String execArch;
     protected short actuallyPriority;
     protected TaskInstanceStatus instanceStatus;
     protected String taskType;
@@ -70,6 +71,11 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public String getImagePath() {
         return this.imagePath;
+    }
+
+    @Override
+    public String getExecArch() {
+        return this.execArch;
     }
 
     @Override

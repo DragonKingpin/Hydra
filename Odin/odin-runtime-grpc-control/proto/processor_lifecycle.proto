@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package walnut.odin.proc.control.legionary;
+
+option java_multiple_files = true;
+option java_package = "com.walnut.odin.proc.server.transport.grpc.legionary";
+option java_outer_classname = "ProcessorLifecycleProto";
+option go_package = "github.com/DragonKingpin/gladiator/gladius/slave/iface/lifecycle;lifecycle";
+
+service ProcessorLifecycle {
+  rpc JoinRegiment(RegimentJoinRequest) returns (RegimentJoinResponse);
+}
+
+message RegimentJoinRequest {
+  string node_name = 1;
+  int64 client_id = 2;
+}
+
+message RegimentJoinResponse {
+  string guid = 1;
+  string name = 2;
+  string cluster_path = 3;
+  string cluster_name = 4;
+  int64 control_client_id = 5;
+  int32 priority = 6;
+
+  string queue_name = 20;
+  int32 queue_max_capacity = 21;
+  int32 queue_min_capacity = 22;
+  int32 queue_runtime_instance_capacity = 23;
+
+  string error_msg = 90;
+}

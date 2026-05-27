@@ -147,12 +147,11 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
             }
             else {
                 this.getLogger().info( "[Notice] [MirrorAsymmetric] `{}` is not accessible in this server.", imageAddress );
+                image = new RemoteSurrogateExecutionImage( imageAddress, this.imageLoader() );
             }
         }
-        else {
-            this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
-            process.mExecutionImage = image;
-        }
+        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
+        process.mExecutionImage = image;
 
         process.mszImageAddress = imageAddress;
         process.mImageResolutionMode = imageResolutionMode;

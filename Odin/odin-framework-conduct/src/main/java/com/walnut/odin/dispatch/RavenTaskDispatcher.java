@@ -81,6 +81,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             throw new IllegalArgumentException( szProcessorName + " not found" );
         }
 
+        if ( entity.isLocal() ) {
+            throw new IllegalArgumentException( "Local processor `" + szProcessorName + "` cannot bind RPC control client." );
+        }
+
         entity.setControlClientId( nClientId );
         TaskExecutionProcessor processor = new RavenTaskExecutionProcessor( entity, this.mTaskExecutionLauncher );
         this.registerProcessor( processor );
@@ -91,7 +95,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     public void unregisterProcessor( String szProcessorName ) {
         this.mLock.lock();
         try {
-            this.mProcessors.remove( szProcessorName );
+            TaskExecutionProcessor processor = this.mProcessors.remove( szProcessorName );
+            if ( processor != null ) {
+                this.mClientProcessorsIndex.remove( processor.getControlClientId() );
+            }
             this.mAffinityTable.entrySet().removeIf( entry -> {
                 if ( entry.getValue().processor.getName().equals( szProcessorName ) ) {
                     return true;
@@ -129,6 +136,28 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             return Collections.unmodifiableCollection(
                     new ArrayList<>( this.mProcessors.values() )
             );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor getProcessorByName( String szProcessorName ) {
+        this.mLock.lock();
+        try {
+            return this.mProcessors.get( szProcessorName );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor getProcessorByClientId( long nClientId ) {
+        this.mLock.lock();
+        try {
+            return this.mClientProcessorsIndex.get( nClientId );
         }
         finally {
             this.mLock.unlock();

@@ -31,6 +31,8 @@ public class LaunchFeature implements Pinenut {
 
     private List<ProcessEventHandler> sysProcEventHandlers;
 
+    private boolean allowAsymmetricImage = true;
+
     public LaunchFeature() {
         this.bizTimeEpoch = LocalDateTime.now().minusDays( 1 ); // dtm
     }
@@ -61,6 +63,57 @@ public class LaunchFeature implements Pinenut {
 
     public List<ProcessEventHandler> getSysProcEventHandlers() {
         return this.sysProcEventHandlers;
+    }
+
+    public boolean isAllowAsymmetricImage() {
+        return this.allowAsymmetricImage;
+    }
+
+    public void setAllowAsymmetricImage( boolean allowAsymmetricImage ) {
+        this.allowAsymmetricImage = allowAsymmetricImage;
+    }
+
+    public LaunchFeature withAllowAsymmetricImage( boolean allowAsymmetricImage ) {
+        this.allowAsymmetricImage = allowAsymmetricImage;
+        return this;
+    }
+
+    public LaunchFeature mergeLaunchOptions( LaunchFeature that ) {
+        if ( that == null ) {
+            return this;
+        }
+
+        this.allowAsymmetricImage = that.isAllowAsymmetricImage();
+
+        if ( that.getProcessorDesignated() != null ) {
+            this.processorDesignated = that.getProcessorDesignated();
+        }
+
+        if ( that.getDesignatedImageURI() != null ) {
+            this.designatedImageURI = that.getDesignatedImageURI();
+        }
+
+        if ( that.getStartupArgs() != null ) {
+            this.startupArgs = that.getStartupArgs();
+        }
+
+        if ( that.getContextEnvironmentVars() != null ) {
+            this.contextEnvironmentVars = that.getContextEnvironmentVars();
+        }
+
+        if ( that.getParentPid() != null ) {
+            this.parentPid = that.getParentPid();
+        }
+
+        if ( that.getParentProcess() != null ) {
+            this.parentProcess = that.getParentProcess();
+        }
+
+        if ( that.getBizTimeEpoch() != null ) {
+            this.bizTimeEpoch = that.getBizTimeEpoch();
+        }
+
+        return this;
     }
 
     public String getProcessorDesignated() {

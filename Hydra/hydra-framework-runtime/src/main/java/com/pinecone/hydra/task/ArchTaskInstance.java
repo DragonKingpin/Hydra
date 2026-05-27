@@ -65,6 +65,11 @@ public abstract class ArchTaskInstance implements TaskInstance {
     }
 
     @Override
+    public String getExecArch() {
+        return this.mInstanceEntry.getExecArch();
+    }
+
+    @Override
     public short getActuallyPriority() {
         return this.mInstanceEntry.getActuallyPriority();
     }

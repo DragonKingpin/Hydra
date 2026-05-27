@@ -14,6 +14,7 @@ import com.pinecone.hydra.task.marshal.TaskScheduleType;
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected String                   taskType;
     protected String                   imagePath;
+    protected String                   execArch;
     protected String                   resourceType;
     protected String                   deploymentMethod;
 
@@ -75,6 +76,16 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setImagePath( String imagePath ) {
         this.imagePath = imagePath;
+    }
+
+    @Override
+    public String getExecArch() {
+        return this.execArch;
+    }
+
+    @Override
+    public void setExecArch( String execArch ) {
+        this.execArch = execArch;
     }
 
     @Override

@@ -52,6 +52,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setGuid( guid );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
         entry.setImagePath( this.mTaskElement.getImagePath() );
+        entry.setExecArch( this.mTaskElement.getExecArch() );
         entry.setTaskGuid( this.mTaskElement.getGuid());
         entry.setCreateTime( LocalDateTime.now() );
         entry.setScheduleCycle( this.mTaskElement.getScheduleCycle() );

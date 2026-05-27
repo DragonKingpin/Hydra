@@ -25,6 +25,10 @@ public interface TaskDispatcher extends Pinenut {
 
     Collection<TaskExecutionProcessor> fetchProcessors();
 
+    TaskExecutionProcessor getProcessorByName( String szProcessorName );
+
+    TaskExecutionProcessor getProcessorByClientId( long nClientId );
+
 
     void setProcessorAffinity( String szProcessorName, TaskLaunchContext launchContext );
 

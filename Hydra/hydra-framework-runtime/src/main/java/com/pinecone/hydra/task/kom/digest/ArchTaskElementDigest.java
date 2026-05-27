@@ -15,6 +15,8 @@ public abstract class ArchTaskElementDigest extends ArchTaskFamilyMeta implement
 
     protected String imagePath;
 
+    protected String execArch;
+
     protected String resourceType;
 
     protected String deploymentMethod;
@@ -89,6 +91,16 @@ public abstract class ArchTaskElementDigest extends ArchTaskFamilyMeta implement
     @Override
     public void setImagePath( String szImagePath ) {
         this.imagePath = szImagePath;
+    }
+
+    @Override
+    public String getExecArch() {
+        return this.execArch;
+    }
+
+    @Override
+    public void setExecArch( String szExecArch ) {
+        this.execArch = szExecArch;
     }
 
     @Override

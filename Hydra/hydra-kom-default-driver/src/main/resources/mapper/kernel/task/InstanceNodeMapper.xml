@@ -20,6 +20,7 @@
         schedule_time,
         priority,
         image_path,
+        exec_arch,
         actually_priority,
         run_status,
         schedule_cycle,
@@ -52,6 +53,7 @@
         #{scheduleTime},
         #{priority},
         #{imagePath},
+        #{execArch},
         #{actuallyPriority},
         #{runStatus},
         #{scheduleCycle},
@@ -149,6 +151,7 @@
         <result column="schedule_time"       property="scheduleTime"/>
         <result column="priority"            property="priority"/>
         <result column="image_path"          property="imagePath"/>
+        <result column="exec_arch"           property="execArch"/>
         <result column="actually_priority"   property="actuallyPriority"/>
         <result column="run_status"          property="runStatus"/>
         <result column="schedule_cycle"      property="scheduleCycle"/>
@@ -205,6 +208,7 @@
             schedule_time       = #{scheduleTime},
             priority            = #{priority},
             image_path          = #{imagePath},
+            exec_arch           = #{execArch},
             actually_priority   = #{actuallyPriority},
             run_status          = #{runStatus},
             schedule_cycle      = #{kernelScheduleCycle},
@@ -386,7 +390,7 @@
         <if test="actuallyPriority != null">
             AND `actually_priority` = #{actuallyPriority}
         </if>
-        AND schedule_type = 'Cycle'
+        AND schedule_type IN ( 'Cycle', 'Temporary' )
     </select>
 
     <select id="fetchSchedulableInstances0" resultMap="InstanceResultMap">
@@ -407,7 +411,7 @@
         <if test="actuallyPriority != null">
             AND `actually_priority` = #{actuallyPriority}
         </if>
-        AND schedule_type = 'Cycle'
+        AND schedule_type IN ( 'Cycle', 'Temporary' )
         ORDER BY actually_priority DESC, id ASC
     </select>
 

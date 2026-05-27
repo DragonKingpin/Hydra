@@ -241,11 +241,12 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     }
 
     protected void updateExecutionState(
-            RavenTaskInstance instance, TaskInstanceExecState state, LocalDateTime startTime, LocalDateTime finishTime
+            RavenTaskInstance instance, TaskInstanceExecState state,
+            LocalDateTime startTime, LocalDateTime runTime, LocalDateTime finishTime
     ) {
         InstanceEntry entry = instance.getInstanceEntry();
         this.mInstanceExecMapper.updateStateByInstanceGuidAndRetryFields(
-                entry.getGuid(), entry.getRetryCnt(), state.getName(), startTime, null, finishTime
+                entry.getGuid(), entry.getRetryCnt(), state.getName(), startTime, runTime, finishTime
         );
     }
 
@@ -266,7 +267,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         );
         if ( result.isSucceeded() ) {
             entry.setInstanceStatus( TaskInstanceStatus.ProcessStandby );
-            this.updateExecutionState( instance, TaskInstanceExecState.Submitted, LocalDateTime.now(), null );
+            this.updateExecutionState( instance, TaskInstanceExecState.Submitted, LocalDateTime.now(), null, null );
         }
     }
 
@@ -295,7 +296,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             entry.setInstanceStatus( TaskInstanceStatus.Error );
         }
 
-        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, LocalDateTime.now() );
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
     }
 
     protected void markProcessCreationFailedIfNecessary( RavenTaskInstance instance, Exception cause ) {
@@ -518,11 +519,83 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     }
 
 
-    protected void afterOwnedProcessTerminated( RavenTaskInstance instance, UProcess process ) {
+    protected void markProcessLaunchFailed( RavenTaskInstance instance, UProcess process, Exception cause ) {
+        InstanceEntry entry = instance.getInstanceEntry();
+        String szCause = cause.getMessage();
+        if ( szCause == null ) {
+            szCause = cause.getClass().getName();
+        }
+
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
+                entry.getGuid(),
+                List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
+                TaskInstanceStatus.Error,
+                TaskInstanceTransitionReason.ProcessFailed
+        );
+        if ( result.isSucceeded() ) {
+            entry.setInstanceStatus( TaskInstanceStatus.Error );
+        }
         try {
+            entry.setErrorCause( szCause );
+            entry.setLastEndTime( LocalDateTime.now() );
+            entry.setInstanceStatus( TaskInstanceStatus.Error );
+            instance.update();
+        }
+        catch ( MetaPersistenceException e ) {
+            this.mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException] (Instance: `{}`) <Error>", entry.getGuid(), e );
+        }
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
+        this.mLogger.error(
+                "[TaskLaunchSequence] [ProcessStartFailure] (Process: `{}`, PID: `{}`, Instance: `{}`) <Error>",
+                process == null ? null : process.getName(),
+                process == null ? null : process.getPID(),
+                entry.getGuid(),
+                cause
+        );
+    }
+
+    protected void afterOwnedProcessFinished( RavenTaskInstance instance, UProcess process ) {
+        try {
+            if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Finished ) {
+                return;
+            }
+            this.mTaskInstanceLifecycleInstrument.transitAny(
+                    instance.getInstanceEntry().getGuid(),
+                    List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                    TaskInstanceStatus.Finished,
+                    TaskInstanceTransitionReason.ProcessSucceeded
+            );
             instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Finished );
             instance.getInstanceEntry().setLastEndTime( LocalDateTime.now() );
             instance.update();
+            this.updateExecutionState( instance, TaskInstanceExecState.Success, null, null, LocalDateTime.now() );
+        }
+        catch ( MetaPersistenceException e ) {
+            mLogger.error(
+                    "[TaskLaunchSequence] [MetaPersistenceException] (Process: `{}`, PID: `{}`) <Error>", process.getName(), process.getPID()
+            );
+            mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException: `{}`]", e );
+        }
+    }
+
+    protected void afterOwnedProcessFailed( RavenTaskInstance instance, UProcess process, Object caused ) {
+        try {
+            if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
+                return;
+            }
+            this.mTaskInstanceLifecycleInstrument.transitAny(
+                    instance.getInstanceEntry().getGuid(),
+                    List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                    TaskInstanceStatus.Error,
+                    TaskInstanceTransitionReason.ProcessFailed
+            );
+            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Error );
+            instance.getInstanceEntry().setLastEndTime( LocalDateTime.now() );
+            if ( caused != null ) {
+                instance.getInstanceEntry().setErrorCause( String.valueOf( caused ) );
+            }
+            instance.update();
+            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
         }
         catch ( MetaPersistenceException e ) {
             mLogger.error(
@@ -534,9 +607,16 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
     protected void afterOwnedProcessStarted( RavenTaskInstance instance, UProcess process ) throws InstanceLaunchException {
         try {
+            this.mTaskInstanceLifecycleInstrument.transitAny(
+                    instance.getInstanceEntry().getGuid(),
+                    List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating ),
+                    TaskInstanceStatus.Running,
+                    TaskInstanceTransitionReason.ProcessStarted
+            );
             instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Running );
             instance.getInstanceEntry().setLastStartTime( LocalDateTime.now() );
             instance.update();
+            this.updateExecutionState( instance, TaskInstanceExecState.Running, null, LocalDateTime.now(), null );
         }
         catch ( MetaPersistenceException e ) {
             throw new InstanceLaunchException( e );
@@ -558,36 +638,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             return null;
         }
 
-        this.mLogger.info( "[TaskLaunchSequence] [LocalProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
-        this.mLogger.info( "[TaskLaunchSequence] [ExecutingVitalizationInstruction] (Process: `{}`, PID: `{}`) <Start>", process.getName(), process.getPID() );
-
-
-        this.mImageModifier.addSystemProcessEventHandler(process.getExecutionImage().getEntryPoint(), new ProcessEventHandler() {
-            @Override
-            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
-                if ( event == UProcessStatus.Terminated ) {
-                    afterOwnedProcessTerminated( instance, process );
-
-                    mLogger.info(
-                            "[TaskLaunchSequence] [LocalTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
-                            instance.getOwnedTask().getName(),
-                            instance.getOwnedTask().getFullName(),
-                            instance.getOwnedTask().getId()
-                    );
-                }
-            }
-        });
-        process.start();
-        this.afterOwnedProcessStarted( instance, process );
-
-        this.mLogger.info(
-                "[TaskLaunchSequence] [LocalTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
-                instance.getOwnedTask().getName(),
-                instance.getOwnedTask().getFullName(),
-                instance.getOwnedTask().getId(),
-                process.getPID()
-        );
-        return process;
+        return this.startLocally( instance, process, feature );
     }
 
     @Override
@@ -604,6 +655,107 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             return null;
         }
 
+        return this.startRemotely( instance, process, pmClientId, feature );
+    }
+
+    @Override
+    public UProcess launchPreparedLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.getLogger().info(
+                "[TaskLaunchSequence] [LaunchPreparedLocally] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`) <Start>",
+                instance.getOwnedTask().getName(),
+                instance.getOwnedTask().getFullName(),
+                instance.getOwnedTask().getId(),
+                instance.getInstanceEntry().getGuid()
+        );
+
+        UProcess process = this.createPreparedLocally( instance, feature );
+        if ( process == null ) {
+            return null;
+        }
+
+        return this.startLocally( instance, process, feature );
+    }
+
+    @Override
+    public UProcess launchPreparedRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
+        this.getLogger().info(
+                "[TaskLaunchSequence] [LaunchPreparedRemotely] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`) <Start>",
+                instance.getOwnedTask().getName(),
+                instance.getOwnedTask().getFullName(),
+                instance.getOwnedTask().getId(),
+                instance.getInstanceEntry().getGuid()
+        );
+
+        UProcess process = this.createPreparedRemotely( instance, pmClientId, feature );
+        if ( process == null ) {
+            return null;
+        }
+
+        return this.startRemotely( instance, process, pmClientId, feature );
+    }
+
+    @Override
+    public UProcess startLocally( RavenTaskInstance instance, UProcess process, LaunchFeature feature ) throws InstanceLaunchException {
+        if ( process == null ) {
+            return null;
+        }
+
+        this.mLogger.info( "[TaskLaunchSequence] [LocalProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
+        this.mLogger.info( "[TaskLaunchSequence] [ExecutingVitalizationInstruction] (Process: `{}`, PID: `{}`) <Start>", process.getName(), process.getPID() );
+
+        this.mImageModifier.addSystemProcessEventHandler(process.getExecutionImage().getEntryPoint(), new ProcessEventHandler() {
+            @Override
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
+                if ( event == UProcessStatus.Terminated ) {
+                    afterOwnedProcessFinished( instance, process );
+
+                    mLogger.info(
+                            "[TaskLaunchSequence] [LocalTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`) <Done>",
+                            instance.getOwnedTask().getName(),
+                            instance.getOwnedTask().getFullName(),
+                            instance.getOwnedTask().getId(),
+                            instance.getInstanceEntry().getGuid()
+                    );
+                }
+                else if ( event == UProcessStatus.Error ) {
+                    afterOwnedProcessFailed( instance, process, event );
+                }
+            }
+        });
+        try {
+            process.start();
+            if ( process.getStatus() == UProcessStatus.Terminated ) {
+                this.afterOwnedProcessFinished( instance, process );
+            }
+            else if ( process.getStatus() == UProcessStatus.Error ) {
+                this.afterOwnedProcessFailed( instance, process, process.getStatus() );
+            }
+            else {
+                this.afterOwnedProcessStarted( instance, process );
+            }
+        }
+        catch ( Exception e ) {
+            this.markProcessLaunchFailed( instance, process, e );
+            throw new InstanceLaunchException( e );
+        }
+
+        this.mLogger.info(
+                "[TaskLaunchSequence] [LocalTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`, PID: `{}`) <Done>",
+                instance.getOwnedTask().getName(),
+                instance.getOwnedTask().getFullName(),
+                instance.getOwnedTask().getId(),
+                instance.getInstanceEntry().getGuid(),
+                process.getPID()
+        );
+        return process;
+    }
+
+    @Override
+    public UProcess startRemotely( RavenTaskInstance instance, UProcess process, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException {
+        if ( process == null ) {
+            return null;
+        }
+
         this.mLogger.info( "[TaskLaunchSequence] [RemoteProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
         this.mLogger.info( "[TaskLaunchSequence] [SendingVitalizationInstruction] (Process: `{}`, PID: `{}`, DestinationClient: `{}`) <Start>", process.getName(), process.getPID(), pmClientId );
 
@@ -612,25 +764,44 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             @Override
             public void fired( long pmClientId, UProcessStatus event, Object caused ) {
                 if ( event == UProcessStatus.Terminated ) {
-                    afterOwnedProcessTerminated( instance, process );
+                    afterOwnedProcessFinished( instance, process );
 
                     mLogger.info(
-                            "[TaskLaunchSequence] [RemoteTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`) <Done>",
+                            "[TaskLaunchSequence] [RemoteTaskFinished] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`) <Done>",
                             instance.getOwnedTask().getName(),
                             instance.getOwnedTask().getFullName(),
-                            instance.getOwnedTask().getId()
+                            instance.getOwnedTask().getId(),
+                            instance.getInstanceEntry().getGuid()
                     );
+                }
+                else if ( event == UProcessStatus.Error ) {
+                    afterOwnedProcessFailed( instance, process, caused );
                 }
             }
         });
-        process.start();
-        this.afterOwnedProcessStarted( instance, process );
+        try {
+            process.start();
+            if ( process.getStatus() == UProcessStatus.Terminated ) {
+                this.afterOwnedProcessFinished( instance, process );
+            }
+            else if ( process.getStatus() == UProcessStatus.Error ) {
+                this.afterOwnedProcessFailed( instance, process, process.getStatus() );
+            }
+            else {
+                this.afterOwnedProcessStarted( instance, process );
+            }
+        }
+        catch ( Exception e ) {
+            this.markProcessLaunchFailed( instance, process, e );
+            throw new InstanceLaunchException( e );
+        }
 
         this.mLogger.info(
-                "[TaskLaunchSequence] [RemoteTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, PID: `{}`) <Done>",
+                "[TaskLaunchSequence] [RemoteTaskLaunched] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, InstanceGuid: `{}`, PID: `{}`) <Done>",
                 instance.getOwnedTask().getName(),
                 instance.getOwnedTask().getFullName(),
                 instance.getOwnedTask().getId(),
+                instance.getInstanceEntry().getGuid(),
                 process.getPID()
         );
         return process;

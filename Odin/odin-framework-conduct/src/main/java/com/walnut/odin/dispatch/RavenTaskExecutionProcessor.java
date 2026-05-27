@@ -209,6 +209,36 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         );
     }
 
+    @Override
+    public UProcess directlyLaunchPrepared( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.prepareSysEventHandle( feature );
+
+        if ( this.mbLocal ) {
+            return this.mTaskExecutionLauncher.launchPreparedLocally( instance, feature );
+        }
+
+        return this.mTaskExecutionLauncher.launchPreparedRemotely(
+                instance,
+                this.mnControlClientId,
+                feature
+        );
+    }
+
+    @Override
+    public UProcess directlyStartPrepared( TaskLaunchContext context ) throws InstanceLaunchException {
+        LaunchFeature feature = context.getLaunchFeature();
+
+        if ( this.mbLocal ) {
+            return this.mTaskExecutionLauncher.startLocally(
+                    context.getTaskInstance(), context.getLaunchedProcess(), feature
+            );
+        }
+
+        return this.mTaskExecutionLauncher.startRemotely(
+                context.getTaskInstance(), context.getLaunchedProcess(), this.mnControlClientId, feature
+        );
+    }
+
 
 
 
@@ -288,6 +318,49 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     @Override
+    public PipelineLaunchReport pipeLaunchPrepared(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+        return this.pipeOpt( contexts, true, true );
+    }
+
+    @Override
+    public PipelineLaunchReport pipeStartPrepared(Collection<TaskLaunchContext> contexts ) throws TaskDispatchException {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return DefaultPipelineLaunchReport.executed(
+                    this,
+                    Collections.emptyList(),
+                    Collections.emptyList(),
+                    Collections.emptyList()
+            );
+        }
+
+        List<UProcess> launched = new ArrayList<>();
+        List<TaskLaunchContext> consumed = new ArrayList<>();
+        List<TaskLaunchContext> waiting = new ArrayList<>();
+        for ( TaskLaunchContext context : contexts ) {
+            try {
+                UProcess process = this.directlyStartPrepared( context );
+                if ( process == null ) {
+                    waiting.add( context );
+                    continue;
+                }
+                launched.add( process );
+                consumed.add( context );
+            }
+            catch ( InstanceLaunchException e ) {
+                log.error( "Error during start prepared process, what:'{}' ", e.getMessage(), e );
+                throw new TaskDispatchException( e );
+            }
+        }
+
+        return DefaultPipelineLaunchReport.executed(
+                this,
+                launched,
+                consumed,
+                waiting
+        );
+    }
+
+    @Override
     public PipelineLaunchReport recycleTerminated(Collection<Identification> terminatedIds ) {
         Collection<TaskLaunchContext> recycled = this.mTaskExecutionQueue.recycleTerminated( terminatedIds );
 
@@ -347,7 +420,10 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         public void tryConsume( TaskLaunchContext context ) throws TaskConsumeException {
             try {
                 UProcess proc;
-                if ( this.directlyLaunch ) {
+                if ( this.directlyLaunch && this.preparedCreation ) {
+                    proc = directlyLaunchPrepared( context.getTaskInstance(), context.getLaunchFeature() );
+                }
+                else if ( this.directlyLaunch ) {
                     proc = directlyLaunch( context.getTaskInstance(), context.getLaunchFeature() );
                 }
                 else if ( this.preparedCreation ) {

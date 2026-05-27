@@ -256,6 +256,66 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         return this.executeScheme( plan, false, false );
     }
 
+    @Override
+    public PipelineLaunchReport pipeLaunchPrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
+
+        this.mLock.lock();
+        try {
+            plan = this.mDispatchStrategy.dispatch(
+                    new ArrayList<>( this.mProcessors.values() ), contexts, this
+            );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+
+        return this.executeScheme( plan, false, true );
+    }
+
+    @Override
+    public PipelineLaunchReport pipeStartPrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = this.buildBoundScheme( contexts );
+        return this.executeStartScheme( plan );
+    }
+
+    protected Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> buildBoundScheme(
+            Collection<TaskLaunchContext> contexts
+    ) throws TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new LinkedHashMap<>();
+        if ( contexts == null || contexts.isEmpty() ) {
+            return plan;
+        }
+
+        this.mLock.lock();
+        try {
+            for ( TaskLaunchContext context : contexts ) {
+                TaskExecutionProcessor processor = null;
+                String szProcessorName = context.getAffinityProcessorName();
+                if ( szProcessorName != null ) {
+                    processor = this.mProcessors.get( szProcessorName );
+                }
+                if ( processor == null ) {
+                    TaskProcPair pair = this.mAffinityTable.get( context.getTaskId() );
+                    if ( pair != null ) {
+                        processor = pair.processor;
+                    }
+                }
+                if ( processor == null ) {
+                    throw new TaskDispatchException(
+                            "No bound processor found for prepared start, taskId=" + context.getTaskId()
+                    );
+                }
+                plan.computeIfAbsent( processor, k -> new ArrayList<>() ).add( context );
+            }
+        }
+        finally {
+            this.mLock.unlock();
+        }
+
+        return plan;
+    }
+
     protected PipelineLaunchReport executeScheme(
             Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bCreation, boolean bPrepared
     ) throws InstanceLaunchException, TaskDispatchException {
@@ -266,6 +326,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         for ( Map.Entry<TaskExecutionProcessor, Collection<TaskLaunchContext>> entry : scheme.entrySet() ) {
             TaskExecutionProcessor processor = entry.getKey();
             Collection<TaskLaunchContext> assigned = entry.getValue();
+            for ( TaskLaunchContext context : assigned ) {
+                context.setAffinityProcessorName( processor.getName() );
+                this.mAffinityTable.put( context.getTaskId(), new TaskProcPair( processor, context ) );
+            }
 
             PipelineLaunchReport report;
 
@@ -275,9 +339,37 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             else if ( bCreation ) {
                 report = processor.pipeCreate( assigned );
             }
+            else if ( bPrepared ) {
+                report = processor.pipeLaunchPrepared( assigned );
+            }
             else {
                 report = processor.pipeLaunch( assigned );
             }
+
+            launched.addAll( report.launchedProcesses() );
+            consumed.addAll( report.launchedContext() );
+            waiting.addAll( report.waitingContext() );
+        }
+
+        return DefaultPipelineLaunchReport.executed(
+                null,
+                launched,
+                consumed,
+                waiting
+        );
+    }
+
+    protected PipelineLaunchReport executeStartScheme(
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme
+    ) throws TaskDispatchException {
+        List<UProcess> launched = new ArrayList<>();
+        List<TaskLaunchContext> consumed = new ArrayList<>();
+        List<TaskLaunchContext> waiting  = new ArrayList<>();
+
+        for ( Map.Entry<TaskExecutionProcessor, Collection<TaskLaunchContext>> entry : scheme.entrySet() ) {
+            TaskExecutionProcessor processor = entry.getKey();
+            Collection<TaskLaunchContext> assigned = entry.getValue();
+            PipelineLaunchReport report = processor.pipeStartPrepared( assigned );
 
             launched.addAll( report.launchedProcesses() );
             consumed.addAll( report.launchedContext() );

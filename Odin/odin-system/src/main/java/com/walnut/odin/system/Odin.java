@@ -1,9 +1,16 @@
 package com.walnut.odin.system;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
+import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.MapStructure;
+import com.pinecone.hydra.grpc.server.GrpcAppointServer;
+import com.pinecone.hydra.grpc.server.GrpcServerConfig;
 import com.pinecone.framework.system.IrrationalProvokedException;
 import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.proc.ProcessManager;
@@ -29,6 +36,8 @@ import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlEventHooker;
+import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlTransportFactory;
 import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
@@ -43,6 +52,8 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     private RuntimeAtlasInstrument  mAtlasInstrument;
 
     private UniformTaskScheduler    mTaskScheduler;
+
+    private List<GrpcAppointServer> mAutonomousGrpcServers = new ArrayList<>();
 
     @MapStructure("metaDependent.atlasDatabase")
     private String                  mszAtlasDatabaseKey;
@@ -114,25 +125,96 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.mAtlasInstrument = new UniformRuntimeAtlas( atlasMappingDriver, taskInstrument, this.mLayerInstrument );
         this.infoLifecycle( "<Odin> Constructing component `AtlasInstrument`.", LogStatuses.StatusDone );
 
-        MessageNode messageNode = sys.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( this.mszControlRPCDriverKey );
-        if ( messageNode == null ) {
-            messageNode = (MessageNode) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszControlRPCDriverKey );
-        }
-        UlfServer rpcServer = (UlfServer) messageNode;
-        if ( rpcServer == null ) {
-            throw new IrrationalProvokedException( "Control RPC driver `" + this.mszControlRPCDriverKey + "` does not exist or is not UlfServer." );
-        }
         ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
         if ( pm == null ) {
             throw new IrrationalProvokedException( "ProcessManager `" + this.mszProcessManagerKey + "` does not exist." );
         }
         RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm );
-        server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, rpcServer ) );
+        this.prepare_remote_process_control_transports( sys, server );
         this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
         this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
 
 
         this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_remote_process_control_transports( TritiumSystem sys, RemoteProcessManagerServer server ) {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "remoteProcessControl" );
+        JSONArray transportConfigs = null;
+        if ( controlConfig != null ) {
+            transportConfigs = controlConfig.optJSONArray( "transports" );
+        }
+
+        if ( transportConfigs == null || transportConfigs.isEmpty() ) {
+            this.hook_husky_remote_process_control_transport( sys, server, this.mszControlRPCDriverKey );
+            return;
+        }
+
+        for ( int i = 0; i < transportConfigs.length(); i++ ) {
+            JSONObject transportConfig = transportConfigs.optJSONObject( i );
+            if ( transportConfig == null ) {
+                throw new IrrationalProvokedException( "Remote process control transport config at index `" + i + "` is not object." );
+            }
+            if ( !transportConfig.optBoolean( "enable", true ) ) {
+                continue;
+            }
+
+            String szType = transportConfig.optString( "type", "" ).toLowerCase( Locale.ROOT );
+            if ( "husky".equals( szType ) ) {
+                String szDriver = transportConfig.optString( "driver", this.mszControlRPCDriverKey );
+                this.hook_husky_remote_process_control_transport( sys, server, szDriver );
+                continue;
+            }
+            if ( "grpc".equals( szType ) ) {
+                this.hook_grpc_remote_process_control_transport( server, transportConfig );
+                continue;
+            }
+
+            throw new IrrationalProvokedException( "Unknown remote process control transport type `" + szType + "`." );
+        }
+    }
+
+    protected void hook_husky_remote_process_control_transport( TritiumSystem sys, RemoteProcessManagerServer server, String szDriver ) {
+        UlfServer rpcServer = this.resolve_husky_rpc_server( sys, szDriver );
+        server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, rpcServer ) );
+        this.getLogger().info( "[RemoteProcessControlTransport] [Husky] (Driver: `{}`) <Hooked>", szDriver );
+    }
+
+    protected UlfServer resolve_husky_rpc_server( TritiumSystem sys, String szDriver ) {
+        Object component = null;
+        MessageNode messageNode = sys.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( szDriver );
+        if ( messageNode != null ) {
+            component = messageNode;
+        }
+        if ( component == null ) {
+            component = sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( szDriver );
+        }
+        if ( component instanceof UlfServer ) {
+            return (UlfServer) component;
+        }
+
+        throw new IrrationalProvokedException( "Control RPC driver `" + szDriver + "` does not exist or is not UlfServer." );
+    }
+
+    protected void hook_grpc_remote_process_control_transport( RemoteProcessManagerServer server, JSONObject transportConfig ) {
+        GrpcServerConfig grpcConfig = new GrpcServerConfig( transportConfig );
+        if ( !grpcConfig.isEnabled() ) {
+            return;
+        }
+
+        String szName = transportConfig.optString( "name", "OdinGrpcControlServer" );
+        long nMessageNodeId = transportConfig.optLong( "messageNodeId", grpcConfig.getPort() );
+        GrpcAppointServer grpcServer = new GrpcAppointServer( szName, nMessageNodeId, grpcConfig );
+
+        server.hookTransport(
+                new GrpcRemoteProcessControlTransportFactory().create(
+                        server,
+                        grpcServer,
+                        new GrpcRemoteProcessControlEventHooker( server.transportRegistry() )
+                )
+        );
+        this.mAutonomousGrpcServers.add( grpcServer );
+        this.getLogger().info( "[RemoteProcessControlTransport] [gRPC] (Name: `{}`, Port: `{}`) <Hooked>", szName, grpcConfig.getPort() );
     }
 
     protected void prepare_remote_process_server() {
@@ -176,7 +258,13 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     @Override
     public void terminate() {
-
+        if ( this.mTaskRegiment != null ) {
+            this.mTaskRegiment.remoteProcessManagerServer().terminateService();
+        }
+        for ( GrpcAppointServer grpcServer : this.mAutonomousGrpcServers ) {
+            grpcServer.shutdown();
+        }
+        this.mAutonomousGrpcServers.clear();
     }
 
 

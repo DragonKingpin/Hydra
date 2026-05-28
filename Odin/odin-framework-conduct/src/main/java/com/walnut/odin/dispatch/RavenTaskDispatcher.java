@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.RegimentJoinRejectionException;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
@@ -82,7 +83,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         }
 
         if ( entity.isLocal() ) {
-            throw new IllegalArgumentException( "Local processor `" + szProcessorName + "` cannot bind RPC control client." );
+            throw new RegimentJoinRejectionException( "Local processor `" + szProcessorName + "` cannot bind RPC control client." );
         }
 
         entity.setControlClientId( nClientId );

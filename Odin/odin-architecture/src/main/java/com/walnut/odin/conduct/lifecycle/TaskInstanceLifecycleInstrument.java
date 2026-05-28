@@ -23,4 +23,15 @@ public interface TaskInstanceLifecycleInstrument extends Instrument {
     TaskInstanceTransitionResult transitAny(
             GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus, TaskInstanceTransitionReason reason
     );
+
+    TaskInstanceTransitionResult transitAnyWithRuntimeFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            TaskInstanceTransitionReason reason,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    );
 }

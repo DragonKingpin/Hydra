@@ -55,16 +55,9 @@ public class KernelTaskInstanceLifecycleInstrument implements TaskInstanceLifecy
         if ( fromStatuses == null || fromStatuses.isEmpty() ) {
             return TaskInstanceTransitionResult.of( transition, 0 );
         }
-        if ( fromStatuses.size() == 1 ) {
-            nAffectedRows = this.mInstanceInstrument.transitStatus(
-                    transition.getInstanceGuid(), transition.getFromStatuses().iterator().next(), transition.getToStatus()
-            );
-        }
-        else {
-            nAffectedRows = this.mInstanceInstrument.transitStatusIn(
-                    transition.getInstanceGuid(), transition.getFromStatuses(), transition.getToStatus()
-            );
-        }
+        nAffectedRows = this.mInstanceInstrument.transitStatusInMonotonic(
+                transition.getInstanceGuid(), transition.getFromStatuses(), transition.getToStatus()
+        );
 
         TaskInstanceTransitionResult result = TaskInstanceTransitionResult.of( transition, nAffectedRows );
         if ( result.isSucceeded() ) {
@@ -86,8 +79,8 @@ public class KernelTaskInstanceLifecycleInstrument implements TaskInstanceLifecy
             TaskInstanceTransitionReason reason, LocalDateTime scheduleTime
     ) {
         TaskInstanceTransition transition = TaskInstanceTransition.of( instanceGuid, fromStatus, toStatus, reason );
-        int nAffectedRows = this.mInstanceInstrument.transitStatusWithScheduleTime(
-                instanceGuid, fromStatus, toStatus, scheduleTime
+        int nAffectedRows = this.mInstanceInstrument.transitStatusInMonotonicWithFields(
+                instanceGuid, transition.getFromStatuses(), toStatus, scheduleTime, null, null, null, null
         );
         TaskInstanceTransitionResult result = TaskInstanceTransitionResult.of( transition, nAffectedRows );
         if ( result.isSucceeded() ) {
@@ -101,5 +94,27 @@ public class KernelTaskInstanceLifecycleInstrument implements TaskInstanceLifecy
             GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus, TaskInstanceTransitionReason reason
     ) {
         return this.transit( TaskInstanceTransition.ofAny( instanceGuid, fromStatuses, toStatus, reason ) );
+    }
+
+    @Override
+    public TaskInstanceTransitionResult transitAnyWithRuntimeFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            TaskInstanceTransitionReason reason,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        TaskInstanceTransition transition = TaskInstanceTransition.ofAny( instanceGuid, fromStatuses, toStatus, reason );
+        int nAffectedRows = this.mInstanceInstrument.transitStatusInMonotonicWithFields(
+                instanceGuid, fromStatuses, toStatus, null, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+        TaskInstanceTransitionResult result = TaskInstanceTransitionResult.of( transition, nAffectedRows );
+        if ( result.isSucceeded() ) {
+            this.traceEvent( transition );
+        }
+        return result;
     }
 }

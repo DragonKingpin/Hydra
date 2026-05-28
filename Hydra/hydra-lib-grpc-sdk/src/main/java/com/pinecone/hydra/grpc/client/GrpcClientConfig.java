@@ -14,6 +14,7 @@ public class GrpcClientConfig extends JSONConfig implements PatriarchalConfig {
 
     private final long    idleTimeoutMillis;
     private final long    keepAliveTimeSeconds;
+    private final long    keepAliveTimeoutSeconds;
 
     private final boolean autoReconnect;
 
@@ -42,7 +43,12 @@ public class GrpcClientConfig extends JSONConfig implements PatriarchalConfig {
 
         this.idleTimeoutMillis = this.optLong( "idleTimeoutMillis", 30L );
 
-        this.keepAliveTimeSeconds = this.optLong( "keepAliveTimeoutSec", 30L );
+        this.keepAliveTimeSeconds = this.containsKey( "keepAliveTimeSec" )
+                ? this.optLong( "keepAliveTimeSec", 30L )
+                : this.optLong( "keepAliveTimeoutSec", 30L );
+        this.keepAliveTimeoutSeconds = this.containsKey( "keepAliveTimeSec" )
+                ? this.optLong( "keepAliveTimeoutSec", 10L )
+                : this.optLong( "keepAliveAckTimeoutSec", 10L );
 
         this.autoReconnect = this.optBoolean( "autoReconnect", true );
         this.enableHeartbeat = this.optBoolean( "enableHeartbeat", false );
@@ -72,6 +78,10 @@ public class GrpcClientConfig extends JSONConfig implements PatriarchalConfig {
 
     public long getKeepAliveTimeSeconds() {
         return this.keepAliveTimeSeconds;
+    }
+
+    public long getKeepAliveTimeoutSeconds() {
+        return this.keepAliveTimeoutSeconds;
     }
 
     public boolean isAutoReconnect() {

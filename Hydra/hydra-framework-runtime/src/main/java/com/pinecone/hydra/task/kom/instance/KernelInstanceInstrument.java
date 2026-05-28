@@ -126,6 +126,34 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public int transitStatusInMonotonic( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatusInMonotonic( instanceGuid, fromStatuses, toStatus );
+    }
+
+    @Override
+    public int transitStatusInMonotonicWithFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        return this.mInstanceManipulator.transitStatusInMonotonicWithFields(
+                instanceGuid, fromStatuses, toStatus, scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    @Override
+    public int resetForRetry(
+            GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime
+    ) {
+        return this.mInstanceManipulator.resetForRetry( instanceGuid, currentRetryCnt, expectTime, fireTime, scheduleTime );
+    }
+
+    @Override
     public long countInstanceByGuid( GUID taskGuid ) {
         return this.mInstanceManipulator.countInstanceByTaskGuid( taskGuid );
     }

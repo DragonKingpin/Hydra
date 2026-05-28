@@ -33,6 +33,7 @@ public class GrpcAppointClient implements AppointNodus {
 
         if( config.getKeepAliveTimeSeconds() > 0 ) {
             builder.keepAliveTime( config.getKeepAliveTimeSeconds(), TimeUnit.SECONDS );
+            builder.keepAliveTimeout( config.getKeepAliveTimeoutSeconds(), TimeUnit.SECONDS );
             builder.keepAliveWithoutCalls( true );
         }
 

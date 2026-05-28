@@ -30,6 +30,8 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
     Collection<Long> readyControlClientIds();
 
+    void markControlClientReady( long clientId );
+
     String openClientControlSession( long clientId );
 
     boolean isClientControlSession( long clientId, String szSessionGuid );
@@ -96,4 +98,3 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
     }
 
 }
-

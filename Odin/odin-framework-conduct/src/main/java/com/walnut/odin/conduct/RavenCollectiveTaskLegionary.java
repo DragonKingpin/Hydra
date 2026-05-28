@@ -39,7 +39,9 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
     protected Condition                       mRegimentRejoinCondition;
     protected boolean                         mbRegimentRejoining;
     protected boolean                         mbRegimentRejoinRequested;
+    protected boolean                         mbRegimentRejected;
     protected String                          mszRegimentRejoinReason;
+    protected String                          mszRegimentRejectedReason;
 
     protected Logger                           mLogger;
 
@@ -123,6 +125,9 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
 
         this.mRegimentRejoinLock.lock();
         try {
+            if ( this.mbRegimentRejected ) {
+                return;
+            }
             this.mbRegimentRejoinRequested = true;
             this.mszRegimentRejoinReason = szReason;
             this.mRegimentRejoinCondition.signalAll();
@@ -168,6 +173,10 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
             this.mRegimentRejoinLock.lock();
             try {
                 this.mbRegimentRejoining = false;
+                if ( this.mbRegimentRejected ) {
+                    this.mbRegimentRejoinRequested = false;
+                    return;
+                }
                 if ( this.mbRegimentRejoinRequested ) {
                     this.requestRejoinRegiment( this.mszRegimentRejoinReason );
                 }
@@ -205,6 +214,18 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
             return true;
         }
         catch ( RegimentException e ) {
+            if ( RegimentJoinInstructs.isApoptosis( e.getMessage() ) ) {
+                this.markRegimentRejected( e.getMessage() );
+                this.mLogger.error(
+                        "[NewProcessorRegister] (Reason: `{}`, name:`{}`, clientId:`{}`) <RejectedFatal>",
+                        szReason,
+                        this.mszNodeName,
+                        this.getClientId(),
+                        e
+                );
+                this.terminateAfterRegimentRejected();
+                return true;
+            }
             this.mLogger.warn(
                     "[NewProcessorRegister] (Reason: `{}`, name:`{}`, clientId:`{}`) <RejoinFailure>",
                     szReason,
@@ -213,6 +234,34 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
                     e
             );
             return false;
+        }
+    }
+
+    protected void markRegimentRejected( String szReason ) {
+        this.mRegimentRejoinLock.lock();
+        try {
+            this.mbRegimentRejected = true;
+            this.mszRegimentRejectedReason = szReason;
+            this.mbRegimentRejoinRequested = false;
+            this.mRegimentRejoinCondition.signalAll();
+        }
+        finally {
+            this.mRegimentRejoinLock.unlock();
+        }
+    }
+
+    protected void terminateAfterRegimentRejected() {
+        try {
+            this.mRemoteProcessManagerClient.terminateService();
+        }
+        catch ( Exception e ) {
+            this.mLogger.warn(
+                    "[NewProcessorRegister] (name:`{}`, clientId:`{}`, reason:`{}`) <RejectedTerminationFailure>",
+                    this.mszNodeName,
+                    this.getClientId(),
+                    this.mszRegimentRejectedReason,
+                    e
+            );
         }
     }
 

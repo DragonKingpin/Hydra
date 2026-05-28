@@ -101,6 +101,18 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
     @Override
+    public void markControlClientReady( long clientId ) {
+        this.mControlReadyLock.lock();
+        try {
+            this.mReadyClientIdSet.add( clientId );
+            this.mControlReadyCondition.signalAll();
+        }
+        finally {
+            this.mControlReadyLock.unlock();
+        }
+    }
+
+    @Override
     public String openClientControlSession( long clientId ) {
         String szSessionGuid = this.mGuidAllocator.nextGUID().toString();
         this.mControlReadyLock.lock();
@@ -683,4 +695,3 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     }
 
 }
-

@@ -52,7 +52,6 @@
         <include refid="TaskProcessorColumns"/>
         FROM odin_task_processor
         WHERE guid = #{guid}
-          AND enable = 1
     </select>
 
     <select id="selectByClusterName0" resultMap="TaskProcessorMap">
@@ -83,7 +82,8 @@
             queue_name,
             queue_max_capacity,
             queue_min_capacity,
-            queue_runtime_instance_capacity
+            queue_runtime_instance_capacity,
+            enable
         )
         VALUES
         (
@@ -98,7 +98,8 @@
             #{entity.queueName},
             #{entity.queueMaxCapacity},
             #{entity.queueMinCapacity},
-            #{entity.queueRuntimeInstanceCapacity}
+            #{entity.queueRuntimeInstanceCapacity},
+            #{entity.enable}
         )
     </insert>
 

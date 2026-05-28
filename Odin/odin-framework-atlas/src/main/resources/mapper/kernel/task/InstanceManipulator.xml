@@ -20,6 +20,28 @@
         <result column="finish_time"            property="finishTime"/>
     </resultMap>
 
+    <sql id="ExecStateOrderByCurrent">
+        CASE exec_state
+            WHEN 'Submitted' THEN 1
+            WHEN 'Running' THEN 2
+            WHEN 'Success' THEN 10
+            WHEN 'Fail' THEN 10
+            WHEN 'Killed' THEN 10
+            ELSE 0
+        END
+    </sql>
+
+    <sql id="ExecStateOrderByTarget">
+        CASE #{execState}
+            WHEN 'Submitted' THEN 1
+            WHEN 'Running' THEN 2
+            WHEN 'Success' THEN 10
+            WHEN 'Fail' THEN 10
+            WHEN 'Killed' THEN 10
+            ELSE 0
+        END
+    </sql>
+
     <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO odin_task_instance_exec (
             task_guid,
@@ -71,6 +93,27 @@
         FROM odin_task_instance_exec
         WHERE instance_guid = #{instanceGuid}
         LIMIT 1
+    </select>
+
+    <select id="fetchByInstanceGuid" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            instance_name,
+            processor_queue,
+            image_path,
+            cluster_name,
+            exec_state,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY current_retry_number DESC, id DESC
     </select>
 
     <select id="queryByInstanceGuidAndRetry" resultMap="InstanceExecMap">
@@ -158,6 +201,30 @@
         </set>
         WHERE instance_guid = #{instanceGuid}
           AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateStateRetryMonotonic">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+          AND current_retry_number = #{currentRetryNumber}
+          AND (
+              <include refid="ExecStateOrderByCurrent"/> <![CDATA[ < ]]> <include refid="ExecStateOrderByTarget"/>
+              OR exec_state = #{execState}
+          )
     </update>
 
     <update id="updateImagePathByInstanceGuidAndRetry">

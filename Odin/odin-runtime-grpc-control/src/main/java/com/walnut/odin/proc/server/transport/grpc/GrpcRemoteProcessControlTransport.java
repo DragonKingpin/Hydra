@@ -1,10 +1,14 @@
 package com.walnut.odin.proc.server.transport.grpc;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +30,8 @@ import com.walnut.odin.proc.server.transport.entity.TransportConnection;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.CommandResult;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrameType;
+import io.grpc.BindableService;
+import io.grpc.ServerInterceptors;
 
 public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTransport {
 
@@ -46,6 +52,8 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
     protected GrpcRemoteProcessFrameMapper      mFrameMapper;
 
     protected Object                            mProcessorLifecycleController;
+
+    protected ScheduledExecutorService          mHeartbeatGuardian;
 
     public GrpcRemoteProcessControlTransport( RemoteProcessManagerServer remoteProcessManagerServer,
                                               GrpcAppointServer grpcAppointServer,
@@ -85,6 +93,13 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
                 clientId -> new GrpcRemoteProcessControlClientile( clientId, this )
         );
         clientile.attachSession( session );
+        this.log.info(
+                "[GrpcControl] [SessionBind] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`, ActiveSessions: `{}`) <Done>",
+                session.clientId(),
+                session.sessionGuid(),
+                session.remoteAddress(),
+                clientile.sessions().size()
+        );
         if ( this.mEventHooker != null ) {
             this.mEventHooker.onClientInitialized( this, session.clientId() );
         }
@@ -94,12 +109,26 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
         GrpcRemoteProcessControlClientile clientile = this.mClientileMap.get( session.clientId() );
         if ( clientile != null ) {
             clientile.detachSession( session );
+            this.log.info(
+                    "[GrpcControl] [SessionDetach] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`, ActiveSessions: `{}`) <Done>",
+                    session.clientId(),
+                    session.sessionGuid(),
+                    session.remoteAddress(),
+                    clientile.sessions().size()
+            );
             if ( !clientile.isActive() ) {
                 this.mClientileMap.remove( session.clientId() );
-                if ( this.mEventHooker != null ) {
-                    this.mEventHooker.onClientDetached( this, session.clientId() );
-                }
+                this.log.info( "[GrpcControl] [ClientUnhook] (ClientId: `{}`) <Detached>", session.clientId() );
+                this.mRemoteProcessManagerServer.detachClient( session.clientId() );
             }
+        }
+        else {
+            this.log.warn(
+                    "[GrpcControl] [SessionDetach] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`) <MissingClient>",
+                    session.clientId(),
+                    session.sessionGuid(),
+                    session.remoteAddress()
+            );
         }
         session.close();
     }
@@ -127,7 +156,9 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             TransportConnection connection = new TransportConnection();
             connection.setType( "Session" );
             if ( session instanceof GrpcRemoteProcessControlSession ) {
-                connection.setIdentity( ( (GrpcRemoteProcessControlSession) session ).sessionGuid() );
+                GrpcRemoteProcessControlSession grpcSession = (GrpcRemoteProcessControlSession) session;
+                connection.setIdentity( grpcSession.sessionGuid() );
+                connection.setRemoteAddress( grpcSession.remoteAddress() );
             }
             else {
                 connection.setIdentity( session.getClass().getSimpleName() + "@" + System.identityHashCode( session ) );
@@ -140,8 +171,23 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
     }
 
     public void acceptClientFrame( GrpcRemoteProcessControlSession session, RemoteProcessControlFrame frame ) {
+        if ( session == null || !session.isActive() ) {
+            return;
+        }
+        session.touchActive();
         String szCorrelationGuid = frame.getCorrelationGuid();
         switch ( frame.getFrameType() ) {
+            case HEARTBEAT: {
+                session.touchHeartbeat();
+                this.log.debug(
+                        "[GrpcControl] [Heartbeat] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`, Status: `{}`) <Arrived>",
+                        session.clientId(),
+                        session.sessionGuid(),
+                        session.remoteAddress(),
+                        frame.getHeartbeat().getStatus()
+                );
+                break;
+            }
             case COMMAND_RESULT: {
                 this.mCorrelationWaiter.complete( szCorrelationGuid, frame.getCommandResult() );
                 break;
@@ -184,16 +230,94 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
         }
 
         try {
-            this.mGrpcAppointServer.serverBuilder().addService( new GrpcRemoteProcessControlService( this ) );
+            this.mGrpcAppointServer.serverBuilder().addService(
+                    ServerInterceptors.intercept(
+                            new GrpcRemoteProcessControlService( this ),
+                            new GrpcRemoteAddressServerInterceptor()
+                    )
+            );
             if ( this.mProcessorLifecycleController != null ) {
                 this.mGrpcAppointServer.serverBuilder().addService(
                         new GrpcProcessorLifecycleService( this.mProcessorLifecycleController )
                 );
             }
+            this.registerAdditionalGrpcServices();
             this.mGrpcAppointServer.execute();
+            this.startHeartbeatGuardian();
         }
         catch ( Exception e ) {
             throw new RemoteProcessServiceRPCException( e );
+        }
+    }
+
+    /**
+     * Instantiates and registers additional gRPC services listed in the
+     * {@code additionalGrpcServices} config section.  Each class is loaded
+     * via reflection and must either:
+     * <ol>
+     *   <li>Have a constructor accepting {@link GrpcRemoteProcessControlTransport}</li>
+     *   <li>Have a no-arg constructor</li>
+     * </ol>
+     * <p>The check mode determines failure behaviour:
+     * <ul>
+     *   <li>{@code strict} — throw on any error (default)</li>
+     *   <li>{@code warn} — log a warning and continue</li>
+     * </ul>
+     */
+    protected void registerAdditionalGrpcServices() throws RemoteProcessServiceRPCException {
+        List<String> classNames = this.mGrpcAppointServer.getConfig().getAdditionalGrpcServiceClassNames();
+        if ( classNames == null || classNames.isEmpty() ) {
+            return;
+        }
+
+        boolean bStrict = this.mGrpcAppointServer.getConfig().isAdditionalGrpcServicesStrictMode();
+
+        for ( String szClassName : classNames ) {
+            try {
+                Class<?> clazz = Class.forName( szClassName );
+                BindableService serviceInstance = this.instantiateGrpcService( clazz );
+                this.mGrpcAppointServer.serverBuilder().addService(
+                        ServerInterceptors.intercept( serviceInstance, new GrpcRemoteAddressServerInterceptor() )
+                );
+                this.log.info(
+                        "[GrpcControl] [AdditionalServiceRegistered] (ClassName: `{}`) <Done>",
+                        szClassName
+                );
+            }
+            catch ( Exception e ) {
+                if ( bStrict ) {
+                    throw new RemoteProcessServiceRPCException(
+                            "Failed to register additional gRPC service: " + szClassName, e
+                    );
+                }
+                this.log.warn(
+                        "[GrpcControl] [AdditionalServiceFailed] (ClassName: `{}`, CheckMode: `warn`) <Skipped>: {}",
+                        szClassName,
+                        e.getMessage()
+                );
+            }
+        }
+    }
+
+    protected BindableService instantiateGrpcService( Class<?> clazz ) throws Exception {
+        // Try constructor(GrpcRemoteProcessControlTransport) first
+        try {
+            Constructor<?> ctor = clazz.getConstructor( GrpcRemoteProcessControlTransport.class );
+            return (BindableService) ctor.newInstance( this );
+        }
+        catch ( NoSuchMethodException ignored ) {
+            // fall through to try no-arg
+        }
+
+        // Try no-arg constructor
+        try {
+            Constructor<?> ctor = clazz.getConstructor();
+            return (BindableService) ctor.newInstance();
+        }
+        catch ( NoSuchMethodException e ) {
+            throw new IllegalArgumentException(
+                    "Class " + clazz.getName() + " must have a constructor( GrpcRemoteProcessControlTransport ) or a no-arg constructor."
+            );
         }
     }
 
@@ -204,6 +328,7 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
         }
 
         this.mGrpcAppointServer.shutdown();
+        this.stopHeartbeatGuardian();
     }
 
     @Override
@@ -295,6 +420,12 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
     protected Object sendAndAwait( long clientId, RemoteProcessControlFrame frame ) throws Exception {
         GrpcRemoteProcessControlSession session = this.resolveActiveSession( clientId );
         if ( session == null ) {
+            this.log.warn(
+                    "[GrpcControl] [CommandDispatch] (ClientId: `{}`, Type: `{}`, Correlation: `{}`) <NoActiveSession>",
+                    clientId,
+                    frame.getFrameType(),
+                    frame.getCorrelationGuid()
+            );
             throw new GrpcRemoteProcessControlException( "No active gRPC client session: " + clientId );
         }
         this.mCorrelationWaiter.prepare( frame.getCorrelationGuid() );
@@ -313,6 +444,82 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             }
         }
         return null;
+    }
+
+    protected void startHeartbeatGuardian() {
+        if ( !this.mGrpcAppointServer.getConfig().isEnableHeartbeat() ) {
+            return;
+        }
+        long nHeartbeatIntervalMillis = this.mGrpcAppointServer.getConfig().getHeartbeatIntervalMillis();
+        if ( nHeartbeatIntervalMillis <= 0 ) {
+            return;
+        }
+        if ( this.mHeartbeatGuardian != null ) {
+            return;
+        }
+        this.mHeartbeatGuardian = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "odin-grpc-heartbeat-guardian" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mHeartbeatGuardian.scheduleAtFixedRate(
+                this::evictSilentSessions,
+                nHeartbeatIntervalMillis,
+                nHeartbeatIntervalMillis,
+                TimeUnit.MILLISECONDS
+        );
+        this.log.info(
+                "[GrpcControl] [HeartbeatGuardian] (IntervalMillis: `{}`, IdleTimeoutMillis: `{}`) <Started>",
+                nHeartbeatIntervalMillis,
+                this.controlIdleTimeoutMillis()
+        );
+    }
+
+    protected void stopHeartbeatGuardian() {
+        if ( this.mHeartbeatGuardian == null ) {
+            return;
+        }
+        this.mHeartbeatGuardian.shutdownNow();
+        this.mHeartbeatGuardian = null;
+        this.log.info( "[GrpcControl] [HeartbeatGuardian] <Stopped>" );
+    }
+
+    protected void evictSilentSessions() {
+        long nNow = System.currentTimeMillis();
+        long nIdleTimeoutMillis = this.controlIdleTimeoutMillis();
+        for ( GrpcRemoteProcessControlClientile clientile : this.mClientileMap.values() ) {
+            for ( RemoteProcessControlSession controlSession : clientile.sessions() ) {
+                if ( !( controlSession instanceof GrpcRemoteProcessControlSession ) ) {
+                    continue;
+                }
+                GrpcRemoteProcessControlSession session = (GrpcRemoteProcessControlSession) controlSession;
+                if ( !session.isActive() ) {
+                    continue;
+                }
+                long nSilentMillis = nNow - session.lastActiveTimeMillis();
+                if ( nSilentMillis <= nIdleTimeoutMillis ) {
+                    continue;
+                }
+                this.log.warn(
+                        "[GrpcControl] [HeartbeatTimeout] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`, SilentMillis: `{}`, IdleTimeoutMillis: `{}`, LastActiveTimeMillis: `{}`, LastHeartbeatTimeMillis: `{}`) <Detach>",
+                        session.clientId(),
+                        session.sessionGuid(),
+                        session.remoteAddress(),
+                        nSilentMillis,
+                        nIdleTimeoutMillis,
+                        session.lastActiveTimeMillis(),
+                        session.lastHeartbeatTimeMillis()
+                );
+                session.closeByServer( "ODIN_GRPC_HEARTBEAT_TIMEOUT" );
+                this.detachClientSession( session );
+            }
+        }
+    }
+
+    protected long controlIdleTimeoutMillis() {
+        long nHeartbeatIntervalMillis = this.mGrpcAppointServer.getConfig().getHeartbeatIntervalMillis();
+        long nKeepAliveTimeoutMillis = this.mGrpcAppointServer.getConfig().getKeepAliveTimeoutSeconds() * 1000L;
+        return nHeartbeatIntervalMillis * 3L + nKeepAliveTimeoutMillis;
     }
 
 }

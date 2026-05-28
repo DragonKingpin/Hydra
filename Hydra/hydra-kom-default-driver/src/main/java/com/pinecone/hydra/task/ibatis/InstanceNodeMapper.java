@@ -164,6 +164,61 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return this.transitStatusIn0( instanceGuid, szFromStatuses, toStatus.getName() );
     }
 
+    int transitStatusInMonotonic0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus
+    );
+
+    @Override
+    default int transitStatusInMonotonic( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonic0( instanceGuid, szFromStatuses, toStatus.getName() );
+    }
+
+    int transitStatusInMonotonicWithFields0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "latestStartTime" ) LocalDateTime latestStartTime,
+            @Param( "latestEndTime" ) LocalDateTime latestEndTime,
+            @Param( "finishTime" ) LocalDateTime finishTime,
+            @Param( "errorCause" ) String szErrorCause
+    );
+
+    @Override
+    default int transitStatusInMonotonicWithFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonicWithFields0(
+                instanceGuid, szFromStatuses, toStatus.getName(), scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    int resetForRetry0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "currentRetryCnt" ) int nCurrentRetryCnt,
+            @Param( "expectTime" ) LocalDateTime expectTime,
+            @Param( "fireTime" ) LocalDateTime fireTime,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime
+    );
+
+    @Override
+    default int resetForRetry(
+            GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime
+    ) {
+        return this.resetForRetry0( instanceGuid, currentRetryCnt, expectTime, fireTime, scheduleTime );
+    }
+
     long countInstanceByTaskGuid( GUID taskGuid );
 
     GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );

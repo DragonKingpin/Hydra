@@ -126,6 +126,44 @@
         </where>
     </sql>
 
+    <sql id="StatusOrderByRunStatus">
+        CASE run_status
+            WHEN 'New' THEN 1
+            WHEN 'DependencyWait' THEN 2
+            WHEN 'ResourceWait' THEN 3
+            WHEN 'DepartureStandby' THEN 4
+            WHEN 'ProcessCreating' THEN 5
+            WHEN 'ProcessStandby' THEN 6
+            WHEN 'Running' THEN 10
+            WHEN 'Audit' THEN 11
+            WHEN 'Suspended' THEN 20
+            WHEN 'Finished' THEN 30
+            WHEN 'Killed' THEN 40
+            WHEN 'Error' THEN 50
+            WHEN 'AuditFailed' THEN 51
+            ELSE 0
+        END
+    </sql>
+
+    <sql id="StatusOrderByToStatus">
+        CASE #{toStatus}
+            WHEN 'New' THEN 1
+            WHEN 'DependencyWait' THEN 2
+            WHEN 'ResourceWait' THEN 3
+            WHEN 'DepartureStandby' THEN 4
+            WHEN 'ProcessCreating' THEN 5
+            WHEN 'ProcessStandby' THEN 6
+            WHEN 'Running' THEN 10
+            WHEN 'Audit' THEN 11
+            WHEN 'Suspended' THEN 20
+            WHEN 'Finished' THEN 30
+            WHEN 'Killed' THEN 40
+            WHEN 'Error' THEN 50
+            WHEN 'AuditFailed' THEN 51
+            ELSE 0
+        END
+    </sql>
+
     <!-- ========================================================== -->
     <!-- ResultMap -->
     <!-- ========================================================== -->
@@ -357,6 +395,71 @@
         <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
             #{fromStatus}
         </foreach>
+
+    </update>
+
+    <update id="transitStatusInMonotonic0">
+
+        UPDATE hydra_task_instances
+        SET run_status = #{toStatus},
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND run_status IN
+        <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
+            #{fromStatus}
+        </foreach>
+          AND <include refid="StatusOrderByRunStatus"/> <![CDATA[ <= ]]> <include refid="StatusOrderByToStatus"/>
+
+    </update>
+
+    <update id="transitStatusInMonotonicWithFields0">
+
+        UPDATE hydra_task_instances
+        <set>
+            run_status = #{toStatus},
+            <if test="scheduleTime != null">
+                schedule_time = #{scheduleTime},
+            </if>
+            <if test="latestStartTime != null">
+                latest_start_time = #{latestStartTime},
+            </if>
+            <if test="latestEndTime != null">
+                latest_end_time = #{latestEndTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="errorCause != null and errorCause != ''">
+                error_cause = #{errorCause},
+            </if>
+            update_time = CURRENT_TIMESTAMP
+        </set>
+        WHERE guid = #{instanceGuid}
+          AND run_status IN
+        <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
+            #{fromStatus}
+        </foreach>
+          AND <include refid="StatusOrderByRunStatus"/> <![CDATA[ <= ]]> <include refid="StatusOrderByToStatus"/>
+
+    </update>
+
+    <update id="resetForRetry0">
+
+        UPDATE hydra_task_instances
+        SET
+            retry_cnt = retry_cnt + 1,
+            run_status = 'New',
+            expect_time = #{expectTime},
+            fire_time = #{fireTime},
+            schedule_time = #{scheduleTime},
+            latest_start_time = NULL,
+            latest_end_time = NULL,
+            finish_time = NULL,
+            error_cause = NULL,
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND retry_cnt = #{currentRetryCnt}
+          AND run_status IN ('Finished', 'Killed', 'Error', 'AuditFailed')
 
     </update>
 

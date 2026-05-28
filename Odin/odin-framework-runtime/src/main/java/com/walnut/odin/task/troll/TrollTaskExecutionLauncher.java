@@ -245,7 +245,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             LocalDateTime startTime, LocalDateTime runTime, LocalDateTime finishTime
     ) {
         InstanceEntry entry = instance.getInstanceEntry();
-        this.mInstanceExecMapper.updateStateByInstanceGuidAndRetryFields(
+        this.mInstanceExecMapper.updateStateRetryMonotonic(
                 entry.getGuid(), entry.getRetryCnt(), state.getName(), startTime, runTime, finishTime
         );
     }
@@ -278,25 +278,24 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             return;
         }
 
-        try {
-            entry.setErrorCause( szCause );
-            instance.update();
-        }
-        catch ( MetaPersistenceException e ) {
-            this.mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException] (Instance: `{}`) <Error>", entry.getGuid(), e );
-        }
-
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
+        LocalDateTime now = LocalDateTime.now();
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
                 entry.getGuid(),
                 List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
                 TaskInstanceStatus.Error,
-                TaskInstanceTransitionReason.ProcessCreationFailed
+                TaskInstanceTransitionReason.ProcessCreationFailed,
+                null,
+                now,
+                now,
+                szCause
         );
         if ( result.isSucceeded() ) {
             entry.setInstanceStatus( TaskInstanceStatus.Error );
+            entry.setErrorCause( szCause );
+            entry.setLastEndTime( now );
+            entry.setFinishTime( now );
+            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
-
-        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
     }
 
     protected void markProcessCreationFailedIfNecessary( RavenTaskInstance instance, Exception cause ) {
@@ -526,25 +525,24 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             szCause = cause.getClass().getName();
         }
 
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
+        LocalDateTime now = LocalDateTime.now();
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
                 entry.getGuid(),
                 List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
                 TaskInstanceStatus.Error,
-                TaskInstanceTransitionReason.ProcessFailed
+                TaskInstanceTransitionReason.ProcessFailed,
+                null,
+                now,
+                now,
+                szCause
         );
         if ( result.isSucceeded() ) {
             entry.setInstanceStatus( TaskInstanceStatus.Error );
-        }
-        try {
             entry.setErrorCause( szCause );
-            entry.setLastEndTime( LocalDateTime.now() );
-            entry.setInstanceStatus( TaskInstanceStatus.Error );
-            instance.update();
+            entry.setLastEndTime( now );
+            entry.setFinishTime( now );
+            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
-        catch ( MetaPersistenceException e ) {
-            this.mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException] (Instance: `{}`) <Error>", entry.getGuid(), e );
-        }
-        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
         this.mLogger.error(
                 "[TaskLaunchSequence] [ProcessStartFailure] (Process: `{}`, PID: `{}`, Instance: `{}`) <Error>",
                 process == null ? null : process.getName(),
@@ -555,71 +553,71 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     }
 
     protected void afterOwnedProcessFinished( RavenTaskInstance instance, UProcess process ) {
-        try {
-            if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Finished ) {
-                return;
-            }
-            this.mTaskInstanceLifecycleInstrument.transitAny(
-                    instance.getInstanceEntry().getGuid(),
-                    List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
-                    TaskInstanceStatus.Finished,
-                    TaskInstanceTransitionReason.ProcessSucceeded
-            );
-            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Finished );
-            instance.getInstanceEntry().setLastEndTime( LocalDateTime.now() );
-            instance.update();
-            this.updateExecutionState( instance, TaskInstanceExecState.Success, null, null, LocalDateTime.now() );
+        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Finished ) {
+            return;
         }
-        catch ( MetaPersistenceException e ) {
-            mLogger.error(
-                    "[TaskLaunchSequence] [MetaPersistenceException] (Process: `{}`, PID: `{}`) <Error>", process.getName(), process.getPID()
-            );
-            mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException: `{}`]", e );
+        LocalDateTime now = LocalDateTime.now();
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+                instance.getInstanceEntry().getGuid(),
+                List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                TaskInstanceStatus.Finished,
+                TaskInstanceTransitionReason.ProcessSucceeded,
+                null,
+                now,
+                now,
+                null
+        );
+        if ( result.isSucceeded() ) {
+            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Finished );
+            instance.getInstanceEntry().setLastEndTime( now );
+            instance.getInstanceEntry().setFinishTime( now );
+            this.updateExecutionState( instance, TaskInstanceExecState.Success, null, null, now );
         }
     }
 
     protected void afterOwnedProcessFailed( RavenTaskInstance instance, UProcess process, Object caused ) {
-        try {
-            if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
-                return;
-            }
-            this.mTaskInstanceLifecycleInstrument.transitAny(
-                    instance.getInstanceEntry().getGuid(),
-                    List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
-                    TaskInstanceStatus.Error,
-                    TaskInstanceTransitionReason.ProcessFailed
-            );
-            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Error );
-            instance.getInstanceEntry().setLastEndTime( LocalDateTime.now() );
-            if ( caused != null ) {
-                instance.getInstanceEntry().setErrorCause( String.valueOf( caused ) );
-            }
-            instance.update();
-            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, LocalDateTime.now() );
+        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
+            return;
         }
-        catch ( MetaPersistenceException e ) {
-            mLogger.error(
-                    "[TaskLaunchSequence] [MetaPersistenceException] (Process: `{}`, PID: `{}`) <Error>", process.getName(), process.getPID()
-            );
-            mLogger.error( "[TaskLaunchSequence] [MetaPersistenceException: `{}`]", e );
+        LocalDateTime now = LocalDateTime.now();
+        String szCause = caused == null ? null : String.valueOf( caused );
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+                instance.getInstanceEntry().getGuid(),
+                List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                TaskInstanceStatus.Error,
+                TaskInstanceTransitionReason.ProcessFailed,
+                null,
+                now,
+                now,
+                szCause
+        );
+        if ( result.isSucceeded() ) {
+            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Error );
+            instance.getInstanceEntry().setLastEndTime( now );
+            instance.getInstanceEntry().setFinishTime( now );
+            if ( szCause != null ) {
+                instance.getInstanceEntry().setErrorCause( szCause );
+            }
+            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
     }
 
     protected void afterOwnedProcessStarted( RavenTaskInstance instance, UProcess process ) throws InstanceLaunchException {
-        try {
-            this.mTaskInstanceLifecycleInstrument.transitAny(
-                    instance.getInstanceEntry().getGuid(),
-                    List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating ),
-                    TaskInstanceStatus.Running,
-                    TaskInstanceTransitionReason.ProcessStarted
-            );
+        LocalDateTime now = LocalDateTime.now();
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+                instance.getInstanceEntry().getGuid(),
+                List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating ),
+                TaskInstanceStatus.Running,
+                TaskInstanceTransitionReason.ProcessStarted,
+                now,
+                null,
+                null,
+                null
+        );
+        if ( result.isSucceeded() ) {
             instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Running );
-            instance.getInstanceEntry().setLastStartTime( LocalDateTime.now() );
-            instance.update();
-            this.updateExecutionState( instance, TaskInstanceExecState.Running, null, LocalDateTime.now(), null );
-        }
-        catch ( MetaPersistenceException e ) {
-            throw new InstanceLaunchException( e );
+            instance.getInstanceEntry().setLastStartTime( now );
+            this.updateExecutionState( instance, TaskInstanceExecState.Running, null, now, null );
         }
     }
 

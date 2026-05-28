@@ -275,6 +275,10 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     public RegimentJoinResponse invokeJoinRegiment( RegimentJoinRequest request ) {
         RegimentJoinResponse response = new RegimentJoinResponse();
         try {
+            if ( request == null ) {
+                throw new IllegalArgumentException( "RegimentJoinRequest is null." );
+            }
+
             TaskProcessorEntity entity = this.mTaskDispatcher.registerProcessor( request.getNodeName(), request.getClientId() );
 
             response.setGuid( entity.getGuid().toString() );
@@ -299,11 +303,43 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
                     queueMeta.getMaxCapacity(), queueMeta.getRuntimeInstanceCapacity()
             );
         }
+        catch ( RegimentJoinRejectionException e ) {
+            response.setErrorMsg( RegimentJoinInstructs.apoptosis( e.getMessage() ) );
+            this.mLogger.warn(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <RejectedApoptosis>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), response.getErrorMsg()
+            );
+        }
         catch ( IllegalArgumentException e ) {
             response.setErrorMsg( e.getMessage() );
+            this.mLogger.warn(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <Rejected>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), e.getMessage()
+            );
+        }
+        catch ( Exception e ) {
+            response.setErrorMsg( e.getMessage() == null ? e.getClass().getName() : e.getMessage() );
+            this.mLogger.error(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <Compromised>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), response.getErrorMsg(), e
+            );
         }
 
         return response;
+    }
+
+    protected String getJoinRequestNodeName( RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return "undefined";
+        }
+        return request.getNodeName();
+    }
+
+    protected long getJoinRequestClientId( RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return 0;
+        }
+        return request.getClientId();
     }
 
 

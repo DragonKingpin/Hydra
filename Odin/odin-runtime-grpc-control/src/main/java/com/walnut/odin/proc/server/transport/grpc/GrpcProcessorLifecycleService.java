@@ -2,11 +2,16 @@ package com.walnut.odin.proc.server.transport.grpc;
 
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pinecone.framework.system.prototype.Pinenut;
 
 import io.grpc.stub.StreamObserver;
 
 public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.transport.grpc.legionary.ProcessorLifecycleGrpc.ProcessorLifecycleImplBase implements Pinenut {
+
+    protected Logger mLogger = LoggerFactory.getLogger( this.getClass() );
 
     protected Object mProcessorLifecycleController;
 
@@ -26,13 +31,19 @@ public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.t
             com.walnut.odin.conduct.entity.RegimentJoinResponse response = this.invokeJoinRegiment(
                     this.toConductRequest( request )
             );
+            this.logRejectedResponseIfNecessary( request, response );
             responseObserver.onNext( this.toGrpcResponse( response ) );
             responseObserver.onCompleted();
         }
         catch ( Exception e ) {
+            String szReason = e.getMessage() == null ? e.getClass().getName() : e.getMessage();
+            this.mLogger.error(
+                    "[ProcessorLifecycleGrpc] [JoinRegiment] ( nodeName:`{}`, clientId:`{}`, reason:`{}` ) <Exception>",
+                    this.getRequestNodeName( request ), this.getRequestClientId( request ), szReason, e
+            );
             responseObserver.onNext(
                     com.walnut.odin.proc.server.transport.grpc.legionary.RegimentJoinResponse.newBuilder()
-                            .setErrorMsg( e.getMessage() == null ? e.getClass().getName() : e.getMessage() )
+                            .setErrorMsg( szReason )
                             .build()
             );
             responseObserver.onCompleted();
@@ -61,6 +72,12 @@ public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.t
         if ( this.mProcessorLifecycleController == null || this.mJoinRegimentMethod == null ) {
             com.walnut.odin.conduct.entity.RegimentJoinResponse response = new com.walnut.odin.conduct.entity.RegimentJoinResponse();
             response.setErrorMsg( "ProcessorLifecycleController is not registered." );
+            this.mLogger.warn(
+                    "[ProcessorLifecycleGrpc] [JoinRegiment] ( nodeName:`{}`, clientId:`{}`, reason:`{}` ) <ControllerLost>",
+                    request == null ? "undefined" : request.getNodeName(),
+                    request == null ? 0 : request.getClientId(),
+                    response.getErrorMsg()
+            );
             return response;
         }
 
@@ -74,10 +91,34 @@ public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.t
         return response;
     }
 
+    protected void logRejectedResponseIfNecessary(
+            com.walnut.odin.proc.server.transport.grpc.legionary.RegimentJoinRequest request,
+            com.walnut.odin.conduct.entity.RegimentJoinResponse response
+    ) {
+        if ( response == null || response.getErrorMsg() == null || response.getErrorMsg().isBlank() ) {
+            return;
+        }
+        if ( this.isControllerLostResponse( response ) ) {
+            return;
+        }
+
+        this.mLogger.warn(
+                "[ProcessorLifecycleGrpc] [JoinRegiment] ( nodeName:`{}`, clientId:`{}`, reason:`{}` ) <Rejected>",
+                this.getRequestNodeName( request ), this.getRequestClientId( request ), response.getErrorMsg()
+        );
+    }
+
+    protected boolean isControllerLostResponse( com.walnut.odin.conduct.entity.RegimentJoinResponse response ) {
+        return "ProcessorLifecycleController is not registered.".equals( response.getErrorMsg() );
+    }
+
     protected com.walnut.odin.conduct.entity.RegimentJoinRequest toConductRequest(
             com.walnut.odin.proc.server.transport.grpc.legionary.RegimentJoinRequest request
     ) {
         com.walnut.odin.conduct.entity.RegimentJoinRequest conductRequest = new com.walnut.odin.conduct.entity.RegimentJoinRequest();
+        if ( request == null ) {
+            return conductRequest;
+        }
         conductRequest.setNodeName( request.getNodeName() );
         conductRequest.setClientId( request.getClientId() );
         return conductRequest;
@@ -109,5 +150,19 @@ public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.t
 
     protected String valueOf( String value ) {
         return value == null ? "" : value;
+    }
+
+    protected String getRequestNodeName( com.walnut.odin.proc.server.transport.grpc.legionary.RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return "undefined";
+        }
+        return request.getNodeName();
+    }
+
+    protected long getRequestClientId( com.walnut.odin.proc.server.transport.grpc.legionary.RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return 0;
+        }
+        return request.getClientId();
     }
 }

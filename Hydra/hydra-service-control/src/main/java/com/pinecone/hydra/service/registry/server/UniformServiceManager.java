@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -304,7 +305,20 @@ public class UniformServiceManager implements ServiceManager {
             String ip = "";
             if ( remote instanceof InetSocketAddress ) {
                 InetSocketAddress inet = (InetSocketAddress) remote;
-                ip = inet.getAddress().getHostAddress();
+                ip = this.getInetSocketHost( inet );
+            }
+
+            ServiceInstance existing = this.mCIdInstanceRegistry.get( clientId );
+            if ( existing != null ) {
+                GUID existingGuid = this.affirmExistingRegistration(
+                        existing,
+                        serviceDTO,
+                        serviceId,
+                        deployGuid,
+                        remote
+                );
+                this.mLogger.info( "Remote serviceInstance {} register idempotently. <IP:{}>", existingGuid, ip );
+                return existingGuid;
             }
 
             ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote ); // new
@@ -318,6 +332,82 @@ public class UniformServiceManager implements ServiceManager {
 
             return element.getGuid();
         }
+    }
+
+    protected GUID affirmExistingRegistration(
+            ServiceInstance existing,
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) throws ClientServiceRegisterException {
+        if ( !Objects.equals( existing.getServiceId(), serviceId ) ) {
+            throw new ClientServiceRegisterException(
+                    "Client " + serviceDTO.getClientId() + " has registered another service, existing => `"
+                            + existing.getServiceId() + "`, request => `" + serviceId + "`."
+            );
+        }
+
+        ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( (GUID) existing.getId() );
+        if ( entry == null ) {
+            return (GUID) existing.getId();
+        }
+
+        String remoteAddress = remote == null ? "" : remote.toString();
+        String endpointHost = "";
+        Integer endpointPort = null;
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = this.getInetSocketHost( inet );
+            endpointPort = inet.getPort();
+        }
+
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+        this.assertSameRegistrationValue( "transportType", entry.getTransportType(), szTransportType );
+        this.assertSameRegistrationValue(
+                "endpointProtocol",
+                entry.getEndpointProtocol(),
+                this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType )
+        );
+        this.assertSameRegistrationValue(
+                "endpointHost",
+                entry.getEndpointHost(),
+                this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost )
+        );
+        this.assertSameRegistrationValue(
+                "endpointPort",
+                entry.getEndpointPort(),
+                serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort()
+        );
+        this.assertSameRegistrationValue( "endpointPath", entry.getEndpointPath(), serviceDTO.getEndpointPath() );
+        this.assertSameRegistrationValue(
+                "endpointAddress",
+                entry.getEndpointAddress(),
+                this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress )
+        );
+        this.assertSameRegistrationValue( "version", entry.getVersion(), serviceDTO.getVersion() );
+        this.assertSameRegistrationValue( "zone", entry.getZone(), serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            this.assertSameRegistrationValue( "weight", entry.getWeight(), serviceDTO.getWeight() );
+        }
+        this.assertSameRegistrationValue( "metadataJson", entry.getMetadataJson(), serviceDTO.getMetadataJson() );
+
+        if ( !ServiceInstanceStatus.Online.getName().equals( entry.getStatus() ) ) {
+            this.updateServiceInstanceStatus( entry.getGuid(), ServiceInstanceStatus.Online );
+        }
+        return entry.getGuid();
+    }
+
+    protected void assertSameRegistrationValue( String szName, Object existing, Object requested )
+            throws ClientServiceRegisterException {
+        if ( Objects.equals( existing, requested ) ) {
+            return;
+        }
+        throw new ClientServiceRegisterException(
+                "Client registration conflicts on `" + szName + "`, existing => `" + existing
+                        + "`, request => `" + requested + "`."
+        );
     }
 
     protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceInstanceStatus status ) {
@@ -512,7 +602,7 @@ public class UniformServiceManager implements ServiceManager {
         }
         if ( remote instanceof InetSocketAddress ) {
             InetSocketAddress inet = (InetSocketAddress) remote;
-            endpointHost = inet.getAddress().getHostAddress();
+            endpointHost = this.getInetSocketHost( inet );
             endpointPort = inet.getPort();
         }
 
@@ -549,6 +639,16 @@ public class UniformServiceManager implements ServiceManager {
             return szDefault;
         }
         return szValue;
+    }
+
+    protected String getInetSocketHost( InetSocketAddress inet ) {
+        if ( inet == null ) {
+            return "";
+        }
+        if ( inet.getAddress() != null ) {
+            return inet.getAddress().getHostAddress();
+        }
+        return inet.getHostString();
     }
 
 

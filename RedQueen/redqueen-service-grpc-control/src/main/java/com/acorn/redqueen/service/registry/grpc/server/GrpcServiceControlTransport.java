@@ -78,6 +78,13 @@ public class GrpcServiceControlTransport implements ServiceControlTransport {
                 clientId -> new GrpcServiceControlClientile( session.clientId() )
         );
         clientile.attachSession( session );
+        this.mServiceManager.serviceEventHooker().afterNewConnectionInbound(
+                session.clientId(),
+                session.sessionGuid(),
+                session,
+                this,
+                () -> clientile
+        );
         this.mServiceManager.transportRegistry().bindClient( session.clientId(), this );
         this.mLogger.info(
                 "[GrpcServiceControl] [SessionBind] (ClientId: `{}`, Session: `{}`, RemoteAddress: `{}`) <Done>",
@@ -97,10 +104,13 @@ public class GrpcServiceControlTransport implements ServiceControlTransport {
             clientile.detachSession( session );
             if ( !clientile.isActive() ) {
                 this.mClientileMap.remove( session.clientId() );
-                this.mServiceManager.transportRegistry().detachClient( session.clientId() );
-                this.mServiceManager.deregisterServiceInstance( session.clientId() );
             }
         }
+        this.mServiceManager.serviceEventHooker().afterConnectionDetach(
+                session.clientId(),
+                session.sessionGuid(),
+                session
+        );
         session.close();
         this.mLogger.info(
                 "[GrpcServiceControl] [SessionDetach] (ClientId: `{}`, Session: `{}`, Instance: `{}`) <Done>",

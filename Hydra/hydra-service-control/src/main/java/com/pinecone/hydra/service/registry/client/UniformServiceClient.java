@@ -41,7 +41,9 @@ public class UniformServiceClient extends ArchServiceClient {
     @Override
     protected void initRPCSubsystem() throws ServiceControlRPCException {
         try {
-            this.mTransport.connect();
+            if ( !this.mTransport.isReady() ) {
+                this.mTransport.connect();
+            }
             this.mLifecyclePort = this.mTransport.getPort( ServiceLifecyclePort.class );
             this.mMetaPort = this.mTransport.getPort( ServiceMetaPort.class );
             this.mbTerminated = false;

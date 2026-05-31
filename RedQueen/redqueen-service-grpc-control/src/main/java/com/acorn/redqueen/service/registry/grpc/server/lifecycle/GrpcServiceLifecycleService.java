@@ -60,13 +60,20 @@ public class GrpcServiceLifecycleService extends ServiceControlGrpc.ServiceContr
                     this.dispatchFrame( frame );
                 }
                 catch ( Exception e ) {
+                    GrpcServiceLifecycleService.this.mLogger.warn(
+                            "[GrpcServiceControl] [FrameDispatch] (ClientId: `{}`, Session: `{}`, Type: `{}`) <Failure>",
+                            this.mSession.clientId(),
+                            this.mSession.sessionGuid(),
+                            frame.getFrameType(),
+                            e
+                    );
                     responseObserver.onNext(
                             GrpcServiceLifecycleService.this.mTransport.frameMapper().errorFrame(
                                     frame,
                                     this.mSession.clientId(),
                                     this.mSession.sessionGuid(),
                                     e.getClass().getSimpleName(),
-                                    String.valueOf( e.getMessage() )
+                                    GrpcServiceLifecycleService.this.stringifyThrowable( e )
                             )
                     );
                 }
@@ -84,6 +91,17 @@ public class GrpcServiceLifecycleService extends ServiceControlGrpc.ServiceContr
             }
 
             protected void bindSession( ServiceControlFrame frame, StreamObserver<ServiceControlFrame> responseObserver ) {
+                if ( this.mSession != null && this.mSession.isActive() ) {
+                    this.mSession.touchActive();
+                    this.mSession.send(
+                            GrpcServiceLifecycleService.this.mTransport.frameMapper().clientReadyFrame(
+                                    frame,
+                                    this.mSession
+                            )
+                    );
+                    return;
+                }
+
                 long nClientId = frame.getClientId();
                 if ( frame.hasClientMuster() && frame.getClientMuster().getClientId() > 0 ) {
                     nClientId = frame.getClientMuster().getClientId();

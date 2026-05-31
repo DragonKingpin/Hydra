@@ -23,9 +23,13 @@ public class HuskyServiceLifecyclePort implements ServiceLifecyclePort {
             ServiceLifecycleIface lifecycleIface,
             HuskyServiceLifecycleTransformer transformer
     ) {
+        this.bind( nClientId, lifecycleIface );
+        this.mTransformer = transformer;
+    }
+
+    public void bind( long nClientId, ServiceLifecycleIface lifecycleIface ) {
         this.mnClientId = nClientId;
         this.mLifecycleIface = lifecycleIface;
-        this.mTransformer = transformer;
     }
 
     @Override

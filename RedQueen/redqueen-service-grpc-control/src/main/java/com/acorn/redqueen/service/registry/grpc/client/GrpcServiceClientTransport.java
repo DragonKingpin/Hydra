@@ -300,6 +300,15 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
             return;
         }
 
+        try {
+            if ( this.mGrpcAppointClient.isShutdown() ) {
+                this.mGrpcAppointClient.execute();
+            }
+        }
+        catch ( Exception e ) {
+            throw new IllegalStateException( "gRPC service control channel cannot be opened.", e );
+        }
+
         ServiceControlGrpc.ServiceControlStub stub = ServiceControlGrpc.newStub( this.mGrpcAppointClient.getChannel() );
         StreamObserver<ServiceControlFrame> requestObserver = stub.control( new StreamObserver<ServiceControlFrame>() {
             @Override
@@ -347,9 +356,15 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
         }
 
         if ( frame.getFrameType() == ServiceControlFrameType.ERROR ) {
+            String szCode = frame.getError().getCode();
+            String szMessage = frame.getError().getMessage();
+            String szDescription = "gRPC service control error"
+                    + " (code=" + ( szCode == null || szCode.isEmpty() ? "UNKNOWN" : szCode )
+                    + ", message=" + ( szMessage == null || szMessage.isEmpty() ? "UNKNOWN" : szMessage )
+                    + ")";
             this.mCorrelationWaiter.completeExceptionally(
                     frame.getCorrelationGuid(),
-                    new GrpcServiceClientTransportException( frame.getError().getMessage() )
+                    new GrpcServiceClientTransportException( szDescription )
             );
             return;
         }

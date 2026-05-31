@@ -14,6 +14,10 @@ public class HuskyServiceMetaPort implements ServiceMetaPort {
         this.mMetaIface = metaIface;
     }
 
+    public void bind( ServiceMetaManipulationIface metaIface ) {
+        this.mMetaIface = metaIface;
+    }
+
     @Override
     public List<ServiceMetaDTO> fetchServiceInsMetaByClientId( long nClientId ) {
         return this.mMetaIface.fetchServiceInsMetaByClientId( nClientId );

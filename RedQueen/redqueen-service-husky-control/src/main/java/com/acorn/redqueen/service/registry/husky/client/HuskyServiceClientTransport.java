@@ -2,6 +2,7 @@ package com.acorn.redqueen.service.registry.husky.client;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 import com.acorn.redqueen.service.registry.husky.client.controller.PassiveServiceManipulatedController;
 import com.acorn.redqueen.service.registry.husky.client.transformer.HuskyServiceLifecycleTransformer;
@@ -11,10 +12,13 @@ import com.acorn.redqueen.service.registry.husky.protocol.PassiveServiceManipula
 import com.acorn.redqueen.service.registry.husky.protocol.ServiceLifecycleIface;
 import com.acorn.redqueen.service.registry.husky.protocol.ServiceMetaManipulationIface;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.service.registry.client.ServiceClientStateSynchronizedHandler;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
 import com.pinecone.hydra.service.registry.client.port.ServicePort;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransport;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportException;
+import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportState;
+import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportSyncReasons;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportType;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
@@ -36,6 +40,8 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
 
     protected HuskyServiceClientTransportConfig mConfig;
 
+    protected Supplier<UlfClient> mRPCClientSupplier;
+
     protected HuskyServiceLifecycleTransformer mLifecycleTransformer;
 
     protected HuskyServiceLifecyclePort mLifecyclePort;
@@ -44,16 +50,34 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
 
     protected List<ServiceClientManipulationHandler> mManipulationHandlers;
 
+    protected List<ServiceClientStateSynchronizedHandler> mStateSynchronizedHandlers;
+
+    protected volatile ServiceClientTransportState mState;
+
+    protected volatile boolean mbTerminated;
+
     public HuskyServiceClientTransport(
             UlfClient rpcClient,
             GuidAllocator guidAllocator,
             HuskyServiceClientTransportConfig config
     ) {
+        this( rpcClient, guidAllocator, config, null );
+    }
+
+    public HuskyServiceClientTransport(
+            UlfClient rpcClient,
+            GuidAllocator guidAllocator,
+            HuskyServiceClientTransportConfig config,
+            Supplier<UlfClient> rpcClientSupplier
+    ) {
         this.mRPCClient = rpcClient;
         this.mGuidAllocator = guidAllocator;
         this.mConfig = config == null ? new HuskyServiceClientTransportConfig() : config;
+        this.mRPCClientSupplier = rpcClientSupplier;
         this.mLifecycleTransformer = new HuskyServiceLifecycleTransformer( guidAllocator );
         this.mManipulationHandlers = new CopyOnWriteArrayList<>();
+        this.mStateSynchronizedHandlers = new CopyOnWriteArrayList<>();
+        this.mState = ServiceClientTransportState.New;
     }
 
     @Override
@@ -81,6 +105,8 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
         }
 
         try {
+            this.mState = ServiceClientTransportState.Starting;
+            this.prepareRPCClient();
             this.mDuplexAppointClient = new WolvesAppointClient( this.mRPCClient );
             this.mDuplexAppointClient.execute();
             this.mDuplexAppointClient.compile( ServiceLifecycleIface.class, false );
@@ -92,19 +118,45 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
                     new PassiveServiceManipulatedController( this.mGuidAllocator, this::dispatchShutdownService )
             );
             this.mDuplexAppointClient.embraces( PassiveServiceControlLine );
+            this.bindPorts();
+            this.mState = ServiceClientTransportState.Ready;
+        }
+        catch ( Exception e ) {
+            this.mState = ServiceClientTransportState.Disconnected;
+            this.mLifecycleIface = null;
+            this.mMetaIface = null;
+            throw new ServiceClientTransportException( e );
+        }
+    }
+
+    protected void prepareRPCClient() {
+        if ( this.mRPCClient != null && !this.mRPCClient.isTerminated() ) {
+            return;
+        }
+        if ( this.mRPCClientSupplier == null ) {
+            return;
+        }
+
+        this.mRPCClient = this.mRPCClientSupplier.get();
+    }
+
+    protected void bindPorts() {
+        if ( this.mLifecyclePort == null ) {
             this.mLifecyclePort = new HuskyServiceLifecyclePort(
                     this.getClientId(),
                     this.mLifecycleIface,
                     this.mLifecycleTransformer
             );
+        }
+        else {
+            this.mLifecyclePort.bind( this.getClientId(), this.mLifecycleIface );
+        }
+
+        if ( this.mMetaPort == null ) {
             this.mMetaPort = new HuskyServiceMetaPort( this.mMetaIface );
         }
-        catch ( Exception e ) {
-            this.mLifecycleIface = null;
-            this.mMetaIface = null;
-            this.mLifecyclePort = null;
-            this.mMetaPort = null;
-            throw new ServiceClientTransportException( e );
+        else {
+            this.mMetaPort.bind( this.mMetaIface );
         }
     }
 
@@ -131,6 +183,7 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
 
     @Override
     public void disconnect() {
+        this.mbTerminated = true;
         try {
             if ( this.mDuplexAppointClient != null ) {
                 this.mDuplexAppointClient.close();
@@ -143,8 +196,71 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
             this.mDuplexAppointClient = null;
             this.mLifecycleIface = null;
             this.mMetaIface = null;
-            this.mLifecyclePort = null;
-            this.mMetaPort = null;
+            this.mState = ServiceClientTransportState.Terminated;
+        }
+    }
+
+    public void requestControlStateSynchronization( String szReason ) {
+        if ( this.mbTerminated ) {
+            return;
+        }
+
+        Thread thread = new Thread( new Runnable() {
+            @Override
+            public void run() {
+                HuskyServiceClientTransport.this.synchronizeControlState( szReason );
+            }
+        }, "redqueen-husky-service-control-sync" );
+        thread.setDaemon( true );
+        thread.start();
+    }
+
+    public void synchronizeControlState( String szReason ) {
+        try {
+            if ( this.isReady() && !ServiceClientTransportSyncReasons.StreamError.equals( szReason ) ) {
+                this.mState = ServiceClientTransportState.Ready;
+                this.notifyControlStateSynchronized( szReason );
+                return;
+            }
+
+            this.mState = ServiceClientTransportState.Synchronizing;
+            this.closeAppointClientOnly();
+            this.connect();
+            this.notifyControlStateSynchronized( szReason );
+        }
+        catch ( Exception e ) {
+            this.mState = ServiceClientTransportState.Disconnected;
+        }
+    }
+
+    protected void closeAppointClientOnly() {
+        if ( this.mDuplexAppointClient != null ) {
+            this.mDuplexAppointClient.close();
+        }
+        this.mDuplexAppointClient = null;
+        this.mLifecycleIface = null;
+        this.mMetaIface = null;
+    }
+
+    @Override
+    public void registerStateSynchronizedHandler( ServiceClientStateSynchronizedHandler handler ) {
+        if ( handler == null || this.mStateSynchronizedHandlers.contains( handler ) ) {
+            return;
+        }
+        this.mStateSynchronizedHandlers.add( handler );
+    }
+
+    @Override
+    public void deregisterStateSynchronizedHandler( ServiceClientStateSynchronizedHandler handler ) {
+        if ( handler == null ) {
+            return;
+        }
+        this.mStateSynchronizedHandlers.remove( handler );
+    }
+
+    protected void notifyControlStateSynchronized( String szReason ) {
+        for ( ServiceClientStateSynchronizedHandler handler : this.mStateSynchronizedHandlers ) {
+            handler.afterServiceClientStateSynchronized( szReason );
         }
     }
 

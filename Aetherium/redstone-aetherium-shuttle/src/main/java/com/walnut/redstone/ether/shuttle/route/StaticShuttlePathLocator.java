@@ -1,77 +1,61 @@
 package com.walnut.redstone.ether.shuttle.route;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.walnut.redstone.ether.red.uri.RedNamespace;
+import com.walnut.redstone.ether.red.ReservedPaths;
 import com.walnut.redstone.ether.red.uri.RedUri;
 import com.walnut.redstone.ether.red.uri.RedUriParser;
+import com.walnut.redstone.ether.s3.path.S3PathStyleResolver;
 import com.walnut.redstone.ether.shuttle.config.ShuttleConfig;
 import com.walnut.redstone.ether.shuttle.config.ShuttleTargetConfig;
-import com.walnut.redstone.ether.shuttle.error.ShuttleErrorCode;
-import com.walnut.redstone.ether.shuttle.error.ShuttleException;
 
 public class StaticShuttlePathLocator implements ShuttlePathLocator {
     protected final ShuttleConfig config;
-    protected final ShuttleTargetResolver targetResolver;
     protected final RedUriParser redUriParser = new RedUriParser();
-    protected final Set<String> mKernelRootMounts = new HashSet<>( Arrays.asList(
-            "",
-            "conf",
-            "dev",
-            "home",
-            "mnt",
-            "sys",
-            "proc",
-            "var",
-            "meta"
-    ) );
+    protected final S3PathStyleResolver s3PathStyleResolver = new S3PathStyleResolver();
 
     public StaticShuttlePathLocator( ShuttleConfig config ) {
         this.config = config;
-        this.targetResolver = new ShuttleTargetResolver( config );
     }
 
     @Override
     public ShuttleLocateResult locatePath( String path ) {
-        String normalizedPath = this.normalizePath( path );
-        if ( normalizedPath.startsWith( "/__red__" ) ) {
-            return this.control( normalizedPath );
+        String normalized = this.normalizePath( path );
+        if ( this.isKernelNamespacePath( normalized ) ) {
+            return this.kernel( normalized, null );
         }
-        if ( this.isKernelPath( normalizedPath ) ) {
-            return this.kernel( normalizedPath, null );
-        }
-        return this.object( normalizedPath, null );
+
+        String bucket = this.bucket( normalized );
+        String key = this.key( normalized );
+        ShuttleTargetConfig target = this.resolveTarget( normalized );
+        ShuttleLocateResult ret = this.object( normalized, null, bucket, key, target );
+        ret.setRewrittenPath( normalized );
+        return ret;
     }
 
     @Override
     public ShuttleLocateResult locateUri( String uri ) {
-        if ( this.blank( uri ) ) {
-            throw new ShuttleException( ShuttleErrorCode.InvalidRequest, "Red URI is blank." );
-        }
         RedUri redUri = this.redUriParser.parse( uri );
-        if ( redUri.getNamespace() == RedNamespace.Object ) {
-            String path = this.normalizePath( "/" + redUri.getBucket() + this.normalizePath( redUri.getPath() ) );
-            return this.object( path, uri );
+        if ( redUri.getNamespace() == RedNamespace.Kernel || redUri.getNamespace() == RedNamespace.Reserved ) {
+            return this.kernel( redUri.getPath(), uri );
         }
-        return this.kernel( this.normalizePath( redUri.getPath() ), uri );
+
+        String path = "/" + redUri.getBucket() + this.normalizePath( redUri.getPath() );
+        ShuttleLocateResult ret = this.locatePath( path );
+        ret.setUri( uri );
+        return ret;
     }
 
-    protected ShuttleLocateResult object( String path, String uri ) {
-        ShuttleTargetConfig target = this.resolveTarget( path );
+    protected ShuttleLocateResult object( String path, String uri, String bucket, String key, ShuttleTargetConfig target ) {
         ShuttleLocateResult ret = new ShuttleLocateResult();
         ret.setRouteType( ShuttleRouteType.S3_OBJECT );
         ret.setPath( path );
-        ret.setUri( uri == null ? this.toObjectUri( path ) : uri );
-        ret.setBucket( this.bucket( path ) );
-        ret.setKey( this.key( path ) );
-        ret.setTargetName( target.getName() );
-        ret.setTargetBaseUrl( target.getBaseUrl() );
-        ret.setRewrittenPath( path );
-        ret.setRedirectUrl( this.trimRightSlash( target.getBaseUrl() ) + path );
+        ret.setUri( uri );
+        ret.setBucket( bucket );
+        ret.setKey( key );
+        if ( target != null ) {
+            ret.setTargetName( target.getName() );
+            ret.setTargetBaseUrl( target.getBaseUrl() );
+        }
         return ret;
     }
 
@@ -79,107 +63,101 @@ public class StaticShuttlePathLocator implements ShuttlePathLocator {
         ShuttleLocateResult ret = new ShuttleLocateResult();
         ret.setRouteType( ShuttleRouteType.KERNEL_NAMESPACE );
         ret.setPath( path );
-        ret.setUri( uri == null ? this.toKernelUri( path ) : uri );
-        ret.setBucket( "" );
-        ret.setKey( this.kernelKey( path ) );
-        ret.setTargetName( "__kernel__" );
-        ret.setRewrittenPath( path );
-        return ret;
-    }
-
-    protected ShuttleLocateResult control( String path ) {
-        ShuttleLocateResult ret = new ShuttleLocateResult();
-        ret.setRouteType( ShuttleRouteType.CONTROL );
-        ret.setPath( path );
-        ret.setRewrittenPath( path );
-        ret.setSupported( false );
-        ret.setReason( "Control path is handled by Red Shuttle." );
+        ret.setUri( uri );
+        ret.setRewrittenPath( this.normalizeKernelPath( path ) );
         return ret;
     }
 
     protected ShuttleTargetConfig resolveTarget( String path ) {
         ShuttleTargetConfig best = null;
         int bestLength = -1;
-        List<ShuttleTargetConfig> targets = this.config.getTargets();
-        if ( targets != null ) {
-            for ( ShuttleTargetConfig target : targets ) {
-                if ( target == null || !target.isEnabled() ) {
-                    continue;
-                }
-                for ( String prefix : target.getPathPrefixes() ) {
-                    String normalizedPrefix = this.normalizePath( prefix );
-                    if ( this.matchesPrefix( path, normalizedPrefix ) && normalizedPrefix.length() > bestLength ) {
-                        best = target;
-                        bestLength = normalizedPrefix.length();
-                    }
-                }
+        if ( this.config == null || this.config.getTargets() == null ) {
+            return null;
+        }
+        for ( ShuttleTargetConfig target : this.config.getTargets() ) {
+            if ( target == null || !target.isEnabled() ) {
+                continue;
+            }
+            int length = this.matchedPrefixLength( path, target );
+            if ( length > bestLength ) {
+                best = target;
+                bestLength = length;
             }
         }
-        return best == null ? this.targetResolver.resolve( this.config.getDefaultTarget() ) : best;
-    }
-
-    protected boolean matchesPrefix( String path, String prefix ) {
-        if ( "/".equals( prefix ) ) {
-            return true;
+        if ( best != null ) {
+            return best;
         }
-        return path.equals( prefix ) || path.startsWith( prefix + "/" );
+        String defaultTarget = this.config.getDefaultTarget();
+        for ( ShuttleTargetConfig target : this.config.getTargets() ) {
+            if ( target != null && target.isEnabled() && this.same( defaultTarget, target.getName() ) ) {
+                return target;
+            }
+        }
+        return null;
     }
 
-    protected boolean isKernelPath( String path ) {
-        return this.mKernelRootMounts.contains( this.bucket( path ) );
+    protected int matchedPrefixLength( String path, ShuttleTargetConfig target ) {
+        if ( target.getPathPrefixes() == null || target.getPathPrefixes().isEmpty() ) {
+            return 0;
+        }
+        int ret = -1;
+        for ( String prefix : target.getPathPrefixes() ) {
+            String normalized = this.normalizePath( prefix );
+            if ( path.equals( normalized ) || path.startsWith( normalized.endsWith( "/" ) ? normalized : normalized + "/" ) ) {
+                ret = Math.max( ret, normalized.length() );
+            }
+        }
+        return ret;
+    }
+
+    protected boolean isKernelNamespacePath( String path ) {
+        return path.equals( ReservedPaths.System )
+                || path.startsWith( ReservedPaths.System + "/" )
+                || path.startsWith( "/proc/" )
+                || path.equals( "/proc" )
+                || path.startsWith( "/sys/" )
+                || path.equals( "/sys" )
+                || path.startsWith( "/mnt/" )
+                || path.equals( "/mnt" );
+    }
+
+    protected String normalizeKernelPath( String path ) {
+        String ret = this.normalizePath( path );
+        if ( ret.equals( ReservedPaths.System ) ) {
+            return "/";
+        }
+        if ( ret.startsWith( ReservedPaths.System + "/" ) ) {
+            ret = ret.substring( ReservedPaths.System.length() );
+        }
+        return this.normalizePath( ret );
     }
 
     protected String bucket( String path ) {
-        String normalizedPath = this.normalizePath( path );
-        String body = normalizedPath.substring( 1 );
-        int slash = body.indexOf( '/' );
-        return slash < 0 ? body : body.substring( 0, slash );
+        String value = this.normalizePath( path );
+        int next = value.indexOf( "/", 1 );
+        String bucket = next < 0 ? value.substring( 1 ) : value.substring( 1, next );
+        return this.s3PathStyleResolver.normalizeBucketName( bucket );
     }
 
     protected String key( String path ) {
-        String normalizedPath = this.normalizePath( path );
-        String body = normalizedPath.substring( 1 );
-        int slash = body.indexOf( '/' );
-        return slash < 0 ? "" : body.substring( slash + 1 );
-    }
-
-    protected String toObjectUri( String path ) {
-        String bucket = this.bucket( path );
-        String key = this.key( path );
-        if ( this.blank( bucket ) ) {
-            return "red:///";
-        }
-        return this.blank( key ) ? "red://" + bucket + "/" : "red://" + bucket + "/" + key;
-    }
-
-    protected String toKernelUri( String path ) {
-        return "red://" + this.normalizePath( path );
-    }
-
-    protected String kernelKey( String path ) {
-        String normalizedPath = this.normalizePath( path );
-        if ( "/".equals( normalizedPath ) ) {
-            return "";
-        }
-        return normalizedPath.substring( 1 );
+        String value = this.normalizePath( path );
+        int next = value.indexOf( "/", 1 );
+        return next < 0 ? "" : this.s3PathStyleResolver.normalizeKey( value.substring( next + 1 ) );
     }
 
     protected String normalizePath( String path ) {
-        if ( this.blank( path ) ) {
+        String ret = path == null ? "/" : path.trim();
+        if ( ret.isEmpty() ) {
             return "/";
         }
-        String ret = path.startsWith( "/" ) ? path : "/" + path;
-        return URI.create( "red://local" + ret ).getPath();
-    }
-
-    protected String trimRightSlash( String value ) {
-        if ( value != null && value.endsWith( "/" ) ) {
-            return value.substring( 0, value.length() - 1 );
+        ret = ret.replace( "\\", "/" );
+        while ( ret.contains( "//" ) ) {
+            ret = ret.replace( "//", "/" );
         }
-        return value;
+        return ret.startsWith( "/" ) ? ret : "/" + ret;
     }
 
-    protected boolean blank( String value ) {
-        return value == null || value.trim().isEmpty();
+    protected boolean same( String left, String right ) {
+        return left != null && left.equals( right );
     }
 }

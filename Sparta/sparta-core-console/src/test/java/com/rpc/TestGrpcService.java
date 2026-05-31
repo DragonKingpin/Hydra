@@ -11,25 +11,22 @@ import com.pinecone.hydra.grpc.server.GrpcAppointServer;
 import com.pinecone.hydra.grpc.server.GrpcServerConfig;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
-import com.pinecone.hydra.service.registry.grpc.client.GrpcServiceClient;
-import com.pinecone.hydra.service.registry.grpc.server.GrpcServiceAppointServer;
-import com.pinecone.hydra.service.registry.server.ServiceMetaManipulationIface;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
-import com.pinecone.hydra.service.registry.client.HuskyServiceClient;
-import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
-import com.pinecone.hydra.service.registry.ulf.HuskyServiceAppointServer;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
+import com.acorn.redqueen.service.registry.grpc.server.GrpcServiceControlTransportFactory;
+import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientMuster;
+import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame;
+import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType;
+import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlGrpc;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
-import com.pinecone.hydra.uma.DuplexAppointClient;
-import com.pinecone.hydra.uma.HuskyDuplexExpress;
-import com.pinecone.hydra.uma.wolf.WolvesAppointServer;
-import com.pinecone.hydra.umc.wolf.client.UlfClient;
-import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
-import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.pinecone.tritium.Tritium;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
+import io.grpc.stub.StreamObserver;
 
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 class Brian extends Tritium {
     public Brian( String[] args, CascadeSystem parent ) {
@@ -49,94 +46,91 @@ class Brian extends Tritium {
         UniformServiceInstrument servicesTree = new UniformServiceInstrument( koiMappingDriver );
 
         UniformServiceManager serviceManager = new UniformServiceManager( servicesTree );
-        GrpcServiceAppointServer grpcServer = new GrpcServiceAppointServer(
-                new GrpcAppointServer( new GrpcServerConfig( new JSONMaptron( "{ port: 5888 }" ) ))
+        ServiceControlTransport grpcTransport = new GrpcServiceControlTransportFactory().create(
+                serviceManager,
+                new GrpcAppointServer( new GrpcServerConfig( new JSONMaptron( "{ port: 5888 }" ) ) )
         );
-
-        serviceManager.hookAppointServer(grpcServer);
+        serviceManager.transportRegistry().hookTransport( grpcTransport );
         RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
         serviceRegiment.startServiceManage();
 
-
-        GrpcServiceClient client = new GrpcServiceClient(
-                new GrpcAppointClient( new GuidAllocator72V2().nextGUIDi64(), new GrpcClientConfig( new JSONMaptron( "{ host: 'localhost', port: 5888 }" ) ) ),
-                servicesTree.getGuidAllocator()
+        GrpcAppointClient client = new GrpcAppointClient(
+                new GuidAllocator72V2().nextGUIDi64(),
+                new GrpcClientConfig( new JSONMaptron( "{ host: 'localhost', port: 5888 }" ) )
         );
-        client.startService();
-
-        testUniformServiceRegister_Proactive(client, serviceManager);
+        try {
+            client.execute();
+            testGrpcControlMuster( client );
+        }
+        finally {
+            client.close();
+            serviceManager.terminateService();
+        }
 
     }
 
-    public static void testUniformServiceRegister_Proactive( GrpcServiceClient client, UniformServiceManager serviceManager ) throws Exception {
-        ServiceMetaDTO meta = client.getMetaManipulation().queryServiceMetaByPath("root/test/app/ser");
-        Debug.bluef("Meta: " + meta);
+    public static void testGrpcControlMuster( GrpcAppointClient client ) throws Exception {
+        CountDownLatch readyLatch = new CountDownLatch( 1 );
+        AtomicReference<ServiceControlFrame> readyFrame = new AtomicReference<>();
+        AtomicReference<Throwable> error = new AtomicReference<>();
 
-        String guid = client.getMetaManipulation().evalCreationStatement( "{ root: { test: { app: { metaType: ApplicationElement } } } }");
-        Debug.bluef("Creation GUID: " + guid);
+        ServiceControlGrpc.ServiceControlStub stub = ServiceControlGrpc.newStub( client.getChannel() );
+        StreamObserver<ServiceControlFrame> requestObserver = stub.control( new StreamObserver<ServiceControlFrame>() {
+            @Override
+            public void onNext( ServiceControlFrame frame ) {
+                if ( frame.getFrameType() == ServiceControlFrameType.CLIENT_READY ) {
+                    readyFrame.set( frame );
+                    readyLatch.countDown();
+                    return;
+                }
+                if ( frame.getFrameType() == ServiceControlFrameType.ERROR ) {
+                    readyFrame.set( frame );
+                    readyLatch.countDown();
+                }
+            }
 
-        meta = client.getMetaManipulation().queryServiceMetaByPath("root/test/app/test1");
-        Debug.greenfs( meta );
+            @Override
+            public void onError( Throwable throwable ) {
+                error.set( throwable );
+                readyLatch.countDown();
+            }
 
-        client.registerService( client.getGuidAllocator().parse(meta.getGuid()), null );
+            @Override
+            public void onCompleted() {
+                readyLatch.countDown();
+            }
+        } );
 
-        List<ServiceMetaDTO> serviceMetaDTOS = client.getMetaManipulation().fetchServiceInsMetaByServiceId(meta.getGuid());
-        Debug.bluefs( serviceMetaDTOS );
-
-        client.getAppointNodus().close();
-    }
-
-
-
-    public void vitalize1 () throws Exception {
-        KOIMappingDriver koiMappingDriver = new ServiceMappingDriver(
-                this, (IbatisClient)this.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ), this.getDispenserCenter()
+        requestObserver.onNext(
+                ServiceControlFrame.newBuilder()
+                        .setFrameGuid( "sparta-test-" + System.nanoTime() )
+                        .setClientId( client.getClientId() )
+                        .setCreateTimeMillis( System.currentTimeMillis() )
+                        .setFrameType( ServiceControlFrameType.CLIENT_MUSTER )
+                        .setClientMuster(
+                                ClientMuster.newBuilder()
+                                        .setClientId( client.getClientId() )
+                                        .setClientName( "sparta-test-grpc-service" )
+                                        .setTransportVersion( "test" )
+                                        .build()
+                        )
+                        .build()
         );
 
-        UniformServiceInstrument servicesTree = new UniformServiceInstrument( koiMappingDriver );
+        if ( !readyLatch.await( 5, TimeUnit.SECONDS ) ) {
+            requestObserver.onCompleted();
+            throw new IllegalStateException( "Timeout while waiting for gRPC service control CLIENT_READY." );
+        }
+        if ( error.get() != null ) {
+            throw new IllegalStateException( "gRPC service control stream failed.", error.get() );
+        }
+        if ( readyFrame.get() == null || readyFrame.get().getFrameType() != ServiceControlFrameType.CLIENT_READY ) {
+            throw new IllegalStateException( "gRPC service control did not return CLIENT_READY: " + readyFrame.get() );
+        }
 
-        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
-                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
-
-        UniformServiceManager serviceManager = new UniformServiceManager( servicesTree );
-        serviceManager.hookAppointServer( new HuskyServiceAppointServer( new WolvesAppointServer( wolfKing, HuskyDuplexExpress.class ) ));
-        RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
-
-        serviceRegiment.startServiceManage();
-
-
-        UlfClient ulfClient = new WolfMCClient(
-                new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
-        );
-        HuskyServiceClient managerClient = new HuskyServiceClient( ulfClient, servicesTree.getGuidAllocator() );
-        managerClient.startService();
-
-        this.testUniformServiceRegister_Proactive( managerClient );
-
-        //this.oldTest( servicesTree );
+        Debug.bluef( "gRPC service control ready: " + readyFrame.get().getClientReady().getSessionGuid() );
+        requestObserver.onCompleted();
     }
-
-    public void testUniformServiceRegister_Proactive( HuskyServiceClient managerClient ) throws Exception {
-        DuplexAppointClient client = managerClient.getAppointNodus();
-        ServiceMetaManipulationIface metaIface = client.getIface(ServiceMetaManipulationIface.class);
-        ServiceMetaDTO meta = metaIface.queryServiceMetaByPath( "root/test/app/ser" );
-        Debug.greenfs( meta );
-
-        String guid = metaIface.evalCreationStatement( "{ root: { test: { app: { metaType: ApplicationElement, alias:as, services: { test1: { metaType: ServiceElement, type: Microservice } } } } } }" );
-        ServiceMetaDTO meta1 = metaIface.queryServiceMetaByPath( "root/test/app/test1" );
-        Debug.greenfs( meta1 );
-
-        managerClient.registerService( managerClient.getGuidAllocator().parse(meta1.getGuid()), null );
-
-        List<ServiceMetaDTO> serviceMetaDTOS = metaIface.fetchServiceInsMetaByServiceId( meta1.getGuid() );
-        Debug.bluefs( serviceMetaDTOS );
-
-        //managerClient.deregister();
-        client.close();
-
-        //Debug.trace(iface.hasOwnedServiceByServiceId( "181e9e6-000395-0000-94" ));
-    }
-
 }
 
 public class TestGrpcService {

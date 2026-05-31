@@ -4,7 +4,6 @@ import com.pinecone.framework.system.ProvokeHandleException;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.framework.unit.LinkedTreeMap;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.config.JSONConfig;
 import com.pinecone.framework.util.json.JSONObject;
@@ -18,6 +17,8 @@ import com.pinecone.hydra.system.ArchSystemAutoAssembleComponent;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.HyHierarchy;
 import com.pinecone.hydra.system.component.LogStatuses;
+import com.pinecone.hydra.umc.msg.CloseableMessgus;
+import com.pinecone.hydra.umc.msg.Messagus;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
 import com.pinecone.hydra.umc.wolf.WolfMCNode;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class MessagersManager extends ArchSystemAutoAssembleComponent implements Pinenut, HyComponent {
     @JSONGet( "Messagers" )
@@ -45,7 +48,7 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
     @JSONGet( "Messagers.Configs.Enable" )
     protected boolean                              mbEnable                ;
 
-    protected Map<String, Pinenut >                mMessagerComponent      ;
+    protected ConcurrentMap<String, Pinenut >      mMessagerComponent      ;
 
 
 
@@ -56,7 +59,7 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
 
         this.getSystem().getPrimaryConfigScope().autoInject( MessagersManager.class, parentManager.getMiddlewareConfig() , this );
 
-        this.mMessagerComponent = new LinkedTreeMap<>();
+        this.mMessagerComponent = new ConcurrentHashMap<>();
         this.prepareInstanceMessagers();
 
         this.infoLifecycleInitializationDone();
@@ -244,6 +247,49 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
         return this.mMessagerComponent.get( szName );
     }
 
+    public void registerMessagus( String szName, Messagus messagus ) {
+        if( StringUtils.isEmpty( szName ) ) {
+            throw new IllegalArgumentException( "Messagus name should not be empty." );
+        }
+        if( messagus == null ) {
+            throw new IllegalArgumentException( "Messagus should not be null." );
+        }
+        this.mMessagerComponent.put( szName, messagus );
+    }
+
+    public Messagus getMessagusByName( String szName ) {
+        Pinenut p = this.getComponentByName( szName );
+        if( p instanceof Messagus ) {
+            return (Messagus) p;
+        }
+        return null;
+    }
+
+    public <T extends Messagus> T getMessagusByName( String szName, Class<T> type ) {
+        Messagus messagus = this.getMessagusByName( szName );
+        if( type.isInstance( messagus ) ) {
+            return type.cast( messagus );
+        }
+        return null;
+    }
+
+    public Messagus unregisterMessagus( String szName ) {
+        Pinenut p = this.getComponentByName( szName );
+        if( p instanceof Messagus ) {
+            this.mMessagerComponent.remove( szName );
+            return (Messagus) p;
+        }
+        return null;
+    }
+
+    public Messagus closeMessagus( String szName ) {
+        Messagus messagus = this.unregisterMessagus( szName );
+        if( messagus instanceof CloseableMessgus ) {
+            ((CloseableMessgus) messagus).close();
+        }
+        return messagus;
+    }
+
     public MessageNode getMessageNodeByName ( String szName ) {
         Pinenut p = this.getComponentByName( szName );
         if( p instanceof MessageNode ) {
@@ -265,6 +311,9 @@ public class MessagersManager extends ArchSystemAutoAssembleComponent implements
         if( node != null ) {
             if( node instanceof Servgram ) {
                 ((Servgram) node).terminate();
+            }
+            else if( node instanceof CloseableMessgus ) {
+                ((CloseableMessgus) node).close();
             }
             else if( node instanceof Processum ) {
                 ((Processum) node).apoptosis();

@@ -11,15 +11,23 @@ import com.walnut.redstone.ether.shuttle.error.ShuttleException;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleExchange;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleRequest;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleResponse;
+import com.walnut.redstone.ether.shuttle.http.HttpClient5ClassicFactory;
+import com.walnut.redstone.ether.shuttle.http.HttpClient5ClassicStreamingShuttleExchange;
 import com.walnut.redstone.ether.shuttle.http.HttpClient5AsyncShuttleExchange;
 import com.walnut.redstone.ether.shuttle.http.HttpClient5AsyncFactory;
 
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
 
 public class ShuttleKernel implements ShuttleLifecycle {
+    public static final String HttpClientTypeApacheHttpClient5Async = "ApacheHttpClient5Async";
+    public static final String HttpClientTypeApacheHttpClient5ClassicStreaming = "ApacheHttpClient5ClassicStreaming";
+
     protected final ShuttleConfig config;
     protected final HttpClient5AsyncFactory httpClientFactory = new HttpClient5AsyncFactory();
+    protected final HttpClient5ClassicFactory classicHttpClientFactory = new HttpClient5ClassicFactory();
     protected CloseableHttpAsyncClient httpClient;
+    protected CloseableHttpClient classicHttpClient;
     protected ShuttleExchange exchange;
     protected boolean running;
 
@@ -33,9 +41,15 @@ public class ShuttleKernel implements ShuttleLifecycle {
         if ( this.running || !this.config.isEnabled() ) {
             return;
         }
-        this.httpClient = this.httpClientFactory.create( this.config );
-        this.httpClient.start();
-        this.exchange = new HttpClient5AsyncShuttleExchange( this.config, this.httpClient );
+        if ( HttpClientTypeApacheHttpClient5ClassicStreaming.equals( this.config.getHttpClient().getType() ) ) {
+            this.classicHttpClient = this.classicHttpClientFactory.create( this.config );
+            this.exchange = new HttpClient5ClassicStreamingShuttleExchange( this.config, this.classicHttpClient );
+        }
+        else {
+            this.httpClient = this.httpClientFactory.create( this.config );
+            this.httpClient.start();
+            this.exchange = new HttpClient5AsyncShuttleExchange( this.config, this.httpClient );
+        }
         this.running = true;
     }
 
@@ -48,6 +62,9 @@ public class ShuttleKernel implements ShuttleLifecycle {
             if ( this.httpClient != null ) {
                 this.httpClient.close();
             }
+            if ( this.classicHttpClient != null ) {
+                this.classicHttpClient.close();
+            }
         }
         catch ( IOException ex ) {
             throw new ShuttleException( ShuttleErrorCode.LifecycleError, ex.getMessage(), ex );
@@ -55,6 +72,7 @@ public class ShuttleKernel implements ShuttleLifecycle {
         finally {
             this.running = false;
             this.httpClient = null;
+            this.classicHttpClient = null;
             this.exchange = null;
         }
     }
@@ -81,6 +99,10 @@ public class ShuttleKernel implements ShuttleLifecycle {
 
     public CloseableHttpAsyncClient getHttpClient() {
         return this.httpClient;
+    }
+
+    public CloseableHttpClient getClassicHttpClient() {
+        return this.classicHttpClient;
     }
 
     public CompletableFuture<ShuttleResponse> exchange( ShuttleRequest request ) {

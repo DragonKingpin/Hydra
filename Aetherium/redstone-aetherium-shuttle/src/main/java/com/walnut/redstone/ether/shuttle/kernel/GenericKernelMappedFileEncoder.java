@@ -7,13 +7,15 @@ import java.util.Map;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.json.JSON;
+import com.walnut.redstone.ether.red.RedContentTypes;
+import com.walnut.redstone.ether.red.RedHeaders;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleRequest;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleResponse;
 
 public class GenericKernelMappedFileEncoder implements KernelMappedFileEncoder {
-    public static final String ContentTypeJson = "application/json; charset=utf-8";
-    public static final String ContentTypeText = "text/plain; charset=utf-8";
-    public static final String ContentTypeOctets = "application/octet-stream";
+    public static final String ContentTypeJson = RedContentTypes.Json;
+    public static final String ContentTypeText = RedContentTypes.Text;
+    public static final String ContentTypeOctets = RedContentTypes.Octets;
 
     @Override
     public ShuttleResponse encode( KernelMappedFile file, ShuttleRequest request ) {
@@ -37,9 +39,9 @@ public class GenericKernelMappedFileEncoder implements KernelMappedFileEncoder {
         if ( file.getMeta().getHeaders() != null ) {
             ret.putAll( file.getMeta().getHeaders() );
         }
-        ret.put( "Content-Type", this.contentType( file ) );
-        ret.put( "Content-Length", String.valueOf( bytes.length ) );
-        ret.put( "X-Red-Kernel-Readonly", String.valueOf( !file.getMeta().isWritable() ) );
+        ret.put( RedHeaders.ContentType, this.contentType( file ) );
+        ret.put( RedHeaders.ContentLength, String.valueOf( bytes.length ) );
+        ret.put( RedHeaders.KernelReadonly, String.valueOf( !file.getMeta().isWritable() ) );
         return ret;
     }
 
@@ -74,7 +76,7 @@ public class GenericKernelMappedFileEncoder implements KernelMappedFileEncoder {
     protected ShuttleResponse empty( int nStatusCode ) {
         ShuttleResponse response = new ShuttleResponse();
         response.setStatusCode( nStatusCode );
-        response.setHeaders( new LinkedHashMap<>( Map.of( "Content-Length", "0" ) ) );
+        response.setHeaders( new LinkedHashMap<>( Map.of( RedHeaders.ContentLength, "0" ) ) );
         response.setBodyStream( new ByteArrayInputStream( new byte[0] ) );
         return response;
     }

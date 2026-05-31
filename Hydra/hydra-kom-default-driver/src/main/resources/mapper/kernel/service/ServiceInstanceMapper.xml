@@ -8,62 +8,202 @@
     <resultMap id="ServiceInstanceMap" type="com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity">
         <id     column="guid"               property="guid"/>
         <result column="service_guid"       property="serviceGuid"/>
-        <result column="status"             property="status"/>
-        <result column="latest_start_time"  property="latestStartTime"/>
-        <result column="latest_end_time"    property="latestEndTime"/>
-        <result column="error_cause"        property="errorCause"/>
-        <result column="run_count"          property="runCount"/>
         <result column="deploy_guid"        property="deployGuid"/>
-        <result column="ip"                 property="ip"/>
+        <result column="client_id"          property="clientId"/>
+        <result column="transport_type"     property="transportType"/>
+        <result column="remote_address"     property="remoteAddress"/>
+        <result column="endpoint_protocol"  property="endpointProtocol"/>
+        <result column="endpoint_host"      property="endpointHost"/>
+        <result column="endpoint_port"      property="endpointPort"/>
+        <result column="endpoint_path"      property="endpointPath"/>
+        <result column="endpoint_address"   property="endpointAddress"/>
+        <result column="status"             property="status"/>
+        <result column="status_reason"      property="statusReason"/>
+        <result column="version"            property="version"/>
+        <result column="zone"               property="zone"/>
+        <result column="weight"             property="weight"/>
+        <result column="register_time"      property="registerTime"/>
+        <result column="last_heartbeat_time" property="lastHeartbeatTime"/>
+        <result column="expire_time"        property="expireTime"/>
+        <result column="offline_time"       property="offlineTime"/>
+        <result column="run_count"          property="runCount"/>
+        <result column="metadata_json"      property="metadataJson"/>
     </resultMap>
+
+    <sql id="ServiceInstanceFields">
+        `guid`,
+        `service_guid`,
+        `deploy_guid`,
+        `client_id`,
+        `transport_type`,
+        `remote_address`,
+        `endpoint_protocol`,
+        `endpoint_host`,
+        `endpoint_port`,
+        `endpoint_path`,
+        `endpoint_address`,
+        `status`,
+        `status_reason`,
+        `version`,
+        `zone`,
+        `weight`,
+        `register_time`,
+        `last_heartbeat_time`,
+        `expire_time`,
+        `offline_time`,
+        `run_count`,
+        `metadata_json`
+    </sql>
+
+    <sql id="ServiceInstanceQueryWhere">
+        <where>
+            <if test="query.instanceGuid != null">
+                AND `guid` = #{query.instanceGuid}
+            </if>
+            <if test="query.serviceGuid != null">
+                AND `service_guid` = #{query.serviceGuid}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND `status` = #{query.status}
+            </if>
+            <if test="query.deployGuid != null">
+                AND `deploy_guid` = #{query.deployGuid}
+            </if>
+            <if test="query.ip != null and query.ip != ''">
+                AND `endpoint_host` = #{query.ip}
+            </if>
+            <if test="query.latestStartTimeStart != null">
+                AND `register_time` <![CDATA[ >= ]]> #{query.latestStartTimeStart}
+            </if>
+            <if test="query.latestStartTimeEnd != null">
+                AND `register_time` <![CDATA[ <= ]]> #{query.latestStartTimeEnd}
+            </if>
+            <if test="query.latestEndTimeStart != null">
+                AND `offline_time` <![CDATA[ >= ]]> #{query.latestEndTimeStart}
+            </if>
+            <if test="query.latestEndTimeEnd != null">
+                AND `offline_time` <![CDATA[ <= ]]> #{query.latestEndTimeEnd}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    `guid` = #{query.keyword}
+                    OR `service_guid` = #{query.keyword}
+                    OR `deploy_guid` = #{query.keyword}
+                    OR `endpoint_host` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `endpoint_address` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `status` LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
 
     <insert id="initServiceInstance" parameterType="com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry">
         INSERT INTO `hydra_service_instances`
         (
-            `service_guid`,
             `guid`,
-            `status`,
-            `latest_start_time`,
-            `latest_end_time`,
-            `error_cause`,
-            `run_count`,
+            `service_guid`,
             `deploy_guid`,
-            `ip`
+            `client_id`,
+            `transport_type`,
+            `remote_address`,
+            `endpoint_protocol`,
+            `endpoint_host`,
+            `endpoint_port`,
+            `endpoint_path`,
+            `endpoint_address`,
+            `status`,
+            `status_reason`,
+            `version`,
+            `zone`,
+            `weight`,
+            `register_time`,
+            `last_heartbeat_time`,
+            `expire_time`,
+            `offline_time`,
+            `run_count`,
+            `metadata_json`
         )
         VALUES
         (
-            #{serviceGuid},
             #{guid},
-            #{status},
-            #{latestStartTime},
-            #{latestEndTime},
-            #{errorCause},
-            #{runCount},
+            #{serviceGuid},
             #{deployGuid},
-            #{ip}
+            #{clientId},
+            #{transportType},
+            #{remoteAddress},
+            #{endpointProtocol},
+            #{endpointHost},
+            #{endpointPort},
+            #{endpointPath},
+            #{endpointAddress},
+            #{status},
+            #{statusReason},
+            #{version},
+            #{zone},
+            #{weight},
+            #{registerTime},
+            #{lastHeartbeatTime},
+            #{expireTime},
+            #{offlineTime},
+            #{runCount},
+            #{metadataJson}
         )
     </insert>
 
     <select id="queryServiceInstance" resultMap="ServiceInstanceMap">
         SELECT
-            `service_guid`,
-            `guid`,
-            `status`,
-            `latest_start_time`,
-            `latest_end_time`,
-            `error_cause`,
-            `run_count`,
-            `deploy_guid`,
-            `ip`
+        <include refid="ServiceInstanceFields"/>
         FROM `hydra_service_instances`
         WHERE `guid` = #{instanceId}
+    </select>
+
+    <select id="fetchServiceInstances0" resultMap="ServiceInstanceMap">
+        SELECT
+        <include refid="ServiceInstanceFields"/>
+        FROM `hydra_service_instances`
+        <include refid="ServiceInstanceQueryWhere"/>
+        ORDER BY `register_time` DESC, `guid` DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="countServiceInstances0" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_service_instances`
+        <include refid="ServiceInstanceQueryWhere"/>
+    </select>
+
+    <select id="fetchServiceInstancesByServiceGuid0" resultMap="ServiceInstanceMap">
+        SELECT
+        <include refid="ServiceInstanceFields"/>
+        FROM `hydra_service_instances`
+        WHERE `service_guid` = #{serviceGuid}
+        ORDER BY `register_time` DESC, `guid` DESC
     </select>
 
     <update id="updateServiceInstance" parameterType="com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry">
         UPDATE `hydra_service_instances`
         SET
+            `service_guid` = #{serviceGuid},
+            `deploy_guid` = #{deployGuid},
+            `client_id` = #{clientId},
+            `transport_type` = #{transportType},
+            `remote_address` = #{remoteAddress},
+            `endpoint_protocol` = #{endpointProtocol},
+            `endpoint_host` = #{endpointHost},
+            `endpoint_port` = #{endpointPort},
+            `endpoint_path` = #{endpointPath},
+            `endpoint_address` = #{endpointAddress},
             `status` = #{status},
-            `run_count` = #{runCount}
+            `status_reason` = #{statusReason},
+            `version` = #{version},
+            `zone` = #{zone},
+            `weight` = #{weight},
+            `register_time` = #{registerTime},
+            `last_heartbeat_time` = #{lastHeartbeatTime},
+            `expire_time` = #{expireTime},
+            `offline_time` = #{offlineTime},
+            `run_count` = #{runCount},
+            `metadata_json` = #{metadataJson}
         WHERE `guid` = #{guid}
     </update>
 

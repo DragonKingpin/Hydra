@@ -1,6 +1,7 @@
 package com.walnut.redstone.ether.red.route;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.walnut.redstone.ether.red.RedSchemes;
 import com.walnut.redstone.ether.red.uri.RedNamespace;
 import com.walnut.redstone.ether.red.uri.RedUri;
 import com.walnut.redstone.ether.resource.ResourceNamespace;
@@ -15,7 +16,7 @@ public class RedRouteResolver implements Pinenut {
         if ( uri.getNamespace() == RedNamespace.Object ) {
             ret.setRouteType( RedRouteType.Object );
             ret.setBackend( "S3ifiedObject" );
-            ret.setTarget( "red://" + uri.getBucket() + uri.getPath() );
+            ret.setTarget( RedSchemes.Red + "://" + uri.getBucket() + uri.getPath() );
             this.attachRoute( ret, ResourceNamespace.Object, uri.getBucket(), uri.getPath(), "S3ifiedObject", "Object" );
         }
         else if ( uri.getNamespace() == RedNamespace.Reserved ) {

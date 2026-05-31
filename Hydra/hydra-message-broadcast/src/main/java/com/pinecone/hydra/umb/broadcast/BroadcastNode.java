@@ -1,8 +1,9 @@
 package com.pinecone.hydra.umb.broadcast;
 
+import com.pinecone.hydra.umc.msg.CloseableMessgus;
 import com.pinecone.hydra.umc.msg.MessageNodus;
 
-public interface BroadcastNode extends MessageNodus {
+public interface BroadcastNode extends MessageNodus, CloseableMessgus {
     String DefaultEntityName = "__DEFAULT__";
 
     void close();

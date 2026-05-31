@@ -6,24 +6,39 @@
 <mapper namespace="com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper">
 
     <resultMap id="NamespaceMap" type="com.pinecone.hydra.service.kom.entity.GenericNamespace">
-        <id     column="id"          property="enumId"/>
-        <result column="guid"        property="guid"/>
-        <result column="name"        property="name"/>
-        <result column="rules_guid"  property="rulesGUID"/>
+        <id     column="id"                 property="enumId"/>
+        <result column="guid"               property="guid"/>
+        <result column="name"               property="name"/>
+        <result column="description"        property="description"/>
+        <result column="extra_information"  property="extraInformation"/>
+        <result column="create_time"        property="createTime"/>
+        <result column="update_time"        property="updateTime"/>
     </resultMap>
+
+    <sql id="NamespaceFields">
+        `id`,
+        `guid`,
+        `name`,
+        `description`,
+        `extra_information`,
+        `create_time`,
+        `update_time`
+    </sql>
 
     <insert id="insert" parameterType="com.pinecone.hydra.service.kom.entity.Namespace">
         INSERT INTO `hydra_service_namespace_node`
         (
             `guid`,
             `name`,
-            `rules_guid`
+            `description`,
+            `extra_information`
         )
         VALUES
         (
             #{guid},
             #{name},
-            #{rulesGUID}
+            #{description},
+            #{extraInformation}
         )
     </insert>
 
@@ -34,10 +49,7 @@
 
     <select id="getNamespace" resultMap="NamespaceMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`,
-            `rules_guid`
+        <include refid="NamespaceFields"/>
         FROM `hydra_service_namespace_node`
         WHERE `guid` = #{guid}
     </select>
@@ -45,16 +57,15 @@
     <update id="update" parameterType="com.pinecone.hydra.service.kom.entity.Namespace">
         UPDATE `hydra_service_namespace_node`
         SET
-            `name` = #{name}
+            `name` = #{name},
+            `description` = #{description},
+            `extra_information` = #{extraInformation}
         WHERE `guid` = #{guid}
     </update>
 
     <select id="fetchNamespaceNodeByName0" resultMap="NamespaceMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`,
-            `rules_guid`
+        <include refid="NamespaceFields"/>
         FROM `hydra_service_namespace_node`
         WHERE `name` = #{name}
     </select>

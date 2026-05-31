@@ -1,9 +1,9 @@
 package com.pinecone.hydra.appoints;
 
 import com.pinecone.framework.util.config.PatriarchalConfig;
-import com.pinecone.hydra.umc.msg.Messagus;
+import com.pinecone.hydra.umc.msg.CloseableMessgus;
 
-public interface AppointNodus extends Messagus {
+public interface AppointNodus extends CloseableMessgus {
 
     String getName();
 

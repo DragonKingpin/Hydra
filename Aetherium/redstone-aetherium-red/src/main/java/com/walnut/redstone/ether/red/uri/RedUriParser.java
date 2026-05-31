@@ -3,14 +3,15 @@ package com.walnut.redstone.ether.red.uri;
 import java.net.URI;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.walnut.redstone.ether.red.RedSchemes;
 import com.walnut.redstone.ether.red.error.RedErrorCode;
 import com.walnut.redstone.ether.red.error.RedProtocolException;
 
 public class RedUriParser implements Pinenut {
     public RedUri parse( String value ) {
         URI uri = URI.create( value );
-        if ( uri.getScheme() == null || !"red".equalsIgnoreCase( uri.getScheme() ) ) {
-            throw new RedProtocolException( RedErrorCode.InvalidUri, "Only red:// URI is supported." );
+        if ( uri.getScheme() == null || !RedSchemes.Red.equalsIgnoreCase( uri.getScheme() ) ) {
+            throw new RedProtocolException( RedErrorCode.InvalidUri, "Only " + RedSchemes.Red + ":// URI is supported." );
         }
         RedUri ret = new RedUri();
         ret.setRaw( value );
@@ -25,4 +26,3 @@ public class RedUriParser implements Pinenut {
         return ret;
     }
 }
-

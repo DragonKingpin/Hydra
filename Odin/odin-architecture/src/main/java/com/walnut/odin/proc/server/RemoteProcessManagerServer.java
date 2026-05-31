@@ -13,12 +13,15 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportRegistry;
 
 public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
 
     RemoteProcessManagerServer hookTransport( RemoteProcessControlTransport transport );
+
+    RemoteProcessManagerServer hookTransportEvent( RemoteProcessControlEventHooker hooker );
 
     RemoteProcessControlTransportRegistry transportRegistry();
 

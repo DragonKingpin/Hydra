@@ -32,6 +32,9 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         if ( block == null || feature == null ) {
             return;
         }
+        if ( !this.mClient.isReconnectAllowed() ) {
+            return;
+        }
 
         UlfReconnectSession session = new UlfReconnectSession( block, feature );
         UlfReconnectSession old     = this.mSessions.putIfAbsent( block, session );
@@ -61,7 +64,7 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
     }
 
     protected void schedule( UlfReconnectSession session, long nDelayMillis ) {
-        if ( this.mClient.isShutdown() || this.mClient.getEventLoopGroup() == null ) {
+        if ( !this.mClient.isReconnectAllowed() ) {
             this.mSessions.remove( session.mBlock );
             return;
         }
@@ -84,7 +87,7 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
             return;
         }
 
-        if ( this.mClient.isShutdown() ) {
+        if ( !this.mClient.isReconnectAllowed() ) {
             this.mSessions.remove( session.mBlock );
             return;
         }
@@ -119,6 +122,11 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
 
     protected void completeSucceeded( UlfReconnectSession session, Channel oldChannel, ChannelFuture future ) {
         if ( this.mSessions.get( session.mBlock ) != session ) {
+            future.channel().close();
+            return;
+        }
+        if ( !this.mClient.isReconnectAllowed() ) {
+            this.mSessions.remove( session.mBlock );
             future.channel().close();
             return;
         }
@@ -173,6 +181,10 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         if ( this.mSessions.get( session.mBlock ) != session ) {
             return;
         }
+        if ( !this.mClient.isReconnectAllowed() ) {
+            this.mSessions.remove( session.mBlock );
+            return;
+        }
 
         ChannelControlBlock block = session.mBlock;
         try {
@@ -194,6 +206,10 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
         if ( this.mSessions.get( session.mBlock ) != session ) {
             return;
         }
+        if ( !this.mClient.isReconnectAllowed() ) {
+            this.mSessions.remove( session.mBlock );
+            return;
+        }
 
         try {
             session.mBlock.close();
@@ -206,6 +222,11 @@ public class GenericUlfReconnectSupervisor implements UlfReconnectSupervisor {
 
     protected void completeFailed( UlfReconnectSession session, Throwable cause ) {
         if ( this.mSessions.get( session.mBlock ) != session ) {
+            return;
+        }
+
+        if ( !this.mClient.isReconnectAllowed() ) {
+            this.mSessions.remove( session.mBlock );
             return;
         }
 

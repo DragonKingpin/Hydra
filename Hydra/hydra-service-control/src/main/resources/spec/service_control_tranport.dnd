@@ -1,0 +1,102 @@
+# Service Control Transport SPEC
+
+## Background
+
+Hydra service control is the authority of service registry semantics.
+RedQueen provides concrete RPC access implementations for Hydra service control.
+
+Service lifecycle, metadata, discovery and later service abilities must share one
+client topology. RPC differences are expressed by ServiceClientTransport only.
+Feature abilities are expressed by ServicePort, not by extra transport types.
+
+## Core Rules
+
+1. Hydra owns service registry abstraction, lifecycle state and metadata contracts.
+2. RedQueen owns RPC concrete implementations, such as Husky and gRPC.
+3. One RPC kind has one ServiceClientTransport implementation.
+4. ServiceClientTransport manages connection, session and native RPC resources.
+5. ServicePort exposes service-control abilities on top of the transport.
+6. Upper business code should use ServiceClient or ServicePort, not native RPC APIs.
+
+## Hydra Abstract Topology
+```
+com.pinecone.hydra.service.registry.client
+  ServiceClient.java
+  UniformServiceClient.java
+
+com.pinecone.hydra.service.registry.client.port
+  ServicePort.java
+  ServiceLifecyclePort.java
+  ServiceMetaPort.java
+
+com.pinecone.hydra.service.registry.client.transport
+  ServiceClientTransport.java
+  ServiceClientTransportType.java
+  ServiceClientTransportException.java
+```
+
+## RedQueen RPC Topology
+
+```
+com.acorn.redqueen.service.registry.{rpc}
+  client
+    {Rpc}ServiceClientTransport.java
+    {Rpc}ServiceClientTransportFactory.java
+    {Rpc}ServiceClientTransportConfig.java
+
+    port
+      {Rpc}ServiceLifecyclePort.java
+      {Rpc}ServiceMetaPort.java
+
+    mapper
+      {Rpc}ServiceLifecycleMapper.java
+      {Rpc}ServiceMetaMapper.java
+
+  server
+    {Rpc}ServiceControlTransport.java
+    {Rpc}ServiceControlTransportFactory.java
+
+    lifecycle
+      {Rpc}ServiceLifecycleController.java
+      {Rpc}ServiceLifecycleService.java
+      {Rpc}ServiceLifecycleMapper.java
+      {Rpc}ServiceClientile.java
+
+    meta
+      {Rpc}ServiceMetaController.java
+      {Rpc}ServiceMetaService.java
+      {Rpc}ServiceMetaMapper.java
+
+  protocol
+    ...
+```
+
+## Husky Package
+```
+com.acorn.redqueen.service.registry.husky
+  client
+  client.port
+  client.mapper
+  server
+  server.lifecycle
+  server.meta
+  protocol
+```
+## gRPC Package
+```
+com.acorn.redqueen.service.registry.grpc
+  client
+  client.port
+  client.mapper
+  server
+  server.lifecycle
+  server.meta
+  protocol.lifecycle.proto
+  protocol.meta.proto
+```
+## Naming Notes
+
+Lifecycle means service registration control.
+Meta means service directory, service metadata and instance metadata.
+Query is not a top-level package name for service control transport.
+Legacy package names are not allowed.

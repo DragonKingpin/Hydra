@@ -9,11 +9,13 @@
         INSERT INTO `hydra_service_node_tree`
         (
             `guid`,
+            `parent_guid`,
             `linked_type`
         )
         VALUES
         (
             #{guid},
+            NULL,
             #{linkedType}
         )
     </insert>

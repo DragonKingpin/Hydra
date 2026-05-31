@@ -29,7 +29,6 @@
         <module>hydra-kom-default-driver</module>
         <module>hydra-lib-thrift-sdk</module>
         <module>hydra-lib-grpc-sdk</module>
-        <module>hydra-lib-grpc-service-sdk</module>
         <module>hydra-lib-uofs-cache</module>
 
         <module>hydra-system-tritium</module>

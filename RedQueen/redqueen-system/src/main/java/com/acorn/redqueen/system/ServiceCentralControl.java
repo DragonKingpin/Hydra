@@ -5,3 +5,4 @@ import com.pinecone.hydra.system.centrum.CentralControlSubsystem;
 
 public interface ServiceCentralControl extends SynergicSystem, CentralControlSubsystem {
 }
+

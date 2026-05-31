@@ -11,14 +11,19 @@ import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.UniformService;
 import com.pinecone.hydra.service.registry.WolfServiceInstance;
 import com.pinecone.hydra.service.registry.appoint.ServiceClientile;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
-import com.pinecone.hydra.service.registry.constant.ServiceStatus;
-import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
-import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
+import com.pinecone.hydra.service.registry.constant.ServiceInstanceStatus;
+import com.pinecone.hydra.service.registry.event.InstanceLifecycleEvent;
+import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
+import com.pinecone.hydra.service.registry.server.transport.UniformServiceControlTransportRegistry;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -46,9 +51,10 @@ public class UniformServiceManager implements ServiceManager {
     protected final ConcurrentMap<Identification, ClientInstance >                          mInstanceRegistry; // InstanceId => Instance
     protected final ConcurrentMap<Long, ServiceClientile>                                   mClientRegistry; // ClientId => Client
 
-    protected final List<ServiceRegisterEventHandler>                                       mRegisterEventHandlers;
+    protected final List<InstanceLifecycleEventHandler>                                     mRegisterEventHandlers;
     protected final GuidAllocator                                                           mGuidAllocator;
     protected final ServiceEventHooker                                                      mServiceEventHooker;
+    protected final ServiceControlTransportRegistry                                         mTransportRegistry;
 
     protected final ServiceLifecycleService                                                 mServiceLifecycleService;
     protected final ServiceMetaService                                                      mServiceMetaService;
@@ -88,6 +94,7 @@ public class UniformServiceManager implements ServiceManager {
         this.mRegisterEventHandlers     = new ArrayList<>();
         this.mGuidAllocator             = serviceInstrument.getGuidAllocator();
         this.mServiceEventHooker        = new UniformServiceEventHooker( this );
+        this.mTransportRegistry         = new UniformServiceControlTransportRegistry();
 
 
         this.mServiceLifecycleService   = new ServiceLifecycleService( this );
@@ -150,6 +157,11 @@ public class UniformServiceManager implements ServiceManager {
         return this.mServiceEventHooker;
     }
 
+    @Override
+    public ServiceControlTransportRegistry transportRegistry() {
+        return this.mTransportRegistry;
+    }
+
 
 
 
@@ -165,11 +177,31 @@ public class UniformServiceManager implements ServiceManager {
 
     @Override
     public void startService() throws ServiceControlRPCException {
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( !transport.isStarted() ) {
+                transport.startService();
+            }
+        }
         this.vitalizeRPCSubsystem();
     }
 
     @Override
-    public void addRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+    public void terminateService() throws IllegalStateException {
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( !transport.isTerminated() ) {
+                transport.terminateService();
+            }
+        }
+
+        for ( ServiceAppointServer appointServer : this.mServerPoolMap.values() ) {
+            if ( appointServer != null ) {
+                appointServer.close();
+            }
+        }
+    }
+
+    @Override
+    public void addRegisterEventHandler( InstanceLifecycleEventHandler handler ) {
         try {
             this.mEventHandlerLock.writeLock().lock();
             this.mRegisterEventHandlers.add( handler );
@@ -180,7 +212,7 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public void removeRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+    public void removeRegisterEventHandler( InstanceLifecycleEventHandler handler ) {
         try {
             this.mEventHandlerLock.readLock().lock();
             this.mRegisterEventHandlers.remove( handler );
@@ -201,14 +233,14 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected void triggerServiceEvent( long clientId, Identification insId, ServiceRegisterEvent event, Object caused ) {
+    protected void triggerServiceEvent(long clientId, Identification insId, InstanceLifecycleEvent event, Object caused ) {
         ServiceInstance instance = this.mCIdInstanceRegistry.get( clientId );
         if ( instance == null ) {
             return;
         }
         GUID serviceId = (GUID) instance.getUSII().getServiceId();
 
-        for ( ServiceRegisterEventHandler handler : this.mRegisterEventHandlers ) {
+        for ( InstanceLifecycleEventHandler handler : this.mRegisterEventHandlers ) {
             handler.fired( clientId, (GUID) insId, serviceId, event, caused );
         }
     }
@@ -245,12 +277,24 @@ public class UniformServiceManager implements ServiceManager {
             return ins;
         } );
 
-        this.triggerServiceEvent( clientId, instance.getId(), ServiceRegisterEvent.Registered, instance );
+        this.triggerServiceEvent( clientId, instance.getId(), InstanceLifecycleEvent.Registered, instance );
     }
 
     @Override
     public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
+        RegisterServiceDTO serviceDTO = new RegisterServiceDTO( clientId, serviceId.toString(), deployGuid == null ? null : deployGuid.toString() );
+        return this.registerService( serviceDTO );
+    }
+
+    @Override
+    public GUID registerService( RegisterServiceDTO serviceDTO ) throws ClientServiceRegisterException {
         synchronized ( this.mServiceRegistry ) {
+            Long clientId = serviceDTO.getClientId();
+            GUID serviceId = this.mGuidAllocator.parse( serviceDTO.getServiceId() );
+            GUID deployGuid = null;
+            if ( serviceDTO.getDeployId() != null && !serviceDTO.getDeployId().isBlank() ) {
+                deployGuid = this.mGuidAllocator.parse( serviceDTO.getDeployId() );
+            }
             ServiceClientile client = this.mClientRegistry.get( clientId );
             if ( client == null ) {
                 throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
@@ -263,8 +307,8 @@ public class UniformServiceManager implements ServiceManager {
                 ip = inet.getAddress().getHostAddress();
             }
 
-            ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceId, deployGuid, ip ); // new
-            ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceStatus.SERVICE_RUNNING );
+            ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote ); // new
+            ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceInstanceStatus.Online );
 
             TreeNode node = this.mServiceInstrument.get( serviceId );
             ServiceElement serviceElement = (ServiceElement) node;
@@ -276,7 +320,7 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceStatus status ) {
+    protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceInstanceStatus status ) {
         ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance( id );
         if ( element != null ) {
             element.setStatus( status.getName() );
@@ -378,7 +422,7 @@ public class UniformServiceManager implements ServiceManager {
                 ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( eliminated.getServiceId() );
                 if ( instances != null ) {
                     this.mInstanceRegistry.remove( eliminated.getId() );
-                    this.updateServiceInstanceStatus( (GUID) eliminated.getId(), ServiceStatus.SERVICE_TERMINATED );
+                    this.updateServiceInstanceStatus( (GUID) eliminated.getId(), ServiceInstanceStatus.Terminated );
                     this.getLogger().info(
                             "Detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
                             clientId, eliminated.getId(), eliminated.getServiceId()
@@ -400,7 +444,7 @@ public class UniformServiceManager implements ServiceManager {
                     throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
                 }
 
-                this.triggerServiceEvent( clientId, eliminated.getId(), ServiceRegisterEvent.Deregistered, eliminated );
+                this.triggerServiceEvent( clientId, eliminated.getId(), InstanceLifecycleEvent.Deregistered, eliminated );
             }
             return null;
         }
@@ -429,6 +473,17 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
+    public void shutdownServiceInstance( Identification instanceId, String szReason ) throws ServiceControlRPCException {
+        ClientInstance clientInstance = this.mInstanceRegistry.get( instanceId );
+        if ( clientInstance == null ) {
+            throw new ServiceControlRPCException( "Service instance is not registered, instanceId => `" + instanceId + "`." );
+        }
+
+        ServiceControlTransport transport = this.mTransportRegistry.requireTransport( clientInstance.getClientId() );
+        transport.shutdownClientService( clientInstance.getClientId(), (GUID) instanceId, szReason );
+    }
+
+    @Override
     public ServiceInstrument getServicesInstrument() {
         return this.mServiceInstrument;
     }
@@ -439,20 +494,61 @@ public class UniformServiceManager implements ServiceManager {
     }
 
 
-    protected ServiceInstanceEntry createServiceInstanceMeta( GUID serviceId, GUID deployGuid, String ip ) {
+    protected ServiceInstanceEntry createServiceInstanceMeta(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) {
         GUID guid = this.mGuidAllocator.nextGUID();
         ServiceInstanceEntry instanceEntity = new GenericServiceInstanceEntity();
+        LocalDateTime registerTime = LocalDateTime.now();
+        String remoteAddress = "";
+        String endpointHost = "";
+        Integer endpointPort = null;
+
+        if ( remote != null ) {
+            remoteAddress = remote.toString();
+        }
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = inet.getAddress().getHostAddress();
+            endpointPort = inet.getPort();
+        }
 
         instanceEntity.setDeployGuid( deployGuid );
-        instanceEntity.setStatus( ServiceStatus.SERVICE_NEW.getName() );
-        instanceEntity.setLatestStartTime( LocalDateTime.now() );
-        instanceEntity.setIp( ip );
+        instanceEntity.setStatus( ServiceInstanceStatus.New.getName() );
+        instanceEntity.setClientId( serviceDTO.getClientId() );
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        instanceEntity.setTransportType( szTransportType );
+        instanceEntity.setRemoteAddress( remoteAddress );
+        instanceEntity.setEndpointProtocol( this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType ) );
+        instanceEntity.setEndpointHost( this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost ) );
+        instanceEntity.setEndpointPort( serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort() );
+        instanceEntity.setEndpointPath( serviceDTO.getEndpointPath() );
+        instanceEntity.setEndpointAddress( this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress ) );
+        instanceEntity.setRegisterTime( registerTime );
+        instanceEntity.setLastHeartbeatTime( registerTime );
+        instanceEntity.setRunCount( 0 );
         instanceEntity.setGuid( guid );
         instanceEntity.setServiceGuid( serviceId );
+        instanceEntity.setVersion( serviceDTO.getVersion() );
+        instanceEntity.setZone( serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            instanceEntity.setWeight( serviceDTO.getWeight() );
+        }
+        instanceEntity.setMetadataJson( serviceDTO.getMetadataJson() );
 
         this.mServiceInstrument.createServiceInstance( instanceEntity );
 
         return instanceEntity;
+    }
+
+    protected String notBlankOrDefault( String szValue, String szDefault ) {
+        if ( szValue == null || szValue.isBlank() ) {
+            return szDefault;
+        }
+        return szValue;
     }
 
 

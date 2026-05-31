@@ -89,9 +89,10 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
                 this.mPassiveRegisterAckSupport.cancel( channel );
             }
             UlfClient wrappedClient = WolvesAppointClient.this.getMessageNode();
-            if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
-                if ( wrappedClient instanceof WolfMCClient ) {
-                    ( (WolfMCClient)wrappedClient ).getReconnectSupervisor().submit( cb, this.createDuplexReconnectFeature( wrappedClient ) );
+            if ( wrappedClient instanceof WolfMCClient ) {
+                WolfMCClient wolfClient = (WolfMCClient)wrappedClient;
+                if ( wolfClient.isReconnectAllowed() ) {
+                    wolfClient.getReconnectSupervisor().submit( cb, this.createDuplexReconnectFeature( wrappedClient ) );
                 }
             }
 

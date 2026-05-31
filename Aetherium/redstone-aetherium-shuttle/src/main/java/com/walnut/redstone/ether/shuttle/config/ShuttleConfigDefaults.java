@@ -3,6 +3,7 @@ package com.walnut.redstone.ether.shuttle.config;
 import java.util.List;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.walnut.redstone.ether.shuttle.lifecycle.ShuttleKernel;
 
 public class ShuttleConfigDefaults implements Pinenut {
     public ShuttleConfig apply( ShuttleConfig config ) {
@@ -50,7 +51,7 @@ public class ShuttleConfigDefaults implements Pinenut {
             return;
         }
         if ( this.blank( config.getType() ) ) {
-            config.setType( "ApacheHttpClient5Async" );
+            config.setType( ShuttleKernel.HttpClientTypeApacheHttpClient5ClassicStreaming );
         }
         if ( config.getIoThreadCount() <= 0 ) {
             config.setIoThreadCount( Math.max( Runtime.getRuntime().availableProcessors(), 2 ) );

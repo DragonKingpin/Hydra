@@ -79,6 +79,8 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     protected UlfReconnectSupervisor               mReconnectSupervisor;
 
+    protected volatile boolean                     mbClosing = false;
+
     public WolfMCClient( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ){
         super( nodeId, szName, parentProcess, parent, joConf, extraHeadCoder );
 
@@ -180,6 +182,17 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         return this.mReconnectSupervisor;
     }
 
+    public boolean                        isClosing() {
+        return this.mbClosing;
+    }
+
+    public boolean                        isReconnectAllowed() {
+        return this.getConnectionArguments().isAutoReconnect()
+                && !this.isClosing()
+                && !this.isShutdown()
+                && this.getEventLoopGroup() != null;
+    }
+
     public int                            getParallelChannels() {
         return this.getConnectionArguments().getParallelChannels();
     }
@@ -195,6 +208,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     public void                           close() throws ProvokeHandleException {
         this.mStateMutex.lock();
         try {
+            this.mbClosing = true;
             if( this.mExecutorGroup != null ) {
                 this.mExecutorGroup.shutdownGracefully();
                 this.clear();
@@ -217,6 +231,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public void                           kill() {
+        this.mbClosing = true;
         try {
             this.close();
         }
@@ -356,6 +371,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     protected void                        initNettySubsystem() throws IOException, UMCServiceException {
+        this.mbClosing = false;
         this.mExecutorGroup = new NioEventLoopGroup();
         this.mBootstrap     = new Bootstrap();
         Bootstrap bootstrap = this.mBootstrap;

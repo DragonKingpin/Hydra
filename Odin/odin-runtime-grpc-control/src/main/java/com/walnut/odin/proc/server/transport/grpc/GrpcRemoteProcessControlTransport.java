@@ -21,6 +21,7 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.transport.CompositeRemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlSession;
@@ -43,7 +44,7 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
     protected GrpcAppointServer                 mGrpcAppointServer;
 
-    protected RemoteProcessControlEventHooker   mEventHooker;
+    protected CompositeRemoteProcessControlEventHooker  mEventHooker;
 
     protected Map<Long, GrpcRemoteProcessControlClientile> mClientileMap;
 
@@ -55,16 +56,20 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
     protected ScheduledExecutorService          mHeartbeatGuardian;
 
+    protected Map<Class<?>, BindableService>    mAdditionalGrpcServiceMap;
+
     public GrpcRemoteProcessControlTransport( RemoteProcessManagerServer remoteProcessManagerServer,
                                               GrpcAppointServer grpcAppointServer,
                                               RemoteProcessControlEventHooker eventHooker ) {
         this.mRemoteProcessManagerServer = remoteProcessManagerServer;
         this.mGuidAllocator              = remoteProcessManagerServer.getGuidAllocator();
         this.mGrpcAppointServer          = grpcAppointServer;
-        this.mEventHooker                = eventHooker;
+        this.mEventHooker                = new CompositeRemoteProcessControlEventHooker();
         this.mClientileMap               = new ConcurrentHashMap<>();
         this.mCorrelationWaiter          = new GrpcCorrelationWaiter<>();
         this.mFrameMapper                = new GrpcRemoteProcessFrameMapper( this.mGuidAllocator );
+        this.mAdditionalGrpcServiceMap   = new ConcurrentHashMap<>();
+        this.addEventHooker( eventHooker );
     }
 
     public RemoteProcessManagerServer remoteProcessManagerServer() {
@@ -81,6 +86,37 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
 
     public GrpcRemoteProcessFrameMapper frameMapper() {
         return this.mFrameMapper;
+    }
+
+    public <T extends BindableService> T queryAdditionalGrpcService( Class<T> serviceClass ) {
+        BindableService service = this.mAdditionalGrpcServiceMap.get( serviceClass );
+        if ( serviceClass.isInstance( service ) ) {
+            return serviceClass.cast( service );
+        }
+
+        for ( BindableService candidate : this.mAdditionalGrpcServiceMap.values() ) {
+            if ( serviceClass.isInstance( candidate ) ) {
+                return serviceClass.cast( candidate );
+            }
+        }
+        return null;
+    }
+
+    public Collection<BindableService> additionalGrpcServices() {
+        return this.mAdditionalGrpcServiceMap.values();
+    }
+
+    @Override
+    public GrpcRemoteProcessControlTransport addEventHooker( RemoteProcessControlEventHooker hooker ) {
+        if ( hooker == null ) {
+            return this;
+        }
+        this.mEventHooker.addHooker( hooker );
+        hooker.onTransportHooked( this );
+        for ( BindableService service : this.mAdditionalGrpcServiceMap.values() ) {
+            hooker.onAdditionalServiceRegistered( this, service );
+        }
+        return this;
     }
 
     protected String nextGuidString() {
@@ -100,9 +136,7 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
                 session.remoteAddress(),
                 clientile.sessions().size()
         );
-        if ( this.mEventHooker != null ) {
-            this.mEventHooker.onClientInitialized( this, session.clientId() );
-        }
+        this.mEventHooker.onClientInitialized( this, session.clientId() );
     }
 
     public void detachClientSession( GrpcRemoteProcessControlSession session ) {
@@ -276,9 +310,11 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             try {
                 Class<?> clazz = Class.forName( szClassName );
                 BindableService serviceInstance = this.instantiateGrpcService( clazz );
+                this.mAdditionalGrpcServiceMap.put( serviceInstance.getClass(), serviceInstance );
                 this.mGrpcAppointServer.serverBuilder().addService(
                         ServerInterceptors.intercept( serviceInstance, new GrpcRemoteAddressServerInterceptor() )
                 );
+                this.mEventHooker.onAdditionalServiceRegistered( this, serviceInstance );
                 this.log.info(
                         "[GrpcControl] [AdditionalServiceRegistered] (ClassName: `{}`) <Done>",
                         szClassName

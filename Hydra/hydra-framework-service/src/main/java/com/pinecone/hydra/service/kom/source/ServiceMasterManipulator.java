@@ -7,21 +7,13 @@ import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
 public interface ServiceMasterManipulator extends KOIMasterManipulator {
     TrieTreeManipulator getTrieTreeManipulator() ;
 
-    NodeMetaManipulator getNodeMetaManipulator();
-
     ApplicationNodeManipulator getApplicationNodeManipulator();
 
-    ApplicationMetaManipulator getApplicationElementManipulator();
-
     ServiceNodeManipulator getServiceNodeManipulator();
-
-    ServiceMetaManipulator getServiceMetaManipulator();
 
     ServiceNamespaceManipulator getNamespaceManipulator();
 
     ServiceInstanceManipulator getServiceInstanceManipulator();
-
-    NamespaceRulesManipulator getNamespaceRulesManipulator();
 
     TireOwnerManipulator getTireOwnerManipulator();
 

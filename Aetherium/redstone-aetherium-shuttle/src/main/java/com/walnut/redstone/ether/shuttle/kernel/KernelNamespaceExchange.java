@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import com.walnut.redstone.ether.red.RedHeaders;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleMethod;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleRequest;
 import com.walnut.redstone.ether.shuttle.exchange.ShuttleResponse;
@@ -37,10 +38,10 @@ public class KernelNamespaceExchange {
             return this.empty( 404 );
         }
         ShuttleResponse response = this.empty( 200 );
-        response.getHeaders().put( "Content-Type", meta.getContentType() == null ? GenericKernelMappedFileEncoder.ContentTypeJson : meta.getContentType() );
-        response.getHeaders().put( "X-Red-Kernel-Readonly", String.valueOf( !meta.isWritable() ) );
+        response.getHeaders().put( RedHeaders.ContentType, meta.getContentType() == null ? GenericKernelMappedFileEncoder.ContentTypeJson : meta.getContentType() );
+        response.getHeaders().put( RedHeaders.KernelReadonly, String.valueOf( !meta.isWritable() ) );
         if ( meta.getContentLength() != null ) {
-            response.getHeaders().put( "Content-Length", String.valueOf( meta.getContentLength() ) );
+            response.getHeaders().put( RedHeaders.ContentLength, String.valueOf( meta.getContentLength() ) );
         }
         if ( meta.getHeaders() != null ) {
             response.getHeaders().putAll( meta.getHeaders() );
@@ -51,14 +52,14 @@ public class KernelNamespaceExchange {
     protected ShuttleResponse methodNotAllowed() {
         ShuttleResponse response = this.empty( 405 );
         response.getHeaders().put( "Allow", "GET, HEAD" );
-        response.getHeaders().put( "X-Red-Kernel-Readonly", "true" );
+        response.getHeaders().put( RedHeaders.KernelReadonly, "true" );
         return response;
     }
 
     protected ShuttleResponse empty( int nStatusCode ) {
         ShuttleResponse response = new ShuttleResponse();
         response.setStatusCode( nStatusCode );
-        response.setHeaders( new LinkedHashMap<>( Map.of( "Content-Length", "0" ) ) );
+        response.setHeaders( new LinkedHashMap<>( Map.of( RedHeaders.ContentLength, "0" ) ) );
         response.setBodyStream( new ByteArrayInputStream( new byte[0] ) );
         return response;
     }

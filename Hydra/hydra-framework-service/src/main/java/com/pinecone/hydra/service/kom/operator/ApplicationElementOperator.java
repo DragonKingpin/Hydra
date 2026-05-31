@@ -6,7 +6,6 @@ import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
-import com.pinecone.hydra.service.kom.source.ApplicationMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
@@ -18,7 +17,6 @@ import java.util.List;
 
 public class ApplicationElementOperator extends ArchElementOperator implements ElementOperator {
     protected ApplicationNodeManipulator        applicationNodeManipulator;
-    protected ApplicationMetaManipulator        applicationMetaManipulator;
 
     public ApplicationElementOperator(ElementOperatorFactory factory ) {
         this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
@@ -28,7 +26,6 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
     public ApplicationElementOperator(ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
         super( masterManipulator, serviceInstrument);
         this.applicationNodeManipulator = masterManipulator.getApplicationNodeManipulator();
-        this.applicationMetaManipulator = masterManipulator.getApplicationElementManipulator();
     }
 
 
@@ -41,21 +38,8 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         applicationElement.setGuid( applicationNodeGUID );
         this.applicationNodeManipulator.insert( applicationElement );
 
-
-        GUID descriptionGUID = guidAllocator.nextGUID();
-        if( applicationElement.getMetaGuid() == null ){
-            applicationElement.setMetaGuid( descriptionGUID );
-        }
-        this.applicationMetaManipulator.insert( applicationElement );
-
-
-        //将应用元信息存入元信息表
-        this.nodeMetaManipulator.insert( applicationElement );
-
-
         //将节点信息存入主表
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        node.setNodeMetadataGUID(descriptionGUID);
         node.setGuid(applicationNodeGUID);
         node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
         this.imperialTree.insert( node );
@@ -106,18 +90,13 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
     @Override
     public ApplicationElement get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
-        ApplicationElement applicationElement;
-        if( node.getNodeMetadataGUID() != null ){
-            applicationElement = this.applicationMetaManipulator.getApplicationElement( node.getNodeMetadataGUID(), this.serviceInstrument);
-        }
-        else {
+        ApplicationElement applicationElement = this.applicationNodeManipulator.getApplicationNode(guid);
+        if ( applicationElement == null ) {
             applicationElement = new GenericApplicationElement();
         }
 
-        this.applyCommonMeta( applicationElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
-
-        applicationElement.setName( this.applicationNodeManipulator.getApplicationNode(guid).getName() );
-        applicationElement.setGuid(applicationElement.getGuid());
+        applicationElement.setDistributedTreeNode( node );
+        applicationElement.setGuid( guid );
         return applicationElement;
     }
 
@@ -135,8 +114,6 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
     public void update( TreeNode treeNode ) {
         GenericApplicationElement applicationElement = (GenericApplicationElement) treeNode;
         this.applicationNodeManipulator.update( applicationElement );
-        this.applicationMetaManipulator.update( applicationElement );
-        this.nodeMetaManipulator.update( applicationElement );
     }
 
     @Override
@@ -148,8 +125,6 @@ public class ApplicationElementOperator extends ArchElementOperator implements E
         GUIDImperialTrieNode node = this.imperialTree.getNode( guid );
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath(guid);
-        this.applicationMetaManipulator.remove( node.getAttributesGUID() );
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
         this.applicationNodeManipulator.remove( node.getGuid( ));
     }
 }

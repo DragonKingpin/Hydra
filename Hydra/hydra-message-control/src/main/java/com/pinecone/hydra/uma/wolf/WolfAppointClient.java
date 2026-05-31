@@ -62,9 +62,10 @@ public class WolfAppointClient extends ArchUlfAppointNode implements UlfAppointC
         Channel channel = cb.getChannel().getNativeHandle();
         WolfAppointClient.this.getLogger().info( "Proactive channel ({}), has detached.", channel.id() );
         UlfClient wrappedClient = WolfAppointClient.this.getMessageNode();
-        if ( wrappedClient.getConnectionArguments().isAutoReconnect() ) {
-            if ( wrappedClient instanceof WolfMCClient ) {
-                ( (WolfMCClient)wrappedClient ).getReconnectSupervisor().submit( cb, this.createReconnectFeature() );
+        if ( wrappedClient instanceof WolfMCClient ) {
+            WolfMCClient wolfClient = (WolfMCClient)wrappedClient;
+            if ( wolfClient.isReconnectAllowed() ) {
+                wolfClient.getReconnectSupervisor().submit( cb, this.createReconnectFeature() );
             }
         }
 

@@ -19,6 +19,12 @@ public class ServiceMetaDTO implements Pinenut {
 
     private String type;
 
+    private String alias;
+
+    private String resourceType;
+
+    private String serviceType;
+
     private String displayName;
 
     private String description;
@@ -43,6 +49,30 @@ public class ServiceMetaDTO implements Pinenut {
 
     public void setType( String type ) {
         this.type = type;
+    }
+
+    public String getAlias() {
+        return this.alias;
+    }
+
+    public void setAlias( String alias ) {
+        this.alias = alias;
+    }
+
+    public String getResourceType() {
+        return this.resourceType;
+    }
+
+    public void setResourceType( String resourceType ) {
+        this.resourceType = resourceType;
+    }
+
+    public String getServiceType() {
+        return this.serviceType;
+    }
+
+    public void setServiceType( String serviceType ) {
+        this.serviceType = serviceType;
     }
 
     public String getGuid() {
@@ -172,6 +202,9 @@ public class ServiceMetaDTO implements Pinenut {
         serviceMetaDTO.setPrimaryImplLang( service.getPrimaryImplLang() );
         serviceMetaDTO.setGroupName( null );
         serviceMetaDTO.setType( service.getType() );
+        serviceMetaDTO.setAlias( service.getAlias() );
+        serviceMetaDTO.setResourceType( service.getResourceType() );
+        serviceMetaDTO.setServiceType( service.getServiceType() );
         return serviceMetaDTO;
     }
 
@@ -187,6 +220,9 @@ public class ServiceMetaDTO implements Pinenut {
         element.setScenario( meta.getScenario() );
         element.setPrimaryImplLang( meta.getPrimaryImplLang() );
         element.setType( meta.getType() );
+        element.setAlias( meta.getAlias() );
+        element.setResourceType( meta.getResourceType() );
+        element.setServiceType( meta.getServiceType() );
         return element;
     }
 

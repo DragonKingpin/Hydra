@@ -15,6 +15,14 @@ public class GrpcRemoteProcessControlEventHooker extends GenericRemoteProcessCon
     }
 
     @Override
+    public void onTransportHooked( RemoteProcessControlTransport transport ) {
+        this.log.info(
+                "[GrpcControlRegistry] [TransportHooked] (Transport: `{}`) <Done>",
+                transport.transportType()
+        );
+    }
+
+    @Override
     public void onClientInitialized( RemoteProcessControlTransport transport, long clientId ) {
         super.onClientInitialized( transport, clientId );
         this.log.info(

@@ -17,6 +17,13 @@ public interface RemoteProcessControlTransport extends RemoteProcessControlTrans
 
     boolean containsClient( long clientId );
 
+    default RemoteProcessControlTransport addEventHooker( RemoteProcessControlEventHooker hooker ) {
+        if ( hooker != null ) {
+            hooker.onTransportHooked( this );
+        }
+        return this;
+    }
+
     void registerController( Object controller ) throws RemoteProcessServiceRPCException;
 
     default boolean supportsRuntimeIfaceCompile() {

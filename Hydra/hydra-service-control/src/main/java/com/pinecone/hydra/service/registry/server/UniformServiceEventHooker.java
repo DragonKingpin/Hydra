@@ -23,6 +23,7 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
                 ins = constructor.get();
             }
             ins.afterNewConnectionInbound( clientId, connectId, connection, context );
+            this.mUniformServiceManager.transportRegistry().queryTransportHandle( clientId );
             return ins;
         } );
     }
@@ -38,6 +39,7 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
 
                 if ( client.connectionCount() < 1 ) {
                     this.mUniformServiceManager.mClientRegistry.remove( clientId );
+                    this.mUniformServiceManager.transportRegistry().detachClient( clientId );
                     this.mUniformServiceManager.deregisterServiceInstance( clientId );
                 }
             }

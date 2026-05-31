@@ -20,7 +20,9 @@ import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.transport.CompositeRemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.GenericRemoteProcessControlTransportRegistry;
+import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportRegistry;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportType;
@@ -45,6 +47,8 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected RemoteProcessControlTransportRegistry     mTransportRegistry;
 
+    protected CompositeRemoteProcessControlEventHooker  mTransportEventHooker;
+
     protected Map<Long, Set<GUID>>                      mClientSnapshotProcessMap;
 
     protected Set<Long>                                 mReadyClientIdSet;
@@ -61,6 +65,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         super( localProcessManager );
         this.mGuidAllocator             = localProcessManager.getGuidAllocator();
         this.mTransportRegistry         = new GenericRemoteProcessControlTransportRegistry();
+        this.mTransportEventHooker      = new CompositeRemoteProcessControlEventHooker();
         this.mClientSnapshotProcessMap  = new ConcurrentHashMap<>();
         this.mReadyClientIdSet          = ConcurrentHashMap.newKeySet();
         this.mClientControlSessionMap   = new ConcurrentHashMap<>();
@@ -72,6 +77,22 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     @Override
     public RemoteProcessManagerServer hookTransport( RemoteProcessControlTransport transport ) {
         this.mTransportRegistry.hookTransport( transport );
+        if ( transport != null ) {
+            for ( RemoteProcessControlEventHooker hooker : this.mTransportEventHooker.hookers() ) {
+                transport.addEventHooker( hooker );
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public RemoteProcessManagerServer hookTransportEvent( RemoteProcessControlEventHooker hooker ) {
+        this.mTransportEventHooker.addHooker( hooker );
+        if ( hooker != null ) {
+            for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
+                transport.addEventHooker( hooker );
+            }
+        }
         return this;
     }
 

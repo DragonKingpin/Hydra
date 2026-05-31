@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.kom.source;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.kom.ServiceElementQuery;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
@@ -25,4 +26,8 @@ public interface ServiceNodeManipulator extends GUIDNameManipulator {
     List<GUID> getGuidsByNameID(String name, GUID guid);
 
     List<ServiceElement> fetchAllService();
+
+    List<ServiceElement> fetchServices( ServiceElementQuery query );
+
+    long countServices( ServiceElementQuery query );
 }

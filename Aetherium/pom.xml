@@ -19,6 +19,7 @@
         <module>redstone-aetherium-s3</module>
         <module>redstone-aetherium-red</module>
         <module>redstone-aetherium-shuttle</module>
+        <module>redstone-shuttle-client</module>
     </modules>
 
     <dependencies>

@@ -29,9 +29,23 @@ public interface ServiceInstrument extends ReparseKOMTree {
 
     List<ServiceElement> fetchAllService();
 
+    List<ServiceElement> fetchServices( ServiceElementQuery query );
+
+    long countServices( ServiceElementQuery query );
+
+    ServiceElementPage fetchServicePage( ServiceElementQuery query );
+
     void createServiceInstance( ServiceInstanceEntry serviceInstanceEntry);
 
     ServiceInstanceEntry queryServiceInstance(GUID serviceId );
+
+    List<ServiceInstanceEntry> fetchServiceInstances( ServiceInstanceQuery query );
+
+    long countServiceInstances( ServiceInstanceQuery query );
+
+    List<ServiceInstanceEntry> fetchServiceInstancesByServiceGuid( GUID serviceGuid );
+
+    ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query );
 
     void updateServiceInstance( ServiceInstanceEntry element );
 

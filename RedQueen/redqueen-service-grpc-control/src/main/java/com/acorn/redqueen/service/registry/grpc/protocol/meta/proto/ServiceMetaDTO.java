@@ -6,12 +6,12 @@
 package com.acorn.redqueen.service.registry.grpc.protocol.meta.proto;
 
 /**
- * Protobuf type {@code ServiceDTO}
+ * Protobuf type {@code ServiceMetaDTO}
  */
-public final class ServiceDTO extends
+public final class ServiceMetaDTO extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:ServiceDTO)
-    ServiceDTOOrBuilder {
+    // @@protoc_insertion_point(message_implements:ServiceMetaDTO)
+    ServiceMetaDTOOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -20,18 +20,21 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 28,
       /* patch= */ 2,
       /* suffix= */ "",
-      ServiceDTO.class.getName());
+      ServiceMetaDTO.class.getName());
   }
-  // Use ServiceDTO.newBuilder() to construct.
-  private ServiceDTO(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use ServiceMetaDTO.newBuilder() to construct.
+  private ServiceMetaDTO(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private ServiceDTO() {
+  private ServiceMetaDTO() {
     guid_ = "";
     name_ = "";
+    type_ = "";
+    alias_ = "";
+    resourceType_ = "";
+    serviceType_ = "";
     displayName_ = "";
     description_ = "";
-    type_ = "";
     fullName_ = "";
     groupNamespace_ = "";
     groupName_ = "";
@@ -43,15 +46,15 @@ private static final long serialVersionUID = 0L;
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceDTO_descriptor;
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaDTO_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceDTO_fieldAccessorTable
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaDTO_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.Builder.class);
+            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder.class);
   }
 
   public static final int GUID_FIELD_NUMBER = 1;
@@ -132,89 +135,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int DISPLAYNAME_FIELD_NUMBER = 3;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object displayName_ = "";
-  /**
-   * <code>string displayName = 3;</code>
-   * @return The displayName.
-   */
-  @java.lang.Override
-  public java.lang.String getDisplayName() {
-    java.lang.Object ref = displayName_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      displayName_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string displayName = 3;</code>
-   * @return The bytes for displayName.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getDisplayNameBytes() {
-    java.lang.Object ref = displayName_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      displayName_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int DESCRIPTION_FIELD_NUMBER = 4;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object description_ = "";
-  /**
-   * <code>string description = 4;</code>
-   * @return The description.
-   */
-  @java.lang.Override
-  public java.lang.String getDescription() {
-    java.lang.Object ref = description_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      description_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string description = 4;</code>
-   * @return The bytes for description.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getDescriptionBytes() {
-    java.lang.Object ref = description_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      description_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int TYPE_FIELD_NUMBER = 5;
+  public static final int TYPE_FIELD_NUMBER = 3;
   @SuppressWarnings("serial")
   private volatile java.lang.Object type_ = "";
   /**
-   * <code>string type = 5;</code>
+   * <code>string type = 3;</code>
    * @return The type.
    */
   @java.lang.Override
@@ -231,7 +156,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string type = 5;</code>
+   * <code>string type = 3;</code>
    * @return The bytes for type.
    */
   @java.lang.Override
@@ -249,11 +174,206 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int FULLNAME_FIELD_NUMBER = 6;
+  public static final int ALIAS_FIELD_NUMBER = 4;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object alias_ = "";
+  /**
+   * <code>string alias = 4;</code>
+   * @return The alias.
+   */
+  @java.lang.Override
+  public java.lang.String getAlias() {
+    java.lang.Object ref = alias_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      alias_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string alias = 4;</code>
+   * @return The bytes for alias.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getAliasBytes() {
+    java.lang.Object ref = alias_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      alias_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int RESOURCETYPE_FIELD_NUMBER = 5;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object resourceType_ = "";
+  /**
+   * <code>string resourceType = 5;</code>
+   * @return The resourceType.
+   */
+  @java.lang.Override
+  public java.lang.String getResourceType() {
+    java.lang.Object ref = resourceType_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      resourceType_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string resourceType = 5;</code>
+   * @return The bytes for resourceType.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getResourceTypeBytes() {
+    java.lang.Object ref = resourceType_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      resourceType_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int SERVICETYPE_FIELD_NUMBER = 6;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object serviceType_ = "";
+  /**
+   * <code>string serviceType = 6;</code>
+   * @return The serviceType.
+   */
+  @java.lang.Override
+  public java.lang.String getServiceType() {
+    java.lang.Object ref = serviceType_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      serviceType_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string serviceType = 6;</code>
+   * @return The bytes for serviceType.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getServiceTypeBytes() {
+    java.lang.Object ref = serviceType_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      serviceType_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int DISPLAYNAME_FIELD_NUMBER = 7;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object displayName_ = "";
+  /**
+   * <code>string displayName = 7;</code>
+   * @return The displayName.
+   */
+  @java.lang.Override
+  public java.lang.String getDisplayName() {
+    java.lang.Object ref = displayName_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      displayName_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string displayName = 7;</code>
+   * @return The bytes for displayName.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getDisplayNameBytes() {
+    java.lang.Object ref = displayName_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      displayName_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int DESCRIPTION_FIELD_NUMBER = 8;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object description_ = "";
+  /**
+   * <code>string description = 8;</code>
+   * @return The description.
+   */
+  @java.lang.Override
+  public java.lang.String getDescription() {
+    java.lang.Object ref = description_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      description_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string description = 8;</code>
+   * @return The bytes for description.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getDescriptionBytes() {
+    java.lang.Object ref = description_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      description_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int FULLNAME_FIELD_NUMBER = 9;
   @SuppressWarnings("serial")
   private volatile java.lang.Object fullName_ = "";
   /**
-   * <code>string fullName = 6;</code>
+   * <code>string fullName = 9;</code>
    * @return The fullName.
    */
   @java.lang.Override
@@ -270,7 +390,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string fullName = 6;</code>
+   * <code>string fullName = 9;</code>
    * @return The bytes for fullName.
    */
   @java.lang.Override
@@ -288,11 +408,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int GROUPNAMESPACE_FIELD_NUMBER = 7;
+  public static final int GROUPNAMESPACE_FIELD_NUMBER = 10;
   @SuppressWarnings("serial")
   private volatile java.lang.Object groupNamespace_ = "";
   /**
-   * <code>string groupNamespace = 7;</code>
+   * <code>string groupNamespace = 10;</code>
    * @return The groupNamespace.
    */
   @java.lang.Override
@@ -309,7 +429,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string groupNamespace = 7;</code>
+   * <code>string groupNamespace = 10;</code>
    * @return The bytes for groupNamespace.
    */
   @java.lang.Override
@@ -327,11 +447,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int GROUPNAME_FIELD_NUMBER = 8;
+  public static final int GROUPNAME_FIELD_NUMBER = 11;
   @SuppressWarnings("serial")
   private volatile java.lang.Object groupName_ = "";
   /**
-   * <code>string groupName = 8;</code>
+   * <code>string groupName = 11;</code>
    * @return The groupName.
    */
   @java.lang.Override
@@ -348,7 +468,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string groupName = 8;</code>
+   * <code>string groupName = 11;</code>
    * @return The bytes for groupName.
    */
   @java.lang.Override
@@ -366,11 +486,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int SCENARIO_FIELD_NUMBER = 9;
+  public static final int SCENARIO_FIELD_NUMBER = 12;
   @SuppressWarnings("serial")
   private volatile java.lang.Object scenario_ = "";
   /**
-   * <code>string scenario = 9;</code>
+   * <code>string scenario = 12;</code>
    * @return The scenario.
    */
   @java.lang.Override
@@ -387,7 +507,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string scenario = 9;</code>
+   * <code>string scenario = 12;</code>
    * @return The bytes for scenario.
    */
   @java.lang.Override
@@ -405,11 +525,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int PRIMARYIMPLLANG_FIELD_NUMBER = 10;
+  public static final int PRIMARYIMPLLANG_FIELD_NUMBER = 13;
   @SuppressWarnings("serial")
   private volatile java.lang.Object primaryImplLang_ = "";
   /**
-   * <code>string primaryImplLang = 10;</code>
+   * <code>string primaryImplLang = 13;</code>
    * @return The primaryImplLang.
    */
   @java.lang.Override
@@ -426,7 +546,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string primaryImplLang = 10;</code>
+   * <code>string primaryImplLang = 13;</code>
    * @return The bytes for primaryImplLang.
    */
   @java.lang.Override
@@ -444,11 +564,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int EXTRAINFORMATION_FIELD_NUMBER = 11;
+  public static final int EXTRAINFORMATION_FIELD_NUMBER = 14;
   @SuppressWarnings("serial")
   private volatile java.lang.Object extraInformation_ = "";
   /**
-   * <code>string extraInformation = 11;</code>
+   * <code>string extraInformation = 14;</code>
    * @return The extraInformation.
    */
   @java.lang.Override
@@ -465,7 +585,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string extraInformation = 11;</code>
+   * <code>string extraInformation = 14;</code>
    * @return The bytes for extraInformation.
    */
   @java.lang.Override
@@ -483,11 +603,11 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int LEVEL_FIELD_NUMBER = 12;
+  public static final int LEVEL_FIELD_NUMBER = 15;
   @SuppressWarnings("serial")
   private volatile java.lang.Object level_ = "";
   /**
-   * <code>string level = 12;</code>
+   * <code>string level = 15;</code>
    * @return The level.
    */
   @java.lang.Override
@@ -504,7 +624,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string level = 12;</code>
+   * <code>string level = 15;</code>
    * @return The bytes for level.
    */
   @java.lang.Override
@@ -542,35 +662,44 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(name_)) {
       com.google.protobuf.GeneratedMessage.writeString(output, 2, name_);
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(type_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 3, type_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(alias_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 4, alias_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceType_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 5, resourceType_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(serviceType_)) {
+      com.google.protobuf.GeneratedMessage.writeString(output, 6, serviceType_);
+    }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(displayName_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 3, displayName_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 7, displayName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(description_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 4, description_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(type_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 5, type_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 8, description_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(fullName_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 6, fullName_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 9, fullName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(groupNamespace_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 7, groupNamespace_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 10, groupNamespace_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(groupName_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 8, groupName_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 11, groupName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(scenario_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 9, scenario_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 12, scenario_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(primaryImplLang_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 10, primaryImplLang_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 13, primaryImplLang_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(extraInformation_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 11, extraInformation_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 14, extraInformation_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(level_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 12, level_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 15, level_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -587,35 +716,44 @@ private static final long serialVersionUID = 0L;
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(name_)) {
       size += com.google.protobuf.GeneratedMessage.computeStringSize(2, name_);
     }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(type_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(3, type_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(alias_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(4, alias_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(resourceType_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(5, resourceType_);
+    }
+    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(serviceType_)) {
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(6, serviceType_);
+    }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(displayName_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(3, displayName_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(7, displayName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(description_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(4, description_);
-    }
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(type_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(5, type_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(8, description_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(fullName_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(6, fullName_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(9, fullName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(groupNamespace_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(7, groupNamespace_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(10, groupNamespace_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(groupName_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(8, groupName_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(11, groupName_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(scenario_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(9, scenario_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(12, scenario_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(primaryImplLang_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(10, primaryImplLang_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(13, primaryImplLang_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(extraInformation_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(11, extraInformation_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(14, extraInformation_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(level_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(12, level_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(15, level_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -627,21 +765,27 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO)) {
+    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO)) {
       return super.equals(obj);
     }
-    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO) obj;
+    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO) obj;
 
     if (!getGuid()
         .equals(other.getGuid())) return false;
     if (!getName()
         .equals(other.getName())) return false;
+    if (!getType()
+        .equals(other.getType())) return false;
+    if (!getAlias()
+        .equals(other.getAlias())) return false;
+    if (!getResourceType()
+        .equals(other.getResourceType())) return false;
+    if (!getServiceType()
+        .equals(other.getServiceType())) return false;
     if (!getDisplayName()
         .equals(other.getDisplayName())) return false;
     if (!getDescription()
         .equals(other.getDescription())) return false;
-    if (!getType()
-        .equals(other.getType())) return false;
     if (!getFullName()
         .equals(other.getFullName())) return false;
     if (!getGroupNamespace()
@@ -671,12 +815,18 @@ private static final long serialVersionUID = 0L;
     hash = (53 * hash) + getGuid().hashCode();
     hash = (37 * hash) + NAME_FIELD_NUMBER;
     hash = (53 * hash) + getName().hashCode();
+    hash = (37 * hash) + TYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getType().hashCode();
+    hash = (37 * hash) + ALIAS_FIELD_NUMBER;
+    hash = (53 * hash) + getAlias().hashCode();
+    hash = (37 * hash) + RESOURCETYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getResourceType().hashCode();
+    hash = (37 * hash) + SERVICETYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getServiceType().hashCode();
     hash = (37 * hash) + DISPLAYNAME_FIELD_NUMBER;
     hash = (53 * hash) + getDisplayName().hashCode();
     hash = (37 * hash) + DESCRIPTION_FIELD_NUMBER;
     hash = (53 * hash) + getDescription().hashCode();
-    hash = (37 * hash) + TYPE_FIELD_NUMBER;
-    hash = (53 * hash) + getType().hashCode();
     hash = (37 * hash) + FULLNAME_FIELD_NUMBER;
     hash = (53 * hash) + getFullName().hashCode();
     hash = (37 * hash) + GROUPNAMESPACE_FIELD_NUMBER;
@@ -696,44 +846,44 @@ private static final long serialVersionUID = 0L;
     return hash;
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(byte[] data)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -741,26 +891,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseDelimitedFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseDelimitedFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -773,7 +923,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO prototype) {
+  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -789,26 +939,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code ServiceDTO}
+   * Protobuf type {@code ServiceMetaDTO}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:ServiceDTO)
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTOOrBuilder {
+      // @@protoc_insertion_point(builder_implements:ServiceMetaDTO)
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceDTO_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaDTO_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceDTO_fieldAccessorTable
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaDTO_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.Builder.class);
+              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder.class);
     }
 
-    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.newBuilder()
+    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.newBuilder()
     private Builder() {
 
     }
@@ -824,9 +974,12 @@ private static final long serialVersionUID = 0L;
       bitField0_ = 0;
       guid_ = "";
       name_ = "";
+      type_ = "";
+      alias_ = "";
+      resourceType_ = "";
+      serviceType_ = "";
       displayName_ = "";
       description_ = "";
-      type_ = "";
       fullName_ = "";
       groupNamespace_ = "";
       groupName_ = "";
@@ -840,17 +993,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceDTO_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaDTO_descriptor;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO getDefaultInstanceForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.getDefaultInstance();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO getDefaultInstanceForType() {
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.getDefaultInstance();
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO build() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO result = buildPartial();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO build() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -858,14 +1011,14 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO buildPartial() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO(this);
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO buildPartial() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO result) {
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
         result.guid_ = guid_;
@@ -874,49 +1027,58 @@ private static final long serialVersionUID = 0L;
         result.name_ = name_;
       }
       if (((from_bitField0_ & 0x00000004) != 0)) {
-        result.displayName_ = displayName_;
-      }
-      if (((from_bitField0_ & 0x00000008) != 0)) {
-        result.description_ = description_;
-      }
-      if (((from_bitField0_ & 0x00000010) != 0)) {
         result.type_ = type_;
       }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.alias_ = alias_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.resourceType_ = resourceType_;
+      }
       if (((from_bitField0_ & 0x00000020) != 0)) {
-        result.fullName_ = fullName_;
+        result.serviceType_ = serviceType_;
       }
       if (((from_bitField0_ & 0x00000040) != 0)) {
-        result.groupNamespace_ = groupNamespace_;
+        result.displayName_ = displayName_;
       }
       if (((from_bitField0_ & 0x00000080) != 0)) {
-        result.groupName_ = groupName_;
+        result.description_ = description_;
       }
       if (((from_bitField0_ & 0x00000100) != 0)) {
-        result.scenario_ = scenario_;
+        result.fullName_ = fullName_;
       }
       if (((from_bitField0_ & 0x00000200) != 0)) {
-        result.primaryImplLang_ = primaryImplLang_;
+        result.groupNamespace_ = groupNamespace_;
       }
       if (((from_bitField0_ & 0x00000400) != 0)) {
-        result.extraInformation_ = extraInformation_;
+        result.groupName_ = groupName_;
       }
       if (((from_bitField0_ & 0x00000800) != 0)) {
+        result.scenario_ = scenario_;
+      }
+      if (((from_bitField0_ & 0x00001000) != 0)) {
+        result.primaryImplLang_ = primaryImplLang_;
+      }
+      if (((from_bitField0_ & 0x00002000) != 0)) {
+        result.extraInformation_ = extraInformation_;
+      }
+      if (((from_bitField0_ & 0x00004000) != 0)) {
         result.level_ = level_;
       }
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO) {
-        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO)other);
+      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO) {
+        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO other) {
-      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO.getDefaultInstance()) return this;
+    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO other) {
+      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.getDefaultInstance()) return this;
       if (!other.getGuid().isEmpty()) {
         guid_ = other.guid_;
         bitField0_ |= 0x00000001;
@@ -927,54 +1089,69 @@ private static final long serialVersionUID = 0L;
         bitField0_ |= 0x00000002;
         onChanged();
       }
+      if (!other.getType().isEmpty()) {
+        type_ = other.type_;
+        bitField0_ |= 0x00000004;
+        onChanged();
+      }
+      if (!other.getAlias().isEmpty()) {
+        alias_ = other.alias_;
+        bitField0_ |= 0x00000008;
+        onChanged();
+      }
+      if (!other.getResourceType().isEmpty()) {
+        resourceType_ = other.resourceType_;
+        bitField0_ |= 0x00000010;
+        onChanged();
+      }
+      if (!other.getServiceType().isEmpty()) {
+        serviceType_ = other.serviceType_;
+        bitField0_ |= 0x00000020;
+        onChanged();
+      }
       if (!other.getDisplayName().isEmpty()) {
         displayName_ = other.displayName_;
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000040;
         onChanged();
       }
       if (!other.getDescription().isEmpty()) {
         description_ = other.description_;
-        bitField0_ |= 0x00000008;
-        onChanged();
-      }
-      if (!other.getType().isEmpty()) {
-        type_ = other.type_;
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000080;
         onChanged();
       }
       if (!other.getFullName().isEmpty()) {
         fullName_ = other.fullName_;
-        bitField0_ |= 0x00000020;
+        bitField0_ |= 0x00000100;
         onChanged();
       }
       if (!other.getGroupNamespace().isEmpty()) {
         groupNamespace_ = other.groupNamespace_;
-        bitField0_ |= 0x00000040;
+        bitField0_ |= 0x00000200;
         onChanged();
       }
       if (!other.getGroupName().isEmpty()) {
         groupName_ = other.groupName_;
-        bitField0_ |= 0x00000080;
+        bitField0_ |= 0x00000400;
         onChanged();
       }
       if (!other.getScenario().isEmpty()) {
         scenario_ = other.scenario_;
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000800;
         onChanged();
       }
       if (!other.getPrimaryImplLang().isEmpty()) {
         primaryImplLang_ = other.primaryImplLang_;
-        bitField0_ |= 0x00000200;
+        bitField0_ |= 0x00001000;
         onChanged();
       }
       if (!other.getExtraInformation().isEmpty()) {
         extraInformation_ = other.extraInformation_;
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00002000;
         onChanged();
       }
       if (!other.getLevel().isEmpty()) {
         level_ = other.level_;
-        bitField0_ |= 0x00000800;
+        bitField0_ |= 0x00004000;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -1014,55 +1191,70 @@ private static final long serialVersionUID = 0L;
               break;
             } // case 18
             case 26: {
-              displayName_ = input.readStringRequireUtf8();
+              type_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000004;
               break;
             } // case 26
             case 34: {
-              description_ = input.readStringRequireUtf8();
+              alias_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000008;
               break;
             } // case 34
             case 42: {
-              type_ = input.readStringRequireUtf8();
+              resourceType_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000010;
               break;
             } // case 42
             case 50: {
-              fullName_ = input.readStringRequireUtf8();
+              serviceType_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000020;
               break;
             } // case 50
             case 58: {
-              groupNamespace_ = input.readStringRequireUtf8();
+              displayName_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000040;
               break;
             } // case 58
             case 66: {
-              groupName_ = input.readStringRequireUtf8();
+              description_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000080;
               break;
             } // case 66
             case 74: {
-              scenario_ = input.readStringRequireUtf8();
+              fullName_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000100;
               break;
             } // case 74
             case 82: {
-              primaryImplLang_ = input.readStringRequireUtf8();
+              groupNamespace_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000200;
               break;
             } // case 82
             case 90: {
-              extraInformation_ = input.readStringRequireUtf8();
+              groupName_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000400;
               break;
             } // case 90
             case 98: {
-              level_ = input.readStringRequireUtf8();
+              scenario_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000800;
               break;
             } // case 98
+            case 106: {
+              primaryImplLang_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00001000;
+              break;
+            } // case 106
+            case 114: {
+              extraInformation_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00002000;
+              break;
+            } // case 114
+            case 122: {
+              level_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00004000;
+              break;
+            } // case 122
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1224,153 +1416,9 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
-    private java.lang.Object displayName_ = "";
-    /**
-     * <code>string displayName = 3;</code>
-     * @return The displayName.
-     */
-    public java.lang.String getDisplayName() {
-      java.lang.Object ref = displayName_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        displayName_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string displayName = 3;</code>
-     * @return The bytes for displayName.
-     */
-    public com.google.protobuf.ByteString
-        getDisplayNameBytes() {
-      java.lang.Object ref = displayName_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        displayName_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string displayName = 3;</code>
-     * @param value The displayName to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDisplayName(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      displayName_ = value;
-      bitField0_ |= 0x00000004;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string displayName = 3;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearDisplayName() {
-      displayName_ = getDefaultInstance().getDisplayName();
-      bitField0_ = (bitField0_ & ~0x00000004);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string displayName = 3;</code>
-     * @param value The bytes for displayName to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDisplayNameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      displayName_ = value;
-      bitField0_ |= 0x00000004;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object description_ = "";
-    /**
-     * <code>string description = 4;</code>
-     * @return The description.
-     */
-    public java.lang.String getDescription() {
-      java.lang.Object ref = description_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        description_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string description = 4;</code>
-     * @return The bytes for description.
-     */
-    public com.google.protobuf.ByteString
-        getDescriptionBytes() {
-      java.lang.Object ref = description_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        description_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string description = 4;</code>
-     * @param value The description to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDescription(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      description_ = value;
-      bitField0_ |= 0x00000008;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string description = 4;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearDescription() {
-      description_ = getDefaultInstance().getDescription();
-      bitField0_ = (bitField0_ & ~0x00000008);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string description = 4;</code>
-     * @param value The bytes for description to set.
-     * @return This builder for chaining.
-     */
-    public Builder setDescriptionBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      description_ = value;
-      bitField0_ |= 0x00000008;
-      onChanged();
-      return this;
-    }
-
     private java.lang.Object type_ = "";
     /**
-     * <code>string type = 5;</code>
+     * <code>string type = 3;</code>
      * @return The type.
      */
     public java.lang.String getType() {
@@ -1386,7 +1434,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string type = 5;</code>
+     * <code>string type = 3;</code>
      * @return The bytes for type.
      */
     public com.google.protobuf.ByteString
@@ -1403,7 +1451,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string type = 5;</code>
+     * <code>string type = 3;</code>
      * @param value The type to set.
      * @return This builder for chaining.
      */
@@ -1411,22 +1459,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       type_ = value;
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
     /**
-     * <code>string type = 5;</code>
+     * <code>string type = 3;</code>
      * @return This builder for chaining.
      */
     public Builder clearType() {
       type_ = getDefaultInstance().getType();
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000004);
       onChanged();
       return this;
     }
     /**
-     * <code>string type = 5;</code>
+     * <code>string type = 3;</code>
      * @param value The bytes for type to set.
      * @return This builder for chaining.
      */
@@ -1435,14 +1483,374 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       type_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object alias_ = "";
+    /**
+     * <code>string alias = 4;</code>
+     * @return The alias.
+     */
+    public java.lang.String getAlias() {
+      java.lang.Object ref = alias_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        alias_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string alias = 4;</code>
+     * @return The bytes for alias.
+     */
+    public com.google.protobuf.ByteString
+        getAliasBytes() {
+      java.lang.Object ref = alias_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        alias_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string alias = 4;</code>
+     * @param value The alias to set.
+     * @return This builder for chaining.
+     */
+    public Builder setAlias(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      alias_ = value;
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string alias = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearAlias() {
+      alias_ = getDefaultInstance().getAlias();
+      bitField0_ = (bitField0_ & ~0x00000008);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string alias = 4;</code>
+     * @param value The bytes for alias to set.
+     * @return This builder for chaining.
+     */
+    public Builder setAliasBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      alias_ = value;
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object resourceType_ = "";
+    /**
+     * <code>string resourceType = 5;</code>
+     * @return The resourceType.
+     */
+    public java.lang.String getResourceType() {
+      java.lang.Object ref = resourceType_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        resourceType_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string resourceType = 5;</code>
+     * @return The bytes for resourceType.
+     */
+    public com.google.protobuf.ByteString
+        getResourceTypeBytes() {
+      java.lang.Object ref = resourceType_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        resourceType_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string resourceType = 5;</code>
+     * @param value The resourceType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setResourceType(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      resourceType_ = value;
       bitField0_ |= 0x00000010;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string resourceType = 5;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearResourceType() {
+      resourceType_ = getDefaultInstance().getResourceType();
+      bitField0_ = (bitField0_ & ~0x00000010);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string resourceType = 5;</code>
+     * @param value The bytes for resourceType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setResourceTypeBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      resourceType_ = value;
+      bitField0_ |= 0x00000010;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object serviceType_ = "";
+    /**
+     * <code>string serviceType = 6;</code>
+     * @return The serviceType.
+     */
+    public java.lang.String getServiceType() {
+      java.lang.Object ref = serviceType_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        serviceType_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string serviceType = 6;</code>
+     * @return The bytes for serviceType.
+     */
+    public com.google.protobuf.ByteString
+        getServiceTypeBytes() {
+      java.lang.Object ref = serviceType_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        serviceType_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string serviceType = 6;</code>
+     * @param value The serviceType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setServiceType(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      serviceType_ = value;
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string serviceType = 6;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearServiceType() {
+      serviceType_ = getDefaultInstance().getServiceType();
+      bitField0_ = (bitField0_ & ~0x00000020);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string serviceType = 6;</code>
+     * @param value The bytes for serviceType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setServiceTypeBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      serviceType_ = value;
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object displayName_ = "";
+    /**
+     * <code>string displayName = 7;</code>
+     * @return The displayName.
+     */
+    public java.lang.String getDisplayName() {
+      java.lang.Object ref = displayName_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        displayName_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string displayName = 7;</code>
+     * @return The bytes for displayName.
+     */
+    public com.google.protobuf.ByteString
+        getDisplayNameBytes() {
+      java.lang.Object ref = displayName_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        displayName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string displayName = 7;</code>
+     * @param value The displayName to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDisplayName(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      displayName_ = value;
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string displayName = 7;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearDisplayName() {
+      displayName_ = getDefaultInstance().getDisplayName();
+      bitField0_ = (bitField0_ & ~0x00000040);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string displayName = 7;</code>
+     * @param value The bytes for displayName to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDisplayNameBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      displayName_ = value;
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object description_ = "";
+    /**
+     * <code>string description = 8;</code>
+     * @return The description.
+     */
+    public java.lang.String getDescription() {
+      java.lang.Object ref = description_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        description_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string description = 8;</code>
+     * @return The bytes for description.
+     */
+    public com.google.protobuf.ByteString
+        getDescriptionBytes() {
+      java.lang.Object ref = description_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        description_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string description = 8;</code>
+     * @param value The description to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDescription(
+        java.lang.String value) {
+      if (value == null) { throw new NullPointerException(); }
+      description_ = value;
+      bitField0_ |= 0x00000080;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string description = 8;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearDescription() {
+      description_ = getDefaultInstance().getDescription();
+      bitField0_ = (bitField0_ & ~0x00000080);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string description = 8;</code>
+     * @param value The bytes for description to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDescriptionBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
+      description_ = value;
+      bitField0_ |= 0x00000080;
       onChanged();
       return this;
     }
 
     private java.lang.Object fullName_ = "";
     /**
-     * <code>string fullName = 6;</code>
+     * <code>string fullName = 9;</code>
      * @return The fullName.
      */
     public java.lang.String getFullName() {
@@ -1458,7 +1866,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string fullName = 6;</code>
+     * <code>string fullName = 9;</code>
      * @return The bytes for fullName.
      */
     public com.google.protobuf.ByteString
@@ -1475,7 +1883,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string fullName = 6;</code>
+     * <code>string fullName = 9;</code>
      * @param value The fullName to set.
      * @return This builder for chaining.
      */
@@ -1483,22 +1891,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       fullName_ = value;
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
     /**
-     * <code>string fullName = 6;</code>
+     * <code>string fullName = 9;</code>
      * @return This builder for chaining.
      */
     public Builder clearFullName() {
       fullName_ = getDefaultInstance().getFullName();
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00000100);
       onChanged();
       return this;
     }
     /**
-     * <code>string fullName = 6;</code>
+     * <code>string fullName = 9;</code>
      * @param value The bytes for fullName to set.
      * @return This builder for chaining.
      */
@@ -1507,14 +1915,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       fullName_ = value;
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
 
     private java.lang.Object groupNamespace_ = "";
     /**
-     * <code>string groupNamespace = 7;</code>
+     * <code>string groupNamespace = 10;</code>
      * @return The groupNamespace.
      */
     public java.lang.String getGroupNamespace() {
@@ -1530,7 +1938,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string groupNamespace = 7;</code>
+     * <code>string groupNamespace = 10;</code>
      * @return The bytes for groupNamespace.
      */
     public com.google.protobuf.ByteString
@@ -1547,7 +1955,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string groupNamespace = 7;</code>
+     * <code>string groupNamespace = 10;</code>
      * @param value The groupNamespace to set.
      * @return This builder for chaining.
      */
@@ -1555,22 +1963,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       groupNamespace_ = value;
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000200;
       onChanged();
       return this;
     }
     /**
-     * <code>string groupNamespace = 7;</code>
+     * <code>string groupNamespace = 10;</code>
      * @return This builder for chaining.
      */
     public Builder clearGroupNamespace() {
       groupNamespace_ = getDefaultInstance().getGroupNamespace();
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000200);
       onChanged();
       return this;
     }
     /**
-     * <code>string groupNamespace = 7;</code>
+     * <code>string groupNamespace = 10;</code>
      * @param value The bytes for groupNamespace to set.
      * @return This builder for chaining.
      */
@@ -1579,14 +1987,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       groupNamespace_ = value;
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000200;
       onChanged();
       return this;
     }
 
     private java.lang.Object groupName_ = "";
     /**
-     * <code>string groupName = 8;</code>
+     * <code>string groupName = 11;</code>
      * @return The groupName.
      */
     public java.lang.String getGroupName() {
@@ -1602,7 +2010,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string groupName = 8;</code>
+     * <code>string groupName = 11;</code>
      * @return The bytes for groupName.
      */
     public com.google.protobuf.ByteString
@@ -1619,7 +2027,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string groupName = 8;</code>
+     * <code>string groupName = 11;</code>
      * @param value The groupName to set.
      * @return This builder for chaining.
      */
@@ -1627,22 +2035,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       groupName_ = value;
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000400;
       onChanged();
       return this;
     }
     /**
-     * <code>string groupName = 8;</code>
+     * <code>string groupName = 11;</code>
      * @return This builder for chaining.
      */
     public Builder clearGroupName() {
       groupName_ = getDefaultInstance().getGroupName();
-      bitField0_ = (bitField0_ & ~0x00000080);
+      bitField0_ = (bitField0_ & ~0x00000400);
       onChanged();
       return this;
     }
     /**
-     * <code>string groupName = 8;</code>
+     * <code>string groupName = 11;</code>
      * @param value The bytes for groupName to set.
      * @return This builder for chaining.
      */
@@ -1651,14 +2059,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       groupName_ = value;
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000400;
       onChanged();
       return this;
     }
 
     private java.lang.Object scenario_ = "";
     /**
-     * <code>string scenario = 9;</code>
+     * <code>string scenario = 12;</code>
      * @return The scenario.
      */
     public java.lang.String getScenario() {
@@ -1674,7 +2082,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string scenario = 9;</code>
+     * <code>string scenario = 12;</code>
      * @return The bytes for scenario.
      */
     public com.google.protobuf.ByteString
@@ -1691,7 +2099,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string scenario = 9;</code>
+     * <code>string scenario = 12;</code>
      * @param value The scenario to set.
      * @return This builder for chaining.
      */
@@ -1699,22 +2107,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       scenario_ = value;
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000800;
       onChanged();
       return this;
     }
     /**
-     * <code>string scenario = 9;</code>
+     * <code>string scenario = 12;</code>
      * @return This builder for chaining.
      */
     public Builder clearScenario() {
       scenario_ = getDefaultInstance().getScenario();
-      bitField0_ = (bitField0_ & ~0x00000100);
+      bitField0_ = (bitField0_ & ~0x00000800);
       onChanged();
       return this;
     }
     /**
-     * <code>string scenario = 9;</code>
+     * <code>string scenario = 12;</code>
      * @param value The bytes for scenario to set.
      * @return This builder for chaining.
      */
@@ -1723,14 +2131,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       scenario_ = value;
-      bitField0_ |= 0x00000100;
+      bitField0_ |= 0x00000800;
       onChanged();
       return this;
     }
 
     private java.lang.Object primaryImplLang_ = "";
     /**
-     * <code>string primaryImplLang = 10;</code>
+     * <code>string primaryImplLang = 13;</code>
      * @return The primaryImplLang.
      */
     public java.lang.String getPrimaryImplLang() {
@@ -1746,7 +2154,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string primaryImplLang = 10;</code>
+     * <code>string primaryImplLang = 13;</code>
      * @return The bytes for primaryImplLang.
      */
     public com.google.protobuf.ByteString
@@ -1763,7 +2171,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string primaryImplLang = 10;</code>
+     * <code>string primaryImplLang = 13;</code>
      * @param value The primaryImplLang to set.
      * @return This builder for chaining.
      */
@@ -1771,22 +2179,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       primaryImplLang_ = value;
-      bitField0_ |= 0x00000200;
+      bitField0_ |= 0x00001000;
       onChanged();
       return this;
     }
     /**
-     * <code>string primaryImplLang = 10;</code>
+     * <code>string primaryImplLang = 13;</code>
      * @return This builder for chaining.
      */
     public Builder clearPrimaryImplLang() {
       primaryImplLang_ = getDefaultInstance().getPrimaryImplLang();
-      bitField0_ = (bitField0_ & ~0x00000200);
+      bitField0_ = (bitField0_ & ~0x00001000);
       onChanged();
       return this;
     }
     /**
-     * <code>string primaryImplLang = 10;</code>
+     * <code>string primaryImplLang = 13;</code>
      * @param value The bytes for primaryImplLang to set.
      * @return This builder for chaining.
      */
@@ -1795,14 +2203,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       primaryImplLang_ = value;
-      bitField0_ |= 0x00000200;
+      bitField0_ |= 0x00001000;
       onChanged();
       return this;
     }
 
     private java.lang.Object extraInformation_ = "";
     /**
-     * <code>string extraInformation = 11;</code>
+     * <code>string extraInformation = 14;</code>
      * @return The extraInformation.
      */
     public java.lang.String getExtraInformation() {
@@ -1818,7 +2226,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string extraInformation = 11;</code>
+     * <code>string extraInformation = 14;</code>
      * @return The bytes for extraInformation.
      */
     public com.google.protobuf.ByteString
@@ -1835,7 +2243,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string extraInformation = 11;</code>
+     * <code>string extraInformation = 14;</code>
      * @param value The extraInformation to set.
      * @return This builder for chaining.
      */
@@ -1843,22 +2251,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       extraInformation_ = value;
-      bitField0_ |= 0x00000400;
+      bitField0_ |= 0x00002000;
       onChanged();
       return this;
     }
     /**
-     * <code>string extraInformation = 11;</code>
+     * <code>string extraInformation = 14;</code>
      * @return This builder for chaining.
      */
     public Builder clearExtraInformation() {
       extraInformation_ = getDefaultInstance().getExtraInformation();
-      bitField0_ = (bitField0_ & ~0x00000400);
+      bitField0_ = (bitField0_ & ~0x00002000);
       onChanged();
       return this;
     }
     /**
-     * <code>string extraInformation = 11;</code>
+     * <code>string extraInformation = 14;</code>
      * @param value The bytes for extraInformation to set.
      * @return This builder for chaining.
      */
@@ -1867,14 +2275,14 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       extraInformation_ = value;
-      bitField0_ |= 0x00000400;
+      bitField0_ |= 0x00002000;
       onChanged();
       return this;
     }
 
     private java.lang.Object level_ = "";
     /**
-     * <code>string level = 12;</code>
+     * <code>string level = 15;</code>
      * @return The level.
      */
     public java.lang.String getLevel() {
@@ -1890,7 +2298,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string level = 12;</code>
+     * <code>string level = 15;</code>
      * @return The bytes for level.
      */
     public com.google.protobuf.ByteString
@@ -1907,7 +2315,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string level = 12;</code>
+     * <code>string level = 15;</code>
      * @param value The level to set.
      * @return This builder for chaining.
      */
@@ -1915,22 +2323,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       level_ = value;
-      bitField0_ |= 0x00000800;
+      bitField0_ |= 0x00004000;
       onChanged();
       return this;
     }
     /**
-     * <code>string level = 12;</code>
+     * <code>string level = 15;</code>
      * @return This builder for chaining.
      */
     public Builder clearLevel() {
       level_ = getDefaultInstance().getLevel();
-      bitField0_ = (bitField0_ & ~0x00000800);
+      bitField0_ = (bitField0_ & ~0x00004000);
       onChanged();
       return this;
     }
     /**
-     * <code>string level = 12;</code>
+     * <code>string level = 15;</code>
      * @param value The bytes for level to set.
      * @return This builder for chaining.
      */
@@ -1939,28 +2347,28 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       level_ = value;
-      bitField0_ |= 0x00000800;
+      bitField0_ |= 0x00004000;
       onChanged();
       return this;
     }
 
-    // @@protoc_insertion_point(builder_scope:ServiceDTO)
+    // @@protoc_insertion_point(builder_scope:ServiceMetaDTO)
   }
 
-  // @@protoc_insertion_point(class_scope:ServiceDTO)
-  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:ServiceMetaDTO)
+  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO();
+    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO();
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO getDefaultInstance() {
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<ServiceDTO>
-      PARSER = new com.google.protobuf.AbstractParser<ServiceDTO>() {
+  private static final com.google.protobuf.Parser<ServiceMetaDTO>
+      PARSER = new com.google.protobuf.AbstractParser<ServiceMetaDTO>() {
     @java.lang.Override
-    public ServiceDTO parsePartialFrom(
+    public ServiceMetaDTO parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1979,17 +2387,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<ServiceDTO> parser() {
+  public static com.google.protobuf.Parser<ServiceMetaDTO> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<ServiceDTO> getParserForType() {
+  public com.google.protobuf.Parser<ServiceMetaDTO> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceDTO getDefaultInstanceForType() {
+  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

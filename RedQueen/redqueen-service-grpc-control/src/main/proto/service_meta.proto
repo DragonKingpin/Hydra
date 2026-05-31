@@ -2,14 +2,21 @@ syntax = "proto3";
 
 option java_multiple_files = true;
 option java_package = "com.acorn.redqueen.service.registry.grpc.protocol.meta.proto";
-option java_outer_classname = "ServiceQueryProto";
+option java_outer_classname = "ServiceMetaProto";
 
-service ServiceQuery {
+service ServiceMeta {
   rpc FetchServicePage(FetchServicePageRequest) returns (ServicePageReply);
   rpc FetchServiceInstancePage(FetchServiceInstancePageRequest) returns (ServiceInstancePageReply);
   rpc QueryService(QueryServiceRequest) returns (ServiceReply);
   rpc QueryServiceInstance(QueryServiceInstanceRequest) returns (ServiceInstanceReply);
   rpc FetchNamespaceChildren(FetchNamespaceChildrenRequest) returns (NamespaceChildrenReply);
+
+  rpc FetchServiceInsMetaByClientId(FetchServiceInsMetaByClientIdRequest) returns (ServiceMetaListReply);
+  rpc FetchServiceInsMetaByServiceId(FetchServiceInsMetaByServiceIdRequest) returns (ServiceMetaListReply);
+  rpc QueryServiceMetaByPath(QueryServiceMetaByPathRequest) returns (ServiceMetaReply);
+  rpc QueryServiceMetaByGuid(QueryServiceMetaByGuidRequest) returns (ServiceMetaReply);
+  rpc EvalCreationStatement(EvalCreationStatementRequest) returns (GuidReply);
+  rpc CreateNewService(CreateNewServiceRequest) returns (GuidReply);
 }
 
 message FetchServicePageRequest {
@@ -43,6 +50,31 @@ message FetchNamespaceChildrenRequest {
   string path = 2;
 }
 
+message FetchServiceInsMetaByClientIdRequest {
+  int64 clientId = 1;
+}
+
+message FetchServiceInsMetaByServiceIdRequest {
+  string serviceId = 1;
+}
+
+message QueryServiceMetaByPathRequest {
+  string path = 1;
+}
+
+message QueryServiceMetaByGuidRequest {
+  string guid = 1;
+}
+
+message EvalCreationStatementRequest {
+  string jonsStatement = 1;
+}
+
+message CreateNewServiceRequest {
+  string parentAppPath = 1;
+  ServiceMetaDTO meta = 2;
+}
+
 message ServiceDTO {
   string guid = 1;
   string name = 2;
@@ -56,6 +88,24 @@ message ServiceDTO {
   string primaryImplLang = 10;
   string extraInformation = 11;
   string level = 12;
+}
+
+message ServiceMetaDTO {
+  string guid = 1;
+  string name = 2;
+  string type = 3;
+  string alias = 4;
+  string resourceType = 5;
+  string serviceType = 6;
+  string displayName = 7;
+  string description = 8;
+  string fullName = 9;
+  string groupNamespace = 10;
+  string groupName = 11;
+  string scenario = 12;
+  string primaryImplLang = 13;
+  string extraInformation = 14;
+  string level = 15;
 }
 
 message ServiceInstanceDTO {
@@ -113,3 +163,14 @@ message NamespaceChildrenReply {
   repeated NamespaceNodeDTO items = 1;
 }
 
+message ServiceMetaListReply {
+  repeated ServiceMetaDTO items = 1;
+}
+
+message ServiceMetaReply {
+  ServiceMetaDTO meta = 1;
+}
+
+message GuidReply {
+  string guid = 1;
+}

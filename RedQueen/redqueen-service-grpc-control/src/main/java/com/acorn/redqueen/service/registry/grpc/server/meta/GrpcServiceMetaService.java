@@ -10,22 +10,31 @@ import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.CreateNewServiceRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.EvalCreationStatementRequest;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchServiceInsMetaByClientIdRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchServiceInsMetaByServiceIdRequest;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchServiceInstancePageRequest;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchServicePageRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.GuidReply;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceInstanceRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByGuidRequest;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceRequest;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceInstancePageReply;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceInstanceReply;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaGrpc;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply;
+import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaReply;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServicePageReply;
-import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceQueryGrpc;
 import com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceReply;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 import io.grpc.stub.StreamObserver;
 
-public class GrpcServiceMetaService extends ServiceQueryGrpc.ServiceQueryImplBase implements Pinenut {
+public class GrpcServiceMetaService extends ServiceMetaGrpc.ServiceMetaImplBase implements Pinenut {
 
     protected ServiceManager mServiceManager;
 
@@ -127,6 +136,79 @@ public class GrpcServiceMetaService extends ServiceQueryGrpc.ServiceQueryImplBas
             StreamObserver<NamespaceChildrenReply> responseObserver
     ) {
         responseObserver.onNext( NamespaceChildrenReply.newBuilder().build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void fetchServiceInsMetaByClientId(
+            FetchServiceInsMetaByClientIdRequest request,
+            StreamObserver<ServiceMetaListReply> responseObserver
+    ) {
+        ServiceMetaListReply.Builder builder = ServiceMetaListReply.newBuilder();
+        for ( com.pinecone.hydra.service.registry.dto.ServiceMetaDTO item :
+                this.mServiceManager.getServiceMetaService().fetchServiceInsMetaByClientId( request.getClientId() ) ) {
+            builder.addItems( this.mTransformer.toServiceMetaDTO( item ) );
+        }
+        responseObserver.onNext( builder.build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void fetchServiceInsMetaByServiceId(
+            FetchServiceInsMetaByServiceIdRequest request,
+            StreamObserver<ServiceMetaListReply> responseObserver
+    ) {
+        ServiceMetaListReply.Builder builder = ServiceMetaListReply.newBuilder();
+        for ( com.pinecone.hydra.service.registry.dto.ServiceMetaDTO item :
+                this.mServiceManager.getServiceMetaService().fetchServiceInsMetaByServiceId( request.getServiceId() ) ) {
+            builder.addItems( this.mTransformer.toServiceMetaDTO( item ) );
+        }
+        responseObserver.onNext( builder.build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void queryServiceMetaByPath(
+            QueryServiceMetaByPathRequest request,
+            StreamObserver<ServiceMetaReply> responseObserver
+    ) {
+        com.pinecone.hydra.service.registry.dto.ServiceMetaDTO meta =
+                this.mServiceManager.getServiceMetaService().queryServiceMetaByPath( request.getPath() );
+        responseObserver.onNext( ServiceMetaReply.newBuilder().setMeta( this.mTransformer.toServiceMetaDTO( meta ) ).build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void queryServiceMetaByGuid(
+            QueryServiceMetaByGuidRequest request,
+            StreamObserver<ServiceMetaReply> responseObserver
+    ) {
+        com.pinecone.hydra.service.registry.dto.ServiceMetaDTO meta =
+                this.mServiceManager.getServiceMetaService().queryServiceMetaByGuid( request.getGuid() );
+        responseObserver.onNext( ServiceMetaReply.newBuilder().setMeta( this.mTransformer.toServiceMetaDTO( meta ) ).build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void evalCreationStatement(
+            EvalCreationStatementRequest request,
+            StreamObserver<GuidReply> responseObserver
+    ) {
+        String guid = this.mServiceManager.getServiceMetaService().evalCreationStatement( request.getJonsStatement() );
+        responseObserver.onNext( GuidReply.newBuilder().setGuid( guid == null ? "" : guid ).build() );
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void createNewService(
+            CreateNewServiceRequest request,
+            StreamObserver<GuidReply> responseObserver
+    ) {
+        String guid = this.mServiceManager.getServiceMetaService().createNewService(
+                request.getParentAppPath(),
+                this.mTransformer.toServiceMetaDTO( request.getMeta() )
+        );
+        responseObserver.onNext( GuidReply.newBuilder().setGuid( guid == null ? "" : guid ).build() );
         responseObserver.onCompleted();
     }
 }

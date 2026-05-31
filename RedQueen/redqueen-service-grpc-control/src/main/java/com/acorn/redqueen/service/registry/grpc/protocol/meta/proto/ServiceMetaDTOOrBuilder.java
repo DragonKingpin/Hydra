@@ -5,8 +5,8 @@
 
 package com.acorn.redqueen.service.registry.grpc.protocol.meta.proto;
 
-public interface ServiceDTOOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:ServiceDTO)
+public interface ServiceMetaDTOOrBuilder extends
+    // @@protoc_insertion_point(interface_extends:ServiceMetaDTO)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -34,120 +34,156 @@ public interface ServiceDTOOrBuilder extends
       getNameBytes();
 
   /**
-   * <code>string displayName = 3;</code>
-   * @return The displayName.
-   */
-  java.lang.String getDisplayName();
-  /**
-   * <code>string displayName = 3;</code>
-   * @return The bytes for displayName.
-   */
-  com.google.protobuf.ByteString
-      getDisplayNameBytes();
-
-  /**
-   * <code>string description = 4;</code>
-   * @return The description.
-   */
-  java.lang.String getDescription();
-  /**
-   * <code>string description = 4;</code>
-   * @return The bytes for description.
-   */
-  com.google.protobuf.ByteString
-      getDescriptionBytes();
-
-  /**
-   * <code>string type = 5;</code>
+   * <code>string type = 3;</code>
    * @return The type.
    */
   java.lang.String getType();
   /**
-   * <code>string type = 5;</code>
+   * <code>string type = 3;</code>
    * @return The bytes for type.
    */
   com.google.protobuf.ByteString
       getTypeBytes();
 
   /**
-   * <code>string fullName = 6;</code>
+   * <code>string alias = 4;</code>
+   * @return The alias.
+   */
+  java.lang.String getAlias();
+  /**
+   * <code>string alias = 4;</code>
+   * @return The bytes for alias.
+   */
+  com.google.protobuf.ByteString
+      getAliasBytes();
+
+  /**
+   * <code>string resourceType = 5;</code>
+   * @return The resourceType.
+   */
+  java.lang.String getResourceType();
+  /**
+   * <code>string resourceType = 5;</code>
+   * @return The bytes for resourceType.
+   */
+  com.google.protobuf.ByteString
+      getResourceTypeBytes();
+
+  /**
+   * <code>string serviceType = 6;</code>
+   * @return The serviceType.
+   */
+  java.lang.String getServiceType();
+  /**
+   * <code>string serviceType = 6;</code>
+   * @return The bytes for serviceType.
+   */
+  com.google.protobuf.ByteString
+      getServiceTypeBytes();
+
+  /**
+   * <code>string displayName = 7;</code>
+   * @return The displayName.
+   */
+  java.lang.String getDisplayName();
+  /**
+   * <code>string displayName = 7;</code>
+   * @return The bytes for displayName.
+   */
+  com.google.protobuf.ByteString
+      getDisplayNameBytes();
+
+  /**
+   * <code>string description = 8;</code>
+   * @return The description.
+   */
+  java.lang.String getDescription();
+  /**
+   * <code>string description = 8;</code>
+   * @return The bytes for description.
+   */
+  com.google.protobuf.ByteString
+      getDescriptionBytes();
+
+  /**
+   * <code>string fullName = 9;</code>
    * @return The fullName.
    */
   java.lang.String getFullName();
   /**
-   * <code>string fullName = 6;</code>
+   * <code>string fullName = 9;</code>
    * @return The bytes for fullName.
    */
   com.google.protobuf.ByteString
       getFullNameBytes();
 
   /**
-   * <code>string groupNamespace = 7;</code>
+   * <code>string groupNamespace = 10;</code>
    * @return The groupNamespace.
    */
   java.lang.String getGroupNamespace();
   /**
-   * <code>string groupNamespace = 7;</code>
+   * <code>string groupNamespace = 10;</code>
    * @return The bytes for groupNamespace.
    */
   com.google.protobuf.ByteString
       getGroupNamespaceBytes();
 
   /**
-   * <code>string groupName = 8;</code>
+   * <code>string groupName = 11;</code>
    * @return The groupName.
    */
   java.lang.String getGroupName();
   /**
-   * <code>string groupName = 8;</code>
+   * <code>string groupName = 11;</code>
    * @return The bytes for groupName.
    */
   com.google.protobuf.ByteString
       getGroupNameBytes();
 
   /**
-   * <code>string scenario = 9;</code>
+   * <code>string scenario = 12;</code>
    * @return The scenario.
    */
   java.lang.String getScenario();
   /**
-   * <code>string scenario = 9;</code>
+   * <code>string scenario = 12;</code>
    * @return The bytes for scenario.
    */
   com.google.protobuf.ByteString
       getScenarioBytes();
 
   /**
-   * <code>string primaryImplLang = 10;</code>
+   * <code>string primaryImplLang = 13;</code>
    * @return The primaryImplLang.
    */
   java.lang.String getPrimaryImplLang();
   /**
-   * <code>string primaryImplLang = 10;</code>
+   * <code>string primaryImplLang = 13;</code>
    * @return The bytes for primaryImplLang.
    */
   com.google.protobuf.ByteString
       getPrimaryImplLangBytes();
 
   /**
-   * <code>string extraInformation = 11;</code>
+   * <code>string extraInformation = 14;</code>
    * @return The extraInformation.
    */
   java.lang.String getExtraInformation();
   /**
-   * <code>string extraInformation = 11;</code>
+   * <code>string extraInformation = 14;</code>
    * @return The bytes for extraInformation.
    */
   com.google.protobuf.ByteString
       getExtraInformationBytes();
 
   /**
-   * <code>string level = 12;</code>
+   * <code>string level = 15;</code>
    * @return The level.
    */
   java.lang.String getLevel();
   /**
-   * <code>string level = 12;</code>
+   * <code>string level = 15;</code>
    * @return The bytes for level.
    */
   com.google.protobuf.ByteString

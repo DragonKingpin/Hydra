@@ -89,7 +89,7 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
         this.mManipulationHandlers = new CopyOnWriteArrayList<>();
         this.mState = ServiceClientTransportState.New;
         this.mLifecyclePort = new GrpcServiceLifecyclePort( this );
-        this.mMetaPort = new GrpcServiceMetaPort();
+        this.mMetaPort = new GrpcServiceMetaPort( grpcAppointClient );
     }
 
     public GrpcServiceClientTransport(

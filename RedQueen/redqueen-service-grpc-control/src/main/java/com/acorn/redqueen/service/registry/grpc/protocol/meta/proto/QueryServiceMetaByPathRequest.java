@@ -6,12 +6,12 @@
 package com.acorn.redqueen.service.registry.grpc.protocol.meta.proto;
 
 /**
- * Protobuf type {@code FetchNamespaceChildrenRequest}
+ * Protobuf type {@code QueryServiceMetaByPathRequest}
  */
-public final class FetchNamespaceChildrenRequest extends
+public final class QueryServiceMetaByPathRequest extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:FetchNamespaceChildrenRequest)
-    FetchNamespaceChildrenRequestOrBuilder {
+    // @@protoc_insertion_point(message_implements:QueryServiceMetaByPathRequest)
+    QueryServiceMetaByPathRequestOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -20,74 +20,34 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 28,
       /* patch= */ 2,
       /* suffix= */ "",
-      FetchNamespaceChildrenRequest.class.getName());
+      QueryServiceMetaByPathRequest.class.getName());
   }
-  // Use FetchNamespaceChildrenRequest.newBuilder() to construct.
-  private FetchNamespaceChildrenRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use QueryServiceMetaByPathRequest.newBuilder() to construct.
+  private QueryServiceMetaByPathRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private FetchNamespaceChildrenRequest() {
-    parentGuid_ = "";
+  private QueryServiceMetaByPathRequest() {
     path_ = "";
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_FetchNamespaceChildrenRequest_descriptor;
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_QueryServiceMetaByPathRequest_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_FetchNamespaceChildrenRequest_fieldAccessorTable
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_QueryServiceMetaByPathRequest_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.Builder.class);
+            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.Builder.class);
   }
 
-  public static final int PARENTGUID_FIELD_NUMBER = 1;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object parentGuid_ = "";
-  /**
-   * <code>string parentGuid = 1;</code>
-   * @return The parentGuid.
-   */
-  @java.lang.Override
-  public java.lang.String getParentGuid() {
-    java.lang.Object ref = parentGuid_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      parentGuid_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string parentGuid = 1;</code>
-   * @return The bytes for parentGuid.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getParentGuidBytes() {
-    java.lang.Object ref = parentGuid_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      parentGuid_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int PATH_FIELD_NUMBER = 2;
+  public static final int PATH_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
   private volatile java.lang.Object path_ = "";
   /**
-   * <code>string path = 2;</code>
+   * <code>string path = 1;</code>
    * @return The path.
    */
   @java.lang.Override
@@ -104,7 +64,7 @@ private static final long serialVersionUID = 0L;
     }
   }
   /**
-   * <code>string path = 2;</code>
+   * <code>string path = 1;</code>
    * @return The bytes for path.
    */
   @java.lang.Override
@@ -136,11 +96,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(parentGuid_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 1, parentGuid_);
-    }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(path_)) {
-      com.google.protobuf.GeneratedMessage.writeString(output, 2, path_);
+      com.google.protobuf.GeneratedMessage.writeString(output, 1, path_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -151,11 +108,8 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!com.google.protobuf.GeneratedMessage.isStringEmpty(parentGuid_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, parentGuid_);
-    }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(path_)) {
-      size += com.google.protobuf.GeneratedMessage.computeStringSize(2, path_);
+      size += com.google.protobuf.GeneratedMessage.computeStringSize(1, path_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -167,13 +121,11 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest)) {
+    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest)) {
       return super.equals(obj);
     }
-    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest) obj;
+    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest) obj;
 
-    if (!getParentGuid()
-        .equals(other.getParentGuid())) return false;
     if (!getPath()
         .equals(other.getPath())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
@@ -187,8 +139,6 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + PARENTGUID_FIELD_NUMBER;
-    hash = (53 * hash) + getParentGuid().hashCode();
     hash = (37 * hash) + PATH_FIELD_NUMBER;
     hash = (53 * hash) + getPath().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
@@ -196,44 +146,44 @@ private static final long serialVersionUID = 0L;
     return hash;
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(byte[] data)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -241,26 +191,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseDelimitedFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseDelimitedFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -273,7 +223,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest prototype) {
+  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -289,26 +239,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code FetchNamespaceChildrenRequest}
+   * Protobuf type {@code QueryServiceMetaByPathRequest}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:FetchNamespaceChildrenRequest)
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequestOrBuilder {
+      // @@protoc_insertion_point(builder_implements:QueryServiceMetaByPathRequest)
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_FetchNamespaceChildrenRequest_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_QueryServiceMetaByPathRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_FetchNamespaceChildrenRequest_fieldAccessorTable
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_QueryServiceMetaByPathRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.Builder.class);
+              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.Builder.class);
     }
 
-    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.newBuilder()
+    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.newBuilder()
     private Builder() {
 
     }
@@ -322,7 +272,6 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      parentGuid_ = "";
       path_ = "";
       return this;
     }
@@ -330,17 +279,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_FetchNamespaceChildrenRequest_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_QueryServiceMetaByPathRequest_descriptor;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest getDefaultInstanceForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.getDefaultInstance();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest getDefaultInstanceForType() {
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.getDefaultInstance();
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest build() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest result = buildPartial();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest build() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -348,43 +297,35 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest buildPartial() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest(this);
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest buildPartial() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest(this);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest result) {
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.parentGuid_ = parentGuid_;
-      }
-      if (((from_bitField0_ & 0x00000002) != 0)) {
         result.path_ = path_;
       }
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest) {
-        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest)other);
+      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest) {
+        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest other) {
-      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest.getDefaultInstance()) return this;
-      if (!other.getParentGuid().isEmpty()) {
-        parentGuid_ = other.parentGuid_;
-        bitField0_ |= 0x00000001;
-        onChanged();
-      }
+    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest other) {
+      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest.getDefaultInstance()) return this;
       if (!other.getPath().isEmpty()) {
         path_ = other.path_;
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -414,15 +355,10 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              parentGuid_ = input.readStringRequireUtf8();
+              path_ = input.readStringRequireUtf8();
               bitField0_ |= 0x00000001;
               break;
             } // case 10
-            case 18: {
-              path_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000002;
-              break;
-            } // case 18
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -440,81 +376,9 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.lang.Object parentGuid_ = "";
-    /**
-     * <code>string parentGuid = 1;</code>
-     * @return The parentGuid.
-     */
-    public java.lang.String getParentGuid() {
-      java.lang.Object ref = parentGuid_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        parentGuid_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string parentGuid = 1;</code>
-     * @return The bytes for parentGuid.
-     */
-    public com.google.protobuf.ByteString
-        getParentGuidBytes() {
-      java.lang.Object ref = parentGuid_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        parentGuid_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string parentGuid = 1;</code>
-     * @param value The parentGuid to set.
-     * @return This builder for chaining.
-     */
-    public Builder setParentGuid(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      parentGuid_ = value;
-      bitField0_ |= 0x00000001;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string parentGuid = 1;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearParentGuid() {
-      parentGuid_ = getDefaultInstance().getParentGuid();
-      bitField0_ = (bitField0_ & ~0x00000001);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string parentGuid = 1;</code>
-     * @param value The bytes for parentGuid to set.
-     * @return This builder for chaining.
-     */
-    public Builder setParentGuidBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      parentGuid_ = value;
-      bitField0_ |= 0x00000001;
-      onChanged();
-      return this;
-    }
-
     private java.lang.Object path_ = "";
     /**
-     * <code>string path = 2;</code>
+     * <code>string path = 1;</code>
      * @return The path.
      */
     public java.lang.String getPath() {
@@ -530,7 +394,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string path = 2;</code>
+     * <code>string path = 1;</code>
      * @return The bytes for path.
      */
     public com.google.protobuf.ByteString
@@ -547,7 +411,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>string path = 2;</code>
+     * <code>string path = 1;</code>
      * @param value The path to set.
      * @return This builder for chaining.
      */
@@ -555,22 +419,22 @@ private static final long serialVersionUID = 0L;
         java.lang.String value) {
       if (value == null) { throw new NullPointerException(); }
       path_ = value;
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>string path = 2;</code>
+     * <code>string path = 1;</code>
      * @return This builder for chaining.
      */
     public Builder clearPath() {
       path_ = getDefaultInstance().getPath();
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
     /**
-     * <code>string path = 2;</code>
+     * <code>string path = 1;</code>
      * @param value The bytes for path to set.
      * @return This builder for chaining.
      */
@@ -579,28 +443,28 @@ private static final long serialVersionUID = 0L;
       if (value == null) { throw new NullPointerException(); }
       checkByteStringIsUtf8(value);
       path_ = value;
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
 
-    // @@protoc_insertion_point(builder_scope:FetchNamespaceChildrenRequest)
+    // @@protoc_insertion_point(builder_scope:QueryServiceMetaByPathRequest)
   }
 
-  // @@protoc_insertion_point(class_scope:FetchNamespaceChildrenRequest)
-  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:QueryServiceMetaByPathRequest)
+  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest();
+    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest();
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest getDefaultInstance() {
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<FetchNamespaceChildrenRequest>
-      PARSER = new com.google.protobuf.AbstractParser<FetchNamespaceChildrenRequest>() {
+  private static final com.google.protobuf.Parser<QueryServiceMetaByPathRequest>
+      PARSER = new com.google.protobuf.AbstractParser<QueryServiceMetaByPathRequest>() {
     @java.lang.Override
-    public FetchNamespaceChildrenRequest parsePartialFrom(
+    public QueryServiceMetaByPathRequest parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -619,17 +483,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<FetchNamespaceChildrenRequest> parser() {
+  public static com.google.protobuf.Parser<QueryServiceMetaByPathRequest> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<FetchNamespaceChildrenRequest> getParserForType() {
+  public com.google.protobuf.Parser<QueryServiceMetaByPathRequest> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.FetchNamespaceChildrenRequest getDefaultInstanceForType() {
+  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.QueryServiceMetaByPathRequest getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

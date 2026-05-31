@@ -6,12 +6,12 @@
 package com.acorn.redqueen.service.registry.grpc.protocol.meta.proto;
 
 /**
- * Protobuf type {@code NamespaceChildrenReply}
+ * Protobuf type {@code ServiceMetaListReply}
  */
-public final class NamespaceChildrenReply extends
+public final class ServiceMetaListReply extends
     com.google.protobuf.GeneratedMessage implements
-    // @@protoc_insertion_point(message_implements:NamespaceChildrenReply)
-    NamespaceChildrenReplyOrBuilder {
+    // @@protoc_insertion_point(message_implements:ServiceMetaListReply)
+    ServiceMetaListReplyOrBuilder {
 private static final long serialVersionUID = 0L;
   static {
     com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -20,66 +20,66 @@ private static final long serialVersionUID = 0L;
       /* minor= */ 28,
       /* patch= */ 2,
       /* suffix= */ "",
-      NamespaceChildrenReply.class.getName());
+      ServiceMetaListReply.class.getName());
   }
-  // Use NamespaceChildrenReply.newBuilder() to construct.
-  private NamespaceChildrenReply(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+  // Use ServiceMetaListReply.newBuilder() to construct.
+  private ServiceMetaListReply(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
   }
-  private NamespaceChildrenReply() {
+  private ServiceMetaListReply() {
     items_ = java.util.Collections.emptyList();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_NamespaceChildrenReply_descriptor;
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaListReply_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_NamespaceChildrenReply_fieldAccessorTable
+    return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaListReply_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.Builder.class);
+            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.Builder.class);
   }
 
   public static final int ITEMS_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO> items_;
+  private java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO> items_;
   /**
-   * <code>repeated .NamespaceNodeDTO items = 1;</code>
+   * <code>repeated .ServiceMetaDTO items = 1;</code>
    */
   @java.lang.Override
-  public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO> getItemsList() {
+  public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO> getItemsList() {
     return items_;
   }
   /**
-   * <code>repeated .NamespaceNodeDTO items = 1;</code>
+   * <code>repeated .ServiceMetaDTO items = 1;</code>
    */
   @java.lang.Override
-  public java.util.List<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder> 
+  public java.util.List<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder> 
       getItemsOrBuilderList() {
     return items_;
   }
   /**
-   * <code>repeated .NamespaceNodeDTO items = 1;</code>
+   * <code>repeated .ServiceMetaDTO items = 1;</code>
    */
   @java.lang.Override
   public int getItemsCount() {
     return items_.size();
   }
   /**
-   * <code>repeated .NamespaceNodeDTO items = 1;</code>
+   * <code>repeated .ServiceMetaDTO items = 1;</code>
    */
   @java.lang.Override
-  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO getItems(int index) {
+  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO getItems(int index) {
     return items_.get(index);
   }
   /**
-   * <code>repeated .NamespaceNodeDTO items = 1;</code>
+   * <code>repeated .ServiceMetaDTO items = 1;</code>
    */
   @java.lang.Override
-  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder getItemsOrBuilder(
+  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder getItemsOrBuilder(
       int index) {
     return items_.get(index);
   }
@@ -124,10 +124,10 @@ private static final long serialVersionUID = 0L;
     if (obj == this) {
      return true;
     }
-    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply)) {
+    if (!(obj instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply)) {
       return super.equals(obj);
     }
-    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply) obj;
+    com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply other = (com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply) obj;
 
     if (!getItemsList()
         .equals(other.getItemsList())) return false;
@@ -151,44 +151,44 @@ private static final long serialVersionUID = 0L;
     return hash;
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       java.nio.ByteBuffer data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(byte[] data)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -196,26 +196,26 @@ private static final long serialVersionUID = 0L;
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseDelimitedFrom(java.io.InputStream input)
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseDelimitedFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessage
         .parseWithIOException(PARSER, input);
   }
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply parseFrom(
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -228,7 +228,7 @@ private static final long serialVersionUID = 0L;
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply prototype) {
+  public static Builder newBuilder(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
   @java.lang.Override
@@ -244,26 +244,26 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code NamespaceChildrenReply}
+   * Protobuf type {@code ServiceMetaListReply}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:NamespaceChildrenReply)
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReplyOrBuilder {
+      // @@protoc_insertion_point(builder_implements:ServiceMetaListReply)
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReplyOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_NamespaceChildrenReply_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaListReply_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_NamespaceChildrenReply_fieldAccessorTable
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaListReply_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.Builder.class);
+              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.class, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.Builder.class);
     }
 
-    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.newBuilder()
+    // Construct using com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.newBuilder()
     private Builder() {
 
     }
@@ -290,17 +290,17 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_NamespaceChildrenReply_descriptor;
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaProto.internal_static_ServiceMetaListReply_descriptor;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply getDefaultInstanceForType() {
-      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.getDefaultInstance();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply getDefaultInstanceForType() {
+      return com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.getDefaultInstance();
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply build() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply result = buildPartial();
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply build() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
@@ -308,15 +308,15 @@ private static final long serialVersionUID = 0L;
     }
 
     @java.lang.Override
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply buildPartial() {
-      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply(this);
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply buildPartial() {
+      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply result = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply(this);
       buildPartialRepeatedFields(result);
       if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
     }
 
-    private void buildPartialRepeatedFields(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply result) {
+    private void buildPartialRepeatedFields(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply result) {
       if (itemsBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           items_ = java.util.Collections.unmodifiableList(items_);
@@ -328,22 +328,22 @@ private static final long serialVersionUID = 0L;
       }
     }
 
-    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply result) {
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply result) {
       int from_bitField0_ = bitField0_;
     }
 
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply) {
-        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply)other);
+      if (other instanceof com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply) {
+        return mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply other) {
-      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply.getDefaultInstance()) return this;
+    public Builder mergeFrom(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply other) {
+      if (other == com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply.getDefaultInstance()) return this;
       if (itemsBuilder_ == null) {
         if (!other.items_.isEmpty()) {
           if (items_.isEmpty()) {
@@ -397,9 +397,9 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 10: {
-              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO m =
+              com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO m =
                   input.readMessage(
-                      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.parser(),
+                      com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.parser(),
                       extensionRegistry);
               if (itemsBuilder_ == null) {
                 ensureItemsIsMutable();
@@ -426,22 +426,22 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO> items_ =
+    private java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO> items_ =
       java.util.Collections.emptyList();
     private void ensureItemsIsMutable() {
       if (!((bitField0_ & 0x00000001) != 0)) {
-        items_ = new java.util.ArrayList<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO>(items_);
+        items_ = new java.util.ArrayList<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO>(items_);
         bitField0_ |= 0x00000001;
        }
     }
 
     private com.google.protobuf.RepeatedFieldBuilder<
-        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder> itemsBuilder_;
+        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder> itemsBuilder_;
 
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO> getItemsList() {
+    public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO> getItemsList() {
       if (itemsBuilder_ == null) {
         return java.util.Collections.unmodifiableList(items_);
       } else {
@@ -449,7 +449,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public int getItemsCount() {
       if (itemsBuilder_ == null) {
@@ -459,9 +459,9 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO getItems(int index) {
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO getItems(int index) {
       if (itemsBuilder_ == null) {
         return items_.get(index);
       } else {
@@ -469,10 +469,10 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder setItems(
-        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO value) {
+        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO value) {
       if (itemsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -486,10 +486,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder setItems(
-        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder builderForValue) {
+        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder builderForValue) {
       if (itemsBuilder_ == null) {
         ensureItemsIsMutable();
         items_.set(index, builderForValue.build());
@@ -500,9 +500,9 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public Builder addItems(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO value) {
+    public Builder addItems(com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO value) {
       if (itemsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -516,10 +516,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder addItems(
-        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO value) {
+        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO value) {
       if (itemsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -533,10 +533,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder addItems(
-        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder builderForValue) {
+        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder builderForValue) {
       if (itemsBuilder_ == null) {
         ensureItemsIsMutable();
         items_.add(builderForValue.build());
@@ -547,10 +547,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder addItems(
-        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder builderForValue) {
+        int index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder builderForValue) {
       if (itemsBuilder_ == null) {
         ensureItemsIsMutable();
         items_.add(index, builderForValue.build());
@@ -561,10 +561,10 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder addAllItems(
-        java.lang.Iterable<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO> values) {
+        java.lang.Iterable<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO> values) {
       if (itemsBuilder_ == null) {
         ensureItemsIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(
@@ -576,7 +576,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder clearItems() {
       if (itemsBuilder_ == null) {
@@ -589,7 +589,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
     public Builder removeItems(int index) {
       if (itemsBuilder_ == null) {
@@ -602,16 +602,16 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder getItemsBuilder(
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder getItemsBuilder(
         int index) {
       return getItemsFieldBuilder().getBuilder(index);
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder getItemsOrBuilder(
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder getItemsOrBuilder(
         int index) {
       if (itemsBuilder_ == null) {
         return items_.get(index);  } else {
@@ -619,9 +619,9 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public java.util.List<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder> 
+    public java.util.List<? extends com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder> 
          getItemsOrBuilderList() {
       if (itemsBuilder_ != null) {
         return itemsBuilder_.getMessageOrBuilderList();
@@ -630,33 +630,33 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder addItemsBuilder() {
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder addItemsBuilder() {
       return getItemsFieldBuilder().addBuilder(
-          com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.getDefaultInstance());
+          com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.getDefaultInstance());
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder addItemsBuilder(
+    public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder addItemsBuilder(
         int index) {
       return getItemsFieldBuilder().addBuilder(
-          index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.getDefaultInstance());
+          index, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.getDefaultInstance());
     }
     /**
-     * <code>repeated .NamespaceNodeDTO items = 1;</code>
+     * <code>repeated .ServiceMetaDTO items = 1;</code>
      */
-    public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder> 
+    public java.util.List<com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder> 
          getItemsBuilderList() {
       return getItemsFieldBuilder().getBuilderList();
     }
     private com.google.protobuf.RepeatedFieldBuilder<
-        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder> 
+        com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder> 
         getItemsFieldBuilder() {
       if (itemsBuilder_ == null) {
         itemsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceNodeDTOOrBuilder>(
+            com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTO.Builder, com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaDTOOrBuilder>(
                 items_,
                 ((bitField0_ & 0x00000001) != 0),
                 getParentForChildren(),
@@ -666,23 +666,23 @@ private static final long serialVersionUID = 0L;
       return itemsBuilder_;
     }
 
-    // @@protoc_insertion_point(builder_scope:NamespaceChildrenReply)
+    // @@protoc_insertion_point(builder_scope:ServiceMetaListReply)
   }
 
-  // @@protoc_insertion_point(class_scope:NamespaceChildrenReply)
-  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply DEFAULT_INSTANCE;
+  // @@protoc_insertion_point(class_scope:ServiceMetaListReply)
+  private static final com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply DEFAULT_INSTANCE;
   static {
-    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply();
+    DEFAULT_INSTANCE = new com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply();
   }
 
-  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply getDefaultInstance() {
+  public static com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<NamespaceChildrenReply>
-      PARSER = new com.google.protobuf.AbstractParser<NamespaceChildrenReply>() {
+  private static final com.google.protobuf.Parser<ServiceMetaListReply>
+      PARSER = new com.google.protobuf.AbstractParser<ServiceMetaListReply>() {
     @java.lang.Override
-    public NamespaceChildrenReply parsePartialFrom(
+    public ServiceMetaListReply parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -701,17 +701,17 @@ private static final long serialVersionUID = 0L;
     }
   };
 
-  public static com.google.protobuf.Parser<NamespaceChildrenReply> parser() {
+  public static com.google.protobuf.Parser<ServiceMetaListReply> parser() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.google.protobuf.Parser<NamespaceChildrenReply> getParserForType() {
+  public com.google.protobuf.Parser<ServiceMetaListReply> getParserForType() {
     return PARSER;
   }
 
   @java.lang.Override
-  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.NamespaceChildrenReply getDefaultInstanceForType() {
+  public com.acorn.redqueen.service.registry.grpc.protocol.meta.proto.ServiceMetaListReply getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

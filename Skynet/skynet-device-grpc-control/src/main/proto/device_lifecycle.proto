@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.acorn.skynet.device.grpc.protocol.lifecycle.proto";
+option java_outer_classname = "DeviceLifecycleProto";
+
+service DeviceLifecycle {
+  rpc Lifecycle(stream DeviceLifecycleFrame) returns (stream DeviceLifecycleFrame);
+}
+
+enum DeviceLifecycleFrameType {
+  UNKNOWN = 0;
+  CLIENT_MUSTER = 1;
+  CLIENT_READY = 2;
+  REGISTER_DEVICE = 3;
+  REGISTER_ACCEPTED = 4;
+  DEREGISTER_DEVICE = 5;
+  DEREGISTERED = 6;
+  SHUTDOWN_DEVICE = 7;
+  SHUTDOWN_ACCEPTED = 8;
+  ERROR = 9;
+}
+
+message DeviceLifecycleFrame {
+  string frameGuid = 1;
+  string correlationGuid = 2;
+  int64 clientId = 3;
+  string sessionGuid = 4;
+  int64 createTimeMillis = 5;
+  DeviceLifecycleFrameType frameType = 6;
+
+  oneof body {
+    ClientMuster clientMuster = 10;
+    ClientReady clientReady = 11;
+    RegisterDeviceCommand registerDevice = 12;
+    RegisterDeviceAccepted registerAccepted = 13;
+    DeregisterDeviceCommand deregisterDevice = 14;
+    Deregistered deregistered = 15;
+    ShutdownDeviceCommand shutdownDevice = 16;
+    ShutdownDeviceAccepted shutdownAccepted = 17;
+    ErrorFrame error = 18;
+  }
+}
+
+message ClientMuster {
+  int64 clientId = 1;
+  string clientName = 2;
+  string transportVersion = 3;
+  map<string, string> attributes = 4;
+}
+
+message ClientReady {
+  int64 clientId = 1;
+  string sessionGuid = 2;
+  string remoteAddress = 3;
+  int64 serverTimeMillis = 4;
+}
+
+message RegisterDeviceCommand {
+  string deviceGuid = 1;
+  string deviceGuidText = 2;
+  string devicePath = 3;
+  int64 clientId = 4;
+  string instanceGuid = 5;
+  string endpointProtocol = 6;
+  string endpointHost = 7;
+  int32 endpointPort = 8;
+  string endpointPath = 9;
+  string endpointAddress = 10;
+  string metadataJson = 11;
+}
+
+message RegisterDeviceAccepted {
+  string deviceGuid = 1;
+  string instanceGuid = 2;
+  int64 clientId = 3;
+  string sessionGuid = 4;
+  string status = 5;
+  int64 registerTimeMillis = 6;
+}
+
+message DeregisterDeviceCommand {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message Deregistered {
+  string instanceGuid = 1;
+  string status = 2;
+  string reason = 3;
+}
+
+message ShutdownDeviceCommand {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message ShutdownDeviceAccepted {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message ErrorFrame {
+  string code = 1;
+  string message = 2;
+  string detail = 3;
+}

@@ -36,7 +36,9 @@ import com.walnut.odin.proc.server.ReactiveSlaveProcessLifecycleController;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportType;
+import com.walnut.odin.proc.server.transport.entity.RemoteProcessControlTransportInspection;
 import com.walnut.odin.proc.server.transport.entity.TransportConnection;
+import com.walnut.odin.proc.server.transport.entity.TransportHandle;
 
 public class HuskyRemoteProcessControlTransport implements RemoteProcessControlTransport {
 
@@ -252,6 +254,40 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
         return connections;
     }
 
+    @Override
+    public int queryConnectedClientCount() {
+        if ( this.mDuplexAppointServer == null ) {
+            return 0;
+        }
+
+        int nCount = 0;
+        for ( TransportHandle handle : this.mRemoteProcessManagerServer.transportRegistry().transportHandles() ) {
+            if ( handle.getTransport() == this && this.containsClient( handle.getClientId() ) ) {
+                nCount++;
+            }
+        }
+        return nCount;
+    }
+
+    @Override
+    public int queryRegisteredControllerCount() {
+        int nBaseCount = this.mDuplexAppointServer == null ? 0 : 1;
+        return nBaseCount + this.mPendingControllerMap.size();
+    }
+
+    @Override
+    public int queryCompiledIfaceCount() {
+        return this.mPendingIfaceCompileMap.size();
+    }
+
+    @Override
+    public RemoteProcessControlTransportInspection inspectTransport() {
+        RemoteProcessControlTransportInspection inspection = RemoteProcessControlTransport.super.inspectTransport();
+        inspection.setRouteSource( this.mDuplexAppointServer == null ? this : this.mDuplexAppointServer );
+        inspection.setEndpointSource( this.mDuplexAppointServer == null ? this.mRPCServer : this.mDuplexAppointServer );
+        return inspection;
+    }
+
     protected void collectChannelConnections( List<TransportConnection> connections, Collection<?> channels ) {
         if ( channels == null ) {
             return;
@@ -279,6 +315,7 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
         connection.setType( "Channel" );
         connection.setIdentity( String.valueOf( channel.getChannelID() ) );
         connection.setRemoteAddress( String.valueOf( channel.remoteAddress() ) );
+        connection.setLocalAddress( String.valueOf( channel.localAddress() ) );
         connection.setStatus( String.valueOf( channel.getChannelStatus() ) );
         connection.setActive( !channel.isShutdown() );
         return connection;

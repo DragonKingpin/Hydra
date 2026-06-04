@@ -73,6 +73,7 @@ message RegisterServiceCommand {
   string metadataJson = 12;
   int64 heartbeatIntervalMillis = 13;
   int64 leaseTimeoutMillis = 14;
+  string instanceGuid = 15;
 }
 
 message RegisterServiceAccepted {

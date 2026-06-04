@@ -15,18 +15,24 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.proc.UProcess;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.grpc.server.GrpcAppointServer;
+import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
-import com.walnut.odin.proc.server.transport.CompositeRemoteProcessControlEventHooker;
+import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.transport.CompositeRemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlSession;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransportType;
+import com.walnut.odin.proc.server.transport.entity.RemoteProcessControlTransportInspection;
 import com.walnut.odin.proc.server.transport.entity.TransportConnection;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.CommandResult;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame;
@@ -193,6 +199,8 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
                 GrpcRemoteProcessControlSession grpcSession = (GrpcRemoteProcessControlSession) session;
                 connection.setIdentity( grpcSession.sessionGuid() );
                 connection.setRemoteAddress( grpcSession.remoteAddress() );
+                connection.setLastActiveTimeMillis( grpcSession.lastActiveTimeMillis() );
+                connection.setLastHeartbeatTimeMillis( grpcSession.lastHeartbeatTimeMillis() );
             }
             else {
                 connection.setIdentity( session.getClass().getSimpleName() + "@" + System.identityHashCode( session ) );
@@ -202,6 +210,35 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             connections.add( connection );
         }
         return connections;
+    }
+
+    @Override
+    public int queryConnectedClientCount() {
+        int nCount = 0;
+        for ( GrpcRemoteProcessControlClientile clientile : this.mClientileMap.values() ) {
+            if ( clientile.isActive() ) {
+                nCount++;
+            }
+        }
+        return nCount;
+    }
+
+    @Override
+    public int queryRegisteredControllerCount() {
+        return this.mGrpcAppointServer == null ? 0 : 1 + this.mAdditionalGrpcServiceMap.size();
+    }
+
+    @Override
+    public int queryCompiledIfaceCount() {
+        return 0;
+    }
+
+    @Override
+    public RemoteProcessControlTransportInspection inspectTransport() {
+        RemoteProcessControlTransportInspection inspection = RemoteProcessControlTransport.super.inspectTransport();
+        inspection.setRouteSource( this );
+        inspection.setEndpointSource( this.mGrpcAppointServer == null ? this : this.mGrpcAppointServer );
+        return inspection;
     }
 
     public void acceptClientFrame( GrpcRemoteProcessControlSession session, RemoteProcessControlFrame frame ) {
@@ -230,6 +267,10 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
                 this.mCorrelationWaiter.complete( szCorrelationGuid, frame.getProcessRuntimeMeta() );
                 break;
             }
+            case PROCESS_TERMINATED: {
+                this.acceptProcessTerminated( session, frame );
+                break;
+            }
             case ERROR: {
                 this.mCorrelationWaiter.completeExceptionally( szCorrelationGuid, new GrpcRemoteProcessControlException( frame.getError().getMessage() ) );
                 break;
@@ -239,6 +280,66 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
                 break;
             }
         }
+    }
+
+    protected void acceptProcessTerminated( GrpcRemoteProcessControlSession session, RemoteProcessControlFrame frame ) {
+        RemoteTerminationReport terminationReport = this.mFrameMapper.toTerminationReport( frame.getProcessRuntimeMeta() );
+        if ( terminationReport == null || terminationReport.getPID() == null || terminationReport.getPID().isEmpty() ) {
+            this.log.warn(
+                    "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`) <Invalid>",
+                    session.clientId()
+            );
+            return;
+        }
+
+        if ( this.mRemoteProcessManagerServer instanceof RavenRemoteProcessManagerServer ) {
+            RavenRemoteProcessManagerServer ravenServer = (RavenRemoteProcessManagerServer) this.mRemoteProcessManagerServer;
+            RavenRemoteProcessManagerServer.RemoteTerminationAcceptance acceptance = ravenServer.acceptRemoteProcessTermination(
+                    session.clientId(), terminationReport
+            );
+            if ( acceptance.isDuplicate() ) {
+                this.log.info(
+                        "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Duplicate>",
+                        session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+                );
+                return;
+            }
+            if ( !acceptance.isAccepted() ) {
+                this.log.warn(
+                        "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`) <Invalid>",
+                        session.clientId(), terminationReport.getPID()
+                );
+                return;
+            }
+
+            UProcess process = acceptance.getProcess();
+            String procName = process == null ? "NonExistent" : process.getName();
+            this.log.info(
+                    "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
+                    session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+            );
+            this.log.info(
+                    "[RemoteProcessTerminated] [gRPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
+                    session.clientId(), terminationReport.getPID(), procName
+            );
+            return;
+        }
+
+        UProcess that = RavenRemoteProcessManagerServer.invokeExpunge( this.mRemoteProcessManagerServer, terminationReport.getPID() );
+        String procName = "NonExistent";
+        if ( that instanceof RemoteProcess ) {
+            procName = that.getName();
+            RemoteProcess remoteProcess = (RemoteProcess) that;
+            remoteProcess.notifyRemoteEvent( session.clientId(), UProcessStatus.Terminated, terminationReport );
+        }
+        this.log.info(
+                "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
+                session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+        );
+        this.log.info(
+                "[RemoteProcessTerminated] [gRPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
+                session.clientId(), terminationReport.getPID(), procName
+        );
     }
 
     @Override

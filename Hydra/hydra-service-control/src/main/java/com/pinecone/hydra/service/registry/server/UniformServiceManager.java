@@ -24,6 +24,8 @@ import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransp
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
 import com.pinecone.hydra.service.registry.server.transport.UniformServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceTransportInspection;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -35,6 +37,7 @@ import java.net.SocketAddress;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -177,6 +180,104 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
+    public ServiceControlInspection inspectServiceControl() {
+        ServiceControlInspection status = new ServiceControlInspection();
+        List<ServiceTransportInspection> transportStatuses = new ArrayList<>();
+        boolean bAnyTransportStarted = false;
+        boolean bAllTransportStarted = !this.mTransportRegistry.transports().isEmpty();
+        int nConnectedClientCount = 0;
+
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            ServiceTransportInspection transportStatus = this.inspectTransport( transport );
+            transportStatuses.add( transportStatus );
+            if ( transportStatus.isStarted() ) {
+                bAnyTransportStarted = true;
+            }
+            if ( !transportStatus.isStarted() ) {
+                bAllTransportStarted = false;
+            }
+            nConnectedClientCount += transportStatus.getConnectedClientCount();
+        }
+
+        status.setServiceInstrumentReady( this.mServiceInstrument != null );
+        status.setServiceManagerStarted( bAllTransportStarted );
+        status.setRegisteredServiceCount( this.mServiceRegistry.size() );
+        status.setRuntimeInstanceCount( this.mInstanceRegistry.size() );
+        status.setConnectedClientCount( nConnectedClientCount );
+        status.setTransports( transportStatuses );
+        status.setInstanceStatusCounts( this.queryInstanceStatusCounts() );
+        status.setOverallStatus( this.resolveOverallStatus( status, bAnyTransportStarted, bAllTransportStarted ) );
+        return status;
+    }
+
+    protected ServiceTransportInspection inspectTransport( ServiceControlTransport transport ) {
+        ServiceTransportInspection status = new ServiceTransportInspection();
+        status.setType( transport.transportType().name() );
+        status.setRuntimeIfaceCompileSupported( transport.supportsRuntimeIfaceCompile() );
+        status.setControllerSummary( transport.queryControllerSummary() );
+        status.setIfaceSummary( transport.queryIfaceSummary() );
+        status.setControllerCount( transport.queryRegisteredControllerCount() );
+        status.setIfaceCount( transport.queryCompiledIfaceCount() );
+
+        try {
+            status.setStarted( transport.isStarted() );
+            status.setTerminated( transport.isTerminated() );
+            status.setAvailable( status.isStarted() && !status.isTerminated() );
+            status.setConnectedClientCount( transport.queryConnectedClientCount() );
+        }
+        catch ( RuntimeException exception ) {
+            status.setAvailable( false );
+            status.setLastError( exception.getMessage() );
+        }
+        return status;
+    }
+
+    protected Map<String, Integer> queryInstanceStatusCounts() {
+        Map<String, Integer> statusCounts = new LinkedHashMap<>();
+        for ( ServiceInstanceStatus status : ServiceInstanceStatus.values() ) {
+            statusCounts.put( status.getName(), 0 );
+        }
+
+        for ( ClientInstance clientInstance : this.mInstanceRegistry.values() ) {
+            if ( clientInstance == null || clientInstance.getInstance() == null ) {
+                continue;
+            }
+            ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( (GUID) clientInstance.getInstance().getId() );
+            if ( entry == null || entry.getStatus() == null ) {
+                continue;
+            }
+            Integer nCount = statusCounts.get( entry.getStatus() );
+            statusCounts.put( entry.getStatus(), nCount == null ? 1 : nCount + 1 );
+        }
+        return statusCounts;
+    }
+
+    protected String resolveOverallStatus(
+            ServiceControlInspection status,
+            boolean bAnyTransportStarted,
+            boolean bAllTransportStarted
+    ) {
+        if ( !status.isServiceInstrumentReady() ) {
+            status.setDiagnosticMessage( "ServiceInstrument is not ready." );
+            return "Error";
+        }
+        if ( status.getTransports().isEmpty() ) {
+            status.setDiagnosticMessage( "No service control transport is registered." );
+            return "Stopped";
+        }
+        if ( bAllTransportStarted ) {
+            return "Running";
+        }
+        if ( bAnyTransportStarted ) {
+            status.setDiagnosticMessage( "Only part of service control transports are started." );
+            return "Partial";
+        }
+
+        status.setDiagnosticMessage( "Service control transports are not started." );
+        return "Stopped";
+    }
+
+    @Override
     public void startService() throws ServiceControlRPCException {
         for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
             if ( !transport.isStarted() ) {
@@ -246,6 +347,14 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
+    protected void triggerServiceEvent(
+            long clientId, Identification insId, GUID serviceId, InstanceLifecycleEvent event, Object caused
+    ) {
+        for ( InstanceLifecycleEventHandler handler : this.mRegisterEventHandlers ) {
+            handler.fired( clientId, (GUID) insId, serviceId, event, caused );
+        }
+    }
+
 
 
     //    @Override
@@ -310,6 +419,7 @@ public class UniformServiceManager implements ServiceManager {
 
             ServiceInstance existing = this.mCIdInstanceRegistry.get( clientId );
             if ( existing != null ) {
+                boolean bRestoreRegistration = this.isServiceInstanceRestoreRegistration( existing, serviceDTO );
                 GUID existingGuid = this.affirmExistingRegistration(
                         existing,
                         serviceDTO,
@@ -317,21 +427,61 @@ public class UniformServiceManager implements ServiceManager {
                         deployGuid,
                         remote
                 );
-                this.mLogger.info( "Remote serviceInstance {} register idempotently. <IP:{}>", existingGuid, ip );
+                if ( bRestoreRegistration ) {
+                    this.mLogger.info( "Remote serviceInstance {} restore success. <IP:{}>", existingGuid, ip );
+                }
+                else {
+                    this.mLogger.info( "Remote serviceInstance {} register idempotently. <IP:{}>", existingGuid, ip );
+                }
                 return existingGuid;
+            }
+
+            ServiceInstanceEntry resumed = this.resumeServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote );
+            if ( resumed != null ) {
+                ServiceInstance serviceInstance = this.createRuntimeServiceInstance( serviceDTO.getClientId(), serviceId, resumed.getGuid() );
+                this.registerServiceInstance( serviceInstance );
+                this.mLogger.info( "Remote serviceInstance {} resume success. <IP:{}>", resumed.getGuid(), ip );
+                return resumed.getGuid();
             }
 
             ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote ); // new
             ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceInstanceStatus.Online );
 
-            TreeNode node = this.mServiceInstrument.get( serviceId );
-            ServiceElement serviceElement = (ServiceElement) node;
-            ServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
+            ServiceInstance serviceInstance = this.createRuntimeServiceInstance( clientId, serviceId, element.getGuid() );
             this.registerServiceInstance( serviceInstance );
             this.mLogger.info( "Remote serviceInstance {} register success. <IP:{}>", element.getGuid(), ip );
 
             return element.getGuid();
         }
+    }
+
+    protected ServiceInstance createRuntimeServiceInstance( Long clientId, GUID serviceId, GUID instanceId ) {
+        TreeNode node = this.mServiceInstrument.get( serviceId );
+        ServiceElement serviceElement = (ServiceElement) node;
+        return new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), instanceId );
+    }
+
+    protected ServiceInstanceEntry resumeServiceInstanceMeta(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) throws ClientServiceRegisterException {
+        String szInstanceId = serviceDTO.getInstanceGuid();
+        if ( szInstanceId == null || szInstanceId.isBlank() ) {
+            return null;
+        }
+
+        GUID instanceId = this.mGuidAllocator.parse( szInstanceId );
+        ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( instanceId );
+        if ( entry == null ) {
+            return null;
+        }
+
+        this.assertSameRegistrationValue( "serviceGuid", entry.getServiceGuid(), serviceId );
+        this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+        this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+        return entry;
     }
 
     protected GUID affirmExistingRegistration(
@@ -353,6 +503,12 @@ public class UniformServiceManager implements ServiceManager {
             return (GUID) existing.getId();
         }
 
+        if ( this.isServiceInstanceRestoreRegistration( existing, serviceDTO ) ) {
+            this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+
         String remoteAddress = remote == null ? "" : remote.toString();
         String endpointHost = "";
         Integer endpointPort = null;
@@ -363,29 +519,31 @@ public class UniformServiceManager implements ServiceManager {
         }
 
         String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        String szEndpointProtocol = this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType );
+        String szEndpointHost = this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost );
+        Integer nEndpointPort = serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort();
+        String szEndpointAddress = this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress );
+
         this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+        if ( !ServiceInstanceStatus.Online.getName().equals( entry.getStatus() ) ) {
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+        if ( !Objects.equals( entry.getRemoteAddress(), remoteAddress )
+                || !Objects.equals( entry.getEndpointProtocol(), szEndpointProtocol )
+                || !Objects.equals( entry.getEndpointHost(), szEndpointHost )
+                || !Objects.equals( entry.getEndpointPort(), nEndpointPort )
+                || !Objects.equals( entry.getEndpointAddress(), szEndpointAddress ) ) {
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+
         this.assertSameRegistrationValue( "transportType", entry.getTransportType(), szTransportType );
-        this.assertSameRegistrationValue(
-                "endpointProtocol",
-                entry.getEndpointProtocol(),
-                this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType )
-        );
-        this.assertSameRegistrationValue(
-                "endpointHost",
-                entry.getEndpointHost(),
-                this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost )
-        );
-        this.assertSameRegistrationValue(
-                "endpointPort",
-                entry.getEndpointPort(),
-                serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort()
-        );
+        this.assertSameRegistrationValue( "endpointProtocol", entry.getEndpointProtocol(), szEndpointProtocol );
+        this.assertSameRegistrationValue( "endpointHost", entry.getEndpointHost(), szEndpointHost );
+        this.assertSameRegistrationValue( "endpointPort", entry.getEndpointPort(), nEndpointPort );
         this.assertSameRegistrationValue( "endpointPath", entry.getEndpointPath(), serviceDTO.getEndpointPath() );
-        this.assertSameRegistrationValue(
-                "endpointAddress",
-                entry.getEndpointAddress(),
-                this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress )
-        );
+        this.assertSameRegistrationValue( "endpointAddress", entry.getEndpointAddress(), szEndpointAddress );
         this.assertSameRegistrationValue( "version", entry.getVersion(), serviceDTO.getVersion() );
         this.assertSameRegistrationValue( "zone", entry.getZone(), serviceDTO.getZone() );
         if ( serviceDTO.getWeight() != null ) {
@@ -393,10 +551,58 @@ public class UniformServiceManager implements ServiceManager {
         }
         this.assertSameRegistrationValue( "metadataJson", entry.getMetadataJson(), serviceDTO.getMetadataJson() );
 
-        if ( !ServiceInstanceStatus.Online.getName().equals( entry.getStatus() ) ) {
-            this.updateServiceInstanceStatus( entry.getGuid(), ServiceInstanceStatus.Online );
-        }
         return entry.getGuid();
+    }
+
+    protected boolean isServiceInstanceRestoreRegistration( ServiceInstance existing, RegisterServiceDTO serviceDTO ) {
+        String szInstanceGuid = serviceDTO.getInstanceGuid();
+        if ( szInstanceGuid == null || szInstanceGuid.isBlank() ) {
+            return false;
+        }
+
+        GUID requestedInstanceGuid = this.mGuidAllocator.parse( szInstanceGuid );
+        return Objects.equals( existing.getId(), requestedInstanceGuid );
+    }
+
+    protected void refreshServiceInstanceRegistration(
+            ServiceInstanceEntry entry,
+            RegisterServiceDTO serviceDTO,
+            SocketAddress remote,
+            boolean bIncreaseConnectionCount
+    ) {
+        LocalDateTime time = LocalDateTime.now();
+        String remoteAddress = remote == null ? "" : remote.toString();
+        String endpointHost = "";
+        Integer endpointPort = null;
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = this.getInetSocketHost( inet );
+            endpointPort = inet.getPort();
+        }
+
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        entry.setClientId( serviceDTO.getClientId() );
+        entry.setTransportType( szTransportType );
+        entry.setRemoteAddress( remoteAddress );
+        entry.setEndpointProtocol( this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType ) );
+        entry.setEndpointHost( this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost ) );
+        entry.setEndpointPort( serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort() );
+        entry.setEndpointPath( serviceDTO.getEndpointPath() );
+        entry.setEndpointAddress( this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress ) );
+        entry.setStatus( ServiceInstanceStatus.Online.getName() );
+        entry.setStatusReason( null );
+        entry.setVersion( serviceDTO.getVersion() );
+        entry.setZone( serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            entry.setWeight( serviceDTO.getWeight() );
+        }
+        entry.setLastHeartbeatTime( time );
+        entry.setLatestStartTime( time );
+        if ( bIncreaseConnectionCount ) {
+            entry.setConnectionCount( entry.getConnectionCount() + 1 );
+        }
+        entry.setMetadataJson( serviceDTO.getMetadataJson() );
+        this.mServiceInstrument.updateServiceInstance( entry );
     }
 
     protected void assertSameRegistrationValue( String szName, Object existing, Object requested )
@@ -414,11 +620,22 @@ public class UniformServiceManager implements ServiceManager {
         ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance( id );
         if ( element != null ) {
             element.setStatus( status.getName() );
-            element.setRunCount( element.getRunCount() + 1 );
+            if ( this.isTerminalInstanceStatus( status ) ) {
+                LocalDateTime time = LocalDateTime.now();
+                element.setOfflineTime( time );
+                element.setLatestEndTime( time );
+            }
             this.mServiceInstrument.updateServiceInstance( element );
         }
 
         return element;
+    }
+
+    protected boolean isTerminalInstanceStatus( ServiceInstanceStatus status ) {
+        return ServiceInstanceStatus.Terminated == status
+                || ServiceInstanceStatus.Deregistered == status
+                || ServiceInstanceStatus.Expired == status
+                || ServiceInstanceStatus.Error == status;
     }
 
     @Override
@@ -511,30 +728,38 @@ public class UniformServiceManager implements ServiceManager {
             if ( eliminated != null ) {
                 ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( eliminated.getServiceId() );
                 if ( instances != null ) {
-                    this.mInstanceRegistry.remove( eliminated.getId() );
-                    this.updateServiceInstanceStatus( (GUID) eliminated.getId(), ServiceInstanceStatus.Terminated );
+                    ServiceInstance removed = instances.remove( clientId );
+                    if ( removed == null ) {
+                        return null;
+                    }
+
+                    ClientInstance clientInstance = this.mInstanceRegistry.get( removed.getId() );
+                    if ( clientInstance != null && Objects.equals( clientInstance.getClientId(), clientId ) ) {
+                        this.mInstanceRegistry.remove( removed.getId(), clientInstance );
+                    }
+
+                    if ( instances.isEmpty() ) {
+                        this.mServiceRegistry.remove( removed.getServiceId(), instances );
+                    }
+
+                    this.updateServiceInstanceStatus( (GUID) removed.getId(), ServiceInstanceStatus.Terminated );
                     this.getLogger().info(
                             "Detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
-                            clientId, eliminated.getId(), eliminated.getServiceId()
+                            new Object[]{ clientId, removed.getId(), removed.getServiceId() }
                     );
 
-                    if ( instances.size() <= 1 ) {
-                        instances = this.mServiceRegistry.remove( eliminated.getServiceId() );
-                        return instances.values();
-                    }
-                    else {
-                        // 副本实例，不用额外变更状态
-                        ServiceInstance instance = instances.remove( clientId );
-                        if ( instance != null ) {
-                            return List.of( instance );
-                        }
-                    }
+                    this.triggerServiceEvent(
+                            clientId,
+                            removed.getId(),
+                            (GUID) removed.getServiceId(),
+                            InstanceLifecycleEvent.Deregistered,
+                            removed
+                    );
+                    return List.of( removed );
                 }
                 else {
                     throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
                 }
-
-                this.triggerServiceEvent( clientId, eliminated.getId(), InstanceLifecycleEvent.Deregistered, eliminated );
             }
             return null;
         }
@@ -619,7 +844,8 @@ public class UniformServiceManager implements ServiceManager {
         instanceEntity.setEndpointAddress( this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress ) );
         instanceEntity.setRegisterTime( registerTime );
         instanceEntity.setLastHeartbeatTime( registerTime );
-        instanceEntity.setRunCount( 0 );
+        instanceEntity.setConnectionCount( 1 );
+        instanceEntity.setLatestStartTime( registerTime );
         instanceEntity.setGuid( guid );
         instanceEntity.setServiceGuid( serviceId );
         instanceEntity.setVersion( serviceDTO.getVersion() );

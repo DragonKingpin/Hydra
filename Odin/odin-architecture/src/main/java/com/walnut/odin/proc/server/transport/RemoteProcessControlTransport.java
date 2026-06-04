@@ -9,6 +9,7 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.transport.entity.RemoteProcessControlTransportInspection;
 import com.walnut.odin.proc.server.transport.entity.TransportConnection;
 
 public interface RemoteProcessControlTransport extends RemoteProcessControlTransportLifecycle {
@@ -46,6 +47,31 @@ public interface RemoteProcessControlTransport extends RemoteProcessControlTrans
 
     default Collection<TransportConnection> queryClientConnections( long clientId ) {
         return Collections.emptyList();
+    }
+
+    default int queryConnectedClientCount() {
+        return 0;
+    }
+
+    default int queryRegisteredControllerCount() {
+        return 0;
+    }
+
+    default int queryCompiledIfaceCount() {
+        return 0;
+    }
+
+    default RemoteProcessControlTransportInspection inspectTransport() {
+        RemoteProcessControlTransportInspection inspection = new RemoteProcessControlTransportInspection();
+        inspection.setTransportType( this.transportType() );
+        inspection.setStarted( this.isStarted() );
+        inspection.setTerminated( this.isTerminated() );
+        inspection.setRouteSource( this );
+        inspection.setEndpointSource( this );
+        inspection.setConnectedClientCount( this.queryConnectedClientCount() );
+        inspection.setRegisteredControllerCount( this.queryRegisteredControllerCount() );
+        inspection.setCompiledIfaceCount( this.queryCompiledIfaceCount() );
+        return inspection;
     }
 
 }

@@ -3,8 +3,12 @@ package com.pinecone.hydra.device.ibatis.hydranium;
 import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.device.ibatis.ContainerElementMapper;
 import com.pinecone.hydra.device.ibatis.DeviceNamespaceMapper;
+import com.pinecone.hydra.device.ibatis.DeviceInstanceMapper;
 import com.pinecone.hydra.device.ibatis.DeviceNodeOwnerMapper;
 import com.pinecone.hydra.device.ibatis.DeviceTreeMapper;
+import com.pinecone.hydra.device.ibatis.GenericDeviceMapper;
+import com.pinecone.hydra.device.ibatis.GenericDeviceSchemaMapper;
+import com.pinecone.hydra.device.ibatis.GenericDeviceTypeMapper;
 import com.pinecone.hydra.device.ibatis.ClusterNodeMapper;
 import com.pinecone.hydra.device.ibatis.PhysicalHostMapper;
 import com.pinecone.hydra.device.ibatis.QuickElementMapper;
@@ -12,6 +16,10 @@ import com.pinecone.hydra.device.ibatis.VirtualMachineMapper;
 import com.pinecone.hydra.device.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceMasterManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceNamespaceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceInstanceManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceSchemaManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceTypeManipulator;
 import com.pinecone.hydra.device.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.device.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.device.kom.source.VirtualMachineManipulator;
@@ -59,6 +67,22 @@ public class DeviceMasterManipulatorImpl implements DeviceMasterManipulator {
     @Resource
     @Structure( type = ContainerElementMapper.class )
     ContainerElementManipulator containerElementManipulator;
+
+    @Resource
+    @Structure( type = GenericDeviceMapper.class )
+    GenericDeviceManipulator genericDeviceManipulator;
+
+    @Resource
+    @Structure( type = GenericDeviceTypeMapper.class )
+    GenericDeviceTypeManipulator genericDeviceTypeManipulator;
+
+    @Resource
+    @Structure( type = GenericDeviceSchemaMapper.class )
+    GenericDeviceSchemaManipulator genericDeviceSchemaManipulator;
+
+    @Resource
+    @Structure( type = DeviceInstanceMapper.class )
+    DeviceInstanceManipulator deviceInstanceManipulator;
 
     @Resource( type = DeviceMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;
@@ -117,5 +141,25 @@ public class DeviceMasterManipulatorImpl implements DeviceMasterManipulator {
     @Override
     public ContainerElementManipulator getContainerElementManipulator() {
         return this.containerElementManipulator;
+    }
+
+    @Override
+    public GenericDeviceManipulator getGenericDeviceManipulator() {
+        return this.genericDeviceManipulator;
+    }
+
+    @Override
+    public GenericDeviceTypeManipulator getGenericDeviceTypeManipulator() {
+        return this.genericDeviceTypeManipulator;
+    }
+
+    @Override
+    public GenericDeviceSchemaManipulator getGenericDeviceSchemaManipulator() {
+        return this.genericDeviceSchemaManipulator;
+    }
+
+    @Override
+    public DeviceInstanceManipulator getDeviceInstanceManipulator() {
+        return this.deviceInstanceManipulator;
     }
 }

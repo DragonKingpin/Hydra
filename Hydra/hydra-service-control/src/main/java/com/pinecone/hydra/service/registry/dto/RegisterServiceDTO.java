@@ -10,6 +10,8 @@ public class RegisterServiceDTO implements Pinenut {
 
     protected String deployId;
 
+    protected String instanceGuid;
+
     protected String transportType;
 
     protected String endpointProtocol;
@@ -62,6 +64,22 @@ public class RegisterServiceDTO implements Pinenut {
 
     public void setDeployId(String deployId) {
         this.deployId = deployId;
+    }
+
+    public String getInstanceId() {
+        return this.instanceGuid;
+    }
+
+    public void setInstanceId( String instanceId ) {
+        this.instanceGuid = instanceId;
+    }
+
+    public String getInstanceGuid() {
+        return this.instanceGuid;
+    }
+
+    public void setInstanceGuid( String instanceGuid ) {
+        this.instanceGuid = instanceGuid;
     }
 
     public String getTransportType() {

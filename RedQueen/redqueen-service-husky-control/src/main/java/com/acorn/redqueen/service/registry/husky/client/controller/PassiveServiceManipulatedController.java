@@ -4,7 +4,7 @@ import com.acorn.redqueen.service.registry.husky.protocol.PassiveServiceManipula
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
-import com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 
@@ -30,10 +30,11 @@ public class PassiveServiceManipulatedController implements Pinenut {
             return;
         }
 
-        ServiceClientShutdownInstruction instruction = new ServiceClientShutdownInstruction();
+        ServiceShutdownInstruction instruction = new ServiceShutdownInstruction();
         instruction.setInstanceGuid( this.mGuidAllocator.parse( szInstanceGuid ) );
         instruction.setReason( szReason );
         this.mManipulationHandler.shutdownService( instruction );
     }
 
 }
+

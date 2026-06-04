@@ -21,6 +21,7 @@ import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
+import com.pinecone.hydra.service.registry.server.transport.entity.ServiceControlTransportInspection;
 import com.pinecone.hydra.service.registry.server.transport.entity.ServiceTransportConnection;
 import com.acorn.redqueen.service.registry.grpc.server.lifecycle.GrpcServiceControlClientile;
 import com.acorn.redqueen.service.registry.grpc.server.lifecycle.GrpcServiceLifecycleTransformer;
@@ -126,6 +127,7 @@ public class GrpcServiceControlTransport implements ServiceControlTransport {
         dto.setClientId( session.clientId() );
         dto.setServiceId( command.getServiceGuid() );
         dto.setDeployId( command.getDeployGuid() );
+        dto.setInstanceGuid( command.getInstanceGuid() );
         dto.setTransportType( ServiceControlTransportType.Grpc.name() );
         dto.setEndpointProtocol( command.getEndpointProtocol() );
         dto.setEndpointHost( command.getEndpointHost() );
@@ -192,6 +194,35 @@ public class GrpcServiceControlTransport implements ServiceControlTransport {
             connections.add( connection );
         }
         return connections;
+    }
+
+    @Override
+    public int queryConnectedClientCount() {
+        int nCount = 0;
+        for ( GrpcServiceControlClientile clientile : this.mClientileMap.values() ) {
+            if ( clientile.isActive() ) {
+                nCount++;
+            }
+        }
+        return nCount;
+    }
+
+    @Override
+    public int queryRegisteredControllerCount() {
+        return this.mGrpcAppointServer == null ? 0 : 2;
+    }
+
+    @Override
+    public String queryControllerSummary() {
+        return "GrpcServiceLifecycleService, GrpcServiceMetaService";
+    }
+
+    @Override
+    public ServiceControlTransportInspection inspectTransport() {
+        ServiceControlTransportInspection inspection = ServiceControlTransport.super.inspectTransport();
+        inspection.setRouteSource( this );
+        inspection.setEndpointSource( this.mGrpcAppointServer == null ? this : this.mGrpcAppointServer );
+        return inspection;
     }
 
     @Override

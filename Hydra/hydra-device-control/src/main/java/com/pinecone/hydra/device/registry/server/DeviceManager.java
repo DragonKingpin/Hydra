@@ -6,27 +6,28 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceControlRPCException;
-import com.pinecone.hydra.device.registry.appoint.DeviceAppointServer;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransportRegistry;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 
 public interface DeviceManager extends Slf4jTraceable {
 
     DeviceInstrument getDeviceInstrument();
 
-    Collection<DeviceAppointServer> getServers();
+    Collection<DeviceControlTransport> getTransports();
 
-    DeviceManager addAppointServer( DeviceAppointServer appointServer );
+    DeviceManager addTransport( DeviceControlTransport transport );
 
-    DeviceManager hookAppointServer( DeviceAppointServer appointServer );
+    DeviceManager hookTransport( DeviceControlTransport transport );
 
-    DeviceManager vitalizeAppointServer( DeviceAppointServer appointServer ) throws DeviceControlRPCException;
+    DeviceManager vitalizeTransport( DeviceControlTransport transport ) throws DeviceControlRPCException;
 
-    DeviceAppointServer getAppointServerById( Long appointNodeId );
+    DeviceControlTransport getTransportById( Long transportId );
 
-    DeviceAppointServer evictAppointServerById( Long appointNodeId );
+    DeviceControlTransport evictTransportById( Long transportId );
 
-    int serverSize();
+    int transportSize();
 
     void startDeviceManager() throws DeviceControlRPCException;
 
@@ -45,4 +46,8 @@ public interface DeviceManager extends Slf4jTraceable {
     DeviceMetaService deviceMetaService();
 
     DeviceTopologyService deviceTopologyService();
+
+    DeviceRuntimeService deviceRuntimeService();
+
+    DeviceControlTransportRegistry deviceControlTransportRegistry();
 }

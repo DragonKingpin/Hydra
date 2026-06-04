@@ -12,7 +12,7 @@ import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.client.UniformServiceClient;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
-import com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
 import com.pinecone.hydra.service.registry.client.port.ServiceMetaPort;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
@@ -27,6 +27,13 @@ import com.pinecone.ulf.util.guid.i64.GuidAllocator72V2;
 import java.util.List;
 
 class Brian extends Tritium {
+    private static final String HUSKY_SERVER_CONFIG = "{host: \"0.0.0.0\",\n" +
+            "port: 5771, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}";
+
+    private static final String HUSKY_CLIENT_CONFIG = "{host: \"localhost\",\n" +
+            "port: 5771, SocketTimeout: 800, KeepAliveTimeout: 10,\n" +
+            "ParallelChannels: 5, AutoReconnect: true, EnableHeartbeat: false, HeartbeatInterval: 2000}";
+
     public Brian( String[] args, CascadeSystem parent ) {
         this( args, null, parent );
     }
@@ -43,8 +50,7 @@ class Brian extends Tritium {
 
         UniformServiceInstrument servicesTree = new UniformServiceInstrument( koiMappingDriver );
 
-        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
-                "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
+        WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron( HUSKY_SERVER_CONFIG ) );
 
         UniformServiceManager serviceManager = new UniformServiceManager( servicesTree );
         serviceManager.transportRegistry().hookTransport(
@@ -52,18 +58,18 @@ class Brian extends Tritium {
         );
         RedCollectiveServiceRegiment serviceRegiment = new RedCollectiveServiceRegiment(this, servicesTree, serviceManager);
 
-        serviceRegiment.startServiceManage();
+        //serviceRegiment.startServiceManage();
 
 
         UlfClient ulfClient = new WolfMCClient(
-                new GuidAllocator72V2().nextGUIDi64(), "", this, this.getMiddlewareDirector().getMiddlewareConfig().queryJSONObject( "Messagers.Messagers.WolfMCKingpin" )
+                new GuidAllocator72V2().nextGUIDi64(), "", this, new JSONMaptron( HUSKY_CLIENT_CONFIG )
         );
         HuskyServiceClientTransport transport = new HuskyServiceClientTransport( ulfClient, servicesTree.getGuidAllocator(), null );
         UniformServiceClient managerClient = new UniformServiceClient( servicesTree.getGuidAllocator(), transport );
         managerClient.startService();
 
         GUID instanceGuid = this.testUniformServiceRegister_Proactive( managerClient );
-        this.testShutdown_Passive( serviceManager, managerClient, instanceGuid );
+        //this.testShutdown_Passive( serviceManager, managerClient, instanceGuid );
 
         //this.oldTest( servicesTree );
     }
@@ -93,7 +99,7 @@ class Brian extends Tritium {
         Thread[] shutdownThreadRef = new Thread[1];
         managerClient.registerManipulationHandler( new ServiceClientManipulationHandler() {
             @Override
-            public void shutdownService( ServiceClientShutdownInstruction instruction ) {
+            public void shutdownService( ServiceShutdownInstruction instruction ) {
                 Debug.redfs( instruction.getReason() );
                 Thread shutdownThread = new Thread( new Runnable() {
                     @Override

@@ -20,4 +20,12 @@ public interface DeviceMasterManipulator extends KOIMasterManipulator {
     QuickElementManipulator getQuickElementManipulator();
 
     ContainerElementManipulator getContainerElementManipulator();
+
+    GenericDeviceManipulator getGenericDeviceManipulator();
+
+    GenericDeviceTypeManipulator getGenericDeviceTypeManipulator();
+
+    GenericDeviceSchemaManipulator getGenericDeviceSchemaManipulator();
+
+    DeviceInstanceManipulator getDeviceInstanceManipulator();
 }

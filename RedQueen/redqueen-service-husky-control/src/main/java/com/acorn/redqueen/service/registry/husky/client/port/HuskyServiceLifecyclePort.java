@@ -2,8 +2,8 @@ package com.acorn.redqueen.service.registry.husky.client.port;
 
 import com.acorn.redqueen.service.registry.husky.client.transformer.HuskyServiceLifecycleTransformer;
 import com.acorn.redqueen.service.registry.husky.protocol.ServiceLifecycleIface;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientDeregisterResult;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.client.port.ServiceLifecyclePort;
@@ -34,7 +34,7 @@ public class HuskyServiceLifecyclePort implements ServiceLifecyclePort {
 
     @Override
     public ServiceClientRegisterResult register(
-            ServiceClientRegisterInstruction instruction
+            ServiceRegisterInstruction instruction
     ) throws ServiceClientTransportException {
         try {
             RegisterServiceDTO dto = this.mTransformer.encodeRegisterInstruction( instruction, this.mnClientId );
@@ -48,7 +48,7 @@ public class HuskyServiceLifecyclePort implements ServiceLifecyclePort {
 
     @Override
     public ServiceClientDeregisterResult deregister(
-            ServiceClientDeregisterInstruction command
+            ServiceDeregisterInstruction command
     ) throws ServiceClientTransportException {
         try {
             String szInstanceGuid = this.mTransformer.encodeDeregisterInstruction( command );
@@ -61,3 +61,4 @@ public class HuskyServiceLifecyclePort implements ServiceLifecyclePort {
     }
 
 }
+

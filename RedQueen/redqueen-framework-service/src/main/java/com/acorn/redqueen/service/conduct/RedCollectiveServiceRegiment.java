@@ -3,6 +3,7 @@ package com.acorn.redqueen.service.conduct;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceControlException;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.system.Hydrogen;
 import org.slf4j.Logger;
@@ -67,5 +68,9 @@ public class RedCollectiveServiceRegiment implements CollectiveServiceRegiment {
     public ServiceControlTransportRegistry transportRegistry() {
         return this.mServiceManager.transportRegistry();
     }
-}
 
+    @Override
+    public ServiceControlInspection inspectServiceControl() {
+        return this.mServiceManager.inspectServiceControl();
+    }
+}

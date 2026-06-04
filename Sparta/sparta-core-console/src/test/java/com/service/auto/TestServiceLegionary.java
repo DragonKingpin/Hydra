@@ -30,6 +30,8 @@ public class TestServiceLegionary {
             ServiceLegionarySmokeCase smokeCase = new ServiceLegionarySmokeCase( this );
             ServiceLegionaryReconnectDevilCase devilCase = new ServiceLegionaryReconnectDevilCase( this );
             ServiceLegionaryIdempotencyDevilCase idempotencyCase = new ServiceLegionaryIdempotencyDevilCase( this );
+            ServiceLegionaryHuskyAutoReconnectDevilCase huskyAutoReconnectCase =
+                    new ServiceLegionaryHuskyAutoReconnectDevilCase( this );
 
             if ( this.shouldRun( "grpc" ) ) {
                 smokeCase.run( new GrpcServiceLegionaryScenario() );
@@ -40,6 +42,9 @@ public class TestServiceLegionary {
                 smokeCase.run( new HuskyServiceLegionaryScenario() );
                 devilCase.run( new HuskyServiceLegionaryScenario(), 10 );
                 idempotencyCase.run( new HuskyServiceLegionaryScenario(), 10 );
+            }
+            if ( this.shouldRun( "husky-auto" ) ) {
+                huskyAutoReconnectCase.run( 10 );
             }
         }
 

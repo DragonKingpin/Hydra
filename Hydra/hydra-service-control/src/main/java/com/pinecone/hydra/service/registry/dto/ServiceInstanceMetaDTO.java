@@ -17,7 +17,7 @@ public class ServiceInstanceMetaDTO implements Pinenut {
 
     private String errorCause;
 
-    private int runCount;
+    private int connectionCount;
 
     private String deployGuid;
 
@@ -71,12 +71,22 @@ public class ServiceInstanceMetaDTO implements Pinenut {
         this.errorCause = errorCause;
     }
 
-    public int getRunCount() {
-        return this.runCount;
+    public int getConnectionCount() {
+        return this.connectionCount;
     }
 
+    public void setConnectionCount( int connectionCount ) {
+        this.connectionCount = connectionCount;
+    }
+
+    @Deprecated
+    public int getRunCount() {
+        return this.connectionCount;
+    }
+
+    @Deprecated
     public void setRunCount( int runCount ) {
-        this.runCount = runCount;
+        this.connectionCount = runCount;
     }
 
     public String getDeployGuid() {
@@ -115,7 +125,7 @@ public class ServiceInstanceMetaDTO implements Pinenut {
 
         dto.setStatus( entry.getStatus() );
         dto.setErrorCause( entry.getErrorCause() );
-        dto.setRunCount( entry.getRunCount() );
+        dto.setConnectionCount( entry.getConnectionCount() );
         dto.setIp( entry.getIp() );
         return dto;
     }

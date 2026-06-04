@@ -6,14 +6,14 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.appoints.AppointNodus;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.client.port.ServiceLifecyclePort;
 import com.pinecone.hydra.service.registry.client.port.ServiceMetaPort;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransport;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportException;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 
 public class UniformServiceClient extends ArchServiceClient {
 
@@ -80,13 +80,19 @@ public class UniformServiceClient extends ArchServiceClient {
 
     @Override
     public GUID registerService( GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
-        ServiceClientRegisterInstruction command = new ServiceClientRegisterInstruction();
+        ServiceRegisterInstruction command = new ServiceRegisterInstruction();
         command.setServiceGuid( serviceId );
         command.setDeployGuid( deployGuid );
+        command.setInstanceGuid( this.mInstanceId );
         command.setClientId( this.mTransport.getClientId() );
 
         try {
             ServiceClientRegisterResult result = this.lifecycle().register( command );
+            if ( result == null || result.getInstanceGuid() == null ) {
+                throw new ClientServiceRegisterException(
+                        "Service register returned null instance guid, serviceId => `" + serviceId + "`."
+                );
+            }
             this.mServiceId = result.getServiceGuid();
             this.mInstanceId = result.getInstanceGuid();
             return this.mInstanceId;
@@ -102,7 +108,7 @@ public class UniformServiceClient extends ArchServiceClient {
             return;
         }
 
-        ServiceClientDeregisterInstruction command = new ServiceClientDeregisterInstruction();
+        ServiceDeregisterInstruction command = new ServiceDeregisterInstruction();
         command.setInstanceGuid( this.mInstanceId );
         try {
             this.lifecycle().deregister( command );

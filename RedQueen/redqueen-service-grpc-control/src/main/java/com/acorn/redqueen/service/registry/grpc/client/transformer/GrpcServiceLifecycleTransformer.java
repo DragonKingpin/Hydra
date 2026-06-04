@@ -12,9 +12,9 @@ import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Service
 import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType;
 import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceAccepted;
 import com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceCommand;
-import com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientDeregisterResult;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 
@@ -53,12 +53,13 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
     public ServiceControlFrame registerFrame(
             long nClientId,
             String szSessionGuid,
-            ServiceClientRegisterInstruction command
+            ServiceRegisterInstruction command
     ) {
         RegisterServiceCommand.Builder builder = RegisterServiceCommand.newBuilder();
         if ( command != null ) {
             builder.setServiceGuid( this.safe( command.getServiceGuid() ) );
             builder.setDeployGuid( this.safe( command.getDeployGuid() ) );
+            builder.setInstanceGuid( this.safe( command.getInstanceGuid() ) );
             builder.setEndpointProtocol( this.safe( command.getEndpointProtocol() ) );
             builder.setEndpointHost( this.safe( command.getEndpointHost() ) );
             if ( command.getEndpointPort() != null ) {
@@ -96,7 +97,7 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
     public ServiceControlFrame deregisterFrame(
             long nClientId,
             String szSessionGuid,
-            ServiceClientDeregisterInstruction command
+            ServiceDeregisterInstruction command
     ) {
         DeregisterCommand.Builder builder = DeregisterCommand.newBuilder();
         if ( command != null ) {
@@ -110,7 +111,7 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
     }
 
     public ServiceClientDeregisterResult toDeregisterResult(
-            ServiceClientDeregisterInstruction command,
+            ServiceDeregisterInstruction command,
             String szStatus,
             String szReason
     ) {
@@ -123,8 +124,8 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
         return result;
     }
 
-    public ServiceClientShutdownInstruction toShutdownInstruction( ShutdownServiceCommand command ) {
-        ServiceClientShutdownInstruction instruction = new ServiceClientShutdownInstruction();
+    public ServiceShutdownInstruction toShutdownInstruction( ShutdownServiceCommand command ) {
+        ServiceShutdownInstruction instruction = new ServiceShutdownInstruction();
         if ( command == null ) {
             return instruction;
         }
@@ -196,4 +197,5 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
     }
 
 }
+
 

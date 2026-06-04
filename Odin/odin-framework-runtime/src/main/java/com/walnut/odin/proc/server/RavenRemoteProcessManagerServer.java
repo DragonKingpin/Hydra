@@ -43,6 +43,8 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected static final long                       ControlClientReadyWaitMillis = 5000L;
 
+    protected static final String                     RemoteProcessLostCauseClientDetached = "RemoteProcessControlClientDetached";
+
     protected GuidAllocator                             mGuidAllocator;
 
     protected RemoteProcessControlTransportRegistry     mTransportRegistry;
@@ -481,9 +483,29 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
                 continue;
             }
 
-            this.expunge( remoteProcess );
-            this.getLogger().info( "[RemoteProcessControlClientDetached] [MirrorExpunged] (ClientId: `{}`, PID: `{}`) <Done>", clientId, remoteProcess.getPID() );
+            this.markRemoteProcessLostByClientDetached( clientId, remoteProcess );
         }
+    }
+
+    protected void markRemoteProcessLostByClientDetached( long clientId, RemoteProcess remoteProcess ) {
+        if ( remoteProcess == null ) {
+            return;
+        }
+
+        UProcessStatus status = remoteProcess.getStatus();
+        if ( status == null || !status.isTerminal() ) {
+            remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Error, RemoteProcessLostCauseClientDetached );
+            this.getLogger().info(
+                    "[RemoteProcessControlClientDetached] [RemoteProcessLost] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Notified>",
+                    clientId, remoteProcess.getPID(), remoteProcess.getName()
+            );
+        }
+
+        this.expunge( remoteProcess );
+        this.getLogger().info(
+                "[RemoteProcessControlClientDetached] [MirrorExpunged] (ClientId: `{}`, PID: `{}`) <Done>",
+                clientId, remoteProcess.getPID()
+        );
     }
 
     protected void ensureControlClientReady( long clientId ) throws RemoteProcessServiceRPCException {

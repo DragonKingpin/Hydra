@@ -99,7 +99,7 @@ public class ServiceLifecycleController implements Pinenut {
         entity.setLatestStartTime( entry.getLatestStartTime() );
         entity.setLatestEndTime( entry.getLatestEndTime() );
         entity.setErrorCause( entry.getErrorCause() );
-        entity.setRunCount( entry.getRunCount() );
+        entity.setConnectionCount( entry.getConnectionCount() );
         entity.setIp( entry.getIp() );
         entity.setMetadataJson( entry.getMetadataJson() );
         return entity;

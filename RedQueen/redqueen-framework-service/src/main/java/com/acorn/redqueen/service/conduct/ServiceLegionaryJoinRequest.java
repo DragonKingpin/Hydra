@@ -2,7 +2,7 @@ package com.acorn.redqueen.service.conduct;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 
 public class ServiceLegionaryJoinRequest implements Pinenut {
 
@@ -116,8 +116,8 @@ public class ServiceLegionaryJoinRequest implements Pinenut {
         this.mszMetadataJson = szMetadataJson;
     }
 
-    public ServiceClientRegisterInstruction toServiceClientRegisterInstruction(long nClientId ) {
-        ServiceClientRegisterInstruction instruction = new ServiceClientRegisterInstruction();
+    public ServiceRegisterInstruction toServiceRegisterInstruction(long nClientId ) {
+        ServiceRegisterInstruction instruction = new ServiceRegisterInstruction();
         instruction.setClientId( nClientId );
         instruction.setServiceGuid( this.mServiceGuid );
         instruction.setDeployGuid( this.mDeployGuid );
@@ -134,3 +134,4 @@ public class ServiceLegionaryJoinRequest implements Pinenut {
     }
 
 }
+

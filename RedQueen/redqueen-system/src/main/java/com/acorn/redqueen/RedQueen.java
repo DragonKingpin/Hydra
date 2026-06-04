@@ -18,6 +18,7 @@ import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceControlException;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
 import com.acorn.redqueen.service.registry.grpc.server.GrpcServiceControlTransportFactory;
@@ -192,10 +193,21 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
             component = sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( szDriver );
         }
         if ( component instanceof UlfServer ) {
+            this.ensure_husky_rpc_server_not_started( szDriver, (MessageNode) component );
             return (UlfServer) component;
         }
 
         throw new IrrationalProvokedException( "Control RPC driver `" + szDriver + "` does not exist or is not UlfServer." );
+    }
+
+    protected void ensure_husky_rpc_server_not_started( String szDriver, MessageNode messageNode ) {
+        if ( messageNode == null || messageNode.isTerminated() ) {
+            return;
+        }
+
+        throw new IrrationalProvokedException(
+                "Husky RPC driver `" + szDriver + "` is already running. Please set CentralManage=false and let RedQueen start it after controller registration."
+        );
     }
 
     protected void prepare_service_regiment() {
@@ -245,5 +257,34 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
 
         this.mServiceControlTransports.clear();
     }
-}
 
+    @Override
+    public ServiceControlInspection inspectServiceControl() {
+        if ( this.mServiceRegiment != null ) {
+            return this.mServiceRegiment.inspectServiceControl();
+        }
+        if ( this.mServiceManager != null ) {
+            return this.mServiceManager.inspectServiceControl();
+        }
+
+        ServiceControlInspection status = new ServiceControlInspection();
+        status.setOverallStatus( "Stopped" );
+        status.setDiagnosticMessage( "RedQueen service regiment is not initialized." );
+        return status;
+    }
+
+    @Override
+    public ServiceInstrument serviceInstrument() {
+        return this.mServiceInstrument;
+    }
+
+    @Override
+    public ServiceManager serviceManager() {
+        return this.mServiceManager;
+    }
+
+    @Override
+    public CollectiveServiceRegiment serviceRegiment() {
+        return this.mServiceRegiment;
+    }
+}

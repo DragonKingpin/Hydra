@@ -6,6 +6,7 @@ import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControl
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrameType;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessLifecycleGrpc;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,23 +35,28 @@ public class GrpcRemoteProcessControlService extends RemoteProcessLifecycleGrpc.
 
             @Override
             public void onNext( RemoteProcessControlFrame frame ) {
-                if ( frame == null ) {
-                    return;
+                try {
+                    if ( frame == null ) {
+                        return;
+                    }
+                    if ( frame.getFrameType() == RemoteProcessControlFrameType.CLIENT_MUSTER ) {
+                        this.bindSession( frame, responseObserver );
+                        return;
+                    }
+                    if ( this.mSession == null ) {
+                        GrpcRemoteProcessControlService.this.log.warn(
+                                "[GrpcControl] [FrameRejected] (ClientId: `{}`, Type: `{}`, Reason: `CLIENT_NOT_READY`) <Rejected>",
+                                frame.getClientId(),
+                                frame.getFrameType()
+                        );
+                        responseObserver.onNext( errorFrame( frame, "CLIENT_NOT_READY", "CLIENT_MUSTER is required before command frames." ) );
+                        return;
+                    }
+                    GrpcRemoteProcessControlService.this.mTransport.acceptClientFrame( this.mSession, frame );
                 }
-                if ( frame.getFrameType() == RemoteProcessControlFrameType.CLIENT_MUSTER ) {
-                    this.bindSession( frame, responseObserver );
-                    return;
+                catch ( Throwable throwable ) {
+                    this.failStream( frame, responseObserver, throwable );
                 }
-                if ( this.mSession == null ) {
-                    GrpcRemoteProcessControlService.this.log.warn(
-                            "[GrpcControl] [FrameRejected] (ClientId: `{}`, Type: `{}`, Reason: `CLIENT_NOT_READY`) <Rejected>",
-                            frame.getClientId(),
-                            frame.getFrameType()
-                    );
-                    responseObserver.onNext( errorFrame( frame, "CLIENT_NOT_READY", "CLIENT_MUSTER is required before command frames." ) );
-                    return;
-                }
-                GrpcRemoteProcessControlService.this.mTransport.acceptClientFrame( this.mSession, frame );
             }
 
             @Override
@@ -69,7 +75,7 @@ public class GrpcRemoteProcessControlService extends RemoteProcessLifecycleGrpc.
                 if ( frame.hasClientMuster() && frame.getClientMuster().getClientId() > 0 ) {
                     clientId = frame.getClientMuster().getClientId();
                 }
-                String szSessionGuid = GrpcRemoteProcessControlService.this.mTransport.nextGuidString();
+                String szSessionGuid = GrpcRemoteProcessControlService.this.mTransport.remoteProcessManagerServer().openClientControlSession( clientId );
                 String szRemoteAddress = GrpcRemoteAddressServerInterceptor.currentRemoteAddress();
                 this.mSession = new GrpcRemoteProcessControlSession( clientId, szSessionGuid, szRemoteAddress, responseObserver );
                 GrpcRemoteProcessControlService.this.log.info(
@@ -100,6 +106,32 @@ public class GrpcRemoteProcessControlService extends RemoteProcessLifecycleGrpc.
                         clientId,
                         szSessionGuid,
                         szRemoteAddress
+                );
+            }
+
+            protected void failStream( RemoteProcessControlFrame frame, StreamObserver<RemoteProcessControlFrame> responseObserver, Throwable throwable ) {
+                String szReason = GrpcRemoteProcessControlService.this.stringifyThrowable( throwable );
+                long nClientId = frame == null ? 0L : frame.getClientId();
+                RemoteProcessControlFrameType frameType = frame == null ? null : frame.getFrameType();
+                GrpcRemoteProcessControlService.this.log.error(
+                        "[GrpcControl] [FrameFailed] (ClientId: `{}`, Type: `{}`, Reason: `{}`) <Error>",
+                        nClientId,
+                        frameType,
+                        szReason,
+                        throwable
+                );
+                try {
+                    responseObserver.onNext( errorFrame( frame, "GRPC_CONTROL_FRAME_FAILED", szReason ) );
+                }
+                catch ( Throwable ignored ) {
+                    // The stream may already be half-closed by gRPC after the application error.
+                }
+                this.detachSession( "Error", szReason );
+                responseObserver.onError(
+                        Status.INTERNAL
+                                .withDescription( szReason )
+                                .withCause( throwable )
+                                .asRuntimeException()
                 );
             }
 

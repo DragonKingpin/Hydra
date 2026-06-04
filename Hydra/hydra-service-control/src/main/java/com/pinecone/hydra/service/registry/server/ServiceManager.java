@@ -14,6 +14,7 @@ import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 
 public interface ServiceManager extends Manager, Slf4jTraceable {
@@ -143,5 +144,7 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
     ServiceLifecycleService serviceLifecycleService();
 
     ServiceMetaService getServiceMetaService();
+
+    ServiceControlInspection inspectServiceControl();
 
 }

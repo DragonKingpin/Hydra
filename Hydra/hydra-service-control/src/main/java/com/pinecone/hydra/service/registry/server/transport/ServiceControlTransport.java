@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
+import com.pinecone.hydra.service.registry.server.transport.entity.ServiceControlTransportInspection;
 import com.pinecone.hydra.service.registry.server.transport.entity.ServiceTransportConnection;
 
 public interface ServiceControlTransport extends ServiceControlTransportLifecycle {
@@ -23,6 +24,39 @@ public interface ServiceControlTransport extends ServiceControlTransportLifecycl
 
     default Collection<ServiceTransportConnection> queryClientConnections( long nClientId ) {
         return Collections.emptyList();
+    }
+
+    default int queryConnectedClientCount() {
+        return 0;
+    }
+
+    default int queryRegisteredControllerCount() {
+        return 0;
+    }
+
+    default int queryCompiledIfaceCount() {
+        return 0;
+    }
+
+    default String queryControllerSummary() {
+        return "";
+    }
+
+    default String queryIfaceSummary() {
+        return "";
+    }
+
+    default ServiceControlTransportInspection inspectTransport() {
+        ServiceControlTransportInspection inspection = new ServiceControlTransportInspection();
+        inspection.setTransportType( this.transportType() );
+        inspection.setStarted( this.isStarted() );
+        inspection.setTerminated( this.isTerminated() );
+        inspection.setRouteSource( this );
+        inspection.setEndpointSource( this );
+        inspection.setConnectedClientCount( this.queryConnectedClientCount() );
+        inspection.setRegisteredControllerCount( this.queryRegisteredControllerCount() );
+        inspection.setCompiledIfaceCount( this.queryCompiledIfaceCount() );
+        return inspection;
     }
 
     default void shutdownClientService( long nClientId, GUID instanceGuid, String szReason ) throws ServiceControlRPCException {

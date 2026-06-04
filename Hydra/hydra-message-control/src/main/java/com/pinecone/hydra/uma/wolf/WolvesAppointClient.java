@@ -118,6 +118,7 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             @Override
             public CompletableFuture<Void> afterReconnectCommitted( ChannelControlBlock block, Channel oldChannel, Channel newChannel ) throws IOException {
                 WolvesAppointClient.copyDuplexAttrs( oldChannel, newChannel );
+                wrappedClient.getChannelPool().remove( block );
                 UlfInstructMessage instructMessage = new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER );
                 instructMessage.getHead().setIdentityId( wrappedClient.getMessageNodeId() );
                 CompletableFuture<Void> ackFuture = WolvesAppointClient.this.mPassiveRegisterAckSupport.begin( newChannel );

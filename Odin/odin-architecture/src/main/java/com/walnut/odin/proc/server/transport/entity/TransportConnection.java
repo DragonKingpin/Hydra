@@ -10,9 +10,15 @@ public class TransportConnection implements Pinenut {
 
     protected String  mszRemoteAddress;
 
+    protected String  mszLocalAddress;
+
     protected String  mszStatus;
 
     protected boolean mbActive;
+
+    protected Long    mnLastActiveTimeMillis;
+
+    protected Long    mnLastHeartbeatTimeMillis;
 
     public String getType() {
         return this.mszType;
@@ -38,6 +44,14 @@ public class TransportConnection implements Pinenut {
         this.mszRemoteAddress = szRemoteAddress;
     }
 
+    public String getLocalAddress() {
+        return this.mszLocalAddress;
+    }
+
+    public void setLocalAddress( String szLocalAddress ) {
+        this.mszLocalAddress = szLocalAddress;
+    }
+
     public String getStatus() {
         return this.mszStatus;
     }
@@ -52,5 +66,21 @@ public class TransportConnection implements Pinenut {
 
     public void setActive( boolean bActive ) {
         this.mbActive = bActive;
+    }
+
+    public Long getLastActiveTimeMillis() {
+        return this.mnLastActiveTimeMillis;
+    }
+
+    public void setLastActiveTimeMillis( Long nLastActiveTimeMillis ) {
+        this.mnLastActiveTimeMillis = nLastActiveTimeMillis;
+    }
+
+    public Long getLastHeartbeatTimeMillis() {
+        return this.mnLastHeartbeatTimeMillis;
+    }
+
+    public void setLastHeartbeatTimeMillis( Long nLastHeartbeatTimeMillis ) {
+        this.mnLastHeartbeatTimeMillis = nLastHeartbeatTimeMillis;
     }
 }

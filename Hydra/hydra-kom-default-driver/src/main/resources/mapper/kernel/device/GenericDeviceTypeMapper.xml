@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.GenericDeviceTypeMapper">
+
+    <resultMap id="GenericDeviceTypeMap" type="com.pinecone.hydra.device.generic.GenericDeviceType">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="category" property="category"/>
+        <result column="parent_type_code" property="parentTypeCode"/>
+        <result column="schema_guid" property="schemaGuid"/>
+        <result column="enabled" property="enabled"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="GenericDeviceTypeColumns">
+        id, guid, code, name, description, category, parent_type_code, schema_guid, enabled, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.device.generic.GenericDeviceType">
+        INSERT INTO hydra_device_generic_dev_type
+            (guid, code, name, description, category, parent_type_code, schema_guid, enabled, create_time, update_time)
+        VALUES
+            (#{guid}, #{code}, #{name}, #{description}, #{category}, #{parentTypeCode}, #{schemaGuid}, #{enabled}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.device.generic.GenericDeviceType">
+        UPDATE hydra_device_generic_dev_type
+        SET
+            name = #{name},
+            description = #{description},
+            category = #{category},
+            parent_type_code = #{parentTypeCode},
+            schema_guid = #{schemaGuid},
+            enabled = #{enabled},
+            update_time = #{updateTime}
+        WHERE code = #{code}
+    </update>
+
+    <select id="getGenericDeviceTypeByCode" resultMap="GenericDeviceTypeMap">
+        SELECT <include refid="GenericDeviceTypeColumns"/>
+        FROM hydra_device_generic_dev_type
+        WHERE code = #{code}
+    </select>
+
+    <select id="fetchGenericDeviceTypes" resultMap="GenericDeviceTypeMap">
+        SELECT <include refid="GenericDeviceTypeColumns"/>
+        FROM hydra_device_generic_dev_type
+        ORDER BY category ASC, code ASC
+    </select>
+</mapper>

@@ -3,7 +3,10 @@ package com.walnut.odin.proc.server.transport.grpc;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.walnut.odin.proc.ProcessesUtils;
+import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -14,6 +17,8 @@ import com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessRuntimeMeta;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrameType;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.UProcessMirror;
+
+import java.util.Map;
 
 public class GrpcRemoteProcessFrameMapper implements Pinenut {
 
@@ -31,6 +36,8 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         this.apply( builder::setPid, source.getPID() );
         this.apply( builder::setProcessName, source.getName() );
         this.apply( builder::setImagePath, source.getImageAddress() );
+        this.applyStartupArguments( builder, source.getStartupArguments() );
+        this.applyEnvironmentVariables( builder, source.getEnvironmentVariables() );
         return builder.build();
     }
 
@@ -60,11 +67,25 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         }
         meta.setPID( source.getPid() );
         meta.setStatus( source.getStatus() );
-        meta.setTerminated( source.getFinishTimeMillis() > 0 );
+        meta.setTerminated( this.isTerminalUProcessStatus( source.getStatus() ) );
         meta.setStartTime( Long.toString( source.getStartTimeMillis() ) );
         meta.setEndTime( Long.toString( source.getFinishTimeMillis() ) );
         meta.setLastUpdateTime( Long.toString( System.currentTimeMillis() ) );
         return meta;
+    }
+
+    public RemoteTerminationReport toTerminationReport( ProcessRuntimeMeta source ) {
+        RemoteTerminationReport report = new RemoteTerminationReport();
+        if ( source == null ) {
+            report.setRemoteTerminationStatus( RemoteTerminationStatus.Error );
+            report.setErrorMsg( "Empty gRPC process termination meta." );
+            return report;
+        }
+        report.setPID( source.getPid() );
+        report.setExitCode( source.getExitCode() );
+        report.setErrorMsg( source.getMessage() );
+        report.setRemoteTerminationStatus( this.resolveTerminationStatus( source ) );
+        return report;
     }
 
     public RemoteProcessControlFrame commandFrame( long clientId, String szCorrelationGuid, RemoteProcessControlFrameType type, UProcessMirrorDTO processDTO ) {
@@ -113,6 +134,45 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         if ( value != null ) {
             setter.set( value );
         }
+    }
+
+    protected void applyStartupArguments( UProcessMirror.Builder builder, String startupArguments ) {
+        for ( Map.Entry<String, String> entry : ProcessesUtils.decode( startupArguments ).entrySet() ) {
+            if ( entry.getKey() == null || entry.getKey().trim().isEmpty() ) {
+                continue;
+            }
+            builder.addArguments( "--" + entry.getKey() + "=" + ( entry.getValue() == null ? "" : entry.getValue() ) );
+        }
+    }
+
+    protected void applyEnvironmentVariables( UProcessMirror.Builder builder, String environmentVariables ) {
+        Map<String, String> decoded = ProcessesUtils.decode( environmentVariables );
+        if ( !decoded.isEmpty() ) {
+            builder.putAllEnvironment( decoded );
+        }
+    }
+
+    protected boolean isTerminalUProcessStatus( String szStatus ) {
+        return "Terminated".equals( szStatus ) || "Error".equals( szStatus );
+    }
+
+    protected RemoteTerminationStatus resolveTerminationStatus( ProcessRuntimeMeta source ) {
+        if ( source == null ) {
+            return RemoteTerminationStatus.Error;
+        }
+
+        String szMessage = source.getMessage() == null ? "" : source.getMessage();
+        if ( szMessage.startsWith( "[NoImage]" )
+                || szMessage.startsWith( "[ScriptDefinitionNotFound]" )
+                || szMessage.startsWith( "[RuntimeNotConfigured]" ) ) {
+            return RemoteTerminationStatus.InitFailure;
+        }
+
+        if ( "Error".equals( source.getStatus() ) ) {
+            return RemoteTerminationStatus.Error;
+        }
+
+        return source.getExitCode() == 0 ? RemoteTerminationStatus.Expected : RemoteTerminationStatus.Error;
     }
 
     protected void applyMirrorContext( RemoteVitalizationResponse response, UProcessMirrorDTO source ) {

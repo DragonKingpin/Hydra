@@ -1,0 +1,31 @@
+package com.acorn.skynet.device.husky.server;
+
+import java.util.List;
+
+import com.pinecone.hydra.device.registry.dto.DeviceMetaDTO;
+import com.pinecone.hydra.device.registry.dto.DeviceTopologyDTO;
+import com.pinecone.hydra.device.registry.server.DeviceManager;
+import com.pinecone.hydra.device.registry.server.DeviceTopologyService;
+import com.pinecone.hydra.umct.AddressMapping;
+import com.pinecone.hydra.umct.stereotype.Controller;
+
+@Controller
+@AddressMapping( "com.acorn.skynet.device.husky.protocol.HuskyDeviceTopologyIface." )
+public class HuskyDeviceTopologyController implements HuskyDeviceController {
+
+    protected final DeviceTopologyService deviceTopologyService;
+
+    public HuskyDeviceTopologyController( DeviceManager deviceManager ) {
+        this.deviceTopologyService = deviceManager.deviceTopologyService();
+    }
+
+    @AddressMapping( "affirmOwnedRelation" )
+    public boolean affirmOwnedRelation( DeviceTopologyDTO topologyDTO ) {
+        return this.deviceTopologyService.affirmOwnedRelation( topologyDTO );
+    }
+
+    @AddressMapping( "fetchChildrenMeta" )
+    public List<DeviceMetaDTO> fetchChildrenMeta( String parentGuid ) {
+        return this.deviceTopologyService.fetchChildrenMeta( parentGuid );
+    }
+}

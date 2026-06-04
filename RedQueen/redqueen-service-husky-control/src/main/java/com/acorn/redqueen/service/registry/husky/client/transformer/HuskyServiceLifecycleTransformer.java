@@ -3,8 +3,8 @@ package com.acorn.redqueen.service.registry.husky.client.transformer;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientDeregisterResult;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
@@ -17,7 +17,7 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
         this.mGuidAllocator = guidAllocator;
     }
 
-    public RegisterServiceDTO encodeRegisterInstruction(ServiceClientRegisterInstruction instruction, long nClientId ) {
+    public RegisterServiceDTO encodeRegisterInstruction(ServiceRegisterInstruction instruction, long nClientId ) {
         RegisterServiceDTO dto = new RegisterServiceDTO();
         dto.setClientId( nClientId );
         if ( instruction == null ) {
@@ -26,6 +26,7 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
 
         dto.setServiceId( this.toString( instruction.getServiceGuid() ) );
         dto.setDeployId( this.toString( instruction.getDeployGuid() ) );
+        dto.setInstanceGuid( this.toString( instruction.getInstanceGuid() ) );
         dto.setEndpointProtocol( instruction.getEndpointProtocol() );
         dto.setEndpointHost( instruction.getEndpointHost() );
         dto.setEndpointPort( instruction.getEndpointPort() );
@@ -39,7 +40,7 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
     }
 
     public ServiceClientRegisterResult decodeRegisterResult(
-            ServiceClientRegisterInstruction instruction,
+            ServiceRegisterInstruction instruction,
             String szInstanceGuid
     ) {
         ServiceClientRegisterResult result = new ServiceClientRegisterResult();
@@ -52,12 +53,12 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
         return result;
     }
 
-    public String encodeDeregisterInstruction( ServiceClientDeregisterInstruction instruction ) {
+    public String encodeDeregisterInstruction( ServiceDeregisterInstruction instruction ) {
         return instruction == null ? null : this.toString( instruction.getInstanceGuid() );
     }
 
     public ServiceClientDeregisterResult toDeregisterResult(
-            ServiceClientDeregisterInstruction instruction
+            ServiceDeregisterInstruction instruction
     ) {
         ServiceClientDeregisterResult result = new ServiceClientDeregisterResult();
         if ( instruction != null ) {
@@ -80,3 +81,4 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
     }
 
 }
+

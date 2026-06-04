@@ -99,9 +99,19 @@ public interface ServiceInstanceEntry extends Pinenut {
 
     void setErrorCause( String errorCause );
 
-    int getRunCount();
+    int getConnectionCount();
 
-    void setRunCount( int runCount );
+    void setConnectionCount( int connectionCount );
+
+    @Deprecated
+    default int getRunCount() {
+        return this.getConnectionCount();
+    }
+
+    @Deprecated
+    default void setRunCount( int runCount ) {
+        this.setConnectionCount( runCount );
+    }
 
     GUID getDeployGuid();
 

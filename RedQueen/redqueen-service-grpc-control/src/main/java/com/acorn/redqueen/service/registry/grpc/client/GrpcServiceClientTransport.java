@@ -17,9 +17,9 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.grpc.client.GrpcAppointClient;
 import com.pinecone.hydra.service.registry.client.ServiceClientStateSynchronizedHandler;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
-import com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientDeregisterResult;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.client.port.ServicePort;
@@ -193,7 +193,7 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
     }
 
     public ServiceClientRegisterResult register(
-            ServiceClientRegisterInstruction instruction
+            ServiceRegisterInstruction instruction
     ) throws ServiceClientTransportException {
         try {
             this.ensureControlReady();
@@ -215,7 +215,7 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
     }
 
     public ServiceClientDeregisterResult deregister(
-            ServiceClientDeregisterInstruction command
+            ServiceDeregisterInstruction command
     ) throws ServiceClientTransportException {
         try {
             if ( !this.isControlReady() ) {
@@ -378,7 +378,7 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
     }
 
     protected void acceptShutdownServiceFrame( ServiceControlFrame frame ) {
-        ServiceClientShutdownInstruction instruction = this.mFrameMapper.toShutdownInstruction( frame.getShutdownService() );
+        ServiceShutdownInstruction instruction = this.mFrameMapper.toShutdownInstruction( frame.getShutdownService() );
         for ( ServiceClientManipulationHandler handler : this.mManipulationHandlers ) {
             try {
                 handler.shutdownService( instruction );
@@ -505,3 +505,4 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
     }
 
 }
+

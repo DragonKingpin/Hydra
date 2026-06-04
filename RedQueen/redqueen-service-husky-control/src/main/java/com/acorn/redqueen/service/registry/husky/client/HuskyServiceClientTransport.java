@@ -22,11 +22,17 @@ import com.pinecone.hydra.service.registry.client.transport.ServiceClientTranspo
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportType;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
+import com.pinecone.hydra.umc.msg.ChannelControlBlock;
+import com.pinecone.hydra.umc.msg.ChannelHandleException;
+import com.pinecone.hydra.umc.msg.event.ChannelEventHandler;
+import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 
 public class HuskyServiceClientTransport implements ServiceClientTransport {
 
     protected static final int PassiveServiceControlLine = 2;
+
+    protected static final long ReconnectSynchronizationDelayMillis = 2000L;
 
     protected UlfClient mRPCClient;
 
@@ -55,6 +61,12 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
     protected volatile ServiceClientTransportState mState;
 
     protected volatile boolean mbTerminated;
+
+    protected volatile boolean mbConnectionDetached;
+
+    protected volatile UlfClient mEventBoundRPCClient;
+
+    protected volatile long mnConnectionEventVersion;
 
     public HuskyServiceClientTransport(
             UlfClient rpcClient,
@@ -107,6 +119,7 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
         try {
             this.mState = ServiceClientTransportState.Starting;
             this.prepareRPCClient();
+            this.registerRPCClientEventHandlers();
             this.mDuplexAppointClient = new WolvesAppointClient( this.mRPCClient );
             this.mDuplexAppointClient.execute();
             this.mDuplexAppointClient.compile( ServiceLifecycleIface.class, false );
@@ -127,6 +140,75 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
             this.mMetaIface = null;
             throw new ServiceClientTransportException( e );
         }
+    }
+
+    protected void registerRPCClientEventHandlers() {
+        if ( this.mRPCClient == null || this.mEventBoundRPCClient == this.mRPCClient ) {
+            return;
+        }
+        this.mEventBoundRPCClient = this.mRPCClient;
+
+        this.mRPCClient.registerChannelInactiveHandler( new ChannelInactiveHandler() {
+            @Override
+            public boolean afterChannelInactive( ChannelControlBlock ccb, Object context ) throws ChannelHandleException {
+                if ( !HuskyServiceClientTransport.this.mbTerminated ) {
+                    HuskyServiceClientTransport.this.mbConnectionDetached = true;
+                    HuskyServiceClientTransport.this.mState = ServiceClientTransportState.Synchronizing;
+                    HuskyServiceClientTransport.this.markConnectionEvent();
+                }
+                return false;
+            }
+        } );
+
+        this.mRPCClient.registerChannelConnectedHandler( new ChannelEventHandler() {
+            @Override
+            public void afterEventTriggered( ChannelControlBlock block, Object context ) {
+                HuskyServiceClientTransport.this.afterRPCChannelConnected();
+            }
+        } );
+    }
+
+    protected void afterRPCChannelConnected() {
+        if ( this.mbTerminated || !this.mbConnectionDetached ) {
+            return;
+        }
+        this.scheduleControlStateSynchronized(
+                ServiceClientTransportSyncReasons.StreamError,
+                this.markConnectionEvent()
+        );
+    }
+
+    protected synchronized long markConnectionEvent() {
+        return ++this.mnConnectionEventVersion;
+    }
+
+    protected void scheduleControlStateSynchronized( String szReason, long nEventVersion ) {
+        Thread thread = new Thread( new Runnable() {
+            @Override
+            public void run() {
+                boolean bNotify = false;
+                try {
+                    Thread.sleep( ReconnectSynchronizationDelayMillis );
+                    synchronized ( HuskyServiceClientTransport.this ) {
+                        if ( !HuskyServiceClientTransport.this.mbTerminated
+                                && HuskyServiceClientTransport.this.mbConnectionDetached
+                                && HuskyServiceClientTransport.this.mnConnectionEventVersion == nEventVersion ) {
+                            HuskyServiceClientTransport.this.mState = ServiceClientTransportState.Ready;
+                            HuskyServiceClientTransport.this.mbConnectionDetached = false;
+                            bNotify = true;
+                        }
+                    }
+                    if ( bNotify ) {
+                        HuskyServiceClientTransport.this.notifyControlStateSynchronized( szReason );
+                    }
+                }
+                catch ( InterruptedException e ) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "redqueen-husky-service-control-reconnected" );
+        thread.setDaemon( true );
+        thread.start();
     }
 
     protected void prepareRPCClient() {
@@ -161,7 +243,7 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
     }
 
     protected void dispatchShutdownService(
-            com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction instruction
+            com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction instruction
     ) {
         for ( ServiceClientManipulationHandler handler : this.mManipulationHandlers ) {
             handler.shutdownService( instruction );
@@ -292,3 +374,4 @@ public class HuskyServiceClientTransport implements ServiceClientTransport {
     }
 
 }
+

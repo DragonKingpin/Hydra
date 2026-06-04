@@ -52,7 +52,7 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
 
     protected String mErrorCause;
 
-    protected int mnRunCount;
+    protected int mnConnectionCount;
 
     protected GUID mDeployGuid;
 
@@ -216,7 +216,6 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     @Override
     public void setRegisterTime( LocalDateTime registerTime ) {
         this.mRegisterTime = registerTime;
-        this.mLatestStartTime = registerTime;
     }
 
     @Override
@@ -247,7 +246,6 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     @Override
     public void setOfflineTime( LocalDateTime offlineTime ) {
         this.mOfflineTime = offlineTime;
-        this.mLatestEndTime = offlineTime;
     }
 
     @Override
@@ -262,30 +260,22 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
 
     @Override
     public LocalDateTime getLatestStartTime(){
-        if ( this.mRegisterTime != null ) {
-            return this.mRegisterTime;
-        }
         return this.mLatestStartTime;
     }
 
     @Override
     public void setLatestStartTime( LocalDateTime latestStartTime ){
         this.mLatestStartTime = latestStartTime;
-        this.mRegisterTime = latestStartTime;
     }
 
     @Override
     public LocalDateTime getLatestEndTime(){
-        if ( this.mOfflineTime != null ) {
-            return this.mOfflineTime;
-        }
         return this.mLatestEndTime;
     }
 
     @Override
     public void setLatestEndTime( LocalDateTime latestEndTime ){
         this.mLatestEndTime = latestEndTime;
-        this.mOfflineTime = latestEndTime;
     }
 
     @Override
@@ -303,13 +293,13 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     }
 
     @Override
-    public int getRunCount(){
-        return this.mnRunCount;
+    public int getConnectionCount(){
+        return this.mnConnectionCount;
     }
 
     @Override
-    public void setRunCount( int runCount ){
-        this.mnRunCount = runCount;
+    public void setConnectionCount( int connectionCount ){
+        this.mnConnectionCount = connectionCount;
     }
 
     @Override

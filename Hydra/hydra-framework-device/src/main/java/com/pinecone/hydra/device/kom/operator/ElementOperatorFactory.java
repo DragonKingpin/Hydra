@@ -5,6 +5,7 @@ import com.pinecone.hydra.device.kom.entity.ClusterElement;
 import com.pinecone.hydra.device.kom.entity.ContainerElement;
 import com.pinecone.hydra.device.kom.entity.Namespace;
 import com.pinecone.hydra.device.kom.entity.DeviceElement;
+import com.pinecone.hydra.device.kom.entity.GenericDeviceElement;
 import com.pinecone.hydra.device.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.device.kom.entity.QuickElement;
 import com.pinecone.hydra.device.kom.entity.VirtualMachineElement;
@@ -20,6 +21,7 @@ public interface ElementOperatorFactory extends OperatorFactory {
     String DefaultPhysicalHost    =  PhysicalHostElement.class.getSimpleName();
     String DefaultQuickElement    =  QuickElement.class.getSimpleName();
     String DefaultContainerElement =  ContainerElement.class.getSimpleName();
+    String DefaultGenericDeviceElement = GenericDeviceElement.class.getSimpleName().replace( "Generic", "" );
 
 
     void register(String typeName, TreeNodeOperator functionalNodeOperation);

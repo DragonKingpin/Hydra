@@ -209,7 +209,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         this.mStateMutex.lock();
         try {
             this.mbClosing = true;
-            if( this.mExecutorGroup != null ) {
+            if ( this.mExecutorGroup != null ) {
                 this.mExecutorGroup.shutdownGracefully();
                 this.clear();
                 this.mExecutorGroup = null;

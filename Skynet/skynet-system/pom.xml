@@ -84,5 +84,17 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.acorn.skynet</groupId>
+            <artifactId>skynet-device-husky-control</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.acorn.skynet</groupId>
+            <artifactId>skynet-device-grpc-control</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

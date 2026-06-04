@@ -1,9 +1,6 @@
 package com.pinecone.hydra.device.registry.server;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +10,10 @@ import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceControlRPCException;
 import com.pinecone.hydra.device.registry.DeviceValidationException;
-import com.pinecone.hydra.device.registry.appoint.DeviceAppointServer;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransportRegistry;
+import com.pinecone.hydra.device.registry.server.transport.UniformDeviceControlTransportRegistry;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -22,13 +21,15 @@ public class UniformDeviceManager implements DeviceManager {
 
     protected final DeviceInstrument mDeviceInstrument;
 
-    protected final ConcurrentMap<Long, DeviceAppointServer> mServerPoolMap;
+    protected final DeviceControlTransportRegistry mTransportRegistry;
 
     protected final DeviceLifecycleService mDeviceLifecycleService;
 
     protected final DeviceMetaService mDeviceMetaService;
 
     protected final DeviceTopologyService mDeviceTopologyService;
+
+    protected final DeviceRuntimeService mDeviceRuntimeService;
 
     protected final Logger mLogger;
 
@@ -38,10 +39,11 @@ public class UniformDeviceManager implements DeviceManager {
         }
 
         this.mDeviceInstrument = deviceInstrument;
-        this.mServerPoolMap = new ConcurrentHashMap<>();
+        this.mTransportRegistry = new UniformDeviceControlTransportRegistry();
         this.mDeviceLifecycleService = new DeviceLifecycleService( this );
         this.mDeviceMetaService = new DeviceMetaService( this );
         this.mDeviceTopologyService = new DeviceTopologyService( this );
+        this.mDeviceRuntimeService = new DeviceRuntimeService( this );
         this.mLogger = LoggerFactory.getLogger( this.getClass() );
     }
 
@@ -56,28 +58,28 @@ public class UniformDeviceManager implements DeviceManager {
     }
 
     @Override
-    public Collection<DeviceAppointServer> getServers() {
-        return this.mServerPoolMap.values();
+    public Collection<DeviceControlTransport> getTransports() {
+        return this.mTransportRegistry.fetchTransports();
     }
 
     @Override
-    public DeviceManager addAppointServer( DeviceAppointServer appointServer ) {
-        this.mServerPoolMap.put( appointServer.getMessageNodeId(), appointServer );
+    public DeviceManager addTransport( DeviceControlTransport transport ) {
+        this.mTransportRegistry.addTransport( transport );
         return this;
     }
 
     @Override
-    public DeviceManager hookAppointServer( DeviceAppointServer appointServer ) {
-        this.addAppointServer( appointServer );
-        appointServer.hookDeviceManager( this );
+    public DeviceManager hookTransport( DeviceControlTransport transport ) {
+        this.addTransport( transport );
+        transport.hookDeviceManager( this );
         return this;
     }
 
     @Override
-    public DeviceManager vitalizeAppointServer( DeviceAppointServer appointServer ) throws DeviceControlRPCException {
+    public DeviceManager vitalizeTransport( DeviceControlTransport transport ) throws DeviceControlRPCException {
         try {
-            this.hookAppointServer( appointServer );
-            appointServer.execute();
+            this.hookTransport( transport );
+            transport.execute();
             return this;
         }
         catch ( Exception e ) {
@@ -86,30 +88,26 @@ public class UniformDeviceManager implements DeviceManager {
     }
 
     @Override
-    public DeviceAppointServer getAppointServerById( Long appointNodeId ) {
-        return this.mServerPoolMap.get( appointNodeId );
+    public DeviceControlTransport getTransportById( Long transportId ) {
+        return this.mTransportRegistry.getTransportById( transportId );
     }
 
     @Override
-    public DeviceAppointServer evictAppointServerById( Long appointNodeId ) {
-        DeviceAppointServer legacy = this.mServerPoolMap.remove( appointNodeId );
-        if ( legacy != null ) {
-            legacy.close();
-        }
-        return legacy;
+    public DeviceControlTransport evictTransportById( Long transportId ) {
+        return this.mTransportRegistry.evictTransportById( transportId );
     }
 
     @Override
-    public int serverSize() {
-        return this.mServerPoolMap.size();
+    public int transportSize() {
+        return this.mTransportRegistry.size();
     }
 
     @Override
     public void startDeviceManager() throws DeviceControlRPCException {
         try {
-            for ( Map.Entry<Long, DeviceAppointServer> entry : this.mServerPoolMap.entrySet() ) {
-                if ( !entry.getValue().isStarted() ) {
-                    entry.getValue().execute();
+            for ( DeviceControlTransport transport : this.mTransportRegistry.fetchTransports() ) {
+                if ( !transport.isStarted() ) {
+                    transport.execute();
                 }
             }
             this.infoLifecycle( "Device Manager RPC Subsystem Vitalization", LogStatuses.StatusDone );
@@ -176,6 +174,16 @@ public class UniformDeviceManager implements DeviceManager {
     @Override
     public DeviceTopologyService deviceTopologyService() {
         return this.mDeviceTopologyService;
+    }
+
+    @Override
+    public DeviceRuntimeService deviceRuntimeService() {
+        return this.mDeviceRuntimeService;
+    }
+
+    @Override
+    public DeviceControlTransportRegistry deviceControlTransportRegistry() {
+        return this.mTransportRegistry;
     }
 
     protected void validateRegistration( DeviceRegistrationDTO registrationDTO ) {

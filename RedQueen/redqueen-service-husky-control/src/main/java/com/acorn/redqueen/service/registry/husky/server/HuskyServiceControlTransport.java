@@ -15,7 +15,9 @@ import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
+import com.pinecone.hydra.service.registry.server.transport.entity.ServiceControlTransportInspection;
 import com.pinecone.hydra.service.registry.server.transport.entity.ServiceTransportConnection;
+import com.pinecone.hydra.service.registry.server.transport.entity.ServiceTransportHandle;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.uma.HuskyDuplexExpress;
@@ -201,6 +203,50 @@ public class HuskyServiceControlTransport implements ServiceControlTransport {
             this.collectChannelConnections( connections, fairChannelPool.getMajorQueue() );
         }
         return connections;
+    }
+
+    @Override
+    public int queryConnectedClientCount() {
+        if ( this.mDuplexAppointServer == null ) {
+            return 0;
+        }
+        int nCount = 0;
+        for ( ServiceTransportHandle handle : this.mServiceManager.transportRegistry().transportHandles() ) {
+            if ( this.containsClient( handle.getClientId() ) ) {
+                nCount++;
+            }
+        }
+        return nCount;
+    }
+
+    @Override
+    public int queryRegisteredControllerCount() {
+        int nBaseCount = this.mDuplexAppointServer == null ? 0 : 2;
+        return nBaseCount + this.mPendingControllerMap.size();
+    }
+
+    @Override
+    public int queryCompiledIfaceCount() {
+        int nBaseCount = this.mDuplexAppointServer == null ? 0 : 1;
+        return nBaseCount + this.mPendingIfaceCompileMap.size();
+    }
+
+    @Override
+    public String queryControllerSummary() {
+        return "ServiceLifecycleController, ServiceMetaController";
+    }
+
+    @Override
+    public String queryIfaceSummary() {
+        return "ServiceLifecycleIface, ServiceMetaManipulationIface, PassiveServiceManipulatedIface";
+    }
+
+    @Override
+    public ServiceControlTransportInspection inspectTransport() {
+        ServiceControlTransportInspection inspection = ServiceControlTransport.super.inspectTransport();
+        inspection.setRouteSource( this.mDuplexAppointServer == null ? this : this.mDuplexAppointServer );
+        inspection.setEndpointSource( this.mDuplexAppointServer == null ? this.mRPCServer : this.mDuplexAppointServer );
+        return inspection;
     }
 
     protected void ensureClientConnected( long nClientId ) throws ServiceControlRPCException {

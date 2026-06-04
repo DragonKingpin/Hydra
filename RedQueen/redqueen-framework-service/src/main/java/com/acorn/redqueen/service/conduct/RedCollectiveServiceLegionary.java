@@ -12,9 +12,9 @@ import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.client.ServiceClient;
 import com.pinecone.hydra.service.registry.client.ServiceClientStateSynchronizedHandler;
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
-import com.pinecone.hydra.service.registry.client.control.ServiceClientShutdownInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientDeregisterInstruction;
-import com.pinecone.hydra.service.registry.client.instruction.ServiceClientRegisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
+import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
 import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportException;
 
@@ -136,6 +136,7 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
         this.mServiceClientStateSynchronizedHandler = new ServiceClientStateSynchronizedHandler() {
             @Override
             public void afterServiceClientStateSynchronized( String szReason ) {
+                RedCollectiveServiceLegionary.this.mState = ServiceLegionaryState.Offline;
                 RedCollectiveServiceLegionary.this.requestRejoinRegiment( szReason );
             }
         };
@@ -149,14 +150,14 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
 
         this.mServiceClientManipulationHandler = new ServiceClientManipulationHandler() {
             @Override
-            public void shutdownService( ServiceClientShutdownInstruction instruction ) {
+            public void shutdownService( ServiceShutdownInstruction instruction ) {
                 RedCollectiveServiceLegionary.this.requestPassiveShutdownService( instruction );
             }
         };
         this.mServiceClient.registerManipulationHandler( this.mServiceClientManipulationHandler );
     }
 
-    protected void requestPassiveShutdownService( ServiceClientShutdownInstruction instruction ) {
+    protected void requestPassiveShutdownService( ServiceShutdownInstruction instruction ) {
         if ( instruction == null ) {
             return;
         }
@@ -188,7 +189,8 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
             this.assertJoinRequestReady();
             this.mState = ServiceLegionaryState.Joining;
 
-            ServiceClientRegisterInstruction instruction = this.mJoinRequest.toServiceClientRegisterInstruction( this.getClientId() );
+            ServiceRegisterInstruction instruction = this.mJoinRequest.toServiceRegisterInstruction( this.getClientId() );
+            instruction.setInstanceGuid( this.mInstanceGuid );
             ServiceClientRegisterResult response = this.mServiceClient.lifecycle().register( instruction );
             ServiceLegionaryJoinResponse joinResponse = ServiceLegionaryJoinResponse.from( response );
             this.mServiceGuid = joinResponse.getServiceGuid();
@@ -360,7 +362,7 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
         }
 
         try {
-            ServiceClientDeregisterInstruction command = new ServiceClientDeregisterInstruction();
+            ServiceDeregisterInstruction command = new ServiceDeregisterInstruction();
             command.setInstanceGuid( this.mInstanceGuid );
             command.setReason( szReason );
             this.mServiceClient.lifecycle().deregister( command );
@@ -415,3 +417,4 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
     }
 
 }
+

@@ -47,7 +47,7 @@ public class RavenInstanceInstantaneousImpetus implements InstanceInstantaneousI
             if ( !result.getLaunchContexts().isEmpty() ) {
                 this.mTaskScheduler.taskDispatcher().pipeLaunchPrepared( result.getLaunchContexts() );
             }
-            else {
+            else if ( launchFeature != null && launchFeature.isAllowInstantaneousDepartureBypass() ) {
                 Collection<TaskLaunchContext> bypassed = this.prepareBypassedLaunchContexts( instances, scheduleTime, launchFeature );
                 if ( !bypassed.isEmpty() ) {
                     this.mTaskScheduler.taskDispatcher().pipeLaunchPrepared( bypassed );

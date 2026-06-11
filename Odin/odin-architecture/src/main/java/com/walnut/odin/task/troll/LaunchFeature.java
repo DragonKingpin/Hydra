@@ -33,6 +33,8 @@ public class LaunchFeature implements Pinenut {
 
     private boolean allowAsymmetricImage = true;
 
+    private boolean allowInstantaneousDepartureBypass;
+
     public LaunchFeature() {
         this.bizTimeEpoch = LocalDateTime.now().minusDays( 1 ); // dtm
     }
@@ -78,12 +80,26 @@ public class LaunchFeature implements Pinenut {
         return this;
     }
 
+    public boolean isAllowInstantaneousDepartureBypass() {
+        return this.allowInstantaneousDepartureBypass;
+    }
+
+    public void setAllowInstantaneousDepartureBypass( boolean allowInstantaneousDepartureBypass ) {
+        this.allowInstantaneousDepartureBypass = allowInstantaneousDepartureBypass;
+    }
+
+    public LaunchFeature withAllowInstantaneousDepartureBypass( boolean allowInstantaneousDepartureBypass ) {
+        this.allowInstantaneousDepartureBypass = allowInstantaneousDepartureBypass;
+        return this;
+    }
+
     public LaunchFeature mergeLaunchOptions( LaunchFeature that ) {
         if ( that == null ) {
             return this;
         }
 
         this.allowAsymmetricImage = that.isAllowAsymmetricImage();
+        this.allowInstantaneousDepartureBypass = that.isAllowInstantaneousDepartureBypass();
 
         if ( that.getProcessorDesignated() != null ) {
             this.processorDesignated = that.getProcessorDesignated();

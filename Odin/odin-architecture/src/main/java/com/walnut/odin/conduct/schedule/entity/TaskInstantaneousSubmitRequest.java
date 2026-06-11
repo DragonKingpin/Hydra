@@ -13,6 +13,9 @@ public class TaskInstantaneousSubmitRequest implements Pinenut {
     protected LocalDateTime mBusinessTimeEpoch;
     protected String        mszProcessorName;
     protected boolean       mbAllowAsymmetricImage = true;
+    protected TaskInstantaneousMode mMode = TaskInstantaneousMode.Immediate;
+    protected boolean       mbAllowLineageBypass;
+    protected boolean       mbAllowInstantaneousDepartureBypass;
 
     public TaskInstantaneousContext toContext() {
         TaskInstantaneousContext context = new TaskInstantaneousContext();
@@ -22,6 +25,9 @@ public class TaskInstantaneousSubmitRequest implements Pinenut {
         context.setBusinessTimeEpoch( this.mBusinessTimeEpoch );
         context.setProcessorName( this.mszProcessorName );
         context.setAllowAsymmetricImage( this.mbAllowAsymmetricImage );
+        context.setMode( this.mMode );
+        context.setAllowLineageBypass( this.mbAllowLineageBypass );
+        context.setAllowInstantaneousDepartureBypass( this.mbAllowInstantaneousDepartureBypass );
         return context;
     }
 
@@ -71,6 +77,30 @@ public class TaskInstantaneousSubmitRequest implements Pinenut {
 
     public void setAllowAsymmetricImage( boolean allowAsymmetricImage ) {
         this.mbAllowAsymmetricImage = allowAsymmetricImage;
+    }
+
+    public TaskInstantaneousMode getMode() {
+        return this.mMode;
+    }
+
+    public void setMode( TaskInstantaneousMode mode ) {
+        this.mMode = mode;
+    }
+
+    public boolean isAllowLineageBypass() {
+        return this.mbAllowLineageBypass;
+    }
+
+    public void setAllowLineageBypass( boolean allowLineageBypass ) {
+        this.mbAllowLineageBypass = allowLineageBypass;
+    }
+
+    public boolean isAllowInstantaneousDepartureBypass() {
+        return this.mbAllowInstantaneousDepartureBypass;
+    }
+
+    public void setAllowInstantaneousDepartureBypass( boolean allowInstantaneousDepartureBypass ) {
+        this.mbAllowInstantaneousDepartureBypass = allowInstantaneousDepartureBypass;
     }
 
 }

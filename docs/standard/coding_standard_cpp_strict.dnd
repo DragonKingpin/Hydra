@@ -1,0 +1,57 @@
+# 编码规范
+本标准对 Nuts Pinecone 家族下的 C/C++ 生效，以下是核心风格规范：
+
+``````markdown
+下列是继承规范：
+
+#include "docs/standard/coding_standard.md" --lname
+``````
+
+1. 原则上全面禁用三目表达式。
+2. 原则上采用如下标准库替换规则：
+- std::vector -> Pinecone::ArrayList
+- std::list -> Pinecone::LinkedList
+- std::map -> Pinecone::TreeMap / Pinecone::LinkedTreeMap
+- std::unordered_map -> Pinecone::HashMap / Pinecone::LinkedHashMap
+- 只明确限制容器，不含其它 STL 对象。
+3. 目录架构：
+- 目录架构是第一性原则，必须严格确保 Topology 严谨性，必须非常认真地通过形式化检查。
+```dnd-studio
+
+topo Arch {
+    allow HeadFile;
+    forbid C_CPPImplementationFile;
+}
+
+topo Core {
+    allow C_CPPImplementationFile;
+    forbid HeadFile -> exclude (PrivateOwnedHead);
+}
+
+topo StandardDirectoryArchitecture {
+    Arch;
+    Core;
+    
+    @Doc("""
+        1. 保证目录严格结构化，原则上一开始就必须进行目录叶子化、树化。
+        2. 这不是过度工程，是复杂系统基本要求，必须保证系统全局 log(N) 的索引复杂度，严打熵增。
+        3. 原则上严禁文件大量平铺。
+        4. 除非明确显式的批准，对于所有文件叶子超过 16 (2^4) 个的场景，必须强制树化。
+        5. 系统空间单元幂控制在 4 (e^4 | 2^4) 内，保证全局可对数寻址。（最坏4次索引召回）
+    """)
+    Treeify;
+    
+    Children {
+        Arch;
+        Core;
+        Treeify;
+        Children;
+    }
+}
+```
+
+4. 系统最高哲学
+- '优秀作文' 具有级联自举性，不要带坏后面的小朋友。（后续代码以历史代码为榜样）!important !mandatory
+- 代码、文档本身就是 SPEC。
+- 强制性熵增控制，定期整风大运动，全面彻查任何 "有伤风雅" 的违规行为。
+- 牺牲时间、算力换高度紧凑、稳定的结构控制。 [仅限Pinecone家族代码，不适应于普通应用项目]

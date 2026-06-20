@@ -76,6 +76,11 @@ public class TitanBucketInstrument implements BucketInstrument {
     }
 
     @Override
+    public List<GenericBucket> listByVolumeGuid( GUID volumeGuid, int offset, int limit ) {
+        return this.bucketManipulator.listByVolumeGuid( volumeGuid, offset, limit );
+    }
+
+    @Override
     public List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
         return this.bucketManipulator.listPage( userIdentifier, bucketName, null, offset, limit );
     }

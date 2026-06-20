@@ -64,6 +64,13 @@
         ORDER BY id ASC
     </select>
 
+    <select id="countByVolumeGuid" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_volume_mount
+        WHERE volume_guid = #{volumeGuid}
+          AND status != 'DELETED'
+    </select>
+
     <sql id="MountFilter">
         <where>
             <if test="status != null and status != ''">

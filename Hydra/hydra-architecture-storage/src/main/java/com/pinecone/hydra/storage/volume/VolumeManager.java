@@ -83,6 +83,8 @@ public interface VolumeManager extends Pinenut {
 
     void retireVolume( GUID guid );
 
+    void retirePhysical( GUID physicalGuid );
+
     long countPhysicals( String name, VolumePhysicalType physicalType, VolumePhysicalStatus status, GUID deviceGuid );
 
     List<VolumePhysical> listPhysicalPage(
@@ -98,7 +100,11 @@ public interface VolumeManager extends Pinenut {
 
     long countPhysicalReferences( GUID physicalGuid );
 
+    List<VolumeRecord> listVolumeReferencesByPhysicalGuid( GUID physicalGuid, int limit );
+
     long countVolumeChildReferences( GUID volumeGuid );
+
+    long countVolumeMountReferences( GUID volumeGuid );
 
     List<StorageSupportDescriptor> listStorageSupportTypes();
 

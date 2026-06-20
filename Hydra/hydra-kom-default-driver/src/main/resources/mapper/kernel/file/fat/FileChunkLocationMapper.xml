@@ -45,6 +45,10 @@
         SELECT COUNT( `id` ) FROM `hydra_uofs_fat_chunk_location` WHERE `bucket_guid` = #{bucketGuid}
     </select>
 
+    <select id="countByVolumeGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_fat_chunk_location` WHERE `volume_guid` = #{volumeGuid}
+    </select>
+
     <select id="listPage" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunkLocation">
         SELECT `id`, `guid`, `chunk_guid` AS chunkGuid, `bucket_guid` AS bucketGuid, `replica_no` AS replicaNo, `volume_guid` AS volumeGuid, `location_type` AS locationType, `object_key` AS objectKey, `object_offset` AS objectOffset, `volume_offset` AS volumeOffset, `length_bytes` AS lengthBytes, `storage_key` AS storageKey, `version`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk_location` ORDER BY `id` ASC LIMIT #{limit} OFFSET #{offset}
     </select>

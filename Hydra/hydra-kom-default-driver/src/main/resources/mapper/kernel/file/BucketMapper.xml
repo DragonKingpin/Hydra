@@ -60,6 +60,14 @@
         SELECT COUNT( `id` ) FROM `hydra_uofs_bucket` WHERE `volume_guid` = #{volumeGuid}
     </select>
 
+    <select id="listByVolumeGuid" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_uofs_bucket`
+        WHERE `volume_guid` = #{volumeGuid}
+        ORDER BY `create_time` DESC, `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <select id="listPage" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
         SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
         FROM `hydra_uofs_bucket`

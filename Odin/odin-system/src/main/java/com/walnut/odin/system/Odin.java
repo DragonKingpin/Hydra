@@ -41,6 +41,7 @@ import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlTransp
 import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
@@ -240,12 +241,55 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusDone );
     }
 
+    protected void prepare_scheduler_cycle_engine() {
+        if ( this.mTaskScheduler == null ) {
+            return;
+        }
+
+        RavenTaskConfig config = this.mTaskScheduler.ravenTaskConfig();
+        if ( !config.isSchedulerEnabled() ) {
+            this.getLogger().info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `scheduler-disabled`, ManualPulse: `true`) <Pass>" );
+            return;
+        }
+        if ( !"single-master".equals( config.getSchedulerMode().toLowerCase( Locale.ROOT ) ) ) {
+            this.getLogger().info(
+                    "[OdinScheduler] [CycleEngineDisabled] (Reason: `unsupported-mode`, Mode: `{}`, ManualPulse: `true`) <Pass>",
+                    config.getSchedulerMode()
+            );
+            return;
+        }
+        if ( !config.isSchedulerCycleEngineEnabled() ) {
+            this.getLogger().info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `cycle-engine-disabled`, ManualPulse: `true`) <Pass>" );
+            return;
+        }
+
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerCycleEngine`.", LogStatuses.StatusStart );
+        this.traceSchedulerCycleEngineBanner( config );
+        this.mTaskScheduler.startService();
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerCycleEngine`.", LogStatuses.StatusReady );
+    }
+
+    protected void traceSchedulerCycleEngineBanner( RavenTaskConfig config ) {
+        Tracer console = this.mPrimarySystem.console();
+        console.getOut().print( "---------------------------------------------------------------\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin Scheduler Cycle Engine\u001B[0m\n" );
+        console.getOut().print( "Mode       : " + config.getSchedulerMode() + "\n" );
+        console.getOut().print( "Partition  : " + config.getSchedulePartitionName() + "\n" );
+        console.getOut().print( "Node       : " + config.getSchedulerNodeId() + "\n" );
+        console.getOut().print( "Tick       : " + Math.max( 1L, config.getScheduleCycleEngineTickMillis() ) + " ms\n" );
+        console.getOut().print( "Hourly     : " + config.getScheduleCycleEngineHourlyPulseMillis() + " ms\n" );
+        console.getOut().print( "Daily      : " + config.getScheduleCycleEngineDailyPulseMillis() + " ms\n" );
+        console.getOut().print( "Recovery   : " + config.getScheduleCycleEngineRecoveryPulseMillis() + " ms\n" );
+        console.getOut().print( "---------------------------------------------------------------\n" );
+    }
+
     protected void prepare_system_skeleton() {
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
 
         this.prepare_instrumentation();
         this.prepare_remote_process_server();
         this.prepare_scheduler();
+        this.prepare_scheduler_cycle_engine();
 
 
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusDone );
@@ -258,6 +302,9 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     @Override
     public void terminate() {
+        if ( this.mTaskScheduler != null ) {
+            this.mTaskScheduler.terminateService();
+        }
         if ( this.mTaskRegiment != null ) {
             this.mTaskRegiment.remoteProcessManagerServer().terminateService();
         }

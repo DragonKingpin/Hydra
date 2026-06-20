@@ -51,6 +51,13 @@ public interface BucketMapper extends BucketManipulator {
     long countByVolumeGuid( @Param( "volumeGuid" ) GUID volumeGuid );
 
     @Override
+    List<GenericBucket> listByVolumeGuid(
+            @Param( "volumeGuid" ) GUID volumeGuid,
+            @Param( "offset" ) int offset,
+            @Param( "limit" ) int limit
+    );
+
+    @Override
     List<GenericBucket> listPage(
             @Param( "userIdentifier" ) String userIdentifier,
             @Param( "bucketName" ) String bucketName,

@@ -28,6 +28,8 @@ public interface FileChunkLocationManipulator extends Pinenut {
 
     long countByBucketGuid( GUID bucketGuid );
 
+    long countByVolumeGuid( GUID volumeGuid );
+
     List<GenericFileChunkLocation> listPage( int offset, int limit );
 
     Long getMaxEndOffsetByVolumeGuid( GUID volumeGuid );

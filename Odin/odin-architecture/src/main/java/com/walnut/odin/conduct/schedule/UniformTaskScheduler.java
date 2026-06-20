@@ -31,6 +31,12 @@ public interface UniformTaskScheduler extends Pinenut {
 
     String getPartitionName();
 
+    void startService();
+
+    void terminateService();
+
+    boolean isRunning();
+
     void pulseSchedule();
 
     void pulseSchedule( LocalDateTime pulseTime );

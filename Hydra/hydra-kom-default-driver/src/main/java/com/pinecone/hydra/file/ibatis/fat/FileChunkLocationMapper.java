@@ -34,6 +34,9 @@ public interface FileChunkLocationMapper extends FileChunkLocationManipulator {
     @Override
     long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 
+    @Override
+    long countByVolumeGuid( @Param("volumeGuid") GUID volumeGuid );
+
     List<GenericFileChunkLocation> listPage( @Param("offset") int offset, @Param("limit") int limit );
 
     Long getMaxEndOffsetByVolumeGuid( GUID volumeGuid );

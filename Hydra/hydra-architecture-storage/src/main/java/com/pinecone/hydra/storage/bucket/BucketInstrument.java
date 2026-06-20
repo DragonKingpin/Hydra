@@ -32,6 +32,8 @@ public interface BucketInstrument extends Pinenut {
 
     long countByVolumeGuid( GUID volumeGuid );
 
+    List<GenericBucket> listByVolumeGuid( GUID volumeGuid, int offset, int limit );
+
     default List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
         return this.listPage( userIdentifier, bucketName, null, offset, limit );
     }

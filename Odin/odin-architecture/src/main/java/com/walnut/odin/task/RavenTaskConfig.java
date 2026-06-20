@@ -17,4 +17,30 @@ public interface RavenTaskConfig extends KernelObjectConfig {
 
     String getSchedulePartitionName();
 
+    boolean isSchedulerEnabled();
+
+    boolean isSchedulerCycleEngineEnabled();
+
+    String getSchedulerMode();
+
+    String getSchedulerNodeId();
+
+    long getScheduleCycleEngineStartupDelayMillis();
+
+    long getScheduleCycleEngineTickMillis();
+
+    long getScheduleCycleEngineHourlyPulseMillis();
+
+    long getScheduleCycleEngineDailyPulseMillis();
+
+    long getScheduleCycleEngineRecoveryPulseMillis();
+
+    boolean isScheduleCycleEngineAllowOverlappedPulse();
+
+    long getScheduleCycleEngineGracefulShutdownMillis();
+
+    boolean isScheduleCycleEnginePulseLogEnabled();
+
+    long getScheduleCycleEngineSlowPulseMillis();
+
 }

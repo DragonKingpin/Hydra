@@ -46,6 +46,7 @@ import com.pinecone.hydra.storage.volume.source.KernelStorageSupportTypeProvider
 import com.pinecone.hydra.storage.volume.source.StorageSupportTypeProvider;
 import com.pinecone.hydra.storage.volume.source.VolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeMountManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumePhysicalManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumePhysicalSupportTraitManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -70,6 +71,7 @@ public class UniformVolumeManager implements VolumeManager {
     protected VolumePhysicalSupportTraitManipulator mPhysicalSupportTraitManipulator;
     protected StorageSupportTypeProvider          mStorageSupportTypeProvider;
     protected VolumeExtentManipulator           mExtentManipulator;
+    protected VolumeMountManipulator            mMountManipulator;
     protected VolumeEventManipulator            mEventManipulator;
     protected VolumeFreeIntentManipulator       mFreeIntentManipulator;
     protected VolumeConfig                      mConfig;
@@ -137,6 +139,7 @@ public class UniformVolumeManager implements VolumeManager {
         this.mPhysicalManipulator = masterManipulator.getPhysicalManipulator();
         this.mPhysicalSupportTraitManipulator = masterManipulator.getPhysicalSupportTraitManipulator();
         this.mExtentManipulator = masterManipulator.getExtentManipulator();
+        this.mMountManipulator = masterManipulator.getMountManipulator();
         this.mEventManipulator = masterManipulator.getEventManipulator();
         this.mFreeIntentManipulator = masterManipulator.getFreeIntentManipulator();
     }
@@ -166,6 +169,10 @@ public class UniformVolumeManager implements VolumeManager {
 
     public void setExtentManipulator( VolumeExtentManipulator extentManipulator ) {
         this.mExtentManipulator = extentManipulator;
+    }
+
+    public void setMountManipulator( VolumeMountManipulator mountManipulator ) {
+        this.mMountManipulator = mountManipulator;
     }
 
     public void setEventManipulator( VolumeEventManipulator eventManipulator ) {
@@ -577,6 +584,26 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
+    public void retirePhysical( GUID physicalGuid ) {
+        this.requirePhysicalManipulator();
+        VolumePhysical physical = this.affirmPhysicalRecord( physicalGuid );
+        long referenceCount = this.countPhysicalReferences( physicalGuid );
+        if ( referenceCount > 0L ) {
+            throw new IllegalStateException( "Physical volume is still referenced by logical volumes: " + physicalGuid );
+        }
+        physical.setStatus( VolumePhysicalStatus.DELETED );
+        this.mPhysicalManipulator.update( physical );
+        if ( this.mPhysicalSupportTraitManipulator != null ) {
+            VolumePhysicalSupportTrait trait = this.mPhysicalSupportTraitManipulator.getByPhysicalGuid( physicalGuid );
+            if ( trait != null ) {
+                trait.setStatus( "DELETED" );
+                this.mPhysicalSupportTraitManipulator.update( trait );
+            }
+        }
+        this.mPhysicalAccessors.remove( physicalGuid );
+    }
+
+    @Override
     public long countPhysicals(
             String name,
             VolumePhysicalType physicalType,
@@ -617,9 +644,39 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
+    public List<VolumeRecord> listVolumeReferencesByPhysicalGuid( GUID physicalGuid, int limit ) {
+        this.requireExtentManipulator();
+        if ( physicalGuid == null || limit < 1 ) {
+            return List.of();
+        }
+        List<VolumeRecord> ret = new ArrayList<>();
+        Map<GUID, Boolean> seen = new LinkedHashMap<>();
+        for ( VolumeExtent extent : this.mExtentManipulator.listByPhysicalGuid( physicalGuid ) ) {
+            GUID parentGuid = extent.getParentGuid();
+            if ( parentGuid == null || seen.containsKey( parentGuid ) ) {
+                continue;
+            }
+            seen.put( parentGuid, Boolean.TRUE );
+            ret.add( this.affirmVolumeRecord( parentGuid ) );
+            if ( ret.size() >= limit ) {
+                break;
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public long countVolumeChildReferences( GUID volumeGuid ) {
         this.requireExtentManipulator();
         return this.mExtentManipulator.countByChildGuid( volumeGuid );
+    }
+
+    @Override
+    public long countVolumeMountReferences( GUID volumeGuid ) {
+        if ( this.mMountManipulator == null || volumeGuid == null ) {
+            return 0L;
+        }
+        return this.mMountManipulator.countByVolumeGuid( volumeGuid );
     }
 
     @Override

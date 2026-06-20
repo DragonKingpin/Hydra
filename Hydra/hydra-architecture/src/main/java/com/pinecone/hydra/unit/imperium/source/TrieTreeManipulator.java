@@ -5,6 +5,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 
 import java.util.List;
@@ -115,4 +116,9 @@ public interface TrieTreeManipulator extends Pinenut {
     GUID getOriginalGuidByTagGuid( GUID tagGuid );
 
     void removeReparseLink( GUID guid );
+
+
+    List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit );
+
+    long countHardlinks( String keyword );
 }

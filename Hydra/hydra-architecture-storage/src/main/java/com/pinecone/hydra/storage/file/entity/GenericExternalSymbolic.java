@@ -32,6 +32,7 @@ public class GenericExternalSymbolic extends ArchReparseSemanticNode implements 
     public void apply(ExternalSymbolicManipulator externalSymbolicManipulator) {
         this.externalSymbolicManipulator = externalSymbolicManipulator;
     }
+
     @Override
     public String toJSONString() {
         return BeanJSONEncoder.BasicEncoder.encode( this );

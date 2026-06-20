@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TriePathCacheManipulator;
@@ -295,12 +296,12 @@ public class RegimentedImperialTree implements UniImperialTree {
     }
 
     @Override
-    public boolean hasOwnProperty(Object key) {
+    public boolean hasOwnProperty( Object key ) {
         return this.containsKey( key );
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey( Object key ) {
         if( key instanceof GUID ) {
             return this.containsKey((GUID) key );
         }
@@ -309,5 +310,16 @@ public class RegimentedImperialTree implements UniImperialTree {
         }
         return false;
     }
+
+    @Override
+    public List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit ) {
+        return this.trieTreeManipulator.listHardlinks( keyword, offset, limit );
+    }
+
+    @Override
+    public long countHardlinks( String keyword ) {
+        return this.trieTreeManipulator.countHardlinks( keyword );
+    }
+
 
 }

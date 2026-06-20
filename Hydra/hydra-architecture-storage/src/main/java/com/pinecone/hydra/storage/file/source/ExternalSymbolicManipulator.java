@@ -18,4 +18,8 @@ public interface ExternalSymbolicManipulator extends Pinenut {
     List<? extends ExternalSymbolic> listPage( String keyword, int offset, int limit );
 
     long count( String keyword );
+
+    long countByBucketGuid( GUID bucketGuid );
+
+    void deleteByBucketGuid( GUID bucketGuid );
 }

@@ -23,4 +23,8 @@ public interface JournalMapper extends JournalManipulator {
     GenericJournal get( GUID guid );
 
     List<GenericJournal> listByStatus( JournalStatus journalStatus );
+
+    long countByBucketGuid( @Param( "bucketGuid" ) GUID bucketGuid );
+
+    void deleteByBucketGuid( @Param( "bucketGuid" ) GUID bucketGuid );
 }

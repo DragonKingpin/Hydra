@@ -9,6 +9,7 @@ import com.pinecone.hydra.business.entity.GenericNodeTree;
 import com.pinecone.hydra.business.source.TreeManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
@@ -274,6 +275,16 @@ class BusinessTreeSkeleton implements TrieTreeManipulator, TireOwnerManipulator 
     @Override
     public void removeReparseLink( GUID guid ) {
         throw new UnsupportedOperationException( "Business tree only supports owned lineage." );
+    }
+
+    @Override
+    public List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit ) {
+        throw new UnsupportedOperationException( "Business tree does not support hardlink query." );
+    }
+
+    @Override
+    public long countHardlinks( String keyword ) {
+        throw new UnsupportedOperationException( "Business tree does not support hardlink query." );
     }
 
     protected void assertOwned( LinkedType linkedType ) {

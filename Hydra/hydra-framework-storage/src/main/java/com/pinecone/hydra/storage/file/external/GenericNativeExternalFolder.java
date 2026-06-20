@@ -1,6 +1,5 @@
 package com.pinecone.hydra.storage.file.external;
 
-import com.pinecone.framework.util.io.FileUtils;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 
 import java.io.File;
@@ -33,7 +32,7 @@ public class GenericNativeExternalFolder extends ArchNativeExternalFileObject im
     public List<FileTreeNode> listItem() {
         ArrayList<FileTreeNode> fileTreeNodes = new ArrayList<>();
         File[] files = this.listFiles();
-        if( files.length > 0 ){
+        if( files != null && files.length > 0 ){
             for( int i = 0;i < files.length; ++i ){
                 File file = files[i];
                 if( file.isDirectory() ){
@@ -50,7 +49,22 @@ public class GenericNativeExternalFolder extends ArchNativeExternalFileObject im
     @Override
     public boolean delete() {
         try {
-            FileUtils.purgeDirectory( this.mNativeFile );
+            Files.walkFileTree( this.mNativeFile.toPath(), new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException {
+                    Files.deleteIfExists( file );
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory( Path dir, IOException exc ) throws IOException {
+                    if ( exc != null ) {
+                        throw exc;
+                    }
+                    Files.deleteIfExists( dir );
+                    return FileVisitResult.CONTINUE;
+                }
+            } );
         }
         catch ( IOException e ) {
             return false;

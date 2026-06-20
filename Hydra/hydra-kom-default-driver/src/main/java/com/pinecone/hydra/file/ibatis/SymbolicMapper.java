@@ -39,6 +39,12 @@ public interface SymbolicMapper extends SymbolicManipulator {
     @Override
     long count( @Param("keyword") String keyword );
 
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
     List<GUID> getGuidsByName( String name );
 
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );

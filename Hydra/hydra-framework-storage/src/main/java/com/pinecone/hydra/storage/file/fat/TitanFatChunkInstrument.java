@@ -117,6 +117,16 @@ public class TitanFatChunkInstrument implements FatChunkInstrument {
     }
 
     @Override
+    public long countChunks() {
+        return this.mChunkManipulator.countAll();
+    }
+
+    @Override
+    public List<FileChunk> fetchChunkPage( int offset, int limit ) {
+        return new ArrayList<>( this.mChunkManipulator.listPage( offset, limit ) );
+    }
+
+    @Override
     public List<ChunkSlice> fetchSlices( GUID fileGuid, long offset, long length ) {
         long endOffset = offset + length;
         List<? extends FileChunk> chunks = this.mChunkManipulator.listByFileRange( fileGuid, offset, endOffset );
@@ -145,6 +155,16 @@ public class TitanFatChunkInstrument implements FatChunkInstrument {
     @Override
     public List<FileChunkLocation> fetchLocations( GUID chunkGuid ) {
         return new ArrayList<>( this.mLocationManipulator.listByChunkGuid( chunkGuid ) );
+    }
+
+    @Override
+    public long countLocations() {
+        return this.mLocationManipulator.countAll();
+    }
+
+    @Override
+    public List<FileChunkLocation> fetchLocationPage( int offset, int limit ) {
+        return new ArrayList<>( this.mLocationManipulator.listPage( offset, limit ) );
     }
 
     @Override

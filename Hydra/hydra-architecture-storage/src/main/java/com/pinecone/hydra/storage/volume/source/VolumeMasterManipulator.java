@@ -14,4 +14,6 @@ public interface VolumeMasterManipulator extends KOIMasterManipulator {
     VolumeMountManipulator getMountManipulator();
 
     VolumeEventManipulator getEventManipulator();
+
+    VolumeFreeIntentManipulator getFreeIntentManipulator();
 }

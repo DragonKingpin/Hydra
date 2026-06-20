@@ -24,11 +24,19 @@ public interface FatChunkInstrument extends Instrument {
 
     List<FileChunk> fetchChunks( GUID fileGuid );
 
+    long countChunks();
+
+    List<FileChunk> fetchChunkPage( int offset, int limit );
+
     List<ChunkSlice> fetchSlices( GUID fileGuid, long offset, long length );
 
     FileChunkLocation getReadyLocation( GUID chunkGuid );
 
     List<FileChunkLocation> fetchLocations( GUID chunkGuid );
+
+    long countLocations();
+
+    List<FileChunkLocation> fetchLocationPage( int offset, int limit );
 
     boolean existsChunk( GUID chunkGuid );
 

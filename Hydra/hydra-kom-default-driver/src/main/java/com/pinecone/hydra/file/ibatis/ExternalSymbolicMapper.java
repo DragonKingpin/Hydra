@@ -31,4 +31,10 @@ public interface ExternalSymbolicMapper extends ExternalSymbolicManipulator {
 
     @Override
     long count( @Param("keyword") String keyword );
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 }

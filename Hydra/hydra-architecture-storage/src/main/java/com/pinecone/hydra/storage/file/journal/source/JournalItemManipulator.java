@@ -16,4 +16,6 @@ public interface JournalItemManipulator extends Pinenut {
     List<GenericJournalItem> listByJournalGuid( GUID journalGuid );
     List<GenericJournalItem> listByJournalGuidAndStatus( GUID journalGuid, JournalItemStatus itemStatus );
     List<GenericJournalItem> listByJournalGuidAndType( GUID journalGuid, JournalItemType itemType );
+    long countByBucketGuid( GUID bucketGuid );
+    void deleteByBucketGuid( GUID bucketGuid );
 }

@@ -4,6 +4,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
@@ -102,4 +103,12 @@ public interface UserTreeMapper extends TrieTreeManipulator {
     GUID getOriginalGuidByTagGuid( @Param("tagGuid") GUID tagGuid );
 
     void removeReparseLink( @Param("guid") GUID guid );
+
+    List<HardlinkEntry> listHardlinks(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    long countHardlinks( @Param("keyword") String keyword );
 }

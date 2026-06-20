@@ -27,8 +27,6 @@ public interface FileMasterManipulator extends KOIMasterManipulator {
 
     SymbolicManipulator                 getSymbolicManipulator();
 
-    FolderVolumeMappingManipulator      getFolderVolumeRelationManipulator();
-
     ExternalSymbolicManipulator         getExternalSymbolicManipulator();
 
 }

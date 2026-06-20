@@ -10,7 +10,7 @@ public class GenericNativeExternalFile extends ArchNativeExternalFileObject impl
 
     @Override
     public Number size() {
-        return this.mNativeFile.getTotalSpace();
+        return this.mNativeFile.length();
     }
 
 }

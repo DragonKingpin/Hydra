@@ -31,6 +31,11 @@ public class TitanBucketInstrument implements BucketInstrument {
     }
 
     @Override
+    public void updateStatus( GUID guid, String status ) {
+        this.bucketManipulator.updateStatus( guid, status );
+    }
+
+    @Override
     public void remove( GUID guid ) {
         this.bucketManipulator.remove( guid );
     }

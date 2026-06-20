@@ -6,15 +6,25 @@
 <mapper namespace="com.pinecone.hydra.file.ibatis.FilePathCacheMapper">
 
     <insert id="insert">
-        INSERT INTO `hydra_uofs_node_cache_path` (`path`, `guid`) VALUES ( #{path}, #{guid} )
+        INSERT INTO `hydra_uofs_node_cache_path` ( `bucket_guid`, `path`, `guid` )
+        SELECT `bucket_guid`, #{path}, #{guid} FROM `hydra_uofs_nodes` WHERE `guid` = #{guid}
     </insert>
 
     <insert id="insertLongPath">
-        INSERT INTO `hydra_uofs_node_cache_path` (path, long_path, guid) VALUES ( #{path},#{longPath},#{guid} )
+        INSERT INTO `hydra_uofs_node_cache_path` ( `bucket_guid`, `path`, `long_path`, `guid` )
+        SELECT `bucket_guid`, #{path}, #{longPath}, #{guid} FROM `hydra_uofs_nodes` WHERE `guid` = #{guid}
     </insert>
 
     <delete id="remove">
         DELETE FROM `hydra_uofs_node_cache_path` WHERE `guid`=#{guid}
+    </delete>
+
+    <select id="countPathCacheByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_node_cache_path` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <delete id="deletePathCacheByBucketGuid">
+        DELETE FROM `hydra_uofs_node_cache_path` WHERE `bucket_guid` = #{bucketGuid}
     </delete>
 
     <select id="getLongPath" resultType="java.lang.String">

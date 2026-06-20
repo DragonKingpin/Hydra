@@ -6,7 +6,8 @@
 <mapper namespace="com.pinecone.hydra.file.ibatis.journal.JournalMapper">
 
     <insert id="insert">
-        INSERT INTO `hydra_uofs_journal` ( `guid`, `journal_type`, `journal_status`, `file_guid`, `path`, `operator_guid`, `begin_time`, `commit_time`, `error_message`, `ext_config` ) VALUES ( #{guid}, #{journalType}, #{journalStatus}, #{fileGuid}, #{path}, #{operatorGuid}, #{beginTime}, #{commitTime}, #{errorMessage}, #{extConfig} )
+        INSERT INTO `hydra_uofs_journal` ( `guid`, `bucket_guid`, `journal_type`, `journal_status`, `file_guid`, `path`, `operator_guid`, `begin_time`, `commit_time`, `error_message`, `ext_config` )
+        VALUES ( #{guid}, ( SELECT `bucket_guid` FROM `hydra_uofs_nodes` WHERE `guid` = #{fileGuid} ), #{journalType}, #{journalStatus}, #{fileGuid}, #{path}, #{operatorGuid}, #{beginTime}, #{commitTime}, #{errorMessage}, #{extConfig} )
     </insert>
 
     <update id="updateStatus">
@@ -18,11 +19,19 @@
     </update>
 
     <select id="get" resultType="com.pinecone.hydra.storage.file.journal.GenericJournal">
-        SELECT `id`, `guid`, `journal_type` AS journalType, `journal_status` AS journalStatus, `file_guid` AS fileGuid, `path`, `operator_guid` AS operatorGuid, `begin_time` AS beginTime, `commit_time` AS commitTime, `error_message` AS errorMessage, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_journal` WHERE `guid` = #{guid}
+        SELECT `id`, `guid`, `bucket_guid` AS bucketGuid, `journal_type` AS journalType, `journal_status` AS journalStatus, `file_guid` AS fileGuid, `path`, `operator_guid` AS operatorGuid, `begin_time` AS beginTime, `commit_time` AS commitTime, `error_message` AS errorMessage, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_journal` WHERE `guid` = #{guid}
     </select>
 
     <select id="listByStatus" resultType="com.pinecone.hydra.storage.file.journal.GenericJournal">
-        SELECT `id`, `guid`, `journal_type` AS journalType, `journal_status` AS journalStatus, `file_guid` AS fileGuid, `path`, `operator_guid` AS operatorGuid, `begin_time` AS beginTime, `commit_time` AS commitTime, `error_message` AS errorMessage, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_journal` WHERE `journal_status` = #{journalStatus} ORDER BY `id` ASC
+        SELECT `id`, `guid`, `bucket_guid` AS bucketGuid, `journal_type` AS journalType, `journal_status` AS journalStatus, `file_guid` AS fileGuid, `path`, `operator_guid` AS operatorGuid, `begin_time` AS beginTime, `commit_time` AS commitTime, `error_message` AS errorMessage, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_journal` WHERE `journal_status` = #{journalStatus} ORDER BY `id` ASC
     </select>
+
+    <select id="countByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_journal` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <delete id="deleteByBucketGuid">
+        DELETE FROM `hydra_uofs_journal` WHERE `bucket_guid` = #{bucketGuid}
+    </delete>
 
 </mapper>

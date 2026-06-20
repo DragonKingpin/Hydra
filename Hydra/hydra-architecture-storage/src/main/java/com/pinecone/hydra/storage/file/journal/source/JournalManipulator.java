@@ -14,4 +14,6 @@ public interface JournalManipulator extends Pinenut {
     void commit( GUID guid );
     GenericJournal get( GUID guid );
     List<GenericJournal> listByStatus( JournalStatus journalStatus );
+    long countByBucketGuid( GUID bucketGuid );
+    void deleteByBucketGuid( GUID bucketGuid );
 }

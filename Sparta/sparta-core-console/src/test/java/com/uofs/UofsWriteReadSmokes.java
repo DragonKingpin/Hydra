@@ -53,13 +53,15 @@ enum UofsWriteReadSmoke implements UofsSmokeCase {
     @Override
     public void run( UofsSmokeContext context ) throws Exception {
         String seed = context.seed( this.mSeedSuffix );
-        UofsVolumeFixture fixture = this.createFixture( context, this.mCaseName, seed );
-        UofsSmokeTools.ensureBucket( context, this.mCaseName, fixture.volumeGuid, seed );
+        String bucketSeed = context.seed( "1" + this.mSeedSuffix.substring( 1 ) );
+        String caseName = context.seedPrefix + "-" + this.mCaseName;
+        UofsVolumeFixture fixture = this.createFixture( context, caseName, seed );
+        UofsSmokeTools.ensureBucket( context, caseName, fixture.volumeGuid, bucketSeed );
         KOMFileSystem fileSystem = context.hydra.createFileSystem( context.fileMappingDriver, fixture.volumeGuid, context.tempFolder );
-        String uofsPath = "root@" + this.mCaseName + "/avatar.png";
-        File readbackFile = new File( context.readbackRoot, this.mCaseName + "-avatar.png" );
+        String uofsPath = "root@" + caseName + "/avatar.png";
+        File readbackFile = new File( context.readbackRoot, caseName + "-avatar.png" );
 
-        UofsSmokeTools.cleanupOldUofsFile( fileSystem, uofsPath );
+        UofsSmokeTools.cleanupOldUofsFile( fileSystem, fixture, uofsPath );
         UofsSmokeTools.traceFixture( fixture );
         FileNode fileNode = UofsSmokeTools.writeFile( fileSystem, fixture, uofsPath, context.sourceFile );
         UofsSmokeTools.traceFatLayout( fileSystem, fileNode );

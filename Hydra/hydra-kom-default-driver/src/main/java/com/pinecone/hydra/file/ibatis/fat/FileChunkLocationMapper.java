@@ -29,7 +29,17 @@ public interface FileChunkLocationMapper extends FileChunkLocationManipulator {
 
     List<GenericFileChunkLocation> listByChunkGuid( GUID chunkGuid );
 
+    long countAll();
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    List<GenericFileChunkLocation> listPage( @Param("offset") int offset, @Param("limit") int limit );
+
     Long getMaxEndOffsetByVolumeGuid( GUID volumeGuid );
 
     Long sumLengthByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 }

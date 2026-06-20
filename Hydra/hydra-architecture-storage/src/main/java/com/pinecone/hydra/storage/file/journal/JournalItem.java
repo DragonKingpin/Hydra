@@ -10,6 +10,8 @@ public interface JournalItem extends Pinenut {
     void setId( Long id );
     GUID getGuid();
     void setGuid( GUID guid );
+    GUID getBucketGuid();
+    void setBucketGuid( GUID bucketGuid );
     GUID getJournalGuid();
     void setJournalGuid( GUID journalGuid );
     JournalItemType getItemType();

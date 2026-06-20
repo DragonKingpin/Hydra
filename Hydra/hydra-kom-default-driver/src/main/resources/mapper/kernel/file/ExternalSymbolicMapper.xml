@@ -7,9 +7,9 @@
 
     <insert id="insert">
         INSERT INTO `hydra_uofs_symbolic`
-            (`guid`, `create_time`, `update_time`, `name`, `symbolic_type`, `reparsed_point`, `target_scheme`, `ext_config`)
+            (`guid`, `bucket_guid`, `create_time`, `update_time`, `name`, `symbolic_type`, `reparsed_point`, `target_scheme`, `ext_config`)
         VALUES
-            (#{guid}, #{createTime}, #{updateTime}, #{name}, 'EXTERNAL', #{reparsedPoint}, 'FILE', #{extConfig})
+            (#{guid}, #{bucketGuid}, #{createTime}, #{updateTime}, #{name}, 'EXTERNAL', #{reparsedPoint}, 'FILE', #{extConfig})
     </insert>
 
     <delete id="remove">
@@ -17,14 +17,14 @@
     </delete>
 
     <select id="getSymbolicByGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic">
-        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`,
+        SELECT `id` AS enumId, `guid`, `bucket_guid` AS bucketGuid, `create_time` AS createTime, `update_time` AS updateTime, `name`,
                `reparsed_point` AS reparsedPoint, `target_scheme` AS targetScheme, `ext_config` AS extConfig
         FROM `hydra_uofs_symbolic`
         WHERE `guid` = #{guid} AND `symbolic_type` = 'EXTERNAL' AND `target_scheme` = 'FILE'
     </select>
 
     <select id="getSymbolicByNameGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic">
-        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`,
+        SELECT `id` AS enumId, `guid`, `bucket_guid` AS bucketGuid, `create_time` AS createTime, `update_time` AS updateTime, `name`,
                `reparsed_point` AS reparsedPoint, `target_scheme` AS targetScheme, `ext_config` AS extConfig
         FROM `hydra_uofs_symbolic`
         WHERE `guid` = #{guid} AND `name` = #{nodeName} AND `symbolic_type` = 'EXTERNAL' AND `target_scheme` = 'FILE'
@@ -50,7 +50,7 @@
     </sql>
 
     <select id="listPage" resultType="com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic">
-        SELECT `id` AS enumId, `guid`, `create_time` AS createTime, `update_time` AS updateTime, `name`,
+        SELECT `id` AS enumId, `guid`, `bucket_guid` AS bucketGuid, `create_time` AS createTime, `update_time` AS updateTime, `name`,
                `reparsed_point` AS reparsedPoint, `target_scheme` AS targetScheme, `ext_config` AS extConfig
         FROM `hydra_uofs_symbolic`
         <include refid="ExternalFileSymbolicFilter"/>
@@ -63,5 +63,13 @@
         FROM `hydra_uofs_symbolic`
         <include refid="ExternalFileSymbolicFilter"/>
     </select>
+
+    <select id="countByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_symbolic` WHERE `bucket_guid` = #{bucketGuid} AND `symbolic_type` = 'EXTERNAL' AND `target_scheme` = 'FILE'
+    </select>
+
+    <delete id="deleteByBucketGuid">
+        DELETE FROM `hydra_uofs_symbolic` WHERE `bucket_guid` = #{bucketGuid} AND `symbolic_type` = 'EXTERNAL' AND `target_scheme` = 'FILE'
+    </delete>
 
 </mapper>

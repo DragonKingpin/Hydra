@@ -12,6 +12,8 @@ public interface BucketInstrument extends Pinenut {
 
     void updateVolume( GUID guid, GUID volumeGuid );
 
+    void updateStatus( GUID guid, String status );
+
     void remove( GUID guid );
 
     Bucket get( GUID guid );

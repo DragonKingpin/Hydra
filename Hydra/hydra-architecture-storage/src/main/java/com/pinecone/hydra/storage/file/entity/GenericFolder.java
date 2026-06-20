@@ -107,6 +107,9 @@ public class GenericFolder extends ArchElementNode implements Folder{
 
     @Override
     public void put( ElementNode child ) {
+        if ( child.getBucketGuid() == null ) {
+            child.setBucketGuid( this.getBucketGuid() );
+        }
         this.fileSystem.put( child );
         this.fileSystem.affirmOwnedNode( this.guid, child.getGuid() );
     }
@@ -221,16 +224,6 @@ public class GenericFolder extends ArchElementNode implements Folder{
     @Override
     public String toString() {
         return this.toJSONString();
-    }
-
-    @Override
-    public void applyVolume(GUID volumeGuid) {
-        this.fileSystem.setFolderVolumeMapping( this.guid, volumeGuid );
-    }
-
-    @Override
-    public GUID getRelationVolume() {
-        return this.fileSystem.getMappingVolume( this.guid );
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
+import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocationType;
 import com.pinecone.hydra.storage.volume.block.BlockSimpleVolume;
 import com.pinecone.hydra.storage.volume.block.BlockSpannedVolume;
 import com.pinecone.hydra.storage.volume.block.BlockVolume;
@@ -19,6 +21,8 @@ import com.pinecone.hydra.storage.volume.core.StorageSupportDescriptor;
 import com.pinecone.hydra.storage.volume.core.VolumeEvent;
 import com.pinecone.hydra.storage.volume.core.VolumeExtent;
 import com.pinecone.hydra.storage.volume.core.VolumeExtentRole;
+import com.pinecone.hydra.storage.volume.core.VolumeFreeIntent;
+import com.pinecone.hydra.storage.volume.core.VolumeFreeIntentStatus;
 import com.pinecone.hydra.storage.volume.core.VolumePhysical;
 import com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait;
 import com.pinecone.hydra.storage.volume.core.VolumePhysicalStatus;
@@ -34,8 +38,10 @@ import com.pinecone.hydra.storage.volume.io.LocalObjectDirectoryPhysicalAccessor
 import com.pinecone.hydra.storage.volume.io.PhysicalAccessor;
 import com.pinecone.hydra.storage.volume.object.ObjectSimpleVolume;
 import com.pinecone.hydra.storage.volume.object.ObjectSpannedVolume;
+import com.pinecone.hydra.storage.volume.object.ObjectVolume;
 import com.pinecone.hydra.storage.volume.source.VolumeExtentManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeEventManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeFreeIntentManipulator;
 import com.pinecone.hydra.storage.volume.source.KernelStorageSupportTypeProvider;
 import com.pinecone.hydra.storage.volume.source.StorageSupportTypeProvider;
 import com.pinecone.hydra.storage.volume.source.VolumeManipulator;
@@ -65,6 +71,7 @@ public class UniformVolumeManager implements VolumeManager {
     protected StorageSupportTypeProvider          mStorageSupportTypeProvider;
     protected VolumeExtentManipulator           mExtentManipulator;
     protected VolumeEventManipulator            mEventManipulator;
+    protected VolumeFreeIntentManipulator       mFreeIntentManipulator;
     protected VolumeConfig                      mConfig;
 
     public UniformVolumeManager() {
@@ -131,6 +138,7 @@ public class UniformVolumeManager implements VolumeManager {
         this.mPhysicalSupportTraitManipulator = masterManipulator.getPhysicalSupportTraitManipulator();
         this.mExtentManipulator = masterManipulator.getExtentManipulator();
         this.mEventManipulator = masterManipulator.getEventManipulator();
+        this.mFreeIntentManipulator = masterManipulator.getFreeIntentManipulator();
     }
 
     @Override
@@ -162,6 +170,10 @@ public class UniformVolumeManager implements VolumeManager {
 
     public void setEventManipulator( VolumeEventManipulator eventManipulator ) {
         this.mEventManipulator = eventManipulator;
+    }
+
+    public void setFreeIntentManipulator( VolumeFreeIntentManipulator freeIntentManipulator ) {
+        this.mFreeIntentManipulator = freeIntentManipulator;
     }
 
     @Override
@@ -321,6 +333,72 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
+    public void release( FileChunkLocation location ) throws IOException {
+        if ( location == null || location.getVolumeGuid() == null ) {
+            return;
+        }
+        Volume volume = this.loadVolume( location.getVolumeGuid() );
+        FileChunkLocationType locationType = this.resolveLocationType( volume, location );
+        if ( locationType == FileChunkLocationType.VOLUME_DIRECT_OBJECT ) {
+            this.releaseObject( volume, location );
+            return;
+        }
+        this.releaseBlockExtent( volume, location );
+    }
+
+    protected FileChunkLocationType resolveLocationType( Volume volume, FileChunkLocation location ) {
+        if ( location.getLocationType() != null ) {
+            return location.getLocationType();
+        }
+        if ( volume.getMappingMode() == VolumeMappingMode.VOLUME_DIRECT_OBJECT ) {
+            return FileChunkLocationType.VOLUME_DIRECT_OBJECT;
+        }
+        return FileChunkLocationType.VOLUME_BLOCK_EXTENT;
+    }
+
+    protected void releaseObject( Volume volume, FileChunkLocation location ) throws IOException {
+        if ( !( volume instanceof ObjectVolume ) ) {
+            throw new IllegalArgumentException( "Volume is not object-addressable: " + location.getVolumeGuid() );
+        }
+        String objectKey = location.getObjectKey();
+        if ( objectKey != null && !objectKey.isBlank() ) {
+            ( (ObjectVolume) volume ).deleteObject( objectKey );
+        }
+        this.refreshVolumeUsage( volume.getGuid() );
+    }
+
+    protected void releaseBlockExtent( Volume volume, FileChunkLocation location ) throws IOException {
+        this.recordBlockFreeIntent( volume, location );
+        this.refreshVolumeUsage( volume.getGuid() );
+    }
+
+    protected void recordBlockFreeIntent( Volume volume, FileChunkLocation location ) {
+        if ( this.mFreeIntentManipulator == null || location == null || location.getLengthBytes() <= 0L ) {
+            return;
+        }
+        if ( location.getGuid() != null && this.mFreeIntentManipulator.getBySourceLocationGuid( location.getGuid() ) != null ) {
+            return;
+        }
+        VolumeFreeIntent intent = new VolumeFreeIntent();
+        intent.setGuid( GUIDs.GUID128( UUID.randomUUID().toString() ) );
+        intent.setVolumeGuid( volume.getGuid() );
+        intent.setVolumeOffset( location.getVolumeOffset() );
+        intent.setLengthBytes( location.getLengthBytes() );
+        intent.setSourceLocationGuid( location.getGuid() );
+        intent.setStatus( VolumeFreeIntentStatus.PENDING );
+        intent.setMessage( "Recorded from UOFS FAT chunk location release." );
+        this.mFreeIntentManipulator.insert( intent );
+        this.emitVolumeEvent(
+                volume,
+                "VOLUME_BLOCK_FREE_INTENT_RECORDED",
+                "SUCCESS",
+                "{\"locationGuid\":\"" + location.getGuid()
+                        + "\",\"volumeOffset\":" + location.getVolumeOffset()
+                        + ",\"lengthBytes\":" + location.getLengthBytes() + "}"
+        );
+    }
+
+    @Override
     public void refreshVolumeUsage( GUID volumeGuid ) throws IOException {
         Volume volume = this.loadVolume( volumeGuid );
         long committedBytes = this.syncCommittedBytes( volume );
@@ -459,6 +537,30 @@ public class UniformVolumeManager implements VolumeManager {
     public List<VolumeExtent> getExtentsByParentGuid( GUID parentGuid ) {
         this.requireExtentManipulator();
         return this.mExtentManipulator.listByParentGuid( parentGuid );
+    }
+
+    @Override
+    public long countVolumeFreeIntents() {
+        if ( this.mFreeIntentManipulator == null ) {
+            return 0L;
+        }
+        return this.mFreeIntentManipulator.countAll();
+    }
+
+    @Override
+    public List<VolumeFreeIntent> listVolumeFreeIntentPage( int offset, int limit ) {
+        if ( this.mFreeIntentManipulator == null ) {
+            return List.of();
+        }
+        return this.mFreeIntentManipulator.listPage( offset, limit );
+    }
+
+    @Override
+    public List<VolumeFreeIntent> listVolumeFreeIntents( GUID volumeGuid ) {
+        if ( this.mFreeIntentManipulator == null || volumeGuid == null ) {
+            return List.of();
+        }
+        return this.mFreeIntentManipulator.listByVolumeGuid( volumeGuid );
     }
 
     @Override

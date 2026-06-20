@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.file.transmit.channel;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
 
 public final class UFileStatus implements Pinenut {
     protected final GUID    mGuid;
@@ -19,6 +20,16 @@ public final class UFileStatus implements Pinenut {
         this.mLogicSize        = fileNode.getLogicSize();
         this.mDefinitionSize   = fileNode.getDefinitionSize();
         this.mUploadSuccessful = fileNode.isUploadSuccess();
+    }
+
+    public UFileStatus( ExternalFile externalFile ) {
+        long size = externalFile.size().longValue();
+        this.mGuid             = externalFile.getGuid();
+        this.mName             = externalFile.getName();
+        this.mPhysicalSize     = size;
+        this.mLogicSize        = size;
+        this.mDefinitionSize   = size;
+        this.mUploadSuccessful = externalFile.exists();
     }
 
     public GUID getGuid() {

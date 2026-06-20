@@ -17,4 +17,6 @@ public interface SymbolicManipulator extends Pinenut, GUIDNameManipulator {
     boolean isSymbolicMatchedByNameGuid( String nodeName, GUID guid );
     List<? extends Symbolic> listPage( String keyword, int offset, int limit );
     long count( String keyword );
+    long countByBucketGuid( GUID bucketGuid );
+    void deleteByBucketGuid( GUID bucketGuid );
 }

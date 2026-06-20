@@ -1,12 +1,15 @@
 package com.pinecone.hydra.storage.file;
 
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.storage.StorageConfig;
+import com.pinecone.framework.system.Nullable;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.purge.BucketPurgeProgressListener;
+import com.pinecone.hydra.storage.bucket.purge.BucketPurgeReport;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.fat.FatChunkInstrument;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
@@ -80,6 +83,12 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     FileChildPage fetchChildren( GUID parentGuid, FileChildQuery query );
 
+    FileChildPage fetchChildren( String path, FileChildQuery query );
+
+    List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit );
+
+    long countHardlinks( String keyword );
+
     @Override
     void rename( GUID guid, String name );
 
@@ -114,6 +123,8 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     Folder    affirmFolder( String path);
 
+    ElementNode affirmFolderElement( String path );
+
     @Override
     void newHardLink    ( GUID sourceGuid, GUID targetGuid );
 
@@ -137,6 +148,22 @@ public interface KOMFileSystem extends ReparseKOMTree {
     @Override
     void remove(String path);
 
+    void remove( String path, VolumeManager volumeManager );
+
+    void remove( GUID guid, VolumeManager volumeManager );
+
+    BucketPurgeReport purgeBucket( GUID bucketGuid, VolumeManager volumeManager, @Nullable BucketPurgeProgressListener listener );
+
+    default BucketPurgeReport purgeBucket( GUID bucketGuid, VolumeManager volumeManager ) {
+        return this.purgeBucket( bucketGuid, volumeManager, null );
+    }
+
+    BucketPurgeReport formatBucket( GUID bucketGuid, VolumeManager volumeManager, @Nullable BucketPurgeProgressListener listener );
+
+    default BucketPurgeReport formatBucket( GUID bucketGuid, VolumeManager volumeManager ) {
+        return this.formatBucket( bucketGuid, volumeManager, null );
+    }
+
     @Override
     EntityNode queryNode(String path);
 
@@ -158,6 +185,8 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     FileChildPage fetchRoot( FileChildQuery query );
 
+    long countRoot( FileChildQuery query );
+
     Object querySelectorJ(String szSelector);
 
     List querySelectorAll(String szSelector);
@@ -173,12 +202,6 @@ public interface KOMFileSystem extends ReparseKOMTree {
     long countFileChunks( GUID fileGuid );
 
     void deleteFileChunks( GUID fileGuid );
-
-    void setFolderVolumeMapping(GUID folderGuid, GUID volumeGuid );
-
-    GUID getMappingVolume( GUID folderGuid );
-
-    GUID getMappingVolume( String path );
 
     default UFileChannel open( String path, UFileOpenOption option ) throws IOException {
         throw new UnsupportedOperationException( "UOFS channel open requires a Titan VolumeManager in this round" );

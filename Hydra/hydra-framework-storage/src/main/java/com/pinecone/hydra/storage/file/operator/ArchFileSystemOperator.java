@@ -3,12 +3,12 @@ package com.pinecone.hydra.storage.file.operator;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ArchElementNode;
+import com.pinecone.hydra.storage.file.entity.UofsImperialTrieNode;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.ImperialTreeNode;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
-import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.framework.util.id.GuidAllocator;
 
@@ -44,8 +44,9 @@ public abstract class ArchFileSystemOperator implements FileSystemOperator {
         }
         entityNode.setUpdateTime( LocalDateTime.now() );
 
-        ImperialTreeNode imperialTreeNode = new GUIDImperialTrieNode();
+        UofsImperialTrieNode imperialTreeNode = new UofsImperialTrieNode();
         imperialTreeNode.setGuid( guid72 );
+        imperialTreeNode.setBucketGuid( entityNode.getBucketGuid() );
         imperialTreeNode.setType( UOIUtils.createLocalJavaClass( entityNode.getClass().getName() ) );
 
         return imperialTreeNode;

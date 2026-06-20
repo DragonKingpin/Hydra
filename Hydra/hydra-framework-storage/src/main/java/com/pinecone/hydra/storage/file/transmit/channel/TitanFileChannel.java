@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public class TitanFileChannel implements UFileChannel {
+public class TitanFileChannel implements InternalUFileChannel {
     protected final KOMFileSystem  mFileSystem;
     protected final FileNode       mFileNode;
     protected final UFileOpenOption mOpenOption;
@@ -35,7 +35,7 @@ public class TitanFileChannel implements UFileChannel {
     }
 
     @Override
-    public FileNode getFileNode() {
+    public FileNode getFile() {
         return this.mFileNode;
     }
 

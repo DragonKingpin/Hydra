@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.volume.ibatis.VolumeFreeIntentMapper">
+
+    <resultMap id="VolumeFreeIntentMap" type="com.pinecone.hydra.storage.volume.core.VolumeFreeIntent">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="volume_guid" property="volumeGuid"/>
+        <result column="volume_offset" property="volumeOffset"/>
+        <result column="length_bytes" property="lengthBytes"/>
+        <result column="source_location_guid" property="sourceLocationGuid"/>
+        <result column="status" property="status"/>
+        <result column="message" property="message"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="FreeIntentColumns">
+        id, guid, volume_guid, volume_offset, length_bytes, source_location_guid, status, message, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.volume.core.VolumeFreeIntent">
+        INSERT INTO hydra_volume_free_intent
+            (guid, volume_guid, volume_offset, length_bytes, source_location_guid, status, message)
+        VALUES
+            (#{guid}, #{volumeGuid}, #{volumeOffset}, #{lengthBytes}, #{sourceLocationGuid},
+             COALESCE(#{status}, 'PENDING'), #{message})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE hydra_volume_free_intent
+        SET
+            status = #{status},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="VolumeFreeIntentMap">
+        SELECT <include refid="FreeIntentColumns"/>
+        FROM hydra_volume_free_intent
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="getBySourceLocationGuid" resultMap="VolumeFreeIntentMap">
+        SELECT <include refid="FreeIntentColumns"/>
+        FROM hydra_volume_free_intent
+        WHERE source_location_guid = #{sourceLocationGuid}
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(id)
+        FROM hydra_volume_free_intent
+    </select>
+
+    <select id="listPage" resultMap="VolumeFreeIntentMap">
+        SELECT <include refid="FreeIntentColumns"/>
+        FROM hydra_volume_free_intent
+        ORDER BY id ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="listByVolumeGuid" resultMap="VolumeFreeIntentMap">
+        SELECT <include refid="FreeIntentColumns"/>
+        FROM hydra_volume_free_intent
+        WHERE volume_guid = #{volumeGuid}
+        ORDER BY volume_offset ASC, id ASC
+    </select>
+
+    <select id="listByVolumeGuidAndStatus" resultMap="VolumeFreeIntentMap">
+        SELECT <include refid="FreeIntentColumns"/>
+        FROM hydra_volume_free_intent
+        WHERE volume_guid = #{volumeGuid} AND status = #{status}
+        ORDER BY volume_offset ASC, id ASC
+    </select>
+</mapper>

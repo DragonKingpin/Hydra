@@ -19,6 +19,12 @@ public interface FileManipulator extends GUIDNameManipulator {
 
     List<GUID > dumpGuid();
 
+    long countByBucketGuid( GUID bucketGuid );
+
+    List<GUID> listGuidsByBucketGuid( GUID bucketGuid, GUID lastGuid, int limit );
+
+    void deleteByBucketGuid( GUID bucketGuid );
+
     void update( FileNode fileNode );
 
     void rename( GUID guid, String newName );

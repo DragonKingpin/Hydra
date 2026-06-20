@@ -14,6 +14,8 @@ public interface BucketManipulator extends Pinenut {
 
     void updateVolume( GUID guid, GUID volumeGuid );
 
+    void updateStatus( GUID guid, String status );
+
     void remove( GUID guid );
 
     GenericBucket get( GUID guid );

@@ -6,6 +6,7 @@ import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.source.TaskTreeDigestManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
@@ -184,4 +185,41 @@ public interface TaskTreeMapper extends TrieTreeManipulator, TaskTreeDigestManip
     @Override
     @Select( "SELECT `guid` FROM `hydra_task_node_tree` WHERE `tag_guid` = #{tagGuid}" )
     GUID getOriginalGuidByTagGuid(GUID tagGuid);
+
+    @Override
+    @Select(
+            "<script>" +
+                    "SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType, " +
+                    "`tag_name` AS tagName, `tag_guid` AS tagGuid, `create_time` AS createTime, `update_time` AS updateTime " +
+                    "FROM `hydra_task_node_tree` " +
+                    "WHERE `linked_type` = 'Hard' " +
+                    "<if test='keyword != null and keyword != \"\"'>" +
+                    "AND ( `tag_name` LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') ) " +
+                    "</if>" +
+                    "ORDER BY `id` DESC LIMIT #{limit} OFFSET #{offset}" +
+                    "</script>"
+    )
+    List<HardlinkEntry> listHardlinks(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    @Select(
+            "<script>" +
+                    "SELECT COUNT(*) FROM `hydra_task_node_tree` " +
+                    "WHERE `linked_type` = 'Hard' " +
+                    "<if test='keyword != null and keyword != \"\"'>" +
+                    "AND ( `tag_name` LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') " +
+                    "OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%') ) " +
+                    "</if>" +
+                    "</script>"
+    )
+    long countHardlinks( @Param("keyword") String keyword );
 }

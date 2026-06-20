@@ -25,6 +25,19 @@ public interface FileMapper extends FileManipulator {
 
     List<GUID > dumpGuid();
 
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    List<GUID> listGuidsByBucketGuid(
+            @Param("bucketGuid") GUID bucketGuid,
+            @Param("lastGuid") GUID lastGuid,
+            @Param("limit") int limit
+    );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
     void update( FileNode fileNode );
 
     void rename( @Param("guid") GUID guid, @Param("newName") String newName );

@@ -51,10 +51,6 @@ public interface Folder extends ElementNode {
     void copyNamespaceMetaTo(GUID destinationGuid);
     long TotalFolderSize();
 
-    void applyVolume( GUID volumeGuid );
-
-    GUID getRelationVolume();
-
     String getPath();
 
     void setPath( String path );

@@ -2,12 +2,14 @@ package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
 import com.pinecone.hydra.storage.volume.block.BlockSimpleVolume;
 import com.pinecone.hydra.storage.volume.block.BlockSpannedVolume;
 import com.pinecone.hydra.storage.volume.block.BlockVolume;
 import com.pinecone.hydra.storage.volume.block.StripedVolume;
 import com.pinecone.hydra.storage.volume.core.Volume;
 import com.pinecone.hydra.storage.volume.core.VolumeExtent;
+import com.pinecone.hydra.storage.volume.core.VolumeFreeIntent;
 import com.pinecone.hydra.storage.volume.core.VolumePhysical;
 import com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait;
 import com.pinecone.hydra.storage.volume.core.VolumePhysicalStatus;
@@ -73,6 +75,12 @@ public interface VolumeManager extends Pinenut {
 
     List<VolumeExtent> getExtentsByParentGuid( GUID parentGuid );
 
+    long countVolumeFreeIntents();
+
+    List<VolumeFreeIntent> listVolumeFreeIntentPage( int offset, int limit );
+
+    List<VolumeFreeIntent> listVolumeFreeIntents( GUID volumeGuid );
+
     void retireVolume( GUID guid );
 
     long countPhysicals( String name, VolumePhysicalType physicalType, VolumePhysicalStatus status, GUID deviceGuid );
@@ -121,6 +129,8 @@ public interface VolumeManager extends Pinenut {
     int read( GUID volumeGuid, long position, ByteBuffer dst ) throws IOException;
 
     int write( GUID volumeGuid, long position, ByteBuffer src ) throws IOException;
+
+    void release( FileChunkLocation location ) throws IOException;
 
     void refreshVolumeUsage( GUID volumeGuid ) throws IOException;
 

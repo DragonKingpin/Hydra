@@ -3,6 +3,7 @@ package com.pinecone.hydra.unit.imperium;
 import com.pinecone.framework.system.prototype.PineUnit;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.ReparseLinkNode;
 
 import java.util.List;
@@ -118,5 +119,9 @@ public interface ImperialTree extends PineUnit {
     void removeReparseLink( GUID guid );
 
     boolean isTagGuid( GUID guid );
+
+    List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit );
+
+    long countHardlinks( String keyword );
 
 }

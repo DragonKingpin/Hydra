@@ -275,4 +275,33 @@
         WHERE `tag_guid` = #{tagGuid}
     </select>
 
+    <sql id="HardlinkFilter">
+        <where>
+            `linked_type` = 'Hard'
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="listHardlinks" resultType="com.pinecone.hydra.unit.imperium.entity.HardlinkEntry">
+        SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType,
+               `tag_name` AS tagName, `tag_guid` AS tagGuid, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_device_node_tree`
+        <include refid="HardlinkFilter"/>
+        ORDER BY `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHardlinks" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_device_node_tree`
+        <include refid="HardlinkFilter"/>
+    </select>
+
 </mapper>

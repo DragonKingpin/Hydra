@@ -23,6 +23,9 @@ public interface BucketMapper extends BucketManipulator {
     void updateVolume( @Param( "guid" ) GUID guid, @Param( "volumeGuid" ) GUID volumeGuid );
 
     @Override
+    void updateStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
+
+    @Override
     void remove( GUID guid );
 
     @Override

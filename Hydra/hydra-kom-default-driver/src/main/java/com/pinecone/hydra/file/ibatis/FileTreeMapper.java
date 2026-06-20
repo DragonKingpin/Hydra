@@ -3,7 +3,8 @@ package com.pinecone.hydra.file.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.bucket.BucketNodeManipulator;
-import com.pinecone.hydra.storage.file.entity.HardlinkEntry;
+import com.pinecone.hydra.storage.file.entity.UofsImperialTrieNode;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.storage.file.source.FileChildManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
@@ -23,11 +24,30 @@ public interface FileTreeMapper extends TrieTreeManipulator, BucketNodeManipulat
 
     @Override
     default void insert ( TireOwnerManipulator ownerManipulator, GUIDImperialTrieNode node ){
-        this.insertTreeNode( node.getGuid(), node.getType(), node.getAttributesGUID(), node.getNodeMetadataGUID() );
+        if ( node instanceof UofsImperialTrieNode ) {
+            UofsImperialTrieNode uofsNode = (UofsImperialTrieNode) node;
+            if ( uofsNode.getBucketGuid() != null ) {
+                this.insertBucketTreeNode( uofsNode.getGuid(), uofsNode.getBucketGuid(), uofsNode.getType(), uofsNode.getAttributesGUID(), uofsNode.getNodeMetadataGUID() );
+            }
+            else {
+                throw new IllegalStateException( "UOFS node bucketGuid should not be null: " + node.getGuid() );
+            }
+        }
+        else {
+            this.insertTreeNode( node.getGuid(), node.getType(), node.getAttributesGUID(), node.getNodeMetadataGUID() );
+        }
         ownerManipulator.insertRootNode( node.getGuid() );
     }
 
     void insertTreeNode( @Param("guid") GUID guid, @Param("type") UOI type, @Param("baseDataGuid") GUID baseDataGuid, @Param("nodeMetaGuid") GUID nodeMetaGuid );
+
+    void insertBucketTreeNode(
+            @Param("guid") GUID guid,
+            @Param("bucketGuid") GUID bucketGuid,
+            @Param("type") UOI type,
+            @Param("baseDataGuid") GUID baseDataGuid,
+            @Param("nodeMetaGuid") GUID nodeMetaGuid
+    );
 
     GUIDImperialTrieNode getNodeExtendsFromMeta(GUID guid );
 
@@ -80,6 +100,18 @@ public interface FileTreeMapper extends TrieTreeManipulator, BucketNodeManipulat
 
     @Override
     void updateBucketGuid( @Param( "guid" ) GUID guid, @Param( "bucketGuid" ) GUID bucketGuid );
+
+    @Override
+    long countNodesByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    long countTreeByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteNodesByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteTreeByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 
     List<GUID > fetchRoot();
 

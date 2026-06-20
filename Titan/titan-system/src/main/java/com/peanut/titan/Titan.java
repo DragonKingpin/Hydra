@@ -9,10 +9,14 @@ import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.MapStructure;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
+import com.pinecone.hydra.lifecycle.ibatis.hydranium.StorageLifecycleMappingDriver;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
+import com.pinecone.hydra.storage.lifecycle.GenericStorageLifecycleService;
+import com.pinecone.hydra.storage.lifecycle.service.StorageLifecycleService;
+import com.pinecone.hydra.storage.lifecycle.source.StorageLifecycleMasterManipulator;
 import com.pinecone.hydra.storage.volume.KernelVolumeConfig;
 import com.pinecone.hydra.storage.volume.UniformVolumeManager;
 import com.pinecone.hydra.storage.volume.VolumeConfig;
@@ -33,6 +37,8 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
     protected VolumeManager                 mVolumeManager;
 
     protected KOMFileSystem                 mFileSystem;
+
+    protected StorageLifecycleService       mStorageLifecycleService;
 
     @MapStructure("metaDependent.storageInstrument")
     private String                          mszStorageInstrumentKey;
@@ -85,6 +91,7 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
 
         this.prepare_volume_manager();
         this.prepare_uofs();
+        this.prepare_storage_lifecycle_service();
         this.prepare_instrumentation();
 
         this.infoLifecycle( "<Titan> Preparing system skeleton.", LogStatuses.StatusDone );
@@ -136,6 +143,35 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
         this.infoLifecycle( "<Titan> Constructing component `UOFS`.", LogStatuses.StatusDone );
     }
 
+    protected void prepare_storage_lifecycle_service() {
+        this.infoLifecycle( "<Titan> Constructing component `StorageLifecycleService`.", LogStatuses.StatusStart );
+
+        if ( this.mStorageLifecycleService != null ) {
+            this.infoLifecycle( "<Titan> Component `StorageLifecycleService` already prepared.", LogStatuses.StatusDone );
+            return;
+        }
+        if ( this.mVolumeManager == null || this.mFileSystem == null ) {
+            this.infoLifecycle( "<Titan> Component `StorageLifecycleService` skipped because storage kernel is incomplete.", LogStatuses.StatusDone );
+            return;
+        }
+
+        StorageLifecycleMappingDriver driver = new StorageLifecycleMappingDriver(
+                this.superiorProcess(),
+                this.storageIbatisClient(),
+                this.tritiumSystem().getDispenserCenter()
+        );
+        StorageLifecycleMasterManipulator masterManipulator =
+                (StorageLifecycleMasterManipulator) driver.getMasterManipulator();
+        this.mStorageLifecycleService = new GenericStorageLifecycleService(
+                this.mFileSystem,
+                this.mVolumeManager,
+                masterManipulator.getTaskManipulator()
+        );
+
+        this.infoLifecycle( "<Titan> Constructing component `StorageLifecycleService`.", LogStatuses.StatusDone );
+    }
+
+
     protected void prepare_instrumentation() {
         this.infoLifecycle( "<Titan> Constructing components `Instrumentation`.", LogStatuses.StatusStart );
 
@@ -173,6 +209,11 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
     @Override
     public KOMFileSystem fileSystem() {
         return this.mFileSystem;
+    }
+
+    @Override
+    public StorageLifecycleService storageLifecycleService() {
+        return this.mStorageLifecycleService;
     }
 
     protected TritiumSystem tritiumSystem() {

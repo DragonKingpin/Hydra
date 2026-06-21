@@ -7,7 +7,6 @@
 
     <resultMap id="TaskPathCacheMap" type="com.pinecone.hydra.unit.imperium.entity.GenericCachePath">
         <result column="path" property="path"/>
-        <result column="long_path" property="longPath"/>
     </resultMap>
 
     <resultMap id="TaskPathBindingMap" type="com.pinecone.hydra.unit.imperium.entity.CachePathBinding">
@@ -16,7 +15,6 @@
         <result column="path_hash" property="pathHash"/>
         <result column="hash_slot" property="hashSlot"/>
         <result column="path"      property="path"/>
-        <result column="long_path" property="longPath"/>
     </resultMap>
 
     <insert id="insert">
@@ -32,21 +30,6 @@
         )
     </insert>
 
-    <insert id="insertLongPath">
-        INSERT INTO `hydra_task_node_cache_path`
-        (
-            `path`,
-            `long_path`,
-            `guid`
-        )
-        VALUES
-        (
-            #{path},
-            #{longPath},
-            #{guid}
-        )
-    </insert>
-
     <delete id="remove">
         DELETE FROM `hydra_task_node_cache_path`
         WHERE `guid` = #{guid}
@@ -54,8 +37,7 @@
 
     <select id="getPath0" resultMap="TaskPathCacheMap">
         SELECT
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_task_node_cache_path`
         WHERE `guid` = #{guid}
         ORDER BY `path_hash` IS NULL ASC, `id` ASC
@@ -68,8 +50,7 @@
             `guid`,
             `path_hash`,
             `hash_slot`,
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_task_node_cache_path`
         WHERE `path_hash` = #{pathHash}
         ORDER BY `hash_slot` ASC
@@ -81,8 +62,7 @@
             `guid`,
             `path_hash`,
             `hash_slot`,
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_task_node_cache_path`
         WHERE `path_hash` = #{pathHash}
         ORDER BY `hash_slot` ASC
@@ -95,8 +75,7 @@
             `guid`,
             `path_hash`,
             `hash_slot`,
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_task_node_cache_path`
         WHERE `guid` = #{guid}
         ORDER BY `path_hash` IS NULL ASC, `id` ASC
@@ -108,8 +87,7 @@
             `guid`,
             `path_hash`,
             `hash_slot`,
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_task_node_cache_path`
         WHERE `path` = #{path}
         ORDER BY `path_hash` IS NULL ASC, `id` ASC
@@ -129,16 +107,14 @@
             `guid`,
             `path_hash`,
             `hash_slot`,
-            `path`,
-            `long_path`
+            `path`
         )
         VALUES
         (
             #{guid},
             #{pathHash},
             #{hashSlot},
-            #{path},
-            #{longPath}
+            #{path}
         )
     </insert>
 
@@ -148,8 +124,7 @@
             `guid` = #{guid},
             `path_hash` = #{pathHash},
             `hash_slot` = #{hashSlot},
-            `path` = #{path},
-            `long_path` = #{longPath}
+            `path` = #{path}
         WHERE `id` = #{id}
     </update>
 

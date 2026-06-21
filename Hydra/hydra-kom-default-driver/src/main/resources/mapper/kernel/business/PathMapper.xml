@@ -3,41 +3,81 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pinecone.hydra.business.ibatis.PathMapper">
 
-    <resultMap id="PathMap" type="com.pinecone.hydra.business.entity.GenericNodeCachePath">
-        <id column="id" property="enumId"/>
-        <result column="guid" property="guid"/>
-        <result column="path" property="path"/>
-        <result column="long_path" property="longPath"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
+    <resultMap id="BusinessPathBindingMap" type="com.pinecone.hydra.unit.imperium.entity.CachePathBinding">
+        <id     column="id"        property="id"/>
+        <result column="guid"      property="guid"/>
+        <result column="path_hash" property="pathHash"/>
+        <result column="hash_slot" property="hashSlot"/>
+        <result column="path"      property="path"/>
     </resultMap>
 
-    <insert id="insert">
-        INSERT INTO hydra_business_node_cache_path ( guid, path )
-        VALUES ( #{guid}, #{path} )
-    </insert>
-
-    <insert id="insertLongPath">
-        INSERT INTO hydra_business_node_cache_path ( guid, path, long_path )
-        VALUES ( #{guid}, #{path}, #{longPath} )
-    </insert>
-
     <delete id="remove">
-        DELETE FROM hydra_business_node_cache_path WHERE guid = #{guid}
+        DELETE FROM `hydra_business_node_cache_path`
+        WHERE `guid` = #{guid}
     </delete>
 
-    <select id="getPath0" resultMap="PathMap">
-        SELECT id, guid, path, long_path, create_time, update_time
-        FROM hydra_business_node_cache_path
-        WHERE guid = #{guid}
-        LIMIT 1
+    <select id="listByPathHash" resultMap="BusinessPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_business_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
     </select>
 
-    <select id="queryGuidByPath" resultType="com.pinecone.framework.util.id.GUID">
-        SELECT guid
-        FROM hydra_business_node_cache_path
-        WHERE path = #{path} OR long_path = #{path}
-        LIMIT 1
+    <select id="listByPathHashForUpdate" resultMap="BusinessPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_business_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+        FOR UPDATE
     </select>
+
+    <select id="listByGuid" resultMap="BusinessPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_business_node_cache_path`
+        WHERE `guid` = #{guid}
+        ORDER BY `id` ASC
+    </select>
+
+    <insert id="insertHashed">
+        INSERT INTO `hydra_business_node_cache_path`
+        (
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        )
+        VALUES
+        (
+            #{guid},
+            #{pathHash},
+            #{hashSlot},
+            #{path}
+        )
+    </insert>
+
+    <update id="updateHashed">
+        UPDATE `hydra_business_node_cache_path`
+        SET
+            `guid` = #{guid},
+            `path_hash` = #{pathHash},
+            `hash_slot` = #{hashSlot},
+            `path` = #{path}
+        WHERE `id` = #{id}
+    </update>
 
 </mapper>

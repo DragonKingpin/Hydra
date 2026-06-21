@@ -7,36 +7,15 @@
 
     <resultMap id="RegistryPathCacheMap" type="com.pinecone.hydra.unit.imperium.entity.GenericCachePath">
         <result column="path" property="path"/>
-        <result column="long_path" property="longPath"/>
     </resultMap>
 
-    <insert id="insert">
-        INSERT INTO `hydra_registry_node_cache_path`
-        (
-            `path`,
-            `guid`
-        )
-        VALUES
-        (
-            #{path},
-            #{guid}
-        )
-    </insert>
-
-    <insert id="insertLongPath">
-        INSERT INTO `hydra_registry_node_cache_path`
-        (
-            `path`,
-            `long_path`,
-            `guid`
-        )
-        VALUES
-        (
-            #{path},
-            #{longPath},
-            #{guid}
-        )
-    </insert>
+    <resultMap id="RegistryPathBindingMap" type="com.pinecone.hydra.unit.imperium.entity.CachePathBinding">
+        <id     column="id"        property="id"/>
+        <result column="guid"      property="guid"/>
+        <result column="path_hash" property="pathHash"/>
+        <result column="hash_slot" property="hashSlot"/>
+        <result column="path"      property="path"/>
+    </resultMap>
 
     <delete id="remove">
         DELETE FROM `hydra_registry_node_cache_path`
@@ -45,24 +24,75 @@
 
     <select id="getPath0" resultMap="RegistryPathCacheMap">
         SELECT
-            `path`,
-            `long_path`
+            `path`
         FROM `hydra_registry_node_cache_path`
         WHERE `guid` = #{guid}
+        ORDER BY `id` ASC
+        LIMIT 1
     </select>
 
-    <select id="getNode" resultType="com.pinecone.framework.util.id.GUID">
+    <select id="listByPathHash" resultMap="RegistryPathBindingMap">
         SELECT
-            `guid`
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
         FROM `hydra_registry_node_cache_path`
-        WHERE `path` = #{path}
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
     </select>
 
-    <select id="queryGUIDByPath" resultType="com.pinecone.framework.util.id.GUID">
+    <select id="listByPathHashForUpdate" resultMap="RegistryPathBindingMap">
         SELECT
-            `guid`
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
         FROM `hydra_registry_node_cache_path`
-        WHERE `path` = #{path}
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+        FOR UPDATE
     </select>
+
+    <select id="listByGuid" resultMap="RegistryPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_registry_node_cache_path`
+        WHERE `guid` = #{guid}
+        ORDER BY `id` ASC
+    </select>
+
+    <insert id="insertHashed">
+        INSERT INTO `hydra_registry_node_cache_path`
+        (
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        )
+        VALUES
+        (
+            #{guid},
+            #{pathHash},
+            #{hashSlot},
+            #{path}
+        )
+    </insert>
+
+    <update id="updateHashed">
+        UPDATE `hydra_registry_node_cache_path`
+        SET
+            `guid` = #{guid},
+            `path_hash` = #{pathHash},
+            `hash_slot` = #{hashSlot},
+            `path` = #{path}
+        WHERE `id` = #{id}
+    </update>
 
 </mapper>

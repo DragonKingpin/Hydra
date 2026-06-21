@@ -5,58 +5,81 @@
 
 <mapper namespace="com.pinecone.hydra.account.ibatis.UserPathCacheMapper">
 
-    <insert id="insert">
-        INSERT INTO `hydra_account_node_cache_path`
-        (
-            `path`,
-            `guid`
-        )
-        VALUES
-        (
-            #{path},
-            #{guid}
-        )
-    </insert>
-
-    <insert id="insertLongPath">
-        INSERT INTO `hydra_account_node_cache_path`
-        (
-            `path`,
-            `long_path`,
-            `guid`
-        )
-        VALUES
-        (
-            #{path},
-            #{longPath},
-            #{guid}
-        )
-    </insert>
+    <resultMap id="AccountPathBindingMap" type="com.pinecone.hydra.unit.imperium.entity.CachePathBinding">
+        <id     column="id"        property="id"/>
+        <result column="guid"      property="guid"/>
+        <result column="path_hash" property="pathHash"/>
+        <result column="hash_slot" property="hashSlot"/>
+        <result column="path"      property="path"/>
+    </resultMap>
 
     <delete id="remove">
         DELETE FROM `hydra_account_node_cache_path`
         WHERE `guid` = #{guid}
     </delete>
 
-    <select id="getPath" resultType="string">
+    <select id="listByPathHash" resultMap="AccountPathBindingMap">
         SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_account_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+    </select>
+
+    <select id="listByPathHashForUpdate" resultMap="AccountPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_account_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+        FOR UPDATE
+    </select>
+
+    <select id="listByGuid" resultMap="AccountPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
             `path`
         FROM `hydra_account_node_cache_path`
         WHERE `guid` = #{guid}
+        ORDER BY `id` ASC
     </select>
 
-    <select id="getNode" resultType="com.pinecone.framework.util.id.GUID">
-        SELECT
-            `guid`
-        FROM `hydra_account_node_cache_path`
-        WHERE `path` = #{path}
-    </select>
+    <insert id="insertHashed">
+        INSERT INTO `hydra_account_node_cache_path`
+        (
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        )
+        VALUES
+        (
+            #{guid},
+            #{pathHash},
+            #{hashSlot},
+            #{path}
+        )
+    </insert>
 
-    <select id="queryGUIDByPath" resultType="com.pinecone.framework.util.id.GUID">
-        SELECT
-            `guid`
-        FROM `hydra_account_node_cache_path`
-        WHERE `path` = #{path}
-    </select>
+    <update id="updateHashed">
+        UPDATE `hydra_account_node_cache_path`
+        SET
+            `guid` = #{guid},
+            `path_hash` = #{pathHash},
+            `hash_slot` = #{hashSlot},
+            `path` = #{path}
+        WHERE `id` = #{id}
+    </update>
 
 </mapper>

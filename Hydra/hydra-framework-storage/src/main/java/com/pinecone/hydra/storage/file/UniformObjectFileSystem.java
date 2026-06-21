@@ -19,6 +19,7 @@ import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.storage.bucket.Bucket;
 import com.pinecone.hydra.storage.bucket.BucketInstrument;
 import com.pinecone.hydra.storage.bucket.BucketNodeManipulator;
+import com.pinecone.hydra.storage.bucket.BucketPathCacheManipulator;
 import com.pinecone.hydra.storage.bucket.BucketResolver;
 import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.bucket.purge.BucketPurgeProgressListener;
@@ -789,8 +790,10 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         if ( this.globalPathGuidCacheQuerier == null ) {
             return;
         }
-        String key = DefaultCacheConstants.FilePathCacheNS + path;
-        this.globalPathGuidCacheQuerier.erase( key );
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        this.globalPathGuidCacheQuerier.erase( this.buildPathGuidCacheKey( bucketGuid, path ) );
+        this.globalPathGuidCacheQuerier.erase( this.buildLegacyPathGuidCacheKey( path ) );
+        this.globalPathGuidCacheQuerier.erase( DefaultCacheConstants.FilePathCacheNS + path );
     }
 
     @Override
@@ -802,20 +805,20 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public GUID queryGUIDByPath( String path ) {
         FileSystemConfig config = this.getConfig();
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        String key = this.buildPathGuidCacheKey( bucketGuid, path );
         if ( this.globalPathGuidCacheQuerier != null ) {
-            String key = DefaultCacheConstants.FilePathCacheNS + path;
             String szGUID = this.globalPathGuidCacheQuerier.get( key );
             if ( StringUtils.isNoneEmpty( szGUID ) ) {
                 return this.guidAllocator.parse( szGUID );
             }
         }
-        GUID guid =  this.queryDirectGUIDByPath(path); // Into OLTP-RDB
+        GUID guid =  this.queryDirectGUIDByResolvedPath( path ); // Into OLTP-RDB
         if ( guid == null ) {
-            UofsSymbolicResolveResult result = this.symbolicPathResolver.resolve(path, this::queryDirectGUIDByPath);
+            UofsSymbolicResolveResult result = this.symbolicPathResolver.resolve(path, this::queryDirectGUIDByResolvedPath);
             guid = result.getResolvedGuid();
         }
         if ( this.globalPathGuidCacheQuerier != null ) {
-            String key = DefaultCacheConstants.FilePathCacheNS + path;
             if ( guid != null ) {
                 this.globalPathGuidCacheQuerier.insert( key, guid.toString(), config.getPathQueryExpiryTimeHotMil() );
             }
@@ -823,8 +826,52 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         return guid;
     }
 
+    protected String buildPathGuidCacheKey( GUID bucketGuid, String path ) {
+        if ( bucketGuid == null ) {
+            return this.buildLegacyPathGuidCacheKey( path );
+        }
+        return DefaultCacheConstants.FilePathCacheNS + "bucket:" + bucketGuid + ":path:" + path;
+    }
+
+    protected String buildLegacyPathGuidCacheKey( String path ) {
+        return DefaultCacheConstants.FilePathCacheNS + "legacy:path:" + path;
+    }
+
+    protected GUID queryDirectGUIDByResolvedPath( String path ) {
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        if ( bucketGuid != null ) {
+            return this.queryDirectGUIDByBucketPath( bucketGuid, path );
+        }
+        return this.queryDirectGUIDByPath( path );
+    }
+
+    protected GUID queryDirectGUIDByBucketPath( GUID bucketGuid, String path ) {
+        BucketPathCacheManipulator manipulator = this.getBucketPathCacheManipulator();
+        if ( manipulator == null ) {
+            return this.queryDirectGUIDByPath( path );
+        }
+        GUID guid = manipulator.queryGUIDByBucketPath( bucketGuid, path );
+        if ( guid != null ) {
+            return guid;
+        }
+        return this.queryDirectGUIDByPath( path );
+    }
+
     protected GUID queryDirectGUIDByPath( String path ) {
         return super.queryGUIDByPath(path);
+    }
+
+    protected BucketPathCacheManipulator getBucketPathCacheManipulator() {
+        if ( this.fileMasterManipulator == null || this.fileMasterManipulator.getSkeletonMasterManipulator() == null ) {
+            return null;
+        }
+        if ( this.fileMasterManipulator.getSkeletonMasterManipulator() instanceof TreeMasterManipulator ) {
+            TreeMasterManipulator treeMasterManipulator = (TreeMasterManipulator) this.fileMasterManipulator.getSkeletonMasterManipulator();
+            if ( treeMasterManipulator.getTriePathCacheManipulator() instanceof BucketPathCacheManipulator ) {
+                return (BucketPathCacheManipulator) treeMasterManipulator.getTriePathCacheManipulator();
+            }
+        }
+        return null;
     }
 
     @Override

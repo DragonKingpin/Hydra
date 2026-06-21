@@ -1,29 +1,28 @@
 package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.unit.imperium.ImperialTreeConstants;
 import com.pinecone.hydra.unit.imperium.entity.CachePathBinding;
 import com.pinecone.hydra.unit.imperium.entity.CachePath;
 import com.pinecone.hydra.unit.imperium.entity.GenericCachePath;
 import com.pinecone.hydra.unit.imperium.source.TriePathCacheManipulator;
+import com.pinecone.hydra.util.UniformHashing;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Mapper
 @IbatisDataAccessObject
 public interface TaskPathCacheMapper extends TriePathCacheManipulator {
-    int MaxAtomicInsertRetries = 8;
-
     @Override
     void insert( @Param("guid") GUID guid, @Param("path") String path );
 
     @Override
-    void insertLongPath( @Param("guid") GUID guid, @Param("path") String path, @Param("longPath") String longPath );
+    default void insertLongPath( GUID guid, String path, String longPath ) {
+        this.insert( guid, this.joinPathParts( path, longPath ) );
+    }
 
     @Override
     void remove( @Param("guid") GUID guid );
@@ -63,7 +62,7 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
             return null;
         }
 
-        String pathHash = TaskPathCacheMapper.sha256Hex( path );
+        String pathHash = UniformHashing.sha256Hex( path );
         List<CachePathBinding> bindings = this.listByPathHash( pathHash );
         if ( bindings == null || bindings.isEmpty() ) {
             return null;
@@ -79,23 +78,22 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
 
     @Override
     default void insertCachePathAtomically( GUID guid, String path ) {
-        this.upsertCachePathAtomically( guid, path, null );
+        this.upsertCachePathAtomically( guid, path );
     }
 
     @Override
     default void insertLongCachePathAtomically( GUID guid, String path, String longPath ) {
-        this.upsertCachePathAtomically( guid, path, longPath );
+        this.upsertCachePathAtomically( guid, this.joinPathParts( path, longPath ) );
     }
 
-    default void upsertCachePathAtomically( GUID guid, String path, String longPath ) {
+    default void upsertCachePathAtomically( GUID guid, String path ) {
         if ( guid == null || path == null ) {
             return;
         }
 
-        String fullPath = longPath == null ? path : path + longPath;
-        String pathHash = TaskPathCacheMapper.sha256Hex( fullPath );
+        String pathHash = UniformHashing.sha256Hex( path );
         RuntimeException lastException = null;
-        for ( int i = 0; i < MaxAtomicInsertRetries; ++i ) {
+        for ( int i = 0; i < ImperialTreeConstants.AtomicPathCacheInsertRetryLimit; ++i ) {
             List<CachePathBinding> bindings = this.listByPathHashForUpdate( pathHash );
             int nextSlot = 0;
             if ( bindings != null ) {
@@ -104,8 +102,8 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
                     if ( hashSlot != null && hashSlot >= nextSlot ) {
                         nextSlot = hashSlot + 1;
                     }
-                    if ( fullPath.equals( binding.getResolvedPath() ) ) {
-                        this.updateHashed( binding.getId(), guid, pathHash, binding.getHashSlot(), path, longPath );
+                    if ( path.equals( binding.getResolvedPath() ) ) {
+                        this.updateHashed( binding.getId(), guid, pathHash, binding.getHashSlot(), path );
                         return;
                     }
                 }
@@ -114,9 +112,9 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
             List<CachePathBinding> legacyBindings = this.listByPath( path );
             if ( legacyBindings != null ) {
                 for ( CachePathBinding binding : legacyBindings ) {
-                    if ( fullPath.equals( binding.getResolvedPath() ) ) {
+                    if ( path.equals( binding.getResolvedPath() ) ) {
                         try {
-                            this.updateHashed( binding.getId(), guid, pathHash, nextSlot, path, longPath );
+                            this.updateHashed( binding.getId(), guid, pathHash, nextSlot, path );
                             return;
                         } catch ( RuntimeException exception ) {
                             lastException = exception;
@@ -126,7 +124,7 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
             }
 
             try {
-                this.insertHashed( guid, pathHash, nextSlot, path, longPath );
+                this.insertHashed( guid, pathHash, nextSlot, path );
                 return;
             } catch ( RuntimeException exception ) {
                 lastException = exception;
@@ -158,26 +156,23 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
 
     void insertHashed(
             @Param("guid") GUID guid, @Param("pathHash") String pathHash, @Param("hashSlot") int hashSlot,
-            @Param("path") String path, @Param("longPath") String longPath
+            @Param("path") String path
     );
 
     void updateHashed(
             @Param("id") Long id, @Param("guid") GUID guid,
             @Param("pathHash") String pathHash, @Param("hashSlot") Integer hashSlot,
-            @Param("path") String path, @Param("longPath") String longPath
+            @Param("path") String path
     );
 
-    static String sha256Hex( String text ) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance( "SHA-256" );
-            byte[] bytes = digest.digest( text.getBytes( StandardCharsets.UTF_8 ) );
-            StringBuilder builder = new StringBuilder( bytes.length * 2 );
-            for ( byte value : bytes ) {
-                builder.append( String.format( "%02x", value & 0xff ) );
-            }
-            return builder.toString();
-        } catch ( NoSuchAlgorithmException exception ) {
-            throw new IllegalStateException( "SHA-256 algorithm is unavailable.", exception );
+    default String joinPathParts( String path, String longPath ) {
+        if ( path == null ) {
+            return longPath;
         }
+        if ( longPath == null ) {
+            return path;
+        }
+        return path + longPath;
     }
+
 }

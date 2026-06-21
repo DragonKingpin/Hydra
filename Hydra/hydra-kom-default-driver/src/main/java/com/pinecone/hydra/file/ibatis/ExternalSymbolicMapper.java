@@ -15,6 +15,7 @@ import java.util.List;
 public interface ExternalSymbolicMapper extends ExternalSymbolicManipulator {
     void insert( ExternalSymbolic externalSymbolic );
     void remove( GUID guid );
+    void rename( @Param("guid") GUID guid, @Param("newName") String newName );
 
     GenericExternalSymbolic getSymbolicByGuid( GUID guid );
 

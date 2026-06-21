@@ -8,12 +8,16 @@ import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.MapStructure;
+import com.pinecone.hydra.file.ibatis.transfer.hydranium.UofsTransferMappingDriver;
 import com.pinecone.hydra.file.ibatis.hydranium.FileMappingDriver;
 import com.pinecone.hydra.lifecycle.ibatis.hydranium.StorageLifecycleMappingDriver;
 import com.pinecone.hydra.storage.file.FileSystemConfig;
 import com.pinecone.hydra.storage.file.KernelFileSystemConfig;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.UniformObjectFileSystem;
+import com.pinecone.hydra.storage.file.transfer.GenericUofsTransferService;
+import com.pinecone.hydra.storage.file.transfer.service.UofsTransferService;
+import com.pinecone.hydra.storage.file.transfer.source.UofsTransferMasterManipulator;
 import com.pinecone.hydra.storage.lifecycle.GenericStorageLifecycleService;
 import com.pinecone.hydra.storage.lifecycle.service.StorageLifecycleService;
 import com.pinecone.hydra.storage.lifecycle.source.StorageLifecycleMasterManipulator;
@@ -39,6 +43,8 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
     protected KOMFileSystem                 mFileSystem;
 
     protected StorageLifecycleService       mStorageLifecycleService;
+
+    protected UofsTransferService           mUofsTransferService;
 
     @MapStructure("metaDependent.storageInstrument")
     private String                          mszStorageInstrumentKey;
@@ -92,6 +98,7 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
         this.prepare_volume_manager();
         this.prepare_uofs();
         this.prepare_storage_lifecycle_service();
+        this.prepare_uofs_transfer_service();
         this.prepare_instrumentation();
 
         this.infoLifecycle( "<Titan> Preparing system skeleton.", LogStatuses.StatusDone );
@@ -171,6 +178,35 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
         this.infoLifecycle( "<Titan> Constructing component `StorageLifecycleService`.", LogStatuses.StatusDone );
     }
 
+    protected void prepare_uofs_transfer_service() {
+        this.infoLifecycle( "<Titan> Constructing component `UofsTransferService`.", LogStatuses.StatusStart );
+
+        if ( this.mUofsTransferService != null ) {
+            this.infoLifecycle( "<Titan> Component `UofsTransferService` already prepared.", LogStatuses.StatusDone );
+            return;
+        }
+        if ( this.mVolumeManager == null || this.mFileSystem == null ) {
+            this.infoLifecycle( "<Titan> Component `UofsTransferService` skipped because storage kernel is incomplete.", LogStatuses.StatusDone );
+            return;
+        }
+
+        UofsTransferMappingDriver driver = new UofsTransferMappingDriver(
+                this.superiorProcess(),
+                this.storageIbatisClient(),
+                this.tritiumSystem().getDispenserCenter()
+        );
+        UofsTransferMasterManipulator masterManipulator =
+                (UofsTransferMasterManipulator) driver.getMasterManipulator();
+        this.mUofsTransferService = new GenericUofsTransferService(
+                this.mFileSystem,
+                this.mVolumeManager,
+                masterManipulator.getTaskManipulator(),
+                masterManipulator.getItemManipulator()
+        );
+
+        this.infoLifecycle( "<Titan> Constructing component `UofsTransferService`.", LogStatuses.StatusDone );
+    }
+
 
     protected void prepare_instrumentation() {
         this.infoLifecycle( "<Titan> Constructing components `Instrumentation`.", LogStatuses.StatusStart );
@@ -214,6 +250,11 @@ public class Titan extends ArchModularizedSubsystem implements TitanSubsystem {
     @Override
     public StorageLifecycleService storageLifecycleService() {
         return this.mStorageLifecycleService;
+    }
+
+    @Override
+    public UofsTransferService uofsTransferService() {
+        return this.mUofsTransferService;
     }
 
     protected TritiumSystem tritiumSystem() {

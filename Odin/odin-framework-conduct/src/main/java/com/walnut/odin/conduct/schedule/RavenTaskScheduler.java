@@ -276,6 +276,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             this.mTaskSchedulePreparator.prepareDailySchedulableTasksAndWait( pulseTime );
         }
         this.mInstanceScheduleImpetus.impelPrelaunchInstances( pulseTime );
+        this.mInstanceScheduleImpetus.impelPreparedStandbyInstances( pulseTime );
     }
 
     protected void cycleEnginePulse() {

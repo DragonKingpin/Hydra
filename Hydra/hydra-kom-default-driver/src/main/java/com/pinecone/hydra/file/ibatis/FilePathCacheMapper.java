@@ -25,9 +25,9 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
     };
     String getLongPath( GUID guid );
     String getPath0( GUID guid );
-    GUID getNode( String path );
+    GUID getNode( @Param("path") String path );
 
-    GUID queryGUIDByPath( String path );
+    GUID queryGUIDByPath( @Param("path") String path );
 
     @Override
     long countPathCacheByBucketGuid( @Param("bucketGuid") GUID bucketGuid );

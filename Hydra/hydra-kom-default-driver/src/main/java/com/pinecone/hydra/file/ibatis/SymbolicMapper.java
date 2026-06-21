@@ -23,6 +23,8 @@ public interface SymbolicMapper extends SymbolicManipulator {
 
     void remove( GUID guid );
 
+    void rename( @Param("guid") GUID guid, @Param("newName") String newName );
+
     GenericSymbolic getSymbolicByGuid( GUID guid );
 
     GenericSymbolic getSymbolicByNameGuid( @Param("nodeName") String nodeName, @Param("guid") GUID guid );

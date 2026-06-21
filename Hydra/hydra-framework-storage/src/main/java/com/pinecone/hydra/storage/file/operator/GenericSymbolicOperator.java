@@ -57,6 +57,8 @@ public class GenericSymbolicOperator extends ArchFileSystemOperator {
 
     @Override
     public void rename( GUID fileGuid, String newName ) {
+        this.symbolicManipulator.rename( fileGuid, newName );
+        this.imperialTree.removeCachePath( fileGuid );
     }
 
     @Override

@@ -420,12 +420,24 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         Collection<ScheduledTaskInstanceLineage> lineages = this.mTaskInstanceLineageFreezer.freeze( frames );
 
+        Collection<ScheduledTaskInstanceLineage> preparedLineages = new ArrayList<>();
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            this.ensureTaskExec( lineage.getContext(), lineage.getInstance() );
-            this.ensureTaskEventTimeReady( lineage.getContext(), lineage.getInstance() );
+            try {
+                this.ensureTaskExec( lineage.getContext(), lineage.getInstance() );
+                this.ensureTaskEventTimeReady( lineage.getContext(), lineage.getInstance() );
+                preparedLineages.add( lineage );
+            }
+            catch ( RuntimeException e ) {
+                log.error(
+                        "[TaskSchedulerLifecycle] Preparing task instance failed. (Task: `{}`, Instance: `{}`) <Skipped>",
+                        lineage.getContext().getElement().getName(),
+                        lineage.getInstance().getInstanceEntry().getInstanceName(),
+                        e
+                );
+            }
         }
 
-        this.persistPreparedTaskScheduleOffsets( lineages );
+        this.persistPreparedTaskScheduleOffsets( preparedLineages );
     }
 
     protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {

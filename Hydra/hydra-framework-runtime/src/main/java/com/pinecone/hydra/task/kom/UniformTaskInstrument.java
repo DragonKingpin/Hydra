@@ -1,6 +1,7 @@
 package com.pinecone.hydra.task.kom;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
@@ -33,6 +34,7 @@ import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ArchReparseKOMTree;
 import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -174,22 +176,165 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     @Override
     public TaskTreeElementDigest queryTaskTreeDigestByPath( String path ) {
-        return this.taskTreeDigestManipulator.queryDigestByPath( path );
+        TaskTreeElementDigest digest = null;
+        GUID guid = this.queryGUIDByPath( path );
+        if ( guid != null ) {
+            digest = this.taskTreeDigestManipulator.queryDigestByGuid( guid );
+        }
+        return this.rectifyTaskTreeDigestPath( digest, path, null );
     }
 
     @Override
     public TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid ) {
-        return this.taskTreeDigestManipulator.queryDigestByGuid( guid );
+        return this.rectifyTaskTreeDigestPath( this.taskTreeDigestManipulator.queryDigestByGuid( guid ), null, null );
     }
 
     @Override
     public List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid ) {
-        return this.taskTreeDigestManipulator.fetchChildDigests( parentGuid );
+        return this.rectifyTaskTreeDigestPaths(
+                this.taskTreeDigestManipulator.fetchChildDigests( parentGuid ),
+                this.safeGetPath( parentGuid )
+        );
     }
 
     @Override
-    public AppElement affirmJob(String path ) {
-        return (AppElement) this.affirmTreeNodeByPath( path, GenericAppElement.class, GenericNamespace.class );
+    public List<TaskElementDigest> listTaskElementDigests( int offset, int pageSize ) {
+        return this.rectifyTaskElementDigestPaths( this.taskNodeManipulator.listDigests( offset, pageSize ) );
+    }
+
+    @Override
+    public List<TaskElementDigest> fetchTaskElementDigestsByGuids( Collection<GUID> guids ) {
+        return this.rectifyTaskElementDigestPaths( this.taskNodeManipulator.fetchDigestsByGuids( guids ) );
+    }
+
+    protected List<TaskTreeElementDigest> rectifyTaskTreeDigestPaths( List<TaskTreeElementDigest> digests, String szParentPath ) {
+        if ( digests == null || digests.isEmpty() ) {
+            return digests;
+        }
+
+        for ( TaskTreeElementDigest digest : digests ) {
+            this.rectifyTaskTreeDigestPath( digest, null, szParentPath );
+        }
+        return digests;
+    }
+
+    protected TaskTreeElementDigest rectifyTaskTreeDigestPath( TaskTreeElementDigest digest, String szRequestPath, String szParentPath ) {
+        if ( digest == null ) {
+            return null;
+        }
+
+        String szResolvedPath = this.resolveJoinedPath( digest.getPath(), digest.getLongPath() );
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.safeGetPath( digest.getGuid() );
+        }
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = szRequestPath;
+        }
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.joinPath( szParentPath, this.resolveDigestName( digest ) );
+        }
+        if ( !this.isBlank( szResolvedPath ) ) {
+            digest.setPath( szResolvedPath );
+        }
+        return digest;
+    }
+
+    protected List<TaskElementDigest> rectifyTaskElementDigestPaths( List<TaskElementDigest> digests ) {
+        if ( digests == null || digests.isEmpty() ) {
+            return digests;
+        }
+
+        for ( TaskElementDigest digest : digests ) {
+            this.rectifyTaskElementDigestPath( digest );
+        }
+        return digests;
+    }
+
+    protected TaskElementDigest rectifyTaskElementDigestPath( TaskElementDigest digest ) {
+        if ( digest == null ) {
+            return null;
+        }
+
+        String szResolvedPath = this.resolveJoinedPath( digest.getKomPath(), digest.getSystemKernelObjectPath() );
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.safeGetPath( digest.getGuid() );
+        }
+        if ( !this.isBlank( szResolvedPath ) ) {
+            digest.setKomPath( szResolvedPath );
+        }
+
+        String szSystemPath = this.safeQuerySystemKernelObjectPath( digest.getGuid() );
+        digest.setSystemKernelObjectPath( this.isBlank( szSystemPath ) ? szResolvedPath : szSystemPath );
+        return digest;
+    }
+
+    protected String resolveJoinedPath( String szPath, String szLongPath ) {
+        if ( this.isBlank( szPath ) ) {
+            return szLongPath;
+        }
+        if ( this.isBlank( szLongPath ) ) {
+            return szPath;
+        }
+        if ( szLongPath.startsWith( szPath ) ) {
+            return szLongPath;
+        }
+        return szPath + szLongPath;
+    }
+
+    protected String safeGetPath( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+        try {
+            return this.getPath( guid );
+        } catch ( RuntimeException exception ) {
+            return null;
+        }
+    }
+
+    protected String safeQuerySystemKernelObjectPath( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+        try {
+            return this.querySystemKernelObjectPath( guid );
+        } catch ( RuntimeException exception ) {
+            return null;
+        }
+    }
+
+    protected String resolveDigestName( TaskTreeElementDigest digest ) {
+        if ( digest == null ) {
+            return null;
+        }
+        if ( !this.isBlank( digest.getName() ) ) {
+            return digest.getName();
+        }
+        return digest.getGuid() == null ? null : digest.getGuid().toString();
+    }
+
+    protected String joinPath( String szParentPath, String szName ) {
+        if ( this.isBlank( szName ) ) {
+            return szParentPath;
+        }
+        if ( this.isBlank( szParentPath ) ) {
+            return szName;
+        }
+
+        String szSeparator = this.kernelObjectConfig.getPathNameSeparator();
+        String szNormalizedParent = szParentPath.endsWith( szSeparator )
+                ? szParentPath.substring( 0, szParentPath.length() - szSeparator.length() )
+                : szParentPath;
+        return szNormalizedParent + szSeparator + szName;
+    }
+
+    protected boolean isBlank( String szValue ) {
+        return szValue == null || szValue.trim().isEmpty();
+    }
+
+    @Override
+    public AppElement affirmApp( String path ) {
+        return ( AppElement ) this.affirmTreeNodeByPath( path, GenericAppElement.class, GenericNamespace.class );
     }
 
     @Override

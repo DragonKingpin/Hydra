@@ -1,5 +1,6 @@
 package com.walnut.odin.task;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
@@ -16,6 +17,7 @@ import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.AppElement;
@@ -143,6 +145,16 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
+    public List<TaskElementDigest> listTaskElementDigests( int offset, int pageSize ) {
+        return this.uniformTaskInstrument.listTaskElementDigests( offset, pageSize );
+    }
+
+    @Override
+    public List<TaskElementDigest> fetchTaskElementDigestsByGuids( Collection<GUID> guids ) {
+        return this.uniformTaskInstrument.fetchTaskElementDigestsByGuids( guids );
+    }
+
+    @Override
     public GUID assertGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException {
         GUID guid = this.uniformTaskInstrument.queryGUIDByPath( taskTreePath );
         if ( guid == null ) {
@@ -235,8 +247,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
 
     @Override
-    public AppElement affirmJob(String path ) {
-        return this.uniformTaskInstrument.affirmJob( path );
+    public AppElement affirmApp( String path ) {
+        return this.uniformTaskInstrument.affirmApp( path );
     }
 
     @Override

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
@@ -14,7 +16,11 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 
-import com.pinecone.hydra.storage.bucket.*;
+import com.pinecone.hydra.storage.bucket.Bucket;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.BucketNodeManipulator;
+import com.pinecone.hydra.storage.bucket.BucketResolver;
+import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
 import com.pinecone.hydra.storage.bucket.purge.BucketPurgeProgressListener;
 import com.pinecone.hydra.storage.bucket.purge.BucketPurgeReport;
 import com.pinecone.hydra.storage.bucket.purge.GenericBucketPurgeExecutor;
@@ -62,7 +68,6 @@ import com.pinecone.hydra.storage.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.operator.GenericFileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.query.FileChildPage;
 import com.pinecone.hydra.storage.file.query.FileChildQuery;
-import com.pinecone.hydra.storage.file.query.FileChildType;
 import com.pinecone.hydra.storage.file.reparse.TitanUofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicResolveConfig;
@@ -605,7 +610,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
                 return bucket.getVolumeGuid();
             }
         }
-        return GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() );
+        return this.guidAllocator.parse( this.getConfig().getDefaultVolumeGuid() );
     }
 
     @Override
@@ -801,7 +806,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             String key = DefaultCacheConstants.FilePathCacheNS + path;
             String szGUID = this.globalPathGuidCacheQuerier.get( key );
             if ( StringUtils.isNoneEmpty( szGUID ) ) {
-                return GUIDs.GUID128( szGUID );
+                return this.guidAllocator.parse( szGUID );
             }
         }
         GUID guid =  this.queryDirectGUIDByPath(path); // Into OLTP-RDB
@@ -837,6 +842,169 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    public void rename( GUID guid, String name ) {
+        String normalizedName = this.normalizeRenameName( name );
+        FileTreeNode node = this.get( guid );
+        if ( node == null ) {
+            throw new IllegalArgumentException( "Undefined UOFS rename node: " + guid );
+        }
+        List<GUID> parentGuids = this.imperialTree.fetchParentGuids( guid );
+        this.assertRenameParent( guid, parentGuids );
+        this.assertRenameNoConflict( guid, normalizedName, parentGuids );
+
+        this.eraseGlobalPathCacheRecursively( guid );
+        FileSystemOperator operator = (FileSystemOperator) this.operatorFactory.getOperator( node.getMetaType() );
+        if ( operator == null ) {
+            throw new IllegalArgumentException( "Unsupported UOFS rename node type: " + node.getMetaType() );
+        }
+        operator.rename( guid, normalizedName );
+        this.removeCachePathRecursively( guid );
+    }
+
+    protected String normalizeRenameName( String name ) {
+        if ( name == null ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be null." );
+        }
+        String ret = name.trim();
+        if ( ret.isEmpty() ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be blank." );
+        }
+        if ( ret.equals( "." ) || ret.equals( ".." ) ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be relative path token: " + ret );
+        }
+        if ( ret.contains( "/" ) || ret.contains( "\\" ) ) {
+            throw new IllegalArgumentException( "UOFS rename name should not contain path separator: " + ret );
+        }
+        if ( ret.length() > 255 ) {
+            throw new IllegalArgumentException( "UOFS rename name is too long: " + ret.length() );
+        }
+        return ret;
+    }
+
+    protected void assertRenameParent( GUID guid, List<GUID> parentGuids ) {
+        if ( parentGuids == null || parentGuids.isEmpty() ) {
+            throw new IllegalArgumentException( "UOFS root node can not be renamed: " + guid );
+        }
+        for ( GUID parentGuid : parentGuids ) {
+            if ( parentGuid != null ) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException( "UOFS root node can not be renamed: " + guid );
+    }
+
+    protected void assertRenameNoConflict( GUID guid, String name, List<GUID> parentGuids ) {
+        for ( GUID parentGuid : parentGuids ) {
+            if ( parentGuid == null ) {
+                continue;
+            }
+            List<TreeNode> children = this.getChildren( parentGuid );
+            for ( TreeNode child : children ) {
+                if ( child == null || child.getGuid() == null || child.getGuid().equals( guid ) ) {
+                    continue;
+                }
+                if ( name.equals( child.getName() ) ) {
+                    throw new IllegalArgumentException( "UOFS rename target already exists: " + name );
+                }
+            }
+        }
+    }
+
+    protected void eraseGlobalPathCacheRecursively( GUID guid ) {
+        String path = this.getPath( guid );
+        if ( path != null ) {
+            this.erasePathCache( path );
+        }
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.eraseGlobalPathCacheRecursively( child.getGuid() );
+            }
+        }
+    }
+
+    protected void removeCachePathRecursively( GUID guid ) {
+        this.imperialTree.removeCachePath( guid );
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.removeCachePathRecursively( child.getGuid() );
+            }
+        }
+    }
+
+    @Override
+    public void relocateNode( GUID sourceGuid, GUID targetParentGuid, @Nullable String newName ) {
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "UOFS relocate sourceGuid should not be null." );
+        }
+        if ( targetParentGuid == null ) {
+            throw new IllegalArgumentException( "UOFS relocate targetParentGuid should not be null." );
+        }
+        if ( sourceGuid.equals( targetParentGuid ) ) {
+            throw new IllegalArgumentException( "UOFS relocate target parent should not be source node: " + sourceGuid );
+        }
+
+        FileTreeNode sourceNode = this.get( sourceGuid );
+        if ( sourceNode == null ) {
+            throw new IllegalArgumentException( "Undefined UOFS relocate source node: " + sourceGuid );
+        }
+        FileTreeNode targetParent = this.get( targetParentGuid );
+        if ( !( targetParent instanceof Folder ) ) {
+            throw new IllegalArgumentException( "UOFS relocate target parent should be folder: " + targetParentGuid );
+        }
+
+        String targetName = newName == null || newName.isBlank()
+                ? sourceNode.getName()
+                : this.normalizeRenameName( newName );
+        this.assertRelocateNotDescendant( sourceGuid, targetParentGuid );
+        this.assertRelocateNoConflict( sourceGuid, targetParentGuid, targetName );
+
+        this.eraseGlobalPathCacheRecursively( sourceGuid );
+        if ( !targetName.equals( sourceNode.getName() ) ) {
+            FileSystemOperator operator = (FileSystemOperator) this.operatorFactory.getOperator( sourceNode.getMetaType() );
+            if ( operator == null ) {
+                throw new IllegalArgumentException( "Unsupported UOFS relocate node type: " + sourceNode.getMetaType() );
+            }
+            operator.rename( sourceGuid, targetName );
+        }
+        this.imperialTree.moveTo( sourceGuid, targetParentGuid );
+        this.removeCachePathRecursively( sourceGuid );
+    }
+
+    protected void assertRelocateNotDescendant( GUID sourceGuid, GUID targetParentGuid ) {
+        List<GUID> frontier = new ArrayList<>();
+        frontier.add( targetParentGuid );
+        Set<GUID> visited = new HashSet<>();
+        while ( !frontier.isEmpty() ) {
+            GUID current = frontier.remove( frontier.size() - 1 );
+            if ( current == null || !visited.add( current ) ) {
+                continue;
+            }
+            if ( current.equals( sourceGuid ) ) {
+                throw new IllegalArgumentException( "UOFS relocate target parent is under source node: " + sourceGuid );
+            }
+            List<GUID> parentGuids = this.imperialTree.fetchParentGuids( current );
+            if ( parentGuids != null ) {
+                frontier.addAll( parentGuids );
+            }
+        }
+    }
+
+    protected void assertRelocateNoConflict( GUID sourceGuid, GUID targetParentGuid, String name ) {
+        List<TreeNode> children = this.getChildren( targetParentGuid );
+        for ( TreeNode child : children ) {
+            if ( child == null || child.getGuid() == null || child.getGuid().equals( sourceGuid ) ) {
+                continue;
+            }
+            if ( name.equals( child.getName() ) ) {
+                throw new IllegalArgumentException( "UOFS relocate target already exists: " + name );
+            }
+        }
+    }
+
+    @Override
+    @Deprecated
     public void moveTo( String sourcePath, String destinationPath ) {
         GUID[] pair = this.assertCopyMove( sourcePath, destinationPath );
         GUID sourceGuid      = pair[ 0 ];
@@ -847,6 +1015,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void move( String sourcePath, String destinationPath ) {
         GUID sourceGuid         = this.assertPath( sourcePath, "source" );
 
@@ -909,6 +1078,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void copy( String sourcePath, String destinationPath, VolumeManager volumeManager ) throws  IOException {
         ElementNode sourceNode = this.queryElement( sourcePath );
         if ( !( sourceNode instanceof FileTreeNode ) ) {
@@ -922,6 +1092,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void directCopy( String sourcePath, String destinationPath ) throws IOException {
         this.directFileSystemAccessor.copy( sourcePath,destinationPath );
     }
@@ -1133,7 +1304,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
                 option,
                 volumeManager,
                 fileNode.getBucketGuid(),
-                GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() )
+                this.guidAllocator.parse( this.getConfig().getDefaultVolumeGuid() )
         );
     }
 

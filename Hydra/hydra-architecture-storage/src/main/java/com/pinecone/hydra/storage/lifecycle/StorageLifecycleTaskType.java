@@ -6,5 +6,6 @@ public enum StorageLifecycleTaskType implements Pinenut {
     BUCKET_PURGE,
     BUCKET_FORMAT,
     LOGICAL_VOLUME_RETIRE,
-    PHYSICAL_VOLUME_RETIRE
+    PHYSICAL_VOLUME_RETIRE,
+    UOFS_PATH_REMOVE
 }

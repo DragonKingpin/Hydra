@@ -316,8 +316,8 @@
         task_node.next_schedule_time,
         task_node.processor_name,
         task_node.enable,
-        path.path AS kom_path,
-        path.long_path AS system_kernel_object_path,
+        NULL AS kom_path,
+        NULL AS system_kernel_object_path,
         task_node.project_guid AS project_guid,
         task_node.create_time,
         task_node.update_time
@@ -327,7 +327,6 @@
         SELECT
         <include refid="TaskElementDigestColumns"/>
         FROM hydra_task_task_node AS task_node
-        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
         ORDER BY task_node.id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
@@ -336,7 +335,6 @@
         SELECT
         <include refid="TaskElementDigestColumns"/>
         FROM hydra_task_task_node AS task_node
-        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
         WHERE task_node.guid IN
         <foreach collection="guids" item="guid" open="(" separator="," close=")">
             #{guid}

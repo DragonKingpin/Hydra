@@ -1,5 +1,6 @@
 package com.pinecone.hydra.unit.imperium;
 
+import com.pinecone.framework.system.NotImplementedException;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.KernelObjectInstrument;
@@ -107,7 +108,13 @@ public class RegimentedImperialTree implements UniImperialTree {
 
     @Override
     public GUID queryGUIDByPath( String path ) {
-        return this.triePathCacheManipulator.queryGUIDByPath( path );
+        try {
+            // Path cache is best-effort; cache read failures degrade to cache miss.
+            return this.triePathCacheManipulator.queryGUIDByPath( path );
+        }
+        catch ( RuntimeException ignored ) {
+            return null;
+        }
     }
 
     @Override
@@ -180,12 +187,20 @@ public class RegimentedImperialTree implements UniImperialTree {
         if ( path.length() > this.shortPathLength ){
             String part1 = path.substring( 0, this.shortPathLength );
             String part2 = path.substring( this.shortPathLength    );
-            this.triePathCacheManipulator.insertLongPath( guid, part1, part2 );
+            try {
+                this.triePathCacheManipulator.insertLongCachePathAtomically( guid, part1, part2 );
+            } catch ( NotImplementedException exception ) {
+                this.triePathCacheManipulator.insertLongPath( guid, part1, part2 );
+            }
         }
         else {
-            GUID node = this.triePathCacheManipulator.getNode(path);
-            if( node == null ){
-                this.triePathCacheManipulator.insert( guid, path );
+            try {
+                this.triePathCacheManipulator.insertCachePathAtomically( guid, path );
+            } catch ( NotImplementedException exception ) {
+                GUID node = this.triePathCacheManipulator.getNode(path);
+                if( node == null ){
+                    this.triePathCacheManipulator.insert( guid, path );
+                }
             }
 
         }

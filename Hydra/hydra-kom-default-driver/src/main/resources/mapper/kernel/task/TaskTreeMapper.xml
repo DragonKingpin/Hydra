@@ -18,10 +18,10 @@
         tree.id AS enum_id,
         tree.guid,
         tree.parent_guid,
-        COALESCE(NULLIF(SUBSTRING_INDEX(COALESCE(path.path, path.long_path, ''), '/', -1), ''), tree.tag_name, CAST(tree.guid AS CHAR)) AS name,
+        COALESCE(namespace_node.name, app_node.name, task_node.name, tree.tag_name, CAST(tree.guid AS CHAR)) AS name,
         node.type,
-        path.path,
-        path.long_path,
+        NULL AS path,
+        NULL AS long_path,
         (
             SELECT COUNT(*)
             FROM hydra_task_node_tree AS child_tree
@@ -31,7 +31,9 @@
 
     <sql id="TaskTreeElementDigestJoins">
         LEFT JOIN hydra_task_nodes AS node ON node.guid = tree.guid
-        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = tree.guid
+        LEFT JOIN hydra_task_namespace_node AS namespace_node ON namespace_node.guid = tree.guid
+        LEFT JOIN hydra_task_app_node AS app_node ON app_node.guid = tree.guid
+        LEFT JOIN hydra_task_task_node AS task_node ON task_node.guid = tree.guid
     </sql>
 
     <select id="queryDigestByPath" resultMap="TaskTreeElementDigestMap">
@@ -39,7 +41,7 @@
         <include refid="TaskTreeElementDigestColumns"/>
         FROM hydra_task_node_tree AS tree
         <include refid="TaskTreeElementDigestJoins"/>
-        WHERE path.path = #{path}
+        WHERE 1 = 0
         LIMIT 1
     </select>
 

@@ -172,12 +172,34 @@ public interface KOMFileSystem extends ReparseKOMTree {
 
     List<TreeNode> selectByName(String name);
 
+    /**
+     * Relocates an internal UOFS node by GUID. Product copy/move flows should use
+     * UofsTransferService so task state, progress, and safety checks stay centralized.
+     */
+    void relocateNode( GUID sourceGuid, GUID targetParentGuid, @Nullable String newName );
+
+    /**
+     * Legacy synchronous tree move. Product flows should use UofsTransferService.
+     */
+    @Deprecated
     void moveTo(String sourcePath, String destinationPath);
 
+    /**
+     * Legacy synchronous tree move. Product flows should use UofsTransferService.
+     */
+    @Deprecated
     void move(String sourcePath, String destinationPath);
 
+    /**
+     * Legacy synchronous copy. Product flows should use UofsTransferService.
+     */
+    @Deprecated
     void copy(String sourcePath, String destinationPath, VolumeManager volumeManager) throws IOException;
 
+    /**
+     * Legacy native copy shortcut. Product flows should use UofsTransferService.
+     */
+    @Deprecated
     void directCopy( String sourcePath, String destinationPath ) throws IOException;
 
     @Override

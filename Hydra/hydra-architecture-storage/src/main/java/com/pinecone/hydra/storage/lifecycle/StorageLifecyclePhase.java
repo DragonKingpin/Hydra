@@ -6,6 +6,7 @@ public enum StorageLifecyclePhase implements Pinenut {
     PREPARE,
     CHECKING_DEPENDENCY,
     SCANNING,
+    REMOVING,
     RELEASING_DATA,
     DELETING_FAT,
     DELETING_METADATA,

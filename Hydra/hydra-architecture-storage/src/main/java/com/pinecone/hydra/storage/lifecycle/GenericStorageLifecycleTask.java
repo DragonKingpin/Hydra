@@ -11,6 +11,7 @@ public class GenericStorageLifecycleTask implements StorageLifecycleTask {
     protected StorageLifecycleTargetType    mTargetType;
     protected GUID                          mTargetGuid;
     protected String                        mszTargetName;
+    protected int                           mnTargetCount = 1;
     protected StorageLifecycleOperationMode mOperationMode;
     protected StorageLifecycleTaskStatus    mStatus;
     protected StorageLifecyclePhase         mPhase;
@@ -73,6 +74,14 @@ public class GenericStorageLifecycleTask implements StorageLifecycleTask {
 
     public void setTargetName( String targetName ) {
         this.mszTargetName = targetName;
+    }
+
+    public int getTargetCount() {
+        return this.mnTargetCount;
+    }
+
+    public void setTargetCount( int targetCount ) {
+        this.mnTargetCount = Math.max( 1, targetCount );
     }
 
     public StorageLifecycleOperationMode getOperationMode() {

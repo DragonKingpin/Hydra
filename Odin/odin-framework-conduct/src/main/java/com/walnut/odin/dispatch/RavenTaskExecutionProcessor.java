@@ -41,6 +41,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     protected TaskExecutionLauncher           mTaskExecutionLauncher;
 
     protected Map<GUID, TaskLaunchContext>    mRunningProcesses;
+    protected Set<GUID>                       mTerminatedProcesses;
     protected ConsumeCompromisedPolice        mConsumeCompromisedPolice;
 
     protected Logger                          log = LoggerFactory.getLogger( this.getClass() );
@@ -58,6 +59,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mTaskExecutionQueue         = queue;
         this.mTaskExecutionLauncher      = launcher;
         this.mRunningProcesses           = new ConcurrentHashMap<>();
+        this.mTerminatedProcesses        = ConcurrentHashMap.newKeySet();
         this.mConsumeCompromisedPolice   = ConsumeCompromisedPolice.EvictionException; // TODO, Advance
     }
 
@@ -131,18 +133,25 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     protected void prepareSysEventHandle( LaunchFeature feature ) {
+        this.prepareSysEventHandle( feature, null );
+    }
+
+    protected void prepareSysEventHandle( LaunchFeature feature, TaskLaunchContext boundContext ) {
         feature.withSysProcEventHandlers(new ProcessEventHandler() {
             @Override
             public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
                 if ( UProcessStatus.Terminated == event || UProcessStatus.Error == event ) {
                     UProcess process = runnable.ownedProcess();
-                    TaskLaunchContext context = getTaskLaunchContextByPID( process.getPID() );
+                    TaskLaunchContext context = boundContext != null
+                            ? boundContext
+                            : getTaskLaunchContextByPID( process.getPID() );
                     try {
                         afterProcessTerminated( process, context );
                         log.info(
                                 "[ProcessSystemEventTriggered] ( ProcName:`{}`, ProcEvent:`{}`, PID:`{}`, InstanceId:`{}` ) <Scavenged>",
                                 runnable.ownedProcess().getName(), event.getName(),
-                                runnable.ownedProcess().getPID(), context.getTaskInstance().getId()
+                                runnable.ownedProcess().getPID(),
+                                context == null ? null : context.getTaskInstance().getId()
                         );
                     }
                     catch ( TaskDispatchException e ) {
@@ -150,7 +159,8 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
                         log.error(
                                 "[ProcessSystemEventTriggered] ( ProcName:`{}`, ProcEvent:`{}`, PID:`{}`, InstanceId:`{}`, What:`{}` ) <Compromised>",
                                 runnable.ownedProcess().getName(), event.getName(),
-                                runnable.ownedProcess().getPID(), context.getTaskInstance().getId(),
+                                runnable.ownedProcess().getPID(),
+                                context == null ? null : context.getTaskInstance().getId(),
                                 e.getMessage(), e
                         );
                         handleAsyncTaskDispatchException( runnable, event, e );
@@ -227,6 +237,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     @Override
     public UProcess directlyStartPrepared( TaskLaunchContext context ) throws InstanceLaunchException {
         LaunchFeature feature = context.getLaunchFeature();
+        this.prepareSysEventHandle( feature, context );
 
         if ( this.mbLocal ) {
             return this.mTaskExecutionLauncher.startLocally(
@@ -271,7 +282,20 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     protected void afterProcessTerminated( UProcess process, TaskLaunchContext context ) throws TaskDispatchException {
+        if ( process == null || process.getPID() == null ) {
+            return;
+        }
         this.mRunningProcesses.remove( process.getPID() );
+        if ( context == null ) {
+            log.warn(
+                    "[ProcessSystemEventTriggered] ( ProcName:`{}`, PID:`{}` ) has no launch context. <SkippedPipelineShift>",
+                    process.getName(), process.getPID()
+            );
+            return;
+        }
+        if ( !this.mTerminatedProcesses.add( process.getPID() ) ) {
+            return;
+        }
         this.shiftLaunchsPipeline( List.of( context.getTaskInstance().getId() ) );
     }
 
@@ -343,6 +367,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
                     waiting.add( context );
                     continue;
                 }
+                this.afterProcessLaunched( process, context );
                 launched.add( process );
                 consumed.add( context );
             }

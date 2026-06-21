@@ -18,6 +18,8 @@ public interface StorageLifecycleTask extends Pinenut {
 
     String getTargetName();
 
+    int getTargetCount();
+
     StorageLifecycleOperationMode getOperationMode();
 
     StorageLifecycleTaskStatus getStatus();

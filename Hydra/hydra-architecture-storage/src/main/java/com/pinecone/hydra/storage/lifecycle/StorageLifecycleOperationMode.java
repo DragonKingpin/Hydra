@@ -5,5 +5,8 @@ import com.pinecone.framework.system.prototype.Pinenut;
 public enum StorageLifecycleOperationMode implements Pinenut {
     SLOW_PURGE,
     SLOW_FORMAT,
-    RETIRE
+    RETIRE,
+    AUTO_REMOVE,
+    SYNC_REMOVE,
+    ASYNC_REMOVE
 }

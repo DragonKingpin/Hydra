@@ -12,6 +12,7 @@ public interface SymbolicManipulator extends Pinenut, GUIDNameManipulator {
     Symbolic getSymbolic(GUID guid, ElementNode element);
     void insert( Symbolic symbolic );
     void remove( GUID guid );
+    void rename( GUID guid, String newName );
     Symbolic getSymbolicByGuid(GUID guid);
     Symbolic getSymbolicByNameGuid( String nodeName, GUID guid );
     boolean isSymbolicMatchedByNameGuid( String nodeName, GUID guid );

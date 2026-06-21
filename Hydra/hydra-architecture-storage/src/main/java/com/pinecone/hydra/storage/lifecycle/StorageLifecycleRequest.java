@@ -3,12 +3,16 @@ package com.pinecone.hydra.storage.lifecycle;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class StorageLifecycleRequest implements Pinenut {
     protected StorageLifecycleTaskType      mTaskType;
     protected StorageLifecycleTargetType    mTargetType;
     protected GUID                          mTargetGuid;
     protected String                        mszTargetName;
     protected StorageLifecycleOperationMode mOperationMode;
+    protected final List<String>            mTargetPaths = new ArrayList<>();
     protected GUID                          mOperatorGuid;
     protected String                        mszExtConfig;
 
@@ -50,6 +54,17 @@ public class StorageLifecycleRequest implements Pinenut {
 
     public void setOperationMode( StorageLifecycleOperationMode operationMode ) {
         this.mOperationMode = operationMode;
+    }
+
+    public List<String> getTargetPaths() {
+        return this.mTargetPaths;
+    }
+
+    public void setTargetPaths( List<String> targetPaths ) {
+        this.mTargetPaths.clear();
+        if ( targetPaths != null ) {
+            this.mTargetPaths.addAll( targetPaths );
+        }
     }
 
     public GUID getOperatorGuid() {

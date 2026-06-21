@@ -16,6 +16,12 @@
         DELETE FROM `hydra_uofs_symbolic` WHERE `guid` = #{guid} AND `symbolic_type` = 'EXTERNAL'
     </delete>
 
+    <update id="rename">
+        UPDATE `hydra_uofs_symbolic`
+        SET `name` = #{newName}
+        WHERE `guid` = #{guid} AND `symbolic_type` = 'EXTERNAL' AND `target_scheme` = 'FILE'
+    </update>
+
     <select id="getSymbolicByGuid" resultType="com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic">
         SELECT `id` AS enumId, `guid`, `bucket_guid` AS bucketGuid, `create_time` AS createTime, `update_time` AS updateTime, `name`,
                `reparsed_point` AS reparsedPoint, `target_scheme` AS targetScheme, `ext_config` AS extConfig

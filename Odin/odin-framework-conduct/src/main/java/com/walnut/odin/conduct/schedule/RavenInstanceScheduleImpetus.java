@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,6 +38,7 @@ import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
+import com.walnut.odin.dispatch.TaskExecutionProcessor;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -426,6 +429,129 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 ),
                 targetTime
         );
+    }
+
+    protected Collection<TaskLaunchContext> resolvePreparedStandbyLaunchContexts( Collection<InstanceEntry> entries ) {
+        if ( entries == null || entries.isEmpty() ) {
+            return List.of();
+        }
+
+        Set<String> instanceGuids = new HashSet<>();
+        for ( InstanceEntry entry : entries ) {
+            if ( entry == null || entry.getGuid() == null ) {
+                continue;
+            }
+            instanceGuids.add( entry.getGuid().toString() );
+        }
+        if ( instanceGuids.isEmpty() ) {
+            return List.of();
+        }
+
+        Collection<TaskLaunchContext> contexts = new ArrayList<>();
+        for ( TaskExecutionProcessor processor : this.mTaskScheduler.taskDispatcher().fetchProcessors() ) {
+            Collection<TaskLaunchContext> affinityContexts = this.mTaskScheduler.taskDispatcher()
+                    .queryAffinityTasks( processor.getName() );
+            for ( TaskLaunchContext context : affinityContexts ) {
+                if ( context == null || context.getTaskInstance() == null ) {
+                    continue;
+                }
+                InstanceEntry contextEntry = context.getTaskInstance().getInstanceEntry();
+                if ( contextEntry == null || contextEntry.getGuid() == null ) {
+                    continue;
+                }
+                if ( !instanceGuids.contains( contextEntry.getGuid().toString() ) ) {
+                    continue;
+                }
+                if ( context.getLaunchedProcess() == null ) {
+                    continue;
+                }
+                contexts.add( context );
+            }
+        }
+
+        return contexts;
+    }
+
+    @Override
+    public void impelPreparedStandbyInstances( LocalDateTime targetTime ) {
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+
+        TableIndexMeta range = this.mInstanceInstrument.querySchedulableIdRange(
+                List.of( TaskInstanceStatus.ProcessStandby ),
+                targetTime
+        );
+        if ( range == null ) {
+            return;
+        }
+
+        long idMin = range.getMinId();
+        long idMax = range.getMaxId();
+        if ( idMin <= 0 || idMax <= 0 || idMax < idMin ) {
+            return;
+        }
+
+        long cursor = idMin;
+        while ( cursor <= idMax ) {
+            long windowStart = cursor;
+            long windowEnd   = cursor + this.mnScanIdWindow - 1;
+
+            if ( windowEnd > idMax ) {
+                windowEnd = idMax;
+            }
+
+            final long finalStart = windowStart;
+            final long finalEnd   = windowEnd;
+
+            LocalDateTime finalTargetTime = targetTime;
+            this.mExecutorService.submit( () -> {
+                try {
+                    Collection<InstanceEntry> entries = this.mInstanceInstrument.fetchSchedulableInstances(
+                            finalStart,
+                            finalEnd,
+                            List.of( TaskInstanceStatus.ProcessStandby ),
+                            finalTargetTime
+                    );
+                    if ( entries == null || entries.isEmpty() ) {
+                        return;
+                    }
+
+                    Collection<TaskLaunchContext> contexts = this.resolvePreparedStandbyLaunchContexts( entries );
+                    if ( contexts.isEmpty() ) {
+                        log.warn(
+                                "[TaskSchedulerLifecycle] Prepared standby instances have no live launch context "
+                                        + "(Start: {}, End: {}, Size: {}) <WaitingRecovery>",
+                                finalStart,
+                                finalEnd,
+                                entries.size()
+                        );
+                        return;
+                    }
+
+                    this.mTaskScheduler.taskDispatcher().pipeStartPrepared( contexts );
+                    log.info(
+                            "[TaskSchedulerLifecycle] Starting prepared standby instances "
+                                    + "(Start: {}, End: {}, Size: {}, Started: {}) <Done>",
+                            finalStart,
+                            finalEnd,
+                            entries.size(),
+                            contexts.size()
+                    );
+                }
+                catch ( Exception e ) {
+                    log.error(
+                            "[TaskSchedulerLifecycle] Starting prepared standby instances "
+                                    + "(Start: {}, End: {}) <Error>",
+                            finalStart,
+                            finalEnd,
+                            e
+                    );
+                }
+            } );
+
+            cursor = windowEnd + 1;
+        }
     }
 
     @Override

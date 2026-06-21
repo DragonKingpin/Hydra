@@ -7,6 +7,11 @@ import com.pinecone.hydra.storage.bucket.GenericBucket;
 import com.pinecone.hydra.storage.bucket.purge.BucketPurgeProgress;
 import com.pinecone.hydra.storage.bucket.purge.BucketPurgeReport;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.remove.GenericUofsRemoveOperator;
+import com.pinecone.hydra.storage.file.remove.UofsRemoveOperator;
+import com.pinecone.hydra.storage.file.remove.UofsRemovePlan;
+import com.pinecone.hydra.storage.file.remove.UofsRemoveReport;
+import com.pinecone.hydra.storage.file.remove.UofsRemoveRequest;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.lifecycle.service.StorageLifecycleExecutor;
 import com.pinecone.hydra.storage.lifecycle.service.StorageLifecyclePlanner;
@@ -79,6 +84,10 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         else if ( normalized.getTargetType() == StorageLifecycleTargetType.PHYSICAL_VOLUME ) {
             this.planPhysicalVolume( normalized, plan );
         }
+        else if ( normalized.getTargetType() == StorageLifecycleTargetType.UOFS_PATH
+                || normalized.getTargetType() == StorageLifecycleTargetType.UOFS_PATH_BATCH ) {
+            this.planUofsPathRemove( normalized, plan );
+        }
         else {
             plan.addBlocker( "UNSUPPORTED_TARGET", "Unsupported lifecycle target.", 0L );
         }
@@ -95,7 +104,7 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         if ( !plan.isExecutable() ) {
             return inserted;
         }
-        this.mExecutor.submit( () -> this.runTask( task.getGuid(), normalized.getTaskType(), normalized.getTargetGuid() ) );
+        this.mExecutor.submit( () -> this.runTask( task.getGuid(), normalized ) );
         return inserted;
     }
 
@@ -145,7 +154,7 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         );
     }
 
-    protected void runTask( GUID taskGuid, StorageLifecycleTaskType taskType, GUID targetGuid ) {
+    protected void runTask( GUID taskGuid, StorageLifecycleRequest request ) {
         this.mTaskManipulator.updateStatus(
                 taskGuid,
                 StorageLifecycleTaskStatus.RUNNING.name(),
@@ -154,6 +163,8 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
                 "Lifecycle task started."
         );
         try {
+            StorageLifecycleTaskType taskType = request.getTaskType();
+            GUID targetGuid = request.getTargetGuid();
             if ( taskType == StorageLifecycleTaskType.BUCKET_PURGE ) {
                 this.runBucket( taskGuid, targetGuid, false );
             }
@@ -165,6 +176,9 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
             }
             else if ( taskType == StorageLifecycleTaskType.PHYSICAL_VOLUME_RETIRE ) {
                 this.runPhysicalVolumeRetire( taskGuid, targetGuid );
+            }
+            else if ( taskType == StorageLifecycleTaskType.UOFS_PATH_REMOVE ) {
+                this.runUofsPathRemove( taskGuid, request );
             }
             else {
                 throw new IllegalArgumentException( "Unsupported lifecycle task type: " + taskType );
@@ -251,6 +265,40 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         );
     }
 
+    protected void runUofsPathRemove( GUID taskGuid, StorageLifecycleRequest request ) {
+        StorageLifecyclePlan plan = this.plan( request );
+        if ( !plan.isExecutable() ) {
+            this.mTaskManipulator.updateBlocked( taskGuid, StorageLifecyclePhase.CHECKING_DEPENDENCY.name(), this.snapshotPlan( plan ) );
+            return;
+        }
+        this.mTaskManipulator.updateStatus(
+                taskGuid,
+                StorageLifecycleTaskStatus.RUNNING.name(),
+                StorageLifecyclePhase.REMOVING.name(),
+                null,
+                "Removing UOFS paths."
+        );
+        UofsRemoveReport report = this.uofsRemoveOperator().remove(
+                this.uofsRemoveRequest( request ),
+                ( totalCount, doneCount, currentPath, message ) -> this.mTaskManipulator.updateProgress(
+                        taskGuid,
+                        StorageLifecyclePhase.REMOVING.name(),
+                        totalCount,
+                        doneCount,
+                        currentPath,
+                        message
+                )
+        );
+        this.mTaskManipulator.updateDone(
+                taskGuid,
+                StorageLifecyclePhase.DONE.name(),
+                report.getTotalCount(),
+                report.getDoneCount(),
+                report.getMessage(),
+                this.snapshotUofsRemoveReport( request, report )
+        );
+    }
+
     protected void updateBucketProgress( GUID taskGuid, BucketPurgeProgress progress ) {
         this.mTaskManipulator.updateProgress(
                 taskGuid,
@@ -316,6 +364,21 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         plan.addWarning( "NO_DISK_DELETE", "This operation does not delete files or directories on disk.", 1L );
     }
 
+    protected void planUofsPathRemove( StorageLifecycleRequest request, StorageLifecyclePlan plan ) {
+        UofsRemovePlan removePlan = this.uofsRemoveOperator().plan( this.uofsRemoveRequest( request ) );
+        long count = removePlan.getTotalCount();
+        plan.setEstimatedTotalCount( count );
+        plan.setTargetName( request.getTargetName() == null ? this.removeTargetName( removePlan ) : request.getTargetName() );
+        plan.setRiskLevel( removePlan.isDangerous() ? StorageLifecycleRiskLevel.HIGH : StorageLifecycleRiskLevel.NORMAL );
+        plan.addAction( "UOFS_PATH_REMOVE", "Remove UOFS file tree paths and release related data.", count );
+        if ( removePlan.getSourcePaths().size() > 1 ) {
+            plan.addWarning( "UOFS_PATH_BATCH_REMOVE", "Multiple UOFS paths will be removed.", removePlan.getSourcePaths().size() );
+        }
+        if ( removePlan.isDangerous() ) {
+            plan.addWarning( "UOFS_EXTERNAL_REMOVE", "External native file paths may be removed.", count );
+        }
+    }
+
     protected void addBucketDependencies( StorageLifecycleBlocker blocker, GUID volumeGuid, long totalCount ) {
         List<GenericBucket> buckets = this.bucketKernel().listByVolumeGuid( volumeGuid, 0, DEPENDENCY_SAMPLE_LIMIT );
         for ( GenericBucket bucket : buckets ) {
@@ -357,6 +420,7 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         task.setTargetType( request.getTargetType() );
         task.setTargetGuid( request.getTargetGuid() );
         task.setTargetName( plan.getTargetName() == null ? request.getTargetName() : plan.getTargetName() );
+        task.setTargetCount( this.targetCount( request ) );
         task.setOperationMode( plan.getOperationMode() );
         task.setStatus( plan.isExecutable() ? StorageLifecycleTaskStatus.PREPARED : StorageLifecycleTaskStatus.BLOCKED );
         task.setPhase( plan.isExecutable() ? StorageLifecyclePhase.PREPARE : StorageLifecyclePhase.CHECKING_DEPENDENCY );
@@ -368,6 +432,13 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         task.setOperatorGuid( request.getOperatorGuid() );
         task.setExtConfig( request.getExtConfig() );
         return task;
+    }
+
+    protected int targetCount( StorageLifecycleRequest request ) {
+        if ( request.getTaskType() == StorageLifecycleTaskType.UOFS_PATH_REMOVE && !request.getTargetPaths().isEmpty() ) {
+            return request.getTargetPaths().size();
+        }
+        return 1;
     }
 
     protected StorageLifecycleRequest normalizeRequest( StorageLifecycleRequest request ) {
@@ -399,6 +470,9 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         if ( taskType == StorageLifecycleTaskType.PHYSICAL_VOLUME_RETIRE ) {
             return StorageLifecycleTargetType.PHYSICAL_VOLUME;
         }
+        if ( taskType == StorageLifecycleTaskType.UOFS_PATH_REMOVE ) {
+            return StorageLifecycleTargetType.UOFS_PATH;
+        }
         throw new IllegalArgumentException( "Unsupported lifecycle task type: " + taskType );
     }
 
@@ -409,13 +483,38 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         if ( taskType == StorageLifecycleTaskType.BUCKET_PURGE ) {
             return StorageLifecycleOperationMode.SLOW_PURGE;
         }
+        if ( taskType == StorageLifecycleTaskType.UOFS_PATH_REMOVE ) {
+            return StorageLifecycleOperationMode.ASYNC_REMOVE;
+        }
         return StorageLifecycleOperationMode.RETIRE;
     }
 
     protected StorageLifecycleRiskLevel riskLevel( StorageLifecycleTaskType taskType ) {
+        if ( taskType == StorageLifecycleTaskType.UOFS_PATH_REMOVE ) {
+            return StorageLifecycleRiskLevel.NORMAL;
+        }
         return taskType == StorageLifecycleTaskType.BUCKET_PURGE || taskType == StorageLifecycleTaskType.BUCKET_FORMAT
                 ? StorageLifecycleRiskLevel.HIGH
                 : StorageLifecycleRiskLevel.NORMAL;
+    }
+
+    protected UofsRemoveOperator uofsRemoveOperator() {
+        return new GenericUofsRemoveOperator( this.mFileSystem, this.mVolumeManager );
+    }
+
+    protected UofsRemoveRequest uofsRemoveRequest( StorageLifecycleRequest request ) {
+        UofsRemoveRequest removeRequest = new UofsRemoveRequest();
+        removeRequest.setSourcePaths( request.getTargetPaths() );
+        removeRequest.setOperatorGuid( request.getOperatorGuid() );
+        removeRequest.setExtConfig( request.getExtConfig() );
+        return removeRequest;
+    }
+
+    protected String removeTargetName( UofsRemovePlan plan ) {
+        if ( plan.getSourcePaths().size() == 1 ) {
+            return plan.getSourcePaths().get( 0 );
+        }
+        return "UOFS batch remove " + plan.getSourcePaths().size() + " paths";
     }
 
     protected BucketInstrument bucketKernel() {
@@ -487,6 +586,16 @@ public class GenericStorageLifecycleService implements StorageLifecycleService, 
         ret.put( "blockers", plan.getBlockers() );
         ret.put( "warnings", plan.getWarnings() );
         ret.put( "actions", plan.getActions() );
+        return this.snapshot( ret );
+    }
+
+    protected String snapshotUofsRemoveReport( StorageLifecycleRequest request, UofsRemoveReport report ) {
+        Map<String, Object> ret = new LinkedHashMap<>();
+        ret.put( "paths", request.getTargetPaths() );
+        ret.put( "totalCount", report.getTotalCount() );
+        ret.put( "doneCount", report.getDoneCount() );
+        ret.put( "failed", report.isFailed() );
+        ret.put( "message", report.getMessage() );
         return this.snapshot( ret );
     }
 

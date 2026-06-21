@@ -12,6 +12,7 @@
         <result column="target_type" property="targetType"/>
         <result column="target_guid" property="targetGuid"/>
         <result column="target_name" property="targetName"/>
+        <result column="target_count" property="targetCount"/>
         <result column="operation_mode" property="operationMode"/>
         <result column="status" property="status"/>
         <result column="phase" property="phase"/>
@@ -30,7 +31,7 @@
     </resultMap>
 
     <sql id="TaskColumns">
-        id, guid, task_type, target_type, target_guid, target_name, operation_mode, status, phase, total_count, done_count, last_cursor, risk_level, message, error_message, plan_snapshot, result_snapshot, operator_guid, ext_config, create_time, update_time
+        id, guid, task_type, target_type, target_guid, target_name, target_count, operation_mode, status, phase, total_count, done_count, last_cursor, risk_level, message, error_message, plan_snapshot, result_snapshot, operator_guid, ext_config, create_time, update_time
     </sql>
 
     <sql id="TaskFilter">
@@ -52,9 +53,9 @@
 
     <insert id="insert" parameterType="com.pinecone.hydra.storage.lifecycle.StorageLifecycleTask">
         INSERT INTO hydra_storage_lifecycle_task
-            (guid, task_type, target_type, target_guid, target_name, operation_mode, status, phase, total_count, done_count, risk_level, message, plan_snapshot, operator_guid, ext_config)
+            (guid, task_type, target_type, target_guid, target_name, target_count, operation_mode, status, phase, total_count, done_count, risk_level, message, plan_snapshot, operator_guid, ext_config)
         VALUES
-            (#{guid}, #{taskType}, #{targetType}, #{targetGuid}, #{targetName}, #{operationMode}, #{status}, #{phase}, #{totalCount}, #{doneCount}, #{riskLevel}, #{message}, #{planSnapshot}, #{operatorGuid}, #{extConfig})
+            (#{guid}, #{taskType}, #{targetType}, #{targetGuid}, #{targetName}, #{targetCount}, #{operationMode}, #{status}, #{phase}, #{totalCount}, #{doneCount}, #{riskLevel}, #{message}, #{planSnapshot}, #{operatorGuid}, #{extConfig})
     </insert>
 
     <update id="update" parameterType="com.pinecone.hydra.storage.lifecycle.StorageLifecycleTask">
@@ -64,6 +65,7 @@
             target_type = #{targetType},
             target_guid = #{targetGuid},
             target_name = #{targetName},
+            target_count = #{targetCount},
             operation_mode = #{operationMode},
             status = #{status},
             phase = #{phase},

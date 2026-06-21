@@ -15,11 +15,17 @@ public class TaskSpecificDigestQuery implements Pinenut {
 
     protected String mszKeyword;
 
+    protected GUID mTaskGuid;
+
     protected GUID mProjectGuid;
 
-    protected GUID mBizTreeGuid;
-
     protected Boolean mEnable;
+
+    protected String mszTaskType;
+
+    protected String mszScheduleCycle;
+
+    protected String mszScheduleType;
 
     public long getOffset() {
         return this.mnOffset;
@@ -49,6 +55,14 @@ public class TaskSpecificDigestQuery implements Pinenut {
         this.mszKeyword = szKeyword;
     }
 
+    public GUID getTaskGuid() {
+        return this.mTaskGuid;
+    }
+
+    public void setTaskGuid( GUID taskGuid ) {
+        this.mTaskGuid = taskGuid;
+    }
+
     public GUID getProjectGuid() {
         return this.mProjectGuid;
     }
@@ -57,19 +71,35 @@ public class TaskSpecificDigestQuery implements Pinenut {
         this.mProjectGuid = projectGuid;
     }
 
-    public GUID getBizTreeGuid() {
-        return this.mBizTreeGuid;
-    }
-
-    public void setBizTreeGuid( GUID bizTreeGuid ) {
-        this.mBizTreeGuid = bizTreeGuid;
-    }
-
     public Boolean getEnable() {
         return this.mEnable;
     }
 
     public void setEnable( Boolean enable ) {
         this.mEnable = enable;
+    }
+
+    public String getTaskType() {
+        return this.mszTaskType;
+    }
+
+    public void setTaskType( String szTaskType ) {
+        this.mszTaskType = szTaskType;
+    }
+
+    public String getScheduleCycle() {
+        return this.mszScheduleCycle;
+    }
+
+    public void setScheduleCycle( String szScheduleCycle ) {
+        this.mszScheduleCycle = szScheduleCycle;
+    }
+
+    public String getScheduleType() {
+        return this.mszScheduleType;
+    }
+
+    public void setScheduleType( String szScheduleType ) {
+        this.mszScheduleType = szScheduleType;
     }
 }

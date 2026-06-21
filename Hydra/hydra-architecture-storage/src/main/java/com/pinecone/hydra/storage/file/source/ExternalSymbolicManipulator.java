@@ -9,6 +9,7 @@ import java.util.List;
 public interface ExternalSymbolicManipulator extends Pinenut {
     void insert( ExternalSymbolic externalSymbolic );
     void remove( GUID guid );
+    void rename( GUID guid, String newName );
     ExternalSymbolic getSymbolicByGuid( GUID guid );
 
     ExternalSymbolic getSymbolicByNameGuid( String nodeName, GUID nodeGUID );

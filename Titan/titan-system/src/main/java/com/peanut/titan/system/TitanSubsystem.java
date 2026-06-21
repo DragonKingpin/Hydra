@@ -5,6 +5,7 @@ import com.pinecone.framework.system.ModularizedSubsystem;
 import com.pinecone.framework.system.SynergicSystem;
 import com.pinecone.framework.system.regime.arch.Lord;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
+import com.pinecone.hydra.storage.file.transfer.service.UofsTransferService;
 import com.pinecone.hydra.storage.lifecycle.service.StorageLifecycleService;
 import com.pinecone.hydra.storage.volume.VolumeManager;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
@@ -18,4 +19,6 @@ public interface TitanSubsystem extends SynergicSystem, ModularizedSubsystem, Lo
     KOMFileSystem fileSystem();
 
     StorageLifecycleService storageLifecycleService();
+
+    UofsTransferService uofsTransferService();
 }

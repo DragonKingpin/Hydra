@@ -14,4 +14,6 @@ public interface InstanceScheduleImpetus extends Pinenut {
 
     void impelPrelaunchInstances( LocalDateTime targetTime );
 
+    void impelPreparedStandbyInstances( LocalDateTime targetTime );
+
 }

@@ -10,6 +10,7 @@
         <result column="type"                       property="type"/>
         <result column="schedule_cron"              property="scheduleCron"/>
         <result column="image_path"                 property="imagePath"/>
+        <result column="exec_arch"                  property="execArch"/>
         <result column="resource_type"              property="resourceType"/>
         <result column="deployment_method"          property="deploymentMethod"/>
         <result column="priority"                   property="priority"/>
@@ -22,8 +23,6 @@
         <result column="next_schedule_time"         property="nextScheduleTime"/>
         <result column="processor_name"             property="processorName"/>
         <result column="enable"                     property="enable"/>
-        <result column="kom_path"                   property="komPath"/>
-        <result column="system_kernel_object_path"  property="systemKernelObjectPath"/>
         <result column="project_guid"               property="projectGuid"/>
         <result column="project_name"               property="projectName"/>
         <result column="project_title"              property="projectTitle"/>
@@ -72,6 +71,7 @@
         task_node.name,
         task_node.schedule_cron,
         task_node.image_path,
+        task_node.exec_arch,
         task_node.type,
         task_node.resource_type,
         task_node.deployment_method,
@@ -85,8 +85,6 @@
         task_node.next_schedule_time,
         task_node.processor_name,
         task_node.enable,
-        path.path AS kom_path,
-        path.long_path AS system_kernel_object_path,
         project.guid AS project_guid,
         project.name AS project_name,
         project.title AS project_title,
@@ -99,11 +97,20 @@
             <if test="query.projectGuid != null">
                 AND task_node.project_guid = #{query.projectGuid}
             </if>
-            <if test="query.bizTreeGuid != null">
-                AND project.biz_tree_guid = #{query.bizTreeGuid}
+            <if test="query.taskGuid != null">
+                AND task_node.guid = #{query.taskGuid}
             </if>
             <if test="query.enable != null">
                 AND task_node.enable = #{query.enable}
+            </if>
+            <if test="query.taskType != null and query.taskType != ''">
+                AND task_node.type = #{query.taskType}
+            </if>
+            <if test="query.scheduleCycle != null and query.scheduleCycle != ''">
+                AND task_node.schedule_cycle = #{query.scheduleCycle}
+            </if>
+            <if test="query.scheduleType != null and query.scheduleType != ''">
+                AND task_node.schedule_type = #{query.scheduleType}
             </if>
             <if test="query.keyword != null and query.keyword != ''">
                 AND (
@@ -127,7 +134,6 @@
         SELECT
         <include refid="TaskSpecificDigestColumns"/>
         FROM hydra_task_task_node AS task_node
-        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
         LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
         <include refid="TaskSpecificWhere"/>
         ORDER BY task_node.id DESC
@@ -138,7 +144,6 @@
         SELECT
         <include refid="TaskSpecificDigestColumns"/>
         FROM hydra_task_task_node AS task_node
-        LEFT JOIN hydra_task_node_cache_path AS path ON path.guid = task_node.guid
         LEFT JOIN odin_task_projects AS project ON project.guid = task_node.project_guid
         WHERE task_node.guid IN
         <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">

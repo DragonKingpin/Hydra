@@ -84,16 +84,7 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
 
     @Override
     default GUID queryGUIDByPath( String path ) {
-        GUID guid = this.queryGUIDByPathAtomically( path );
-        if ( guid != null ) {
-            return guid;
-        }
-
-        List<GUID> legacyGuids = this.listLegacyGuidsByPath( path );
-        if ( legacyGuids == null || legacyGuids.isEmpty() ) {
-            return null;
-        }
-        return legacyGuids.get( 0 );
+        return this.queryGUIDByPathAtomically( path );
     }
 
     @Override
@@ -154,20 +145,6 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
                 }
             }
 
-            List<BucketCachePathBinding> legacyBindings = this.listByBucketAndPath( bucketGuid, path );
-            if ( legacyBindings != null ) {
-                for ( BucketCachePathBinding binding : legacyBindings ) {
-                    if ( path.equals( binding.getResolvedPath() ) ) {
-                        try {
-                            this.updateHashed( binding.getId(), bucketGuid, guid, pathHash, nextSlot, path );
-                            return;
-                        } catch ( RuntimeException exception ) {
-                            lastException = exception;
-                        }
-                    }
-                }
-            }
-
             try {
                 this.insertHashed( bucketGuid, guid, pathHash, nextSlot, path );
                 return;
@@ -194,10 +171,6 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
     );
 
     List<BucketCachePathBinding> listByGuid( @Param("guid") GUID guid );
-
-    List<BucketCachePathBinding> listByBucketAndPath( @Param("bucketGuid") GUID bucketGuid, @Param("path") String path );
-
-    List<GUID> listLegacyGuidsByPath( @Param("path") String path );
 
     void insertHashed(
             @Param("bucketGuid") GUID bucketGuid, @Param("guid") GUID guid,

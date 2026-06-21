@@ -17,11 +17,13 @@ import java.util.List;
 @IbatisDataAccessObject
 public interface TaskPathCacheMapper extends TriePathCacheManipulator {
     @Override
-    void insert( @Param("guid") GUID guid, @Param("path") String path );
+    default void insert( GUID guid, String path ) {
+        this.upsertCachePathAtomically( guid, path );
+    }
 
     @Override
     default void insertLongPath( GUID guid, String path, String longPath ) {
-        this.insert( guid, this.joinPathParts( path, longPath ) );
+        this.upsertCachePathAtomically( guid, this.joinPathParts( path, longPath ) );
     }
 
     @Override
@@ -44,16 +46,7 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
 
     @Override
     default GUID queryGUIDByPath( String path ) {
-        GUID guid = this.queryGUIDByPathAtomically( path );
-        if ( guid != null ) {
-            return guid;
-        }
-
-        List<GUID> legacyGuids = this.listLegacyGuidsByPath( path );
-        if ( legacyGuids == null || legacyGuids.isEmpty() ) {
-            return null;
-        }
-        return legacyGuids.get( 0 );
+        return this.queryGUIDByPathAtomically( path );
     }
 
     @Override
@@ -109,20 +102,6 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
                 }
             }
 
-            List<CachePathBinding> legacyBindings = this.listByPath( path );
-            if ( legacyBindings != null ) {
-                for ( CachePathBinding binding : legacyBindings ) {
-                    if ( path.equals( binding.getResolvedPath() ) ) {
-                        try {
-                            this.updateHashed( binding.getId(), guid, pathHash, nextSlot, path );
-                            return;
-                        } catch ( RuntimeException exception ) {
-                            lastException = exception;
-                        }
-                    }
-                }
-            }
-
             try {
                 this.insertHashed( guid, pathHash, nextSlot, path );
                 return;
@@ -149,10 +128,6 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
     List<CachePathBinding> listByPathHashForUpdate( @Param("pathHash") String pathHash );
 
     List<CachePathBinding> listByGuid( @Param("guid") GUID guid );
-
-    List<CachePathBinding> listByPath( @Param("path") String path );
-
-    List<GUID> listLegacyGuidsByPath( @Param("path") String path );
 
     void insertHashed(
             @Param("guid") GUID guid, @Param("pathHash") String pathHash, @Param("hashSlot") int hashSlot,

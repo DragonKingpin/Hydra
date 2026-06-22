@@ -212,12 +212,12 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             return;
         }
 
+        long nGracefulShutdownMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
         ScheduledExecutorService executor = this.mCycleEngineExecutor;
         this.mCycleEngineExecutor = null;
         if ( executor != null ) {
             executor.shutdown();
             try {
-                long nGracefulShutdownMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
                 if ( !executor.awaitTermination( nGracefulShutdownMillis, TimeUnit.MILLISECONDS ) ) {
                     executor.shutdownNow();
                 }
@@ -227,6 +227,9 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
                 Thread.currentThread().interrupt();
             }
         }
+
+        this.mTaskSchedulePreparator.terminateService( nGracefulShutdownMillis );
+        this.mInstanceScheduleImpetus.terminateService( nGracefulShutdownMillis );
 
         log.info(
                 "[OdinScheduler] [CycleEngineStopped] (PulseCount: `{}`, SkippedCount: `{}`, LastPulseTime: `{}`) <Done>",

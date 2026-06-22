@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,26 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskSchedulePreparator Construction) <Done>" );
     }
 
+    @Override
+    public void terminateService( long nGracefulShutdownMillis ) {
+        ExecutorService executor = this.mExecutorService;
+        this.mExecutorService = null;
+        if ( executor == null ) {
+            return;
+        }
+
+        executor.shutdown();
+        try {
+            if ( !executor.awaitTermination( Math.max( 0L, nGracefulShutdownMillis ), TimeUnit.MILLISECONDS ) ) {
+                executor.shutdownNow();
+            }
+        }
+        catch ( InterruptedException e ) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
 
     protected TaskScheduleContext prepareTaskScheduleTimeOffset( TaskElement element, LocalDateTime targetTime ) {
         TaskScheduleContext context = new TaskScheduleContext( element, targetTime );
@@ -227,7 +248,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         if ( fireTime.isAfter( lookAheadTarget ) ) {
             if ( skippedStaleFireTimes ) {
                 element.setNextScheduleTime( fireTime );
-                this.mTaskNodeManipulator.update( element );
+                this.persistTaskScheduleOffset( element );
             }
             return contexts;
         }
@@ -310,7 +331,23 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             }
             TaskElement element = context.getElement();
             element.setNextScheduleTime( context.getNextScheduleTime() );
-            this.mTaskNodeManipulator.update( element );
+            this.persistTaskScheduleOffset( element );
+        }
+    }
+
+    protected void persistTaskScheduleOffset( TaskElement element ) {
+        int nUpdated = this.mTaskNodeManipulator.updateScheduleOffsetIfEnabled(
+                element.getGuid(),
+                element.getScheduleCron(),
+                element.getNextScheduleTime()
+        );
+        if ( nUpdated <= 0 ) {
+            log.info(
+                    "[TaskSchedulerLifecycle] Skip schedule offset persist because task is no longer enabled. "
+                            + "(Task: `{}`, Guid: `{}`)",
+                    element.getName(),
+                    element.getGuid()
+            );
         }
     }
 

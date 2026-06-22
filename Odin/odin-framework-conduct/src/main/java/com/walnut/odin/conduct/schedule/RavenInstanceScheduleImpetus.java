@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,26 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
+    }
+
+    @Override
+    public void terminateService( long nGracefulShutdownMillis ) {
+        ExecutorService executor = this.mExecutorService;
+        this.mExecutorService = null;
+        if ( executor == null ) {
+            return;
+        }
+
+        executor.shutdown();
+        try {
+            if ( !executor.awaitTermination( Math.max( 0L, nGracefulShutdownMillis ), TimeUnit.MILLISECONDS ) ) {
+                executor.shutdownNow();
+            }
+        }
+        catch ( InterruptedException e ) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
 
@@ -425,7 +446,8 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.impelSchedulableInstances(
                 List.of(
                         TaskInstanceStatus.New,          TaskInstanceStatus.DependencyWait,
-                        TaskInstanceStatus.ResourceWait, TaskInstanceStatus.DepartureStandby
+                        TaskInstanceStatus.ResourceWait, TaskInstanceStatus.DepartureStandby,
+                        TaskInstanceStatus.ProcessCreating
                 ),
                 targetTime
         );

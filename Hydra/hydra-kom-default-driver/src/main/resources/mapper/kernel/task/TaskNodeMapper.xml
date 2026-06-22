@@ -141,6 +141,16 @@
 
     </update>
 
+    <update id="updateScheduleOffsetIfEnabled">
+        UPDATE hydra_task_task_node
+        SET
+            schedule_cron      = #{scheduleCron},
+            next_schedule_time = #{nextScheduleTime},
+            update_time        = CURRENT_TIMESTAMP
+        WHERE guid = #{guid}
+          AND enable = 1
+    </update>
+
     <!-- ========================================================== -->
     <!-- Select by GUID -->
     <!-- ========================================================== -->

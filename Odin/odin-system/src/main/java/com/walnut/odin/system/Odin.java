@@ -32,6 +32,7 @@ import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.detached.RemoteProcessDetachedObservationConfig;
 import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlTransportFactory;
 import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
@@ -119,13 +120,33 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         if ( pm == null ) {
             throw new IrrationalProvokedException( "ProcessManager `" + this.mszProcessManagerKey + "` does not exist." );
         }
-        RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm );
+        RavenRemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm );
+        this.configure_remote_process_detached_observation( server );
         this.prepare_remote_process_control_transports( sys, server );
         this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
         this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
 
 
         this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusDone );
+    }
+
+    protected void configure_remote_process_detached_observation( RavenRemoteProcessManagerServer server ) {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "remoteProcessControl" );
+        JSONObject detachedObservationConfig = null;
+        if ( controlConfig != null ) {
+            detachedObservationConfig = controlConfig.optJSONObject( "detachedObservation" );
+        }
+
+        RemoteProcessDetachedObservationConfig config = new RemoteProcessDetachedObservationConfig( detachedObservationConfig );
+        server.configureDetachedObservation( config );
+        this.getLogger().info(
+                "[RemoteProcessControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                config.isEnable(),
+                config.getGraceMillis(),
+                config.getSweepMillis(),
+                config.getExpireAsyncThreads(),
+                config.getMissingAfterReconnectPolicy()
+        );
     }
 
     protected void prepare_remote_process_control_transports( TritiumSystem sys, RemoteProcessManagerServer server ) {

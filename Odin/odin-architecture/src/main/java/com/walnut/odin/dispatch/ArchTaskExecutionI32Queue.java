@@ -186,13 +186,8 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
                 return Collections.emptyList();
             }
 
-            this.assertOfferCapacityLocked( products.size() );
-
             int nFreeCapacity = this.pendingCapacity();
             if ( nFreeCapacity <= 0 ) {
-                for ( TaskLaunchContext context : products ) {
-                    this.mWaitingQueue.addLast( context );
-                }
                 return Collections.emptyList();
             }
 
@@ -205,9 +200,6 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
             );
 
             if ( nConsume <= 0 ) {
-                for ( TaskLaunchContext context : products ) {
-                    this.mWaitingQueue.addLast( context );
-                }
                 return Collections.emptyList();
             }
 
@@ -222,21 +214,16 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
                         ConsumeCompromisedPolice police = consumer.compromisedPolice();
                         switch ( police ) {
                             case EvictionIgnore: {
-                                --nConsume;
+                                consumed.add( context );
+                                ++nIndex;
                                 continue;
                             }
                             case EvictionException: {
-                                this.addRemain( products, context );
                                 e.setEvictionTask( context );
                                 throw e;
                             }
                             case BreakException:
                             default: {
-                                // 当前任务未消费，重新入 waiting 队尾
-                                this.mWaitingQueue.addLast( context );
-
-                                // 剩余未遍历的 products 全部入队
-                                this.addRemain( products, context );
                                 throw e;
                             }
                         }
@@ -249,9 +236,6 @@ public abstract class ArchTaskExecutionI32Queue implements TaskExecutionQueue {
 
                     consumed.add( context );
                     ++nIndex;
-                }
-                else {
-                    this.mWaitingQueue.addLast( context );
                 }
             }
 

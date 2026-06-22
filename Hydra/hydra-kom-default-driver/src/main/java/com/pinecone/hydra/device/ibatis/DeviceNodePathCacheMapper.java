@@ -2,6 +2,7 @@ package com.pinecone.hydra.device.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.unit.imperium.ImperialTreeConstants;
+import com.pinecone.hydra.unit.imperium.PathCacheAtomicity;
 import com.pinecone.hydra.unit.imperium.entity.CachePathBinding;
 import com.pinecone.hydra.unit.imperium.entity.CachePath;
 import com.pinecone.hydra.unit.imperium.entity.GenericCachePath;
@@ -83,7 +84,6 @@ public interface DeviceNodePathCacheMapper extends TriePathCacheManipulator {
         }
 
         String pathHash = UniformHashing.sha256Hex( path );
-        RuntimeException lastException = null;
         for ( int i = 0; i < ImperialTreeConstants.AtomicPathCacheInsertRetryLimit; ++i ) {
             List<CachePathBinding> bindings = this.listByPathHashForUpdate( pathHash );
             int nextSlot = 0;
@@ -94,8 +94,10 @@ public interface DeviceNodePathCacheMapper extends TriePathCacheManipulator {
                         nextSlot = hashSlot + 1;
                     }
                     if ( path.equals( binding.getResolvedPath() ) ) {
-                        this.updateHashed( binding.getId(), guid, pathHash, binding.getHashSlot(), path );
-                        return;
+                        if ( PathCacheAtomicity.sameGuid( binding.getGuid(), guid ) ) {
+                            return;
+                        }
+                        throw PathCacheAtomicity.pathConflict( "device", binding.getGuid(), guid, path );
                     }
                 }
             }
@@ -103,14 +105,15 @@ public interface DeviceNodePathCacheMapper extends TriePathCacheManipulator {
             try {
                 this.insertHashed( guid, pathHash, nextSlot, path );
                 return;
-            } catch ( RuntimeException exception ) {
-                lastException = exception;
+            }
+            catch ( RuntimeException exception ) {
+                if ( !PathCacheAtomicity.isDuplicateKey( exception ) ) {
+                    throw exception;
+                }
             }
         }
 
-        if ( lastException != null ) {
-            throw lastException;
-        }
+        throw PathCacheAtomicity.insertExhausted( "device", path );
     }
 
     default GenericCachePath getPath0( GUID guid ) {

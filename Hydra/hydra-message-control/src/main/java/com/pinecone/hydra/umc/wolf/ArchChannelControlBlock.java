@@ -129,6 +129,6 @@ public abstract class ArchChannelControlBlock extends ArchThreadum implements Ne
 
     @Override
     public UlfAsyncMsgHandleAdapter pollMsgHandle ( long nWaitMillis ) throws InterruptedException {
-        return this.mAsyncMsgHandleQueue.poll( nWaitMillis, TimeUnit.MICROSECONDS );
+        return this.mAsyncMsgHandleQueue.poll( nWaitMillis, TimeUnit.MILLISECONDS );
     }
 }

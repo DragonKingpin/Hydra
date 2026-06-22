@@ -23,6 +23,8 @@ public interface TaskNodeManipulator extends GUIDNameManipulator {
 
     void update( TaskElement taskElement );
 
+    int updateScheduleOffsetIfEnabled( GUID guid, String scheduleCron, LocalDateTime nextScheduleTime );
+
     List<TaskElement> fetchTaskNodeByName( String name );
 
     @Override

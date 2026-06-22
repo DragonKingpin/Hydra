@@ -60,7 +60,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mTaskExecutionLauncher      = launcher;
         this.mRunningProcesses           = new ConcurrentHashMap<>();
         this.mTerminatedProcesses        = ConcurrentHashMap.newKeySet();
-        this.mConsumeCompromisedPolice   = ConsumeCompromisedPolice.EvictionException; // TODO, Advance
+        this.mConsumeCompromisedPolice   = ConsumeCompromisedPolice.EvictionIgnore;
     }
 
     public RavenTaskExecutionProcessor( TaskProcessorEntity processorEntity, TaskExecutionLauncher launcher ) {
@@ -277,6 +277,9 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
     }
 
     protected void afterProcessLaunched( UProcess process, TaskLaunchContext context ) {
+        if ( process == null || context == null ) {
+            return;
+        }
         context.afterProcessLaunched( process );
         this.mRunningProcesses.put( process.getPID(), context );
     }
@@ -373,7 +376,8 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
             }
             catch ( InstanceLaunchException e ) {
                 log.error( "Error during start prepared process, what:'{}' ", e.getMessage(), e );
-                throw new TaskDispatchException( e );
+                this.mTaskExecutionQueue.markTerminated( context.getTaskInstance().getId() );
+                consumed.add( context );
             }
         }
 
@@ -456,6 +460,11 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
                 }
                 else {
                     proc = directlyCreate( context.getTaskInstance(), context.getLaunchFeature() );
+                }
+                if ( proc == null ) {
+                    throw new TaskConsumeException(
+                            new InstanceLaunchException( "Process launcher returned null process." )
+                    );
                 }
                 this.launched.add( proc );
                 afterProcessLaunched( proc, context );

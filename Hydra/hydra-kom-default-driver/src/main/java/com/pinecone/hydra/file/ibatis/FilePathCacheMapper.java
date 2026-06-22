@@ -3,6 +3,7 @@ package com.pinecone.hydra.file.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.storage.bucket.BucketPathCacheManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTreeConstants;
+import com.pinecone.hydra.unit.imperium.PathCacheAtomicity;
 import com.pinecone.hydra.unit.imperium.entity.BucketCachePathBinding;
 import com.pinecone.hydra.unit.imperium.source.TriePathCacheManipulator;
 import com.pinecone.hydra.util.UniformHashing;
@@ -128,7 +129,6 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
 
     default void upsertCachePathAtomically( GUID bucketGuid, GUID guid, String path ) {
         String pathHash = UniformHashing.sha256Hex( path );
-        RuntimeException lastException = null;
         for ( int i = 0; i < ImperialTreeConstants.AtomicPathCacheInsertRetryLimit; ++i ) {
             List<BucketCachePathBinding> bindings = this.listByBucketAndPathHashForUpdate( bucketGuid, pathHash );
             int nextSlot = 0;
@@ -139,8 +139,10 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
                         nextSlot = hashSlot + 1;
                     }
                     if ( path.equals( binding.getResolvedPath() ) ) {
-                        this.updateHashed( binding.getId(), bucketGuid, guid, pathHash, binding.getHashSlot(), path );
-                        return;
+                        if ( PathCacheAtomicity.sameGuid( binding.getGuid(), guid ) ) {
+                            return;
+                        }
+                        throw PathCacheAtomicity.pathConflict( "uofs", binding.getGuid(), guid, path );
                     }
                 }
             }
@@ -148,14 +150,15 @@ public interface FilePathCacheMapper extends TriePathCacheManipulator, BucketPat
             try {
                 this.insertHashed( bucketGuid, guid, pathHash, nextSlot, path );
                 return;
-            } catch ( RuntimeException exception ) {
-                lastException = exception;
+            }
+            catch ( RuntimeException exception ) {
+                if ( !PathCacheAtomicity.isDuplicateKey( exception ) ) {
+                    throw exception;
+                }
             }
         }
 
-        if ( lastException != null ) {
-            throw lastException;
-        }
+        throw PathCacheAtomicity.insertExhausted( "uofs", path );
     }
 
     GUID getBucketGuidByGuid( @Param("guid") GUID guid );

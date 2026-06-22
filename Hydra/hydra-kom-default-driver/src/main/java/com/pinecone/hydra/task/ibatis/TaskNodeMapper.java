@@ -40,6 +40,13 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     @Override
     void update( TaskElement taskElement );
 
+    @Override
+    int updateScheduleOffsetIfEnabled(
+            @Param( "guid" ) GUID guid,
+            @Param( "scheduleCron" ) String scheduleCron,
+            @Param( "nextScheduleTime" ) LocalDateTime nextScheduleTime
+    );
+
     List<GenericTaskElement> fetchTaskNodeByName0( @Param("name") String name );
 
     @Override

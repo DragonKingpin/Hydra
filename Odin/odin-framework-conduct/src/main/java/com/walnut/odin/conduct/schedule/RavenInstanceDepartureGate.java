@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
+import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
@@ -28,6 +29,7 @@ import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
+import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.troll.GenericRavenTaskInstance;
@@ -43,6 +45,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
     protected RavenTaskMasterManipulator      mRavenTaskMasterManipulator;
     protected ScheduleManipulator             mScheduleManipulator;
     protected InstanceLineageNodeMapper         mInstanceLineageNodeMapper;
+    protected InstanceExecMapper              mInstanceExecMapper;
     protected InstanceScheduleAllocator       mInstanceScheduleAllocator;
     protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
 
@@ -54,6 +57,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         this.mRavenTaskMasterManipulator = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
         this.mInstanceLineageNodeMapper    = this.mScheduleManipulator.getInstanceLineageNodeMapper();
+        this.mInstanceExecMapper         = this.mScheduleManipulator.getInstanceExecMapper();
 
         this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
         this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
@@ -172,6 +176,11 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             return checklist;
         }
 
+        if ( status == TaskInstanceStatus.ProcessCreating ) {
+            checklist.setPreDepartureLastStatus( TaskInstanceStatus.ProcessCreating );
+            return checklist;
+        }
+
         if ( !this.shouldCheckDependency( that ) ) {
             checklist.setInterceptedStatus( status );
             checklist.setPreDepartureLastStatus( status );
@@ -215,6 +224,11 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         Collection<TaskLaunchContext> li = new ArrayList<>();
         for ( InstanceEntry fittedInstance : fittedInstances ) {
             RavenTaskInstance instance  = new GenericRavenTaskInstance( fittedInstance, this.mCentralizedTaskInstrument );
+            String szInvalidCause = this.validateLaunchContextTask( instance );
+            if ( szInvalidCause != null ) {
+                this.markInvalidLaunchContext( fittedInstance, szInvalidCause );
+                continue;
+            }
             LaunchFeature launchFeature = new LaunchFeature();
             String szProcessor          = fittedInstance.getProcessorName();
 
@@ -226,6 +240,75 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             li.add( launchContext );
         }
         return li;
+    }
+
+    protected String validateLaunchContextTask( RavenTaskInstance instance ) {
+        if ( instance == null ) {
+            return "No task instance found for instance departure.";
+        }
+        try {
+            if ( instance.getOwnedTask() == null ) {
+                return "No owned task found for instance departure.";
+            }
+            if ( instance.getOwnedTask().getId() == null ) {
+                return "Owned task has no id for instance departure.";
+            }
+        }
+        catch ( RuntimeException e ) {
+            String szMessage = e.getMessage();
+            if ( szMessage == null ) {
+                szMessage = e.getClass().getName();
+            }
+            return "Owned task is not resolvable for instance departure: " + szMessage;
+        }
+        return null;
+    }
+
+    protected void markInvalidLaunchContext( InstanceEntry instance, String szCause ) {
+        if ( instance == null || instance.getGuid() == null ) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+                instance.getGuid(),
+                List.of(
+                        TaskInstanceStatus.New,
+                        TaskInstanceStatus.DependencyWait,
+                        TaskInstanceStatus.ResourceWait,
+                        TaskInstanceStatus.DepartureStandby,
+                        TaskInstanceStatus.ProcessCreating,
+                        TaskInstanceStatus.ProcessStandby
+                ),
+                TaskInstanceStatus.Error,
+                TaskInstanceTransitionReason.ProcessCreationFailed,
+                null,
+                now,
+                now,
+                szCause
+        );
+        if ( result.isSucceeded() ) {
+            instance.setInstanceStatus( TaskInstanceStatus.Error );
+            instance.setErrorCause( szCause );
+            instance.setLastEndTime( now );
+            instance.setFinishTime( now );
+            this.mInstanceExecMapper.updateStateRetryMonotonic(
+                    instance.getGuid(),
+                    instance.getRetryCnt(),
+                    TaskInstanceExecState.Fail.getName(),
+                    null,
+                    null,
+                    now
+            );
+        }
+
+        this.log.warn(
+                "[TaskSchedulerLifecycle] Invalid launch context marked as error "
+                        + "(TaskGuid: `{}`, InstanceGuid: `{}`, Cause: `{}`) <Rejected>",
+                instance.getTaskGuid(),
+                instance.getGuid(),
+                szCause
+        );
     }
 
     protected void fitResourceWaitInstances(
@@ -293,6 +376,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         DependencyBlockageIndex dependencyBlockageIndex = this.fetchDependencyBlockageIndex( instances );
         Collection<InstanceEntry> resourceWaitInstances = result.getResourceWaitInstances();
         Collection<InstanceEntry> departureStandbyInstances = result.getDepartureStandbyInstances();
+        Collection<InstanceEntry> processCreatingInstances = new ArrayList<>();
 
         for ( InstanceEntry entry : instances ) {
             DepartureChecklist checklist = this.prelaunch_check_instance( entry, dependencyBlockageIndex );
@@ -308,12 +392,16 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             else if ( lastStatus == TaskInstanceStatus.DepartureStandby ) {
                 departureStandbyInstances.add( entry );
             }
+            else if ( lastStatus == TaskInstanceStatus.ProcessCreating ) {
+                processCreatingInstances.add( entry );
+            }
         }
 
         this.fitResourceWaitInstances( resourceWaitInstances, departureStandbyInstances, result );
         result.getLaunchContexts().addAll(
                 this.prepareDepartureLaunchContexts( departureStandbyInstances, scheduleTime, result )
         );
+        result.getLaunchContexts().addAll( this.initializePrelaunchSequence( processCreatingInstances ) );
         return result;
     }
 

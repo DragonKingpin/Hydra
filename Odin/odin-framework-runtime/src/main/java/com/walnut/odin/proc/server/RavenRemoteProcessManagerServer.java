@@ -20,6 +20,9 @@ import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
+import com.walnut.odin.proc.server.detached.ClientCustody;
+import com.walnut.odin.proc.server.detached.DetachedClientObservationRoom;
+import com.walnut.odin.proc.server.detached.RemoteProcessDetachedObservationConfig;
 import com.walnut.odin.proc.server.transport.CompositeRemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.GenericRemoteProcessControlTransportRegistry;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
@@ -35,6 +38,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,6 +50,10 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
     protected static final long                       ControlClientReadyWaitMillis = 5000L;
 
     protected static final String                     RemoteProcessLostCauseClientDetached = "RemoteProcessControlClientDetached";
+
+    protected static final String                     RemoteProcessLostCauseClientDetachedTimeout = "RemoteProcessControlClientDetachedTimeout";
+
+    protected static final String                     RemoteProcessLostCauseAfterReconnect = "RemoteProcessLostAfterReconnect";
 
     protected GuidAllocator                             mGuidAllocator;
 
@@ -63,6 +73,14 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     protected Condition                                 mControlReadyCondition;
 
+    protected RemoteProcessDetachedObservationConfig    mDetachedObservationConfig;
+
+    protected DetachedClientObservationRoom             mDetachedClientObservationRoom;
+
+    protected ScheduledExecutorService                  mDetachedObservationSweeper;
+
+    protected ExecutorService                           mDetachedExpirationExecutor;
+
     public RavenRemoteProcessManagerServer( ProcessManager localProcessManager ) {
         super( localProcessManager );
         this.mGuidAllocator             = localProcessManager.getGuidAllocator();
@@ -74,6 +92,16 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         this.mRemoteTerminationReportKeySet = ConcurrentHashMap.newKeySet();
         this.mControlReadyLock          = new ReentrantLock();
         this.mControlReadyCondition     = this.mControlReadyLock.newCondition();
+        this.mDetachedObservationConfig = new RemoteProcessDetachedObservationConfig();
+        this.mDetachedClientObservationRoom = new DetachedClientObservationRoom();
+    }
+
+    public void configureDetachedObservation( RemoteProcessDetachedObservationConfig config ) {
+        if ( config == null ) {
+            this.mDetachedObservationConfig = new RemoteProcessDetachedObservationConfig();
+            return;
+        }
+        this.mDetachedObservationConfig = config;
     }
 
     @Override
@@ -174,7 +202,13 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         finally {
             this.mControlReadyLock.unlock();
         }
-        this.expungeClientRemoteProcesses( clientId );
+
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            this.expungeClientRemoteProcesses( clientId );
+            return;
+        }
+
+        this.admitDetachedClientCustody( clientId, RemoteProcessLostCauseClientDetached );
     }
 
     @Override
@@ -198,10 +232,12 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
             transport.startService();
         }
+        this.startDetachedObservationSweeper();
     }
 
     @Override
     public void terminateService() throws IllegalStateException {
+        this.stopDetachedObservationSweeper();
         for ( RemoteProcessControlTransport transport : this.mTransportRegistry.transports() ) {
             transport.terminateService();
         }
@@ -252,6 +288,11 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         Set<GUID> snapshot = this.mClientSnapshotProcessMap.remove( clientId );
         if ( snapshot == null ) {
             snapshot = new HashSet<>();
+        }
+
+        ClientCustody custody = this.mDetachedClientObservationRoom.remove( clientId );
+        if ( custody != null ) {
+            this.reclaimClientCustody( custody, snapshot );
         }
 
         Collection<UProcess> processes = new ArrayList<>( this.mProcessManager.fetchProcesses() );
@@ -471,6 +512,79 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         this.expungeSelf( that.getPID() );
     }
 
+    protected Collection<RemoteProcess> collectClientRemoteProcesses( long clientId ) {
+        Collection<RemoteProcess> remoteProcesses = new ArrayList<>();
+        Collection<UProcess> processes = new ArrayList<>( this.mProcessManager.fetchProcesses() );
+        for ( UProcess process : processes ) {
+            if ( !( process instanceof RemoteProcess ) ) {
+                continue;
+            }
+
+            RemoteProcess remoteProcess = (RemoteProcess) process;
+            if ( remoteProcess.getControlClientId() != clientId ) {
+                continue;
+            }
+            remoteProcesses.add( remoteProcess );
+        }
+        return remoteProcesses;
+    }
+
+    protected void admitDetachedClientCustody( long clientId, String szReason ) {
+        Collection<RemoteProcess> processes = this.collectClientRemoteProcesses( clientId );
+        if ( processes.isEmpty() ) {
+            this.getLogger().info(
+                    "[RemoteClientDetached] [CustodySkipped] (ClientId: `{}`, Reason: `{}`, ProcessCount: `0`) <Pass>",
+                    clientId, szReason
+            );
+            return;
+        }
+
+        long nDetachedAtMillis = System.currentTimeMillis();
+        long nDeadlineMillis = nDetachedAtMillis + this.mDetachedObservationConfig.getGraceMillis();
+        ClientCustody custody = this.mDetachedClientObservationRoom.admit(
+                clientId, processes, szReason, nDetachedAtMillis, nDeadlineMillis
+        );
+        if ( custody == null ) {
+            return;
+        }
+
+        this.getLogger().info(
+                "[RemoteClientDetached] [CustodyAdmitted] (ClientId: `{}`, Reason: `{}`, ProcessCount: `{}`, DeadlineMillis: `{}`) <Waiting>",
+                clientId, szReason, custody.processes().size(), custody.getDeadlineMillis()
+        );
+    }
+
+    protected void reclaimClientCustody( ClientCustody custody, Set<GUID> livePids ) {
+        if ( custody == null ) {
+            return;
+        }
+
+        Collection<RemoteProcess> missingProcesses = custody.fetchMissingProcesses( livePids );
+        if ( this.shouldFailMissingProcessAfterReconnect() ) {
+            for ( RemoteProcess process : missingProcesses ) {
+                this.markRemoteProcessLost( custody.getClientId(), process, RemoteProcessLostCauseAfterReconnect );
+            }
+        }
+
+        int nLiveCount = 0;
+        if ( livePids != null ) {
+            nLiveCount = livePids.size();
+        }
+
+        this.getLogger().info(
+                "[RemoteClientReattached] [CustodyReclaimed] (ClientId: `{}`, LiveCount: `{}`, MissingCount: `{}`) <Done>",
+                custody.getClientId(), nLiveCount, missingProcesses.size()
+        );
+    }
+
+    protected boolean shouldFailMissingProcessAfterReconnect() {
+        String szPolicy = this.mDetachedObservationConfig.getMissingAfterReconnectPolicy();
+        if ( szPolicy == null || szPolicy.isEmpty() ) {
+            return true;
+        }
+        return "fail".equalsIgnoreCase( szPolicy );
+    }
+
     protected void expungeClientRemoteProcesses( long clientId ) {
         Collection<UProcess> processes = new ArrayList<>( this.mProcessManager.fetchProcesses() );
         for ( UProcess process : processes ) {
@@ -483,29 +597,106 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
                 continue;
             }
 
-            this.markRemoteProcessLostByClientDetached( clientId, remoteProcess );
+            this.markRemoteProcessLost( clientId, remoteProcess, RemoteProcessLostCauseClientDetached );
         }
     }
 
-    protected void markRemoteProcessLostByClientDetached( long clientId, RemoteProcess remoteProcess ) {
+    protected void markRemoteProcessLost( long clientId, RemoteProcess remoteProcess, String szCause ) {
         if ( remoteProcess == null ) {
             return;
         }
 
         UProcessStatus status = remoteProcess.getStatus();
         if ( status == null || !status.isTerminal() ) {
-            remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Error, RemoteProcessLostCauseClientDetached );
+            remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Error, szCause );
             this.getLogger().info(
-                    "[RemoteProcessControlClientDetached] [RemoteProcessLost] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Notified>",
-                    clientId, remoteProcess.getPID(), remoteProcess.getName()
+                    "[RemoteProcessLost] [DetachedObservation] (ClientId: `{}`, PID: `{}`, Process: `{}`, Cause: `{}`) <Notified>",
+                    clientId, remoteProcess.getPID(), remoteProcess.getName(), szCause
             );
         }
 
         this.expunge( remoteProcess );
         this.getLogger().info(
-                "[RemoteProcessControlClientDetached] [MirrorExpunged] (ClientId: `{}`, PID: `{}`) <Done>",
-                clientId, remoteProcess.getPID()
+                "[RemoteProcessLost] [MirrorExpunged] (ClientId: `{}`, PID: `{}`, Cause: `{}`) <Done>",
+                clientId, remoteProcess.getPID(), szCause
         );
+    }
+
+    protected void startDetachedObservationSweeper() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+        if ( this.mDetachedObservationSweeper != null ) {
+            return;
+        }
+
+        this.mDetachedExpirationExecutor = Executors.newFixedThreadPool(
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+        this.mDetachedObservationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "odin-detached-client-observation-sweeper" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mDetachedObservationSweeper.scheduleWithFixedDelay(
+                this::sweepExpiredClientCustodies,
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                TimeUnit.MILLISECONDS
+        );
+        this.getLogger().info(
+                "[RemoteClientDetached] [ObservationSweeperStarted] (GraceMillis: `{}`, SweepMillis: `{}`, Threads: `{}`) <Ready>",
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+    }
+
+    protected void stopDetachedObservationSweeper() {
+        if ( this.mDetachedObservationSweeper != null ) {
+            this.mDetachedObservationSweeper.shutdownNow();
+            this.mDetachedObservationSweeper = null;
+        }
+        if ( this.mDetachedExpirationExecutor != null ) {
+            this.mDetachedExpirationExecutor.shutdownNow();
+            this.mDetachedExpirationExecutor = null;
+        }
+        this.getLogger().info( "[RemoteClientDetached] [ObservationSweeperStopped] <Done>" );
+    }
+
+    protected void sweepExpiredClientCustodies() {
+        Collection<ClientCustody> expiredCustodies = this.mDetachedClientObservationRoom.sweepExpired( System.currentTimeMillis() );
+        if ( expiredCustodies.isEmpty() ) {
+            return;
+        }
+
+        for ( ClientCustody custody : expiredCustodies ) {
+            this.expireClientCustodyAsync( custody );
+        }
+    }
+
+    protected void expireClientCustodyAsync( ClientCustody custody ) {
+        ExecutorService executor = this.mDetachedExpirationExecutor;
+        if ( executor == null ) {
+            this.expireClientCustody( custody );
+            return;
+        }
+
+        executor.submit( () -> this.expireClientCustody( custody ) );
+    }
+
+    protected void expireClientCustody( ClientCustody custody ) {
+        if ( custody == null ) {
+            return;
+        }
+
+        this.getLogger().warn(
+                "[RemoteClientDetached] [CustodyExpired] (ClientId: `{}`, ProcessCount: `{}`, DeadlineMillis: `{}`) <Expiring>",
+                custody.getClientId(), custody.processes().size(), custody.getDeadlineMillis()
+        );
+        for ( RemoteProcess process : custody.processes() ) {
+            this.markRemoteProcessLost( custody.getClientId(), process, RemoteProcessLostCauseClientDetachedTimeout );
+        }
     }
 
     protected void ensureControlClientReady( long clientId ) throws RemoteProcessServiceRPCException {

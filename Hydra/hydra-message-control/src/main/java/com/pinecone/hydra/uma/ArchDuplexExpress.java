@@ -101,6 +101,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
 
         if ( controlBits == HuskyCTPConstants.HCTP_DUP_CONTROL_PASSIVE_RESPONSE ) {
             RecipientChannelControlBlock cb = (RecipientChannelControlBlock)args[ 0 ];
+            ChannelControlBlock channelBlock = (ChannelControlBlock) cb;
             Channel channel = (Channel)cb.getChannel().getNativeHandle();
 
             long nWaitMillis;
@@ -123,17 +124,20 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
                     throw new ServiceInternalException( "Undefined MsgHandle." );
                 }
 
-
-
-                try {
-                    handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
-                }
-                catch ( Exception e ) {
-                    throw new ServiceInternalException( e );
-                }
+                handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
             }
             catch ( InterruptedException e ) {
+                Thread.currentThread().interrupt();
                 throw new ServiceInternalException( e );
+            }
+            catch ( Exception e ) {
+                throw new ServiceInternalException( e );
+            }
+            finally {
+                ChannelPool pool = this.mMultiClientChannelRegistry.getPool( channelBlock.getChannel().getIdentityID() );
+                if ( pool != null && channelBlock.getChannelStatus() == UlfChannelStatus.WAITING_PASSIVE_RECEIVE ) {
+                    pool.setIdleChannel( channelBlock );
+                }
             }
 
             return true;

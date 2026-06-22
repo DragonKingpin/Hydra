@@ -65,6 +65,8 @@ import javassist.ClassPool;
  *  *****************************************************************************************
  */
 public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexAppointClient {
+    protected static final long PassiveChannelRegisterMinAckTimeoutMillis = 5000L;
+
     protected static Class<?> checkExpressType( Class<?> expressType ) {
         if ( !DuplexExpress.class.isAssignableFrom( expressType ) ) {
             throw new IllegalArgumentException( "`" + expressType.getSimpleName() + "` is not DuplexExpress calibre qualified." );
@@ -185,7 +187,7 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
 
         protected long getTimeoutMillis() {
             long nTimeoutMillis = WolvesAppointClient.this.mMessenger.getConnectionArguments().getSocketTimeout();
-            return Math.max( nTimeoutMillis, 1000L );
+            return Math.max( nTimeoutMillis, PassiveChannelRegisterMinAckTimeoutMillis );
         }
 
         protected CompletableFuture<Void> begin( Channel channel ) {
@@ -360,6 +362,8 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
 
     protected void registerPassiveChannels( UlfAsyncMsgHandleAdapter handler ) throws IOException {
         List<ChannelControlBlock> passiveChannels = new ArrayList<>( this.mInstructedChannels.values() );
+        List<Channel> ackChannels = new ArrayList<>( passiveChannels.size() );
+        List<CompletableFuture<Void>> ackFutures = new ArrayList<>( passiveChannels.size() );
         for ( ChannelControlBlock ccb : passiveChannels ) {
             this.reconnectPassiveChannelIfNeeded( ccb );
             this.refreshPassiveChannelKey( ccb );
@@ -391,7 +395,12 @@ public class WolvesAppointClient extends WolfAppointClient implements UlfDuplexA
             }
 
             this.getLogger().info( "Embracing and registering passive controlled channel ({}).", cb.getChannel().getNativeHandle().id() );
-            this.mPassiveRegisterAckSupport.waitAck( channel, ackFuture );
+            ackChannels.add( channel );
+            ackFutures.add( ackFuture );
+        }
+
+        for ( int i = 0; i < ackChannels.size(); ++i ) {
+            this.mPassiveRegisterAckSupport.waitAck( ackChannels.get( i ), ackFutures.get( i ) );
         }
     }
 

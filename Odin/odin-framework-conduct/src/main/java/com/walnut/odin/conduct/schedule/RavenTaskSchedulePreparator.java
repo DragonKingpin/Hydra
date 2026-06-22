@@ -23,7 +23,6 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.pinecone.slime.meta.TableIndex64Meta;
 
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
@@ -41,8 +40,8 @@ import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.TaskDeploymentMethod;
-import com.walnut.odin.task.mapper.InstanceAtlasAdjacentMapper;
-import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
+import com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper;
+import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
@@ -84,8 +83,8 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     private RavenTaskMasterManipulator    mRavenTaskMasterManipulator;
     private TaskNodeManipulator           mTaskNodeManipulator;
     private ScheduleManipulator           mScheduleManipulator;
-    private InstanceAtlasNodeMapper       mInstanceAtlasNodeMapper;
-    private InstanceAtlasAdjacentMapper   mInstanceAtlasAdjacentMapper;
+    private InstanceLineageNodeMapper       mInstanceLineageNodeMapper;
+    private InstanceLineageAdjacentMapper   mInstanceLineageAdjacentMapper;
     private InstanceExecMapper            mInstanceExecMapper;
     private InstanceEventMapper           mInstanceEventMapper;
 
@@ -119,8 +118,8 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mRavenTaskMasterManipulator   = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator          = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator          = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceAtlasNodeMapper      = this.mScheduleManipulator.getInstanceAtlasNodeMapper();
-        this.mInstanceAtlasAdjacentMapper  = this.mScheduleManipulator.getInstanceAtlasAdjacentMapper();
+        this.mInstanceLineageNodeMapper      = this.mScheduleManipulator.getInstanceLineageNodeMapper();
+        this.mInstanceLineageAdjacentMapper  = this.mScheduleManipulator.getInstanceLineageAdjacentMapper();
         this.mInstanceExecMapper           = this.mScheduleManipulator.getInstanceExecMapper();
         this.mInstanceEventMapper          = this.mScheduleManipulator.getInstanceEventMapper();
 
@@ -128,8 +127,8 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer(
                 this.mGuidAllocator,
                 this.mRuntimeAtlasInstrument,
-                this.mInstanceAtlasNodeMapper,
-                this.mInstanceAtlasAdjacentMapper
+                this.mInstanceLineageNodeMapper,
+                this.mInstanceLineageAdjacentMapper
         );
         this.mExecutorService              = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
 
@@ -254,19 +253,14 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
     protected boolean isParentInstanceLineageResolvable( TaskScheduleContext context, Set<GUID> batchTaskGuids ) {
         TaskElement element = context.getElement();
-        GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
-        if ( graphNode == null ) {
-            return true;
-        }
-
-        List<GUID> parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
-        if ( parentIds == null || parentIds.isEmpty() ) {
+        List<GUID> parentTaskGuids = this.mRuntimeAtlasInstrument.fetchParentTaskGuids( element.getGuid() );
+        if ( parentTaskGuids == null || parentTaskGuids.isEmpty() ) {
             return true;
         }
 
         LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime( element, context.getThisScheduleTime() );
-        for ( GUID parentId : parentIds ) {
-            TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentId );
+        for ( GUID parentTaskGuid : parentTaskGuids ) {
+            TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentTaskGuid );
             if ( parentElement == null ) {
                 return false;
             }
@@ -274,12 +268,12 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
                 continue;
             }
             if ( businessTime == null ) {
-                if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() ) != null ) {
+                if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() ) != null ) {
                     continue;
                 }
                 return false;
             }
-            if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
+            if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
                 return false;
             }
         }

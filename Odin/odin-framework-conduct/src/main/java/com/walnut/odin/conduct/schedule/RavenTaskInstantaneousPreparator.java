@@ -18,7 +18,6 @@ import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskScheduleType;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
 import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
@@ -36,8 +35,8 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.TaskDeploymentMethod;
-import com.walnut.odin.task.mapper.InstanceAtlasAdjacentMapper;
-import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
+import com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper;
+import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
@@ -58,8 +57,8 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
     protected GuidAllocator                mGuidAllocator;
     protected RavenTaskMasterManipulator   mRavenTaskMasterManipulator;
     protected ScheduleManipulator          mScheduleManipulator;
-    protected InstanceAtlasNodeMapper      mInstanceAtlasNodeMapper;
-    protected InstanceAtlasAdjacentMapper  mInstanceAtlasAdjacentMapper;
+    protected InstanceLineageNodeMapper      mInstanceLineageNodeMapper;
+    protected InstanceLineageAdjacentMapper  mInstanceLineageAdjacentMapper;
     protected InstanceExecMapper           mInstanceExecMapper;
     protected InstanceEventMapper          mInstanceEventMapper;
 
@@ -76,8 +75,8 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         this.mGuidAllocator                = this.mCentralizedTaskInstrument.getGuidAllocator();
         this.mRavenTaskMasterManipulator   = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mScheduleManipulator          = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceAtlasNodeMapper      = this.mScheduleManipulator.getInstanceAtlasNodeMapper();
-        this.mInstanceAtlasAdjacentMapper  = this.mScheduleManipulator.getInstanceAtlasAdjacentMapper();
+        this.mInstanceLineageNodeMapper      = this.mScheduleManipulator.getInstanceLineageNodeMapper();
+        this.mInstanceLineageAdjacentMapper  = this.mScheduleManipulator.getInstanceLineageAdjacentMapper();
         this.mInstanceExecMapper           = this.mScheduleManipulator.getInstanceExecMapper();
         this.mInstanceEventMapper          = this.mScheduleManipulator.getInstanceEventMapper();
 
@@ -85,8 +84,8 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer(
                 this.mGuidAllocator,
                 this.mRuntimeAtlasInstrument,
-                this.mInstanceAtlasNodeMapper,
-                this.mInstanceAtlasAdjacentMapper
+                this.mInstanceLineageNodeMapper,
+                this.mInstanceLineageAdjacentMapper
         );
     }
 
@@ -165,28 +164,23 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
     }
 
     protected boolean isParentInstanceLineageResolvable( TaskElement element, LocalDateTime expectTime, LocalDateTime businessTime ) {
-        GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
-        if ( graphNode == null ) {
+        List<GUID> parentTaskGuids = this.mRuntimeAtlasInstrument.fetchParentTaskGuids( element.getGuid() );
+        if ( parentTaskGuids == null || parentTaskGuids.isEmpty() ) {
             return true;
         }
 
-        List<GUID> parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
-        if ( parentIds == null || parentIds.isEmpty() ) {
-            return true;
-        }
-
-        for ( GUID parentId : parentIds ) {
-            TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentId );
+        for ( GUID parentTaskGuid : parentTaskGuids ) {
+            TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentTaskGuid );
             if ( parentElement == null ) {
                 return false;
             }
             if ( businessTime == null ) {
-                if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), expectTime ) != null ) {
+                if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), expectTime ) != null ) {
                     continue;
                 }
                 return false;
             }
-            if ( this.mInstanceAtlasNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
+            if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
                 return false;
             }
         }

@@ -1,65 +1,24 @@
 package com.walnut.odin.atlas.graph;
 
-import com.pinecone.framework.system.Unsafe;
-import com.pinecone.framework.util.Assert;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskTreeNode;
-import com.pinecone.hydra.unit.imperium.entity.EntityNode;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
-import com.pinecone.hydra.unit.vgraph.ArchAtlasInstrument;
-import com.pinecone.hydra.unit.vgraph.MagnitudeVectorDAG;
-import com.pinecone.hydra.unit.vgraph.VectorDAG;
-import com.pinecone.hydra.unit.vgraph.VectorGraphConfig;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
-import com.pinecone.hydra.unit.vgraph.layer.Layer;
-import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
-import com.pinecone.hydra.unit.vgraph.source.VectorGraphMasterManipulator;
-import com.pinecone.slime.meta.TableIndexMeta;
+import com.walnut.odin.atlas.mapper.TaskLineageMapper;
 
-import com.walnut.odin.atlas.advance.GenericGraphStratumTape;
-import com.walnut.odin.atlas.advance.GraphStratumTape;
-import com.walnut.odin.atlas.graph.entity.TaskGraphNode;
-import com.walnut.odin.atlas.mapper.QueueStratumManipulator;
-import com.walnut.odin.atlas.mapper.RunAtlasMasterManipulator;
-import com.walnut.odin.atlas.mapper.TaskGraphManipulator;
+public class UniformRuntimeAtlas implements RuntimeAtlasInstrument {
 
-import java.util.List;
+    private final TaskInstrument   mTaskInstrument;
+    private final TaskLineageMapper mTaskLineageMapper;
 
-public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeAtlasInstrument {
-
-    private TaskInstrument                       mTaskInstrument;
-
-    private RunAtlasMasterManipulator            mRuntimeMasterManipulator;
-
-    private VectorGraphMasterManipulator         mVectorGraphMasterManipulator;
-
-    private TaskGraphManipulator                 mTaskGraphManipulator;
-
-    private QueueStratumManipulator              mQueueStratumManipulator;
-
-    protected void init( TaskInstrument taskInstrument ) {
-        this.mTaskInstrument                   = taskInstrument;
-        this.mRuntimeMasterManipulator         = (RunAtlasMasterManipulator) this.mAtlasMasterManipulator;
-        this.mQueueStratumManipulator          = this.mRuntimeMasterManipulator.getQueueStratumManipulator();
-        this.mVectorGraphMasterManipulator     = this.mRuntimeMasterManipulator.getVectorGraphMasterManipulator();
-        this.mTaskGraphManipulator             = (TaskGraphManipulator) this.mVectorGraphMasterManipulator.getVectorGraphManipulator();
-    }
-
-    public UniformRuntimeAtlas(
-            TaskInstrument taskInstrument, LayerInstrument layerInstrument, AtlasMappingDriver driver, VectorGraphConfig config
-    ) {
-        super( driver, config, layerInstrument );
-        this.init( taskInstrument );
-    }
-
-    public UniformRuntimeAtlas( AtlasMappingDriver driver, TaskInstrument taskInstrument, LayerInstrument layerInstrument ) {
-        super( driver, layerInstrument );
-        this.init( taskInstrument );
+    public UniformRuntimeAtlas( TaskInstrument taskInstrument, TaskLineageMapper taskLineageMapper ) {
+        this.mTaskInstrument    = taskInstrument;
+        this.mTaskLineageMapper = taskLineageMapper;
     }
 
     @Override
@@ -67,161 +26,79 @@ public class UniformRuntimeAtlas extends ArchAtlasInstrument implements RuntimeA
         return this.mTaskInstrument;
     }
 
-
-
     @Override
-    public GUID put( GraphNode graphNode ) {
-        return super.put(graphNode);
+    public void addDependency( GUID taskGuid, GUID parentTaskGuid ) {
+        this.mTaskLineageMapper.addDependency( taskGuid, parentTaskGuid );
     }
 
     @Override
-    public void remove( GUID guid ) {
-        super.remove(guid);
-    }
-
-    public TaskGraphNode query( GUID guid ) {
-        return (TaskGraphNode) super.get(guid);
+    public void removeDependency( GUID taskGuid, GUID parentTaskGuid ) {
+        this.mTaskLineageMapper.removeDependency( taskGuid, parentTaskGuid );
     }
 
     @Override
-    public GraphNode queryGraphNodeByTaskGuid( GUID taskGuid ) {
-        TaskGraphNode taskGraphNode = this.mTaskGraphManipulator.getNodeByTaskGuid( taskGuid );
-        if ( taskGraphNode == null ) {
+    public List<GUID> fetchParentTaskGuids( GUID taskGuid ) {
+        return this.mTaskLineageMapper.fetchParentTaskGuids( taskGuid );
+    }
+
+    @Override
+    public List<GUID> fetchChildTaskGuids( GUID taskGuid ) {
+        return this.mTaskLineageMapper.fetchChildTaskGuids( taskGuid );
+    }
+
+    @Override
+    public List<TaskElement> fetchParentTasks( GUID taskGuid ) {
+        return this.resolveTasks( this.fetchParentTaskGuids( taskGuid ) );
+    }
+
+    @Override
+    public List<TaskElement> fetchChildTasks( GUID taskGuid ) {
+        return this.resolveTasks( this.fetchChildTaskGuids( taskGuid ) );
+    }
+
+    @Override
+    public TaskElement queryTaskElementByGuid( GUID taskGuid ) {
+        if ( taskGuid == null ) {
             return null;
         }
-        GUID guid = taskGraphNode.getId();
-        return this.query(guid);
-    }
 
-    @Override
-    public TaskElement queryTaskElementByGuid( GUID graphNodeGuid ) {
-        GUID guid = this.mTaskGraphManipulator.queryTaskGuidByNodeId( graphNodeGuid );
-        if ( guid == null ) {
+        TreeNode treeNode = this.mTaskInstrument.get( taskGuid );
+        if ( treeNode instanceof TaskElement ) {
+            return (TaskElement) treeNode;
+        }
+        if ( !( treeNode instanceof TaskTreeNode ) ) {
             return null;
         }
-        TaskTreeNode taskTreeNode = (TaskTreeNode) this.mTaskInstrument.get( guid );
-        if ( taskTreeNode == null ) {
+
+        ElementNode elementNode = ( (TaskTreeNode) treeNode ).evinceElementNode();
+        if ( elementNode == null ) {
             return null;
         }
-        ElementNode elementNode = taskTreeNode.evinceElementNode();
-        if ( elementNode != null ) {
-            return elementNode.evinceTaskElement();
-        }
-        return null;
+        return elementNode.evinceTaskElement();
     }
 
     @Override
-    public GraphStratumTape tapedGraphStratumAdvancer( VectorDAG vectorDAG, KOIMappingDriver driver ) {
-        return new GenericGraphStratumTape( this, vectorDAG, driver );
+    public long countParents( GUID taskGuid ) {
+        return this.mTaskLineageMapper.countParents( taskGuid );
     }
 
     @Override
-    public String querySegmentName( GUID vgraphGuid, short stratumId, short runtimePriority ) {
-        return this.mQueueStratumManipulator.querySegmentName( vgraphGuid, stratumId, runtimePriority );
+    public long countChildren( GUID taskGuid ) {
+        return this.mTaskLineageMapper.countChildren( taskGuid );
     }
 
-    @Override
-    public int countStratum( GUID vgraphGuid ) {
-        Integer i = this.mQueueStratumManipulator.countStratum( vgraphGuid );
-        Assert.notNull( i );
-        return i;
-    }
-
-    @Override
-    public int countPriority( GUID vgraphGuid, short stratumId ) {
-        Integer i = this.mQueueStratumManipulator.countPriority( vgraphGuid, stratumId );
-        Assert.notNull( i );
-        return i;
-    }
-
-    @Override
-    public void putStratumMeta( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName ) {
-        this.mQueueStratumManipulator.put( vgraphGuid, stratumId, runtimePriority, segmentName );
-    }
-
-    @Override
-    public VectorDAG toVectorDAG( Layer layer ) {
-        return new MagnitudeVectorDAG(
-                layer,
-                this.mVectorGraphMasterManipulator,
-                this.mVectorGraphConfig
-        );
-    }
-
-    @Override
-    public VectorDAG getByLayerGuid( GUID layerGuid ) {
-        TreeNode treeNode = this.mLayerInstrument.get( layerGuid );
-        if ( !( treeNode instanceof Layer ) ) {
-            return null;
-        }
-        Layer layer = (Layer) treeNode;
-        return this.toVectorDAG( layer );
-    }
-
-    @Override
-    public VectorDAG queryByPath( String path ) {
-        EntityNode entityNode = this.mLayerInstrument.queryNode( path );
-        if ( !( entityNode instanceof Layer ) ) {
-            return null;
-        }
-        Layer layer = (Layer) entityNode;
-        return this.toVectorDAG( layer );
-    }
-
-    @Override
-    public List<GUID> fetchParentIds(GUID graphNodeGuid) {
-        return  this.mTaskGraphManipulator.fetchParentIds( graphNodeGuid );
-    }
-
-    @Override
-    public void addChild( GUID parentGuid, GUID childGuid ) {
-        this.mVectorGraphManipulator.addChild( parentGuid,childGuid );
-    }
-
-
-
-
-
-
-    @Unsafe( "TestOnly" )
-    @Override
-    public List<GraphNode> fetchSourceNodesAll() {
-        TableIndexMeta meta = this.getSourceNodeIndexMeta();
-        return this.fetchSourceNodesById( meta.getMinId(), meta.getMaxId() );
-    }
-
-    @Override
-    public List<GraphNode> fetchSourceNodes( long offset, long limit ) {
-        return this.mTaskGraphManipulator.fetchSourceNodes( offset, limit );
-    }
-
-    @Override
-    public List<GraphNode> fetchSourceNodesById( long idStart, long idEnd ) {
-        return this.mTaskGraphManipulator.fetchSourceNodesById( idStart, idEnd );
-    }
-
-    @Override
-    public TableIndexMeta getSourceNodeIndexMeta() {
-        return this.mTaskGraphManipulator.selectSourceNodeIndexMeta();
-    }
-
-    @Override
-    public long queryMaxSourceNodePage( long limit ) {
-        if ( limit <= 0 ) {
-            throw new IllegalArgumentException( "Limit must be greater than zero." );
+    protected List<TaskElement> resolveTasks( List<GUID> taskGuids ) {
+        List<TaskElement> elements = new ArrayList<>();
+        if ( taskGuids == null || taskGuids.isEmpty() ) {
+            return elements;
         }
 
-        long nTotal = this.mTaskGraphManipulator.countSourceNodes();
-        if ( nTotal == 0 ) {
-            return 0;
+        for ( GUID taskGuid : taskGuids ) {
+            TaskElement element = this.queryTaskElementByGuid( taskGuid );
+            if ( element != null ) {
+                elements.add( element );
+            }
         }
-
-        long nPage = nTotal / limit;
-        if ( nTotal % limit != 0 ) {
-            nPage++;
-        }
-
-        return nPage;
+        return elements;
     }
-
 }

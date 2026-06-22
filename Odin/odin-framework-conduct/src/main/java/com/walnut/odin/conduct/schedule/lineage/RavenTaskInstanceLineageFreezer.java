@@ -10,34 +10,33 @@ import java.util.Map;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.entity.GenericInstanceAtlasAdjacent;
-import com.walnut.odin.conduct.entity.GenericInstanceAtlasNode;
-import com.walnut.odin.conduct.entity.InstanceAtlasAdjacent;
-import com.walnut.odin.conduct.entity.InstanceAtlasNode;
+import com.walnut.odin.conduct.entity.GenericInstanceLineageAdjacent;
+import com.walnut.odin.conduct.entity.GenericInstanceLineageNode;
+import com.walnut.odin.conduct.entity.InstanceLineageAdjacent;
+import com.walnut.odin.conduct.entity.InstanceLineageNode;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceFrame;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceLineage;
 import com.walnut.odin.conduct.schedule.entity.TaskScheduleContext;
 import com.walnut.odin.task.RavenTaskInstance;
-import com.walnut.odin.task.mapper.InstanceAtlasAdjacentMapper;
-import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
+import com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper;
+import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 
 public class RavenTaskInstanceLineageFreezer implements TaskInstanceLineageFreezer {
 
     protected GuidAllocator mGuidAllocator;
     protected RuntimeAtlasInstrument mRuntimeAtlasInstrument;
-    protected InstanceAtlasNodeMapper mInstanceAtlasNodeMapper;
-    protected InstanceAtlasAdjacentMapper mInstanceAtlasAdjacentMapper;
+    protected InstanceLineageNodeMapper mInstanceLineageNodeMapper;
+    protected InstanceLineageAdjacentMapper mInstanceLineageAdjacentMapper;
 
     public RavenTaskInstanceLineageFreezer(
             GuidAllocator guidAllocator, RuntimeAtlasInstrument runtimeAtlasInstrument,
-            InstanceAtlasNodeMapper instanceAtlasNodeMapper, InstanceAtlasAdjacentMapper instanceAtlasAdjacentMapper
+            InstanceLineageNodeMapper instanceLineageNodeMapper, InstanceLineageAdjacentMapper instanceLineageAdjacentMapper
     ) {
         this.mGuidAllocator               = guidAllocator;
         this.mRuntimeAtlasInstrument      = runtimeAtlasInstrument;
-        this.mInstanceAtlasNodeMapper     = instanceAtlasNodeMapper;
-        this.mInstanceAtlasAdjacentMapper = instanceAtlasAdjacentMapper;
+        this.mInstanceLineageNodeMapper     = instanceLineageNodeMapper;
+        this.mInstanceLineageAdjacentMapper = instanceLineageAdjacentMapper;
     }
 
     protected ScheduledTaskInstanceLineage prepareInstanceLineageFrame( ScheduledTaskInstanceFrame frame ) {
@@ -46,33 +45,32 @@ public class RavenTaskInstanceLineageFreezer implements TaskInstanceLineageFreez
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
 
-        GraphNode graphNode = this.mRuntimeAtlasInstrument.queryGraphNodeByTaskGuid( element.getGuid() );
-        List<GUID> parentIds = new ArrayList<>();
+        GUID taskGuid = element.getGuid();
+        List<GUID> parentTaskGuids = this.mRuntimeAtlasInstrument.fetchParentTaskGuids( taskGuid );
+        if ( parentTaskGuids == null ) {
+            parentTaskGuids = new ArrayList<>();
+        }
 
-        InstanceAtlasNode instanceNode = this.mInstanceAtlasNodeMapper.queryByInstanceGuid( instanceGuid );
+        InstanceLineageNode instanceNode = this.mInstanceLineageNodeMapper.queryByInstanceGuid( instanceGuid );
         if ( instanceNode == null ) {
-            instanceNode = new GenericInstanceAtlasNode();
+            instanceNode = new GenericInstanceLineageNode();
             instanceNode.setGuid( this.mGuidAllocator.nextGUID() );
             instanceNode.setInstanceGuid( instanceGuid );
             instanceNode.setNodeName( instance.getOwnedTask().getName() );
         }
 
-        if ( graphNode != null ) {
-            parentIds = this.mRuntimeAtlasInstrument.fetchParentIds( graphNode.getId() );
-        }
-
-        return new ScheduledTaskInstanceLineage( context, instance, graphNode, parentIds, instanceNode, frame.isCreated() );
+        return new ScheduledTaskInstanceLineage( context, instance, taskGuid, parentTaskGuids, instanceNode, frame.isCreated() );
     }
 
-    protected InstanceAtlasNode resolveParentInstanceAtlasNode(
-            ScheduledTaskInstanceLineage lineage, GUID parentGraphNodeGuid, Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid
+    protected InstanceLineageNode resolveParentInstanceLineageNode(
+            ScheduledTaskInstanceLineage lineage, GUID parentTaskGuid, Map<GUID, ScheduledTaskInstanceLineage> lineageByTaskGuid
     ) {
-        ScheduledTaskInstanceLineage inMemory = lineageByGraphNodeGuid.get( parentGraphNodeGuid );
+        ScheduledTaskInstanceLineage inMemory = lineageByTaskGuid.get( parentTaskGuid );
         if ( inMemory != null ) {
-            return inMemory.getInstanceAtlasNode();
+            return inMemory.getInstanceLineageNode();
         }
 
-        TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentGraphNodeGuid );
+        TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentTaskGuid );
         if ( parentElement == null ) {
             return null;
         }
@@ -81,66 +79,66 @@ public class RavenTaskInstanceLineageFreezer implements TaskInstanceLineageFreez
         RavenTaskInstance instance = lineage.getInstance();
         LocalDateTime businessTime = instance.getInstanceEntry().getBusinessTime();
         if ( businessTime == null ) {
-            return this.mInstanceAtlasNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() );
+            return this.mInstanceLineageNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() );
         }
-        return this.mInstanceAtlasNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime );
+        return this.mInstanceLineageNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime );
     }
 
     protected void prepareInstanceLineages( Collection<ScheduledTaskInstanceLineage> lineages ) {
-        Map<GUID, ScheduledTaskInstanceLineage> lineageByGraphNodeGuid = new HashMap<>();
+        Map<GUID, ScheduledTaskInstanceLineage> lineageByTaskGuid = new HashMap<>();
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            GraphNode graphNode = lineage.getGraphNode();
-            if ( graphNode != null ) {
-                lineageByGraphNodeGuid.put( graphNode.getId(), lineage );
+            GUID taskGuid = lineage.getTaskGuid();
+            if ( taskGuid != null ) {
+                lineageByTaskGuid.put( taskGuid, lineage );
             }
         }
 
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            List<GUID> parentIds = lineage.getParentIds();
-            List<InstanceAtlasAdjacent> adjacents = new ArrayList<>();
+            List<GUID> parentTaskGuids = lineage.getParentTaskGuids();
+            List<InstanceLineageAdjacent> adjacents = new ArrayList<>();
 
-            if ( parentIds != null && !parentIds.isEmpty() ) {
-                for ( GUID parentId : parentIds ) {
-                    InstanceAtlasNode parentNode = this.resolveParentInstanceAtlasNode(
-                            lineage, parentId, lineageByGraphNodeGuid
+            if ( parentTaskGuids != null && !parentTaskGuids.isEmpty() ) {
+                for ( GUID parentTaskGuid : parentTaskGuids ) {
+                    InstanceLineageNode parentNode = this.resolveParentInstanceLineageNode(
+                            lineage, parentTaskGuid, lineageByTaskGuid
                     );
                     if ( parentNode == null ) {
-                        throw new IllegalStateException( "Cannot resolve parent instance atlas node. Parent graph node: " + parentId );
+                        throw new IllegalStateException( "Cannot resolve parent instance lineage node. Parent task: " + parentTaskGuid );
                     }
 
-                    InstanceAtlasAdjacent adjacent = new GenericInstanceAtlasAdjacent();
-                    adjacent.setGuid( lineage.getInstanceAtlasNode().getGuid() );
+                    InstanceLineageAdjacent adjacent = new GenericInstanceLineageAdjacent();
+                    adjacent.setGuid( lineage.getInstanceLineageNode().getGuid() );
                     adjacent.setParentGuid( parentNode.getGuid() );
                     adjacents.add( adjacent );
                 }
             }
 
-            lineage.getInstanceAtlasNode().setSource( adjacents.isEmpty() );
+            lineage.getInstanceLineageNode().setSource( adjacents.isEmpty() );
             lineage.setAdjacents( adjacents );
         }
     }
 
-    protected void persistInstanceAtlasNodes( Collection<ScheduledTaskInstanceLineage> lineages ) {
+    protected void persistInstanceLineageNodes( Collection<ScheduledTaskInstanceLineage> lineages ) {
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            InstanceAtlasNode node = lineage.getInstanceAtlasNode();
-            InstanceAtlasNode existing = this.mInstanceAtlasNodeMapper.queryByInstanceGuid( node.getInstanceGuid() );
+            InstanceLineageNode node = lineage.getInstanceLineageNode();
+            InstanceLineageNode existing = this.mInstanceLineageNodeMapper.queryByInstanceGuid( node.getInstanceGuid() );
             if ( existing == null ) {
-                this.mInstanceAtlasNodeMapper.insert( node );
+                this.mInstanceLineageNodeMapper.insert( node );
             }
             else {
-                this.mInstanceAtlasNodeMapper.updateSourceByGuid( existing.getGuid(), node.isSource() );
+                this.mInstanceLineageNodeMapper.updateSourceByGuid( existing.getGuid(), node.isSource() );
             }
         }
     }
 
-    protected void persistInstanceAtlasAdjacents( Collection<ScheduledTaskInstanceLineage> lineages ) {
+    protected void persistInstanceLineageAdjacents( Collection<ScheduledTaskInstanceLineage> lineages ) {
         for ( ScheduledTaskInstanceLineage lineage : lineages ) {
-            for ( InstanceAtlasAdjacent adjacent : lineage.getAdjacents() ) {
-                long existing = this.mInstanceAtlasAdjacentMapper.countByGuidAndParentGuid(
+            for ( InstanceLineageAdjacent adjacent : lineage.getAdjacents() ) {
+                long existing = this.mInstanceLineageAdjacentMapper.countByGuidAndParentGuid(
                         adjacent.getGuid(), adjacent.getParentGuid()
                 );
                 if ( existing <= 0 ) {
-                    this.mInstanceAtlasAdjacentMapper.insert( adjacent );
+                    this.mInstanceLineageAdjacentMapper.insert( adjacent );
                 }
             }
         }
@@ -158,8 +156,8 @@ public class RavenTaskInstanceLineageFreezer implements TaskInstanceLineageFreez
         }
 
         this.prepareInstanceLineages( lineages );
-        this.persistInstanceAtlasNodes( lineages );
-        this.persistInstanceAtlasAdjacents( lineages );
+        this.persistInstanceLineageNodes( lineages );
+        this.persistInstanceLineageAdjacents( lineages );
 
         return lineages;
     }

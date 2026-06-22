@@ -1,26 +1,39 @@
 package com.walnut.odin.atlas.mapper;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.framework.system.executum.Processum;
+import com.pinecone.hydra.entity.ibatis.hydranium.ArchMappingDriver;
 import com.pinecone.hydra.system.component.ResourceDispenserCenter;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMasterManipulator;
+import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 
-public class OdinAtlasMappingDriver extends ArchAtlasMappingDriver implements AtlasMappingDriver {
-    protected AtlasMasterManipulator mVectorGraphMasterManipulator;
+public class OdinAtlasMappingDriver extends ArchMappingDriver {
 
-    public OdinAtlasMappingDriver( Processum superiorProcess ){
+    @Resource
+    @Structure( type = TaskLineageMapper.class )
+    protected TaskLineageMapper mTaskLineageMapper;
+
+    public OdinAtlasMappingDriver( Processum superiorProcess ) {
         super( superiorProcess );
     }
 
-    public OdinAtlasMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
+    public OdinAtlasMappingDriver(
+            Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter
+    ) {
         super( superiorProcess, ibatisClient, dispenserCenter, OdinAtlasMappingDriver.class.getPackageName() );
+        this.autoConstruct( OdinAtlasMappingDriver.class, Map.of(), this );
+    }
 
-        this.mVectorGraphMasterManipulator = new OdinAtlasMasterManipulatorImpl( this );
+    public TaskLineageMapper taskLineageMapper() {
+        return this.mTaskLineageMapper;
     }
 
     @Override
-    public AtlasMasterManipulator getMasterManipulator() {
-        return this.mVectorGraphMasterManipulator;
+    public KOIMasterManipulator getMasterManipulator() {
+        return null;
     }
 }

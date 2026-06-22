@@ -12,7 +12,6 @@ import com.pinecone.framework.util.json.homotype.MapStructure;
 import com.pinecone.hydra.grpc.server.GrpcAppointServer;
 import com.pinecone.hydra.grpc.server.GrpcServerConfig;
 import com.pinecone.framework.system.IrrationalProvokedException;
-import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.ProcessManagerSystema;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
@@ -21,9 +20,6 @@ import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
-import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
-import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.tritium.system.TritiumSystem;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
@@ -49,7 +45,6 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     private CollectiveTaskRegiment  mTaskRegiment;
 
-    private LayerInstrument         mLayerInstrument;
     private RuntimeAtlasInstrument  mAtlasInstrument;
 
     private UniformTaskScheduler    mTaskScheduler;
@@ -101,12 +96,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
 
         TritiumSystem sys = (TritiumSystem) this.parentSystem();
-        KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
-                sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
-                sys.getDispenserCenter()
-        );
-
-        AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
+        OdinAtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
                 sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
                 sys.getDispenserCenter()
         );
@@ -122,8 +112,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         );
         this.infoLifecycle( "<Odin> Constructing component `TaskInstrument`.", LogStatuses.StatusDone );
 
-        this.mLayerInstrument = new VLayerInstrument( layerMappingDriver );
-        this.mAtlasInstrument = new UniformRuntimeAtlas( atlasMappingDriver, taskInstrument, this.mLayerInstrument );
+        this.mAtlasInstrument = new UniformRuntimeAtlas( taskInstrument, atlasMappingDriver.taskLineageMapper() );
         this.infoLifecycle( "<Odin> Constructing component `AtlasInstrument`.", LogStatuses.StatusDone );
 
         ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
@@ -312,11 +301,6 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
             grpcServer.shutdown();
         }
         this.mAutonomousGrpcServers.clear();
-    }
-
-
-    public LayerInstrument layerInstrument() {
-        return this.mLayerInstrument;
     }
 
     public RuntimeAtlasInstrument atlasInstrument() {

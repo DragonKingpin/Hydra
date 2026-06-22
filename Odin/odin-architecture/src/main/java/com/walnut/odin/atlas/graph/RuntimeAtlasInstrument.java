@@ -2,63 +2,37 @@ package com.walnut.odin.atlas.graph;
 
 import java.util.List;
 
-import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.unit.vgraph.AtlasInstrument;
-import com.pinecone.hydra.unit.vgraph.VectorDAG;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
-import com.pinecone.slime.meta.TableIndexMeta;
-
-import com.walnut.odin.atlas.advance.GraphStratumTape;
 
 /**
- *  Pinecone Ursus For Java RuntimeAtlas
- *  Author: Ken, Harald.E (Dragon King)
- *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
- *  *****************************************************************************************
- *  Runtime Orchestration Atlas
- *  统一大规模运行矢量调度云图
- *  *****************************************************************************************
+ * Odin runtime atlas facade.
+ *
+ * The current atlas kernel is task-lineage based: guid means task guid, and
+ * parent guid means upstream task guid.
  */
-public interface RuntimeAtlasInstrument extends Pinenut, AtlasInstrument {
+public interface RuntimeAtlasInstrument extends Pinenut {
 
     TaskInstrument taskInstrument();
 
-    GraphNode queryGraphNodeByTaskGuid( GUID taskGuid );
+    void addDependency( GUID taskGuid, GUID parentTaskGuid );
 
-    TaskElement queryTaskElementByGuid( GUID graphNodeGuid );
+    void removeDependency( GUID taskGuid, GUID parentTaskGuid );
 
-    GraphStratumTape tapedGraphStratumAdvancer(VectorDAG vectorDAG, KOIMappingDriver driver );
+    List<GUID> fetchParentTaskGuids( GUID taskGuid );
 
-    String querySegmentName( GUID vgraphGuid, short stratumId, short runtimePriority );
+    List<GUID> fetchChildTaskGuids( GUID taskGuid );
 
-    int countStratum( GUID vgraphGuid );
+    List<TaskElement> fetchParentTasks( GUID taskGuid );
 
-    int countPriority( GUID vgraphGuid, short stratumId );
+    List<TaskElement> fetchChildTasks( GUID taskGuid );
 
-    void putStratumMeta( GUID vgraphGuid, short stratumId, short runtimePriority, String segmentName );
+    TaskElement queryTaskElementByGuid( GUID taskGuid );
 
-    VectorDAG getByLayerGuid( GUID layerGuid );
+    long countParents( GUID taskGuid );
 
-    VectorDAG queryByPath( String path );
-
-
-    List<GUID> fetchParentIds( GUID graphNodeGuid );
-
-
-    @Unsafe( "TestOnly" )
-    List<GraphNode> fetchSourceNodesAll();
-
-    List<GraphNode> fetchSourceNodes( long offset, long limit );
-
-    List<GraphNode> fetchSourceNodesById( long idStart, long idEnd );
-
-    TableIndexMeta getSourceNodeIndexMeta();
-
-    long queryMaxSourceNodePage( long limit );
+    long countChildren( GUID taskGuid );
 
 }

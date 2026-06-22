@@ -16,12 +16,12 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
     private InstanceEventMapper minstanceEventMapper;
 
     @Resource
-    @Structure(type = InstanceAtlasAdjacentMapper.class)
-    private InstanceAtlasAdjacentMapper minstanceAtlasAdjacentMapper;
+    @Structure(type = InstanceLineageAdjacentMapper.class)
+    private InstanceLineageAdjacentMapper mInstanceLineageAdjacentMapper;
 
     @Resource
-    @Structure(type = InstanceAtlasNodeMapper.class)
-    private InstanceAtlasNodeMapper minstanceAtlasNodeMapper;
+    @Structure(type = InstanceLineageNodeMapper.class)
+    private InstanceLineageNodeMapper mInstanceLineageNodeMapper;
 
     @Resource
     @Structure(type = InstanceExecMapper.class)
@@ -36,13 +36,13 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
 
     public ScheduleManipulatorImpl(
             InstanceEventMapper instanceEventMapper,
-            InstanceAtlasAdjacentMapper instanceAtlasAdjacentMapper,
-            InstanceAtlasNodeMapper instanceAtlasNodeMapper,
+            InstanceLineageAdjacentMapper instanceLineageAdjacentMapper,
+            InstanceLineageNodeMapper instanceLineageNodeMapper,
             InstanceExecMapper instanceExecMapper
     ) {
         this.minstanceEventMapper = instanceEventMapper;
-        this.minstanceAtlasAdjacentMapper = instanceAtlasAdjacentMapper;
-        this.minstanceAtlasNodeMapper = instanceAtlasNodeMapper;
+        this.mInstanceLineageAdjacentMapper = instanceLineageAdjacentMapper;
+        this.mInstanceLineageNodeMapper = instanceLineageNodeMapper;
         this.minstanceExecMapper = instanceExecMapper;
     }
 
@@ -52,13 +52,13 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
     }
 
     @Override
-    public InstanceAtlasAdjacentMapper getInstanceAtlasAdjacentMapper() {
-        return this.minstanceAtlasAdjacentMapper;
+    public InstanceLineageAdjacentMapper getInstanceLineageAdjacentMapper() {
+        return this.mInstanceLineageAdjacentMapper;
     }
 
     @Override
-    public InstanceAtlasNodeMapper getInstanceAtlasNodeMapper() {
-        return this.minstanceAtlasNodeMapper;
+    public InstanceLineageNodeMapper getInstanceLineageNodeMapper() {
+        return this.mInstanceLineageNodeMapper;
     }
 
     @Override

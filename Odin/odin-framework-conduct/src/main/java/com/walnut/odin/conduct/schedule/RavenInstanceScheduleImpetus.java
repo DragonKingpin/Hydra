@@ -43,7 +43,7 @@ import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
-import com.walnut.odin.task.mapper.InstanceAtlasNodeMapper;
+import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.troll.GenericRavenTaskInstance;
@@ -68,7 +68,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
     private ScheduleManipulator        mScheduleManipulator;
-    private InstanceAtlasNodeMapper    mInstanceAtlasNodeMapper;
+    private InstanceLineageNodeMapper    mInstanceLineageNodeMapper;
 
     private InstanceScheduleAllocator  mInstanceScheduleAllocator;
     private InstanceDepartureGate      mInstanceDepartureGate;
@@ -90,7 +90,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mRavenTaskMasterManipulator = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceAtlasNodeMapper    = this.mScheduleManipulator.getInstanceAtlasNodeMapper();
+        this.mInstanceLineageNodeMapper    = this.mScheduleManipulator.getInstanceLineageNodeMapper();
 
         this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
         this.mInstanceDepartureGate       = taskScheduler.instanceDepartureGate();
@@ -175,7 +175,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
             return new DependencyBlockageIndex( List.of() );
         }
 
-        Collection<DependencyBlockage> blockages = this.mInstanceAtlasNodeMapper.fetchDependencyBlockages(
+        Collection<DependencyBlockage> blockages = this.mInstanceLineageNodeMapper.fetchDependencyBlockages(
                 ids,
                 TaskInstanceStatus.Finished.getName()
         );

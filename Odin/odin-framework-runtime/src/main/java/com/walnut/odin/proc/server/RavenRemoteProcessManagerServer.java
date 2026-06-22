@@ -14,6 +14,7 @@ import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.MediatedRemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
 import com.walnut.odin.proc.entity.RemoteTerminationReport;
@@ -781,7 +782,10 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         UProcess that = this.expunge( processId );
         if ( that instanceof RemoteProcess ) {
             RemoteProcess remoteProcess = (RemoteProcess) that;
-            remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Terminated, terminationReport );
+            UProcessStatus event = terminationReport.optStatus() == RemoteTerminationStatus.Expected
+                    ? UProcessStatus.Terminated
+                    : UProcessStatus.Error;
+            remoteProcess.notifyRemoteEvent( clientId, event, terminationReport );
             return RemoteTerminationAcceptance.accepted( remoteProcess );
         }
 

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.formation.source.FormationRunFrameMapper">
+
+    <resultMap id="FormationFrameMap" type="com.walnut.odin.formation.plan.GenericFormationFrame">
+        <result column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="run_guid" property="runGuid"/>
+        <result column="formation_guid" property="formationGuid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="task_name" property="taskName"/>
+        <result column="page_no" property="pageNo"/>
+        <result column="frame_no" property="frameNo"/>
+        <result column="queue_type" property="queueType"/>
+        <result column="frame_status" property="frameStatus"/>
+        <result column="priority" property="priority"/>
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="claim_owner" property="claimOwner"/>
+        <result column="claim_token" property="claimToken"/>
+        <result column="lease_expire_time" property="leaseExpireTime"/>
+        <result column="submit_time" property="submitTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="attempt_count" property="attemptCount"/>
+        <result column="error_cause" property="errorCause"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="frame.id">
+        INSERT INTO odin_formation_run_frames (
+            guid,
+            run_guid,
+            formation_guid,
+            task_guid,
+            task_name,
+            page_no,
+            frame_no,
+            queue_type,
+            frame_status,
+            priority
+        ) VALUES (
+            #{frame.guid},
+            #{frame.runGuid},
+            #{frame.formationGuid},
+            #{frame.taskGuid},
+            #{frame.taskName},
+            #{frame.pageNo},
+            #{frame.frameNo},
+            #{frame.queueType},
+            #{frame.frameStatus},
+            #{frame.priority}
+        )
+    </insert>
+
+    <select id="fetchPendingFramesByPage" resultMap="FormationFrameMap">
+        SELECT
+            id,
+            guid,
+            run_guid,
+            formation_guid,
+            task_guid,
+            task_name,
+            page_no,
+            frame_no,
+            queue_type,
+            frame_status,
+            priority,
+            instance_guid,
+            claim_owner,
+            claim_token,
+            lease_expire_time,
+            submit_time,
+            finish_time,
+            attempt_count,
+            error_cause
+        FROM odin_formation_run_frames
+        WHERE run_guid = #{runGuid}
+          AND page_no = #{pageNo}
+          AND frame_status = 'Pending'
+        ORDER BY frame_no ASC
+    </select>
+
+    <update id="markSubmitted">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Submitted',
+            instance_guid = #{instanceGuid},
+            submit_time = NOW(),
+            attempt_count = attempt_count + 1
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="markFailed">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Failed',
+            finish_time = NOW(),
+            attempt_count = attempt_count + 1,
+            error_cause = #{errorCause}
+        WHERE guid = #{guid}
+    </update>
+</mapper>

@@ -99,13 +99,21 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 this.mInstanceInstrument,
                 this.mScheduleManipulator.getInstanceEventMapper()
         );
-        this.mExecutorService            = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
+        this.startService();
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
     }
 
     @Override
-    public void terminateService( long nGracefulShutdownMillis ) {
+    public synchronized void startService() {
+        if ( this.mExecutorService != null && !this.mExecutorService.isShutdown() ) {
+            return;
+        }
+        this.mExecutorService = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
+    }
+
+    @Override
+    public synchronized void terminateService( long nGracefulShutdownMillis ) {
         ExecutorService executor = this.mExecutorService;
         this.mExecutorService = null;
         if ( executor == null ) {

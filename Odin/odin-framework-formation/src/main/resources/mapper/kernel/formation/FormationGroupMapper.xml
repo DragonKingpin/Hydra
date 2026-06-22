@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.formation.source.FormationGroupMapper">
+
+    <resultMap id="FormationGroupMap" type="com.walnut.odin.formation.GenericFormationGroup">
+        <result column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="identifier" property="identifier"/>
+        <result column="title" property="title"/>
+        <result column="project_guid" property="projectGuid"/>
+        <result column="strategy_type" property="strategyType"/>
+        <result column="page_size" property="pageSize"/>
+        <result column="frame_size" property="frameSize"/>
+        <result column="window_size" property="windowSize"/>
+        <result column="inflight_limit" property="inflightLimit"/>
+        <result column="enable" property="enable"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="FormationGroupColumns">
+        id,
+        guid,
+        identifier,
+        title,
+        project_guid,
+        strategy_type,
+        page_size,
+        frame_size,
+        window_size,
+        inflight_limit,
+        enable,
+        description,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="selectByGuid" resultMap="FormationGroupMap">
+        SELECT
+            <include refid="FormationGroupColumns"/>
+        FROM odin_formation_groups
+        WHERE guid = #{guid}
+        LIMIT 1
+    </select>
+
+    <select id="selectByIdentifier" resultMap="FormationGroupMap">
+        SELECT
+            <include refid="FormationGroupColumns"/>
+        FROM odin_formation_groups
+        WHERE identifier = #{identifier}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="group.id">
+        INSERT INTO odin_formation_groups (
+            guid,
+            identifier,
+            title,
+            project_guid,
+            strategy_type,
+            page_size,
+            frame_size,
+            window_size,
+            inflight_limit,
+            enable,
+            description
+        ) VALUES (
+            #{group.guid},
+            #{group.identifier},
+            #{group.title},
+            #{group.projectGuid},
+            #{group.strategyType},
+            #{group.pageSize},
+            #{group.frameSize},
+            #{group.windowSize},
+            #{group.inflightLimit},
+            #{group.enable},
+            #{group.description}
+        )
+    </insert>
+</mapper>

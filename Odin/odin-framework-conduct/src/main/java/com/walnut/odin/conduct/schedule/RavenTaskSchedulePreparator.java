@@ -131,13 +131,21 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
                 this.mInstanceLineageNodeMapper,
                 this.mInstanceLineageAdjacentMapper
         );
-        this.mExecutorService              = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
+        this.startService();
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskSchedulePreparator Construction) <Done>" );
     }
 
     @Override
-    public void terminateService( long nGracefulShutdownMillis ) {
+    public synchronized void startService() {
+        if ( this.mExecutorService != null && !this.mExecutorService.isShutdown() ) {
+            return;
+        }
+        this.mExecutorService = Executors.newFixedThreadPool( this.mnScanThreadCount * 2 );
+    }
+
+    @Override
+    public synchronized void terminateService( long nGracefulShutdownMillis ) {
         ExecutorService executor = this.mExecutorService;
         this.mExecutorService = null;
         if ( executor == null ) {
@@ -513,6 +521,8 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     protected void prepareSchedulableTasksAndWait(
             Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime, ScheduleTaskBatchHandler handler
     ) {
+        this.startService();
+
         if ( targetTime == null ) {
             targetTime = LocalDateTime.now();
         }

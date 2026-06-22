@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.formation.source.FormationRunMapper">
+
+    <resultMap id="FormationRunMap" type="com.walnut.odin.formation.GenericFormationRun">
+        <result column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="formation_guid" property="formationGuid"/>
+        <result column="strategy_type" property="strategyType"/>
+        <result column="run_status" property="runStatus"/>
+        <result column="page_size" property="pageSize"/>
+        <result column="frame_size" property="frameSize"/>
+        <result column="window_size" property="windowSize"/>
+        <result column="inflight_limit" property="inflightLimit"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="submitted_count" property="submittedCount"/>
+        <result column="completed_count" property="completedCount"/>
+        <result column="failed_count" property="failedCount"/>
+        <result column="suspended_count" property="suspendedCount"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="FormationRunColumns">
+        id,
+        guid,
+        formation_guid,
+        strategy_type,
+        run_status,
+        page_size,
+        frame_size,
+        window_size,
+        inflight_limit,
+        total_count,
+        submitted_count,
+        completed_count,
+        failed_count,
+        suspended_count,
+        start_time,
+        finish_time,
+        create_time,
+        update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="run.id">
+        INSERT INTO odin_formation_runs (
+            guid,
+            formation_guid,
+            strategy_type,
+            run_status,
+            page_size,
+            frame_size,
+            window_size,
+            inflight_limit,
+            total_count,
+            submitted_count,
+            completed_count,
+            failed_count,
+            suspended_count
+        ) VALUES (
+            #{run.guid},
+            #{run.formationGuid},
+            #{run.strategyType},
+            #{run.runStatus},
+            #{run.pageSize},
+            #{run.frameSize},
+            #{run.windowSize},
+            #{run.inflightLimit},
+            #{run.totalCount},
+            #{run.submittedCount},
+            #{run.completedCount},
+            #{run.failedCount},
+            #{run.suspendedCount}
+        )
+    </insert>
+
+    <select id="selectByGuid" resultMap="FormationRunMap">
+        SELECT
+            <include refid="FormationRunColumns"/>
+        FROM odin_formation_runs
+        WHERE guid = #{guid}
+        LIMIT 1
+    </select>
+
+    <select id="fetchRunnableRuns" resultMap="FormationRunMap">
+        SELECT
+            <include refid="FormationRunColumns"/>
+        FROM odin_formation_runs
+        WHERE run_status = 'Prepared'
+        ORDER BY id ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE odin_formation_runs
+        SET run_status = #{status}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="markRunning">
+        UPDATE odin_formation_runs
+        SET run_status = 'Running',
+            start_time = IFNULL(start_time, NOW())
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="increaseSubmitted">
+        UPDATE odin_formation_runs
+        SET submitted_count = submitted_count + 1
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="increaseCompleted">
+        UPDATE odin_formation_runs
+        SET completed_count = completed_count + 1
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="increaseFailed">
+        UPDATE odin_formation_runs
+        SET failed_count = failed_count + 1
+        WHERE guid = #{guid}
+    </update>
+</mapper>

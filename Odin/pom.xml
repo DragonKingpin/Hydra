@@ -19,6 +19,7 @@
         <module>odin-framework-specific</module>
         <module>odin-framework-atlas</module>
         <module>odin-framework-runtime</module>
+        <module>odin-framework-formation</module>
         <module>odin-runtime-husky-control</module>
         <module>odin-runtime-grpc-control</module>
         <module>odin-framework-conduct</module>

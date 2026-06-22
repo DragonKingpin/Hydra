@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.formation.source.FormationRunPageMapper">
+
+    <resultMap id="FormationPageMap" type="com.walnut.odin.formation.plan.GenericFormationPage">
+        <result column="id" property="id"/>
+        <result column="run_guid" property="runGuid"/>
+        <result column="formation_guid" property="formationGuid"/>
+        <result column="page_no" property="pageNo"/>
+        <result column="page_status" property="pageStatus"/>
+        <result column="frame_start" property="frameStart"/>
+        <result column="frame_end" property="frameEnd"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="completed_count" property="completedCount"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="page.id">
+        INSERT INTO odin_formation_run_pages (
+            run_guid,
+            formation_guid,
+            page_no,
+            page_status,
+            frame_start,
+            frame_end,
+            total_count,
+            completed_count
+        ) VALUES (
+            #{page.runGuid},
+            #{page.formationGuid},
+            #{page.pageNo},
+            #{page.pageStatus},
+            #{page.frameStart},
+            #{page.frameEnd},
+            #{page.totalCount},
+            #{page.completedCount}
+        )
+    </insert>
+
+    <select id="fetchPendingPages" resultMap="FormationPageMap">
+        SELECT
+            id,
+            run_guid,
+            formation_guid,
+            page_no,
+            page_status,
+            frame_start,
+            frame_end,
+            total_count,
+            completed_count
+        FROM odin_formation_run_pages
+        WHERE run_guid = #{runGuid}
+          AND page_status = 'Pending'
+        ORDER BY page_no ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="claimPage">
+        UPDATE odin_formation_run_pages
+        SET page_status = 'Claimed',
+            claim_owner = #{claimOwner},
+            claim_token = #{claimToken},
+            lease_expire_time = DATE_ADD(NOW(), INTERVAL #{leaseSeconds} SECOND)
+        WHERE id = #{id}
+          AND page_status = 'Pending'
+    </update>
+
+    <update id="markRunning">
+        UPDATE odin_formation_run_pages
+        SET page_status = 'Running'
+        WHERE id = #{id}
+          AND page_status = 'Claimed'
+    </update>
+
+    <update id="markCompleted">
+        UPDATE odin_formation_run_pages
+        SET page_status = 'Completed',
+            completed_count = total_count
+        WHERE id = #{id}
+    </update>
+</mapper>

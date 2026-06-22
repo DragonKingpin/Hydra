@@ -104,18 +104,31 @@ public interface TaskPathCacheMapper extends TriePathCacheManipulator {
                 }
             }
 
-            try {
-                this.insertHashed( guid, pathHash, nextSlot, path );
-                return;
-            }
-            catch ( RuntimeException exception ) {
-                if ( !PathCacheAtomicity.isDuplicateKey( exception ) ) {
-                    throw exception;
+            this.insertHashed( guid, pathHash, nextSlot, path );
+
+            CachePathBinding stored = this.findBindingByPath( pathHash, path );
+            if ( stored != null ) {
+                if ( PathCacheAtomicity.sameGuid( stored.getGuid(), guid ) ) {
+                    return;
                 }
+                throw PathCacheAtomicity.pathConflict( "task", stored.getGuid(), guid, path );
             }
         }
 
         throw PathCacheAtomicity.insertExhausted( "task", path );
+    }
+
+    default CachePathBinding findBindingByPath( String pathHash, String path ) {
+        List<CachePathBinding> bindings = this.listByPathHash( pathHash );
+        if ( bindings == null || bindings.isEmpty() ) {
+            return null;
+        }
+        for ( CachePathBinding binding : bindings ) {
+            if ( path.equals( binding.getResolvedPath() ) ) {
+                return binding;
+            }
+        }
+        return null;
     }
 
     default GenericCachePath getPath0( GUID guid ) {

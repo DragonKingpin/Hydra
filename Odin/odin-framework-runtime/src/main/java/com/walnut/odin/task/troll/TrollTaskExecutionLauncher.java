@@ -559,7 +559,11 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         LocalDateTime now = LocalDateTime.now();
         TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
                 instance.getInstanceEntry().getGuid(),
-                List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                List.of(
+                        TaskInstanceStatus.Running,
+                        TaskInstanceStatus.ProcessStandby,
+                        TaskInstanceStatus.ProcessCreating
+                ),
                 TaskInstanceStatus.Finished,
                 TaskInstanceTransitionReason.ProcessSucceeded,
                 null,
@@ -583,7 +587,11 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         String szCause = caused == null ? null : String.valueOf( caused );
         TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
                 instance.getInstanceEntry().getGuid(),
-                List.of( TaskInstanceStatus.Running, TaskInstanceStatus.ProcessStandby ),
+                List.of(
+                        TaskInstanceStatus.Running,
+                        TaskInstanceStatus.ProcessStandby,
+                        TaskInstanceStatus.ProcessCreating
+                ),
                 TaskInstanceStatus.Error,
                 TaskInstanceTransitionReason.ProcessFailed,
                 null,

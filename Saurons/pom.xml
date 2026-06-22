@@ -19,7 +19,6 @@
         <module>heist-system-schedule</module>
         <module>heist-http-client-okhttp-suit</module>
         <module>sauron-core</module>
-        <module>saurye</module>
         <module>shadow</module>
     </modules>
 

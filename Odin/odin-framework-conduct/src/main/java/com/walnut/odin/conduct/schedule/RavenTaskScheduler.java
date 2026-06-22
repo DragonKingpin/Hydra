@@ -187,6 +187,9 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         long nStartupDelayMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineStartupDelayMillis() );
         long nTickMillis = Math.max( 1L, this.mRavenTaskConfig.getScheduleCycleEngineTickMillis() );
 
+        this.mTaskSchedulePreparator.startService();
+        this.mInstanceScheduleImpetus.startService();
+
         this.traceSchedulerCycleEngineBanner();
         this.mCycleEngineExecutor = Executors.newSingleThreadScheduledExecutor( runnable -> {
             Thread thread = new Thread( runnable, "odin-task-scheduler-cycle-engine" );

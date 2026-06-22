@@ -6,6 +6,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.schedule.entity.TaskSchedulerRuntimeSnapshot;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitRequest;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitResult;
 import com.walnut.odin.dispatch.TaskDispatchException;
@@ -36,6 +37,8 @@ public interface UniformTaskScheduler extends Pinenut {
     void terminateService();
 
     boolean isRunning();
+
+    TaskSchedulerRuntimeSnapshot runtimeSnapshot();
 
     void pulseSchedule();
 

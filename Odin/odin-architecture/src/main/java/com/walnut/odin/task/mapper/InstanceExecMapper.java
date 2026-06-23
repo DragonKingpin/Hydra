@@ -49,4 +49,10 @@ public interface InstanceExecMapper {
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "imagePath" ) String szImagePath
     );
+
+    void updateExecutedProcessorByInstanceGuidAndRetry(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
+            @Param( "executedProcessor" ) String szExecutedProcessor
+    );
 }

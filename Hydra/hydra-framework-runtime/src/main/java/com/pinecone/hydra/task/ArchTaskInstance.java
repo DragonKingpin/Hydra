@@ -180,8 +180,8 @@ public abstract class ArchTaskInstance implements TaskInstance {
     }
 
     @Override
-    public String getProcessorName() {
-        return this.mInstanceEntry.getProcessorName();
+    public String getAffinityProcessor() {
+        return this.mInstanceEntry.getAffinityProcessor();
     }
 
 }

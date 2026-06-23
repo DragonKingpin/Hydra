@@ -57,7 +57,7 @@
         <result column="latest_start_time"   property="lastStartTime"/>
         <result column="latest_end_time"     property="lastEndTime"/>
         <result column="error_cause"         property="errorCause"/>
-        <result column="processor_name"      property="processorName"/>
+        <result column="affinity_processor" property="affinityProcessor"/>
         <result column="project_guid"        property="projectGuid"/>
         <result column="project_name"        property="projectName"/>
         <result column="project_title"       property="projectTitle"/>
@@ -192,7 +192,7 @@
         ins.latest_start_time,
         ins.latest_end_time,
         ins.error_cause,
-        ins.processor_name,
+        ins.affinity_processor,
         project.guid AS project_guid,
         project.name AS project_name,
         project.title AS project_title,
@@ -223,8 +223,8 @@
             <if test="query.scheduleType != null and query.scheduleType != ''">
                 AND ins.schedule_type = #{query.scheduleType}
             </if>
-            <if test="query.processorName != null and query.processorName != ''">
-                AND ins.processor_name = #{query.processorName}
+            <if test="query.affinityProcessor != null and query.affinityProcessor != ''">
+                AND ins.affinity_processor = #{query.affinityProcessor}
             </if>
             <if test="query.businessTimeStart != null">
                 AND ins.business_time <![CDATA[ >= ]]> #{query.businessTimeStart}

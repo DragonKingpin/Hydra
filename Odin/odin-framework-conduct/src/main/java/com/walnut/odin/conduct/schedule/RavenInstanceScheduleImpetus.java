@@ -286,7 +286,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         for ( InstanceEntry fittedInstance : fittedInstances ) {
             RavenTaskInstance instance      = new GenericRavenTaskInstance( fittedInstance, this.mCentralizedTaskInstrument );
             LaunchFeature launchFeature     = new LaunchFeature();
-            String szProcessor = fittedInstance.getProcessorName();
+            String szProcessor = fittedInstance.getAffinityProcessor();
 
             if ( StringUtils.isNoneEmpty(szProcessor) ) {
                 // Not affinity(best-effort), but designated(compulsory).

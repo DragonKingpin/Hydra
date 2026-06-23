@@ -82,6 +82,6 @@ public interface TaskInstance extends Pinenut {
 
     LocalDateTime getScheduleTime();
 
-    String getProcessorName();
+    String getAffinityProcessor();
 
 }

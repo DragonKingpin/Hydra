@@ -24,6 +24,9 @@ public interface InstanceExec extends Pinenut {
     String getProcessorQueue();
     void setProcessorQueue(String processorQueue);
 
+    String getExecutedProcessor();
+    void setExecutedProcessor(String executedProcessor);
+
     String getImagePath();
     void setImagePath(String imagePath);
 

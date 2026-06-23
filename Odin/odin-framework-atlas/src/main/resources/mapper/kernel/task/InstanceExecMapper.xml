@@ -10,6 +10,7 @@
         <result column="task_name"              property="taskName"/>
         <result column="instance_name"          property="instanceName"/>
         <result column="processor_queue"        property="processorQueue"/>
+        <result column="executed_processor"     property="executedProcessor"/>
         <result column="image_path"             property="imagePath"/>
         <result column="cluster_name"           property="clusterName"/>
         <result column="exec_state"             property="execState"/>
@@ -49,6 +50,7 @@
             task_name,
             instance_name,
             processor_queue,
+            executed_processor,
             image_path,
             cluster_name,
             exec_state,
@@ -63,6 +65,7 @@
                      #{taskName},
                      #{instanceName},
                      #{processorQueue},
+                     #{executedProcessor},
                      #{imagePath},
                      #{clusterName},
                      #{execState},
@@ -82,6 +85,7 @@
             task_name,
             instance_name,
             processor_queue,
+            executed_processor,
             image_path,
             cluster_name,
             exec_state,
@@ -103,6 +107,7 @@
             task_name,
             instance_name,
             processor_queue,
+            executed_processor,
             image_path,
             cluster_name,
             exec_state,
@@ -124,6 +129,7 @@
             task_name,
             instance_name,
             processor_queue,
+            executed_processor,
             image_path,
             cluster_name,
             exec_state,
@@ -178,6 +184,9 @@
             <if test="imagePath != null and imagePath != ''">
                 image_path = #{imagePath},
             </if>
+            <if test="executedProcessor != null and executedProcessor != ''">
+                executed_processor = #{executedProcessor},
+            </if>
         </set>
         WHERE instance_guid = #{instanceGuid}
           AND current_retry_number = #{currentRetryNumber}
@@ -230,6 +239,13 @@
     <update id="updateImagePathByInstanceGuidAndRetry">
         UPDATE odin_task_instance_exec
         SET image_path = #{imagePath}
+        WHERE instance_guid = #{instanceGuid}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateExecutedProcessorByInstanceGuidAndRetry">
+        UPDATE odin_task_instance_exec
+        SET executed_processor = #{executedProcessor}
         WHERE instance_guid = #{instanceGuid}
           AND current_retry_number = #{currentRetryNumber}
     </update>

@@ -63,7 +63,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setTaskType( this.mTaskElement.getType() );
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setTaskName( this.mTaskElement.getName() );
-        entry.setProcessorName( this.mTaskElement.getProcessorName() );
+        entry.setAffinityProcessor( this.mTaskElement.getProcessorName() );
 
         GenericRavenTaskInstance instance = new GenericRavenTaskInstance( entry, this );
         return instance;

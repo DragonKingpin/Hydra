@@ -309,7 +309,7 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         entry.setFireTime( fireTime );
         entry.setBusinessTime( businessTime );
         if ( StringUtils.isNoneEmpty( context.getProcessorName() ) ) {
-            entry.setProcessorName( context.getProcessorName() );
+            entry.setAffinityProcessor( context.getProcessorName() );
         }
 
         LaunchFeature feature = this.prepareLaunchFeature( element, context, bizTimeEpoch );

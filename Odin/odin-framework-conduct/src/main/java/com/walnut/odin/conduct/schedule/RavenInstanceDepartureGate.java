@@ -230,7 +230,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                 continue;
             }
             LaunchFeature launchFeature = new LaunchFeature();
-            String szProcessor          = fittedInstance.getProcessorName();
+            String szProcessor          = fittedInstance.getAffinityProcessor();
 
             if ( StringUtils.isNoneEmpty( szProcessor ) ) {
                 launchFeature.withProcessorDesignated( szProcessor );

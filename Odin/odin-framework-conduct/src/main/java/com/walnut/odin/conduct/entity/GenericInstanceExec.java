@@ -14,6 +14,7 @@ public class GenericInstanceExec implements InstanceExec {
     protected String        taskName;
     protected String        instanceName;
     protected String        processorQueue;
+    protected String        executedProcessor;
     protected String        imagePath;
     protected String        clusterName;
     protected String        execState;
@@ -88,6 +89,16 @@ public class GenericInstanceExec implements InstanceExec {
     @Override
     public void setProcessorQueue(String processorQueue) {
         this.processorQueue = processorQueue;
+    }
+
+    @Override
+    public String getExecutedProcessor() {
+        return this.executedProcessor;
+    }
+
+    @Override
+    public void setExecutedProcessor(String executedProcessor) {
+        this.executedProcessor = executedProcessor;
     }
 
     @Override

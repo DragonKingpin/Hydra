@@ -20,6 +20,7 @@ import com.walnut.odin.conduct.RegimentJoinRejectionException;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
+import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
@@ -37,6 +38,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
 
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
+    protected InstanceExecMapper        mInstanceExecMapper;
     protected DispatchStrategy          mDispatchStrategy;
     protected TaskExecutionLauncher     mTaskExecutionLauncher;
     protected CollectiveTaskRegiment    mCollectiveTaskRegiment;
@@ -50,6 +52,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mCollectiveTaskRegiment     = regiment;
         this.mTaskExecutionLauncher      = regiment.taskExecutionLauncher();
         this.mTaskProcessorManipulator   = regiment.taskInstrument().getRavenTaskMasterManipulator().getTaskProcessorManipulator();
+        this.mInstanceExecMapper         = regiment.taskInstrument().getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceExecMapper();
     }
 
     public RavenTaskDispatcher( CollectiveTaskRegiment regiment ) {
@@ -350,6 +353,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             launched.addAll( report.launchedProcesses() );
             consumed.addAll( report.launchedContext() );
             waiting.addAll( report.waitingContext() );
+            this.recordExecutedProcessors( report.launchedContext(), processor );
         }
 
         return DefaultPipelineLaunchReport.executed(
@@ -375,6 +379,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             launched.addAll( report.launchedProcesses() );
             consumed.addAll( report.launchedContext() );
             waiting.addAll( report.waitingContext() );
+            this.recordExecutedProcessors( report.launchedContext(), processor );
         }
 
         return DefaultPipelineLaunchReport.executed(
@@ -382,6 +387,37 @@ public class RavenTaskDispatcher implements TaskDispatcher {
                 launched,
                 consumed,
                 waiting
+        );
+    }
+
+    protected void recordExecutedProcessors(
+            Collection<TaskLaunchContext> contexts, TaskExecutionProcessor processor
+    ) {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+        for ( TaskLaunchContext context : contexts ) {
+            this.recordExecutedProcessor( context, processor );
+        }
+    }
+
+    protected void recordExecutedProcessor( TaskLaunchContext context, TaskExecutionProcessor processor ) {
+        if ( context == null || processor == null || context.getTaskInstance() == null ) {
+            return;
+        }
+        if ( context.getLaunchedProcess() == null ) {
+            return;
+        }
+        if ( context.getTaskInstance().getInstanceEntry() == null ) {
+            return;
+        }
+        if ( context.getTaskInstance().getInstanceEntry().getGuid() == null ) {
+            return;
+        }
+        this.mInstanceExecMapper.updateExecutedProcessorByInstanceGuidAndRetry(
+                context.getTaskInstance().getInstanceEntry().getGuid(),
+                context.getTaskInstance().getInstanceEntry().getRetryCnt(),
+                processor.getName()
         );
     }
 

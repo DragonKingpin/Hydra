@@ -33,7 +33,7 @@
         latest_start_time,
         latest_end_time,
         error_cause,
-        processor_name,
+        affinity_processor,
         create_time,
         update_time
     </sql>
@@ -66,7 +66,7 @@
         #{lastStartTime},
         #{lastEndTime},
         #{errorCause},
-        #{processorName},
+        #{affinityProcessor},
         #{createTime},
         #{updateTime}
     </sql>
@@ -88,8 +88,8 @@
             <if test="query.scheduleType != null and query.scheduleType != ''">
                 AND schedule_type = #{query.scheduleType}
             </if>
-            <if test="query.processorName != null and query.processorName != ''">
-                AND processor_name = #{query.processorName}
+            <if test="query.affinityProcessor != null and query.affinityProcessor != ''">
+                AND affinity_processor = #{query.affinityProcessor}
             </if>
             <if test="query.businessTimeStart != null">
                 AND business_time <![CDATA[ >= ]]> #{query.businessTimeStart}
@@ -202,7 +202,7 @@
         <result column="latest_start_time"   property="lastStartTime"/>
         <result column="latest_end_time"     property="lastEndTime"/>
         <result column="error_cause"         property="errorCause"/>
-        <result column="processor_name"      property="processorName"/>
+        <result column="affinity_processor" property="affinityProcessor"/>
         <result column="create_time"         property="createTime"/>
         <result column="update_time"         property="updateTime"/>
 
@@ -259,7 +259,7 @@
             latest_start_time   = #{lastStartTime},
             latest_end_time     = #{lastEndTime},
             error_cause         = #{errorCause},
-            processor_name      = #{processorName},
+            affinity_processor  = #{affinityProcessor},
             update_time         = #{updateTime}
         WHERE guid = #{guid}
 

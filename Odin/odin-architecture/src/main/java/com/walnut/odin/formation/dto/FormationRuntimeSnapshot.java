@@ -1,4 +1,4 @@
-package com.walnut.odin.formation.entity;
+package com.walnut.odin.formation.dto;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 

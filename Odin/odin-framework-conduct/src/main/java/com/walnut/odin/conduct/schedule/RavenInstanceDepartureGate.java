@@ -230,12 +230,15 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                 continue;
             }
             LaunchFeature launchFeature = new LaunchFeature();
-            String szProcessor          = fittedInstance.getAffinityProcessor();
+            String szDesignatedProcessor = fittedInstance.getDesignatedProcessor();
 
-            if ( StringUtils.isNoneEmpty( szProcessor ) ) {
-                launchFeature.withProcessorDesignated( szProcessor );
+            if ( StringUtils.isNoneEmpty( szDesignatedProcessor ) ) {
+                launchFeature.withProcessorDesignated( szDesignatedProcessor );
             }
             TaskLaunchContext launchContext = TaskLaunchContext.of( instance, launchFeature );
+            if ( StringUtils.isNoneEmpty( fittedInstance.getAffinityProcessor() ) ) {
+                launchContext.setAffinityProcessorName( fittedInstance.getAffinityProcessor() );
+            }
 
             li.add( launchContext );
         }

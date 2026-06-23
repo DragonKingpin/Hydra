@@ -10,13 +10,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.formation.FormationConfig;
+import com.walnut.odin.formation.FormationInstrument;
 import com.walnut.odin.formation.FormationRunStatus;
-import com.walnut.odin.formation.GenericFormationRun;
+import com.walnut.odin.formation.entity.RunEntry;
+import com.walnut.odin.formation.entity.GenericRun;
 import com.walnut.odin.formation.dispatch.FormationDispatcher;
-import com.walnut.odin.formation.entity.FormationSchedulerRuntimeSnapshot;
+import com.walnut.odin.formation.dto.FormationSchedulerRuntimeSnapshot;
 import com.walnut.odin.formation.recovery.FormationRunReconciler;
-import com.walnut.odin.formation.service.FormationFlowService;
-import com.walnut.odin.formation.source.FormationRunMapper;
+import com.walnut.odin.formation.source.RunManipulator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,9 @@ public class RavenFormationScheduler implements FormationScheduler {
 
     private static final Logger log = LoggerFactory.getLogger( RavenFormationScheduler.class );
 
+    protected FormationInstrument   mFormationInstrument;
     protected FormationConfig       mConfig;
-    protected FormationRunMapper    mRunMapper;
-    protected FormationFlowService  mFlowService;
+    protected RunManipulator        mRunManipulator;
     protected UniformTaskScheduler  mTaskScheduler;
     protected FormationDispatcher   mDispatcher;
     protected FormationRunReconciler mReconciler;
@@ -44,16 +45,14 @@ public class RavenFormationScheduler implements FormationScheduler {
     protected volatile long          mnLastRecoveryPulseMillis;
 
     public RavenFormationScheduler(
-            FormationConfig config,
-            FormationRunMapper runMapper,
-            FormationFlowService flowService,
+            FormationInstrument formationInstrument,
             UniformTaskScheduler taskScheduler,
             FormationDispatcher dispatcher,
             FormationRunReconciler reconciler
     ) {
-        this.mConfig = config;
-        this.mRunMapper = runMapper;
-        this.mFlowService = flowService;
+        this.mFormationInstrument = formationInstrument;
+        this.mConfig = formationInstrument.formationConfig();
+        this.mRunManipulator = formationInstrument.masterManipulator().runManipulator();
         this.mTaskScheduler = taskScheduler;
         this.mDispatcher = dispatcher;
         this.mReconciler = reconciler;
@@ -167,42 +166,42 @@ public class RavenFormationScheduler implements FormationScheduler {
             this.mReconciler.reconcilePulse( pulseTime );
         }
 
-        List<GenericFormationRun> runs = this.mRunMapper.fetchRunnableRuns(
+        List<? extends RunEntry> runs = this.mRunManipulator.fetchRunnableRuns(
                 Math.max( 1, this.mConfig.getFormationDispatcherPollBatchSize() )
         );
         if ( runs == null || runs.isEmpty() ) {
             return;
         }
 
-        for ( GenericFormationRun run : runs ) {
+        for ( RunEntry run : runs ) {
             if ( run == null || run.getGuid() == null ) {
                 continue;
             }
-            this.mRunMapper.markRunning( run.getGuid() );
+            this.mRunManipulator.markRunning( run.getGuid() );
             boolean offered = this.mDispatcher.offer( () -> this.executeRun( run.getGuid() ) );
             if ( !offered ) {
-                this.mRunMapper.updateStatus( run.getGuid(), FormationRunStatus.Prepared.getName() );
+                this.mRunManipulator.updateStatus( run.getGuid(), FormationRunStatus.Prepared.getName() );
             }
         }
     }
 
     protected void executeRun( com.pinecone.framework.util.id.GUID runGuid ) {
-        GenericFormationRun run = this.mRunMapper.selectByGuid( runGuid );
+        GenericRun run = (GenericRun)this.mRunManipulator.selectByGuid( runGuid );
         if ( run == null ) {
             return;
         }
         try {
-            this.mFlowService.flow( run, this.mTaskScheduler, this.mConfig.getFormationNodeId() );
-            GenericFormationRun latest = this.mRunMapper.selectByGuid( runGuid );
+            this.mFormationInstrument.flowService().flow( run, this.mTaskScheduler, this.mConfig.getFormationNodeId() );
+            RunEntry latest = this.mRunManipulator.selectByGuid( runGuid );
             if ( latest != null && latest.getFailedCount() > 0L ) {
-                this.mRunMapper.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
+                this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
             }
             else {
-                this.mRunMapper.updateStatus( runGuid, FormationRunStatus.Completed.getName() );
+                this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Completed.getName() );
             }
         }
         catch ( Throwable e ) {
-            this.mRunMapper.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
+            this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
             throw e;
         }
     }

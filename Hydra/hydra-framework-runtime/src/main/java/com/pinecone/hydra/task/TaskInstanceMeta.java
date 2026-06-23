@@ -69,6 +69,8 @@ public interface TaskInstanceMeta extends Pinenut {
 
     String getAffinityProcessor();
 
+    String getDesignatedProcessor();
+
     void setExpectTime(LocalDateTime expectTime);
 
     void setFireTime(LocalDateTime fireTime);
@@ -84,4 +86,6 @@ public interface TaskInstanceMeta extends Pinenut {
     void setScheduleTime(LocalDateTime scheduleTime);
 
     void setAffinityProcessor(String affinityProcessor);
+
+    void setDesignatedProcessor(String designatedProcessor);
 }

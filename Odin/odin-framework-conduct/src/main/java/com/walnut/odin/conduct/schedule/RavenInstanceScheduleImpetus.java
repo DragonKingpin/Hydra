@@ -39,6 +39,7 @@ import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
+import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskExecutionProcessor;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
@@ -286,14 +287,17 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         for ( InstanceEntry fittedInstance : fittedInstances ) {
             RavenTaskInstance instance      = new GenericRavenTaskInstance( fittedInstance, this.mCentralizedTaskInstrument );
             LaunchFeature launchFeature     = new LaunchFeature();
-            String szProcessor = fittedInstance.getAffinityProcessor();
+            String szDesignatedProcessor = fittedInstance.getDesignatedProcessor();
 
-            if ( StringUtils.isNoneEmpty(szProcessor) ) {
+            if ( StringUtils.isNoneEmpty( szDesignatedProcessor ) ) {
                 // Not affinity(best-effort), but designated(compulsory).
                 // 这里不是建议分配，而是绑核
-                launchFeature.withProcessorDesignated( szProcessor );
+                launchFeature.withProcessorDesignated( szDesignatedProcessor );
             }
             TaskLaunchContext launchContext = TaskLaunchContext.of( instance, launchFeature );
+            if ( StringUtils.isNoneEmpty( fittedInstance.getAffinityProcessor() ) ) {
+                launchContext.setAffinityProcessorName( fittedInstance.getAffinityProcessor() );
+            }
 
             li.add( launchContext );
         }
@@ -434,7 +438,12 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
                     InstanceDepartureResult departureResult = this.mInstanceDepartureGate.prepareDeparture( entries, finalTargetTime );
                     if ( !departureResult.getLaunchContexts().isEmpty() ) {
-                        this.mTaskScheduler.taskDispatcher().pipeCreatePrepared( departureResult.getLaunchContexts() );
+                        try {
+                            this.mTaskScheduler.taskDispatcher().pipeCreatePrepared( departureResult.getLaunchContexts() );
+                        }
+                        catch ( TaskDispatchException e ) {
+                            this.markLaunchContextsDispatchFailed( departureResult.getLaunchContexts(), e );
+                        }
                     }
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
@@ -459,6 +468,73 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 ),
                 targetTime
         );
+    }
+
+    protected void markLaunchContextsDispatchFailed( Collection<TaskLaunchContext> contexts, Exception cause ) {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+
+        String szCause = "Scheduler dispatch failed: " + this.describeException( cause );
+        LocalDateTime now = LocalDateTime.now();
+        for ( TaskLaunchContext context : contexts ) {
+            if ( context == null || context.getTaskInstance() == null ) {
+                continue;
+            }
+
+            InstanceEntry instance = context.getTaskInstance().getInstanceEntry();
+            if ( instance == null || instance.getGuid() == null ) {
+                continue;
+            }
+
+            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+                    instance.getGuid(),
+                    List.of(
+                            TaskInstanceStatus.New,
+                            TaskInstanceStatus.DependencyWait,
+                            TaskInstanceStatus.ResourceWait,
+                            TaskInstanceStatus.DepartureStandby,
+                            TaskInstanceStatus.ProcessCreating,
+                            TaskInstanceStatus.ProcessStandby
+                    ),
+                    TaskInstanceStatus.Error,
+                    TaskInstanceTransitionReason.ProcessCreationFailed,
+                    null,
+                    now,
+                    now,
+                    szCause
+            );
+            if ( result.isSucceeded() ) {
+                instance.setInstanceStatus( TaskInstanceStatus.Error );
+                instance.setErrorCause( szCause );
+                instance.setLastEndTime( now );
+                instance.setFinishTime( now );
+                this.mScheduleManipulator.getInstanceExecMapper().updateStateRetryMonotonic(
+                        instance.getGuid(),
+                        instance.getRetryCnt(),
+                        TaskInstanceExecState.Fail.getName(),
+                        null,
+                        null,
+                        now
+                );
+            }
+        }
+
+        this.log.warn(
+                "[TaskSchedulerLifecycle] Launch contexts marked as dispatch failure (Size: {}, Cause: `{}`) <Rejected>",
+                contexts.size(),
+                szCause
+        );
+    }
+
+    protected String describeException( Exception cause ) {
+        if ( cause == null ) {
+            return "unknown";
+        }
+        if ( cause.getMessage() != null && !cause.getMessage().isEmpty() ) {
+            return cause.getMessage();
+        }
+        return cause.getClass().getName();
     }
 
     protected Collection<TaskLaunchContext> resolvePreparedStandbyLaunchContexts( Collection<InstanceEntry> entries ) {

@@ -191,6 +191,8 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
 
     @Override
     public void detachClient( long clientId ) {
+        RemoteProcessControlTransport transport = this.mTransportRegistry.queryTransport( clientId );
+        this.notifyClientDetached( transport, clientId );
         this.mTransportRegistry.detachClient( clientId );
         this.mControlReadyLock.lock();
         try {
@@ -210,6 +212,18 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         }
 
         this.admitDetachedClientCustody( clientId, RemoteProcessLostCauseClientDetached );
+    }
+
+    protected void notifyClientDetached( RemoteProcessControlTransport transport, long clientId ) {
+        try {
+            this.mTransportEventHooker.onClientDetached( transport, clientId );
+        }
+        catch ( RuntimeException e ) {
+            this.getLogger().warn(
+                    "[RemoteClientDetached] [EventHookFailure] (ClientId: `{}`, Reason: `{}`) <Ignored>",
+                    clientId, e.getMessage(), e
+            );
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.walnut.odin.formation;
+package com.walnut.odin.formation.strategy;
 
 public class GenericFormationStrategyRuntime implements FormationStrategyRuntime {
     protected long    mnPageSize;

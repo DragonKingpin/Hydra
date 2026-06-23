@@ -1,4 +1,4 @@
-package com.walnut.odin.formation;
+package com.walnut.odin.formation.strategy;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;

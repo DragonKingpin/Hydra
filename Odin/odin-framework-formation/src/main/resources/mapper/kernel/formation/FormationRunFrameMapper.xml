@@ -51,7 +51,7 @@
         )
     </insert>
 
-    <select id="fetchPendingFramesByPage" resultMap="FormationFrameMap">
+    <select id="fetchPendingFramesByPage0" resultMap="FormationFrameMap">
         SELECT
             id,
             guid,

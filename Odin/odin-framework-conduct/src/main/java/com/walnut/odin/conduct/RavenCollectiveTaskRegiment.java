@@ -121,6 +121,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     @Override
     public void startRemoteProcessServer() throws RemoteProcessServiceRPCException {
         ProcessorLifecycleController controller = new ProcessorLifecycleController( this );
+        this.mRemoteProcessManagerServer.hookTransportEvent( new TaskProcessorControlEventHooker( this.mTaskDispatcher ) );
         this.mRemoteProcessManagerServer.registerController( controller );
         this.mRemoteProcessManagerServer.compileIface( ProcessorLifecycleIface.class, false );
         this.mRemoteProcessManagerServer.startService();

@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.odin.formation.source.FormationGroupTaskMapper">
 
-    <resultMap id="FormationGroupTaskMap" type="com.walnut.odin.formation.GenericFormationGroupTask">
+    <resultMap id="FormationGroupTaskMap" type="com.walnut.odin.formation.entity.GenericGroupTask">
         <result column="id" property="id"/>
         <result column="guid" property="guid"/>
         <result column="formation_guid" property="formationGuid"/>
@@ -60,7 +60,7 @@
           AND enable = 1
     </select>
 
-    <select id="fetchEnabledByFormationGuid" resultMap="FormationGroupTaskMap">
+    <select id="fetchEnabledByFormationGuid0" resultMap="FormationGroupTaskMap">
         SELECT
             <include refid="FormationGroupTaskColumns"/>
         FROM odin_formation_group_tasks

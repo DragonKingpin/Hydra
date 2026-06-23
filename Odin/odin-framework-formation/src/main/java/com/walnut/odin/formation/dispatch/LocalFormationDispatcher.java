@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.walnut.odin.formation.FormationConfig;
-import com.walnut.odin.formation.entity.FormationDispatcherRuntimeSnapshot;
+import com.walnut.odin.formation.dto.FormationDispatcherRuntimeSnapshot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

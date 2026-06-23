@@ -7,16 +7,23 @@ import org.apache.ibatis.annotations.Param;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import com.walnut.odin.formation.GenericFormationRun;
+import com.walnut.odin.formation.entity.GenericRun;
+import com.walnut.odin.formation.entity.RunEntry;
 
 @Mapper
 @IbatisDataAccessObject
-public interface FormationRunMapper {
-    int insert( @Param( "run" ) GenericFormationRun run );
+public interface FormationRunMapper extends RunManipulator {
+    int insert( @Param( "run" ) RunEntry run );
 
-    GenericFormationRun selectByGuid( @Param( "guid" ) GUID guid );
+    GenericRun selectByGuid( @Param( "guid" ) GUID guid );
 
-    List<GenericFormationRun> fetchRunnableRuns( @Param( "limit" ) int limit );
+    List<GenericRun> fetchRunnableRuns0( @Param( "limit" ) int limit );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<RunEntry> fetchRunnableRuns( int limit ) {
+        return (List) this.fetchRunnableRuns0( limit );
+    }
 
     int updateStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
 

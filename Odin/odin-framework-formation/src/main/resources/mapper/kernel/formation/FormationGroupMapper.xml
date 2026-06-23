@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.odin.formation.source.FormationGroupMapper">
 
-    <resultMap id="FormationGroupMap" type="com.walnut.odin.formation.GenericFormationGroup">
+    <resultMap id="FormationGroupMap" type="com.walnut.odin.formation.entity.GenericGroup">
         <result column="id" property="id"/>
         <result column="guid" property="guid"/>
         <result column="identifier" property="identifier"/>

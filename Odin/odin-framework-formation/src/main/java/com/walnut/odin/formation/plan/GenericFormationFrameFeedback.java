@@ -20,18 +20,47 @@ public class GenericFormationFrameFeedback implements FormationFrameFeedback {
     }
 
     @Override
-    public FormationFrame frame() { return this.mFrame; }
-    public void setFrame( FormationFrame frame ) { this.mFrame = frame; }
+    public FormationFrame frame() {
+        return this.mFrame;
+    }
+
+    public void setFrame( FormationFrame frame ) {
+        this.mFrame = frame;
+    }
+
     @Override
-    public TaskInstantaneousSubmitResult submitResult() { return this.mSubmitResult; }
-    public void setSubmitResult( TaskInstantaneousSubmitResult submitResult ) { this.mSubmitResult = submitResult; }
+    public TaskInstantaneousSubmitResult submitResult() {
+        return this.mSubmitResult;
+    }
+
+    public void setSubmitResult( TaskInstantaneousSubmitResult submitResult ) {
+        this.mSubmitResult = submitResult;
+    }
+
     @Override
-    public boolean accepted() { return this.mbAccepted; }
-    public void setAccepted( boolean accepted ) { this.mbAccepted = accepted; }
+    public boolean accepted() {
+        return this.mbAccepted;
+    }
+
+    public void setAccepted( boolean accepted ) {
+        this.mbAccepted = accepted;
+    }
+
     @Override
-    public boolean suspended() { return this.mbSuspended; }
-    public void setSuspended( boolean suspended ) { this.mbSuspended = suspended; }
+    public boolean suspended() {
+        return this.mbSuspended;
+    }
+
+    public void setSuspended( boolean suspended ) {
+        this.mbSuspended = suspended;
+    }
+
     @Override
-    public boolean rejected() { return this.mbRejected; }
-    public void setRejected( boolean rejected ) { this.mbRejected = rejected; }
+    public boolean rejected() {
+        return this.mbRejected;
+    }
+
+    public void setRejected( boolean rejected ) {
+        this.mbRejected = rejected;
+    }
 }

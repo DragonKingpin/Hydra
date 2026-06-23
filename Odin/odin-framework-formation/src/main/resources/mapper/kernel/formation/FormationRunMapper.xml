@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.walnut.odin.formation.source.FormationRunMapper">
 
-    <resultMap id="FormationRunMap" type="com.walnut.odin.formation.GenericFormationRun">
+    <resultMap id="FormationRunMap" type="com.walnut.odin.formation.entity.GenericRun">
         <result column="id" property="id"/>
         <result column="guid" property="guid"/>
         <result column="formation_guid" property="formationGuid"/>
@@ -85,7 +85,7 @@
         LIMIT 1
     </select>
 
-    <select id="fetchRunnableRuns" resultMap="FormationRunMap">
+    <select id="fetchRunnableRuns0" resultMap="FormationRunMap">
         SELECT
             <include refid="FormationRunColumns"/>
         FROM odin_formation_runs

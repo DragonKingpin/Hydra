@@ -57,7 +57,8 @@
         <result column="latest_start_time"   property="lastStartTime"/>
         <result column="latest_end_time"     property="lastEndTime"/>
         <result column="error_cause"         property="errorCause"/>
-        <result column="affinity_processor" property="affinityProcessor"/>
+        <result column="affinity_processor"  property="affinityProcessor"/>
+        <result column="designated_processor" property="designatedProcessor"/>
         <result column="project_guid"        property="projectGuid"/>
         <result column="project_name"        property="projectName"/>
         <result column="project_title"       property="projectTitle"/>
@@ -193,6 +194,7 @@
         ins.latest_end_time,
         ins.error_cause,
         ins.affinity_processor,
+        ins.designated_processor,
         project.guid AS project_guid,
         project.name AS project_name,
         project.title AS project_title,

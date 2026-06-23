@@ -3,38 +3,29 @@ package com.walnut.odin.formation.strategy.fixed;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.slime.chunk.flow.ChunkFlowRuntime;
-import com.walnut.odin.formation.FormationRunStatus;
-import com.walnut.odin.formation.FormationStrategyContext;
-import com.walnut.odin.formation.FormationStrategyRuntime;
-import com.walnut.odin.formation.FormationStrategyType;
+import com.walnut.odin.formation.strategy.FormationStrategyContext;
+import com.walnut.odin.formation.strategy.FormationStrategyRuntime;
+import com.walnut.odin.formation.strategy.FormationStrategyType;
 import com.walnut.odin.formation.flow.FormationFrameConsumerAdapter;
 import com.walnut.odin.formation.flow.UniformFormationFrameConsumerAdapter;
-import com.walnut.odin.formation.source.FormationRunFrameMapper;
-import com.walnut.odin.formation.source.FormationRunMapper;
-import com.walnut.odin.formation.source.FormationRunPageMapper;
+import com.walnut.odin.formation.source.MasterManipulator;
 
 public class FixedPageFormationStrategy64 implements FixedPageFormationStrategy {
     protected GUID                    mRunGuid;
     protected GuidAllocator           mGuidAllocator;
-    protected FormationRunMapper      mRunMapper;
-    protected FormationRunPageMapper  mPageMapper;
-    protected FormationRunFrameMapper mFrameMapper;
+    protected MasterManipulator       mMasterManipulator;
     protected String                  mszClaimOwner;
     protected FixedPageFormationProducer mProducer;
 
     public FixedPageFormationStrategy64(
             GUID runGuid,
             GuidAllocator guidAllocator,
-            FormationRunMapper runMapper,
-            FormationRunPageMapper pageMapper,
-            FormationRunFrameMapper frameMapper,
+            MasterManipulator masterManipulator,
             String claimOwner
     ) {
         this.mRunGuid = runGuid;
         this.mGuidAllocator = guidAllocator;
-        this.mRunMapper = runMapper;
-        this.mPageMapper = pageMapper;
-        this.mFrameMapper = frameMapper;
+        this.mMasterManipulator = masterManipulator;
         this.mszClaimOwner = claimOwner;
     }
 
@@ -45,7 +36,7 @@ public class FixedPageFormationStrategy64 implements FixedPageFormationStrategy 
 
     @Override
     public void prepare( FormationStrategyContext context, FormationStrategyRuntime runtime ) {
-        this.mRunMapper.markRunning( this.mRunGuid );
+        this.mMasterManipulator.runManipulator().markRunning( this.mRunGuid );
     }
 
     @Override
@@ -58,8 +49,7 @@ public class FixedPageFormationStrategy64 implements FixedPageFormationStrategy 
                 runtime,
                 this.mRunGuid,
                 this.mGuidAllocator,
-                this.mPageMapper,
-                this.mFrameMapper,
+                this.mMasterManipulator,
                 this.mszClaimOwner,
                 runtime.productsSum()
         );
@@ -74,8 +64,7 @@ public class FixedPageFormationStrategy64 implements FixedPageFormationStrategy 
                 adapter,
                 runtime,
                 this.mRunGuid,
-                this.mRunMapper,
-                this.mFrameMapper
+                this.mMasterManipulator
         );
     }
 

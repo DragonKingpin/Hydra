@@ -5,14 +5,15 @@ import org.apache.ibatis.annotations.Param;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
-import com.walnut.odin.formation.GenericFormationGroup;
+import com.walnut.odin.formation.entity.GroupEntry;
+import com.walnut.odin.formation.entity.GenericGroup;
 
 @Mapper
 @IbatisDataAccessObject
-public interface FormationGroupMapper {
-    GenericFormationGroup selectByGuid( @Param( "guid" ) GUID guid );
+public interface FormationGroupMapper extends GroupManipulator {
+    GenericGroup selectByGuid( @Param( "guid" ) GUID guid );
 
-    GenericFormationGroup selectByIdentifier( @Param( "identifier" ) String identifier );
+    GenericGroup selectByIdentifier( @Param( "identifier" ) String identifier );
 
-    int insert( @Param( "group" ) GenericFormationGroup group );
+    int insert( @Param( "group" ) GroupEntry group );
 }

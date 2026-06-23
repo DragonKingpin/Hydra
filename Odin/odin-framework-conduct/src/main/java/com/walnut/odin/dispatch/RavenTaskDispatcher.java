@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -34,7 +35,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     protected final Map<String, TaskExecutionProcessor>  mProcessors;
     protected final Map<Long, TaskExecutionProcessor>    mClientProcessorsIndex;
-    protected final Map<Identification, TaskProcPair>    mAffinityTable;
+    protected final Map<DispatchKey, TaskProcPair>       mAffinityTable;
 
 
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
@@ -69,8 +70,17 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     public void registerProcessor( TaskExecutionProcessor processor ) {
         this.mLock.lock();
         try {
-            this.mProcessors.put( processor.getName(), processor );
-            this.mClientProcessorsIndex.put( processor.getControlClientId(), processor );
+            TaskExecutionProcessor previousByName = this.mProcessors.put( processor.getName(), processor );
+            if ( previousByName != null ) {
+                this.mClientProcessorsIndex.remove( previousByName.getControlClientId() );
+                this.removeAffinityBindingByProcessorLocked( previousByName.getName() );
+            }
+
+            TaskExecutionProcessor previousByClient = this.mClientProcessorsIndex.put( processor.getControlClientId(), processor );
+            if ( previousByClient != null && !Objects.equals( previousByClient.getName(), processor.getName() ) ) {
+                this.mProcessors.remove( previousByClient.getName(), previousByClient );
+                this.removeAffinityBindingByProcessorLocked( previousByClient.getName() );
+            }
             this.log.info( "Registered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
         }
         finally {
@@ -103,12 +113,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             if ( processor != null ) {
                 this.mClientProcessorsIndex.remove( processor.getControlClientId() );
             }
-            this.mAffinityTable.entrySet().removeIf( entry -> {
-                if ( entry.getValue().processor.getName().equals( szProcessorName ) ) {
-                    return true;
-                }
-                return false;
-            } );
+            this.removeAffinityBindingByProcessorLocked( szProcessorName );
             this.log.info( "Unregistered processor, name:`{}`", szProcessorName );
         }
         finally {
@@ -176,7 +181,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             if ( processor == null ) {
                 throw new IllegalArgumentException( "Processor not found: " + szProcessorName );
             }
-            this.mAffinityTable.put( launchContext.getTaskId(), new TaskProcPair( processor, launchContext ) );
+            this.bindProcessorLocked( processor, launchContext );
         }
         finally {
             this.mLock.unlock();
@@ -185,11 +190,41 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public TaskExecutionProcessor getAffinityTasks( Identification taskId ) {
-        TaskProcPair pair = this.mAffinityTable.get( taskId );
-        if ( pair != null ) {
-            return pair.processor;
+        this.mLock.lock();
+        try {
+            for ( TaskProcPair pair : this.mAffinityTable.values() ) {
+                if ( pair == null || pair.launchContext == null ) {
+                    continue;
+                }
+                if ( Objects.equals( pair.launchContext.getTaskId(), taskId ) ) {
+                    return pair.processor;
+                }
+            }
+            return null;
         }
-        return null;
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor getAffinityTask( TaskLaunchContext launchContext ) {
+        DispatchKey key = DispatchKey.of( launchContext );
+        if ( key == null ) {
+            return null;
+        }
+
+        this.mLock.lock();
+        try {
+            TaskProcPair pair = this.mAffinityTable.get( key );
+            if ( pair != null ) {
+                return pair.processor;
+            }
+            return null;
+        }
+        finally {
+            this.mLock.unlock();
+        }
     }
 
     @Override
@@ -300,7 +335,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
                     processor = this.mProcessors.get( szProcessorName );
                 }
                 if ( processor == null ) {
-                    TaskProcPair pair = this.mAffinityTable.get( context.getTaskId() );
+                    TaskProcPair pair = this.queryBoundPair( context );
                     if ( pair != null ) {
                         processor = pair.processor;
                     }
@@ -332,7 +367,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             Collection<TaskLaunchContext> assigned = entry.getValue();
             for ( TaskLaunchContext context : assigned ) {
                 context.setAffinityProcessorName( processor.getName() );
-                this.mAffinityTable.put( context.getTaskId(), new TaskProcPair( processor, context ) );
+                this.bindProcessor( processor, context );
             }
 
             PipelineLaunchReport report;
@@ -390,6 +425,42 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         );
     }
 
+    protected void bindProcessor( TaskExecutionProcessor processor, TaskLaunchContext context ) {
+        this.mLock.lock();
+        try {
+            this.bindProcessorLocked( processor, context );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    protected void bindProcessorLocked( TaskExecutionProcessor processor, TaskLaunchContext context ) {
+        DispatchKey key = DispatchKey.of( context );
+        if ( key == null ) {
+            return;
+        }
+        this.mAffinityTable.put( key, new TaskProcPair( processor, context ) );
+    }
+
+    protected void removeAffinityBindingByProcessorLocked( String szProcessorName ) {
+        this.mAffinityTable.entrySet().removeIf( entry -> {
+            TaskProcPair pair = entry.getValue();
+            if ( pair == null || pair.processor == null ) {
+                return true;
+            }
+            return Objects.equals( pair.processor.getName(), szProcessorName );
+        } );
+    }
+
+    protected TaskProcPair queryBoundPair( TaskLaunchContext context ) {
+        DispatchKey key = DispatchKey.of( context );
+        if ( key == null ) {
+            return null;
+        }
+        return this.mAffinityTable.get( key );
+    }
+
     protected void recordExecutedProcessors(
             Collection<TaskLaunchContext> contexts, TaskExecutionProcessor processor
     ) {
@@ -443,6 +514,47 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         public TaskProcPair( TaskExecutionProcessor processor, TaskLaunchContext launchContext ) {
             this.processor = processor;
             this.launchContext = launchContext;
+        }
+    }
+
+    protected static class DispatchKey {
+
+        protected Identification instanceId;
+        protected int            nRetry;
+
+        protected DispatchKey( Identification instanceId, int nRetry ) {
+            this.instanceId = instanceId;
+            this.nRetry     = nRetry;
+        }
+
+        public static DispatchKey of( TaskLaunchContext context ) {
+            if ( context == null || context.getTaskInstance() == null || context.getTaskInstance().getInstanceEntry() == null ) {
+                return null;
+            }
+            if ( context.getTaskInstance().getInstanceEntry().getGuid() == null ) {
+                return null;
+            }
+            return new DispatchKey(
+                    context.getTaskInstance().getInstanceEntry().getGuid(),
+                    context.getTaskInstance().getInstanceEntry().getRetryCnt()
+            );
+        }
+
+        @Override
+        public boolean equals( Object that ) {
+            if ( this == that ) {
+                return true;
+            }
+            if ( !( that instanceof DispatchKey ) ) {
+                return false;
+            }
+            DispatchKey dispatchKey = (DispatchKey)that;
+            return this.nRetry == dispatchKey.nRetry && Objects.equals( this.instanceId, dispatchKey.instanceId );
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash( this.instanceId, this.nRetry );
         }
     }
 }

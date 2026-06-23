@@ -3,21 +3,20 @@ package com.walnut.odin.formation.strategy.fixed;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.slime.chunk.Page;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitResult;
-import com.walnut.odin.formation.FormationStrategyRuntime;
+import com.walnut.odin.formation.strategy.FormationStrategyRuntime;
 import com.walnut.odin.formation.flow.ArchFormationConsumer;
 import com.walnut.odin.formation.flow.FormationFrameConsumerAdapter;
 import com.walnut.odin.formation.plan.FormationFrame;
 import com.walnut.odin.formation.plan.FormationFrameFeedback;
 import com.walnut.odin.formation.plan.FormationPage;
-import com.walnut.odin.formation.source.FormationRunFrameMapper;
-import com.walnut.odin.formation.source.FormationRunMapper;
+import com.walnut.odin.formation.source.MasterManipulator;
+import com.walnut.odin.formation.strategy.GenericFormationStrategyRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public class FixedPageFormationConsumer64 extends ArchFormationConsumer<FormationPage>
         implements FixedPageFormationConsumer {
     protected FormationStrategyRuntime mRuntime;
-    protected FormationRunMapper       mRunMapper;
-    protected FormationRunFrameMapper  mFrameMapper;
+    protected MasterManipulator        mMasterManipulator;
     protected GUID                     mRunGuid;
 
     public FixedPageFormationConsumer64(
@@ -25,14 +24,12 @@ public class FixedPageFormationConsumer64 extends ArchFormationConsumer<Formatio
             FormationFrameConsumerAdapter frameConsumerAdapter,
             FormationStrategyRuntime runtime,
             GUID runGuid,
-            FormationRunMapper runMapper,
-            FormationRunFrameMapper frameMapper
+            MasterManipulator masterManipulator
     ) {
         super( producer, frameConsumerAdapter );
         this.mRuntime = runtime;
         this.mRunGuid = runGuid;
-        this.mRunMapper = runMapper;
-        this.mFrameMapper = frameMapper;
+        this.mMasterManipulator = masterManipulator;
     }
 
     @Override
@@ -77,22 +74,22 @@ public class FixedPageFormationConsumer64 extends ArchFormationConsumer<Formatio
         try {
             FormationFrameFeedback feedback = this.mFrameConsumerAdapter.consumeFrame( frame );
             GUID instanceGuid = this.resolveInstanceGuid( feedback.submitResult() );
-            this.mFrameMapper.markSubmitted( frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
+            this.mMasterManipulator.frameManipulator().markSubmitted( frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
                     ? ( (com.walnut.odin.formation.plan.GenericFormationFrame)frame ).getGuid()
                     : null, instanceGuid );
-            this.mRunMapper.increaseSubmitted( this.mRunGuid );
-            if ( this.mRuntime instanceof com.walnut.odin.formation.GenericFormationStrategyRuntime ) {
-                ( (com.walnut.odin.formation.GenericFormationStrategyRuntime)this.mRuntime ).increaseConsumedCount();
+            this.mMasterManipulator.runManipulator().increaseSubmitted( this.mRunGuid );
+            if ( this.mRuntime instanceof GenericFormationStrategyRuntime) {
+                ( (GenericFormationStrategyRuntime)this.mRuntime ).increaseConsumedCount();
             }
         }
         catch ( Exception e ) {
-            this.mFrameMapper.markFailed(
+            this.mMasterManipulator.frameManipulator().markFailed(
                     frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
                             ? ( (com.walnut.odin.formation.plan.GenericFormationFrame)frame ).getGuid()
                             : null,
                     e.getMessage()
             );
-            this.mRunMapper.increaseFailed( this.mRunGuid );
+            this.mMasterManipulator.runManipulator().increaseFailed( this.mRunGuid );
         }
     }
 

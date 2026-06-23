@@ -1,31 +1,34 @@
 package com.walnut.odin.formation.service;
 
 import com.pinecone.framework.util.id.GUID;
+import com.walnut.odin.formation.FormationInstrument;
 import com.walnut.odin.formation.FormationRunStatus;
-import com.walnut.odin.formation.GenericFormationRun;
+import com.walnut.odin.formation.entity.GenericRun;
 import com.walnut.odin.formation.dispatch.FormationDispatcher;
-import com.walnut.odin.formation.entity.FormationRunSubmitRequest;
-import com.walnut.odin.formation.entity.FormationRunSubmitResult;
-import com.walnut.odin.formation.entity.FormationRuntimeSnapshot;
+import com.walnut.odin.formation.dto.FormationRunSubmitRequest;
+import com.walnut.odin.formation.dto.FormationRunSubmitResult;
+import com.walnut.odin.formation.dto.FormationRuntimeSnapshot;
 import com.walnut.odin.formation.schedule.FormationRunPreparator;
 import com.walnut.odin.formation.schedule.FormationScheduler;
-import com.walnut.odin.formation.source.FormationRunMapper;
+import com.walnut.odin.formation.source.RunManipulator;
 
 public class RavenFormationService implements FormationService {
 
     protected FormationRunPreparator mRunPreparator;
-    protected FormationRunMapper     mRunMapper;
+    protected FormationInstrument    mFormationInstrument;
+    protected RunManipulator         mRunManipulator;
     protected FormationScheduler     mScheduler;
     protected FormationDispatcher    mDispatcher;
 
     public RavenFormationService(
             FormationRunPreparator runPreparator,
-            FormationRunMapper runMapper,
+            FormationInstrument formationInstrument,
             FormationScheduler scheduler,
             FormationDispatcher dispatcher
     ) {
         this.mRunPreparator = runPreparator;
-        this.mRunMapper = runMapper;
+        this.mFormationInstrument = formationInstrument;
+        this.mRunManipulator = formationInstrument.masterManipulator().runManipulator();
         this.mScheduler = scheduler;
         this.mDispatcher = dispatcher;
     }
@@ -36,7 +39,7 @@ public class RavenFormationService implements FormationService {
             throw new IllegalArgumentException( "FormationRunSubmitRequest is null." );
         }
 
-        GenericFormationRun run = (GenericFormationRun)this.mRunPreparator.prepareRun( request );
+        GenericRun run = (GenericRun)this.mRunPreparator.prepareRun( request );
         FormationRunSubmitResult result = new FormationRunSubmitResult();
         result.setRunGuid( run.getGuid() );
         result.setFormationGuid( run.getFormationGuid() );
@@ -54,7 +57,7 @@ public class RavenFormationService implements FormationService {
         if ( runGuid == null ) {
             return false;
         }
-        return this.mRunMapper.updateStatus( runGuid, FormationRunStatus.Cancelled.getName() ) > 0;
+        return this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Cancelled.getName() ) > 0;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class RavenFormationService implements FormationService {
         if ( runGuid == null ) {
             return null;
         }
-        return this.mRunMapper.selectByGuid( runGuid );
+        return this.mRunManipulator.selectByGuid( runGuid );
     }
 
     @Override

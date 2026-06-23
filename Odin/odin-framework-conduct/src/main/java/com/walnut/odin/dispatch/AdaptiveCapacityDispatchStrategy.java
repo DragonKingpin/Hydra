@@ -36,6 +36,9 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
 
     protected Map<String, ProcessorSlot> buildProcessorSlots( Collection<TaskExecutionProcessor> processors ) {
         Map<String, ProcessorSlot> slotMap = new HashMap<>();
+        if ( processors == null || processors.isEmpty() ) {
+            return slotMap;
+        }
 
         for ( TaskExecutionProcessor processor : processors ) {
             if ( processor.isExclusive() ) {
@@ -73,7 +76,7 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
             else {
                 szTarget = context.getAffinityProcessorName();
                 if ( szTarget == null ) {
-                    TaskExecutionProcessor p = dispatcher.getAffinityTasks( context.getTaskId() );
+                    TaskExecutionProcessor p = dispatcher.getAffinityTask( context );
                     if ( p != null ) {
                         szTarget = p.getName();
                     }
@@ -145,15 +148,13 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
     ) throws TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new HashMap<>();
 
-        if ( processors == null || processors.isEmpty() ) {
-            return plan;
-        }
         if ( contexts == null || contexts.isEmpty() ) {
             return plan;
         }
 
         Map<String, ProcessorSlot> slotMap = this.buildProcessorSlots( processors );
         if ( slotMap.isEmpty() ) {
+            this.handleBindingContexts( contexts, slotMap, plan, dispatcher );
             return plan;
         }
 

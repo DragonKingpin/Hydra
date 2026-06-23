@@ -5,70 +5,56 @@ import java.util.List;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.walnut.odin.formation.FormationFrameStatus;
+import com.walnut.odin.formation.entity.GroupEntry;
+import com.walnut.odin.formation.entity.GroupTaskEntry;
 import com.walnut.odin.formation.FormationPageStatus;
 import com.walnut.odin.formation.FormationQueueType;
 import com.walnut.odin.formation.FormationRunStatus;
-import com.walnut.odin.formation.GenericFormationGroup;
-import com.walnut.odin.formation.GenericFormationGroupTask;
-import com.walnut.odin.formation.GenericFormationRun;
-import com.walnut.odin.formation.entity.FormationRunSubmitRequest;
+import com.walnut.odin.formation.entity.GenericRun;
+import com.walnut.odin.formation.dto.FormationRunSubmitRequest;
 import com.walnut.odin.formation.plan.GenericFormationFrame;
 import com.walnut.odin.formation.plan.GenericFormationPage;
-import com.walnut.odin.formation.source.FormationGroupMapper;
-import com.walnut.odin.formation.source.FormationGroupTaskMapper;
-import com.walnut.odin.formation.source.FormationRunFrameMapper;
-import com.walnut.odin.formation.source.FormationRunMapper;
-import com.walnut.odin.formation.source.FormationRunPageMapper;
+import com.walnut.odin.formation.source.MasterManipulator;
 
-public class FormationRunService {
+public class FormationRunService implements RunService {
     protected GuidAllocator           mGuidAllocator;
-    protected FormationGroupMapper    mGroupMapper;
-    protected FormationGroupTaskMapper mGroupTaskMapper;
-    protected FormationRunMapper      mRunMapper;
-    protected FormationRunPageMapper  mPageMapper;
-    protected FormationRunFrameMapper mFrameMapper;
+    protected MasterManipulator       mMasterManipulator;
 
     public FormationRunService(
             GuidAllocator guidAllocator,
-            FormationGroupMapper groupMapper,
-            FormationGroupTaskMapper groupTaskMapper,
-            FormationRunMapper runMapper,
-            FormationRunPageMapper pageMapper,
-            FormationRunFrameMapper frameMapper
+            MasterManipulator masterManipulator
     ) {
         this.mGuidAllocator = guidAllocator;
-        this.mGroupMapper = groupMapper;
-        this.mGroupTaskMapper = groupTaskMapper;
-        this.mRunMapper = runMapper;
-        this.mPageMapper = pageMapper;
-        this.mFrameMapper = frameMapper;
+        this.mMasterManipulator = masterManipulator;
     }
 
-    public GenericFormationRun createRun( GUID formationGuid ) {
+    @Override
+    public GenericRun createRun( GUID formationGuid ) {
         FormationRunSubmitRequest request = new FormationRunSubmitRequest();
         request.setFormationGuid( formationGuid );
         return this.createRun( request );
     }
 
-    public GenericFormationRun createRun( FormationRunSubmitRequest request ) {
+    @Override
+    public GenericRun createRun( FormationRunSubmitRequest request ) {
         if ( request == null || request.getFormationGuid() == null ) {
             throw new IllegalArgumentException( "Formation run submit request has no formation guid." );
         }
 
         GUID formationGuid = request.getFormationGuid();
-        GenericFormationGroup group = this.mGroupMapper.selectByGuid( formationGuid );
+        GroupEntry group = this.mMasterManipulator.groupManipulator().selectByGuid( formationGuid );
         if ( group == null ) {
             throw new IllegalArgumentException( "Formation group `" + formationGuid + "` does not exist." );
         }
 
-        List<GenericFormationGroupTask> tasks = this.mGroupTaskMapper.fetchEnabledByFormationGuid( formationGuid );
+        List<? extends GroupTaskEntry> tasks = this.mMasterManipulator.groupTaskManipulator().fetchEnabledByFormationGuid( formationGuid );
         if ( tasks == null || tasks.isEmpty() ) {
             throw new IllegalStateException( "Formation group `" + formationGuid + "` has no enabled task." );
         }
         this.ensureManualTasks( formationGuid, tasks );
 
         GUID runGuid = this.mGuidAllocator.nextGUID();
-        GenericFormationRun run = new GenericFormationRun();
+        GenericRun run = new GenericRun();
         run.setGuid( runGuid );
         run.setFormationGuid( formationGuid );
         run.setStrategyType( this.resolveString( request.getStrategyType(), group.getStrategyType() ) );
@@ -78,15 +64,15 @@ public class FormationRunService {
         run.setWindowSize( Math.max( 1L, this.resolveLong( request.getWindowSize(), group.getWindowSize() ) ) );
         run.setInflightLimit( Math.max( 1L, this.resolveLong( request.getInflightLimit(), group.getInflightLimit() ) ) );
         run.setTotalCount( tasks.size() );
-        this.mRunMapper.insert( run );
+        this.mMasterManipulator.runManipulator().insert( run );
 
         this.expandFrames( run, tasks );
         this.expandPages( run, tasks.size() );
         return run;
     }
 
-    protected void ensureManualTasks( GUID formationGuid, List<GenericFormationGroupTask> tasks ) {
-        for ( GenericFormationGroupTask task : tasks ) {
+    protected void ensureManualTasks( GUID formationGuid, List<? extends GroupTaskEntry> tasks ) {
+        for ( GroupTaskEntry task : tasks ) {
             String scheduleType = task.getScheduleType();
             if ( scheduleType != null && !"Manual".equalsIgnoreCase( scheduleType ) ) {
                 throw new IllegalStateException(
@@ -110,9 +96,9 @@ public class FormationRunService {
         return fallback;
     }
 
-    protected void expandFrames( GenericFormationRun run, List<GenericFormationGroupTask> tasks ) {
+    protected void expandFrames( GenericRun run, List<? extends GroupTaskEntry> tasks ) {
         long nFrameNo = 0L;
-        for ( GenericFormationGroupTask task : tasks ) {
+        for ( GroupTaskEntry task : tasks ) {
             GenericFormationFrame frame = new GenericFormationFrame();
             frame.setGuid( this.mGuidAllocator.nextGUID() );
             frame.setRunGuid( run.getGuid() );
@@ -125,12 +111,12 @@ public class FormationRunService {
             frame.setQueueType( FormationQueueType.Ready.getName() );
             frame.setFrameStatus( FormationFrameStatus.Pending.getName() );
             frame.setPriority( task.getPriority() );
-            this.mFrameMapper.insert( frame );
+            this.mMasterManipulator.frameManipulator().insert( frame );
             ++nFrameNo;
         }
     }
 
-    protected void expandPages( GenericFormationRun run, long totalCount ) {
+    protected void expandPages( GenericRun run, long totalCount ) {
         long nPageSize = Math.max( 1L, run.getPageSize() );
         long nPageCount = ( totalCount + nPageSize - 1L ) / nPageSize;
         for ( long nPageNo = 0L; nPageNo < nPageCount; ++nPageNo ) {
@@ -144,7 +130,7 @@ public class FormationRunService {
             page.setFrameStart( nFrameStart );
             page.setFrameEnd( nFrameEnd );
             page.setTotalCount( nFrameEnd - nFrameStart );
-            this.mPageMapper.insert( page );
+            this.mMasterManipulator.pageManipulator().insert( page );
         }
     }
 }

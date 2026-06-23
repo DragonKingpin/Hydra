@@ -29,6 +29,8 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
+import com.walnut.odin.formation.FormationColonel;
+import com.walnut.odin.formation.RavenFormationColonel;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
@@ -49,6 +51,8 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     private RuntimeAtlasInstrument  mAtlasInstrument;
 
     private UniformTaskScheduler    mTaskScheduler;
+
+    private FormationColonel        mFormationColonel;
 
     private List<GrpcAppointServer> mAutonomousGrpcServers = new ArrayList<>();
 
@@ -279,6 +283,23 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Starting component `TaskSchedulerCycleEngine`.", LogStatuses.StatusReady );
     }
 
+    protected void prepare_formation_colonel() {
+        this.infoLifecycle( "<Odin> Constructing component `FormationColonel`.", LogStatuses.StatusStart );
+        this.mFormationColonel = new RavenFormationColonel( this );
+        this.mFormationColonel.prepare();
+        this.infoLifecycle( "<Odin> Constructing component `FormationColonel`.", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_formation_engine() {
+        if ( this.mFormationColonel == null ) {
+            return;
+        }
+
+        this.infoLifecycle( "<Odin> Starting component `FormationEngine`.", LogStatuses.StatusStart );
+        this.mFormationColonel.start();
+        this.infoLifecycle( "<Odin> Starting component `FormationEngine`.", LogStatuses.StatusReady );
+    }
+
     protected void traceSchedulerCycleEngineBanner( RavenTaskConfig config ) {
         Tracer console = this.mPrimarySystem.console();
         console.getOut().print( "---------------------------------------------------------------\n" );
@@ -300,6 +321,8 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.prepare_remote_process_server();
         this.prepare_scheduler();
         this.prepare_scheduler_cycle_engine();
+        this.prepare_formation_colonel();
+        this.prepare_formation_engine();
 
 
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusDone );
@@ -312,6 +335,9 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     @Override
     public void terminate() {
+        if ( this.mFormationColonel != null ) {
+            this.mFormationColonel.shutdown();
+        }
         if ( this.mTaskScheduler != null ) {
             this.mTaskScheduler.terminateService();
         }
@@ -336,5 +362,8 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         return this.mTaskScheduler;
     }
 
+    public FormationColonel formationColonel() {
+        return this.mFormationColonel;
+    }
 
 }

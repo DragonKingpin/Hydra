@@ -35,6 +35,7 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected LocalDateTime submitTime;
     protected LocalDateTime scheduleTime;
     protected String affinityProcessor;
+    protected String designatedProcessor;
     protected LocalDateTime createTime;
     protected LocalDateTime updateTime;
 
@@ -219,6 +220,16 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public void setAffinityProcessor(String affinityProcessor) {
         this.affinityProcessor = affinityProcessor;
+    }
+
+    @Override
+    public String getDesignatedProcessor() {
+        return this.designatedProcessor;
+    }
+
+    @Override
+    public void setDesignatedProcessor(String designatedProcessor) {
+        this.designatedProcessor = designatedProcessor;
     }
 
     @Override

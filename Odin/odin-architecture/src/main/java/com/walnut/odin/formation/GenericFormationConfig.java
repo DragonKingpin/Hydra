@@ -2,6 +2,7 @@ package com.walnut.odin.formation;
 
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.system.ko.ArchKernelObjectConfig;
+import com.walnut.odin.formation.strategy.FormationStrategyType;
 
 public class GenericFormationConfig extends ArchKernelObjectConfig implements FormationConfig {
 

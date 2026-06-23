@@ -5,13 +5,15 @@ import com.walnut.odin.formation.dispatch.FormationDispatcher;
 import com.walnut.odin.formation.schedule.FormationScheduler;
 import com.walnut.odin.formation.service.FormationService;
 
-public interface FormationManager extends Manager {
+public interface FormationColonel extends Manager {
 
-    void prepareFormation();
+    void prepare();
 
-    void startupFormation();
+    void start();
 
-    void shutdownFormation();
+    void shutdown();
+
+    FormationInstrument formationInstrument();
 
     FormationService formationService();
 

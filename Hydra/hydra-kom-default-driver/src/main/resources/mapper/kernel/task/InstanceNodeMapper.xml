@@ -34,6 +34,7 @@
         latest_end_time,
         error_cause,
         affinity_processor,
+        designated_processor,
         create_time,
         update_time
     </sql>
@@ -67,6 +68,7 @@
         #{lastEndTime},
         #{errorCause},
         #{affinityProcessor},
+        #{designatedProcessor},
         #{createTime},
         #{updateTime}
     </sql>
@@ -202,7 +204,8 @@
         <result column="latest_start_time"   property="lastStartTime"/>
         <result column="latest_end_time"     property="lastEndTime"/>
         <result column="error_cause"         property="errorCause"/>
-        <result column="affinity_processor" property="affinityProcessor"/>
+        <result column="affinity_processor"  property="affinityProcessor"/>
+        <result column="designated_processor" property="designatedProcessor"/>
         <result column="create_time"         property="createTime"/>
         <result column="update_time"         property="updateTime"/>
 
@@ -260,6 +263,7 @@
             latest_end_time     = #{lastEndTime},
             error_cause         = #{errorCause},
             affinity_processor  = #{affinityProcessor},
+            designated_processor = #{designatedProcessor},
             update_time         = #{updateTime}
         WHERE guid = #{guid}
 

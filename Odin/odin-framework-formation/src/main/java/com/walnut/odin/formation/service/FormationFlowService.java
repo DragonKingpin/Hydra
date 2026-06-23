@@ -1,44 +1,33 @@
 package com.walnut.odin.formation.service;
 
-import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
-import com.walnut.odin.formation.FormationStrategyType;
-import com.walnut.odin.formation.GenericFormationRun;
-import com.walnut.odin.formation.GenericFormationStrategyContext;
-import com.walnut.odin.formation.GenericFormationStrategyRuntime;
+import com.walnut.odin.formation.strategy.FormationStrategyType;
+import com.walnut.odin.formation.entity.GenericRun;
+import com.walnut.odin.formation.strategy.GenericFormationStrategyContext;
+import com.walnut.odin.formation.strategy.GenericFormationStrategyRuntime;
 import com.walnut.odin.formation.flow.GenericFormationFlow;
-import com.walnut.odin.formation.source.FormationRunFrameMapper;
-import com.walnut.odin.formation.source.FormationRunMapper;
-import com.walnut.odin.formation.source.FormationRunPageMapper;
+import com.walnut.odin.formation.source.MasterManipulator;
 import com.walnut.odin.formation.strategy.fixed.FixedPageFormationStrategy64;
 
-public class FormationFlowService {
+public class FormationFlowService implements FlowService {
     protected GuidAllocator           mGuidAllocator;
-    protected FormationRunMapper      mRunMapper;
-    protected FormationRunPageMapper  mPageMapper;
-    protected FormationRunFrameMapper mFrameMapper;
+    protected MasterManipulator       mMasterManipulator;
 
     public FormationFlowService(
             GuidAllocator guidAllocator,
-            FormationRunMapper runMapper,
-            FormationRunPageMapper pageMapper,
-            FormationRunFrameMapper frameMapper
+            MasterManipulator masterManipulator
     ) {
         this.mGuidAllocator = guidAllocator;
-        this.mRunMapper = runMapper;
-        this.mPageMapper = pageMapper;
-        this.mFrameMapper = frameMapper;
+        this.mMasterManipulator = masterManipulator;
     }
 
-    public GenericFormationFlow fixedPageFlow( GenericFormationRun run, UniformTaskScheduler taskScheduler, String claimOwner ) {
+    public GenericFormationFlow fixedPageFlow( GenericRun run, UniformTaskScheduler taskScheduler, String claimOwner ) {
         GenericFormationStrategyRuntime runtime = this.runtimeOf( run );
         FixedPageFormationStrategy64 strategy = new FixedPageFormationStrategy64(
                 run.getGuid(),
                 this.mGuidAllocator,
-                this.mRunMapper,
-                this.mPageMapper,
-                this.mFrameMapper,
+                this.mMasterManipulator,
                 claimOwner
         );
         GenericFormationFlow flow = new GenericFormationFlow( strategy, runtime );
@@ -46,7 +35,7 @@ public class FormationFlowService {
         return flow;
     }
 
-    public void flow( GenericFormationRun run, UniformTaskScheduler taskScheduler, String claimOwner ) {
+    public void flow( GenericRun run, UniformTaskScheduler taskScheduler, String claimOwner ) {
         if ( !FormationStrategyType.FixedPage.name().equals( run.getStrategyType() ) ) {
             throw new UnsupportedOperationException( "Only FixedPage formation strategy is implemented in minimal kernel." );
         }
@@ -54,7 +43,12 @@ public class FormationFlowService {
                 .flow( new GenericFormationStrategyContext( run.getFormationGuid(), run.getFormationGuid(), taskScheduler ) );
     }
 
-    protected GenericFormationStrategyRuntime runtimeOf( GenericFormationRun run ) {
+    @Override
+    public void flow( com.walnut.odin.formation.entity.RunEntry run, UniformTaskScheduler taskScheduler, String claimOwner ) {
+        this.flow( (GenericRun)run, taskScheduler, claimOwner );
+    }
+
+    protected GenericFormationStrategyRuntime runtimeOf( GenericRun run ) {
         GenericFormationStrategyRuntime runtime = new GenericFormationStrategyRuntime();
         runtime.setPageSize( run.getPageSize() );
         runtime.setFrameSize( run.getFrameSize() );

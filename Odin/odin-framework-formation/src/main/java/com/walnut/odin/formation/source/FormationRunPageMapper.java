@@ -7,14 +7,21 @@ import org.apache.ibatis.annotations.Param;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.walnut.odin.formation.plan.FormationPage;
 import com.walnut.odin.formation.plan.GenericFormationPage;
 
 @Mapper
 @IbatisDataAccessObject
-public interface FormationRunPageMapper {
-    int insert( @Param( "page" ) GenericFormationPage page );
+public interface FormationRunPageMapper extends PageManipulator {
+    int insert( @Param( "page" ) FormationPage page );
 
-    List<GenericFormationPage> fetchPendingPages( @Param( "runGuid" ) GUID runGuid, @Param( "limit" ) long limit );
+    List<GenericFormationPage> fetchPendingPages0( @Param( "runGuid" ) GUID runGuid, @Param( "limit" ) long limit );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<FormationPage> fetchPendingPages( GUID runGuid, long limit ) {
+        return (List) this.fetchPendingPages0( runGuid, limit );
+    }
 
     int claimPage(
             @Param( "id" ) long id,

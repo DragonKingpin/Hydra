@@ -23,4 +23,6 @@ public interface GroupEntry extends Pinenut {
     long getInflightLimit();
 
     boolean isEnable();
+
+    String getDescription();
 }

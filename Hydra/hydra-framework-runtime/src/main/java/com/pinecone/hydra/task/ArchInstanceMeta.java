@@ -23,6 +23,9 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected int retryCnt;
     protected String errorCause;
     protected boolean dryRun;
+    protected Long timeoutSeconds = 86400L;
+    protected int retryTimes;
+    protected Long retryIntervalSeconds;
     protected TaskScheduleCycle scheduleCycle;
     protected TaskScheduleType scheduleType;
     protected LocalDateTime lastStartTime;
@@ -119,6 +122,21 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public boolean isDryRun() {
         return this.dryRun;
+    }
+
+    @Override
+    public Long getTimeoutSeconds() {
+        return this.timeoutSeconds;
+    }
+
+    @Override
+    public int getRetryTimes() {
+        return this.retryTimes;
+    }
+
+    @Override
+    public Long getRetryIntervalSeconds() {
+        return this.retryIntervalSeconds;
     }
 
     @Override

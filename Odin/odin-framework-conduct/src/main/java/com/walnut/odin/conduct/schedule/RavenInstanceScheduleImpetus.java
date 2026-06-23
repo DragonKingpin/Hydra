@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
-import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
@@ -27,10 +26,6 @@ import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.slime.meta.TableIndexMeta;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.entity.GenericInstanceEvent;
-import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceEvent;
-import com.walnut.odin.conduct.entity.InstanceExec;
 import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
@@ -505,12 +500,14 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                     szCause
             );
             if ( result.isSucceeded() ) {
+                this.mInstanceScheduleAllocator.reclaimInstance( instance.getGuid() );
                 instance.setInstanceStatus( TaskInstanceStatus.Error );
                 instance.setErrorCause( szCause );
                 instance.setLastEndTime( now );
                 instance.setFinishTime( now );
                 this.mScheduleManipulator.getInstanceExecMapper().updateStateRetryMonotonic(
                         instance.getGuid(),
+                        instance.getSequenceCnt(),
                         instance.getRetryCnt(),
                         TaskInstanceExecState.Fail.getName(),
                         null,

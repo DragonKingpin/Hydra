@@ -355,6 +355,9 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         taskElement.setDeploymentMethod( metaInfos.getDeploymentMethod() );
         taskElement.setEnable( metaInfos.isEnable());
         taskElement.setDryRun( metaInfos.isDryRun() );
+        taskElement.setTimeoutSeconds( metaInfos.getTimeoutSeconds() );
+        taskElement.setRetryTimes( metaInfos.getRetryTimes() );
+        taskElement.setRetryIntervalSeconds( metaInfos.getRetryIntervalSeconds() );
         taskElement.setPriority( metaInfos.getPriority() );
         taskElement.setResourceType( metaInfos.getResourceType() );
         taskElement.setScheduleCycle( metaInfos.getScheduleCycle() );

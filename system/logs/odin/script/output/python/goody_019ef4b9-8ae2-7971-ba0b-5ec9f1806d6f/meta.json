@@ -1,0 +1,10 @@
+{
+  "scriptGuid": "019e62b9-5bb0-7f9d-b19a-57dbb2b55214",
+  "taskName": "goody",
+  "runtime": "python",
+  "contentHash": "e3fcc0d7b99a2de4a7648e2bd991d100f6e6280a2e31f9d8b05efac9d00f49c0",
+  "entrypoint": "main.py",
+  "timeoutMillis": 60000
+,
+  "command": ["D:/ProgramFiles/ToolChains/Python/python38_x64/python.exe", "E:\\MyFiles\\CodeScript\\Project\\Hazelnut\\Sauron\\shadow-prime\\system\\temp\\odin\\script\\workspace\\python\\goody_e3fcc0d7_019ef4b9-8ae2-7971-ba0b-5ec9f1806d6f\\main.py", "{}"]
+}

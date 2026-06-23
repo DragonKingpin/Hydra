@@ -11,6 +11,10 @@ public interface FrameManipulator extends Pinenut {
 
     List<FormationFrame> fetchPendingFramesByPage( GUID runGuid, long pageNo );
 
+    long countFrames( GUID runGuid, String frameStatus );
+
+    List<FormationFrame> pageFrames( GUID runGuid, String frameStatus, long offset, long limit );
+
     int markSubmitted( GUID guid, GUID instanceGuid );
 
     int markFailed( GUID guid, String errorCause );

@@ -118,6 +118,10 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
                 || mode == TaskInstantaneousMode.Temporary;
     }
 
+    protected boolean shouldExposeBusinessTime( TaskInstantaneousContext context ) {
+        return this.isImmediateMode( context );
+    }
+
     protected TaskScheduleType resolveInstanceScheduleType(
             TaskElement element, TaskInstantaneousContext context
     ) {
@@ -205,8 +209,9 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
     protected void ensureTaskExec( RavenTaskInstance instance ) {
         InstanceEntry entry = instance.getInstanceEntry();
         GUID instanceGuid = entry.getGuid();
+        int nSequenceCnt = entry.getSequenceCnt();
         int nRetryCnt = entry.getRetryCnt();
-        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry( instanceGuid, nRetryCnt ) != null ) {
+        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry( instanceGuid, nSequenceCnt, nRetryCnt ) != null ) {
             return;
         }
 
@@ -216,19 +221,24 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         exec.setTaskName( instance.getOwnedTask().getName() );
         exec.setInstanceName( entry.getInstanceName() );
         exec.setProcessorQueue( "default" );
+        exec.setAffinityProcessor( entry.getAffinityProcessor() );
+        exec.setDesignatedProcessor( entry.getDesignatedProcessor() );
         exec.setImagePath( entry.getImagePath() );
         exec.setClusterName( "local_cluster" );
         exec.setExecState( TaskInstanceExecState.Submitted.getName() );
+        exec.setSequenceCnt( nSequenceCnt );
         exec.setCurrentRetryNumber( nRetryCnt );
-        exec.setRetryTimes( nRetryCnt );
+        exec.setRetryTimes( entry.getRetryTimes() );
         this.mInstanceExecMapper.insert( exec );
     }
 
     protected void ensureTaskEventTimeReady( RavenTaskInstance instance ) {
         InstanceEntry entry = instance.getInstanceEntry();
         GUID instanceGuid = entry.getGuid();
+        int nSequenceCnt = entry.getSequenceCnt();
+        int nRetryCnt = entry.getRetryCnt();
         String szEventState = InstanceEventType.TaskTimeReady.getName();
-        if ( this.mInstanceEventMapper.queryByInstanceGuidAndState( instanceGuid, szEventState ) != null ) {
+        if ( this.mInstanceEventMapper.queryByInstanceGuidAndState( instanceGuid, nSequenceCnt, nRetryCnt, szEventState ) != null ) {
             return;
         }
 
@@ -237,8 +247,9 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         event.setTaskGuid( entry.getTaskGuid() );
         event.setInstanceGuid( instanceGuid );
         event.setInstanceName( entry.getInstanceName() );
-        event.setRetryTimes( entry.getRetryCnt() );
-        event.setCurrentRetryNumber( entry.getRetryCnt() );
+        event.setRetryTimes( entry.getRetryTimes() );
+        event.setSequenceCnt( nSequenceCnt );
+        event.setCurrentRetryNumber( nRetryCnt );
         event.setEventType( instance.getTaskType() );
         event.setState( szEventState );
         event.setExecTime( LocalDateTime.now() );
@@ -265,6 +276,16 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         feature.setBizTimeEpoch( bizTimeEpoch );
         feature.setAllowAsymmetricImage( context.isAllowAsymmetricImage() );
         feature.setAllowInstantaneousDepartureBypass( context.isAllowInstantaneousDepartureBypass() );
+
+        TaskInstantaneousMode mode = context.getMode();
+        if ( mode == TaskInstantaneousMode.Debug ) {
+            feature.setBusinessTimeVisible( false );
+            feature.setInstanceNameQualifier( "debug" );
+        }
+        else if ( mode == TaskInstantaneousMode.Temporary ) {
+            feature.setBusinessTimeVisible( false );
+            feature.setInstanceNameQualifier( "temp" );
+        }
 
         if ( TaskDeploymentMethod.isAuthoritative( element.getDeploymentMethod() ) ) {
             feature.setAllowAsymmetricImage( false );
@@ -297,7 +318,9 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         TaskElement element = task.getTaskElement();
         this.assertImmediateTaskRunnable( element, context );
 
-        LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime( element, bizTimeEpoch );
+        LocalDateTime businessTime = this.shouldExposeBusinessTime( context )
+                ? this.mTaskScheduleTimeResolver.resolveBusinessTime( element, bizTimeEpoch )
+                : null;
         this.assertBusinessTimeUnique( element, businessTime );
         this.assertLineageResolvable( element, context, expectTime, businessTime );
 

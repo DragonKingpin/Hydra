@@ -290,26 +290,42 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
     @Override
     public RemoteVitalizationResponse createLocalUProcess( UProcessMirrorDTO handlerDTO, UProcess[] lpProcess ) throws RemoteProcessLifecycleException {
+        String imageAddress = handlerDTO == null ? null : handlerDTO.getImageAddress();
+        boolean isURI       = handlerDTO != null && handlerDTO.isImageAddressURI();
+        RemoteVitalizationResponse response = this.createRemoteVitalizationResponse(
+                handlerDTO, RemoteVitalizationStatus.New, null
+        );
         try {
-            String imageAddress = handlerDTO.getImageAddress();
-            boolean isURI       = handlerDTO.isImageAddressURI();
-            RemoteVitalizationResponse response = new RemoteVitalizationResponse();
-            response.setRemoteVitalizationStatus( RemoteVitalizationStatus.New );
-            response.setImageResolutionMode( handlerDTO.getImageResolutionMode() );
-
             this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
             ExecutionImage image;
             if ( isURI ) {
                 URI uri = new URI( imageAddress );
+                if ( uri.getScheme() == null ) {
+                    return this.markVitalizationFailure(
+                            response,
+                            RemoteVitalizationStatus.NoImage,
+                            "Invalid image URI without scheme: `" + imageAddress + "`"
+                    );
+                }
                 image = this.queryExecutionImage( uri );
             }
             else {
+                if ( imageAddress == null || imageAddress.trim().isEmpty() ) {
+                    return this.markVitalizationFailure(
+                            response,
+                            RemoteVitalizationStatus.NoImage,
+                            "Invalid empty execution image address."
+                    );
+                }
                 image = this.queryExecutionImage( imageAddress );
             }
             if ( image == null ) {
-                response.setRemoteVitalizationStatus( RemoteVitalizationStatus.NoImage );
-                return response;
+                return this.markVitalizationFailure(
+                        response,
+                        RemoteVitalizationStatus.NoImage,
+                        "Execution image not found: `" + imageAddress + "`"
+                );
             }
             this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
 
@@ -344,8 +360,64 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
             return response;
         }
         catch ( URISyntaxException e ) {
-            throw new RemoteProcessLifecycleException( e );
+            return this.markVitalizationFailure(
+                    response,
+                    RemoteVitalizationStatus.NoImage,
+                    "Invalid image URI: `" + imageAddress + "`, cause: " + e.getMessage()
+            );
         }
+        catch ( Exception e ) {
+            return this.markVitalizationFailure(
+                    response,
+                    RemoteVitalizationStatus.Error,
+                    "Remote local process creation failed for image `" + imageAddress + "`, cause: " + this.describeThrowable( e )
+            );
+        }
+    }
+
+    protected RemoteVitalizationResponse createRemoteVitalizationResponse(
+            UProcessMirrorDTO handlerDTO, RemoteVitalizationStatus status, String errorMsg
+    ) {
+        RemoteVitalizationResponse response = new RemoteVitalizationResponse();
+        response.setRemoteVitalizationStatus( status );
+        response.setErrorMsg( errorMsg );
+        if ( handlerDTO == null ) {
+            return response;
+        }
+        response.setImageAddress( handlerDTO.getImageAddress() );
+        response.setImageAddressURI( handlerDTO.isImageAddressURI() );
+        try {
+            response.setImageResolutionMode( handlerDTO.getImageResolutionMode() );
+        }
+        catch ( Exception e ) {
+            response.setErrorMsg( this.describeThrowable( e ) );
+        }
+        return response;
+    }
+
+    protected RemoteVitalizationResponse markVitalizationFailure(
+            RemoteVitalizationResponse response, RemoteVitalizationStatus status, String errorMsg
+    ) {
+        response.setRemoteVitalizationStatus( status );
+        response.setErrorMsg( errorMsg );
+        this.getLogger().warn(
+                "[RemoteProcessCreation] [PRC] (Process: `{}`, Status: `{}`, Reason: `{}`) <Rejected>",
+                response.getImageAddress(),
+                status,
+                errorMsg
+        );
+        return response;
+    }
+
+    protected String describeThrowable( Throwable cause ) {
+        if ( cause == null ) {
+            return null;
+        }
+        String message = cause.getMessage();
+        if ( message == null || message.trim().isEmpty() ) {
+            return cause.getClass().getName();
+        }
+        return cause.getClass().getName() + ": " + message;
     }
 
     @Override

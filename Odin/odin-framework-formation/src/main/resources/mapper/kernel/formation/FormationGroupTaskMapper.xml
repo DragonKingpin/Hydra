@@ -53,6 +53,23 @@
         )
     </insert>
 
+    <select id="selectByGuid" resultMap="FormationGroupTaskMap">
+        SELECT
+            <include refid="FormationGroupTaskColumns"/>
+        FROM odin_formation_group_tasks
+        WHERE guid = #{guid}
+        LIMIT 1
+    </select>
+
+    <select id="selectByFormationGuidAndTaskGuid" resultMap="FormationGroupTaskMap">
+        SELECT
+            <include refid="FormationGroupTaskColumns"/>
+        FROM odin_formation_group_tasks
+        WHERE formation_guid = #{formationGuid}
+          AND task_guid = #{taskGuid}
+        LIMIT 1
+    </select>
+
     <select id="countEnabledByFormationGuid" resultType="long">
         SELECT COUNT(1)
         FROM odin_formation_group_tasks
@@ -68,4 +85,35 @@
           AND enable = 1
         ORDER BY sequence_no ASC, id ASC
     </select>
+
+    <select id="countByFormationGuid" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_group_tasks
+        WHERE formation_guid = #{formationGuid}
+        <if test="enable != null">
+          AND enable = #{enable}
+        </if>
+    </select>
+
+    <select id="listByFormationGuid0" resultMap="FormationGroupTaskMap">
+        SELECT
+            <include refid="FormationGroupTaskColumns"/>
+        FROM odin_formation_group_tasks
+        WHERE formation_guid = #{formationGuid}
+        <if test="enable != null">
+          AND enable = #{enable}
+        </if>
+        ORDER BY sequence_no ASC, id ASC
+    </select>
+
+    <update id="updateEnable">
+        UPDATE odin_formation_group_tasks
+        SET enable = #{enable}
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="removeByGuid">
+        DELETE FROM odin_formation_group_tasks
+        WHERE guid = #{guid}
+    </delete>
 </mapper>

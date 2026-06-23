@@ -88,6 +88,24 @@ public interface InstanceInstrument extends Instrument {
 
     int resetForRetry( GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime );
 
+    int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    );
+
     TaskInstrument getTaskInstrument();
 
     InstanceEntry makeInstanceEntry( GUID taskGuid, @Nullable String insName, @Nullable LocalDateTime bizTime );
@@ -115,5 +133,15 @@ public interface InstanceInstrument extends Instrument {
     List<InstanceEntry> fetchSchedulableInstances(
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority
     );
+
+    TableIndexMeta queryRetryableTerminalIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchRetryableTerminalInstances(
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    );
+
+    TableIndexMeta queryTimedOutRunningIdRange( LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchTimedOutRunningInstances( long idMin, long idMax, LocalDateTime targetTime );
 
 }

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
+import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
@@ -21,6 +22,10 @@ import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
+import com.walnut.odin.conduct.entity.GenericInstanceEvent;
+import com.walnut.odin.conduct.entity.GenericInstanceExec;
+import com.walnut.odin.conduct.entity.InstanceEvent;
+import com.walnut.odin.conduct.entity.InstanceExec;
 import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
@@ -291,12 +296,14 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                 szCause
         );
         if ( result.isSucceeded() ) {
+            this.mInstanceScheduleAllocator.reclaimInstance( instance.getGuid() );
             instance.setInstanceStatus( TaskInstanceStatus.Error );
             instance.setErrorCause( szCause );
             instance.setLastEndTime( now );
             instance.setFinishTime( now );
             this.mInstanceExecMapper.updateStateRetryMonotonic(
                     instance.getGuid(),
+                    instance.getSequenceCnt(),
                     instance.getRetryCnt(),
                     TaskInstanceExecState.Fail.getName(),
                     null,
@@ -332,6 +339,126 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
 
         result.getDiscardedInstances().addAll( context.getDiscardedInstances() );
         this.traceDiscardedInstances( context.getDiscardedInstances() );
+    }
+
+    protected boolean isDryRunSkippable( InstanceEntry instance ) {
+        return instance != null && instance.isDryRun();
+    }
+
+    protected Collection<InstanceEntry> drainDryRunInstances( Collection<InstanceEntry> instances ) {
+        if ( instances == null || instances.isEmpty() ) {
+            return List.of();
+        }
+
+        Collection<InstanceEntry> dryRunInstances = new ArrayList<>();
+        instances.removeIf( instance -> {
+            if ( !this.isDryRunSkippable( instance ) ) {
+                return false;
+            }
+            dryRunInstances.add( instance );
+            return true;
+        } );
+        return dryRunInstances;
+    }
+
+    protected void ensureDryRunExec( InstanceEntry instance ) {
+        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry(
+                instance.getGuid(), instance.getSequenceCnt(), instance.getRetryCnt()
+        ) != null ) {
+            return;
+        }
+
+        InstanceExec exec = new GenericInstanceExec();
+        exec.setTaskGuid( instance.getTaskGuid() );
+        exec.setInstanceGuid( instance.getGuid() );
+        exec.setTaskName( instance.getTaskName() );
+        exec.setInstanceName( instance.getInstanceName() );
+        exec.setProcessorQueue( "default" );
+        exec.setAffinityProcessor( instance.getAffinityProcessor() );
+        exec.setDesignatedProcessor( instance.getDesignatedProcessor() );
+        exec.setExecutedProcessor( null );
+        exec.setImagePath( instance.getImagePath() );
+        exec.setClusterName( "local_cluster" );
+        exec.setExecState( TaskInstanceExecState.Submitted.getName() );
+        exec.setSequenceCnt( instance.getSequenceCnt() );
+        exec.setCurrentRetryNumber( instance.getRetryCnt() );
+        exec.setRetryTimes( instance.getRetryTimes() );
+        this.mInstanceExecMapper.insert( exec );
+    }
+
+    protected void traceDryRunEvent( InstanceEntry instance, LocalDateTime now ) {
+        InstanceEvent event = new GenericInstanceEvent();
+        event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
+        event.setTaskGuid( instance.getTaskGuid() );
+        event.setInstanceGuid( instance.getGuid() );
+        event.setInstanceName( instance.getInstanceName() );
+        event.setRetryTimes( instance.getRetryTimes() );
+        event.setSequenceCnt( instance.getSequenceCnt() );
+        event.setCurrentRetryNumber( instance.getRetryCnt() );
+        event.setEventType( InstanceEventType.TaskSuccess.getName() );
+        event.setState( TaskInstanceStatus.Finished.getName() );
+        event.setExecTime( now );
+        event.setEventContext( "{\"message\":\"Dry-run execution skipped remote dispatch.\"}" );
+        this.mScheduleManipulator.getInstanceEventMapper().insert( event );
+    }
+
+    protected void finishDryRunInstances( Collection<InstanceEntry> instances, LocalDateTime scheduleTime ) {
+        if ( instances == null || instances.isEmpty() ) {
+            return;
+        }
+
+        for ( InstanceEntry instance : instances ) {
+            if ( instance == null || instance.getGuid() == null ) {
+                continue;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            this.ensureDryRunExec( instance );
+            int nAffectedRows = this.mInstanceInstrument.transitStatusInMonotonicWithFields(
+                    instance.getGuid(),
+                    List.of(
+                            TaskInstanceStatus.New,
+                            TaskInstanceStatus.DependencyWait,
+                            TaskInstanceStatus.ResourceWait,
+                            TaskInstanceStatus.DepartureStandby,
+                            TaskInstanceStatus.ProcessCreating,
+                            TaskInstanceStatus.ProcessStandby
+                    ),
+                    TaskInstanceStatus.Finished,
+                    scheduleTime,
+                    now,
+                    now,
+                    now,
+                    null
+            );
+            if ( nAffectedRows <= 0 ) {
+                continue;
+            }
+
+            this.mInstanceScheduleAllocator.reclaimInstance( instance.getGuid() );
+            instance.setScheduleTime( scheduleTime );
+            instance.setInstanceStatus( TaskInstanceStatus.Finished );
+            instance.setLastStartTime( now );
+            instance.setLastEndTime( now );
+            instance.setFinishTime( now );
+            instance.setErrorCause( null );
+            this.mInstanceExecMapper.updateStateRetryMonotonic(
+                    instance.getGuid(),
+                    instance.getSequenceCnt(),
+                    instance.getRetryCnt(),
+                    TaskInstanceExecState.Success.getName(),
+                    now,
+                    now,
+                    now
+            );
+            this.traceDryRunEvent( instance, now );
+            this.log.info(
+                    "[TaskSchedulerLifecycle] Dry-run execution skipped remote dispatch "
+                            + "(Task: `{}`, Instance: `{}`) <Success>",
+                    instance.getTaskName(),
+                    instance.getInstanceName()
+            );
+        }
     }
 
     protected Collection<TaskLaunchContext> prepareDepartureLaunchContexts(
@@ -400,7 +527,12 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             }
         }
 
+        this.finishDryRunInstances( this.drainDryRunInstances( resourceWaitInstances ), scheduleTime );
+        this.finishDryRunInstances( this.drainDryRunInstances( departureStandbyInstances ), scheduleTime );
+        this.finishDryRunInstances( this.drainDryRunInstances( processCreatingInstances ), scheduleTime );
+
         this.fitResourceWaitInstances( resourceWaitInstances, departureStandbyInstances, result );
+        this.finishDryRunInstances( this.drainDryRunInstances( departureStandbyInstances ), scheduleTime );
         result.getLaunchContexts().addAll(
                 this.prepareDepartureLaunchContexts( departureStandbyInstances, scheduleTime, result )
         );

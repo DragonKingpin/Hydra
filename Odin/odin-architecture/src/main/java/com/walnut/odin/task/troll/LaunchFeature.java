@@ -35,6 +35,10 @@ public class LaunchFeature implements Pinenut {
 
     private boolean allowInstantaneousDepartureBypass;
 
+    private boolean businessTimeVisible = true;
+
+    private String instanceNameQualifier;
+
     public LaunchFeature() {
         this.bizTimeEpoch = LocalDateTime.now().minusDays( 1 ); // dtm
     }
@@ -100,6 +104,8 @@ public class LaunchFeature implements Pinenut {
 
         this.allowAsymmetricImage = that.isAllowAsymmetricImage();
         this.allowInstantaneousDepartureBypass = that.isAllowInstantaneousDepartureBypass();
+        this.businessTimeVisible = that.isBusinessTimeVisible();
+        this.instanceNameQualifier = that.getInstanceNameQualifier();
 
         if ( that.getProcessorDesignated() != null ) {
             this.processorDesignated = that.getProcessorDesignated();
@@ -152,6 +158,32 @@ public class LaunchFeature implements Pinenut {
 
     public void setBizTimeEpoch( LocalDateTime bizTimeEpoch ) {
         this.bizTimeEpoch = bizTimeEpoch;
+    }
+
+    public boolean isBusinessTimeVisible() {
+        return this.businessTimeVisible;
+    }
+
+    public void setBusinessTimeVisible( boolean businessTimeVisible ) {
+        this.businessTimeVisible = businessTimeVisible;
+    }
+
+    public LaunchFeature withBusinessTimeVisible( boolean businessTimeVisible ) {
+        this.businessTimeVisible = businessTimeVisible;
+        return this;
+    }
+
+    public String getInstanceNameQualifier() {
+        return this.instanceNameQualifier;
+    }
+
+    public void setInstanceNameQualifier( String instanceNameQualifier ) {
+        this.instanceNameQualifier = instanceNameQualifier;
+    }
+
+    public LaunchFeature withInstanceNameQualifier( String instanceNameQualifier ) {
+        this.instanceNameQualifier = instanceNameQualifier;
+        return this;
     }
 
     public LaunchFeature withRetry(boolean retry ) {

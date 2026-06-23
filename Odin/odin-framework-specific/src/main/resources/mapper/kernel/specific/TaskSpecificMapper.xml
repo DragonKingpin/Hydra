@@ -16,6 +16,9 @@
         <result column="priority"                   property="priority"/>
         <result column="actually_priority"          property="actuallyPriority"/>
         <result column="dry_run"                    property="dryRun"/>
+        <result column="timeout_seconds"            property="timeoutSeconds"/>
+        <result column="retry_times"                property="retryTimes"/>
+        <result column="retry_interval_seconds"     property="retryIntervalSeconds"/>
         <result column="schedule_cycle"             property="scheduleCycle"/>
         <result column="schedule_type"              property="scheduleType"/>
         <result column="schedule_start_time"        property="scheduleStartTime"/>
@@ -51,6 +54,9 @@
         <result column="schedule_type"       property="scheduleType"/>
         <result column="task_type"           property="taskType"/>
         <result column="dry_run"             property="dryRun"/>
+        <result column="timeout_seconds"     property="timeoutSeconds"/>
+        <result column="retry_times"         property="retryTimes"/>
+        <result column="retry_interval_seconds" property="retryIntervalSeconds"/>
         <result column="run_count"           property="runCount"/>
         <result column="sequence_cnt"        property="sequenceCnt"/>
         <result column="retry_cnt"           property="retryCnt"/>
@@ -79,6 +85,9 @@
         task_node.priority,
         task_node.actually_priority,
         task_node.dry_run,
+        task_node.timeout_seconds,
+        task_node.retry_times,
+        task_node.retry_interval_seconds,
         task_node.schedule_cycle,
         task_node.schedule_type,
         task_node.schedule_start_time,
@@ -187,6 +196,9 @@
         ins.schedule_type,
         ins.task_type,
         ins.dry_run,
+        ins.timeout_seconds,
+        ins.retry_times,
+        ins.retry_interval_seconds,
         ins.run_count,
         ins.sequence_cnt,
         ins.retry_cnt,

@@ -127,6 +127,7 @@ public class RavenTaskInstanceLineageFreezer implements TaskInstanceLineageFreez
             }
             else {
                 this.mInstanceLineageNodeMapper.updateSourceByGuid( existing.getGuid(), node.isSource() );
+                this.mInstanceLineageAdjacentMapper.deleteByGuid( existing.getGuid() );
             }
         }
     }

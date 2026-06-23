@@ -11,6 +11,8 @@ public interface PageManipulator extends Pinenut {
 
     List<FormationPage> fetchPendingPages( GUID runGuid, long limit );
 
+    List<FormationPage> listByRunGuid( GUID runGuid );
+
     int claimPage( long id, String claimOwner, GUID claimToken, long leaseSeconds );
 
     int markRunning( long id );

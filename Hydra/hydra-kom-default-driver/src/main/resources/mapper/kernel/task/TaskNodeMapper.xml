@@ -23,6 +23,9 @@
         <result column="priority"             property="priority"/>
         <result column="actually_priority"    property="actuallyPriority"/>
         <result column="dry_run"              property="dryRun"/>
+        <result column="timeout_seconds"      property="timeoutSeconds"/>
+        <result column="retry_times"          property="retryTimes"/>
+        <result column="retry_interval_seconds" property="retryIntervalSeconds"/>
         <result column="schedule_cycle"       property="scheduleCycle"/>
         <result column="schedule_type"        property="scheduleType"/>
         <result column="schedule_start_time"  property="scheduleStartTime"/>
@@ -49,6 +52,9 @@
         <result column="priority"                   property="priority"/>
         <result column="actually_priority"          property="actuallyPriority"/>
         <result column="dry_run"                    property="dryRun"/>
+        <result column="timeout_seconds"            property="timeoutSeconds"/>
+        <result column="retry_times"                property="retryTimes"/>
+        <result column="retry_interval_seconds"     property="retryIntervalSeconds"/>
         <result column="schedule_cycle"             property="scheduleCycle"/>
         <result column="schedule_type"              property="scheduleType"/>
         <result column="schedule_start_time"        property="scheduleStartTime"/>
@@ -82,6 +88,9 @@
             priority,
             actually_priority,
             dry_run,
+            timeout_seconds,
+            retry_times,
+            retry_interval_seconds,
             schedule_cycle,
             schedule_type,
             processor_name,
@@ -102,6 +111,9 @@
                 #{priority},
                 #{actuallyPriority},
                 #{dryRun},
+                #{timeoutSeconds},
+                #{retryTimes},
+                #{retryIntervalSeconds},
                 #{scheduleCycle},
                 #{scheduleType},
                 #{processorName},
@@ -129,6 +141,9 @@
             priority            = #{priority},
             actually_priority   = #{actuallyPriority},
             dry_run             = #{dryRun},
+            timeout_seconds     = #{timeoutSeconds},
+            retry_times         = #{retryTimes},
+            retry_interval_seconds = #{retryIntervalSeconds},
             schedule_cycle      = #{scheduleCycle},
             schedule_type       = #{scheduleType},
             schedule_start_time = #{scheduleStartTime},
@@ -170,6 +185,9 @@
             priority,
             actually_priority,
             dry_run,
+            timeout_seconds,
+            retry_times,
+            retry_interval_seconds,
             schedule_cycle,
             schedule_type,
             processor_name,
@@ -200,6 +218,9 @@
             priority,
             actually_priority,
             dry_run,
+            timeout_seconds,
+            retry_times,
+            retry_interval_seconds,
             schedule_cycle,
             schedule_type,
             processor_name,
@@ -245,6 +266,9 @@
             priority,
             actually_priority,
             dry_run,
+            timeout_seconds,
+            retry_times,
+            retry_interval_seconds,
             schedule_cycle,
             schedule_type,
             schedule_start_time,
@@ -288,6 +312,9 @@
     priority,
     actually_priority,
     dry_run,
+    timeout_seconds,
+    retry_times,
+    retry_interval_seconds,
     schedule_cycle,
     schedule_type,
     schedule_start_time,
@@ -319,6 +346,9 @@
         task_node.priority,
         task_node.actually_priority,
         task_node.dry_run,
+        task_node.timeout_seconds,
+        task_node.retry_times,
+        task_node.retry_interval_seconds,
         task_node.schedule_cycle,
         task_node.schedule_type,
         task_node.schedule_start_time,

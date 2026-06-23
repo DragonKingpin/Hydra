@@ -13,6 +13,11 @@
                  )
     </insert>
 
+    <delete id="deleteByGuid">
+        DELETE FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE guid = #{guid}
+    </delete>
+
     <select id="countByGuidAndParentGuid" resultType="long">
         SELECT COUNT(*)
         FROM odin_atlas_task_instance_lineage_adjacent

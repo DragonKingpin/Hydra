@@ -13,6 +13,8 @@ public interface InstanceEventMapper {
 
     InstanceEvent queryByInstanceGuidAndState(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
+            @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "state" ) String state
     );
 }

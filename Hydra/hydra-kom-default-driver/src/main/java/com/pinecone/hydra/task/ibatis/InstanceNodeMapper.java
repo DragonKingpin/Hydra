@@ -219,6 +219,61 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return this.resetForRetry0( instanceGuid, currentRetryCnt, expectTime, fireTime, scheduleTime );
     }
 
+    int resetForSequence0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "currentSequenceCnt" ) int nCurrentSequenceCnt,
+            @Param( "expectTime" ) LocalDateTime expectTime,
+            @Param( "fireTime" ) LocalDateTime fireTime,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "imagePath" ) String szImagePath,
+            @Param( "execArch" ) String szExecArch,
+            @Param( "priority" ) int nPriority,
+            @Param( "actuallyPriority" ) int nActuallyPriority,
+            @Param( "dryRun" ) boolean bDryRun,
+            @Param( "timeoutSeconds" ) Long nTimeoutSeconds,
+            @Param( "retryTimes" ) int nRetryTimes,
+            @Param( "retryIntervalSeconds" ) Long nRetryIntervalSeconds,
+            @Param( "taskType" ) String szTaskType,
+            @Param( "designatedProcessor" ) String szDesignatedProcessor
+    );
+
+    @Override
+    default int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    ) {
+        return this.resetForSequence0(
+                instanceGuid,
+                currentSequenceCnt,
+                expectTime,
+                fireTime,
+                scheduleTime,
+                imagePath,
+                execArch,
+                priority,
+                actuallyPriority,
+                dryRun,
+                timeoutSeconds,
+                retryTimes,
+                retryIntervalSeconds,
+                taskType,
+                designatedProcessor
+        );
+    }
+
     long countInstanceByTaskGuid( GUID taskGuid );
 
     GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );
@@ -255,6 +310,46 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, @Nullable Short actuallyPriority
     ) {
         List<GenericInstanceEntry> list = this.fetchSchedulableInstances0( idMin, idMax, runStatuses, targetTime, actuallyPriority );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return CollectionUtils.genericConvert( list );
+    }
+
+    @Override
+    TableIndex64Meta selectRetryableTerminalIdRange(
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param("targetTime") LocalDateTime targetTime
+    );
+
+    List<GenericInstanceEntry> fetchRetryableTerminalInstances0(
+            @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax,
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    @Override
+    default List<InstanceEntry> fetchRetryableTerminalInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    ) {
+        List<GenericInstanceEntry> list = this.fetchRetryableTerminalInstances0( idMin, idMax, runStatuses, targetTime );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return CollectionUtils.genericConvert( list );
+    }
+
+    @Override
+    TableIndex64Meta selectTimedOutRunningIdRange( @Param("targetTime") LocalDateTime targetTime );
+
+    List<GenericInstanceEntry> fetchTimedOutRunningInstances0(
+            @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax, @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    @Override
+    default List<InstanceEntry> fetchTimedOutRunningInstances(
+            TaskInstrument instrument, long idMin, long idMax, LocalDateTime targetTime
+    ) {
+        List<GenericInstanceEntry> list = this.fetchTimedOutRunningInstances0( idMin, idMax, targetTime );
         for ( GenericInstanceEntry entry : list ) {
             entry.apply( instrument );
         }

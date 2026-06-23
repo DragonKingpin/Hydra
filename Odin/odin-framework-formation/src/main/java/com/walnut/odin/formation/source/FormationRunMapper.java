@@ -25,6 +25,24 @@ public interface FormationRunMapper extends RunManipulator {
         return (List) this.fetchRunnableRuns0( limit );
     }
 
+    long countRuns(
+            @Param( "formationGuid" ) GUID formationGuid,
+            @Param( "strategyType" ) String strategyType,
+            @Param( "runStatus" ) String runStatus );
+
+    List<GenericRun> pageRuns0(
+            @Param( "formationGuid" ) GUID formationGuid,
+            @Param( "strategyType" ) String strategyType,
+            @Param( "runStatus" ) String runStatus,
+            @Param( "offset" ) long offset,
+            @Param( "limit" ) long limit );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<RunEntry> pageRuns( GUID formationGuid, String strategyType, String runStatus, long offset, long limit ) {
+        return (List)this.pageRuns0( formationGuid, strategyType, runStatus, offset, limit );
+    }
+
     int updateStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
 
     int markRunning( @Param( "guid" ) GUID guid );

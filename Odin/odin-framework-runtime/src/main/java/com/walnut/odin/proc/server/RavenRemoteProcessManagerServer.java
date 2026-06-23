@@ -404,6 +404,15 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             throw new RemoteProcessLifecycleException( e );
         }
 
+        if ( response == null ) {
+            response = new RemoteVitalizationResponse();
+            response.setRemoteVitalizationStatus( RemoteVitalizationStatus.Error );
+            response.setImageAddress( context.getImageAddress() );
+            response.setImageAddressURI( context.isImageAddressURI() );
+            response.setImageResolutionMode( context.getImageResolutionMode() );
+            response.setErrorMsg( "Remote process control returned empty vitalization response." );
+        }
+
         if ( response.getPID() != null ) {
             response.setProcessID( this.mGuidAllocator.parse( response.getPID() ) );
         }

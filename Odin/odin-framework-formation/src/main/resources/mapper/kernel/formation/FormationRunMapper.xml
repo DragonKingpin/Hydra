@@ -94,6 +94,35 @@
         LIMIT #{limit}
     </select>
 
+    <sql id="FormationRunWhere">
+        <where>
+            <if test="formationGuid != null">
+                AND formation_guid = #{formationGuid}
+            </if>
+            <if test="strategyType != null and strategyType != ''">
+                AND strategy_type = #{strategyType}
+            </if>
+            <if test="runStatus != null and runStatus != ''">
+                AND run_status = #{runStatus}
+            </if>
+        </where>
+    </sql>
+
+    <select id="countRuns" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_runs
+        <include refid="FormationRunWhere"/>
+    </select>
+
+    <select id="pageRuns0" resultMap="FormationRunMap">
+        SELECT
+            <include refid="FormationRunColumns"/>
+        FROM odin_formation_runs
+        <include refid="FormationRunWhere"/>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <update id="updateStatus">
         UPDATE odin_formation_runs
         SET run_status = #{status}

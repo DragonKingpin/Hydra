@@ -53,6 +53,18 @@ public interface TaskElementDigest extends TaskFamilyMeta {
 
     void setDryRun( boolean bDryRun );
 
+    Long getTimeoutSeconds();
+
+    void setTimeoutSeconds( Long nTimeoutSeconds );
+
+    int getRetryTimes();
+
+    void setRetryTimes( int nRetryTimes );
+
+    long getRetryIntervalSeconds();
+
+    void setRetryIntervalSeconds( long nRetryIntervalSeconds );
+
     String getScheduleCron();
 
     void setScheduleCron( String szScheduleCron );

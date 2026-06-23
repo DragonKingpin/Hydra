@@ -487,6 +487,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         }
         this.mInstanceExecMapper.updateExecutedProcessorByInstanceGuidAndRetry(
                 context.getTaskInstance().getInstanceEntry().getGuid(),
+                context.getTaskInstance().getInstanceEntry().getSequenceCnt(),
                 context.getTaskInstance().getInstanceEntry().getRetryCnt(),
                 processor.getName()
         );

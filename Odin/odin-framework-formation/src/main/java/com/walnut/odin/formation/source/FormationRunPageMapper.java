@@ -23,6 +23,14 @@ public interface FormationRunPageMapper extends PageManipulator {
         return (List) this.fetchPendingPages0( runGuid, limit );
     }
 
+    List<GenericFormationPage> listByRunGuid0( @Param( "runGuid" ) GUID runGuid );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<FormationPage> listByRunGuid( GUID runGuid ) {
+        return (List)this.listByRunGuid0( runGuid );
+    }
+
     int claimPage(
             @Param( "id" ) long id,
             @Param( "claimOwner" ) String claimOwner,

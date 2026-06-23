@@ -21,6 +21,9 @@ public interface InstanceEvent extends Pinenut {
     int getRetryTimes();
     void setRetryTimes(int retryTimes);
 
+    int getSequenceCnt();
+    void setSequenceCnt(int sequenceCnt);
+
     int getCurrentRetryNumber();
     void setCurrentRetryNumber(int currentRetryNumber);
 

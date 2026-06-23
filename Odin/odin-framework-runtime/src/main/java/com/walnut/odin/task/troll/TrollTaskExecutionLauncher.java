@@ -38,6 +38,7 @@ import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
+import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
@@ -157,12 +158,10 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     @Override
     public String evalInstanceName( RavenTaskInstance instance, LocalDateTime now, LocalDateTime bizTimeEpoch ) {
         String bizTimeLab     = this.evalBusinessTimeLabel( instance, bizTimeEpoch );
-        String execTimeLab    = now.format( this.mInstanceTitleTimeFormat );
         String szInstanceName = String.format(
-                "%s_%s_ET_%s",
+                "%s_%s",
                 instance.getOwnedTask().getName(),
-                bizTimeLab,
-                execTimeLab
+                bizTimeLab
         );
         return szInstanceName;
     }
@@ -172,11 +171,83 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         return this.evalInstanceName( instance, LocalDateTime.now(), bizTimeEpoch );
     }
 
+    protected String evalInstanceName( RavenTaskInstance instance, LocalDateTime now, LaunchFeature feature ) {
+        String qualifier = feature == null ? null : feature.getInstanceNameQualifier();
+        if ( qualifier != null && !qualifier.isBlank() ) {
+            String execTimeLab = now.format( this.mInstanceTitleTimeFormat );
+            return String.format(
+                    "%s_%s_%s",
+                    instance.getOwnedTask().getName(),
+                    qualifier,
+                    execTimeLab
+            );
+        }
+        LocalDateTime bizTimeEpoch = feature == null ? null : feature.getBizTimeEpoch();
+        return this.evalInstanceName( instance, now, bizTimeEpoch );
+    }
+
+    protected boolean shouldRetryInstanceNameCollision( LaunchFeature feature ) {
+        String qualifier = feature == null ? null : feature.getInstanceNameQualifier();
+        return qualifier != null && !qualifier.isBlank();
+    }
+
+    protected boolean isDuplicateInstanceName( RuntimeException cause ) {
+        Throwable cursor = cause;
+        while ( cursor != null ) {
+            String message = cursor.getMessage();
+            if ( message != null
+                    && message.contains( "Duplicate entry" )
+                    && ( message.contains( "uk_name" ) || message.contains( "name" ) ) ) {
+                return true;
+            }
+            cursor = cursor.getCause();
+        }
+        return false;
+    }
+
+    protected void addInstanceWithNameCollisionRetry(
+            RavenTaskInstance instance, LaunchFeature feature, LocalDateTime baseTime
+    ) {
+        InstanceEntry entry = instance.getInstanceEntry();
+        RuntimeException last = null;
+        int nMaxAttempts = this.shouldRetryInstanceNameCollision( feature ) ? 64 : 1;
+
+        for ( int i = 0; i < nMaxAttempts; i++ ) {
+            LocalDateTime attemptTime = baseTime.plusSeconds( i );
+            String szInstanceName = this.evalInstanceName( instance, attemptTime, feature );
+            entry.setInstanceName( szInstanceName );
+            try {
+                this.mTaskInstrument.getInstanceInstrument().addInstance( entry );
+                if ( i > 0 ) {
+                    this.getLogger().warn(
+                            "[TaskLaunchSequence] [InstanceNameCollision] "
+                                    + "(Task: `{}`, InstanceName: `{}`, OffsetSeconds: {}) <Resolved>",
+                            instance.getOwnedTask().getName(),
+                            szInstanceName,
+                            i
+                    );
+                }
+                return;
+            }
+            catch ( RuntimeException e ) {
+                if ( !this.shouldRetryInstanceNameCollision( feature ) || !this.isDuplicateInstanceName( e ) ) {
+                    throw e;
+                }
+                last = e;
+            }
+        }
+
+        throw last;
+    }
+
 
 
 
     @Override
     public void initializeInstance( RavenTaskInstance instance, LaunchFeature feature ) {
+        if ( feature == null ) {
+            feature = new LaunchFeature();
+        }
         LocalDateTime now = LocalDateTime.now();
         this.getLogger().info(
                 "[TaskLaunchSequence] (TaskName: `{}`, KernelHandleName: `/{}`, TaskGuid: `{}`, Time: `{}`) <Start>",
@@ -186,37 +257,15 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
                 now.format( this.mDefaultDateTimeFormat )
         );
 
-        String szInstanceName = this.evalInstanceName( instance, now, feature.getBizTimeEpoch() );
         InstanceEntry entry   = instance.getInstanceEntry();
 
-        entry.setInstanceName( szInstanceName );
-        String bizTimeLab = this.evalBusinessTimeLabel( instance, feature.getBizTimeEpoch() );
-        InstanceEntry previous = this.mInstanceInstrument.findLastExecuted( instance.getTaskGuid(), bizTimeLab );
+        int runCount    = Math.max( 1, entry.getRunCount() );
+        int sequenceCnt = Math.max( 1, entry.getSequenceCnt() );
+        int retryCnt    = feature.isRetry() ? Math.max( 0, entry.getRetryCnt() ) : 0;
 
-        int runCount      = 0;
-        int sequenceCnt   = 0;
-        int retryCnt      = 0;
-
-        if ( previous != null ) {
-            runCount = previous.getRunCount() + 1;
-
-            if ( feature.isRetry() ) {
-                sequenceCnt = previous.getSequenceCnt();
-                retryCnt    = previous.getRetryCnt() + 1;
-            }
-            else {
-                sequenceCnt = previous.getSequenceCnt() + 1;
-                retryCnt    = 0;
-            }
-        }
-
-        if ( previous == null ) {
-            runCount    = 1;
-            sequenceCnt = 1;
-            retryCnt    = 0;
-        }
-
-        LocalDateTime bizTime = this.evalBusinessTime( instance, feature.getBizTimeEpoch() );
+        LocalDateTime bizTime = feature.isBusinessTimeVisible()
+                ? this.evalBusinessTime( instance, feature.getBizTimeEpoch() )
+                : null;
         entry.setRunCount( runCount );
         entry.setSequenceCnt( sequenceCnt );
         entry.setRetryCnt( retryCnt );
@@ -226,11 +275,11 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setBusinessTime( bizTime );
 
-        this.mTaskInstrument.getInstanceInstrument().addInstance( entry );
+        this.addInstanceWithNameCollisionRetry( instance, feature, now );
         this.getLogger().info(
                 "[TaskLaunchSequence] [Schema] (Task: `{}`, InstanceName: `{}`, InsGuid: `{}`, RunCount: {}, SequenceCnt: {}, RetryCnt: {}, RetryMode: {}, BusinessTime: {}) <Ready to elevate>",
                 instance.getOwnedTask().getName(),
-                szInstanceName,
+                entry.getInstanceName(),
                 entry.getGuid(),
                 runCount,
                 sequenceCnt,
@@ -246,7 +295,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     ) {
         InstanceEntry entry = instance.getInstanceEntry();
         this.mInstanceExecMapper.updateStateRetryMonotonic(
-                entry.getGuid(), entry.getRetryCnt(), state.getName(), startTime, runTime, finishTime
+                entry.getGuid(), entry.getSequenceCnt(), entry.getRetryCnt(), state.getName(), startTime, runTime, finishTime
         );
     }
 
@@ -338,7 +387,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         InstanceEntry entry = instance.getInstanceEntry();
         entry.setImagePath( szImagePath );
         this.mInstanceExecMapper.updateImagePathByInstanceGuidAndRetry(
-                entry.getGuid(), entry.getRetryCnt(), szImagePath
+                entry.getGuid(), entry.getSequenceCnt(), entry.getRetryCnt(), szImagePath
         );
     }
 
@@ -461,11 +510,13 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             RemoteProcessManagerServer.RemoteCreationResult result = this.mRemoteProcessManagerServer.createRemoteUProcess(
                     pmClientId, context
             );
-            process = result.getProcess();
-            if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
-                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.RemoteProcessCreationFailure );
-                this.markProcessCreationFailed( instance, LaunchErrorCauses.RemoteProcessCreationFailure );
-                throw new InstanceLaunchException( LaunchErrorCauses.RemoteProcessCreationFailure );
+            RemoteVitalizationResponse response = result == null ? null : result.getResponse();
+            process = result == null ? null : result.getProcess();
+            if ( response == null || response.getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
+                String failureCause = this.describeRemoteProcessCreationFailure( result, imageURI );
+                instance.getInstanceEntry().setErrorCause( failureCause );
+                this.markProcessCreationFailed( instance, failureCause );
+                throw new InstanceLaunchException( failureCause );
             }
 
             this.prepareProcessHandle( process, feature );
@@ -500,11 +551,13 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             RemoteProcessManagerServer.RemoteCreationResult result = this.mRemoteProcessManagerServer.createRemoteUProcess(
                     pmClientId, context
             );
-            process = result.getProcess();
-            if ( result.getResponse().getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
-                instance.getInstanceEntry().setErrorCause( LaunchErrorCauses.RemoteProcessCreationFailure );
-                this.markProcessCreationFailed( instance, LaunchErrorCauses.RemoteProcessCreationFailure );
-                throw new InstanceLaunchException( LaunchErrorCauses.RemoteProcessCreationFailure );
+            RemoteVitalizationResponse response = result == null ? null : result.getResponse();
+            process = result == null ? null : result.getProcess();
+            if ( response == null || response.getStatus() != RemoteVitalizationStatus.New.getCode() || process == null ) {
+                String failureCause = this.describeRemoteProcessCreationFailure( result, imageURI );
+                instance.getInstanceEntry().setErrorCause( failureCause );
+                this.markProcessCreationFailed( instance, failureCause );
+                throw new InstanceLaunchException( failureCause );
             }
 
             this.prepareProcessHandle( process, feature );
@@ -515,6 +568,34 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             this.markProcessCreationFailedIfNecessary( instance, e );
             throw new InstanceLaunchException( e );
         }
+    }
+
+    protected String describeRemoteProcessCreationFailure( RemoteProcessManagerServer.RemoteCreationResult result, URI imageURI ) {
+        if ( result == null ) {
+            return LaunchErrorCauses.RemoteProcessCreationFailure + ": no remote creation result, image=`" + imageURI + "`";
+        }
+
+        RemoteVitalizationResponse response = result.getResponse();
+        if ( response == null ) {
+            return LaunchErrorCauses.RemoteProcessCreationFailure + ": no remote vitalization response, image=`" + imageURI + "`";
+        }
+
+        RemoteVitalizationStatus status = response.optStatus();
+        String statusName = status == null ? String.valueOf( response.getStatus() ) : status.name();
+        String responseImage = response.getImageAddress();
+        if ( responseImage == null ) {
+            responseImage = imageURI == null ? null : imageURI.toString();
+        }
+
+        String reason = response.getErrorMsg();
+        if ( reason == null || reason.trim().isEmpty() ) {
+            reason = result.getProcess() == null ? "Remote process mirror was not created." : "Remote process was rejected.";
+        }
+
+        return LaunchErrorCauses.RemoteProcessCreationFailure
+                + ": status=" + statusName
+                + ", image=`" + responseImage + "`"
+                + ", reason=" + reason;
     }
 
 

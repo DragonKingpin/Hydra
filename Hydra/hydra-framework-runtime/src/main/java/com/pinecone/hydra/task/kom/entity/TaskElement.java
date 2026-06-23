@@ -46,6 +46,15 @@ public interface TaskElement extends ElementNode {
     boolean isDryRun() ;
     void setDryRun( boolean dryRun ) ;
 
+    Long getTimeoutSeconds();
+    void setTimeoutSeconds( Long timeoutSeconds );
+
+    int getRetryTimes();
+    void setRetryTimes( int retryTimes );
+
+    long getRetryIntervalSeconds();
+    void setRetryIntervalSeconds( long retryIntervalSeconds );
+
     String getScheduleCron();
     void setScheduleCron( String scheduleCron ) ;
 

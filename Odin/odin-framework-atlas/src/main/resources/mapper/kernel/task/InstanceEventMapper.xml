@@ -9,6 +9,7 @@
         <result column="instance_guid"          property="instanceGuid"/>
         <result column="instance_name"          property="instanceName"/>
         <result column="retry_times"            property="retryTimes"/>
+        <result column="sequence_cnt"           property="sequenceCnt"/>
         <result column="current_retry_number"   property="currentRetryNumber"/>
         <result column="event_type"             property="eventType"/>
         <result column="state"                  property="state"/>
@@ -23,6 +24,7 @@
             instance_guid,
             instance_name,
             retry_times,
+            sequence_cnt,
             current_retry_number,
             event_type,
             state,
@@ -34,6 +36,7 @@
                      #{instanceGuid},
                      #{instanceName},
                      #{retryTimes},
+                     #{sequenceCnt},
                      #{currentRetryNumber},
                      #{eventType},
                      #{state},
@@ -49,6 +52,7 @@
             instance_guid,
             instance_name,
             retry_times,
+            sequence_cnt,
             current_retry_number,
             event_type,
             state,
@@ -56,6 +60,8 @@
             exec_time
         FROM odin_task_instance_event
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
           AND state = #{state}
         LIMIT 1
     </select>

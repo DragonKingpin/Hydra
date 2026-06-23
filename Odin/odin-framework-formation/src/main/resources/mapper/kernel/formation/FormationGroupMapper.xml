@@ -80,4 +80,56 @@
             #{group.description}
         )
     </insert>
+
+    <update id="update">
+        UPDATE odin_formation_groups
+        SET title = #{group.title},
+            project_guid = #{group.projectGuid},
+            strategy_type = #{group.strategyType},
+            page_size = #{group.pageSize},
+            frame_size = #{group.frameSize},
+            window_size = #{group.windowSize},
+            inflight_limit = #{group.inflightLimit},
+            description = #{group.description}
+        WHERE guid = #{group.guid}
+    </update>
+
+    <update id="updateEnable">
+        UPDATE odin_formation_groups
+        SET enable = #{enable}
+        WHERE guid = #{guid}
+    </update>
+
+    <sql id="FormationGroupWhere">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    identifier LIKE CONCAT('%', #{keyword}, '%')
+                    OR title LIKE CONCAT('%', #{keyword}, '%')
+                    OR description LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="strategyType != null and strategyType != ''">
+                AND strategy_type = #{strategyType}
+            </if>
+            <if test="enable != null">
+                AND enable = #{enable}
+            </if>
+        </where>
+    </sql>
+
+    <select id="countGroups" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_groups
+        <include refid="FormationGroupWhere"/>
+    </select>
+
+    <select id="pageGroups0" resultMap="FormationGroupMap">
+        SELECT
+            <include refid="FormationGroupColumns"/>
+        FROM odin_formation_groups
+        <include refid="FormationGroupWhere"/>
+        ORDER BY id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
 </mapper>

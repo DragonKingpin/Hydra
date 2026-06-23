@@ -69,6 +69,36 @@
         LIMIT 1
     </select>
 
+    <select id="fetchParentsByInstanceGuid" resultMap="InstanceLineageNodeMap">
+        SELECT
+            parent_node.`guid`,
+            parent_node.`instance_guid`,
+            parent_node.`node_name`,
+            parent_node.`is_source`
+        FROM `odin_atlas_task_instance_lineage_nodes` AS child_node
+                 JOIN `odin_atlas_task_instance_lineage_adjacent` AS instance_edge
+                      ON instance_edge.`guid` = child_node.`guid`
+                 JOIN `odin_atlas_task_instance_lineage_nodes` AS parent_node
+                      ON parent_node.`guid` = instance_edge.`parent_guid`
+        WHERE child_node.`instance_guid` = #{instanceGuid}
+        ORDER BY parent_node.`node_name`, parent_node.`guid`
+    </select>
+
+    <select id="fetchChildrenByInstanceGuid" resultMap="InstanceLineageNodeMap">
+        SELECT
+            child_node.`guid`,
+            child_node.`instance_guid`,
+            child_node.`node_name`,
+            child_node.`is_source`
+        FROM `odin_atlas_task_instance_lineage_nodes` AS parent_node
+                 JOIN `odin_atlas_task_instance_lineage_adjacent` AS instance_edge
+                      ON instance_edge.`parent_guid` = parent_node.`guid`
+                 JOIN `odin_atlas_task_instance_lineage_nodes` AS child_node
+                      ON child_node.`guid` = instance_edge.`guid`
+        WHERE parent_node.`instance_guid` = #{instanceGuid}
+        ORDER BY child_node.`node_name`, child_node.`guid`
+    </select>
+
     <select id="fetchDependencyBlockages" resultType="com.walnut.odin.conduct.schedule.entity.GenericDependencyBlockage">
         SELECT
             child_node.`instance_guid` AS `instanceGuid`,

@@ -19,6 +19,7 @@ public interface InstanceExecMapper {
 
     InstanceExec queryByInstanceGuidAndRetry(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber
     );
 
@@ -28,6 +29,7 @@ public interface InstanceExecMapper {
 
     void updateStateByInstanceGuidAndRetryFields(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "execState" ) String szExecState,
             @Param( "startTime" ) LocalDateTime startTime,
@@ -37,6 +39,7 @@ public interface InstanceExecMapper {
 
     int updateStateRetryMonotonic(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "execState" ) String szExecState,
             @Param( "startTime" ) LocalDateTime startTime,
@@ -46,12 +49,14 @@ public interface InstanceExecMapper {
 
     void updateImagePathByInstanceGuidAndRetry(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "imagePath" ) String szImagePath
     );
 
     void updateExecutedProcessorByInstanceGuidAndRetry(
             @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "executedProcessor" ) String szExecutedProcessor
     );

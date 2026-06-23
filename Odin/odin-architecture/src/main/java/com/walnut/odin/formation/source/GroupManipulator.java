@@ -1,5 +1,7 @@
 package com.walnut.odin.formation.source;
 
+import java.util.List;
+
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.formation.entity.GroupEntry;
@@ -10,4 +12,12 @@ public interface GroupManipulator extends Pinenut {
     GroupEntry selectByIdentifier( String identifier );
 
     int insert( GroupEntry group );
+
+    int update( GroupEntry group );
+
+    int updateEnable( GUID guid, boolean enable );
+
+    long countGroups( String keyword, String strategyType, Boolean enable );
+
+    List<GroupEntry> pageGroups( String keyword, String strategyType, Boolean enable, long offset, long limit );
 }

@@ -27,6 +27,12 @@ public abstract class ArchTaskElementDigest extends ArchTaskFamilyMeta implement
 
     protected boolean dryRun;
 
+    protected Long timeoutSeconds = 86400L;
+
+    protected int retryTimes = 2;
+
+    protected long retryIntervalSeconds;
+
     protected String scheduleCron;
 
     protected TaskScheduleCycle scheduleCycle;
@@ -151,6 +157,36 @@ public abstract class ArchTaskElementDigest extends ArchTaskFamilyMeta implement
     @Override
     public void setDryRun( boolean bDryRun ) {
         this.dryRun = bDryRun;
+    }
+
+    @Override
+    public Long getTimeoutSeconds() {
+        return this.timeoutSeconds;
+    }
+
+    @Override
+    public void setTimeoutSeconds( Long nTimeoutSeconds ) {
+        this.timeoutSeconds = nTimeoutSeconds;
+    }
+
+    @Override
+    public int getRetryTimes() {
+        return this.retryTimes;
+    }
+
+    @Override
+    public void setRetryTimes( int nRetryTimes ) {
+        this.retryTimes = nRetryTimes;
+    }
+
+    @Override
+    public long getRetryIntervalSeconds() {
+        return this.retryIntervalSeconds;
+    }
+
+    @Override
+    public void setRetryIntervalSeconds( long nRetryIntervalSeconds ) {
+        this.retryIntervalSeconds = nRetryIntervalSeconds;
     }
 
     @Override

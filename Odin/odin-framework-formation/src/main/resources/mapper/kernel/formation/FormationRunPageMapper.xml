@@ -55,6 +55,22 @@
         LIMIT #{limit}
     </select>
 
+    <select id="listByRunGuid0" resultMap="FormationPageMap">
+        SELECT
+            id,
+            run_guid,
+            formation_guid,
+            page_no,
+            page_status,
+            frame_start,
+            frame_end,
+            total_count,
+            completed_count
+        FROM odin_formation_run_pages
+        WHERE run_guid = #{runGuid}
+        ORDER BY page_no ASC
+    </select>
+
     <update id="claimPage">
         UPDATE odin_formation_run_pages
         SET page_status = 'Claimed',

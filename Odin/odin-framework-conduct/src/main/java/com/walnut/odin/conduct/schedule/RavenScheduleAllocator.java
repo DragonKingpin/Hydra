@@ -407,6 +407,7 @@ public class RavenScheduleAllocator implements InstanceScheduleAllocator {
         }
     }
 
+    @Override
     public InstanceEntry reclaimInstance( GUID instanceGuid ) {
         if ( instanceGuid == null ) {
             return null;

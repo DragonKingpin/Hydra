@@ -13,6 +13,10 @@ public interface RunManipulator extends Pinenut {
 
     List<RunEntry> fetchRunnableRuns( int limit );
 
+    long countRuns( GUID formationGuid, String strategyType, String runStatus );
+
+    List<RunEntry> pageRuns( GUID formationGuid, String strategyType, String runStatus, long offset, long limit );
+
     int updateStatus( GUID guid, String status );
 
     int markRunning( GUID guid );

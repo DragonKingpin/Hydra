@@ -39,7 +39,8 @@ public class KernelTaskInstanceLifecycleInstrument implements TaskInstanceLifecy
         event.setTaskGuid( instance.getTaskGuid() );
         event.setInstanceGuid( instance.getGuid() );
         event.setInstanceName( instance.getInstanceName() );
-        event.setRetryTimes( instance.getRetryCnt() );
+        event.setRetryTimes( instance.getRetryTimes() );
+        event.setSequenceCnt( instance.getSequenceCnt() );
         event.setCurrentRetryNumber( instance.getRetryCnt() );
         event.setEventType( reason == null ? "Unknown" : reason.getEventType() );
         event.setState( transition.getToStatus().getName() );

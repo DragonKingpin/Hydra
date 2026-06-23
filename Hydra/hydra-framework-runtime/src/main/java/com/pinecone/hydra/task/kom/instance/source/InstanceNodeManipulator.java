@@ -66,6 +66,24 @@ public interface InstanceNodeManipulator extends Pinenut {
 
     int resetForRetry( GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime );
 
+    int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    );
+
     long countInstanceByTaskGuid( GUID taskGuid );
 
     void remove( GUID guid );
@@ -78,5 +96,19 @@ public interface InstanceNodeManipulator extends Pinenut {
     List<InstanceEntry> fetchSchedulableInstances(
             TaskInstrument instrument,
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, @Nullable Short actuallyPriority
+    );
+
+    TableIndexMeta selectRetryableTerminalIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchRetryableTerminalInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    );
+
+    TableIndexMeta selectTimedOutRunningIdRange( LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchTimedOutRunningInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, LocalDateTime targetTime
     );
 }

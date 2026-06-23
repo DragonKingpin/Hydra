@@ -1,0 +1,202 @@
+{
+  "System": {
+    "name": "Gladiator",
+    "serviceId": "gladiator-local",
+    "mode": "local",
+    "debugMode": true,
+
+    "Runtime": {
+      "root": "./",
+      "setupPath": "./system/setup",
+      "logsPath": "./system/logs",
+      "tempPath": "./system/temp"
+    },
+
+    "Odin": {
+      "GrpcControl": {
+        "enable": true,
+        "host": "127.0.0.1",
+        "port": 5888,
+        "insecure": true,
+        //"clientId": 10001,
+        "clientGuid": "gladiator-local-dev",
+        "clientPath": "/gladiator/local-dev",
+        "autoReconnect": true,
+        "keepAliveTimeSec": 3600,
+        "keepAliveTimeoutSec": 3500,
+        "enableHeartbeat": true,
+        "heartbeatIntervalMillis": 1000
+      },
+
+      "Legionary": {
+        "enable": true,
+        "nodeName": "b-ser-lizard-king-gladiator",
+        "rejoinOnControlReady": true
+      },
+
+      "Praetor": {
+        "enable": false,
+        "executor": {
+          "conductDispatch": {
+            "uniformScriptExecutorAddress": "uofs:///sys/public/global/exe/images/odin/script/uniform_script_executor",
+            "useUniformScriptExecutorByDefault": true
+          },
+
+          "scriptExecutor": {
+            "enable": true,
+            "defaultTimeoutMillis": 60000,
+            "scriptDefinitionProvider": {
+              "enable": true,
+              "definitionUrl": "http://localhost:5082/api/v2/task/builtin/py/detail"
+            },
+            "workspace": {
+              "root": "./system/temp/odin/script/workspace",
+              "cleanupOnExit": true
+            },
+            "output": {
+              "root": "./system/logs/odin/script/output"
+            },
+            "runtimes": {
+              "python": {
+                "enable": true,
+                "executable": "D:/ProgramFiles/ToolChains/Python/python38_x64/python.exe",
+                "defaultEntrypoint": "main.py",
+                "allowUnlimitedTimeout": true
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "Proc": {
+      "execution": {
+        "enable": true,
+        "mode": "console"
+      }
+    },
+
+    "Red": {
+      "shuttle": {
+        "enable": true,
+        "defaultEndpoint": "127.0.0.1:5481",
+        "systemBucket": "__SYSTEM__",
+        "accessKey": "",
+        "secretKey": "",
+        "secure": false,
+        "region": ""
+      }
+    },
+
+    "Rattlesnake": {
+      "enable": true,
+      "mode": "auto",
+      "library": "E:/MyFiles/CodeScript/Project/Walnut/Rattlesnake/kernel/Built/cmake-build-debug-mingw64/RattlesnakeKernel.dll",
+      "targetExecutable": "E:/MyFiles/CodeScript/Project/Walnut/Rattlesnake/kernel/Built/cmake-build-debug-mingw64/Rattlesnake.exe",
+      "notFoundCacheMillis": 3000,
+      "protocol": "jsonl",
+      "startupArgs": ["repl", "--protocol", "jsonl"],
+
+      "pty": {
+        "enabled": true,
+        "mode": "native",
+        "library": "E:/MyFiles/CodeScript/Project/Walnut/Rattlesnake/kernel/Built/cmake-build-debug-mingw64/UlfhedinnKernel.dll",
+        "agentExecutable": "E:/MyFiles/CodeScript/Project/Walnut/Rattlesnake/kernel/Built/cmake-build-debug-mingw64/Rattlesnake.exe",
+        "backend": "auto",
+        "legacyTransport": "agent",
+        "fallback": "error",
+        "cols": 100,
+        "rows": 30,
+        "readTimeoutMillis": 80,
+        "allowLegacyConsole": true,
+        "debug": true,
+        "output": {
+          "enableVirtualTerminal": true,
+          "filterOscTitle": true,
+          "filterBell": true
+        }
+      },
+
+      "forkPool": {
+        "enable": true,
+        "maxForks": 4,
+        "maxSlowForks": 2,
+        "requestQueueSize": 64,
+        "startupTimeoutMillis": 2000,
+        "defaultTimeoutMillis": 3000,
+        "idleTimeoutMillis": 120000,
+        "killOnTimeout": true
+      },
+
+      "commands": {
+        "defaultPriority": "auto",
+        "priority": {
+          "uname": "rattlesnake_first",
+          "ps": "auto",
+          "top": "rattlesnake_first",
+          "pstree": "rattlesnake_first",
+          "pidstat": "rattlesnake_first",
+          "threads": "rattlesnake_first",
+          "threadstat": "rattlesnake_first",
+          "lsof": "rattlesnake_first",
+          "handles": "rattlesnake_only",
+          "modules": "rattlesnake_only",
+          "pmap": "rattlesnake_first",
+          "ln": "auto",
+          "readlink": "auto",
+          "realpath": "auto",
+          "stat": "auto",
+          "free": "auto",
+          "df": "auto",
+          "drives": "rattlesnake_only",
+          "lsblk": "rattlesnake_first",
+          "iostat": "rattlesnake_first",
+          "vmstat": "rattlesnake_first",
+          "netstat": "auto",
+          "ss": "auto",
+          "pgrep": "auto",
+          "pidof": "auto"
+        },
+        "timeouts": {
+          "uname": 1000,
+          "ps": 3000,
+          "top": 3000,
+          "pstree": 3000,
+          "pidstat": 3000,
+          "threads": 3000,
+          "threadstat": 3000,
+          "lsof": 8000,
+          "handles": 5000,
+          "modules": 5000,
+          "pmap": 5000
+        },
+        "slowCommands": ["lsof", "handles", "modules", "pmap", "top"]
+      }
+    },
+
+    "Tracer": {
+      "consoleTrace": true,
+      "infoPath": "./system/logs/gladiator_info.log",
+      "errorPath": "./system/logs/gladiator_error.log"
+    },
+
+    "GladiusShell": {
+      "requireSecureTransport": true,
+      "allowExec": true,
+      //"allowedPrograms": ["python", "node", "npm", "java"],
+      "extraPaths": ["/usr/local/bin", "/opt/homebrew/bin"],
+      "allowedRoots": ["/"],
+      "reinterpretExternalPaths": true,
+      "rawArgumentPrefix": "raw:",
+      "sh": {
+        "mode": "auto",
+        "preferred": "gladius",
+        "externalCommand": "sh"
+      },
+      "timeoutMillis": 30000,
+      "maxOutputBytes": 1048576,
+      "maxReadBytes": 262144,
+      "auditLog": true
+    }
+  }
+}

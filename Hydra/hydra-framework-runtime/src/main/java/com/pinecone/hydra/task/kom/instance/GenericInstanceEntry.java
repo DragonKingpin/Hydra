@@ -162,6 +162,21 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public void setTimeoutSeconds( Long timeoutSeconds ) {
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    @Override
+    public void setRetryTimes( int retryTimes ) {
+        this.retryTimes = retryTimes;
+    }
+
+    @Override
+    public void setRetryIntervalSeconds( Long retryIntervalSeconds ) {
+        this.retryIntervalSeconds = retryIntervalSeconds;
+    }
+
+    @Override
     public void setErrorCause( String errorCause ) {
         this.errorCause = errorCause;
     }

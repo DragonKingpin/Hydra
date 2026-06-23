@@ -27,6 +27,9 @@
         schedule_type,
         task_type,
         dry_run,
+        timeout_seconds,
+        retry_times,
+        retry_interval_seconds,
         run_count,
         sequence_cnt,
         retry_cnt,
@@ -61,6 +64,9 @@
         #{scheduleType},
         #{taskType},
         #{dryRun},
+        #{timeoutSeconds},
+        #{retryTimes},
+        #{retryIntervalSeconds},
         #{runCount},
         #{sequenceCnt},
         #{retryCnt},
@@ -198,6 +204,9 @@
         <result column="schedule_type"       property="scheduleType"/>
         <result column="task_type"           property="taskType"/>
         <result column="dry_run"             property="dryRun"/>
+        <result column="timeout_seconds"     property="timeoutSeconds"/>
+        <result column="retry_times"         property="retryTimes"/>
+        <result column="retry_interval_seconds" property="retryIntervalSeconds"/>
         <result column="run_count"           property="runCount"/>
         <result column="sequence_cnt"        property="sequenceCnt"/>
         <result column="retry_cnt"           property="retryCnt"/>
@@ -256,6 +265,9 @@
             schedule_type       = #{kernelScheduleType},
             task_type           = #{taskType},
             dry_run             = #{dryRun},
+            timeout_seconds     = #{timeoutSeconds},
+            retry_times         = #{retryTimes},
+            retry_interval_seconds = #{retryIntervalSeconds},
             run_count           = #{runCount},
             sequence_cnt        = #{sequenceCnt},
             retry_cnt           = #{retryCnt},
@@ -467,6 +479,41 @@
 
     </update>
 
+    <update id="resetForSequence0">
+
+        UPDATE hydra_task_instances
+        SET
+            run_count = run_count + 1,
+            sequence_cnt = sequence_cnt + 1,
+            retry_cnt = 0,
+            run_status = 'New',
+            expect_time = #{expectTime},
+            fire_time = #{fireTime},
+            schedule_time = #{scheduleTime},
+            image_path = #{imagePath},
+            exec_arch = #{execArch},
+            priority = #{priority},
+            actually_priority = #{actuallyPriority},
+            dry_run = #{dryRun},
+            timeout_seconds = #{timeoutSeconds},
+            retry_times = #{retryTimes},
+            retry_interval_seconds = #{retryIntervalSeconds},
+            task_type = #{taskType},
+            designated_processor = #{designatedProcessor},
+            latest_start_time = NULL,
+            latest_end_time = NULL,
+            start_time = NULL,
+            schedule_host_time = NULL,
+            submit_time = NULL,
+            finish_time = NULL,
+            error_cause = NULL,
+            update_time = CURRENT_TIMESTAMP
+        WHERE guid = #{instanceGuid}
+          AND sequence_cnt = #{currentSequenceCnt}
+          AND run_status IN ('Finished', 'Killed', 'Error', 'AuditFailed')
+
+    </update>
+
     <select id="findLastExecuted0" resultMap="InstanceResultMap">
 
         SELECT
@@ -497,7 +544,10 @@
         <if test="actuallyPriority != null">
             AND `actually_priority` = #{actuallyPriority}
         </if>
-        AND schedule_type IN ( 'Cycle', 'Temporary' )
+        AND (
+            schedule_type IN ( 'Cycle', 'Temporary' )
+            OR COALESCE( retry_cnt, 0 ) <![CDATA[ > ]]> 0
+        )
     </select>
 
     <select id="fetchSchedulableInstances0" resultMap="InstanceResultMap">
@@ -518,7 +568,76 @@
         <if test="actuallyPriority != null">
             AND `actually_priority` = #{actuallyPriority}
         </if>
-        AND schedule_type IN ( 'Cycle', 'Temporary' )
+        AND (
+            schedule_type IN ( 'Cycle', 'Temporary' )
+            OR COALESCE( retry_cnt, 0 ) <![CDATA[ > ]]> 0
+        )
+        ORDER BY actually_priority DESC, id ASC
+    </select>
+
+    <select id="selectRetryableTerminalIdRange" resultMap="TableIndex64MetaResult">
+        SELECT
+            MIN( `id` ) AS min_id,
+            MAX( `id` ) AS max_id
+        FROM `hydra_task_instances`
+        WHERE `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
+          AND COALESCE( `dry_run`, 0 ) = 0
+          AND COALESCE( `retry_cnt`, 0 ) <![CDATA[ < ]]> COALESCE( `retry_times`, 0 )
+          AND (
+              `expect_time` IS NULL
+              OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+    </select>
+
+    <select id="fetchRetryableTerminalInstances0" resultMap="InstanceResultMap">
+        SELECT
+            `id`,
+            <include refid="BaseFields"/>
+        FROM `hydra_task_instances`
+        WHERE `id` <![CDATA[ >= ]]> #{idMin}
+          AND `id` <![CDATA[ <= ]]> #{idMax}
+          AND `run_status` IN
+        <foreach collection="runStatuses" item="runStatus" open="(" separator="," close=")">
+            #{runStatus}
+        </foreach>
+          AND COALESCE( `dry_run`, 0 ) = 0
+          AND COALESCE( `retry_cnt`, 0 ) <![CDATA[ < ]]> COALESCE( `retry_times`, 0 )
+          AND (
+              `expect_time` IS NULL
+              OR `expect_time` <![CDATA[ <= ]]> #{targetTime}
+          )
+        ORDER BY actually_priority DESC, id ASC
+    </select>
+
+    <select id="selectTimedOutRunningIdRange" resultMap="TableIndex64MetaResult">
+        SELECT
+            MIN( `id` ) AS min_id,
+            MAX( `id` ) AS max_id
+        FROM `hydra_task_instances`
+        WHERE `run_status` = 'Running'
+          AND COALESCE( `dry_run`, 0 ) = 0
+          AND `timeout_seconds` IS NOT NULL
+          AND `timeout_seconds` <![CDATA[ > ]]> 0
+          AND `latest_start_time` IS NOT NULL
+          AND TIMESTAMPDIFF(SECOND, `latest_start_time`, #{targetTime}) <![CDATA[ >= ]]> `timeout_seconds`
+    </select>
+
+    <select id="fetchTimedOutRunningInstances0" resultMap="InstanceResultMap">
+        SELECT
+            `id`,
+            <include refid="BaseFields"/>
+        FROM `hydra_task_instances`
+        WHERE `id` <![CDATA[ >= ]]> #{idMin}
+          AND `id` <![CDATA[ <= ]]> #{idMax}
+          AND `run_status` = 'Running'
+          AND COALESCE( `dry_run`, 0 ) = 0
+          AND `timeout_seconds` IS NOT NULL
+          AND `timeout_seconds` <![CDATA[ > ]]> 0
+          AND `latest_start_time` IS NOT NULL
+          AND TIMESTAMPDIFF(SECOND, `latest_start_time`, #{targetTime}) <![CDATA[ >= ]]> `timeout_seconds`
         ORDER BY actually_priority DESC, id ASC
     </select>
 

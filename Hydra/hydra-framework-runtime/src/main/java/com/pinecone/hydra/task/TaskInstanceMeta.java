@@ -40,6 +40,12 @@ public interface TaskInstanceMeta extends Pinenut {
 
     boolean isDryRun() ;
 
+    Long getTimeoutSeconds();
+
+    int getRetryTimes();
+
+    Long getRetryIntervalSeconds();
+
     TaskScheduleCycle getKernelScheduleCycle ();
 
     TaskScheduleType getKernelScheduleType ();

@@ -8,6 +8,7 @@
         <result column="guid" property="guid"/>
         <result column="run_guid" property="runGuid"/>
         <result column="formation_guid" property="formationGuid"/>
+        <result column="group_guid" property="groupGuid"/>
         <result column="task_guid" property="taskGuid"/>
         <result column="task_name" property="taskName"/>
         <result column="page_no" property="pageNo"/>
@@ -30,6 +31,7 @@
             guid,
             run_guid,
             formation_guid,
+            group_guid,
             task_guid,
             task_name,
             page_no,
@@ -41,6 +43,7 @@
             #{frame.guid},
             #{frame.runGuid},
             #{frame.formationGuid},
+            #{frame.groupGuid},
             #{frame.taskGuid},
             #{frame.taskName},
             #{frame.pageNo},
@@ -57,6 +60,7 @@
             guid,
             run_guid,
             formation_guid,
+            group_guid,
             task_guid,
             task_name,
             page_no,
@@ -77,6 +81,55 @@
           AND page_no = #{pageNo}
           AND frame_status = 'Pending'
         ORDER BY frame_no ASC
+    </select>
+
+    <sql id="FormationFrameColumns">
+        id,
+        guid,
+        run_guid,
+        formation_guid,
+        group_guid,
+        task_guid,
+        task_name,
+        page_no,
+        frame_no,
+        queue_type,
+        frame_status,
+        priority,
+        instance_guid,
+        claim_owner,
+        claim_token,
+        lease_expire_time,
+        submit_time,
+        finish_time,
+        attempt_count,
+        error_cause
+    </sql>
+
+    <sql id="FormationFrameWhere">
+        <where>
+            <if test="runGuid != null">
+                AND run_guid = #{runGuid}
+            </if>
+            <if test="frameStatus != null and frameStatus != ''">
+                AND frame_status = #{frameStatus}
+            </if>
+        </where>
+    </sql>
+
+    <select id="countFrames" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_run_frames
+        <include refid="FormationFrameWhere"/>
+    </select>
+
+    <select id="pageFrames0" resultMap="FormationFrameMap">
+        SELECT
+            <include refid="FormationFrameColumns"/>
+        FROM odin_formation_run_frames
+        <include refid="FormationFrameWhere"/>
+        ORDER BY frame_no ASC, id ASC
+        LIMIT #{offset}, #{limit}
     </select>
 
     <update id="markSubmitted">

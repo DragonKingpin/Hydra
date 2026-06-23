@@ -11,6 +11,8 @@ public interface InstanceLineageAdjacentMapper {
 
     void insert( InstanceLineageAdjacent instanceLineageAdjacent );
 
+    void deleteByGuid( @Param( "guid" ) GUID guid );
+
     long countByGuidAndParentGuid( @Param( "guid" ) GUID guid, @Param( "parentGuid" ) GUID parentGuid );
 
 }

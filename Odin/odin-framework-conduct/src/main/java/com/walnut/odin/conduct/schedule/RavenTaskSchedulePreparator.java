@@ -183,9 +183,14 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         LocalDateTime next = element.getNextScheduleTime();
         context.setThisScheduleTime( next );
         if ( next == null ) {
-            LocalDateTime firstFireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
-
+            LocalDateTime firstFireTime = ScheduleCronHelper.computeCurrentCycleFireByCron( cycle, cron, targetTime );
             if ( firstFireTime == null ) {
+                LocalDateTime nextFireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
+                if ( nextFireTime != null ) {
+                    context.setNextScheduleTime( nextFireTime );
+                    element.setNextScheduleTime( nextFireTime );
+                    this.persistTaskScheduleOffset( element );
+                }
                 return context;
             }
 
@@ -235,11 +240,16 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         LocalDateTime fireTime = element.getNextScheduleTime();
         if ( fireTime == null ) {
-            fireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
-        }
-
-        if ( fireTime == null ) {
-            return contexts;
+            LocalDateTime searchStartTime = targetTime.minusMinutes( this.mnFastCatchUpLimitMinutes );
+            fireTime = ScheduleCronHelper.computeLatestByCronBeforeOrAt( cron, searchStartTime, targetTime );
+            if ( fireTime == null ) {
+                LocalDateTime nextFireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
+                if ( nextFireTime != null && !nextFireTime.isAfter( lookAheadTarget ) ) {
+                    element.setNextScheduleTime( nextFireTime );
+                    this.persistTaskScheduleOffset( element );
+                }
+                return contexts;
+            }
         }
 
         LocalDateTime catchUpFloor = targetTime.minusMinutes( this.mnFastCatchUpLimitMinutes );
@@ -262,7 +272,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         }
 
         int nPrepared = 0;
-        while ( !fireTime.isAfter( lookAheadTarget ) && nPrepared < this.mnFastMaxInstancesPerTask ) {
+        while ( !fireTime.isAfter( targetTime ) && nPrepared < this.mnFastMaxInstancesPerTask ) {
             LocalDateTime next = ScheduleCronHelper.computeNextByCron( cron, fireTime );
             TaskScheduleContext context = new TaskScheduleContext( element, targetTime );
             context.setThisScheduleTime( fireTime );
@@ -402,8 +412,9 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     protected void ensureTaskExec( TaskScheduleContext context, RavenTaskInstance instance ) {
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
+        int nSequenceCnt = instance.getInstanceEntry().getSequenceCnt();
         int nRetryCnt = instance.getInstanceEntry().getRetryCnt();
-        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry( instanceGuid, nRetryCnt ) != null ) {
+        if ( this.mInstanceExecMapper.queryByInstanceGuidAndRetry( instanceGuid, nSequenceCnt, nRetryCnt ) != null ) {
             return;
         }
 
@@ -413,19 +424,24 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         exec.setTaskName( instance.getOwnedTask().getName() );
         exec.setInstanceName( instance.getInstanceEntry().getInstanceName() );
         exec.setProcessorQueue( "default" );
+        exec.setAffinityProcessor( instance.getInstanceEntry().getAffinityProcessor() );
+        exec.setDesignatedProcessor( instance.getInstanceEntry().getDesignatedProcessor() );
         exec.setImagePath( instance.getInstanceEntry().getImagePath() );
         exec.setClusterName( "local_cluster" );
         exec.setExecState( TaskInstanceExecState.Submitted.getName() );
+        exec.setSequenceCnt( nSequenceCnt );
         exec.setCurrentRetryNumber( nRetryCnt );
-        exec.setRetryTimes( nRetryCnt );
+        exec.setRetryTimes( instance.getInstanceEntry().getRetryTimes() );
         this.mInstanceExecMapper.insert( exec );
     }
 
     protected void ensureTaskEventTimeReady( TaskScheduleContext context, RavenTaskInstance instance ) {
         TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
+        int nSequenceCnt = instance.getInstanceEntry().getSequenceCnt();
+        int nRetryCnt = instance.getInstanceEntry().getRetryCnt();
         String eventState = InstanceEventType.TaskTimeReady.getName();
-        if ( this.mInstanceEventMapper.queryByInstanceGuidAndState( instanceGuid, eventState ) != null ) {
+        if ( this.mInstanceEventMapper.queryByInstanceGuidAndState( instanceGuid, nSequenceCnt, nRetryCnt, eventState ) != null ) {
             return;
         }
 
@@ -434,8 +450,9 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         event.setTaskGuid( element.getGuid() );
         event.setInstanceGuid( instanceGuid );
         event.setInstanceName( instance.getInstanceEntry().getInstanceName() );
-        event.setRetryTimes( instance.getInstanceEntry().getRetryCnt() );
-        event.setCurrentRetryNumber( instance.getInstanceEntry().getRetryCnt() );
+        event.setRetryTimes( instance.getInstanceEntry().getRetryTimes() );
+        event.setSequenceCnt( nSequenceCnt );
+        event.setCurrentRetryNumber( nRetryCnt );
         event.setEventType( instance.getTaskType() );
         event.setState( eventState );
         event.setExecTime( LocalDateTime.now() );
@@ -487,7 +504,9 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         Collection<TaskScheduleContext> contexts = new ArrayList<>();
         for ( TaskElement element : elements ) {
             TaskScheduleContext context = this.prepareTaskScheduleTimeOffset( element, targetTime );
-            contexts.add( context );
+            if ( context.getThisScheduleTime() != null ) {
+                contexts.add( context );
+            }
         }
 
         this.prepareTaskInstances( contexts, targetTime );

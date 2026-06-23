@@ -21,6 +21,9 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected short                    priority;
     protected short                    actuallyPriority;
     protected boolean                  dryRun;
+    protected Long                     timeoutSeconds = 86400L;
+    protected int                      retryTimes = 2;
+    protected long                     retryIntervalSeconds;
 
     protected String                   scheduleCron;
     protected TaskScheduleCycle        scheduleCycle;
@@ -137,6 +140,36 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setDryRun( boolean dryRun ) {
         this.dryRun = dryRun;
+    }
+
+    @Override
+    public Long getTimeoutSeconds() {
+        return this.timeoutSeconds;
+    }
+
+    @Override
+    public void setTimeoutSeconds( Long timeoutSeconds ) {
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    @Override
+    public int getRetryTimes() {
+        return this.retryTimes;
+    }
+
+    @Override
+    public void setRetryTimes( int retryTimes ) {
+        this.retryTimes = retryTimes;
+    }
+
+    @Override
+    public long getRetryIntervalSeconds() {
+        return this.retryIntervalSeconds;
+    }
+
+    @Override
+    public void setRetryIntervalSeconds( long retryIntervalSeconds ) {
+        this.retryIntervalSeconds = retryIntervalSeconds;
     }
 
 

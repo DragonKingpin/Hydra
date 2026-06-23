@@ -66,6 +66,9 @@ public class UniformMultiScopeImageLoader extends ArchImageLoader implements Uni
 
     @Override
     public ExecutionImage queryExecutionImage( URI uri ) {
+        if ( uri == null || uri.getScheme() == null ) {
+            return null;
+        }
         String p = uri.getScheme().toLowerCase();
         ImageLoader imageLoader = this.mLoaderScope.get( p );
         if ( imageLoader == null ) {
@@ -94,6 +97,9 @@ public class UniformMultiScopeImageLoader extends ArchImageLoader implements Uni
 
     @Override
     public ExecutionImage queryExecutionImage( String path ) {
+        if ( path == null ) {
+            return null;
+        }
         ExecutionImage image = this.mLocalMappingImageLoader.queryExecutionImage( path );
         if ( image != null ) {
             return image;

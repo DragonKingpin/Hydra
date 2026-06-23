@@ -31,6 +31,10 @@ public interface InstanceLineageNodeMapper extends InstanceNodeManipulator {
             @Param( "businessTime" ) LocalDateTime businessTime
     );
 
+    List<InstanceLineageNode> fetchParentsByInstanceGuid( @Param( "instanceGuid" ) GUID instanceGuid );
+
+    List<InstanceLineageNode> fetchChildrenByInstanceGuid( @Param( "instanceGuid" ) GUID instanceGuid );
+
     List<DependencyBlockage> fetchDependencyBlockages(
             @Param( "instanceGuids" ) Collection<GUID> instanceGuids,
             @Param( "finishedStatus" ) String finishedStatus

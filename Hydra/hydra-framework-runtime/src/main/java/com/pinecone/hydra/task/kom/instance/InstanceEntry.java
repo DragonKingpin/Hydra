@@ -55,6 +55,12 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setDryRun ( boolean dryRun );
 
+     void setTimeoutSeconds( Long timeoutSeconds );
+
+     void setRetryTimes( int retryTimes );
+
+     void setRetryIntervalSeconds( Long retryIntervalSeconds );
+
      void setErrorCause( String errorCause );
 
      void setScheduleCycle ( TaskScheduleCycle kernelScheduleCycle ) ;

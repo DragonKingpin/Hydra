@@ -10,10 +10,13 @@
         <result column="task_name"              property="taskName"/>
         <result column="instance_name"          property="instanceName"/>
         <result column="processor_queue"        property="processorQueue"/>
+        <result column="affinity_processor"     property="affinityProcessor"/>
+        <result column="designated_processor"   property="designatedProcessor"/>
         <result column="executed_processor"     property="executedProcessor"/>
         <result column="image_path"             property="imagePath"/>
         <result column="cluster_name"           property="clusterName"/>
         <result column="exec_state"             property="execState"/>
+        <result column="sequence_cnt"           property="sequenceCnt"/>
         <result column="current_retry_number"   property="currentRetryNumber"/>
         <result column="retry_times"            property="retryTimes"/>
         <result column="start_time"             property="startTime"/>
@@ -50,10 +53,13 @@
             task_name,
             instance_name,
             processor_queue,
+            affinity_processor,
+            designated_processor,
             executed_processor,
             image_path,
             cluster_name,
             exec_state,
+            sequence_cnt,
             current_retry_number,
             retry_times,
             start_time,
@@ -65,10 +71,13 @@
                      #{taskName},
                      #{instanceName},
                      #{processorQueue},
+                     #{affinityProcessor},
+                     #{designatedProcessor},
                      #{executedProcessor},
                      #{imagePath},
                      #{clusterName},
                      #{execState},
+                     #{sequenceCnt},
                      #{currentRetryNumber},
                      #{retryTimes},
                      #{startTime},
@@ -85,10 +94,13 @@
             task_name,
             instance_name,
             processor_queue,
+            affinity_processor,
+            designated_processor,
             executed_processor,
             image_path,
             cluster_name,
             exec_state,
+            sequence_cnt,
             current_retry_number,
             retry_times,
             start_time,
@@ -96,6 +108,7 @@
             finish_time
         FROM odin_task_instance_exec
         WHERE instance_guid = #{instanceGuid}
+        ORDER BY sequence_cnt DESC, current_retry_number DESC, id DESC
         LIMIT 1
     </select>
 
@@ -107,10 +120,13 @@
             task_name,
             instance_name,
             processor_queue,
+            affinity_processor,
+            designated_processor,
             executed_processor,
             image_path,
             cluster_name,
             exec_state,
+            sequence_cnt,
             current_retry_number,
             retry_times,
             start_time,
@@ -118,7 +134,7 @@
             finish_time
         FROM odin_task_instance_exec
         WHERE instance_guid = #{instanceGuid}
-        ORDER BY current_retry_number DESC, id DESC
+        ORDER BY sequence_cnt DESC, current_retry_number DESC, id DESC
     </select>
 
     <select id="queryByInstanceGuidAndRetry" resultMap="InstanceExecMap">
@@ -129,10 +145,13 @@
             task_name,
             instance_name,
             processor_queue,
+            affinity_processor,
+            designated_processor,
             executed_processor,
             image_path,
             cluster_name,
             exec_state,
+            sequence_cnt,
             current_retry_number,
             retry_times,
             start_time,
@@ -140,6 +159,7 @@
             finish_time
         FROM odin_task_instance_exec
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
         LIMIT 1
     </select>
@@ -189,6 +209,7 @@
             </if>
         </set>
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
     </update>
 
@@ -209,6 +230,7 @@
             </if>
         </set>
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
     </update>
 
@@ -229,6 +251,7 @@
             </if>
         </set>
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
           AND (
               <include refid="ExecStateOrderByCurrent"/> <![CDATA[ < ]]> <include refid="ExecStateOrderByTarget"/>
@@ -240,6 +263,7 @@
         UPDATE odin_task_instance_exec
         SET image_path = #{imagePath}
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
     </update>
 
@@ -247,6 +271,7 @@
         UPDATE odin_task_instance_exec
         SET executed_processor = #{executedProcessor}
         WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
           AND current_retry_number = #{currentRetryNumber}
     </update>
 

@@ -22,4 +22,6 @@ public interface TaskLineageMapper {
 
     long countChildren( @Param("taskGuid") GUID taskGuid );
 
+    int deleteByTaskGuids( @Param( "taskGuids" ) List<GUID> taskGuids );
+
 }

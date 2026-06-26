@@ -12,6 +12,7 @@ public class GenericInstanceExec implements InstanceExec {
     protected GUID          taskGuid;
     protected GUID          instanceGuid;
     protected String        taskName;
+    protected GUID          processGuid;
     protected String        instanceName;
     protected String        processorQueue;
     protected String        affinityProcessor;
@@ -72,6 +73,16 @@ public class GenericInstanceExec implements InstanceExec {
     @Override
     public void setTaskName(String taskName) {
         this.taskName = taskName;
+    }
+
+    @Override
+    public GUID getProcessGuid() {
+        return this.processGuid;
+    }
+
+    @Override
+    public void setProcessGuid(GUID processGuid) {
+        this.processGuid = processGuid;
     }
 
     @Override

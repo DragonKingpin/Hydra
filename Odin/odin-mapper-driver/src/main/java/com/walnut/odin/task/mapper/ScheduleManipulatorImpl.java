@@ -20,12 +20,20 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
     private InstanceLineageAdjacentMapper mInstanceLineageAdjacentMapper;
 
     @Resource
-    @Structure(type = InstanceLineageNodeMapper.class)
-    private InstanceLineageNodeMapper mInstanceLineageNodeMapper;
-
-    @Resource
     @Structure(type = InstanceExecMapper.class)
     private InstanceExecMapper minstanceExecMapper;
+
+    @Resource
+    @Structure(type = InstanceExecAuditMapper.class)
+    private InstanceExecAuditMapper mInstanceExecAuditMapper;
+
+    @Resource
+    @Structure(type = PatrolWatchdogLogMapper.class)
+    private PatrolWatchdogLogMapper mPatrolWatchdogLogMapper;
+
+    @Resource
+    @Structure(type = TaskInstanceOperationLogMapper.class)
+    private TaskInstanceOperationLogMapper mTaskInstanceOperationLogMapper;
 
     public ScheduleManipulatorImpl() {
     }
@@ -37,13 +45,23 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
     public ScheduleManipulatorImpl(
             InstanceEventMapper instanceEventMapper,
             InstanceLineageAdjacentMapper instanceLineageAdjacentMapper,
-            InstanceLineageNodeMapper instanceLineageNodeMapper,
             InstanceExecMapper instanceExecMapper
     ) {
         this.minstanceEventMapper = instanceEventMapper;
         this.mInstanceLineageAdjacentMapper = instanceLineageAdjacentMapper;
-        this.mInstanceLineageNodeMapper = instanceLineageNodeMapper;
         this.minstanceExecMapper = instanceExecMapper;
+    }
+
+    public ScheduleManipulatorImpl(
+            InstanceEventMapper instanceEventMapper,
+            InstanceLineageAdjacentMapper instanceLineageAdjacentMapper,
+            InstanceExecMapper instanceExecMapper,
+            InstanceExecAuditMapper instanceExecAuditMapper
+    ) {
+        this.minstanceEventMapper = instanceEventMapper;
+        this.mInstanceLineageAdjacentMapper = instanceLineageAdjacentMapper;
+        this.minstanceExecMapper = instanceExecMapper;
+        this.mInstanceExecAuditMapper = instanceExecAuditMapper;
     }
 
     @Override
@@ -57,12 +75,22 @@ public class ScheduleManipulatorImpl implements ScheduleManipulator {
     }
 
     @Override
-    public InstanceLineageNodeMapper getInstanceLineageNodeMapper() {
-        return this.mInstanceLineageNodeMapper;
+    public InstanceExecMapper getInstanceExecMapper() {
+        return this.minstanceExecMapper;
     }
 
     @Override
-    public InstanceExecMapper getInstanceExecMapper() {
-        return this.minstanceExecMapper;
+    public InstanceExecAuditMapper getInstanceExecAuditMapper() {
+        return this.mInstanceExecAuditMapper;
+    }
+
+    @Override
+    public PatrolWatchdogLogMapper getPatrolWatchdogLogMapper() {
+        return this.mPatrolWatchdogLogMapper;
+    }
+
+    @Override
+    public TaskInstanceOperationLogMapper getTaskInstanceOperationLogMapper() {
+        return this.mTaskInstanceOperationLogMapper;
     }
 }

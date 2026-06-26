@@ -28,6 +28,28 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     protected long    mnScheduleCycleEngineGracefulShutdownMillis = 10000L;
     protected boolean mbScheduleCycleEnginePulseLogEnabled  = true;
     protected long    mnScheduleCycleEngineSlowPulseMillis  = 5000L;
+    protected long    mnSchedulePrepareLeadSecondsMinute    = 60L;
+    protected long    mnSchedulePrepareLeadSecondsHour      = 3600L;
+    protected long    mnSchedulePrepareLeadSecondsDaily     = 14400L;
+    protected long    mnSchedulePrepareCatchUpWindowMinutesMinute = 10L;
+    protected long    mnSchedulePrepareCatchUpWindowMinutesHour   = 10L;
+    protected long    mnSchedulePrepareCatchUpWindowMinutesDaily  = 10L;
+    protected int     mnSchedulePrepareMaxInstancesPerPulseMinute = 10;
+    protected int     mnSchedulePrepareMaxInstancesPerPulseHour   = 6;
+    protected int     mnSchedulePrepareMaxInstancesPerPulseDaily  = 3;
+    protected boolean mbInstantaneousEngineEnabled                 = true;
+    protected long    mnInstantaneousEngineStartupDelayMillis      = 1000L;
+    protected long    mnInstantaneousEnginePulseMillis             = 3000L;
+    protected long    mnInstantaneousEngineScanIdWindow            = 1000L;
+    protected int     mnInstantaneousEngineMaxInstancesPerPulse    = 200;
+    protected boolean mbInstantaneousEnginePulseLogEnabled         = true;
+    protected long    mnInstantaneousEngineSlowPulseMillis         = 3000L;
+    protected boolean mbPatrolWatchdogEnabled                     = true;
+    protected boolean mbPatrolWatchdogRunningProcessAliveEnabled  = true;
+    protected long    mnPatrolWatchdogPulseMillis                 = 5000L;
+    protected long    mnPatrolWatchdogStartupObservationMillis    = 30000L;
+    protected long    mnPatrolWatchdogRunningLostGraceMillis      = 30000L;
+    protected long    mnPatrolWatchdogScanIdWindow                = 1000L;
 
     public GenericRavenTaskConfig() {
         super();
@@ -38,6 +60,13 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
         JSONObject config = main.optJSONObject( "kernelConfig" );
         JSONObject schedulerConfig = main.optJSONObject( "scheduler" );
         JSONObject cycleEngineConfig = this.optJSONObject( schedulerConfig, "cycleEngine" );
+        JSONObject prepareLeadSecondsConfig = this.optJSONObject( cycleEngineConfig, "prepareLeadSeconds" );
+        JSONObject prepareCatchUpWindowMinutesConfig = this.optJSONObject( cycleEngineConfig, "prepareCatchUpWindowMinutes" );
+        JSONObject prepareMaxInstancesPerPulseConfig = this.optJSONObject( cycleEngineConfig, "prepareMaxInstancesPerPulse" );
+        JSONObject instantaneousEngineConfig = this.optJSONObject( schedulerConfig, "instantaneousEngine" );
+        JSONObject patrolWatchdogConfig = this.optJSONObject( schedulerConfig, "patrolWatchdog" );
+        JSONObject patrolWatchdogRulesConfig = this.optJSONObject( patrolWatchdogConfig, "rules" );
+        JSONObject runningProcessAliveConfig = this.optJSONObject( patrolWatchdogRulesConfig, "runningProcessAlive" );
 
         this.mszInstanceTitleTimeFormat = this.optString( config, "instanceTitleTimeFormat", RavenTaskConstants.InstanceTitleTimeFormat );
         this.mszDefaultDateTimeFormat   = this.optString( config, "defaultDateTimeFormat", RavenTaskConstants.DefaultDateTimeFormat );
@@ -61,6 +90,34 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
         this.mnScheduleCycleEngineGracefulShutdownMillis = this.optLong( cycleEngineConfig, "gracefulShutdownMillis", 10000L );
         this.mbScheduleCycleEnginePulseLogEnabled  = this.optBoolean( cycleEngineConfig, "enablePulseLog", true );
         this.mnScheduleCycleEngineSlowPulseMillis  = this.optLong( cycleEngineConfig, "slowPulseMillis", 5000L );
+        this.mnSchedulePrepareLeadSecondsMinute    = this.optLong( prepareLeadSecondsConfig, "minute", 60L );
+        this.mnSchedulePrepareLeadSecondsHour      = this.optLong( prepareLeadSecondsConfig, "hour", 3600L );
+        this.mnSchedulePrepareLeadSecondsDaily     = this.optLong( prepareLeadSecondsConfig, "daily", 14400L );
+        this.mnSchedulePrepareCatchUpWindowMinutesMinute = this.optNonNegativeLong(
+                prepareCatchUpWindowMinutesConfig, "minute", 10L, "scheduler.cycleEngine.prepareCatchUpWindowMinutes.minute"
+        );
+        this.mnSchedulePrepareCatchUpWindowMinutesHour = this.optNonNegativeLong(
+                prepareCatchUpWindowMinutesConfig, "hour", 10L, "scheduler.cycleEngine.prepareCatchUpWindowMinutes.hour"
+        );
+        this.mnSchedulePrepareCatchUpWindowMinutesDaily = this.optNonNegativeLong(
+                prepareCatchUpWindowMinutesConfig, "daily", 10L, "scheduler.cycleEngine.prepareCatchUpWindowMinutes.daily"
+        );
+        this.mnSchedulePrepareMaxInstancesPerPulseMinute = (int) this.optLong( prepareMaxInstancesPerPulseConfig, "minute", 10L );
+        this.mnSchedulePrepareMaxInstancesPerPulseHour   = (int) this.optLong( prepareMaxInstancesPerPulseConfig, "hour", 6L );
+        this.mnSchedulePrepareMaxInstancesPerPulseDaily  = (int) this.optLong( prepareMaxInstancesPerPulseConfig, "daily", 3L );
+        this.mbInstantaneousEngineEnabled                = this.optBoolean( instantaneousEngineConfig, "enable", true );
+        this.mnInstantaneousEngineStartupDelayMillis     = this.optLong( instantaneousEngineConfig, "startupDelayMillis", 1000L );
+        this.mnInstantaneousEnginePulseMillis            = this.optLong( instantaneousEngineConfig, "pulseMillis", 3000L );
+        this.mnInstantaneousEngineScanIdWindow           = this.optLong( instantaneousEngineConfig, "scanIdWindow", 1000L );
+        this.mnInstantaneousEngineMaxInstancesPerPulse   = (int) this.optLong( instantaneousEngineConfig, "maxInstancesPerPulse", 200L );
+        this.mbInstantaneousEnginePulseLogEnabled        = this.optBoolean( instantaneousEngineConfig, "enablePulseLog", true );
+        this.mnInstantaneousEngineSlowPulseMillis        = this.optLong( instantaneousEngineConfig, "slowPulseMillis", 3000L );
+        this.mbPatrolWatchdogEnabled                    = this.optBoolean( patrolWatchdogConfig, "enable", true );
+        this.mnPatrolWatchdogPulseMillis                = this.optLong( patrolWatchdogConfig, "pulseMillis", 5000L );
+        this.mnPatrolWatchdogStartupObservationMillis   = this.optLong( patrolWatchdogConfig, "startupObservationMillis", 30000L );
+        this.mnPatrolWatchdogRunningLostGraceMillis     = this.optLong( patrolWatchdogConfig, "runningLostGraceMillis", 30000L );
+        this.mnPatrolWatchdogScanIdWindow               = this.optLong( patrolWatchdogConfig, "scanIdWindow", 1000L );
+        this.mbPatrolWatchdogRunningProcessAliveEnabled = this.optBoolean( runningProcessAliveConfig, "enable", true );
     }
 
     protected JSONObject optJSONObject( JSONObject config, String key ) {
@@ -89,6 +146,14 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
             return defaultValue;
         }
         return config.optLong( key, defaultValue );
+    }
+
+    protected long optNonNegativeLong( JSONObject config, String key, long defaultValue, String configPath ) {
+        long value = this.optLong( config, key, defaultValue );
+        if ( value < 0L ) {
+            throw new IllegalArgumentException( "Config `" + configPath + "` must not be negative." );
+        }
+        return value;
     }
 
     @Override
@@ -184,6 +249,116 @@ public class GenericRavenTaskConfig extends ArchKernelObjectConfig implements Ra
     @Override
     public long getScheduleCycleEngineSlowPulseMillis() {
         return this.mnScheduleCycleEngineSlowPulseMillis;
+    }
+
+    @Override
+    public long getSchedulePrepareLeadSecondsMinute() {
+        return this.mnSchedulePrepareLeadSecondsMinute;
+    }
+
+    @Override
+    public long getSchedulePrepareLeadSecondsHour() {
+        return this.mnSchedulePrepareLeadSecondsHour;
+    }
+
+    @Override
+    public long getSchedulePrepareLeadSecondsDaily() {
+        return this.mnSchedulePrepareLeadSecondsDaily;
+    }
+
+    @Override
+    public long getSchedulePrepareCatchUpWindowMinutesMinute() {
+        return this.mnSchedulePrepareCatchUpWindowMinutesMinute;
+    }
+
+    @Override
+    public long getSchedulePrepareCatchUpWindowMinutesHour() {
+        return this.mnSchedulePrepareCatchUpWindowMinutesHour;
+    }
+
+    @Override
+    public long getSchedulePrepareCatchUpWindowMinutesDaily() {
+        return this.mnSchedulePrepareCatchUpWindowMinutesDaily;
+    }
+
+    @Override
+    public int getSchedulePrepareMaxInstancesPerPulseMinute() {
+        return this.mnSchedulePrepareMaxInstancesPerPulseMinute;
+    }
+
+    @Override
+    public int getSchedulePrepareMaxInstancesPerPulseHour() {
+        return this.mnSchedulePrepareMaxInstancesPerPulseHour;
+    }
+
+    @Override
+    public int getSchedulePrepareMaxInstancesPerPulseDaily() {
+        return this.mnSchedulePrepareMaxInstancesPerPulseDaily;
+    }
+
+    @Override
+    public boolean isInstantaneousEngineEnabled() {
+        return this.mbInstantaneousEngineEnabled;
+    }
+
+    @Override
+    public long getInstantaneousEngineStartupDelayMillis() {
+        return this.mnInstantaneousEngineStartupDelayMillis;
+    }
+
+    @Override
+    public long getInstantaneousEnginePulseMillis() {
+        return this.mnInstantaneousEnginePulseMillis;
+    }
+
+    @Override
+    public long getInstantaneousEngineScanIdWindow() {
+        return this.mnInstantaneousEngineScanIdWindow;
+    }
+
+    @Override
+    public int getInstantaneousEngineMaxInstancesPerPulse() {
+        return this.mnInstantaneousEngineMaxInstancesPerPulse;
+    }
+
+    @Override
+    public boolean isInstantaneousEnginePulseLogEnabled() {
+        return this.mbInstantaneousEnginePulseLogEnabled;
+    }
+
+    @Override
+    public long getInstantaneousEngineSlowPulseMillis() {
+        return this.mnInstantaneousEngineSlowPulseMillis;
+    }
+
+    @Override
+    public boolean isPatrolWatchdogEnabled() {
+        return this.mbPatrolWatchdogEnabled;
+    }
+
+    @Override
+    public boolean isPatrolWatchdogRunningProcessAliveEnabled() {
+        return this.mbPatrolWatchdogRunningProcessAliveEnabled;
+    }
+
+    @Override
+    public long getPatrolWatchdogPulseMillis() {
+        return this.mnPatrolWatchdogPulseMillis;
+    }
+
+    @Override
+    public long getPatrolWatchdogStartupObservationMillis() {
+        return this.mnPatrolWatchdogStartupObservationMillis;
+    }
+
+    @Override
+    public long getPatrolWatchdogRunningLostGraceMillis() {
+        return this.mnPatrolWatchdogRunningLostGraceMillis;
+    }
+
+    @Override
+    public long getPatrolWatchdogScanIdWindow() {
+        return this.mnPatrolWatchdogScanIdWindow;
     }
 
 }

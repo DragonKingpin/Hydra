@@ -23,6 +23,7 @@ enum RemoteProcessControlFrameType {
   QUERY_PROCESS_RUNTIME_META = 13;
   HAS_OWN_PROCESS = 14;
   CONTAIN_PROCESS = 15;
+  SIGNAL_REMOTE_PROCESS = 16;
 
   COMMAND_RESULT = 30;
   PROCESS_CREATED = 31;
@@ -50,6 +51,7 @@ message RemoteProcessControlFrame {
     CommandResult command_result = 15;
     ErrorFrame error = 16;
     HeartbeatFrame heartbeat = 17;
+    ProcessSignal process_signal = 18;
   }
 }
 
@@ -80,6 +82,13 @@ message ProcessId {
   string pid = 1;
 }
 
+message ProcessSignal {
+  string pid = 1;
+  string signal = 2;
+  int64 grace_timeout_millis = 3;
+  string reason = 4;
+}
+
 message ProcessRuntimeMeta {
   string pid = 1;
   string status = 2;
@@ -87,6 +96,7 @@ message ProcessRuntimeMeta {
   int64 finish_time_millis = 4;
   int32 exit_code = 5;
   string message = 6;
+  string termination_status = 7;
 }
 
 message CommandResult {

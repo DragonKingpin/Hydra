@@ -55,6 +55,7 @@ private static final long serialVersionUID = 0L;
     COMMAND_RESULT(15),
     ERROR(16),
     HEARTBEAT(17),
+    PROCESS_SIGNAL(18),
     PAYLOAD_NOT_SET(0);
     private final int value;
     private PayloadCase(int value) {
@@ -80,6 +81,7 @@ private static final long serialVersionUID = 0L;
         case 15: return COMMAND_RESULT;
         case 16: return ERROR;
         case 17: return HEARTBEAT;
+        case 18: return PROCESS_SIGNAL;
         case 0: return PAYLOAD_NOT_SET;
         default: return null;
       }
@@ -461,6 +463,37 @@ private static final long serialVersionUID = 0L;
     return com.walnut.odin.proc.server.transport.grpc.lifecycle.HeartbeatFrame.getDefaultInstance();
   }
 
+  public static final int PROCESS_SIGNAL_FIELD_NUMBER = 18;
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   * @return Whether the processSignal field is set.
+   */
+  @java.lang.Override
+  public boolean hasProcessSignal() {
+    return payloadCase_ == 18;
+  }
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   * @return The processSignal.
+   */
+  @java.lang.Override
+  public com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal getProcessSignal() {
+    if (payloadCase_ == 18) {
+       return (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_;
+    }
+    return com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+  }
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   */
+  @java.lang.Override
+  public com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder getProcessSignalOrBuilder() {
+    if (payloadCase_ == 18) {
+       return (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_;
+    }
+    return com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -513,6 +546,9 @@ private static final long serialVersionUID = 0L;
     }
     if (payloadCase_ == 17) {
       output.writeMessage(17, (com.walnut.odin.proc.server.transport.grpc.lifecycle.HeartbeatFrame) payload_);
+    }
+    if (payloadCase_ == 18) {
+      output.writeMessage(18, (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -573,6 +609,10 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(17, (com.walnut.odin.proc.server.transport.grpc.lifecycle.HeartbeatFrame) payload_);
     }
+    if (payloadCase_ == 18) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(18, (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -630,6 +670,10 @@ private static final long serialVersionUID = 0L;
       case 17:
         if (!getHeartbeat()
             .equals(other.getHeartbeat())) return false;
+        break;
+      case 18:
+        if (!getProcessSignal()
+            .equals(other.getProcessSignal())) return false;
         break;
       case 0:
       default:
@@ -689,6 +733,10 @@ private static final long serialVersionUID = 0L;
       case 17:
         hash = (37 * hash) + HEARTBEAT_FIELD_NUMBER;
         hash = (53 * hash) + getHeartbeat().hashCode();
+        break;
+      case 18:
+        hash = (37 * hash) + PROCESS_SIGNAL_FIELD_NUMBER;
+        hash = (53 * hash) + getProcessSignal().hashCode();
         break;
       case 0:
       default:
@@ -853,6 +901,9 @@ private static final long serialVersionUID = 0L;
       if (heartbeatBuilder_ != null) {
         heartbeatBuilder_.clear();
       }
+      if (processSignalBuilder_ != null) {
+        processSignalBuilder_.clear();
+      }
       payloadCase_ = 0;
       payload_ = null;
       return this;
@@ -940,6 +991,10 @@ private static final long serialVersionUID = 0L;
       if (payloadCase_ == 17 &&
           heartbeatBuilder_ != null) {
         result.payload_ = heartbeatBuilder_.build();
+      }
+      if (payloadCase_ == 18 &&
+          processSignalBuilder_ != null) {
+        result.payload_ = processSignalBuilder_.build();
       }
     }
 
@@ -1037,6 +1092,10 @@ private static final long serialVersionUID = 0L;
         }
         case HEARTBEAT: {
           mergeHeartbeat(other.getHeartbeat());
+          break;
+        }
+        case PROCESS_SIGNAL: {
+          mergeProcessSignal(other.getProcessSignal());
           break;
         }
         case PAYLOAD_NOT_SET: {
@@ -1150,6 +1209,13 @@ private static final long serialVersionUID = 0L;
               payloadCase_ = 17;
               break;
             } // case 138
+            case 146: {
+              input.readMessage(
+                  getProcessSignalFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              payloadCase_ = 18;
+              break;
+            } // case 146
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -2577,6 +2643,148 @@ private static final long serialVersionUID = 0L;
       payloadCase_ = 17;
       onChanged();
       return heartbeatBuilder_;
+    }
+
+    private com.google.protobuf.SingleFieldBuilderV3<
+        com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.Builder, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder> processSignalBuilder_;
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     * @return Whether the processSignal field is set.
+     */
+    @java.lang.Override
+    public boolean hasProcessSignal() {
+      return payloadCase_ == 18;
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     * @return The processSignal.
+     */
+    @java.lang.Override
+    public com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal getProcessSignal() {
+      if (processSignalBuilder_ == null) {
+        if (payloadCase_ == 18) {
+          return (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_;
+        }
+        return com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+      } else {
+        if (payloadCase_ == 18) {
+          return processSignalBuilder_.getMessage();
+        }
+        return com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    public Builder setProcessSignal(com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal value) {
+      if (processSignalBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        payload_ = value;
+        onChanged();
+      } else {
+        processSignalBuilder_.setMessage(value);
+      }
+      payloadCase_ = 18;
+      return this;
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    public Builder setProcessSignal(
+        com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.Builder builderForValue) {
+      if (processSignalBuilder_ == null) {
+        payload_ = builderForValue.build();
+        onChanged();
+      } else {
+        processSignalBuilder_.setMessage(builderForValue.build());
+      }
+      payloadCase_ = 18;
+      return this;
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    public Builder mergeProcessSignal(com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal value) {
+      if (processSignalBuilder_ == null) {
+        if (payloadCase_ == 18 &&
+            payload_ != com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance()) {
+          payload_ = com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.newBuilder((com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_)
+              .mergeFrom(value).buildPartial();
+        } else {
+          payload_ = value;
+        }
+        onChanged();
+      } else {
+        if (payloadCase_ == 18) {
+          processSignalBuilder_.mergeFrom(value);
+        } else {
+          processSignalBuilder_.setMessage(value);
+        }
+      }
+      payloadCase_ = 18;
+      return this;
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    public Builder clearProcessSignal() {
+      if (processSignalBuilder_ == null) {
+        if (payloadCase_ == 18) {
+          payloadCase_ = 0;
+          payload_ = null;
+          onChanged();
+        }
+      } else {
+        if (payloadCase_ == 18) {
+          payloadCase_ = 0;
+          payload_ = null;
+        }
+        processSignalBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    public com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.Builder getProcessSignalBuilder() {
+      return getProcessSignalFieldBuilder().getBuilder();
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    @java.lang.Override
+    public com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder getProcessSignalOrBuilder() {
+      if ((payloadCase_ == 18) && (processSignalBuilder_ != null)) {
+        return processSignalBuilder_.getMessageOrBuilder();
+      } else {
+        if (payloadCase_ == 18) {
+          return (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_;
+        }
+        return com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+      }
+    }
+    /**
+     * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+        com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.Builder, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder> 
+        getProcessSignalFieldBuilder() {
+      if (processSignalBuilder_ == null) {
+        if (!(payloadCase_ == 18)) {
+          payload_ = com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.getDefaultInstance();
+        }
+        processSignalBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal.Builder, com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder>(
+                (com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal) payload_,
+                getParentForChildren(),
+                isClean());
+        payload_ = null;
+      }
+      payloadCase_ = 18;
+      onChanged();
+      return processSignalBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

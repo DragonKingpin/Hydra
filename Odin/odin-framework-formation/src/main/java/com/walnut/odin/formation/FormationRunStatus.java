@@ -5,6 +5,7 @@ public enum FormationRunStatus {
     Running   ( "Running" ),
     Suspended ( "Suspended" ),
     Completed ( "Completed" ),
+    PartialCompleted ( "PartialCompleted" ),
     Failed    ( "Failed" ),
     Cancelled ( "Cancelled" );
 

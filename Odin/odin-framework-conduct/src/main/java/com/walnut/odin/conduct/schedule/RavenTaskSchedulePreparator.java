@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
@@ -27,10 +26,9 @@ import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.pinecone.slime.meta.TableIndex64Meta;
 
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceFrame;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceLineage;
 import com.walnut.odin.conduct.schedule.entity.TaskScheduleContext;
@@ -41,8 +39,6 @@ import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.TaskDeploymentMethod;
-import com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper;
-import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
@@ -67,13 +63,18 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
     private Logger log = LoggerFactory.getLogger( this.getClass() );
 
-    private GuidAllocator                 mGuidAllocator;
     private RavenTaskConfig               mRavenTaskConfig;
     private int                           mnScanThreadCount;
     private long                          mnScanIdWindow;
-    private long                          mnFastLookAheadSeconds;
-    private long                          mnFastCatchUpLimitMinutes;
-    private int                           mnFastMaxInstancesPerTask;
+    private long                          mnMinutePrepareCatchUpWindowMinutes;
+    private long                          mnHourPrepareCatchUpWindowMinutes;
+    private long                          mnDailyPrepareCatchUpWindowMinutes;
+    private long                          mnMinutePrepareLeadSeconds;
+    private long                          mnHourPrepareLeadSeconds;
+    private long                          mnDailyPrepareLeadSeconds;
+    private int                           mnMinutePrepareMaxInstancesPerPulse;
+    private int                           mnHourPrepareMaxInstancesPerPulse;
+    private int                           mnDailyPrepareMaxInstancesPerPulse;
 
     private UniformTaskScheduler          mTaskScheduler;
     private TaskExecutionLauncher         mTaskExecutionLauncher;
@@ -84,8 +85,6 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     private RavenTaskMasterManipulator    mRavenTaskMasterManipulator;
     private TaskNodeManipulator           mTaskNodeManipulator;
     private ScheduleManipulator           mScheduleManipulator;
-    private InstanceLineageNodeMapper       mInstanceLineageNodeMapper;
-    private InstanceLineageAdjacentMapper   mInstanceLineageAdjacentMapper;
     private InstanceExecMapper            mInstanceExecMapper;
     private InstanceEventMapper           mInstanceEventMapper;
 
@@ -105,32 +104,29 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         this.mRavenTaskConfig              = taskScheduler.ravenTaskConfig();
         this.mnScanThreadCount             = this.mRavenTaskConfig.getScheduleScanThreadCount();
         this.mnScanIdWindow                = this.mRavenTaskConfig.getScheduleScanIdWindow();
-        this.mnFastLookAheadSeconds        = 60;
-        this.mnFastCatchUpLimitMinutes     = 10;
-        this.mnFastMaxInstancesPerTask     = 1;
+        this.mnMinutePrepareLeadSeconds    = this.mRavenTaskConfig.getSchedulePrepareLeadSecondsMinute();
+        this.mnHourPrepareLeadSeconds      = this.mRavenTaskConfig.getSchedulePrepareLeadSecondsHour();
+        this.mnDailyPrepareLeadSeconds     = this.mRavenTaskConfig.getSchedulePrepareLeadSecondsDaily();
+        this.mnMinutePrepareCatchUpWindowMinutes = this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesMinute();
+        this.mnHourPrepareCatchUpWindowMinutes   = this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesHour();
+        this.mnDailyPrepareCatchUpWindowMinutes  = this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesDaily();
+        this.mnMinutePrepareMaxInstancesPerPulse = this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseMinute();
+        this.mnHourPrepareMaxInstancesPerPulse   = this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseHour();
+        this.mnDailyPrepareMaxInstancesPerPulse  = this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseDaily();
 
         this.mRuntimeAtlasInstrument       = taskScheduler.atlasInstrument();
         this.mTaskExecutionLauncher        = taskScheduler.taskExecutionLauncher();
         this.mCentralizedTaskInstrument    = taskScheduler.taskInstrument();
         this.mUniformTaskInstrument        = this.mCentralizedTaskInstrument.getUniformTaskInstrument();
 
-        this.mGuidAllocator                = this.mCentralizedTaskInstrument.getGuidAllocator();
-
         this.mRavenTaskMasterManipulator   = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator          = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator          = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceLineageNodeMapper      = this.mScheduleManipulator.getInstanceLineageNodeMapper();
-        this.mInstanceLineageAdjacentMapper  = this.mScheduleManipulator.getInstanceLineageAdjacentMapper();
         this.mInstanceExecMapper           = this.mScheduleManipulator.getInstanceExecMapper();
         this.mInstanceEventMapper          = this.mScheduleManipulator.getInstanceEventMapper();
 
         this.mTaskScheduleTimeResolver     = new TaskScheduleTimeResolver();
-        this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer(
-                this.mGuidAllocator,
-                this.mRuntimeAtlasInstrument,
-                this.mInstanceLineageNodeMapper,
-                this.mInstanceLineageAdjacentMapper
-        );
+        this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer( this.mRuntimeAtlasInstrument );
         this.startService();
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenTaskSchedulePreparator Construction) <Done>" );
@@ -165,56 +161,6 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     }
 
 
-    protected TaskScheduleContext prepareTaskScheduleTimeOffset( TaskElement element, LocalDateTime targetTime ) {
-        TaskScheduleContext context = new TaskScheduleContext( element, targetTime );
-
-        TaskScheduleCycle cycle = element.getScheduleCycle();
-        String            cron  = element.getScheduleCron();
-        if ( cycle == null ) {
-            return context;
-        }
-
-        if ( cron == null || cron.isBlank() ) {
-            String defaultCron = ScheduleCronHelper.generateDefaultCron( cycle );
-            element.setScheduleCron( defaultCron );
-            cron = defaultCron;
-        }
-
-        LocalDateTime next = element.getNextScheduleTime();
-        context.setThisScheduleTime( next );
-        if ( next == null ) {
-            LocalDateTime firstFireTime = ScheduleCronHelper.computeCurrentCycleFireByCron( cycle, cron, targetTime );
-            if ( firstFireTime == null ) {
-                LocalDateTime nextFireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
-                if ( nextFireTime != null ) {
-                    context.setNextScheduleTime( nextFireTime );
-                    element.setNextScheduleTime( nextFireTime );
-                    this.persistTaskScheduleOffset( element );
-                }
-                return context;
-            }
-
-            LocalDateTime advanced = ScheduleCronHelper.computeNextByCron( cron, firstFireTime );
-            context.setThisScheduleTime( firstFireTime );
-            context.setNextScheduleTime( advanced );
-            element.setNextScheduleTime( advanced );
-            return context;
-        }
-
-
-        LocalDateTime advanced = ScheduleCronHelper.computeNextByCron( cron, next );
-        if ( advanced == null ) {
-            return context;
-        }
-
-        if ( !advanced.equals( next ) ) {
-            element.setNextScheduleTime( advanced );
-            context.setNextScheduleTime( advanced );
-        }
-
-        return context;
-    }
-
     protected String resolveScheduleCron( TaskElement element ) {
         TaskScheduleCycle cycle = element.getScheduleCycle();
         String cron = element.getScheduleCron();
@@ -229,8 +175,12 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         return cron;
     }
 
-    protected Collection<TaskScheduleContext> prepareFastTaskScheduleTimeOffsets(
-            TaskElement element, LocalDateTime targetTime, LocalDateTime lookAheadTarget
+    protected Collection<TaskScheduleContext> prepareTaskScheduleTimeOffsets(
+            TaskElement element,
+            LocalDateTime pulseTime,
+            LocalDateTime prepareUntil,
+            int nMaxInstancesPerPulse,
+            long nCatchUpWindowMinutes
     ) {
         Collection<TaskScheduleContext> contexts = new ArrayList<>();
         String cron = this.resolveScheduleCron( element );
@@ -238,21 +188,24 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             return contexts;
         }
 
+        long nCatchUpMinutes = Math.max( 0L, nCatchUpWindowMinutes );
         LocalDateTime fireTime = element.getNextScheduleTime();
         if ( fireTime == null ) {
-            LocalDateTime searchStartTime = targetTime.minusMinutes( this.mnFastCatchUpLimitMinutes );
-            fireTime = ScheduleCronHelper.computeLatestByCronBeforeOrAt( cron, searchStartTime, targetTime );
+            LocalDateTime searchStartTime = pulseTime.minusMinutes( nCatchUpMinutes );
+            fireTime = ScheduleCronHelper.computeLatestByCronBeforeOrAt( cron, searchStartTime, pulseTime );
             if ( fireTime == null ) {
-                LocalDateTime nextFireTime = ScheduleCronHelper.computeNextByCron( cron, targetTime.minusSeconds( 1 ) );
-                if ( nextFireTime != null && !nextFireTime.isAfter( lookAheadTarget ) ) {
-                    element.setNextScheduleTime( nextFireTime );
-                    this.persistTaskScheduleOffset( element );
+                fireTime = ScheduleCronHelper.computeNextByCron( cron, pulseTime.minusSeconds( 1 ) );
+                if ( fireTime == null || fireTime.isAfter( prepareUntil ) ) {
+                    if ( fireTime != null ) {
+                        element.setNextScheduleTime( fireTime );
+                        this.persistTaskScheduleOffset( element );
+                    }
+                    return contexts;
                 }
-                return contexts;
             }
         }
 
-        LocalDateTime catchUpFloor = targetTime.minusMinutes( this.mnFastCatchUpLimitMinutes );
+        LocalDateTime catchUpFloor = pulseTime.minusMinutes( nCatchUpMinutes );
         boolean skippedStaleFireTimes = false;
         if ( fireTime.isBefore( catchUpFloor ) ) {
             fireTime = ScheduleCronHelper.computeNextByCron( cron, catchUpFloor.minusSeconds( 1 ) );
@@ -263,7 +216,7 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             return contexts;
         }
 
-        if ( fireTime.isAfter( lookAheadTarget ) ) {
+        if ( fireTime.isAfter( prepareUntil ) ) {
             if ( skippedStaleFireTimes ) {
                 element.setNextScheduleTime( fireTime );
                 this.persistTaskScheduleOffset( element );
@@ -272,9 +225,10 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         }
 
         int nPrepared = 0;
-        while ( !fireTime.isAfter( targetTime ) && nPrepared < this.mnFastMaxInstancesPerTask ) {
+        int nMax = Math.max( 1, nMaxInstancesPerPulse );
+        while ( !fireTime.isAfter( prepareUntil ) && nPrepared < nMax ) {
             LocalDateTime next = ScheduleCronHelper.computeNextByCron( cron, fireTime );
-            TaskScheduleContext context = new TaskScheduleContext( element, targetTime );
+            TaskScheduleContext context = new TaskScheduleContext( element, pulseTime );
             context.setThisScheduleTime( fireTime );
             context.setNextScheduleTime( next );
             contexts.add( context );
@@ -290,7 +244,20 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         return contexts;
     }
 
-    protected boolean isParentInstanceLineageResolvable( TaskScheduleContext context, Set<GUID> batchTaskGuids ) {
+    protected LocalDateTime lineageTime( TaskScheduleContext context ) {
+        if ( context == null || context.getElement() == null ) {
+            return null;
+        }
+        LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime(
+                context.getElement(), context.getThisScheduleTime()
+        );
+        if ( businessTime != null ) {
+            return businessTime;
+        }
+        return context.getThisScheduleTime();
+    }
+
+    protected boolean isParentInstanceLineageResolvable( TaskScheduleContext context, Set<LineageReadyKey> batchLineageKeys ) {
         TaskElement element = context.getElement();
         List<GUID> parentTaskGuids = this.mRuntimeAtlasInstrument.fetchParentTaskGuids( element.getGuid() );
         if ( parentTaskGuids == null || parentTaskGuids.isEmpty() ) {
@@ -298,21 +265,18 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
         }
 
         LocalDateTime businessTime = this.mTaskScheduleTimeResolver.resolveBusinessTime( element, context.getThisScheduleTime() );
+        LocalDateTime lineageTime = this.lineageTime( context );
         for ( GUID parentTaskGuid : parentTaskGuids ) {
             TaskElement parentElement = this.mRuntimeAtlasInstrument.queryTaskElementByGuid( parentTaskGuid );
             if ( parentElement == null ) {
                 return false;
             }
-            if ( batchTaskGuids.contains( parentElement.getGuid() ) ) {
+            if ( batchLineageKeys.contains( new LineageReadyKey( parentElement.getGuid(), lineageTime ) ) ) {
                 continue;
             }
-            if ( businessTime == null ) {
-                if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), context.getThisScheduleTime() ) != null ) {
-                    continue;
-                }
-                return false;
-            }
-            if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
+            if ( !this.mRuntimeAtlasInstrument.isParentInstanceLineageResolvable(
+                    element.getGuid(), parentElement.getGuid(), context.getThisScheduleTime(), businessTime
+            ) ) {
                 return false;
             }
         }
@@ -322,13 +286,13 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
     protected Collection<TaskScheduleContext> filterLineageResolvableContexts( Collection<TaskScheduleContext> contexts ) {
         Collection<TaskScheduleContext> result = new ArrayList<>();
-        Set<GUID> batchTaskGuids = new HashSet<>();
+        Set<LineageReadyKey> batchLineageKeys = new HashSet<>();
         for ( TaskScheduleContext context : contexts ) {
-            batchTaskGuids.add( context.getElement().getGuid() );
+            batchLineageKeys.add( new LineageReadyKey( context.getElement().getGuid(), this.lineageTime( context ) ) );
         }
 
         for ( TaskScheduleContext context : contexts ) {
-            if ( this.isParentInstanceLineageResolvable( context, batchTaskGuids ) ) {
+            if ( this.isParentInstanceLineageResolvable( context, batchLineageKeys ) ) {
                 result.add( context );
             }
             else {
@@ -436,7 +400,6 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     }
 
     protected void ensureTaskEventTimeReady( TaskScheduleContext context, RavenTaskInstance instance ) {
-        TaskElement element = context.getElement();
         GUID instanceGuid = instance.getInstanceEntry().getGuid();
         int nSequenceCnt = instance.getInstanceEntry().getSequenceCnt();
         int nRetryCnt = instance.getInstanceEntry().getRetryCnt();
@@ -445,19 +408,12 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             return;
         }
 
-        InstanceEvent event = new GenericInstanceEvent();
-        event.setGuid( this.mGuidAllocator.nextGUID() );
-        event.setTaskGuid( element.getGuid() );
-        event.setInstanceGuid( instanceGuid );
-        event.setInstanceName( instance.getInstanceEntry().getInstanceName() );
-        event.setRetryTimes( instance.getInstanceEntry().getRetryTimes() );
-        event.setSequenceCnt( nSequenceCnt );
-        event.setCurrentRetryNumber( nRetryCnt );
-        event.setEventType( instance.getTaskType() );
-        event.setState( eventState );
-        event.setExecTime( LocalDateTime.now() );
-        event.setEventContext( "{}" );
-        this.mScheduleManipulator.getInstanceEventMapper().insert( event );
+        this.mTaskScheduler.taskInstanceLifecycleExaminer().recordInstanceEvent(
+                instance.getInstanceEntry(),
+                TaskInstanceTransitionReason.TimeReady,
+                eventState,
+                "{}"
+        );
     }
 
     protected void prepareTaskInstances( Collection<TaskScheduleContext> contexts, LocalDateTime targetTime ) {
@@ -497,25 +453,21 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     }
 
     protected Collection<TaskElement> prepareScheduleTasks( Collection<TaskElement> elements, LocalDateTime targetTime ) {
-        if ( elements == null || elements.isEmpty() ) {
-            return elements;
-        }
-
-        Collection<TaskScheduleContext> contexts = new ArrayList<>();
-        for ( TaskElement element : elements ) {
-            TaskScheduleContext context = this.prepareTaskScheduleTimeOffset( element, targetTime );
-            if ( context.getThisScheduleTime() != null ) {
-                contexts.add( context );
-            }
-        }
-
-        this.prepareTaskInstances( contexts, targetTime );
-        Debug.traceSyn( elements );
-        return elements;
+        return this.prepareScheduleTasks(
+                elements,
+                targetTime,
+                targetTime,
+                1,
+                this.mnMinutePrepareCatchUpWindowMinutes
+        );
     }
 
-    protected Collection<TaskElement> prepareFastScheduleTasks(
-            Collection<TaskElement> elements, LocalDateTime targetTime, LocalDateTime lookAheadTarget
+    protected Collection<TaskElement> prepareScheduleTasks(
+            Collection<TaskElement> elements,
+            LocalDateTime pulseTime,
+            LocalDateTime prepareUntil,
+            int nMaxInstancesPerPulse,
+            long nCatchUpWindowMinutes
     ) {
         if ( elements == null || elements.isEmpty() ) {
             return elements;
@@ -523,10 +475,16 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
         Collection<TaskScheduleContext> contexts = new ArrayList<>();
         for ( TaskElement element : elements ) {
-            contexts.addAll( this.prepareFastTaskScheduleTimeOffsets( element, targetTime, lookAheadTarget ) );
+            contexts.addAll( this.prepareTaskScheduleTimeOffsets(
+                    element,
+                    pulseTime,
+                    prepareUntil,
+                    nMaxInstancesPerPulse,
+                    nCatchUpWindowMinutes
+            ) );
         }
 
-        this.prepareTaskInstances( contexts, targetTime );
+        this.prepareTaskInstances( contexts, pulseTime );
         Debug.traceSyn( elements );
         return elements;
     }
@@ -534,6 +492,34 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
     @Override
     public UniformTaskScheduler taskScheduler() {
         return this.mTaskScheduler;
+    }
+
+    protected static class LineageReadyKey {
+        private final GUID taskGuid;
+        private final LocalDateTime lineageTime;
+
+        public LineageReadyKey( GUID taskGuid, LocalDateTime lineageTime ) {
+            this.taskGuid = taskGuid;
+            this.lineageTime = lineageTime;
+        }
+
+        @Override
+        public boolean equals( Object o ) {
+            if ( this == o ) {
+                return true;
+            }
+            if ( !( o instanceof LineageReadyKey ) ) {
+                return false;
+            }
+            LineageReadyKey that = (LineageReadyKey) o;
+            return java.util.Objects.equals( this.taskGuid, that.taskGuid )
+                    && java.util.Objects.equals( this.lineageTime, that.lineageTime );
+        }
+
+        @Override
+        public int hashCode() {
+            return java.util.Objects.hash( this.taskGuid, this.lineageTime );
+        }
     }
 
 
@@ -612,12 +598,44 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
 
     @Override
     public void prepareDailySchedulableTasksAndWait( LocalDateTime targetTime ) {
-        this.prepareSchedulableTasksAndWait( DailyTaskScheduleCycles, targetTime );
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+
+        LocalDateTime pulseTime = targetTime;
+        LocalDateTime prepareUntil = pulseTime.plusSeconds( Math.max( 0L, this.mnDailyPrepareLeadSeconds ) );
+        this.prepareSchedulableTasksAndWait(
+                DailyTaskScheduleCycles,
+                prepareUntil,
+                ( elements, ignored ) -> this.prepareScheduleTasks(
+                        elements,
+                        pulseTime,
+                        prepareUntil,
+                        this.mnDailyPrepareMaxInstancesPerPulse,
+                        this.mnDailyPrepareCatchUpWindowMinutes
+                )
+        );
     }
 
     @Override
     public void prepareHourlySchedulableTasksAndWait( LocalDateTime targetTime ) {
-        this.prepareSchedulableTasksAndWait( HourlyTaskScheduleCycles, targetTime );
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+
+        LocalDateTime pulseTime = targetTime;
+        LocalDateTime prepareUntil = pulseTime.plusSeconds( Math.max( 0L, this.mnHourPrepareLeadSeconds ) );
+        this.prepareSchedulableTasksAndWait(
+                HourlyTaskScheduleCycles,
+                prepareUntil,
+                ( elements, ignored ) -> this.prepareScheduleTasks(
+                        elements,
+                        pulseTime,
+                        prepareUntil,
+                        this.mnHourPrepareMaxInstancesPerPulse,
+                        this.mnHourPrepareCatchUpWindowMinutes
+                )
+        );
     }
 
     @Override
@@ -626,12 +644,18 @@ public class RavenTaskSchedulePreparator implements TaskSchedulePreparator {
             targetTime = LocalDateTime.now();
         }
 
-        LocalDateTime scanTargetTime = targetTime.plusSeconds( this.mnFastLookAheadSeconds );
-        LocalDateTime finalTargetTime = targetTime;
+        LocalDateTime pulseTime = targetTime;
+        LocalDateTime prepareUntil = pulseTime.plusSeconds( Math.max( 0L, this.mnMinutePrepareLeadSeconds ) );
         this.prepareSchedulableTasksAndWait(
                 FastTaskScheduleCycles,
-                scanTargetTime,
-                ( elements, lookAheadTarget ) -> this.prepareFastScheduleTasks( elements, finalTargetTime, lookAheadTarget )
+                prepareUntil,
+                ( elements, ignored ) -> this.prepareScheduleTasks(
+                        elements,
+                        pulseTime,
+                        prepareUntil,
+                        this.mnMinutePrepareMaxInstancesPerPulse,
+                        this.mnMinutePrepareCatchUpWindowMinutes
+                )
         );
     }
 

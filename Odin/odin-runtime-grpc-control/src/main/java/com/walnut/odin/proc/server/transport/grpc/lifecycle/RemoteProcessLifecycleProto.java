@@ -50,6 +50,11 @@ public final class RemoteProcessLifecycleProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_walnut_odin_proc_control_lifecycle_ProcessId_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_walnut_odin_proc_control_lifecycle_ProcessSignal_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_walnut_odin_proc_control_lifecycle_ProcessSignal_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_walnut_odin_proc_control_lifecycle_ProcessRuntimeMeta_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -79,7 +84,7 @@ public final class RemoteProcessLifecycleProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\036remote_process_lifecycle.proto\022\"walnut" +
-      ".odin.proc.control.lifecycle\"\261\006\n\031RemoteP" +
+      ".odin.proc.control.lifecycle\"\376\006\n\031RemoteP" +
       "rocessControlFrame\022\022\n\nframe_guid\030\001 \001(\t\022\030" +
       "\n\020correlation_guid\030\002 \001(\t\022\021\n\tclient_id\030\003 " +
       "\001(\003\022U\n\nframe_type\030\004 \001(\0162A.walnut.odin.pr" +
@@ -99,51 +104,56 @@ public final class RemoteProcessLifecycleProto {
       "cle.CommandResultH\000\022?\n\005error\030\020 \001(\0132..wal" +
       "nut.odin.proc.control.lifecycle.ErrorFra" +
       "meH\000\022G\n\theartbeat\030\021 \001(\01322.walnut.odin.pr" +
-      "oc.control.lifecycle.HeartbeatFrameH\000B\t\n" +
-      "\007payload\"\355\001\n\014ClientMuster\022\021\n\tclient_id\030\001" +
-      " \001(\003\022\023\n\013client_guid\030\002 \001(\t\022\023\n\013client_path" +
-      "\030\003 \001(\t\022\014\n\004host\030\004 \001(\t\022\017\n\007runtime\030\005 \001(\t\022P\n" +
-      "\010metadata\030\024 \003(\0132>.walnut.odin.proc.contr" +
-      "ol.lifecycle.ClientMuster.MetadataEntry\032" +
-      "/\n\rMetadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002" +
-      " \001(\t:\0028\001\"6\n\013ClientReady\022\021\n\tclient_id\030\001 \001" +
-      "(\003\022\024\n\014session_guid\030\002 \001(\t\"\203\002\n\016UProcessMir" +
-      "ror\022\013\n\003pid\030\001 \001(\t\022\024\n\014process_name\030\002 \001(\t\022\022" +
-      "\n\nimage_path\030\003 \001(\t\022\031\n\021working_directory\030" +
-      "\004 \001(\t\022\021\n\targuments\030\005 \003(\t\022X\n\013environment\030" +
-      "\024 \003(\0132C.walnut.odin.proc.control.lifecyc" +
-      "le.UProcessMirror.EnvironmentEntry\0322\n\020En" +
-      "vironmentEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001" +
-      "(\t:\0028\001\"\030\n\tProcessId\022\013\n\003pid\030\001 \001(\t\"\214\001\n\022Pro" +
-      "cessRuntimeMeta\022\013\n\003pid\030\001 \001(\t\022\016\n\006status\030\002" +
-      " \001(\t\022\031\n\021start_time_millis\030\003 \001(\003\022\032\n\022finis" +
-      "h_time_millis\030\004 \001(\003\022\021\n\texit_code\030\005 \001(\005\022\017" +
-      "\n\007message\030\006 \001(\t\"\207\001\n\rCommandResult\022\017\n\007suc" +
-      "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022T\n\024process_r" +
-      "untime_meta\030\003 \001(\01326.walnut.odin.proc.con" +
-      "trol.lifecycle.ProcessRuntimeMeta\":\n\016Hea" +
-      "rtbeatFrame\022\030\n\020timestamp_millis\030\001 \001(\003\022\016\n" +
-      "\006status\030\002 \001(\t\"1\n\nErrorFrame\022\022\n\nerror_cod" +
-      "e\030\001 \001(\t\022\017\n\007message\030\002 \001(\t*\227\003\n\035RemoteProce" +
-      "ssControlFrameType\0221\n-REMOTE_PROCESS_CON" +
-      "TROL_FRAME_TYPE_UNSPECIFIED\020\000\022\021\n\rCLIENT_" +
-      "MUSTER\020\001\022\020\n\014CLIENT_READY\020\002\022\031\n\025CREATE_REM" +
-      "OTE_PROCESS\020\n\022\033\n\027VITALIZE_REMOTE_PROCESS" +
-      "\020\013\022\030\n\024START_REMOTE_PROCESS\020\014\022\036\n\032QUERY_PR" +
-      "OCESS_RUNTIME_META\020\r\022\023\n\017HAS_OWN_PROCESS\020" +
-      "\016\022\023\n\017CONTAIN_PROCESS\020\017\022\022\n\016COMMAND_RESULT" +
-      "\020\036\022\023\n\017PROCESS_CREATED\020\037\022\026\n\022PROCESS_TERMI" +
-      "NATED\020 \022\030\n\024PROCESS_RUNTIME_META\020!\022\r\n\tHEA" +
-      "RTBEAT\0202\022\r\n\tAPOPTOSIS\020<\022\t\n\005ERROR\020Z2\246\001\n\026R" +
-      "emoteProcessLifecycle\022\213\001\n\007Control\022=.waln" +
-      "ut.odin.proc.control.lifecycle.RemotePro" +
-      "cessControlFrame\032=.walnut.odin.proc.cont" +
-      "rol.lifecycle.RemoteProcessControlFrame(" +
-      "\0010\001B\230\001\n4com.walnut.odin.proc.server.tran" +
-      "sport.grpc.lifecycleB\033RemoteProcessLifec" +
-      "ycleProtoP\001ZAgithub.com/DragonKingpin/gl" +
-      "adiator/proc/iface/lifecycle;lifecycleb\006" +
-      "proto3"
+      "oc.control.lifecycle.HeartbeatFrameH\000\022K\n" +
+      "\016process_signal\030\022 \001(\01321.walnut.odin.proc" +
+      ".control.lifecycle.ProcessSignalH\000B\t\n\007pa" +
+      "yload\"\355\001\n\014ClientMuster\022\021\n\tclient_id\030\001 \001(" +
+      "\003\022\023\n\013client_guid\030\002 \001(\t\022\023\n\013client_path\030\003 " +
+      "\001(\t\022\014\n\004host\030\004 \001(\t\022\017\n\007runtime\030\005 \001(\t\022P\n\010me" +
+      "tadata\030\024 \003(\0132>.walnut.odin.proc.control." +
+      "lifecycle.ClientMuster.MetadataEntry\032/\n\r" +
+      "MetadataEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(" +
+      "\t:\0028\001\"6\n\013ClientReady\022\021\n\tclient_id\030\001 \001(\003\022" +
+      "\024\n\014session_guid\030\002 \001(\t\"\203\002\n\016UProcessMirror" +
+      "\022\013\n\003pid\030\001 \001(\t\022\024\n\014process_name\030\002 \001(\t\022\022\n\ni" +
+      "mage_path\030\003 \001(\t\022\031\n\021working_directory\030\004 \001" +
+      "(\t\022\021\n\targuments\030\005 \003(\t\022X\n\013environment\030\024 \003" +
+      "(\0132C.walnut.odin.proc.control.lifecycle." +
+      "UProcessMirror.EnvironmentEntry\0322\n\020Envir" +
+      "onmentEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:" +
+      "\0028\001\"\030\n\tProcessId\022\013\n\003pid\030\001 \001(\t\"Z\n\rProcess" +
+      "Signal\022\013\n\003pid\030\001 \001(\t\022\016\n\006signal\030\002 \001(\t\022\034\n\024g" +
+      "race_timeout_millis\030\003 \001(\003\022\016\n\006reason\030\004 \001(" +
+      "\t\"\250\001\n\022ProcessRuntimeMeta\022\013\n\003pid\030\001 \001(\t\022\016\n" +
+      "\006status\030\002 \001(\t\022\031\n\021start_time_millis\030\003 \001(\003" +
+      "\022\032\n\022finish_time_millis\030\004 \001(\003\022\021\n\texit_cod" +
+      "e\030\005 \001(\005\022\017\n\007message\030\006 \001(\t\022\032\n\022termination_" +
+      "status\030\007 \001(\t\"\207\001\n\rCommandResult\022\017\n\007succes" +
+      "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022T\n\024process_runt" +
+      "ime_meta\030\003 \001(\01326.walnut.odin.proc.contro" +
+      "l.lifecycle.ProcessRuntimeMeta\":\n\016Heartb" +
+      "eatFrame\022\030\n\020timestamp_millis\030\001 \001(\003\022\016\n\006st" +
+      "atus\030\002 \001(\t\"1\n\nErrorFrame\022\022\n\nerror_code\030\001" +
+      " \001(\t\022\017\n\007message\030\002 \001(\t*\262\003\n\035RemoteProcessC" +
+      "ontrolFrameType\0221\n-REMOTE_PROCESS_CONTRO" +
+      "L_FRAME_TYPE_UNSPECIFIED\020\000\022\021\n\rCLIENT_MUS" +
+      "TER\020\001\022\020\n\014CLIENT_READY\020\002\022\031\n\025CREATE_REMOTE" +
+      "_PROCESS\020\n\022\033\n\027VITALIZE_REMOTE_PROCESS\020\013\022" +
+      "\030\n\024START_REMOTE_PROCESS\020\014\022\036\n\032QUERY_PROCE" +
+      "SS_RUNTIME_META\020\r\022\023\n\017HAS_OWN_PROCESS\020\016\022\023" +
+      "\n\017CONTAIN_PROCESS\020\017\022\031\n\025SIGNAL_REMOTE_PRO" +
+      "CESS\020\020\022\022\n\016COMMAND_RESULT\020\036\022\023\n\017PROCESS_CR" +
+      "EATED\020\037\022\026\n\022PROCESS_TERMINATED\020 \022\030\n\024PROCE" +
+      "SS_RUNTIME_META\020!\022\r\n\tHEARTBEAT\0202\022\r\n\tAPOP" +
+      "TOSIS\020<\022\t\n\005ERROR\020Z2\246\001\n\026RemoteProcessLife" +
+      "cycle\022\213\001\n\007Control\022=.walnut.odin.proc.con" +
+      "trol.lifecycle.RemoteProcessControlFrame" +
+      "\032=.walnut.odin.proc.control.lifecycle.Re" +
+      "moteProcessControlFrame(\0010\001B\230\001\n4com.waln" +
+      "ut.odin.proc.server.transport.grpc.lifec" +
+      "ycleB\033RemoteProcessLifecycleProtoP\001ZAgit" +
+      "hub.com/DragonKingpin/gladiator/proc/ifa" +
+      "ce/lifecycle;lifecycleb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -154,7 +164,7 @@ public final class RemoteProcessLifecycleProto {
     internal_static_walnut_odin_proc_control_lifecycle_RemoteProcessControlFrame_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_RemoteProcessControlFrame_descriptor,
-        new java.lang.String[] { "FrameGuid", "CorrelationGuid", "ClientId", "FrameType", "CreateTimeMillis", "ClientMuster", "ClientReady", "UprocessMirror", "ProcessId", "ProcessRuntimeMeta", "CommandResult", "Error", "Heartbeat", "Payload", });
+        new java.lang.String[] { "FrameGuid", "CorrelationGuid", "ClientId", "FrameType", "CreateTimeMillis", "ClientMuster", "ClientReady", "UprocessMirror", "ProcessId", "ProcessRuntimeMeta", "CommandResult", "Error", "Heartbeat", "ProcessSignal", "Payload", });
     internal_static_walnut_odin_proc_control_lifecycle_ClientMuster_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_walnut_odin_proc_control_lifecycle_ClientMuster_fieldAccessorTable = new
@@ -191,26 +201,32 @@ public final class RemoteProcessLifecycleProto {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_ProcessId_descriptor,
         new java.lang.String[] { "Pid", });
-    internal_static_walnut_odin_proc_control_lifecycle_ProcessRuntimeMeta_descriptor =
+    internal_static_walnut_odin_proc_control_lifecycle_ProcessSignal_descriptor =
       getDescriptor().getMessageTypes().get(5);
+    internal_static_walnut_odin_proc_control_lifecycle_ProcessSignal_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_walnut_odin_proc_control_lifecycle_ProcessSignal_descriptor,
+        new java.lang.String[] { "Pid", "Signal", "GraceTimeoutMillis", "Reason", });
+    internal_static_walnut_odin_proc_control_lifecycle_ProcessRuntimeMeta_descriptor =
+      getDescriptor().getMessageTypes().get(6);
     internal_static_walnut_odin_proc_control_lifecycle_ProcessRuntimeMeta_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_ProcessRuntimeMeta_descriptor,
-        new java.lang.String[] { "Pid", "Status", "StartTimeMillis", "FinishTimeMillis", "ExitCode", "Message", });
+        new java.lang.String[] { "Pid", "Status", "StartTimeMillis", "FinishTimeMillis", "ExitCode", "Message", "TerminationStatus", });
     internal_static_walnut_odin_proc_control_lifecycle_CommandResult_descriptor =
-      getDescriptor().getMessageTypes().get(6);
+      getDescriptor().getMessageTypes().get(7);
     internal_static_walnut_odin_proc_control_lifecycle_CommandResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_CommandResult_descriptor,
         new java.lang.String[] { "Success", "Message", "ProcessRuntimeMeta", });
     internal_static_walnut_odin_proc_control_lifecycle_HeartbeatFrame_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_walnut_odin_proc_control_lifecycle_HeartbeatFrame_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_HeartbeatFrame_descriptor,
         new java.lang.String[] { "TimestampMillis", "Status", });
     internal_static_walnut_odin_proc_control_lifecycle_ErrorFrame_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_walnut_odin_proc_control_lifecycle_ErrorFrame_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_lifecycle_ErrorFrame_descriptor,

@@ -26,23 +26,23 @@ import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
 import com.pinecone.slime.meta.TableIndexMeta;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
-import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
-import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskExecutionProcessor;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
-import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
+import com.walnut.odin.task.audit.InstanceExecAuditPayloads;
+import com.walnut.odin.task.mapper.InstanceExecAuditMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
+import com.walnut.odin.task.launch.LaunchProvideTaskParam;
 import com.walnut.odin.task.troll.GenericRavenTaskInstance;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
@@ -65,11 +65,11 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
     private RavenTaskMasterManipulator mRavenTaskMasterManipulator;
     private TaskNodeManipulator        mTaskNodeManipulator;
     private ScheduleManipulator        mScheduleManipulator;
-    private InstanceLineageNodeMapper    mInstanceLineageNodeMapper;
+    private InstanceExecAuditMapper    mInstanceExecAuditMapper;
 
     private InstanceScheduleAllocator  mInstanceScheduleAllocator;
     private InstanceDepartureGate      mInstanceDepartureGate;
-    private TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+    private TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
     private ExecutorService            mExecutorService;
 
     public RavenInstanceScheduleImpetus( UniformTaskScheduler taskScheduler ) {
@@ -87,14 +87,11 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         this.mRavenTaskMasterManipulator = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mTaskNodeManipulator        = this.mRavenTaskMasterManipulator.getTaskMasterManipulator().getTaskNodeManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceLineageNodeMapper    = this.mScheduleManipulator.getInstanceLineageNodeMapper();
+        this.mInstanceExecAuditMapper    = this.mScheduleManipulator.getInstanceExecAuditMapper();
 
         this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
         this.mInstanceDepartureGate       = taskScheduler.instanceDepartureGate();
-        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
-                this.mInstanceInstrument,
-                this.mScheduleManipulator.getInstanceEventMapper()
-        );
+        this.mTaskInstanceLifecycleExaminer = taskScheduler.taskInstanceLifecycleExaminer();
         this.startService();
 
         log.info( "[Odin] [CrucialSchedulerComponentLifecycle] (RavenInstanceScheduleImpetus Construction) <Done>" );
@@ -164,7 +161,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
             return;
         }
 
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transit(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transit(
                 instance.getGuid(), fromStatus, status, this.resolveTransitionReason( status )
         );
         if ( result.isSucceeded() ) {
@@ -200,7 +197,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
             return new DependencyBlockageIndex( List.of() );
         }
 
-        Collection<DependencyBlockage> blockages = this.mInstanceLineageNodeMapper.fetchDependencyBlockages(
+        Collection<DependencyBlockage> blockages = this.mRuntimeAtlasInstrument.fetchInstanceDependencyBlockages(
                 ids,
                 TaskInstanceStatus.Finished.getName()
         );
@@ -289,6 +286,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 // 这里不是建议分配，而是绑核
                 launchFeature.withProcessorDesignated( szDesignatedProcessor );
             }
+            launchFeature = this.provideLaunchFeature( fittedInstance, launchFeature );
             TaskLaunchContext launchContext = TaskLaunchContext.of( instance, launchFeature );
             if ( StringUtils.isNoneEmpty( fittedInstance.getAffinityProcessor() ) ) {
                 launchContext.setAffinityProcessorName( fittedInstance.getAffinityProcessor() );
@@ -297,6 +295,13 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
             li.add( launchContext );
         }
         return li;
+    }
+
+    protected LaunchFeature provideLaunchFeature( InstanceEntry instance, LaunchFeature launchFeature ) {
+        return this.mTaskScheduler.taskLaunchFeatureProviderRegistry().apply(
+                LaunchProvideTaskParam.from( instance ),
+                launchFeature
+        );
     }
 
 
@@ -337,7 +342,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
         Collection<InstanceEntry> claimedInstances = new ArrayList<>();
         for ( InstanceEntry instance : departureStandbyInstances ) {
-            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitWithScheduleTime(
+            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitWithScheduleTime(
                     instance.getGuid(),
                     TaskInstanceStatus.DepartureStandby,
                     TaskInstanceStatus.ProcessCreating,
@@ -433,12 +438,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
 
                     InstanceDepartureResult departureResult = this.mInstanceDepartureGate.prepareDeparture( entries, finalTargetTime );
                     if ( !departureResult.getLaunchContexts().isEmpty() ) {
-                        try {
-                            this.mTaskScheduler.taskDispatcher().pipeCreatePrepared( departureResult.getLaunchContexts() );
-                        }
-                        catch ( TaskDispatchException e ) {
-                            this.markLaunchContextsDispatchFailed( departureResult.getLaunchContexts(), e );
-                        }
+                        this.pipeCreatePreparedIsolated( departureResult.getLaunchContexts() );
                     }
                     //elements = this.prepareScheduleTasks( elements, finalTargetTime );
 
@@ -482,8 +482,10 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 continue;
             }
 
-            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithRuntimeFields(
                     instance.getGuid(),
+                    instance.getSequenceCnt(),
+                    instance.getRetryCnt(),
                     List.of(
                             TaskInstanceStatus.New,
                             TaskInstanceStatus.DependencyWait,
@@ -505,7 +507,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                 instance.setErrorCause( szCause );
                 instance.setLastEndTime( now );
                 instance.setFinishTime( now );
-                this.mScheduleManipulator.getInstanceExecMapper().updateStateRetryMonotonic(
+                int nAffectedRows = this.mScheduleManipulator.getInstanceExecMapper().updateStateRetryMonotonic(
                         instance.getGuid(),
                         instance.getSequenceCnt(),
                         instance.getRetryCnt(),
@@ -514,6 +516,9 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                         null,
                         now
                 );
+                if ( nAffectedRows > 0 ) {
+                    this.recordExecutionLoggerAudit( instance, TaskInstanceExecState.Fail, now );
+                }
             }
         }
 
@@ -524,6 +529,42 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
         );
     }
 
+    protected void pipeCreatePreparedIsolated( Collection<TaskLaunchContext> contexts ) {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+
+        for ( TaskLaunchContext context : contexts ) {
+            if ( context == null ) {
+                continue;
+            }
+            try {
+                this.mTaskScheduler.taskDispatcher().pipeCreatePrepared( List.of( context ) );
+            }
+            catch ( Exception e ) {
+                this.markLaunchContextsDispatchFailed( List.of( context ), e );
+            }
+        }
+    }
+
+    protected void pipeStartPreparedIsolated( Collection<TaskLaunchContext> contexts ) {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+
+        for ( TaskLaunchContext context : contexts ) {
+            if ( context == null ) {
+                continue;
+            }
+            try {
+                this.mTaskScheduler.taskDispatcher().pipeStartPrepared( List.of( context ) );
+            }
+            catch ( Exception e ) {
+                this.markLaunchContextsDispatchFailed( List.of( context ), e );
+            }
+        }
+    }
+
     protected String describeException( Exception cause ) {
         if ( cause == null ) {
             return "unknown";
@@ -532,6 +573,59 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
             return cause.getMessage();
         }
         return cause.getClass().getName();
+    }
+
+    protected void recordExecutionLoggerAudit(
+            InstanceEntry entry, TaskInstanceExecState state, LocalDateTime finishTime
+    ) {
+        if ( this.mInstanceExecAuditMapper == null || entry == null || entry.getGuid() == null ) {
+            return;
+        }
+
+        try {
+            this.mInstanceExecAuditMapper.upsertLogger(
+                    entry.getTaskGuid(),
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    this.executionAuditMessage( state, entry ),
+                    this.executionAuditPayload( state, entry, finishTime ),
+                    entry.getLastStartTime(),
+                    finishTime
+            );
+        }
+        catch ( RuntimeException e ) {
+            this.log.warn(
+                    "[TaskSchedulerLifecycle] Failed to write exec logger audit "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, ExecState: `{}`) <Ignored>",
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    state.getName(),
+                    e
+            );
+        }
+    }
+
+    protected String executionAuditMessage( TaskInstanceExecState state, InstanceEntry entry ) {
+        String szCause = entry.getErrorCause();
+        if ( szCause == null || szCause.trim().isEmpty() ) {
+            return "Execution finished with " + state.getName() + ".";
+        }
+        return this.truncate( "Execution finished with " + state.getName() + ": " + szCause, 1024 );
+    }
+
+    protected String executionAuditPayload(
+            TaskInstanceExecState state, InstanceEntry entry, LocalDateTime finishTime
+    ) {
+        return InstanceExecAuditPayloads.from( state, entry, finishTime );
+    }
+
+    protected String truncate( String value, int maxLength ) {
+        if ( value == null || value.length() <= maxLength ) {
+            return value;
+        }
+        return value.substring( 0, Math.max( 0, maxLength ) );
     }
 
     protected Collection<TaskLaunchContext> resolvePreparedStandbyLaunchContexts( Collection<InstanceEntry> entries ) {
@@ -632,7 +726,7 @@ public class RavenInstanceScheduleImpetus implements InstanceScheduleImpetus {
                         return;
                     }
 
-                    this.mTaskScheduler.taskDispatcher().pipeStartPrepared( contexts );
+                    this.pipeStartPreparedIsolated( contexts );
                     log.info(
                             "[TaskSchedulerLifecycle] Starting prepared standby instances "
                                     + "(Start: {}, End: {}, Size: {}, Started: {}) <Done>",

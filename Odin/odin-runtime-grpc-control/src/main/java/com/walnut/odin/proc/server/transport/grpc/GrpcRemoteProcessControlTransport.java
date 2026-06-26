@@ -20,7 +20,9 @@ import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.grpc.server.GrpcAppointServer;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
@@ -485,6 +487,20 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
         }
         catch ( Exception e ) {
             throw new RemoteProcessServiceRPCException( e );
+        }
+    }
+
+    @Override
+    public RemoteProcessSignalResult signalRemoteUProcess( long clientId, GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) throws RemoteProcessLifecycleException {
+        try {
+            CommandResult result = this.sendAndAwaitCommandResult(
+                    clientId,
+                    this.mFrameMapper.processSignalFrame( clientId, this.nextGuidString(), pid, signal, graceTimeoutMillis, szReason )
+            );
+            return this.mFrameMapper.toSignalResult( result, pid, signal, szReason );
+        }
+        catch ( Exception e ) {
+            throw new RemoteProcessLifecycleException( e );
         }
     }
 

@@ -1,5 +1,7 @@
 package com.walnut.odin.task.mapper;
 
+import java.util.Collection;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.pinecone.framework.util.id.GUID;
@@ -17,4 +19,6 @@ public interface InstanceEventMapper {
             @Param( "currentRetryNumber" ) int nCurrentRetryNumber,
             @Param( "state" ) String state
     );
+
+    int deleteByTaskGuids( @Param( "taskGuids" ) Collection<GUID> taskGuids );
 }

@@ -204,6 +204,39 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         );
     }
 
+    int transitStatusInMonotonicWithFieldsGuarded0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
+            @Param( "retryCnt" ) int nRetryCnt,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "latestStartTime" ) LocalDateTime latestStartTime,
+            @Param( "latestEndTime" ) LocalDateTime latestEndTime,
+            @Param( "finishTime" ) LocalDateTime finishTime,
+            @Param( "errorCause" ) String szErrorCause
+    );
+
+    @Override
+    default int transitStatusInMonotonicWithFieldsGuarded(
+            GUID instanceGuid,
+            int sequenceCnt,
+            int retryCnt,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonicWithFieldsGuarded0(
+                instanceGuid, sequenceCnt, retryCnt, szFromStatuses, toStatus.getName(),
+                scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
     int resetForRetry0(
             @Param( "instanceGuid" ) GUID instanceGuid,
             @Param( "currentRetryCnt" ) int nCurrentRetryCnt,
@@ -275,6 +308,8 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
     }
 
     long countInstanceByTaskGuid( GUID taskGuid );
+
+    int deleteByTaskGuids( @Param( "taskGuids" ) Collection<GUID> taskGuids );
 
     GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );
 

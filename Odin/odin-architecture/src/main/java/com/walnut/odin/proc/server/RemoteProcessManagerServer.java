@@ -9,8 +9,10 @@ import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessManagerNode;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
@@ -54,6 +56,12 @@ public interface RemoteProcessManagerServer extends RemoteProcessManagerNode {
     void endClientProcessSnapshot( long clientId );
 
     void startRemoteUProcess( GUID pid ) throws RemoteProcessServiceRPCException;
+
+    default RemoteProcessSignalResult signalRemoteUProcess( GUID pid, ProcSignal signal, long graceTimeoutMillis ) throws RemoteProcessLifecycleException {
+        return this.signalRemoteUProcess( pid, signal, graceTimeoutMillis, null );
+    }
+
+    RemoteProcessSignalResult signalRemoteUProcess( GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) throws RemoteProcessLifecycleException;
 
     RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, String imageAddress, boolean isURI, GUID parentPID, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars ) throws RemoteProcessLifecycleException;
 

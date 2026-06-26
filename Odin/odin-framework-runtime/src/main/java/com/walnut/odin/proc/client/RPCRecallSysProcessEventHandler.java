@@ -67,7 +67,17 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
         report.setRemoteTerminationStatus( RemoteTerminationStatus.Expected );
 
         Throwable lastError = process.actionTape().getLastError();
-        if ( lastError != null ) {
+        RemoteTerminationStatus signalStatus = this.consumeSignalTerminationStatus( process );
+        if ( signalStatus != null ) {
+            if ( lastError != null ) {
+                report.setErrorMsg( lastError.getMessage() );
+            }
+            report.setRemoteTerminationStatus( signalStatus );
+            this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
+                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Terminated
+            );
+        }
+        else if ( lastError != null ) {
             report.setErrorMsg( lastError.getMessage() );
             report.setRemoteTerminationStatus( RemoteTerminationStatus.Error );
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
@@ -81,5 +91,12 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
         }
 
         this.mSlaveProcessLifecycleIface.reportProcessTerminated( this.mnClientId, report );
+    }
+
+    protected RemoteTerminationStatus consumeSignalTerminationStatus( UProcess process ) {
+        if ( !( this.mRemoteProcessManagerNode instanceof RemoteProcessManagerClient ) ) {
+            return null;
+        }
+        return ( (RemoteProcessManagerClient)this.mRemoteProcessManagerNode ).consumeSignalTerminationStatus( process.getPID() );
     }
 }

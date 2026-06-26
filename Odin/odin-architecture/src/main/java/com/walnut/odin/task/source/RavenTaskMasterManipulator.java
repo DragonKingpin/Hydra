@@ -5,6 +5,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.walnut.odin.specific.source.TaskSpecificManipulator;
 import com.walnut.odin.project.source.TaskProjectManipulator;
+import com.walnut.odin.mapper.transaction.OdinMappingTransaction;
 
 public interface RavenTaskMasterManipulator extends KOIMasterManipulator {
 
@@ -25,5 +26,7 @@ public interface RavenTaskMasterManipulator extends KOIMasterManipulator {
     TaskProjectManipulator getTaskProjectManipulator();
 
     TaskSpecificManipulator getTaskSpecificManipulator();
+
+    OdinMappingTransaction transaction();
 
 }

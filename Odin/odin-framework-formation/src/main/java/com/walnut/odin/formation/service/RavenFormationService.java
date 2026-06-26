@@ -1,15 +1,20 @@
 package com.walnut.odin.formation.service;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.formation.FormationInstrument;
 import com.walnut.odin.formation.FormationRunStatus;
+import com.walnut.odin.formation.deletion.FormationGroupPurgeResult;
 import com.walnut.odin.formation.entity.GroupEntry;
 import com.walnut.odin.formation.entity.GroupTaskEntry;
 import com.walnut.odin.formation.entity.GenericRun;
 import com.walnut.odin.formation.entity.RunEntry;
 import com.walnut.odin.formation.dispatch.FormationDispatcher;
+import com.walnut.odin.formation.dto.FormationFrameQuery;
+import com.walnut.odin.formation.dto.FormationPageQuery;
 import com.walnut.odin.formation.dto.FormationRunSubmitRequest;
 import com.walnut.odin.formation.dto.FormationRunSubmitResult;
 import com.walnut.odin.formation.dto.FormationRuntimeSnapshot;
@@ -124,6 +129,27 @@ public class RavenFormationService implements FormationService {
     }
 
     @Override
+    public FormationGroupPurgeResult purgeGroup( GUID formationGuid ) {
+        List<GUID> formationGuids = new ArrayList<>();
+        if ( formationGuid != null ) {
+            formationGuids.add( formationGuid );
+        }
+        return this.purgeGroups( formationGuids );
+    }
+
+    @Override
+    public FormationGroupPurgeResult purgeGroups( List<GUID> formationGuids ) {
+        List<GUID> normalizedGuids = this.normalizeFormationGuids( formationGuids );
+        FormationGroupPurgeResult emptyResult = new FormationGroupPurgeResult();
+        emptyResult.setRequestedCount( normalizedGuids.size() );
+        if ( normalizedGuids.isEmpty() ) {
+            return emptyResult;
+        }
+
+        return this.mFormationInstrument.masterManipulator().purgeGroups( normalizedGuids );
+    }
+
+    @Override
     public GroupTaskEntry retrieveGroupTask( GUID groupTaskGuid ) {
         if ( groupTaskGuid == null ) {
             return null;
@@ -140,11 +166,58 @@ public class RavenFormationService implements FormationService {
     }
 
     @Override
+    public long countGroupTasks( GUID formationGuid, Boolean enable, String taskKeyword, String scheduleType ) {
+        if ( formationGuid == null ) {
+            return 0L;
+        }
+        return this.mGroupTaskManipulator.countByFormationGuid(
+                formationGuid,
+                enable,
+                taskKeyword,
+                scheduleType
+        );
+    }
+
+    @Override
     public List<GroupTaskEntry> listGroupTasks( GUID formationGuid, Boolean enable ) {
         if ( formationGuid == null ) {
             return java.util.Collections.emptyList();
         }
         return this.mGroupTaskManipulator.listByFormationGuid( formationGuid, enable );
+    }
+
+    @Override
+    public List<GroupTaskEntry> pageGroupTasks( GUID formationGuid, Boolean enable, long offset, long limit ) {
+        if ( formationGuid == null ) {
+            return java.util.Collections.emptyList();
+        }
+        return this.mGroupTaskManipulator.pageByFormationGuid(
+                formationGuid,
+                enable,
+                Math.max( 0L, offset ),
+                Math.max( 1L, limit )
+        );
+    }
+
+    @Override
+    public List<GroupTaskEntry> pageGroupTasks(
+            GUID formationGuid,
+            Boolean enable,
+            String taskKeyword,
+            String scheduleType,
+            long offset,
+            long limit ) {
+        if ( formationGuid == null ) {
+            return java.util.Collections.emptyList();
+        }
+        return this.mGroupTaskManipulator.pageByFormationGuid(
+                formationGuid,
+                enable,
+                taskKeyword,
+                scheduleType,
+                Math.max( 0L, offset ),
+                Math.max( 1L, limit )
+        );
     }
 
     @Override
@@ -249,19 +322,51 @@ public class RavenFormationService implements FormationService {
     }
 
     @Override
-    public long countFrames( GUID runGuid, String frameStatus ) {
-        if ( runGuid == null ) {
+    public long countRunPages( FormationPageQuery query ) {
+        if ( query == null || query.getRunGuid() == null ) {
             return 0L;
         }
-        return this.mFrameManipulator.countFrames( runGuid, frameStatus );
+        return this.mPageManipulator.countPages( query );
+    }
+
+    @Override
+    public List<FormationPage> pageRunPages( FormationPageQuery query, long offset, long limit ) {
+        if ( query == null || query.getRunGuid() == null ) {
+            return java.util.Collections.emptyList();
+        }
+        return this.mPageManipulator.pagePages( query, Math.max( 0L, offset ), Math.max( 1L, limit ) );
+    }
+
+    @Override
+    public long countFrames( GUID runGuid, String frameStatus ) {
+        FormationFrameQuery query = new FormationFrameQuery();
+        query.setRunGuid( runGuid );
+        query.setFrameStatus( frameStatus );
+        return this.countFrames( query );
+    }
+
+    @Override
+    public long countFrames( FormationFrameQuery query ) {
+        if ( query == null || query.getRunGuid() == null ) {
+            return 0L;
+        }
+        return this.mFrameManipulator.countFrames( query );
     }
 
     @Override
     public List<FormationFrame> pageFrames( GUID runGuid, String frameStatus, long offset, long limit ) {
-        if ( runGuid == null ) {
+        FormationFrameQuery query = new FormationFrameQuery();
+        query.setRunGuid( runGuid );
+        query.setFrameStatus( frameStatus );
+        return this.pageFrames( query, offset, limit );
+    }
+
+    @Override
+    public List<FormationFrame> pageFrames( FormationFrameQuery query, long offset, long limit ) {
+        if ( query == null || query.getRunGuid() == null ) {
             return java.util.Collections.emptyList();
         }
-        return this.mFrameManipulator.pageFrames( runGuid, frameStatus, Math.max( 0L, offset ), Math.max( 1L, limit ) );
+        return this.mFrameManipulator.pageFrames( query, Math.max( 0L, offset ), Math.max( 1L, limit ) );
     }
 
     @Override
@@ -298,5 +403,17 @@ public class RavenFormationService implements FormationService {
         group.setEnable( request.isEnable() );
         group.setDescription( request.getDescription() );
         return group;
+    }
+
+    protected List<GUID> normalizeFormationGuids( List<GUID> formationGuids ) {
+        LinkedHashSet<GUID> guidSet = new LinkedHashSet<>();
+        if ( formationGuids != null ) {
+            for ( GUID guid : formationGuids ) {
+                if ( guid != null ) {
+                    guidSet.add( guid );
+                }
+            }
+        }
+        return new ArrayList<>( guidSet );
     }
 }

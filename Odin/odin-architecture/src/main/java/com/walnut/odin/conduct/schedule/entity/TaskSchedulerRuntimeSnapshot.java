@@ -6,6 +6,9 @@ import com.pinecone.framework.system.prototype.Pinenut;
 
 public class TaskSchedulerRuntimeSnapshot implements Pinenut {
 
+    protected TaskSchedulerIdentitySnapshot      mIdentity;
+    protected TaskSchedulerEngineRuntimeSnapshot mCycleEngine;
+    protected TaskSchedulerEngineRuntimeSnapshot mInstantaneousEngine;
     protected TaskSchedulerCycleEngineConfigSnapshot mConfig;
     protected boolean                                mRunning;
     protected boolean                                mPulsing;
@@ -21,6 +24,30 @@ public class TaskSchedulerRuntimeSnapshot implements Pinenut {
     protected String                                 mCycleEngineThreadName;
     protected String                                 mCycleEngineThreadState;
     protected boolean                                mCycleEngineThreadAlive;
+
+    public TaskSchedulerIdentitySnapshot getIdentity() {
+        return this.mIdentity;
+    }
+
+    public void setIdentity( TaskSchedulerIdentitySnapshot identity ) {
+        this.mIdentity = identity;
+    }
+
+    public TaskSchedulerEngineRuntimeSnapshot getCycleEngine() {
+        return this.mCycleEngine;
+    }
+
+    public void setCycleEngine( TaskSchedulerEngineRuntimeSnapshot cycleEngine ) {
+        this.mCycleEngine = cycleEngine;
+    }
+
+    public TaskSchedulerEngineRuntimeSnapshot getInstantaneousEngine() {
+        return this.mInstantaneousEngine;
+    }
+
+    public void setInstantaneousEngine( TaskSchedulerEngineRuntimeSnapshot instantaneousEngine ) {
+        this.mInstantaneousEngine = instantaneousEngine;
+    }
 
     public TaskSchedulerCycleEngineConfigSnapshot getConfig() {
         return this.mConfig;

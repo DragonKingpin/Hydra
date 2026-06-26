@@ -380,6 +380,16 @@
 
     </select>
 
+    <delete id="deleteByTaskGuids">
+
+        DELETE FROM hydra_task_instances
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+
+    </delete>
+
     <update id="transitStatus0">
 
         UPDATE hydra_task_instances
@@ -451,6 +461,39 @@
             update_time = CURRENT_TIMESTAMP
         </set>
         WHERE guid = #{instanceGuid}
+          AND run_status IN
+        <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
+            #{fromStatus}
+        </foreach>
+          AND <include refid="StatusOrderByRunStatus"/> <![CDATA[ <= ]]> <include refid="StatusOrderByToStatus"/>
+
+    </update>
+
+    <update id="transitStatusInMonotonicWithFieldsGuarded0">
+
+        UPDATE hydra_task_instances
+        <set>
+            run_status = #{toStatus},
+            <if test="scheduleTime != null">
+                schedule_time = #{scheduleTime},
+            </if>
+            <if test="latestStartTime != null">
+                latest_start_time = #{latestStartTime},
+            </if>
+            <if test="latestEndTime != null">
+                latest_end_time = #{latestEndTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="errorCause != null and errorCause != ''">
+                error_cause = #{errorCause},
+            </if>
+            update_time = CURRENT_TIMESTAMP
+        </set>
+        WHERE guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND retry_cnt = #{retryCnt}
           AND run_status IN
         <foreach collection="fromStatuses" item="fromStatus" open="(" separator="," close=")">
             #{fromStatus}

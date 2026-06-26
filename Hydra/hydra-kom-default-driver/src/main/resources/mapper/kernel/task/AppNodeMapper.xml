@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.task.ibatis.AppNodeMapper">
+
+    <resultMap id="AppNodeMap" type="com.pinecone.hydra.task.kom.entity.GenericAppElement">
+        <id     column="id"          property="enumId"/>
+        <result column="guid"        property="guid"/>
+        <result column="name"        property="name"/>
+        <result column="type"        property="type"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.task.kom.entity.AppElement">
+        INSERT INTO `hydra_task_app_node`
+        (
+            `guid`,
+            `name`,
+            `type`,
+            `create_time`,
+            `update_time`
+        )
+        VALUES
+        (
+            #{guid},
+            #{name},
+            #{type},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_task_app_node`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="getAppElement" resultMap="AppNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `name`,
+            `type`,
+            `create_time`,
+            `update_time`
+        FROM `hydra_task_app_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="update" parameterType="com.pinecone.hydra.task.kom.entity.AppElement">
+        UPDATE `hydra_task_app_node`
+        SET
+            `name` = #{name},
+            `type` = #{type},
+            `create_time` = #{createTime},
+            `update_time` = #{updateTime}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="getGuidsByName" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_app_node`
+        WHERE `name` = #{name}
+    </select>
+
+    <select id="getGuidsByNameID" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_app_node`
+        WHERE `name` = #{name}
+          AND `guid` = #{guid}
+    </select>
+
+</mapper>

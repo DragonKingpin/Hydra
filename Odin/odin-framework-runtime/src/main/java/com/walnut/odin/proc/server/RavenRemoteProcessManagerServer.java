@@ -14,9 +14,11 @@ import com.walnut.odin.proc.RemoteProcess;
 import com.walnut.odin.proc.MediatedRemoteProcess;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
@@ -805,7 +807,7 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         UProcess that = this.expunge( processId );
         if ( that instanceof RemoteProcess ) {
             RemoteProcess remoteProcess = (RemoteProcess) that;
-            UProcessStatus event = terminationReport.optStatus() == RemoteTerminationStatus.Expected
+            UProcessStatus event = this.isSuccessfulRemoteTermination( terminationReport.optStatus() )
                     ? UProcessStatus.Terminated
                     : UProcessStatus.Error;
             remoteProcess.notifyRemoteEvent( clientId, event, terminationReport );
@@ -813,6 +815,10 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
         }
 
         return RemoteTerminationAcceptance.accepted( that );
+    }
+
+    protected boolean isSuccessfulRemoteTermination( RemoteTerminationStatus status ) {
+        return status == RemoteTerminationStatus.Expected;
     }
 
     protected void registerProcess( long clientId, RemoteProcess process ) {
@@ -918,6 +924,76 @@ public class RavenRemoteProcessManagerServer extends ArchRemoteProcessManagerNod
             throw new RemoteProcessLifecycleException( e );
         }
 
+    }
+
+    @Override
+    public RemoteProcessSignalResult signalRemoteUProcess( GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) throws RemoteProcessLifecycleException {
+        ProcSignal appliedSignal = signal == null ? ProcSignal.SIGTERM : signal;
+        UProcess process = this.mProcessManager.getProcess( pid );
+        if ( process instanceof RemoteProcess ) {
+            RemoteProcess remoteProcess = (RemoteProcess) process;
+            long clientId = remoteProcess.getControlClientId();
+            try {
+                this.ensureControlClientReady( clientId );
+                return this.mTransportRegistry.requireTransport( clientId ).signalRemoteUProcess(
+                        clientId, pid, appliedSignal, graceTimeoutMillis, szReason
+                );
+            }
+            catch ( RemoteProcessServiceRPCException e ) {
+                throw new RemoteProcessLifecycleException( e );
+            }
+        }
+
+        if ( process == null ) {
+            RemoteProcessSignalResult result = this.newSignalResult( pid, appliedSignal, false );
+            result.setMessage( "Process not found." );
+            result.setOperatorActionRequired( true );
+            return result;
+        }
+
+        RemoteProcessSignalResult result = this.newSignalResult( pid, appliedSignal, true );
+        result.setReason( szReason );
+        try {
+            switch ( appliedSignal ) {
+                case SIGINT:
+                    process.interrupt();
+                    result.setMessage( "Local process interrupt signal accepted." );
+                    break;
+                case SIGKILL:
+                    process.kill();
+                    result.setMessage( "Local process kill signal accepted." );
+                    break;
+                case SIGTERM:
+                default:
+                    process.apoptosis();
+                    result.setMessage( "Local process apoptosis signal accepted." );
+                    break;
+            }
+        }
+        catch ( Exception e ) {
+            result.setAccepted( false );
+            result.setMessage( e.getClass().getName() + ": " + e.getMessage() );
+            result.setOperatorActionRequired( true );
+            return result;
+        }
+
+        result.setSchedulerClosed( process.getStatus() != null && process.getStatus().isTerminal() );
+        result.setPhysicalClosed( result.isSchedulerClosed() );
+        result.setOperatorActionRequired( appliedSignal == ProcSignal.SIGKILL && !result.isPhysicalClosed() );
+        return result;
+    }
+
+    protected RemoteProcessSignalResult newSignalResult( GUID pid, ProcSignal signal, boolean accepted ) {
+        RemoteProcessSignalResult result = new RemoteProcessSignalResult();
+        result.setProcessId( pid == null ? null : pid.toString() );
+        result.setSignal( signal == null ? ProcSignal.SIGTERM.name() : signal.name() );
+        result.setAccepted( accepted );
+        result.setTransport( "local" );
+        result.setTerminator( "odin-uprocess" );
+        result.setSchedulerClosed( false );
+        result.setPhysicalClosed( false );
+        result.setOperatorActionRequired( false );
+        return result;
     }
 
     public static class RemoteTerminationAcceptance {

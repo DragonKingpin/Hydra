@@ -2,6 +2,7 @@ package com.walnut.odin.conduct.schedule;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskPriority;
 import com.walnut.odin.conduct.schedule.entity.ConcurrentQuota;
+import com.walnut.odin.conduct.schedule.entity.ScheduleAllocatorQuotaSnapshot;
+import com.walnut.odin.conduct.schedule.entity.ScheduleAllocatorSnapshot;
 import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
 
 public class RavenScheduleAllocator implements InstanceScheduleAllocator {
@@ -215,6 +218,88 @@ public class RavenScheduleAllocator implements InstanceScheduleAllocator {
 
     public long getGlobalConcurrentInstance() {
         return this.mGlobalConcurrentInstance.get();
+    }
+
+    @Override
+    public ScheduleAllocatorSnapshot snapshot() {
+        ScheduleAllocatorSnapshot snapshot = new ScheduleAllocatorSnapshot();
+        snapshot.setPartitionName( this.mszPartitionName );
+        snapshot.setGlobalConcurrentInstance( this.mGlobalConcurrentInstance.get() );
+        snapshot.setCurrentInstanceCount( this.currentInstanceCount() );
+        snapshot.setFulledPriorities( new ArrayList<>( this.queryFulledPriority() ) );
+        snapshot.setQuotas( this.quotaSnapshots() );
+        return snapshot;
+    }
+
+    protected List<ScheduleAllocatorQuotaSnapshot> quotaSnapshots() {
+        List<ScheduleAllocatorQuotaSnapshot> snapshots = new ArrayList<>();
+
+        if ( this.mQuotaConfig == null || this.mQuotaConfig.isEmpty() ) {
+            return snapshots;
+        }
+
+        List<String> names = new ArrayList<>( this.mQuotaConfig.keySet() );
+        Collections.sort( names );
+        for ( String name : names ) {
+            ConcurrentQuota quota = this.mQuotaConfig.get( name );
+            if ( quota == null ) {
+                continue;
+            }
+
+            this.refreshQuotaCount( quota, this.mGlobalConcurrentInstance.get() );
+            snapshots.add( this.quotaSnapshot( name, quota ) );
+        }
+        return snapshots;
+    }
+
+    protected ScheduleAllocatorQuotaSnapshot quotaSnapshot( String szName, ConcurrentQuota quota ) {
+        ScheduleAllocatorQuotaSnapshot snapshot = new ScheduleAllocatorQuotaSnapshot();
+        long nCurrentCnt = this.currentInstanceCount( quota.getPriority() );
+        long nMaximumCnt = this.quotaCount( quota.getMaximumCnt() );
+
+        snapshot.setName( szName );
+        snapshot.setPriority( quota.getPriority() );
+        snapshot.setMaximumRatio( quota.getMaximumRatio() );
+        snapshot.setMinimumRatio( quota.getMinimumRatio() );
+        snapshot.setMaximumCnt( nMaximumCnt );
+        snapshot.setMinimumCnt( this.quotaCount( quota.getMinimumCnt() ) );
+        snapshot.setCurrentCnt( nCurrentCnt );
+        snapshot.setMaximumRatioMode( quota.isMaximumRatioMode() );
+        snapshot.setMinimumRatioMode( quota.isMinimumRatioMode() );
+        snapshot.setMaximumUnlimited( nMaximumCnt == Long.MAX_VALUE );
+        snapshot.setMinimumUnlimited( this.quotaCount( quota.getMinimumCnt() ) == Long.MAX_VALUE );
+        snapshot.setFull( nMaximumCnt != Long.MAX_VALUE && nCurrentCnt >= nMaximumCnt );
+        return snapshot;
+    }
+
+    protected long quotaCount( Long nQuotaCount ) {
+        if ( nQuotaCount == null ) {
+            return 0L;
+        }
+        return nQuotaCount;
+    }
+
+    protected long currentInstanceCount() {
+        long nCount = 0L;
+        for ( Integer nPriority : this.mPriorityInstances.keySet() ) {
+            if ( nPriority == null ) {
+                continue;
+            }
+            nCount += this.currentInstanceCount( nPriority );
+        }
+        return nCount;
+    }
+
+    protected long currentInstanceCount( int nPriority ) {
+        Lock segLock = this.affirmPrioritySegLock( nPriority );
+        segLock.lock();
+        try {
+            Map<GUID, InstanceEntry> instanceMap = this.mPriorityInstances.get( nPriority );
+            return instanceMap == null ? 0L : instanceMap.size();
+        }
+        finally {
+            segLock.unlock();
+        }
     }
 
     public void setGlobalConcurrentInstance( long nGlobalConcurrentInstance ) {

@@ -17,6 +17,8 @@ public interface GroupManipulator extends Pinenut {
 
     int updateEnable( GUID guid, boolean enable );
 
+    int removeByGuids( List<GUID> guids );
+
     long countGroups( String keyword, String strategyType, Boolean enable );
 
     List<GroupEntry> pageGroups( String keyword, String strategyType, Boolean enable, long offset, long limit );

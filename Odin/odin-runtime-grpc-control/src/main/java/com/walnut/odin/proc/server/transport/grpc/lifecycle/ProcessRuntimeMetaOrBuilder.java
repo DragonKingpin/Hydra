@@ -60,4 +60,16 @@ public interface ProcessRuntimeMetaOrBuilder extends
    */
   com.google.protobuf.ByteString
       getMessageBytes();
+
+  /**
+   * <code>string termination_status = 7;</code>
+   * @return The terminationStatus.
+   */
+  java.lang.String getTerminationStatus();
+  /**
+   * <code>string termination_status = 7;</code>
+   * @return The bytes for terminationStatus.
+   */
+  com.google.protobuf.ByteString
+      getTerminationStatusBytes();
 }

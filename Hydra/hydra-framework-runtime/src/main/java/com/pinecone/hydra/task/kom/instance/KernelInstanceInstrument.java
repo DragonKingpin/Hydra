@@ -147,6 +147,24 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public int transitStatusInMonotonicWithFieldsGuarded(
+            GUID instanceGuid,
+            int sequenceCnt,
+            int retryCnt,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        return this.mInstanceManipulator.transitStatusInMonotonicWithFieldsGuarded(
+                instanceGuid, sequenceCnt, retryCnt, fromStatuses, toStatus, scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    @Override
     public int resetForRetry(
             GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime
     ) {
@@ -204,6 +222,8 @@ public class KernelInstanceInstrument implements InstanceInstrument {
             instanceEntry.setTaskGuid( taskGuid );
             instanceEntry.setGuid( this.mTaskInstrument.getGuidAllocator().nextGUID() );
             instanceEntry.setPriority( taskElement.getPriority() );
+            // TODO priority-system: instance effective priority is currently mirrored from configured task priority.
+            // Replace this with the kernel effective-priority policy when dynamic priority is implemented.
             instanceEntry.setActuallyPriority( taskElement.getPriority() );
             instanceEntry.setTaskType( taskElement.getType() );
 //            instanceEntry.setInstanceName( taskElement.getName() );

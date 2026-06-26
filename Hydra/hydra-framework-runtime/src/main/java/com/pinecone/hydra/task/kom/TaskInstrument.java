@@ -28,6 +28,10 @@ public interface TaskInstrument extends ReparseKOMTree {
 
     boolean            containsChild( GUID parentGuid, String childName );
 
+    void               move( String sourcePath, String destinationPath );
+
+    void               move( GUID sourceGuid, GUID destinationGuid );
+
     void               update( TreeNode treeNode );
 
     InstanceInstrument getInstanceInstrument();

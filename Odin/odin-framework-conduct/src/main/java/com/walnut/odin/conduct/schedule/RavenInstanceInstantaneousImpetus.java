@@ -11,9 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
+import com.walnut.odin.dispatch.PipelineLaunchReport;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskLaunchContext;
+import com.walnut.odin.task.launch.LaunchProvideTaskParam;
 import com.walnut.odin.task.troll.GenericRavenTaskInstance;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
@@ -45,12 +49,12 @@ public class RavenInstanceInstantaneousImpetus implements InstanceInstantaneousI
                 context.getLaunchFeature().mergeLaunchOptions( launchFeature );
             }
             if ( !result.getLaunchContexts().isEmpty() ) {
-                this.mTaskScheduler.taskDispatcher().pipeLaunchPrepared( result.getLaunchContexts() );
+                this.pipeLaunchPreparedOrWait( result.getLaunchContexts() );
             }
             else if ( launchFeature != null && launchFeature.isAllowInstantaneousDepartureBypass() ) {
                 Collection<TaskLaunchContext> bypassed = this.prepareBypassedLaunchContexts( instances, scheduleTime, launchFeature );
                 if ( !bypassed.isEmpty() ) {
-                    this.mTaskScheduler.taskDispatcher().pipeLaunchPrepared( bypassed );
+                    this.pipeLaunchPreparedOrWait( bypassed );
                     result.getLaunchContexts().addAll( bypassed );
                 }
             }
@@ -59,6 +63,86 @@ public class RavenInstanceInstantaneousImpetus implements InstanceInstantaneousI
         catch ( MetaPersistenceException e ) {
             throw new TaskDispatchException( e );
         }
+    }
+
+    protected void pipeLaunchPreparedOrWait( Collection<TaskLaunchContext> contexts )
+            throws InstanceLaunchException, TaskDispatchException, MetaPersistenceException {
+        try {
+            PipelineLaunchReport report = this.mTaskScheduler.taskDispatcher().pipeLaunchPrepared( contexts );
+            this.returnIdleContextsToResourceWait( contexts, report );
+        }
+        catch ( TaskDispatchException e ) {
+            this.returnWaitingContextsToResourceWait( contexts );
+            throw e;
+        }
+    }
+
+    protected void returnIdleContextsToResourceWait(
+            Collection<TaskLaunchContext> contexts, PipelineLaunchReport report
+    ) throws MetaPersistenceException {
+        if ( report == null ) {
+            this.returnWaitingContextsToResourceWait( contexts );
+            return;
+        }
+
+        this.returnWaitingContextsToResourceWait( report.waitingContext() );
+        if ( this.hasLaunchDisposition( report ) ) {
+            return;
+        }
+
+        this.returnWaitingContextsToResourceWait( contexts );
+    }
+
+    protected boolean hasLaunchDisposition( PipelineLaunchReport report ) {
+        if ( report.launchedContext() != null && !report.launchedContext().isEmpty() ) {
+            return true;
+        }
+        if ( report.waitingContext() != null && !report.waitingContext().isEmpty() ) {
+            return true;
+        }
+        if ( report.launchedProcesses() != null && !report.launchedProcesses().isEmpty() ) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void returnWaitingContextsToResourceWait( Collection<TaskLaunchContext> contexts )
+            throws MetaPersistenceException {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+
+        for ( TaskLaunchContext context : contexts ) {
+            if ( context == null || context.getTaskInstance() == null ) {
+                continue;
+            }
+
+            InstanceEntry instance = context.getTaskInstance().getInstanceEntry();
+            this.returnInstanceToResourceWait( instance );
+        }
+    }
+
+    protected void returnInstanceToResourceWait( InstanceEntry instance ) throws MetaPersistenceException {
+        if ( instance == null || instance.getGuid() == null ) {
+            return;
+        }
+
+        TaskInstanceTransitionResult result = this.mTaskScheduler.taskInstanceLifecycleExaminer().transitAny(
+                instance.getGuid(),
+                List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.DepartureStandby ),
+                TaskInstanceStatus.ResourceWait,
+                TaskInstanceTransitionReason.ResourceWait
+        );
+        if ( !result.isSucceeded() ) {
+            return;
+        }
+
+        instance.setInstanceStatus( TaskInstanceStatus.ResourceWait );
+        this.mTaskScheduler.instanceScheduleAllocator().reclaimInstance( instance.getGuid() );
+        this.log.warn(
+                "[InstantaneousDepartureWait] Instance `{}` was not launched and returned to ResourceWait.",
+                instance.getGuid()
+        );
     }
 
     protected Collection<TaskLaunchContext> prepareBypassedLaunchContexts(
@@ -92,18 +176,45 @@ public class RavenInstanceInstantaneousImpetus implements InstanceInstantaneousI
                     "[InstantaneousDebugDepartureBypass] Instance `{}` did not pass departure gate, continue launching for manual/debug execution.",
                     instance.getGuid()
             );
-            instance.setScheduleTime( scheduleTime == null ? LocalDateTime.now() : scheduleTime );
+            LocalDateTime actualScheduleTime = scheduleTime;
+            if ( actualScheduleTime == null ) {
+                actualScheduleTime = LocalDateTime.now();
+            }
+            TaskInstanceTransitionResult result = this.mTaskScheduler.taskInstanceLifecycleExaminer().transitAnyWithScheduleTime(
+                    instance.getGuid(),
+                    List.of(
+                            TaskInstanceStatus.New,
+                            TaskInstanceStatus.DependencyWait,
+                            TaskInstanceStatus.ResourceWait,
+                            TaskInstanceStatus.DepartureStandby
+                    ),
+                    TaskInstanceStatus.DepartureStandby,
+                    TaskInstanceTransitionReason.InstantaneousBypass,
+                    actualScheduleTime
+            );
+            if ( !result.isSucceeded() ) {
+                continue;
+            }
+
+            instance.setScheduleTime( actualScheduleTime );
             instance.setInstanceStatus( TaskInstanceStatus.DepartureStandby );
-            this.mTaskScheduler.instanceInstrument().updateInstance( instance );
 
             LaunchFeature feature = new LaunchFeature();
             feature.mergeLaunchOptions( launchFeature );
+            feature = this.provideLaunchFeature( instance, feature );
             contexts.add( TaskLaunchContext.of(
                     new GenericRavenTaskInstance( instance, this.mTaskScheduler.taskInstrument() ),
                     feature
             ) );
         }
         return contexts;
+    }
+
+    protected LaunchFeature provideLaunchFeature( InstanceEntry instance, LaunchFeature launchFeature ) {
+        return this.mTaskScheduler.taskLaunchFeatureProviderRegistry().apply(
+                LaunchProvideTaskParam.from( instance ),
+                launchFeature
+        );
     }
 
 }

@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.task.InstanceEventType;
@@ -16,18 +15,17 @@ import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.slime.meta.TableIndexMeta;
-import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
-import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
-import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
 import com.walnut.odin.dispatch.TaskExecutionProcessor;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.audit.InstanceExecAuditPayloads;
+import com.walnut.odin.task.mapper.InstanceExecAuditMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.ScheduleManipulator;
@@ -51,9 +49,9 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
     protected RavenTaskConfig                 mRavenTaskConfig;
     protected ScheduleManipulator             mScheduleManipulator;
     protected InstanceExecMapper              mInstanceExecMapper;
+    protected InstanceExecAuditMapper         mInstanceExecAuditMapper;
     protected InstanceEventMapper             mInstanceEventMapper;
-    protected GuidAllocator                   mGuidAllocator;
-    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+    protected TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
 
     public KernelTaskSchedulerReconciler( UniformTaskScheduler taskScheduler ) {
         this.mTaskScheduler        = taskScheduler;
@@ -61,12 +59,9 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         this.mRavenTaskConfig      = taskScheduler.ravenTaskConfig();
         this.mScheduleManipulator  = taskScheduler.taskInstrument().getRavenTaskMasterManipulator().getScheduleManipulator();
         this.mInstanceExecMapper   = this.mScheduleManipulator.getInstanceExecMapper();
+        this.mInstanceExecAuditMapper = this.mScheduleManipulator.getInstanceExecAuditMapper();
         this.mInstanceEventMapper  = this.mScheduleManipulator.getInstanceEventMapper();
-        this.mGuidAllocator        = this.mInstanceInstrument.getTaskInstrument().getGuidAllocator();
-        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
-                this.mInstanceInstrument,
-                this.mInstanceEventMapper
-        );
+        this.mTaskInstanceLifecycleExaminer = taskScheduler.taskInstanceLifecycleExaminer();
     }
 
     protected long resolveStaleMillis() {
@@ -132,12 +127,13 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
     }
 
     protected void reconcileProcessCreating( InstanceEntry entry ) {
-        int nAffected = this.mInstanceInstrument.transitStatusIn(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transit(
                 entry.getGuid(),
-                List.of( TaskInstanceStatus.ProcessCreating ),
-                TaskInstanceStatus.DepartureStandby
+                TaskInstanceStatus.ProcessCreating,
+                TaskInstanceStatus.DepartureStandby,
+                TaskInstanceTransitionReason.ProcessCreationRecovered
         );
-        if ( nAffected > 0 ) {
+        if ( result.isSucceeded() ) {
             log.warn(
                     "[TaskSchedulerRecovery] Stale ProcessCreating instance returned to DepartureStandby "
                             + "(InstanceGuid: `{}`, TaskGuid: `{}`, TaskName: `{}`) <Recovered>",
@@ -149,8 +145,10 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
     }
 
     protected void reconcileProcessStandby( InstanceEntry entry, LocalDateTime targetTime ) {
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithRuntimeFields(
                 entry.getGuid(),
+                entry.getSequenceCnt(),
+                entry.getRetryCnt(),
                 List.of( TaskInstanceStatus.ProcessStandby ),
                 TaskInstanceStatus.Error,
                 TaskInstanceTransitionReason.ProcessFailed,
@@ -164,7 +162,7 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         }
 
         this.mTaskScheduler.instanceScheduleAllocator().reclaimInstance( entry.getGuid() );
-        this.mInstanceExecMapper.updateStateRetryMonotonic(
+        int nAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
                 entry.getGuid(),
                 entry.getSequenceCnt(),
                 entry.getRetryCnt(),
@@ -173,6 +171,9 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
                 null,
                 targetTime
         );
+        if ( nAffectedRows > 0 ) {
+            this.recordExecutionLoggerAudit( entry, TaskInstanceExecState.Fail, targetTime );
+        }
         log.warn(
                 "[TaskSchedulerRecovery] Stale ProcessStandby instance marked Error "
                         + "(InstanceGuid: `{}`, TaskGuid: `{}`, TaskName: `{}`) <Recovered>",
@@ -246,8 +247,10 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         this.killLiveLaunchContext( entry );
 
         String szCause = "Task execution timeout after " + entry.getTimeoutSeconds() + " seconds.";
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithRuntimeFields(
                 entry.getGuid(),
+                entry.getSequenceCnt(),
+                entry.getRetryCnt(),
                 List.of( TaskInstanceStatus.Running ),
                 TaskInstanceStatus.Error,
                 TaskInstanceTransitionReason.ProcessKilled,
@@ -261,7 +264,7 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         }
 
         this.mTaskScheduler.instanceScheduleAllocator().reclaimInstance( entry.getGuid() );
-        this.mInstanceExecMapper.updateStateRetryMonotonic(
+        int nAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
                 entry.getGuid(),
                 entry.getSequenceCnt(),
                 entry.getRetryCnt(),
@@ -270,6 +273,10 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
                 null,
                 targetTime
         );
+        if ( nAffectedRows > 0 ) {
+            entry.setErrorCause( szCause );
+            this.recordExecutionLoggerAudit( entry, TaskInstanceExecState.Killed, targetTime );
+        }
         log.warn(
                 "[TaskSchedulerRecovery] Running instance timed out "
                         + "(InstanceGuid: `{}`, TaskGuid: `{}`, TaskName: `{}`, TimeoutSeconds: `{}`) <Killed>",
@@ -329,9 +336,13 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         return null;
     }
 
-    protected void reconcileRetryableTerminalInstances( LocalDateTime targetTime ) {
+    @Override
+    public void reconcileRetryableTerminalInstances( LocalDateTime targetTime ) {
+        if ( targetTime == null ) {
+            targetTime = LocalDateTime.now();
+        }
+
         List<TaskInstanceStatus> statuses = List.of(
-                TaskInstanceStatus.Killed,
                 TaskInstanceStatus.Error,
                 TaskInstanceStatus.AuditFailed
         );
@@ -359,6 +370,20 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         }
     }
 
+    protected void reconcileTerminalExecLoggerAudits() {
+        int nLimit = (int)Math.min(
+                Integer.MAX_VALUE,
+                Math.max( 1L, this.mRavenTaskConfig.getScheduleScanIdWindow() * 4L )
+        );
+        List<InstanceExec> execs = this.mInstanceExecMapper.fetchTerminalExecsMissingLoggerAudit( nLimit );
+        if ( execs == null || execs.isEmpty() ) {
+            return;
+        }
+        for ( InstanceExec exec : execs ) {
+            this.recordExecutionLoggerAudit( exec );
+        }
+    }
+
     protected void reconcileRetryableTerminalInstance( InstanceEntry entry, LocalDateTime targetTime ) {
         if ( entry == null || entry.getGuid() == null || entry.isDryRun() ) {
             return;
@@ -366,6 +391,8 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         if ( entry.getRetryCnt() >= entry.getRetryTimes() ) {
             return;
         }
+
+        this.ensureCurrentExecTerminalBeforeRetry( entry, targetTime );
 
         LocalDateTime expectTime = this.resolveRetryExpectTime( entry, targetTime );
         int nCurrentRetryCnt = entry.getRetryCnt();
@@ -397,6 +424,175 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
                 retryEntry.getRetryTimes(),
                 expectTime
         );
+    }
+
+    protected void ensureCurrentExecTerminalBeforeRetry( InstanceEntry entry, LocalDateTime targetTime ) {
+        InstanceExec exec = this.mInstanceExecMapper.queryByInstanceGuidAndRetry(
+                entry.getGuid(), entry.getSequenceCnt(), entry.getRetryCnt()
+        );
+        if ( exec == null || this.isTerminalExecState( exec.getExecState() ) ) {
+            return;
+        }
+
+        TaskInstanceExecState targetState = this.resolveRetrySourceExecState( entry );
+        int nAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
+                entry.getGuid(),
+                entry.getSequenceCnt(),
+                entry.getRetryCnt(),
+                targetState.getName(),
+                null,
+                null,
+                targetTime
+        );
+        if ( nAffectedRows > 0 ) {
+            this.recordExecutionLoggerAudit( entry, targetState, targetTime );
+        }
+        log.warn(
+                "[TaskSchedulerRecovery] Retry source exec was not terminal before retry "
+                        + "(InstanceGuid: `{}`, TaskGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, "
+                        + "ExecState: `{}`, TargetState: `{}`, AffectedRows: {}) <Recovered>",
+                entry.getGuid(),
+                entry.getTaskGuid(),
+                entry.getSequenceCnt(),
+                entry.getRetryCnt(),
+                exec.getExecState(),
+                targetState.getName(),
+                nAffectedRows
+        );
+    }
+
+    protected boolean isTerminalExecState( String szExecState ) {
+        return TaskInstanceExecState.Success.getName().equals( szExecState )
+                || TaskInstanceExecState.Fail.getName().equals( szExecState )
+                || TaskInstanceExecState.Killed.getName().equals( szExecState );
+    }
+
+    protected TaskInstanceExecState resolveRetrySourceExecState( InstanceEntry entry ) {
+        return TaskInstanceExecState.Fail;
+    }
+
+    protected void recordExecutionLoggerAudit( InstanceExec exec ) {
+        if ( this.mInstanceExecAuditMapper == null || exec == null || exec.getInstanceGuid() == null ) {
+            return;
+        }
+
+        TaskInstanceExecState state = this.parseExecState( exec.getExecState() );
+        if ( state == null ) {
+            return;
+        }
+
+        try {
+            this.mInstanceExecAuditMapper.upsertLogger(
+                    exec.getTaskGuid(),
+                    exec.getInstanceGuid(),
+                    exec.getSequenceCnt(),
+                    exec.getCurrentRetryNumber(),
+                    this.executionAuditMessage( state, exec ),
+                    this.executionAuditPayload( state, exec ),
+                    exec.getStartTime(),
+                    exec.getFinishTime()
+            );
+        }
+        catch ( RuntimeException e ) {
+            this.log.warn(
+                    "[TaskSchedulerRecovery] Failed to reconcile exec logger audit "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, ExecState: `{}`) <Ignored>",
+                    exec.getInstanceGuid(),
+                    exec.getSequenceCnt(),
+                    exec.getCurrentRetryNumber(),
+                    exec.getExecState(),
+                    e
+            );
+        }
+    }
+
+    protected void recordExecutionLoggerAudit(
+            InstanceEntry entry, TaskInstanceExecState state, LocalDateTime finishTime
+    ) {
+        if ( this.mInstanceExecAuditMapper == null || entry == null || entry.getGuid() == null ) {
+            return;
+        }
+
+        try {
+            this.mInstanceExecAuditMapper.upsertLogger(
+                    entry.getTaskGuid(),
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    this.executionAuditMessage( state, entry ),
+                    this.executionAuditPayload( state, entry, finishTime ),
+                    entry.getLastStartTime(),
+                    finishTime
+            );
+        }
+        catch ( RuntimeException e ) {
+            this.log.warn(
+                    "[TaskSchedulerRecovery] Failed to write exec logger audit "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, ExecState: `{}`) <Ignored>",
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    state.getName(),
+                    e
+            );
+        }
+    }
+
+    protected TaskInstanceExecState parseExecState( String szExecState ) {
+        if ( TaskInstanceExecState.Success.getName().equals( szExecState ) ) {
+            return TaskInstanceExecState.Success;
+        }
+        if ( TaskInstanceExecState.Fail.getName().equals( szExecState ) ) {
+            return TaskInstanceExecState.Fail;
+        }
+        if ( TaskInstanceExecState.Killed.getName().equals( szExecState ) ) {
+            return TaskInstanceExecState.Killed;
+        }
+        return null;
+    }
+
+    protected String executionAuditMessage( TaskInstanceExecState state, InstanceEntry entry ) {
+        String szCause = entry.getErrorCause();
+        if ( state == TaskInstanceExecState.Killed ) {
+            if ( szCause == null || szCause.trim().isEmpty() ) {
+                return "Execution finished with Killed.";
+            }
+            return this.truncate( "Execution finished with Killed: " + szCause, 1024 );
+        }
+        if ( state == TaskInstanceExecState.Success ) {
+            return "Execution finished with Success.";
+        }
+        if ( szCause == null || szCause.trim().isEmpty() ) {
+            return "Execution finished with Fail.";
+        }
+        return this.truncate( "Execution finished with Fail: " + szCause, 1024 );
+    }
+
+    protected String executionAuditMessage( TaskInstanceExecState state, InstanceExec exec ) {
+        if ( state == TaskInstanceExecState.Killed ) {
+            return "Execution finished with Killed.";
+        }
+        if ( state == TaskInstanceExecState.Success ) {
+            return "Execution finished with Success.";
+        }
+        return "Execution finished with Fail.";
+    }
+
+    protected String executionAuditPayload(
+            TaskInstanceExecState state, InstanceEntry entry, LocalDateTime finishTime
+    ) {
+        return InstanceExecAuditPayloads.from( state, entry, finishTime );
+    }
+
+    protected String executionAuditPayload( TaskInstanceExecState state, InstanceExec exec ) {
+        return InstanceExecAuditPayloads.from( state, exec );
+    }
+
+    protected String truncate( String value, int maxLength ) {
+        if ( value == null || value.length() <= maxLength ) {
+            return value;
+        }
+        return value.substring( 0, Math.max( 0, maxLength ) );
     }
 
     protected LocalDateTime resolveRetryExpectTime( InstanceEntry entry, LocalDateTime targetTime ) {
@@ -442,19 +638,12 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
             return;
         }
 
-        InstanceEvent event = new GenericInstanceEvent();
-        event.setGuid( this.mGuidAllocator.nextGUID() );
-        event.setTaskGuid( entry.getTaskGuid() );
-        event.setInstanceGuid( instanceGuid );
-        event.setInstanceName( entry.getInstanceName() );
-        event.setRetryTimes( entry.getRetryTimes() );
-        event.setSequenceCnt( nSequenceCnt );
-        event.setCurrentRetryNumber( nRetryCnt );
-        event.setEventType( entry.getTaskType() );
-        event.setState( szEventState );
-        event.setExecTime( LocalDateTime.now() );
-        event.setEventContext( "{\"message\":\"Retry execution scheduled.\"}" );
-        this.mInstanceEventMapper.insert( event );
+        this.mTaskInstanceLifecycleExaminer.recordInstanceEvent(
+                entry,
+                TaskInstanceTransitionReason.TimeReady,
+                szEventState,
+                "{\"message\":\"Retry execution scheduled.\"}"
+        );
     }
 
     @Override
@@ -464,10 +653,12 @@ public class KernelTaskSchedulerReconciler implements TaskSchedulerReconciler, P
         }
 
         long nStaleMillis = this.resolveStaleMillis();
+        this.reconcileTerminalExecLoggerAudits();
         this.reconcileTimedOutRunningInstances( targetTime );
         this.reconcileRetryableTerminalInstances( targetTime );
         this.reconcileStatus( TaskInstanceStatus.ProcessCreating, targetTime, nStaleMillis );
         this.reconcileStatus( TaskInstanceStatus.ProcessStandby, targetTime, nStaleMillis );
         this.reconcileRetryableTerminalInstances( targetTime );
+        this.reconcileTerminalExecLoggerAudits();
     }
 }

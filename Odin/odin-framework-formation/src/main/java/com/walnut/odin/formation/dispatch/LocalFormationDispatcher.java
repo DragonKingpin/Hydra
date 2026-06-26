@@ -121,7 +121,12 @@ public class LocalFormationDispatcher implements FormationDispatcher {
     public FormationDispatcherRuntimeSnapshot retrieveRuntimeSnapshot() {
         FormationDispatcherRuntimeSnapshot snapshot = new FormationDispatcherRuntimeSnapshot();
         snapshot.setRunning( this.mRunning.get() );
+        snapshot.setEnabled( this.mConfig.isFormationDispatcherEnabled() );
         snapshot.setWorkerThreadCount( Math.max( 1, this.mConfig.getFormationDispatcherWorkerThreadCount() ) );
+        snapshot.setQueueCapacity( Math.max( 1, this.mConfig.getFormationDispatcherQueueCapacity() ) );
+        snapshot.setPollBatchSize( Math.max( 1, this.mConfig.getFormationDispatcherPollBatchSize() ) );
+        snapshot.setOfferTimeoutMillis( this.mConfig.getFormationDispatcherOfferTimeoutMillis() );
+        snapshot.setIdleSleepMillis( this.mConfig.getFormationDispatcherIdleSleepMillis() );
         snapshot.setAcceptedCount( this.mAcceptedCount.get() );
         snapshot.setCompletedCount( this.mCompletedCount.get() );
         snapshot.setFailedCount( this.mFailedCount.get() );
@@ -129,6 +134,10 @@ public class LocalFormationDispatcher implements FormationDispatcher {
         ThreadPoolExecutor executor = this.mExecutor;
         if ( executor != null ) {
             snapshot.setQueueSize( executor.getQueue().size() );
+            snapshot.setRemainingQueueCapacity( executor.getQueue().remainingCapacity() );
+        }
+        else {
+            snapshot.setRemainingQueueCapacity( Math.max( 1, this.mConfig.getFormationDispatcherQueueCapacity() ) );
         }
         return snapshot;
     }

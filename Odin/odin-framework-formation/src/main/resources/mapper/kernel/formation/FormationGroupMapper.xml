@@ -100,6 +100,14 @@
         WHERE guid = #{guid}
     </update>
 
+    <delete id="removeByGuids">
+        DELETE FROM odin_formation_groups
+        WHERE guid IN
+        <foreach collection="guids" item="guid" open="(" separator="," close=")">
+            #{guid}
+        </foreach>
+    </delete>
+
     <sql id="FormationGroupWhere">
         <where>
             <if test="keyword != null and keyword != ''">

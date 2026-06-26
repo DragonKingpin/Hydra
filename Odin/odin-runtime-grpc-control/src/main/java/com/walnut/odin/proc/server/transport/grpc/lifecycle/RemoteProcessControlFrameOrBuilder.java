@@ -174,5 +174,20 @@ public interface RemoteProcessControlFrameOrBuilder extends
    */
   com.walnut.odin.proc.server.transport.grpc.lifecycle.HeartbeatFrameOrBuilder getHeartbeatOrBuilder();
 
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   * @return Whether the processSignal field is set.
+   */
+  boolean hasProcessSignal();
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   * @return The processSignal.
+   */
+  com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal getProcessSignal();
+  /**
+   * <code>.walnut.odin.proc.control.lifecycle.ProcessSignal process_signal = 18;</code>
+   */
+  com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignalOrBuilder getProcessSignalOrBuilder();
+
   com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame.PayloadCase getPayloadCase();
 }

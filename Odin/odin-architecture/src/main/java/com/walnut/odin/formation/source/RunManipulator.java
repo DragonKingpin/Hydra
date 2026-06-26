@@ -19,6 +19,8 @@ public interface RunManipulator extends Pinenut {
 
     int updateStatus( GUID guid, String status );
 
+    int updateRunningTerminalStatus( GUID guid, String status );
+
     int markRunning( GUID guid );
 
     int increaseSubmitted( GUID guid );
@@ -26,4 +28,6 @@ public interface RunManipulator extends Pinenut {
     int increaseCompleted( GUID guid );
 
     int increaseFailed( GUID guid );
+
+    int removeByFormationGuids( List<GUID> formationGuids );
 }

@@ -7,6 +7,7 @@
         <id     column="id"                         property="enumId"/>
         <result column="guid"                       property="guid"/>
         <result column="name"                       property="name"/>
+        <result column="task_desc"                  property="description"/>
         <result column="type"                       property="type"/>
         <result column="schedule_cron"              property="scheduleCron"/>
         <result column="image_path"                 property="imagePath"/>
@@ -76,6 +77,7 @@
         task_node.id,
         task_node.guid,
         task_node.name,
+        task_node.task_desc,
         task_node.schedule_cron,
         task_node.image_path,
         task_node.exec_arch,
@@ -126,6 +128,7 @@
                 AND (
                     task_node.guid = #{query.keyword}
                     OR task_node.name LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR task_node.task_desc LIKE CONCAT('%', #{query.keyword}, '%')
                     OR project.name LIKE CONCAT('%', #{query.keyword}, '%')
                     OR project.title LIKE CONCAT('%', #{query.keyword}, '%')
                 )

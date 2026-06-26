@@ -67,6 +67,11 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
+    public CollectiveTaskRegiment collectiveTaskRegiment() {
+        return this.mCollectiveTaskRegiment;
+    }
+
+    @Override
     public void registerProcessor( TaskExecutionProcessor processor ) {
         this.mLock.lock();
         try {
@@ -100,7 +105,12 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         }
 
         entity.setControlClientId( nClientId );
-        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor( entity, this.mTaskExecutionLauncher );
+        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(
+                entity,
+                new GenericI32TaskQueue( entity.getTaskQueueMeta() ),
+                this.mTaskExecutionLauncher,
+                this.mInstanceExecMapper
+        );
         this.registerProcessor( processor );
         return entity;
     }

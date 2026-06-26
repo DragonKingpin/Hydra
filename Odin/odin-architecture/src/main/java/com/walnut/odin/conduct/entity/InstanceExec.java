@@ -18,6 +18,9 @@ public interface InstanceExec extends Pinenut {
     String getTaskName();
     void setTaskName(String taskName);
 
+    GUID getProcessGuid();
+    void setProcessGuid(GUID processGuid);
+
     String getInstanceName();
     void setInstanceName(String instanceName);
 

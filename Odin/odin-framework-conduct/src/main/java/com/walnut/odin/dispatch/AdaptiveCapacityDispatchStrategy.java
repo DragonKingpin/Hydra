@@ -34,14 +34,16 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         this.mnHeapThreshold = nHeapThreshold > 0 ? nHeapThreshold : DEFAULT_HEAP_THRESHOLD;
     }
 
-    protected Map<String, ProcessorSlot> buildProcessorSlots( Collection<TaskExecutionProcessor> processors ) {
+    protected Map<String, ProcessorSlot> buildProcessorSlots(
+            Collection<TaskExecutionProcessor> processors, boolean bIncludeExclusive
+    ) {
         Map<String, ProcessorSlot> slotMap = new HashMap<>();
         if ( processors == null || processors.isEmpty() ) {
             return slotMap;
         }
 
         for ( TaskExecutionProcessor processor : processors ) {
-            if ( processor.isExclusive() ) {
+            if ( processor.isExclusive() && !bIncludeExclusive ) {
                 continue;
             }
 
@@ -152,18 +154,19 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
             return plan;
         }
 
-        Map<String, ProcessorSlot> slotMap = this.buildProcessorSlots( processors );
-        if ( slotMap.isEmpty() ) {
-            this.handleBindingContexts( contexts, slotMap, plan, dispatcher );
+        Map<String, ProcessorSlot> boundSlotMap = this.buildProcessorSlots( processors, true );
+        Map<String, ProcessorSlot> normalSlotMap = this.buildProcessorSlots( processors, false );
+        if ( normalSlotMap.isEmpty() ) {
+            this.handleBindingContexts( contexts, boundSlotMap, plan, dispatcher );
             return plan;
         }
 
-        List<TaskLaunchContext> remaining = this.handleBindingContexts( contexts, slotMap, plan, dispatcher );
+        List<TaskLaunchContext> remaining = this.handleBindingContexts( contexts, boundSlotMap, plan, dispatcher );
         if ( remaining.isEmpty() ) {
             return plan;
         }
 
-        this.dispatchNormal( slotMap, remaining, plan );
+        this.dispatchNormal( normalSlotMap, remaining, plan );
         return plan;
     }
 

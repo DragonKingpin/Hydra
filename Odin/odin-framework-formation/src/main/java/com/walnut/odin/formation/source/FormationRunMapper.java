@@ -45,6 +45,8 @@ public interface FormationRunMapper extends RunManipulator {
 
     int updateStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
 
+    int updateRunningTerminalStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
+
     int markRunning( @Param( "guid" ) GUID guid );
 
     int increaseSubmitted( @Param( "guid" ) GUID guid );
@@ -52,4 +54,6 @@ public interface FormationRunMapper extends RunManipulator {
     int increaseCompleted( @Param( "guid" ) GUID guid );
 
     int increaseFailed( @Param( "guid" ) GUID guid );
+
+    int removeByFormationGuids( @Param( "formationGuids" ) List<GUID> formationGuids );
 }

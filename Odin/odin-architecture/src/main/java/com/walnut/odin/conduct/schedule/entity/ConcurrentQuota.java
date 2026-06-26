@@ -148,7 +148,7 @@ public class ConcurrentQuota implements Pinenut {
                 new KeyValue<>( "maximumRatio"  , this.getMaximumRatio() ),
                 new KeyValue<>( "maximumCnt"    , this.getMaximumCnt() ),
                 new KeyValue<>( "minimumRatio"  , this.getMinimumRatio() ),
-                new KeyValue<>( "minimumCnt"    , this.getMaximumCnt() )
+                new KeyValue<>( "minimumCnt"    , this.getMinimumCnt() )
         } );
     }
 }

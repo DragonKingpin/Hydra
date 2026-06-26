@@ -8,7 +8,8 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.tritium.system.TritiumSystem;
 import com.walnut.odin.formation.dispatch.FormationDispatcher;
 import com.walnut.odin.formation.dispatch.LocalFormationDispatcher;
-import com.walnut.odin.formation.mapper.OdinFormationMappingDriver;
+import com.walnut.odin.formation.lifecycle.FormationInstanceEventHook;
+import com.walnut.odin.formation.mapper.OdinUniformFormationMappingDriver;
 import com.walnut.odin.formation.recovery.FormationRunReconciler;
 import com.walnut.odin.formation.recovery.LightweightFormationRunReconciler;
 import com.walnut.odin.formation.schedule.FormationRunPreparator;
@@ -29,6 +30,7 @@ public class RavenFormationColonel implements FormationColonel {
     protected FormationDispatcher    mDispatcher;
     protected FormationScheduler     mScheduler;
     protected FormationService       mService;
+    protected FormationInstanceEventHook mInstanceEventHook;
 
     public RavenFormationColonel( TaskCentralControl superior ) {
         this.mSuperior = superior;
@@ -40,7 +42,11 @@ public class RavenFormationColonel implements FormationColonel {
 
         FormationConfig config = this.mFormationInstrument.formationConfig();
         this.mDispatcher = new LocalFormationDispatcher( config );
-        this.mRunReconciler = new LightweightFormationRunReconciler( config );
+        this.mRunReconciler = new LightweightFormationRunReconciler(
+                config,
+                this.mFormationInstrument,
+                this.mSuperior.taskScheduler()
+        );
         this.mScheduler = new RavenFormationScheduler(
                 this.mFormationInstrument,
                 this.mSuperior.taskScheduler(),
@@ -54,6 +60,10 @@ public class RavenFormationColonel implements FormationColonel {
                 this.mScheduler,
                 this.mDispatcher
         );
+        this.mInstanceEventHook = new FormationInstanceEventHook(
+                this.mFormationInstrument.masterManipulator().frameManipulator(),
+                this.mFormationInstrument.masterManipulator().runManipulator()
+        );
     }
 
     protected void prepareFormationInstrument() {
@@ -63,22 +73,19 @@ public class RavenFormationColonel implements FormationColonel {
 
         TritiumSystem system = (TritiumSystem)this.mSuperior.parentSystem();
         JSONObject subsystemConfig = (JSONObject)this.mSuperior.getSubsystemConfig();
-        OdinFormationMappingDriver driver = new OdinFormationMappingDriver(
+        IbatisClient ibatisClient = (IbatisClient)system.getMiddlewareDirector().getRDBManager().getRDBClientByName(
+                this.resolveFormationDatabaseKey( subsystemConfig )
+        );
+        OdinUniformFormationMappingDriver driver = new OdinUniformFormationMappingDriver(
                 system,
-                (IbatisClient)system.getMiddlewareDirector().getRDBManager().getRDBClientByName(
-                        this.resolveFormationDatabaseKey( subsystemConfig )
-                ),
+                ibatisClient,
                 system.getDispenserCenter()
         );
 
         this.mFormationInstrument = new RavenFormationInstrument(
                 new GenericFormationConfig( subsystemConfig ),
                 this.mSuperior.taskRegiment().taskInstrument().getGuidAllocator(),
-                driver.groupMapper(),
-                driver.groupTaskMapper(),
-                driver.runMapper(),
-                driver.pageMapper(),
-                driver.frameMapper()
+                driver.getFormationMasterManipulator()
         );
     }
 
@@ -113,6 +120,10 @@ public class RavenFormationColonel implements FormationColonel {
         }
 
         this.mDispatcher.startup();
+        this.mSuperior.taskRegiment()
+                .taskInstanceLifecycleExaminer()
+                .eventHookRegistry()
+                .register( this.mInstanceEventHook );
         this.mScheduler.startup();
     }
 
@@ -123,6 +134,12 @@ public class RavenFormationColonel implements FormationColonel {
         }
         if ( this.mDispatcher != null ) {
             this.mDispatcher.shutdown();
+        }
+        if ( this.mInstanceEventHook != null ) {
+            this.mSuperior.taskRegiment()
+                    .taskInstanceLifecycleExaminer()
+                    .eventHookRegistry()
+                    .deregister( this.mInstanceEventHook );
         }
     }
 

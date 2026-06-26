@@ -6,6 +6,7 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
+import com.walnut.odin.mapper.transaction.OdinMappingTransaction;
 import com.walnut.odin.specific.mapper.TaskSpecificMapper;
 import com.walnut.odin.project.mapper.TaskProjectMapper;
 import com.walnut.odin.specific.source.TaskSpecificManipulator;
@@ -28,6 +29,8 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     protected KOISkeletonMasterManipulator skeletonMasterManipulator;
 
     protected TaskMappingDriver            taskMappingDriver;
+
+    protected OdinTaskMappingDriver        odinTaskMappingDriver;
 
     protected TaskMasterManipulator        taskMasterManipulator;
 
@@ -59,6 +62,7 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {
         driver.autoConstruct( RavenTaskMasterManipulatorImpl.class, Map.of(), this );
+        this.odinTaskMappingDriver    = (OdinTaskMappingDriver) driver;
         this.taskMappingDriver         = taskMappingDriver;
         this.taskMasterManipulator     = (TaskMasterManipulator)taskMappingDriver.getMasterManipulator();
         this.skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
@@ -114,5 +118,10 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     @Override
     public TaskSpecificManipulator getTaskSpecificManipulator() {
         return this.taskSpecificManipulator;
+    }
+
+    @Override
+    public OdinMappingTransaction transaction() {
+        return this.odinTaskMappingDriver.transaction();
     }
 }

@@ -71,6 +71,39 @@
         ORDER BY page_no ASC
     </select>
 
+    <sql id="FormationPageWhere">
+        WHERE run_guid = #{query.runGuid}
+        <if test="query.pageNo != null">
+            AND page_no = #{query.pageNo}
+        </if>
+        <if test="query.pageStatus != null and query.pageStatus != ''">
+            AND page_status = #{query.pageStatus}
+        </if>
+    </sql>
+
+    <select id="countPages" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_run_pages
+        <include refid="FormationPageWhere"/>
+    </select>
+
+    <select id="pagePages0" resultMap="FormationPageMap">
+        SELECT
+            id,
+            run_guid,
+            formation_guid,
+            page_no,
+            page_status,
+            frame_start,
+            frame_end,
+            total_count,
+            completed_count
+        FROM odin_formation_run_pages
+        <include refid="FormationPageWhere"/>
+        ORDER BY page_no ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <update id="claimPage">
         UPDATE odin_formation_run_pages
         SET page_status = 'Claimed',
@@ -94,4 +127,12 @@
             completed_count = total_count
         WHERE id = #{id}
     </update>
+
+    <delete id="removeByFormationGuids">
+        DELETE FROM odin_formation_run_pages
+        WHERE formation_guid IN
+        <foreach collection="formationGuids" item="formationGuid" open="(" separator="," close=")">
+            #{formationGuid}
+        </foreach>
+    </delete>
 </mapper>

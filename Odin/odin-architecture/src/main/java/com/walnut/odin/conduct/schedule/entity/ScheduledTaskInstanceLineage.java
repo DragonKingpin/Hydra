@@ -6,7 +6,6 @@ import java.util.List;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.conduct.entity.InstanceLineageAdjacent;
-import com.walnut.odin.conduct.entity.InstanceLineageNode;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public class ScheduledTaskInstanceLineage implements Pinenut {
@@ -15,26 +14,24 @@ public class ScheduledTaskInstanceLineage implements Pinenut {
     protected RavenTaskInstance instance;
     protected GUID taskGuid;
     protected List<GUID> parentTaskGuids;
-    protected InstanceLineageNode instanceLineageNode;
     protected List<InstanceLineageAdjacent> adjacents;
     protected boolean created;
 
     public ScheduledTaskInstanceLineage(
             TaskScheduleContext context, RavenTaskInstance instance, GUID taskGuid,
-            List<GUID> parentTaskGuids, InstanceLineageNode instanceLineageNode
+            List<GUID> parentTaskGuids
     ) {
-        this( context, instance, taskGuid, parentTaskGuids, instanceLineageNode, true );
+        this( context, instance, taskGuid, parentTaskGuids, true );
     }
 
     public ScheduledTaskInstanceLineage(
             TaskScheduleContext context, RavenTaskInstance instance, GUID taskGuid,
-            List<GUID> parentTaskGuids, InstanceLineageNode instanceLineageNode, boolean created
+            List<GUID> parentTaskGuids, boolean created
     ) {
         this.context = context;
         this.instance = instance;
         this.taskGuid = taskGuid;
         this.parentTaskGuids = parentTaskGuids;
-        this.instanceLineageNode = instanceLineageNode;
         this.adjacents = new ArrayList<>();
         this.created = created;
     }
@@ -69,14 +66,6 @@ public class ScheduledTaskInstanceLineage implements Pinenut {
 
     public void setParentTaskGuids( List<GUID> parentTaskGuids ) {
         this.parentTaskGuids = parentTaskGuids;
-    }
-
-    public InstanceLineageNode getInstanceLineageNode() {
-        return this.instanceLineageNode;
-    }
-
-    public void setInstanceLineageNode( InstanceLineageNode instanceLineageNode ) {
-        this.instanceLineageNode = instanceLineageNode;
     }
 
     public List<InstanceLineageAdjacent> getAdjacents() {

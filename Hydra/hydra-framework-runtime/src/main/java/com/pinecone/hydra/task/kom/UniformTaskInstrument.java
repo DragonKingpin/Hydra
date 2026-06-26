@@ -2,7 +2,9 @@ package com.pinecone.hydra.task.kom;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
@@ -411,6 +413,102 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
             }
         }
         return false;
+    }
+
+    @Override
+    public void move( String sourcePath, String destinationPath ) {
+        GUID sourceGuid = this.queryGUIDByPath( sourcePath );
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source path not found: " + sourcePath );
+        }
+
+        GUID destinationGuid = this.queryGUIDByPath( destinationPath );
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination path not found: " + destinationPath );
+        }
+
+        this.move( sourceGuid, destinationGuid );
+    }
+
+    @Override
+    public void move( GUID sourceGuid, GUID destinationGuid ) {
+        this.assertMovable( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+        this.imperialTree.moveTo( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+    }
+
+    protected void assertMovable( GUID sourceGuid, GUID destinationGuid ) {
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source guid should not be null." );
+        }
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination guid should not be null." );
+        }
+        if ( sourceGuid.equals( destinationGuid ) ) {
+            throw new IllegalArgumentException( "Task move destination should not be source node: " + sourceGuid );
+        }
+        if ( this.imperialTree.isRoot( sourceGuid ) ) {
+            throw new IllegalArgumentException( "Task root node cannot be moved: " + sourceGuid );
+        }
+
+        TreeNode sourceNode = this.get( sourceGuid );
+        if ( sourceNode == null ) {
+            throw new IllegalArgumentException( "Task move source node not found: " + sourceGuid );
+        }
+
+        TreeNode destinationNode = this.get( destinationGuid );
+        if ( !this.isMoveDestinationNode( destinationNode ) ) {
+            throw new IllegalArgumentException( "Task move destination should be directory node: " + destinationGuid );
+        }
+
+        this.assertMoveNotDescendant( sourceGuid, destinationGuid );
+        this.assertMoveNoConflict( sourceGuid, destinationGuid, sourceNode.getName() );
+    }
+
+    protected boolean isMoveDestinationNode( TreeNode node ) {
+        return node instanceof Namespace || node instanceof AppElement;
+    }
+
+    protected void assertMoveNotDescendant( GUID sourceGuid, GUID destinationGuid ) {
+        List<GUID> frontier = new ArrayList<>();
+        frontier.add( destinationGuid );
+        Set<GUID> visited = new HashSet<>();
+        while ( !frontier.isEmpty() ) {
+            GUID current = frontier.remove( frontier.size() - 1 );
+            if ( current == null || !visited.add( current ) ) {
+                continue;
+            }
+            if ( current.equals( sourceGuid ) ) {
+                throw new IllegalArgumentException( "Task move destination is under source node: " + sourceGuid );
+            }
+            List<GUID> parentGuids = this.imperialTree.fetchParentGuids( current );
+            if ( parentGuids != null ) {
+                frontier.addAll( parentGuids );
+            }
+        }
+    }
+
+    protected void assertMoveNoConflict( GUID sourceGuid, GUID destinationGuid, String szName ) {
+        List<TreeNode> children = this.getChildren( destinationGuid );
+        for ( TreeNode child : children ) {
+            if ( child == null || child.getGuid() == null || child.getGuid().equals( sourceGuid ) ) {
+                continue;
+            }
+            if ( szName != null && szName.equals( child.getName() ) ) {
+                throw new IllegalArgumentException( "Task move destination already contains node: " + szName );
+            }
+        }
+    }
+
+    protected void removeCachePathRecursively( GUID guid ) {
+        this.imperialTree.removeCachePath( guid );
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.removeCachePathRecursively( child.getGuid() );
+            }
+        }
     }
 
 

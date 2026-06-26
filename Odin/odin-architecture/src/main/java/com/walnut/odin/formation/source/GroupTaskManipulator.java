@@ -19,9 +19,23 @@ public interface GroupTaskManipulator extends Pinenut {
 
     long countByFormationGuid( GUID formationGuid, Boolean enable );
 
+    long countByFormationGuid( GUID formationGuid, Boolean enable, String taskKeyword, String scheduleType );
+
     List<GroupTaskEntry> listByFormationGuid( GUID formationGuid, Boolean enable );
+
+    List<GroupTaskEntry> pageByFormationGuid( GUID formationGuid, Boolean enable, long offset, long limit );
+
+    List<GroupTaskEntry> pageByFormationGuid(
+            GUID formationGuid,
+            Boolean enable,
+            String taskKeyword,
+            String scheduleType,
+            long offset,
+            long limit );
 
     int updateEnable( GUID guid, boolean enable );
 
     int removeByGuid( GUID guid );
+
+    int removeByFormationGuids( List<GUID> formationGuids );
 }

@@ -16,6 +16,7 @@
 
     <modules>
         <module>heist-framework-architecture</module>
+        <module>heist-framework-tissue</module>
         <module>heist-system-schedule</module>
         <module>heist-http-client-okhttp-suit</module>
         <module>sauron-core</module>

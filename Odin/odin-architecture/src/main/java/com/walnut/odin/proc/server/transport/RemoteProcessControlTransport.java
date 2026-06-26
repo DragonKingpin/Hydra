@@ -5,7 +5,9 @@ import java.util.Collections;
 
 import com.pinecone.framework.util.id.GUID;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -34,6 +36,12 @@ public interface RemoteProcessControlTransport extends RemoteProcessControlTrans
     void compileIface( Class<?> ifaceClass, boolean bAsIface ) throws RemoteProcessServiceRPCException;
 
     void startRemoteUProcess( long clientId, GUID pid ) throws RemoteProcessServiceRPCException;
+
+    default RemoteProcessSignalResult signalRemoteUProcess( long clientId, GUID pid, ProcSignal signal, long graceTimeoutMillis ) throws RemoteProcessLifecycleException {
+        return this.signalRemoteUProcess( clientId, pid, signal, graceTimeoutMillis, null );
+    }
+
+    RemoteProcessSignalResult signalRemoteUProcess( long clientId, GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) throws RemoteProcessLifecycleException;
 
     RemoteVitalizationResponse vitalizeRemoteUProcess( long clientId, UProcessMirrorDTO processDTO ) throws RemoteProcessLifecycleException;
 

@@ -55,7 +55,7 @@ public class TaskInstantaneousContext implements Pinenut {
     }
 
     public void setProcessorName( String szProcessorName ) {
-        this.mszProcessorName = szProcessorName;
+        this.mszProcessorName = normalizeProcessorName( szProcessorName );
     }
 
     public boolean isAllowAsymmetricImage() {
@@ -104,6 +104,18 @@ public class TaskInstantaneousContext implements Pinenut {
         }
 
         return launchFeature;
+    }
+
+    protected static String normalizeProcessorName( String processorName ) {
+        if ( processorName == null ) {
+            return null;
+        }
+
+        String szProcessorName = processorName.trim();
+        if ( szProcessorName.isEmpty() || "auto".equalsIgnoreCase( szProcessorName ) ) {
+            return null;
+        }
+        return szProcessorName;
     }
 
 }

@@ -17,6 +17,7 @@ import com.pinecone.hydra.proc.entity.ElementNode;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -79,23 +80,36 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public void addRemoteEventHandler( ProcessRemoteEventHandler handler ) {
-        this.mRemoteEventHandlers.add( handler );
+        if ( handler == null ) {
+            return;
+        }
+        synchronized ( this.mRemoteEventHandlers ) {
+            this.mRemoteEventHandlers.add( handler );
+        }
     }
 
     @Override
     public void removeRemoteEventHandler( ProcessRemoteEventHandler handler ) {
-        this.mRemoteEventHandlers.remove( handler );
+        synchronized ( this.mRemoteEventHandlers ) {
+            this.mRemoteEventHandlers.remove( handler );
+        }
     }
 
     @Override
     public int remoteEventHandlerSize() {
-        return this.mRemoteEventHandlers.size();
+        synchronized ( this.mRemoteEventHandlers ) {
+            return this.mRemoteEventHandlers.size();
+        }
     }
 
     @Override
     public void notifyRemoteEvent( long pmClientId, UProcessStatus event, Object caused ) {
         this.applyStatus( event );
-        for ( ProcessRemoteEventHandler handler : this.mRemoteEventHandlers ) {
+        List<ProcessRemoteEventHandler> handlers;
+        synchronized ( this.mRemoteEventHandlers ) {
+            handlers = new ArrayList<>( this.mRemoteEventHandlers );
+        }
+        for ( ProcessRemoteEventHandler handler : handlers ) {
             handler.fired( pmClientId, event, caused );
         }
     }
@@ -328,17 +342,34 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public void apoptosis() throws ApoptosisRejectSignalException {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGTERM, 30000L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            ApoptosisRejectSignalException signalException = new ApoptosisRejectSignalException( e.getMessage() );
+            signalException.initCause( e );
+            throw signalException;
+        }
     }
 
     @Override
     public void kill() {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGKILL, 0L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override
     public void interrupt() {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGINT, 0L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override

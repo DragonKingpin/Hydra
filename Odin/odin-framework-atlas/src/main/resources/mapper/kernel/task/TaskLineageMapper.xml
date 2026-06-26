@@ -50,4 +50,16 @@
         WHERE `parent_task_guid` = #{taskGuid}
     </select>
 
+    <delete id="deleteByTaskGuids">
+        DELETE FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `task_guid` IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+           OR `parent_task_guid` IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
 </mapper>

@@ -255,32 +255,30 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusDone );
     }
 
-    protected void prepare_scheduler_cycle_engine() {
+    protected void prepare_scheduler_runtime() {
         if ( this.mTaskScheduler == null ) {
             return;
         }
 
         RavenTaskConfig config = this.mTaskScheduler.ravenTaskConfig();
         if ( !config.isSchedulerEnabled() ) {
-            this.getLogger().info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `scheduler-disabled`, ManualPulse: `true`) <Pass>" );
+            this.getLogger().info( "[OdinScheduler] [RuntimeDisabled] (Reason: `scheduler-disabled`) <Pass>" );
             return;
         }
         if ( !"single-master".equals( config.getSchedulerMode().toLowerCase( Locale.ROOT ) ) ) {
             this.getLogger().info(
-                    "[OdinScheduler] [CycleEngineDisabled] (Reason: `unsupported-mode`, Mode: `{}`, ManualPulse: `true`) <Pass>",
+                    "[OdinScheduler] [RuntimeDisabled] (Reason: `unsupported-mode`, Mode: `{}`) <Pass>",
                     config.getSchedulerMode()
             );
             return;
         }
-        if ( !config.isSchedulerCycleEngineEnabled() ) {
-            this.getLogger().info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `cycle-engine-disabled`, ManualPulse: `true`) <Pass>" );
-            return;
-        }
 
-        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerCycleEngine`.", LogStatuses.StatusStart );
-        this.traceSchedulerCycleEngineBanner( config );
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerRuntime`.", LogStatuses.StatusStart );
+        if ( config.isSchedulerCycleEngineEnabled() ) {
+            this.traceSchedulerCycleEngineBanner( config );
+        }
         this.mTaskScheduler.startService();
-        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerCycleEngine`.", LogStatuses.StatusReady );
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerRuntime`.", LogStatuses.StatusReady );
     }
 
     protected void prepare_formation_colonel() {
@@ -320,7 +318,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.prepare_instrumentation();
         this.prepare_remote_process_server();
         this.prepare_scheduler();
-        this.prepare_scheduler_cycle_engine();
+        this.prepare_scheduler_runtime();
         this.prepare_formation_colonel();
         this.prepare_formation_engine();
 

@@ -13,18 +13,15 @@ import org.slf4j.LoggerFactory;
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
-import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
-import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
-import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
-import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
 import com.walnut.odin.conduct.schedule.entity.DependencyBlockage;
 import com.walnut.odin.conduct.schedule.entity.DepartureChecklist;
@@ -33,10 +30,12 @@ import com.walnut.odin.conduct.schedule.entity.ScheduleFittingContext;
 import com.walnut.odin.dispatch.TaskLaunchContext;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
-import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
+import com.walnut.odin.task.audit.InstanceExecAuditPayloads;
+import com.walnut.odin.task.mapper.InstanceExecAuditMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
+import com.walnut.odin.task.launch.LaunchProvideTaskParam;
 import com.walnut.odin.task.troll.GenericRavenTaskInstance;
 import com.walnut.odin.task.troll.LaunchFeature;
 
@@ -47,28 +46,27 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
     protected UniformTaskScheduler            mTaskScheduler;
     protected InstanceInstrument              mInstanceInstrument;
     protected CentralizedTaskInstrument       mCentralizedTaskInstrument;
+    protected RuntimeAtlasInstrument          mRuntimeAtlasInstrument;
     protected RavenTaskMasterManipulator      mRavenTaskMasterManipulator;
     protected ScheduleManipulator             mScheduleManipulator;
-    protected InstanceLineageNodeMapper         mInstanceLineageNodeMapper;
     protected InstanceExecMapper              mInstanceExecMapper;
+    protected InstanceExecAuditMapper         mInstanceExecAuditMapper;
     protected InstanceScheduleAllocator       mInstanceScheduleAllocator;
-    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+    protected TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
 
     public RavenInstanceDepartureGate( UniformTaskScheduler taskScheduler ) {
         this.mTaskScheduler              = taskScheduler;
         this.mCentralizedTaskInstrument  = taskScheduler.taskInstrument();
         this.mInstanceInstrument         = taskScheduler.instanceInstrument();
+        this.mRuntimeAtlasInstrument     = taskScheduler.atlasInstrument();
 
         this.mRavenTaskMasterManipulator = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mScheduleManipulator        = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceLineageNodeMapper    = this.mScheduleManipulator.getInstanceLineageNodeMapper();
         this.mInstanceExecMapper         = this.mScheduleManipulator.getInstanceExecMapper();
+        this.mInstanceExecAuditMapper    = this.mScheduleManipulator.getInstanceExecAuditMapper();
 
         this.mInstanceScheduleAllocator  = taskScheduler.instanceScheduleAllocator();
-        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
-                this.mInstanceInstrument,
-                this.mScheduleManipulator.getInstanceEventMapper()
-        );
+        this.mTaskInstanceLifecycleExaminer = taskScheduler.taskInstanceLifecycleExaminer();
     }
 
     @Override
@@ -111,7 +109,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             return;
         }
 
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transit(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transit(
                 instance.getGuid(), fromStatus, status, this.resolveTransitionReason( status )
         );
         if ( result.isSucceeded() ) {
@@ -147,7 +145,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             return new DependencyBlockageIndex( List.of() );
         }
 
-        Collection<DependencyBlockage> blockages = this.mInstanceLineageNodeMapper.fetchDependencyBlockages(
+        Collection<DependencyBlockage> blockages = this.mRuntimeAtlasInstrument.fetchInstanceDependencyBlockages(
                 ids,
                 TaskInstanceStatus.Finished.getName()
         );
@@ -240,6 +238,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             if ( StringUtils.isNoneEmpty( szDesignatedProcessor ) ) {
                 launchFeature.withProcessorDesignated( szDesignatedProcessor );
             }
+            launchFeature = this.provideLaunchFeature( fittedInstance, launchFeature );
             TaskLaunchContext launchContext = TaskLaunchContext.of( instance, launchFeature );
             if ( StringUtils.isNoneEmpty( fittedInstance.getAffinityProcessor() ) ) {
                 launchContext.setAffinityProcessorName( fittedInstance.getAffinityProcessor() );
@@ -248,6 +247,13 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             li.add( launchContext );
         }
         return li;
+    }
+
+    protected LaunchFeature provideLaunchFeature( InstanceEntry instance, LaunchFeature launchFeature ) {
+        return this.mTaskScheduler.taskLaunchFeatureProviderRegistry().apply(
+                LaunchProvideTaskParam.from( instance ),
+                launchFeature
+        );
     }
 
     protected String validateLaunchContextTask( RavenTaskInstance instance ) {
@@ -278,8 +284,10 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
+        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithRuntimeFields(
                 instance.getGuid(),
+                instance.getSequenceCnt(),
+                instance.getRetryCnt(),
                 List.of(
                         TaskInstanceStatus.New,
                         TaskInstanceStatus.DependencyWait,
@@ -301,7 +309,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             instance.setErrorCause( szCause );
             instance.setLastEndTime( now );
             instance.setFinishTime( now );
-            this.mInstanceExecMapper.updateStateRetryMonotonic(
+            int nExecAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
                     instance.getGuid(),
                     instance.getSequenceCnt(),
                     instance.getRetryCnt(),
@@ -310,6 +318,9 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                     null,
                     now
             );
+            if ( nExecAffectedRows > 0 ) {
+                this.recordExecutionLoggerAudit( instance, TaskInstanceExecState.Fail, now );
+            }
         }
 
         this.log.warn(
@@ -386,22 +397,6 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         this.mInstanceExecMapper.insert( exec );
     }
 
-    protected void traceDryRunEvent( InstanceEntry instance, LocalDateTime now ) {
-        InstanceEvent event = new GenericInstanceEvent();
-        event.setGuid( this.mCentralizedTaskInstrument.getGuidAllocator().nextGUID() );
-        event.setTaskGuid( instance.getTaskGuid() );
-        event.setInstanceGuid( instance.getGuid() );
-        event.setInstanceName( instance.getInstanceName() );
-        event.setRetryTimes( instance.getRetryTimes() );
-        event.setSequenceCnt( instance.getSequenceCnt() );
-        event.setCurrentRetryNumber( instance.getRetryCnt() );
-        event.setEventType( InstanceEventType.TaskSuccess.getName() );
-        event.setState( TaskInstanceStatus.Finished.getName() );
-        event.setExecTime( now );
-        event.setEventContext( "{\"message\":\"Dry-run execution skipped remote dispatch.\"}" );
-        this.mScheduleManipulator.getInstanceEventMapper().insert( event );
-    }
-
     protected void finishDryRunInstances( Collection<InstanceEntry> instances, LocalDateTime scheduleTime ) {
         if ( instances == null || instances.isEmpty() ) {
             return;
@@ -414,8 +409,10 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
 
             LocalDateTime now = LocalDateTime.now();
             this.ensureDryRunExec( instance );
-            int nAffectedRows = this.mInstanceInstrument.transitStatusInMonotonicWithFields(
+            TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithScheduleAndRuntimeFields(
                     instance.getGuid(),
+                    instance.getSequenceCnt(),
+                    instance.getRetryCnt(),
                     List.of(
                             TaskInstanceStatus.New,
                             TaskInstanceStatus.DependencyWait,
@@ -425,13 +422,15 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                             TaskInstanceStatus.ProcessStandby
                     ),
                     TaskInstanceStatus.Finished,
+                    TaskInstanceTransitionReason.ProcessSucceeded,
                     scheduleTime,
                     now,
                     now,
                     now,
-                    null
+                    null,
+                    "{\"message\":\"Dry-run execution skipped remote dispatch.\"}"
             );
-            if ( nAffectedRows <= 0 ) {
+            if ( !result.isSucceeded() ) {
                 continue;
             }
 
@@ -442,7 +441,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
             instance.setLastEndTime( now );
             instance.setFinishTime( now );
             instance.setErrorCause( null );
-            this.mInstanceExecMapper.updateStateRetryMonotonic(
+            int nExecAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
                     instance.getGuid(),
                     instance.getSequenceCnt(),
                     instance.getRetryCnt(),
@@ -451,7 +450,9 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
                     now,
                     now
             );
-            this.traceDryRunEvent( instance, now );
+            if ( nExecAffectedRows > 0 ) {
+                this.recordExecutionLoggerAudit( instance, TaskInstanceExecState.Success, now );
+            }
             this.log.info(
                     "[TaskSchedulerLifecycle] Dry-run execution skipped remote dispatch "
                             + "(Task: `{}`, Instance: `{}`) <Success>",
@@ -470,7 +471,7 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
 
         Collection<InstanceEntry> claimedInstances = new ArrayList<>();
         for ( InstanceEntry instance : departureStandbyInstances ) {
-            TaskInstanceTransitionResult transition = this.mTaskInstanceLifecycleInstrument.transitWithScheduleTime(
+            TaskInstanceTransitionResult transition = this.mTaskInstanceLifecycleExaminer.transitWithScheduleTime(
                     instance.getGuid(),
                     TaskInstanceStatus.DepartureStandby,
                     TaskInstanceStatus.ProcessCreating,
@@ -538,6 +539,62 @@ public class RavenInstanceDepartureGate implements InstanceDepartureGate {
         );
         result.getLaunchContexts().addAll( this.initializePrelaunchSequence( processCreatingInstances ) );
         return result;
+    }
+
+    protected void recordExecutionLoggerAudit(
+            InstanceEntry entry, TaskInstanceExecState state, LocalDateTime finishTime
+    ) {
+        if ( this.mInstanceExecAuditMapper == null || entry == null || entry.getGuid() == null ) {
+            return;
+        }
+
+        try {
+            this.mInstanceExecAuditMapper.upsertLogger(
+                    entry.getTaskGuid(),
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    this.executionAuditMessage( state, entry ),
+                    this.executionAuditPayload( state, entry, finishTime ),
+                    entry.getLastStartTime(),
+                    finishTime
+            );
+        }
+        catch ( RuntimeException e ) {
+            this.log.warn(
+                    "[TaskSchedulerLifecycle] Failed to write exec logger audit "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, ExecState: `{}`) <Ignored>",
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    state.getName(),
+                    e
+            );
+        }
+    }
+
+    protected String executionAuditMessage( TaskInstanceExecState state, InstanceEntry entry ) {
+        if ( state == TaskInstanceExecState.Success ) {
+            return "Execution finished with Success.";
+        }
+        String szCause = entry.getErrorCause();
+        if ( szCause == null || szCause.trim().isEmpty() ) {
+            return "Execution finished with " + state.getName() + ".";
+        }
+        return this.truncate( "Execution finished with " + state.getName() + ": " + szCause, 1024 );
+    }
+
+    protected String executionAuditPayload(
+            TaskInstanceExecState state, InstanceEntry entry, LocalDateTime finishTime
+    ) {
+        return InstanceExecAuditPayloads.from( state, entry, finishTime );
+    }
+
+    protected String truncate( String value, int maxLength ) {
+        if ( value == null || value.length() <= maxLength ) {
+            return value;
+        }
+        return value.substring( 0, Math.max( 0, maxLength ) );
     }
 
     protected static class DependencyBlockageIndex {

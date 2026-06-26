@@ -10,13 +10,17 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.slime.jelly.source.ibatis.ProxySessionMapperPool;
+import com.walnut.odin.mapper.transaction.OdinMappingTransaction;
 import com.walnut.odin.project.mapper.TaskProjectMapper;
 import com.walnut.odin.specific.mapper.TaskSpecificMapper;
+import com.walnut.odin.task.mapper.transaction.IbatisOdinMappingTransaction;
 
 public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements OdinTaskMappingDriver {
     protected KOIMasterManipulator mKOIMasterManipulator;
 
     protected KOIMappingDriver     mParentDriver;
+
+    protected OdinMappingTransaction mTransaction;
 
     public OdinUniformTaskMappingDriver( Processum superiorProcess ) {
         super( superiorProcess );
@@ -32,6 +36,7 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
                 superiorProcess, ibatisClient, dispenserCenter
         );
 
+        this.mTransaction = new IbatisOdinMappingTransaction( ibatisClient );
         this.mKOIMasterManipulator = new RavenTaskMasterManipulatorImpl( this, (TaskMappingDriver)this.getParentDriver() );
     }
 
@@ -59,6 +64,11 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
     @Override
     public KOIMappingDriver getParentDriver() {
         return this.mParentDriver;
+    }
+
+    @Override
+    public OdinMappingTransaction transaction() {
+        return this.mTransaction;
     }
 
 }

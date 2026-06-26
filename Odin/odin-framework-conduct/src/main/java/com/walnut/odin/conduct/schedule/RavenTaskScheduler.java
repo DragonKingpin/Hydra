@@ -13,10 +13,13 @@ import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.recovery.KernelTaskSchedulerReconciler;
 import com.walnut.odin.conduct.recovery.TaskSchedulerReconciler;
 import com.walnut.odin.conduct.schedule.entity.InstanceDepartureResult;
 import com.walnut.odin.conduct.schedule.entity.TaskSchedulerCycleEngineConfigSnapshot;
+import com.walnut.odin.conduct.schedule.entity.TaskSchedulerEngineRuntimeSnapshot;
+import com.walnut.odin.conduct.schedule.entity.TaskSchedulerIdentitySnapshot;
 import com.walnut.odin.conduct.schedule.entity.TaskSchedulerRuntimeSnapshot;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousContext;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousPrepareResult;
@@ -24,8 +27,11 @@ import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitRequest;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitResult;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
+import com.walnut.odin.patrol.KernelPatrolWatchdog;
+import com.walnut.odin.patrol.PatrolWatchdog;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.launch.TaskLaunchFeatureProviderRegistry;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
@@ -44,19 +50,24 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     private CentralizedTaskInstrument    mCentralizedTaskInstrument;
 
     private TaskExecutionLauncher        mTaskExecutionLauncher;
+    private TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
     private TaskDispatcher               mTaskDispatcher;
+    private TaskLaunchFeatureProviderRegistry mTaskLaunchFeatureProviderRegistry;
 
     private TaskSchedulePreparator       mTaskSchedulePreparator;
     private TaskInstantaneousPreparator  mTaskInstantaneousPreparator;
     private InstanceScheduleImpetus      mInstanceScheduleImpetus;
     private InstanceInstantaneousImpetus mInstanceInstantaneousImpetus;
+    private InstantaneousEngine          mInstantaneousEngine;
     private InstanceDepartureGate        mInstanceDepartureGate;
 
     private InstanceScheduleAllocator    mInstanceScheduleAllocator;
     private TaskSchedulerReconciler      mTaskSchedulerReconciler;
+    private PatrolWatchdog               mPatrolWatchdog;
     private String                       mszPartitionName;
 
     private ScheduledExecutorService     mCycleEngineExecutor;
+    private AtomicBoolean                mRuntimeRunning;
     private AtomicBoolean                mCycleEngineRunning;
     private AtomicBoolean                mPulsing;
     private AtomicLong                   mPulseSeq;
@@ -83,7 +94,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mRuntimeAtlasInstrument       = atlasInstrument;
 
         this.mTaskExecutionLauncher        = dispatcher.taskExecutionLauncher();
+        this.mTaskInstanceLifecycleExaminer = dispatcher
+                .collectiveTaskRegiment()
+                .taskInstanceLifecycleExaminer();
         this.mTaskDispatcher               = dispatcher;
+        this.mTaskLaunchFeatureProviderRegistry = new TaskLaunchFeatureProviderRegistry();
 
         this.mRavenTaskConfig              = (RavenTaskConfig) taskInstrument.getConfig();
         this.mszPartitionName              = this.mRavenTaskConfig.getSchedulePartitionName();
@@ -95,7 +110,10 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         this.mInstanceScheduleImpetus      = new RavenInstanceScheduleImpetus( this ); // [5]
         this.mInstanceInstantaneousImpetus = new RavenInstanceInstantaneousImpetus( this ); // [6]
         this.mTaskSchedulerReconciler      = new KernelTaskSchedulerReconciler( this ); // [7]
+        this.mInstantaneousEngine          = new RavenInstantaneousEngine( this, this.mTaskSchedulerReconciler ); // [8]
+        this.mPatrolWatchdog               = new KernelPatrolWatchdog( this ); // [9]
 
+        this.mRuntimeRunning               = new AtomicBoolean( false );
         this.mCycleEngineRunning           = new AtomicBoolean( false );
         this.mPulsing                      = new AtomicBoolean( false );
         this.mPulseSeq                     = new AtomicLong( 0L );
@@ -127,6 +145,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     }
 
     @Override
+    public InstantaneousEngine instantaneousEngine() {
+        return this.mInstantaneousEngine;
+    }
+
+    @Override
     public InstanceDepartureGate instanceDepartureGate() {
         return this.mInstanceDepartureGate;
     }
@@ -134,6 +157,11 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     @Override
     public InstanceScheduleAllocator instanceScheduleAllocator() {
         return this.mInstanceScheduleAllocator;
+    }
+
+    @Override
+    public PatrolWatchdog patrolWatchdog() {
+        return this.mPatrolWatchdog;
     }
 
     @Override
@@ -162,8 +190,18 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     }
 
     @Override
+    public TaskInstanceLifecycleExaminer taskInstanceLifecycleExaminer() {
+        return this.mTaskInstanceLifecycleExaminer;
+    }
+
+    @Override
     public TaskDispatcher taskDispatcher() {
         return this.mTaskDispatcher;
+    }
+
+    @Override
+    public TaskLaunchFeatureProviderRegistry taskLaunchFeatureProviderRegistry() {
+        return this.mTaskLaunchFeatureProviderRegistry;
     }
 
     @Override
@@ -173,6 +211,46 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
     @Override
     public void startService() {
+        if ( !this.mRavenTaskConfig.isSchedulerEnabled() ) {
+            log.info( "[OdinScheduler] [RuntimeDisabled] (Reason: `scheduler-disabled`) <Pass>" );
+            return;
+        }
+
+        if ( this.mRuntimeRunning.compareAndSet( false, true ) ) {
+            this.startRuntimeServices();
+            log.info(
+                    "[OdinScheduler] [RuntimeStarted] (Mode: `{}`, NodeId: `{}`, Partition: `{}`) <Ready>",
+                    this.mRavenTaskConfig.getSchedulerMode(),
+                    this.mRavenTaskConfig.getSchedulerNodeId(),
+                    this.mszPartitionName
+            );
+        }
+        else {
+            log.info( "[OdinScheduler] [RuntimeStarted] (Reason: `already-running`, NodeId: `{}`) <Pass>",
+                    this.mRavenTaskConfig.getSchedulerNodeId() );
+        }
+
+        this.startCycleEngineIfEnabled();
+    }
+
+    @Override
+    public void startCycleEngine() {
+        this.startCycleEngineIfEnabled();
+    }
+
+    protected void startRuntimeServices() {
+        this.mTaskSchedulePreparator.startService();
+        this.mInstanceScheduleImpetus.startService();
+        this.mInstantaneousEngine.startService();
+        this.mPatrolWatchdog.startService();
+    }
+
+    protected void startCycleEngineIfEnabled() {
+        if ( !this.mRavenTaskConfig.isSchedulerEnabled() ) {
+            log.info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `scheduler-disabled`) <Pass>" );
+            return;
+        }
+
         if ( !this.mRavenTaskConfig.isSchedulerCycleEngineEnabled() ) {
             log.info( "[OdinScheduler] [CycleEngineDisabled] (Reason: `cycle-engine-disabled`, ManualPulse: `true`) <Pass>" );
             return;
@@ -186,9 +264,6 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
         long nStartupDelayMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineStartupDelayMillis() );
         long nTickMillis = Math.max( 1L, this.mRavenTaskConfig.getScheduleCycleEngineTickMillis() );
-
-        this.mTaskSchedulePreparator.startService();
-        this.mInstanceScheduleImpetus.startService();
 
         this.traceSchedulerCycleEngineBanner();
         this.mCycleEngineExecutor = Executors.newSingleThreadScheduledExecutor( runnable -> {
@@ -215,8 +290,20 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
     @Override
     public void terminateService() {
-        if ( !this.mCycleEngineRunning.compareAndSet( true, false ) ) {
+        boolean bRuntimeWasRunning = this.mRuntimeRunning.compareAndSet( true, false );
+        boolean bCycleWasRunning = this.stopCycleEngineInternal();
+
+        this.stopRuntimeServices();
+        if ( !bRuntimeWasRunning && !bCycleWasRunning ) {
+            log.info( "[OdinScheduler] [RuntimeStopped] (Reason: `already-stopped`, Partition: `{}`) <Pass>", this.mszPartitionName );
             return;
+        }
+        log.info( "[OdinScheduler] [RuntimeStopped] (Partition: `{}`) <Done>", this.mszPartitionName );
+    }
+
+    protected boolean stopCycleEngineInternal() {
+        if ( !this.mCycleEngineRunning.compareAndSet( true, false ) ) {
+            return false;
         }
 
         long nGracefulShutdownMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
@@ -235,8 +322,6 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
             }
         }
 
-        this.mTaskSchedulePreparator.terminateService( nGracefulShutdownMillis );
-        this.mInstanceScheduleImpetus.terminateService( nGracefulShutdownMillis );
         this.mCycleEngineThread = null;
 
         log.info(
@@ -245,6 +330,20 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
                 this.mSkippedPulseCount.get(),
                 this.mLastPulseFinishTime
         );
+        return true;
+    }
+
+    @Override
+    public void stopCycleEngine() {
+        this.stopCycleEngineInternal();
+    }
+
+    protected void stopRuntimeServices() {
+        long nGracefulShutdownMillis = Math.max( 0L, this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
+        this.mTaskSchedulePreparator.terminateService( nGracefulShutdownMillis );
+        this.mInstanceScheduleImpetus.terminateService( nGracefulShutdownMillis );
+        this.mInstantaneousEngine.terminateService( nGracefulShutdownMillis );
+        this.mPatrolWatchdog.terminateService();
     }
 
     @Override
@@ -255,7 +354,44 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
     @Override
     public TaskSchedulerRuntimeSnapshot runtimeSnapshot() {
         TaskSchedulerRuntimeSnapshot snapshot = new TaskSchedulerRuntimeSnapshot();
-        snapshot.setConfig( this.configSnapshot() );
+        TaskSchedulerCycleEngineConfigSnapshot config = this.configSnapshot();
+        TaskSchedulerEngineRuntimeSnapshot cycleEngine = this.cycleEngineSnapshot();
+
+        snapshot.setIdentity( this.identitySnapshot() );
+        snapshot.setCycleEngine( cycleEngine );
+        snapshot.setInstantaneousEngine( this.mInstantaneousEngine.runtimeSnapshot() );
+
+        snapshot.setConfig( config );
+        snapshot.setRunning( cycleEngine.isRunning() );
+        snapshot.setPulsing( cycleEngine.isPulsing() );
+        snapshot.setPulseSeq( cycleEngine.getPulseSeq() );
+        snapshot.setSkippedPulseCount( cycleEngine.getSkippedPulseCount() );
+        snapshot.setLastPulseStartTime( cycleEngine.getLastPulseStartTime() );
+        snapshot.setLastPulseFinishTime( cycleEngine.getLastPulseFinishTime() );
+        snapshot.setLastPulseErrorClass( cycleEngine.getLastPulseErrorClass() );
+        snapshot.setLastPulseErrorMessage( cycleEngine.getLastPulseErrorMessage() );
+        snapshot.setLastHourlyPulseMillis( cycleEngine.getLastHourlyPulseMillis() );
+        snapshot.setLastDailyPulseMillis( cycleEngine.getLastDailyPulseMillis() );
+        snapshot.setLastRecoveryPulseMillis( cycleEngine.getLastRecoveryPulseMillis() );
+        snapshot.setCycleEngineThreadName( cycleEngine.getThreadName() );
+        snapshot.setCycleEngineThreadState( cycleEngine.getThreadState() );
+        snapshot.setCycleEngineThreadAlive( cycleEngine.isThreadAlive() );
+        return snapshot;
+    }
+
+    protected TaskSchedulerIdentitySnapshot identitySnapshot() {
+        TaskSchedulerIdentitySnapshot snapshot = new TaskSchedulerIdentitySnapshot();
+        snapshot.setSchedulerEnabled( this.mRavenTaskConfig.isSchedulerEnabled() );
+        snapshot.setSchedulerMode( this.mRavenTaskConfig.getSchedulerMode() );
+        snapshot.setNodeId( this.mRavenTaskConfig.getSchedulerNodeId() );
+        snapshot.setPartitionName( this.mszPartitionName );
+        return snapshot;
+    }
+
+    protected TaskSchedulerEngineRuntimeSnapshot cycleEngineSnapshot() {
+        TaskSchedulerEngineRuntimeSnapshot snapshot = new TaskSchedulerEngineRuntimeSnapshot();
+        snapshot.setEngineName( "CycleEngine" );
+        snapshot.setEnabled( this.mRavenTaskConfig.isSchedulerCycleEngineEnabled() );
         snapshot.setRunning( this.mCycleEngineRunning.get() );
         snapshot.setPulsing( this.mPulsing.get() );
         snapshot.setPulseSeq( this.mPulseSeq.get() );
@@ -265,6 +401,28 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         snapshot.setLastHourlyPulseMillis( this.mnLastHourlyPulseMillis );
         snapshot.setLastDailyPulseMillis( this.mnLastDailyPulseMillis );
         snapshot.setLastRecoveryPulseMillis( this.mnLastRecoveryPulseMillis );
+        snapshot.setSupportsPulse( true );
+        snapshot.setSupportsDailyPulse( true );
+        snapshot.setStartupDelayMillis( this.mRavenTaskConfig.getScheduleCycleEngineStartupDelayMillis() );
+        snapshot.setTickMillis( this.mRavenTaskConfig.getScheduleCycleEngineTickMillis() );
+        snapshot.setHourlyPulseMillis( this.mRavenTaskConfig.getScheduleCycleEngineHourlyPulseMillis() );
+        snapshot.setDailyPulseMillis( this.mRavenTaskConfig.getScheduleCycleEngineDailyPulseMillis() );
+        snapshot.setRecoveryPulseMillis( this.mRavenTaskConfig.getScheduleCycleEngineRecoveryPulseMillis() );
+        snapshot.setAllowOverlappedPulse( this.mRavenTaskConfig.isScheduleCycleEngineAllowOverlappedPulse() );
+        snapshot.setGracefulShutdownMillis( this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
+        snapshot.setPulseLogEnabled( this.mRavenTaskConfig.isScheduleCycleEnginePulseLogEnabled() );
+        snapshot.setSlowPulseMillis( this.mRavenTaskConfig.getScheduleCycleEngineSlowPulseMillis() );
+        snapshot.setScanThreadCount( this.mRavenTaskConfig.getScheduleScanThreadCount() );
+        snapshot.setScanIdWindow( this.mRavenTaskConfig.getScheduleScanIdWindow() );
+        snapshot.setPrepareLeadSecondsMinute( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsMinute() );
+        snapshot.setPrepareLeadSecondsHour( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsHour() );
+        snapshot.setPrepareLeadSecondsDaily( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsDaily() );
+        snapshot.setPrepareCatchUpWindowMinutesMinute( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesMinute() );
+        snapshot.setPrepareCatchUpWindowMinutesHour( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesHour() );
+        snapshot.setPrepareCatchUpWindowMinutesDaily( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesDaily() );
+        snapshot.setPrepareMaxInstancesPerPulseMinute( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseMinute() );
+        snapshot.setPrepareMaxInstancesPerPulseHour( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseHour() );
+        snapshot.setPrepareMaxInstancesPerPulseDaily( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseDaily() );
 
         Throwable lastPulseError = this.mLastPulseError;
         if ( lastPulseError != null ) {
@@ -274,9 +432,9 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
         Thread cycleEngineThread = this.mCycleEngineThread;
         if ( cycleEngineThread != null ) {
-            snapshot.setCycleEngineThreadName( cycleEngineThread.getName() );
-            snapshot.setCycleEngineThreadState( cycleEngineThread.getState().name() );
-            snapshot.setCycleEngineThreadAlive( cycleEngineThread.isAlive() );
+            snapshot.setThreadName( cycleEngineThread.getName() );
+            snapshot.setThreadState( cycleEngineThread.getState().name() );
+            snapshot.setThreadAlive( cycleEngineThread.isAlive() );
         }
         return snapshot;
     }
@@ -299,6 +457,15 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
         snapshot.setGracefulShutdownMillis( this.mRavenTaskConfig.getScheduleCycleEngineGracefulShutdownMillis() );
         snapshot.setPulseLogEnabled( this.mRavenTaskConfig.isScheduleCycleEnginePulseLogEnabled() );
         snapshot.setSlowPulseMillis( this.mRavenTaskConfig.getScheduleCycleEngineSlowPulseMillis() );
+        snapshot.setPrepareLeadSecondsMinute( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsMinute() );
+        snapshot.setPrepareLeadSecondsHour( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsHour() );
+        snapshot.setPrepareLeadSecondsDaily( this.mRavenTaskConfig.getSchedulePrepareLeadSecondsDaily() );
+        snapshot.setPrepareCatchUpWindowMinutesMinute( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesMinute() );
+        snapshot.setPrepareCatchUpWindowMinutesHour( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesHour() );
+        snapshot.setPrepareCatchUpWindowMinutesDaily( this.mRavenTaskConfig.getSchedulePrepareCatchUpWindowMinutesDaily() );
+        snapshot.setPrepareMaxInstancesPerPulseMinute( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseMinute() );
+        snapshot.setPrepareMaxInstancesPerPulseHour( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseHour() );
+        snapshot.setPrepareMaxInstancesPerPulseDaily( this.mRavenTaskConfig.getSchedulePrepareMaxInstancesPerPulseDaily() );
         return snapshot;
     }
 

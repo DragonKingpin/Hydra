@@ -23,6 +23,8 @@ public interface FormationGroupMapper extends GroupManipulator {
 
     int updateEnable( @Param( "guid" ) GUID guid, @Param( "enable" ) boolean enable );
 
+    int removeByGuids( @Param( "guids" ) List<GUID> guids );
+
     long countGroups(
             @Param( "keyword" ) String keyword,
             @Param( "strategyType" ) String strategyType,

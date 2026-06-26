@@ -143,8 +143,20 @@ public class LaunchFeature implements Pinenut {
     }
 
     public LaunchFeature withProcessorDesignated( String processorName ) {
-        this.processorDesignated = processorName;
+        this.processorDesignated = this.normalizeProcessorDesignated( processorName );
         return this;
+    }
+
+    protected String normalizeProcessorDesignated( String processorName ) {
+        if ( processorName == null ) {
+            return null;
+        }
+
+        String szProcessorName = processorName.trim();
+        if ( szProcessorName.isEmpty() || "auto".equalsIgnoreCase( szProcessorName ) ) {
+            return null;
+        }
+        return szProcessorName;
     }
 
     public LaunchFeature withParentPid( GUID pid ) {

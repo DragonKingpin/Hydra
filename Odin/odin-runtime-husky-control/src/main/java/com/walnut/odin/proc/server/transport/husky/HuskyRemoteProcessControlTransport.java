@@ -26,8 +26,10 @@ import com.pinecone.hydra.umc.msg.event.ChannelInactiveHandler;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -155,7 +157,7 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
 
                 ChannelPool pool = appointServer.getUMCTExpress().getPoolByClientId( clientId );
                 if ( pool == null || pool.isEmpty() ) {
-                    HuskyRemoteProcessControlTransport.this.mRemoteProcessManagerServer.transportRegistry().detachClient( clientId );
+                    HuskyRemoteProcessControlTransport.this.mRemoteProcessManagerServer.detachClient( clientId );
                 }
                 return false;
             }
@@ -395,6 +397,23 @@ public class HuskyRemoteProcessControlTransport implements RemoteProcessControlT
     @Override
     public void startRemoteUProcess( long clientId, GUID pid ) throws RemoteProcessServiceRPCException {
         this.invokeInform( clientId, "startRemoteUProcess", pid );
+    }
+
+    @Override
+    public RemoteProcessSignalResult signalRemoteUProcess( long clientId, GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) throws RemoteProcessLifecycleException {
+        try {
+            return (RemoteProcessSignalResult) this.invokeInform(
+                    clientId,
+                    "signalRemoteUProcess",
+                    pid.toString(),
+                    signal == null ? ProcSignal.SIGTERM.name() : signal.name(),
+                    graceTimeoutMillis,
+                    szReason
+            );
+        }
+        catch ( RemoteProcessServiceRPCException e ) {
+            throw new RemoteProcessLifecycleException( e );
+        }
     }
 
     @Override

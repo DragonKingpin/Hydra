@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
+import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.InstanceLaunchException;
@@ -14,6 +15,8 @@ import com.walnut.odin.task.troll.TaskExecutionLauncher;
 public interface TaskDispatcher extends Pinenut {
 
     TaskExecutionLauncher taskExecutionLauncher();
+
+    CollectiveTaskRegiment collectiveTaskRegiment();
 
     void registerProcessor( TaskExecutionProcessor processor );
 

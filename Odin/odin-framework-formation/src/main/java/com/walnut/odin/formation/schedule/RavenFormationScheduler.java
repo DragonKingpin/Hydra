@@ -177,7 +177,9 @@ public class RavenFormationScheduler implements FormationScheduler {
             if ( run == null || run.getGuid() == null ) {
                 continue;
             }
-            this.mRunManipulator.markRunning( run.getGuid() );
+            if ( this.mRunManipulator.markRunning( run.getGuid() ) <= 0 ) {
+                continue;
+            }
             boolean offered = this.mDispatcher.offer( () -> this.executeRun( run.getGuid() ) );
             if ( !offered ) {
                 this.mRunManipulator.updateStatus( run.getGuid(), FormationRunStatus.Prepared.getName() );
@@ -192,13 +194,7 @@ public class RavenFormationScheduler implements FormationScheduler {
         }
         try {
             this.mFormationInstrument.flowService().flow( run, this.mTaskScheduler, this.mConfig.getFormationNodeId() );
-            RunEntry latest = this.mRunManipulator.selectByGuid( runGuid );
-            if ( latest != null && latest.getFailedCount() > 0L ) {
-                this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
-            }
-            else {
-                this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Completed.getName() );
-            }
+            this.mReconciler.reconcilePulse( LocalDateTime.now() );
         }
         catch ( Throwable e ) {
             this.mRunManipulator.updateStatus( runGuid, FormationRunStatus.Failed.getName() );
@@ -257,8 +253,20 @@ public class RavenFormationScheduler implements FormationScheduler {
     @Override
     public FormationSchedulerRuntimeSnapshot retrieveRuntimeSnapshot() {
         FormationSchedulerRuntimeSnapshot snapshot = new FormationSchedulerRuntimeSnapshot();
+        snapshot.setEnabled( this.mConfig.isFormationSchedulerEnabled() );
+        snapshot.setFormationEnabled( this.mConfig.isFormationEnabled() );
+        snapshot.setMode( this.mConfig.getFormationMode() );
+        snapshot.setPartitionName( this.mConfig.getFormationPartitionName() );
+        snapshot.setNodeId( this.mConfig.getFormationNodeId() );
         snapshot.setRunning( this.mRunning.get() );
         snapshot.setPulsing( this.mPulsing.get() );
+        snapshot.setStartupDelayMillis( this.mConfig.getFormationSchedulerStartupDelayMillis() );
+        snapshot.setTickMillis( this.mConfig.getFormationSchedulerTickMillis() );
+        snapshot.setRecoveryPulseMillis( this.mConfig.getFormationSchedulerRecoveryPulseMillis() );
+        snapshot.setAllowOverlappedPulse( this.mConfig.isFormationSchedulerAllowOverlappedPulse() );
+        snapshot.setGracefulShutdownMillis( this.mConfig.getFormationSchedulerGracefulShutdownMillis() );
+        snapshot.setPulseLogEnabled( this.mConfig.isFormationSchedulerPulseLogEnabled() );
+        snapshot.setSlowPulseMillis( this.mConfig.getFormationSchedulerSlowPulseMillis() );
         snapshot.setPulseSeq( this.mPulseSeq.get() );
         snapshot.setSkippedPulseCount( this.mSkippedPulseCount.get() );
         snapshot.setLastPulseStartTime( this.mLastPulseStartTime );

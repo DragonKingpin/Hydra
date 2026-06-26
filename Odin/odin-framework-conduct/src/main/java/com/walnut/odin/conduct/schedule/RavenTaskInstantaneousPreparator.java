@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.util.StringUtils;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.InstanceEventType;
 import com.pinecone.hydra.task.TaskInstanceExecState;
@@ -19,10 +18,9 @@ import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.marshal.TaskScheduleType;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
-import com.walnut.odin.conduct.entity.GenericInstanceEvent;
 import com.walnut.odin.conduct.entity.GenericInstanceExec;
-import com.walnut.odin.conduct.entity.InstanceEvent;
 import com.walnut.odin.conduct.entity.InstanceExec;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceFrame;
 import com.walnut.odin.conduct.schedule.entity.ScheduledTaskInstanceLineage;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousContext;
@@ -35,8 +33,6 @@ import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTask;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.TaskDeploymentMethod;
-import com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper;
-import com.walnut.odin.task.mapper.InstanceLineageNodeMapper;
 import com.walnut.odin.task.mapper.InstanceEventMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
@@ -54,11 +50,8 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
     protected RuntimeAtlasInstrument       mRuntimeAtlasInstrument;
     protected CentralizedTaskInstrument    mCentralizedTaskInstrument;
 
-    protected GuidAllocator                mGuidAllocator;
     protected RavenTaskMasterManipulator   mRavenTaskMasterManipulator;
     protected ScheduleManipulator          mScheduleManipulator;
-    protected InstanceLineageNodeMapper      mInstanceLineageNodeMapper;
-    protected InstanceLineageAdjacentMapper  mInstanceLineageAdjacentMapper;
     protected InstanceExecMapper           mInstanceExecMapper;
     protected InstanceEventMapper          mInstanceEventMapper;
 
@@ -72,21 +65,13 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
         this.mCentralizedTaskInstrument    = taskScheduler.taskInstrument();
         this.mUniformTaskInstrument        = this.mCentralizedTaskInstrument.getUniformTaskInstrument();
 
-        this.mGuidAllocator                = this.mCentralizedTaskInstrument.getGuidAllocator();
         this.mRavenTaskMasterManipulator   = this.mCentralizedTaskInstrument.getRavenTaskMasterManipulator();
         this.mScheduleManipulator          = this.mRavenTaskMasterManipulator.getScheduleManipulator();
-        this.mInstanceLineageNodeMapper      = this.mScheduleManipulator.getInstanceLineageNodeMapper();
-        this.mInstanceLineageAdjacentMapper  = this.mScheduleManipulator.getInstanceLineageAdjacentMapper();
         this.mInstanceExecMapper           = this.mScheduleManipulator.getInstanceExecMapper();
         this.mInstanceEventMapper          = this.mScheduleManipulator.getInstanceEventMapper();
 
         this.mTaskScheduleTimeResolver     = new TaskScheduleTimeResolver();
-        this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer(
-                this.mGuidAllocator,
-                this.mRuntimeAtlasInstrument,
-                this.mInstanceLineageNodeMapper,
-                this.mInstanceLineageAdjacentMapper
-        );
+        this.mTaskInstanceLineageFreezer   = new RavenTaskInstanceLineageFreezer( this.mRuntimeAtlasInstrument );
     }
 
     @Override
@@ -178,13 +163,9 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
             if ( parentElement == null ) {
                 return false;
             }
-            if ( businessTime == null ) {
-                if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndExpectTime( parentElement.getGuid(), expectTime ) != null ) {
-                    continue;
-                }
-                return false;
-            }
-            if ( this.mInstanceLineageNodeMapper.queryByTaskGuidAndBusinessTime( parentElement.getGuid(), businessTime ) == null ) {
+            if ( !this.mRuntimeAtlasInstrument.isParentInstanceLineageResolvable(
+                    element.getGuid(), parentElement.getGuid(), expectTime, businessTime
+            ) ) {
                 return false;
             }
         }
@@ -242,19 +223,12 @@ public class RavenTaskInstantaneousPreparator implements TaskInstantaneousPrepar
             return;
         }
 
-        InstanceEvent event = new GenericInstanceEvent();
-        event.setGuid( this.mGuidAllocator.nextGUID() );
-        event.setTaskGuid( entry.getTaskGuid() );
-        event.setInstanceGuid( instanceGuid );
-        event.setInstanceName( entry.getInstanceName() );
-        event.setRetryTimes( entry.getRetryTimes() );
-        event.setSequenceCnt( nSequenceCnt );
-        event.setCurrentRetryNumber( nRetryCnt );
-        event.setEventType( instance.getTaskType() );
-        event.setState( szEventState );
-        event.setExecTime( LocalDateTime.now() );
-        event.setEventContext( "{}" );
-        this.mScheduleManipulator.getInstanceEventMapper().insert( event );
+        this.mTaskScheduler.taskInstanceLifecycleExaminer().recordInstanceEvent(
+                entry,
+                TaskInstanceTransitionReason.TimeReady,
+                szEventState,
+                "{}"
+        );
     }
 
     protected void freezeLineage( TaskElement element, RavenTaskInstance instance, LocalDateTime expectTime ) {

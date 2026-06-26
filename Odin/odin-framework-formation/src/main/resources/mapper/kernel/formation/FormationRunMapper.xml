@@ -125,8 +125,22 @@
 
     <update id="updateStatus">
         UPDATE odin_formation_runs
-        SET run_status = #{status}
+        SET run_status = #{status},
+            finish_time = CASE
+                WHEN #{status} IN ('Completed', 'PartialCompleted', 'Failed', 'Cancelled')
+                    THEN IFNULL(finish_time, NOW())
+                ELSE finish_time
+            END
         WHERE guid = #{guid}
+    </update>
+
+    <update id="updateRunningTerminalStatus">
+        UPDATE odin_formation_runs
+        SET run_status = #{status},
+            finish_time = IFNULL(finish_time, NOW())
+        WHERE guid = #{guid}
+          AND run_status = 'Running'
+          AND #{status} IN ('Completed', 'PartialCompleted', 'Failed', 'Cancelled')
     </update>
 
     <update id="markRunning">
@@ -134,6 +148,7 @@
         SET run_status = 'Running',
             start_time = IFNULL(start_time, NOW())
         WHERE guid = #{guid}
+          AND run_status = 'Prepared'
     </update>
 
     <update id="increaseSubmitted">
@@ -153,4 +168,12 @@
         SET failed_count = failed_count + 1
         WHERE guid = #{guid}
     </update>
+
+    <delete id="removeByFormationGuids">
+        DELETE FROM odin_formation_runs
+        WHERE formation_guid IN
+        <foreach collection="formationGuids" item="formationGuid" open="(" separator="," close=")">
+            #{formationGuid}
+        </foreach>
+    </delete>
 </mapper>

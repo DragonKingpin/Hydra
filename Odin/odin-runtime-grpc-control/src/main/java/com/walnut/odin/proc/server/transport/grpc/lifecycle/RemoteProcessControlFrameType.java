@@ -45,6 +45,10 @@ public enum RemoteProcessControlFrameType
    */
   CONTAIN_PROCESS(15),
   /**
+   * <code>SIGNAL_REMOTE_PROCESS = 16;</code>
+   */
+  SIGNAL_REMOTE_PROCESS(16),
+  /**
    * <code>COMMAND_RESULT = 30;</code>
    */
   COMMAND_RESULT(30),
@@ -112,6 +116,10 @@ public enum RemoteProcessControlFrameType
    */
   public static final int CONTAIN_PROCESS_VALUE = 15;
   /**
+   * <code>SIGNAL_REMOTE_PROCESS = 16;</code>
+   */
+  public static final int SIGNAL_REMOTE_PROCESS_VALUE = 16;
+  /**
    * <code>COMMAND_RESULT = 30;</code>
    */
   public static final int COMMAND_RESULT_VALUE = 30;
@@ -174,6 +182,7 @@ public enum RemoteProcessControlFrameType
       case 13: return QUERY_PROCESS_RUNTIME_META;
       case 14: return HAS_OWN_PROCESS;
       case 15: return CONTAIN_PROCESS;
+      case 16: return SIGNAL_REMOTE_PROCESS;
       case 30: return COMMAND_RESULT;
       case 31: return PROCESS_CREATED;
       case 32: return PROCESS_TERMINATED;

@@ -68,7 +68,7 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setRetryIntervalSeconds( this.mTaskElement.getRetryIntervalSeconds() );
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setTaskName( this.mTaskElement.getName() );
-        entry.setDesignatedProcessor( this.mTaskElement.getProcessorName() );
+        entry.setDesignatedProcessor( this.normalizeDesignatedProcessor( this.mTaskElement.getProcessorName() ) );
 
         GenericRavenTaskInstance instance = new GenericRavenTaskInstance( entry, this );
         return instance;
@@ -104,6 +104,18 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
 
     public void updateTaskMeta( InstanceEntry instanceEntry ) throws MetaPersistenceException {
         this.mInstanceInstrument.updateInstance( instanceEntry );
+    }
+
+    protected String normalizeDesignatedProcessor( String processorName ) {
+        if ( processorName == null ) {
+            return null;
+        }
+
+        String szProcessorName = processorName.trim();
+        if ( szProcessorName.isEmpty() || "auto".equalsIgnoreCase( szProcessorName ) ) {
+            return null;
+        }
+        return szProcessorName;
     }
 
 }

@@ -15,6 +15,7 @@ import com.walnut.odin.formation.dto.FormationRunSubmitRequest;
 import com.walnut.odin.formation.plan.GenericFormationFrame;
 import com.walnut.odin.formation.plan.GenericFormationPage;
 import com.walnut.odin.formation.source.MasterManipulator;
+import com.walnut.odin.formation.strategy.FormationStrategyType;
 
 public class FormationRunService implements RunService {
     protected GuidAllocator           mGuidAllocator;
@@ -67,7 +68,9 @@ public class FormationRunService implements RunService {
         this.mMasterManipulator.runManipulator().insert( run );
 
         this.expandFrames( run, tasks );
-        this.expandPages( run, tasks.size() );
+        if ( !FormationStrategyType.PreemptiveFrame.name().equals( run.getStrategyType() ) ) {
+            this.expandPages( run, tasks.size() );
+        }
         return run;
     }
 

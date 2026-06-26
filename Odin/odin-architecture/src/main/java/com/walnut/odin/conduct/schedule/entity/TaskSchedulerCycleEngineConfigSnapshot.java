@@ -20,6 +20,15 @@ public class TaskSchedulerCycleEngineConfigSnapshot implements Pinenut {
     protected long    mGracefulShutdownMillis;
     protected boolean mPulseLogEnabled;
     protected long    mSlowPulseMillis;
+    protected long    mPrepareLeadSecondsMinute;
+    protected long    mPrepareLeadSecondsHour;
+    protected long    mPrepareLeadSecondsDaily;
+    protected long    mPrepareCatchUpWindowMinutesMinute;
+    protected long    mPrepareCatchUpWindowMinutesHour;
+    protected long    mPrepareCatchUpWindowMinutesDaily;
+    protected int     mPrepareMaxInstancesPerPulseMinute;
+    protected int     mPrepareMaxInstancesPerPulseHour;
+    protected int     mPrepareMaxInstancesPerPulseDaily;
 
     public boolean isSchedulerEnabled() {
         return this.mSchedulerEnabled;
@@ -147,5 +156,77 @@ public class TaskSchedulerCycleEngineConfigSnapshot implements Pinenut {
 
     public void setSlowPulseMillis( long slowPulseMillis ) {
         this.mSlowPulseMillis = slowPulseMillis;
+    }
+
+    public long getPrepareLeadSecondsMinute() {
+        return this.mPrepareLeadSecondsMinute;
+    }
+
+    public void setPrepareLeadSecondsMinute( long prepareLeadSecondsMinute ) {
+        this.mPrepareLeadSecondsMinute = prepareLeadSecondsMinute;
+    }
+
+    public long getPrepareLeadSecondsHour() {
+        return this.mPrepareLeadSecondsHour;
+    }
+
+    public void setPrepareLeadSecondsHour( long prepareLeadSecondsHour ) {
+        this.mPrepareLeadSecondsHour = prepareLeadSecondsHour;
+    }
+
+    public long getPrepareLeadSecondsDaily() {
+        return this.mPrepareLeadSecondsDaily;
+    }
+
+    public void setPrepareLeadSecondsDaily( long prepareLeadSecondsDaily ) {
+        this.mPrepareLeadSecondsDaily = prepareLeadSecondsDaily;
+    }
+
+    public long getPrepareCatchUpWindowMinutesMinute() {
+        return this.mPrepareCatchUpWindowMinutesMinute;
+    }
+
+    public void setPrepareCatchUpWindowMinutesMinute( long prepareCatchUpWindowMinutesMinute ) {
+        this.mPrepareCatchUpWindowMinutesMinute = prepareCatchUpWindowMinutesMinute;
+    }
+
+    public long getPrepareCatchUpWindowMinutesHour() {
+        return this.mPrepareCatchUpWindowMinutesHour;
+    }
+
+    public void setPrepareCatchUpWindowMinutesHour( long prepareCatchUpWindowMinutesHour ) {
+        this.mPrepareCatchUpWindowMinutesHour = prepareCatchUpWindowMinutesHour;
+    }
+
+    public long getPrepareCatchUpWindowMinutesDaily() {
+        return this.mPrepareCatchUpWindowMinutesDaily;
+    }
+
+    public void setPrepareCatchUpWindowMinutesDaily( long prepareCatchUpWindowMinutesDaily ) {
+        this.mPrepareCatchUpWindowMinutesDaily = prepareCatchUpWindowMinutesDaily;
+    }
+
+    public int getPrepareMaxInstancesPerPulseMinute() {
+        return this.mPrepareMaxInstancesPerPulseMinute;
+    }
+
+    public void setPrepareMaxInstancesPerPulseMinute( int prepareMaxInstancesPerPulseMinute ) {
+        this.mPrepareMaxInstancesPerPulseMinute = prepareMaxInstancesPerPulseMinute;
+    }
+
+    public int getPrepareMaxInstancesPerPulseHour() {
+        return this.mPrepareMaxInstancesPerPulseHour;
+    }
+
+    public void setPrepareMaxInstancesPerPulseHour( int prepareMaxInstancesPerPulseHour ) {
+        this.mPrepareMaxInstancesPerPulseHour = prepareMaxInstancesPerPulseHour;
+    }
+
+    public int getPrepareMaxInstancesPerPulseDaily() {
+        return this.mPrepareMaxInstancesPerPulseDaily;
+    }
+
+    public void setPrepareMaxInstancesPerPulseDaily( int prepareMaxInstancesPerPulseDaily ) {
+        this.mPrepareMaxInstancesPerPulseDaily = prepareMaxInstancesPerPulseDaily;
     }
 }

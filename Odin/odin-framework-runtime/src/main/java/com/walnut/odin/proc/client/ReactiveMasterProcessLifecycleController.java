@@ -5,7 +5,9 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.umct.AddressMapping;
 import com.pinecone.hydra.umct.stereotype.Controller;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -26,6 +28,16 @@ public class ReactiveMasterProcessLifecycleController implements Pinenut {
     @AddressMapping("startRemoteUProcess")
     public void startRemoteUProcess( String szPid ) {
         this.mRemoteProcessManagerClient.startLocalUProcess( this.mGuidAllocator.parse(szPid) );
+    }
+
+    @AddressMapping("signalRemoteUProcess")
+    public RemoteProcessSignalResult signalRemoteUProcess( String processId, String signal, long graceTimeoutMillis, String reason ) {
+        return this.mRemoteProcessManagerClient.signalLocalUProcess(
+                this.mGuidAllocator.parse( processId ),
+                ProcSignal.parse( signal ),
+                graceTimeoutMillis,
+                reason
+        );
     }
 
     @AddressMapping("vitalizeRemoteUProcess")

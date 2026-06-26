@@ -3,6 +3,130 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pinecone.hydra.task.ibatis.TaskTreeMapper">
 
+    <resultMap id="TaskTreeNodeMap" type="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        <id     column="id"                 property="enumId"/>
+        <result column="guid"               property="guid"/>
+        <result column="type"               property="type"/>
+        <result column="base_data_guid"     property="baseDataGUID"/>
+        <result column="node_metadata_guid" property="nodeMetadataGUID"/>
+    </resultMap>
+
+    <resultMap id="TreeReparseLinkNodeMap" type="com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode">
+        <result column="targetNodeGuid" property="targetNodeGuid"/>
+        <result column="parentNodeGuid" property="parentNodeGuid"/>
+        <result column="linkedType"     property="linkedType"/>
+        <result column="tagName"        property="tagName"/>
+        <result column="tagGuid"        property="tagGuid"/>
+    </resultMap>
+
+    <resultMap id="HardlinkEntryMap" type="com.pinecone.hydra.unit.imperium.entity.HardlinkEntry">
+        <result column="targetNodeGuid" property="targetNodeGuid"/>
+        <result column="parentNodeGuid" property="parentNodeGuid"/>
+        <result column="linkedType"     property="linkedType"/>
+        <result column="tagName"        property="tagName"/>
+        <result column="tagGuid"        property="tagGuid"/>
+        <result column="createTime"     property="createTime"/>
+        <result column="updateTime"     property="updateTime"/>
+    </resultMap>
+
+    <insert id="insertRootNode">
+        INSERT INTO `hydra_task_node_tree`
+        (
+            `guid`,
+            `linked_type`
+        )
+        VALUES
+        (
+            #{guid},
+            #{linkedType}
+        )
+    </insert>
+
+    <insert id="insertTreeNode">
+        INSERT INTO `hydra_task_nodes`
+        (
+            `guid`,
+            `type`,
+            `base_data_guid`,
+            `node_metadata_guid`
+        )
+        VALUES
+        (
+            #{guid},
+            #{type},
+            #{baseDataGuid},
+            #{nodeMetaGuid}
+        )
+    </insert>
+
+    <select id="getNodeExtendsFromMeta" resultMap="TaskTreeNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `type`,
+            `base_data_guid`,
+            `node_metadata_guid`
+        FROM `hydra_task_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="contains" resultType="boolean">
+        SELECT COUNT(`id`)
+        FROM `hydra_task_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getTreeNodeOnly" resultMap="TaskTreeNodeMap">
+        SELECT
+            `id`,
+            `guid`,
+            `parent_guid`,
+            `linked_type`
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="countNode" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <delete id="removeNodeMeta">
+        DELETE FROM `hydra_task_nodes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNode">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNodeByParentGuid">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeYoke">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+          AND `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeWithLinkedType">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+          AND `linked_type` = #{linkedType}
+    </delete>
+
+    <delete id="removeInheritance">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{childGuid}
+          AND `parent_guid` = #{parentGuid}
+    </delete>
+
     <resultMap id="TaskTreeElementDigestMap" type="com.pinecone.hydra.task.kom.digest.GenericTaskTreeElementDigest">
         <id     column="enum_id"        property="enumId"/>
         <result column="guid"           property="guid"/>
@@ -70,13 +194,12 @@
         ORDER BY tree.id ASC
     </select>
 
-    <select id="getChildren" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+    <select id="getChildren" resultMap="TaskTreeNodeMap">
         SELECT
-        `id` AS `enumId`,
-        `guid`,
-        `parent_guid` AS `parentGuid`
-        FROM
-        `hydra_task_node_tree`
+            `id`,
+            `guid`,
+            `parent_guid`
+        FROM `hydra_task_node_tree`
         <where>
             <if test="parentGuid != null">
                 `parent_guid` = #{parentGuid}
@@ -85,6 +208,190 @@
                 `parent_guid` IS NULL
             </if>
         </where>
+    </select>
+
+    <select id="fetchChildrenGuids0" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="fetchParentGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `parent_guid`
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="updateType">
+        UPDATE `hydra_task_nodes`
+        SET
+            `type` = #{type}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="fetchRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `parent_guid` IS NULL
+    </select>
+
+    <select id="isRoot" resultType="boolean">
+        SELECT COUNT(`guid`)
+        FROM `hydra_task_node_tree`
+        WHERE `parent_guid` IS NULL
+          AND `guid` = #{guid}
+    </select>
+
+    <select id="queryLinkedCount" resultType="long">
+        SELECT COUNT(`guid`)
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+          AND `linked_type` = #{linkedType}
+    </select>
+
+    <select id="queryAllLinkedCount" resultType="long">
+        SELECT COUNT(`guid`)
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <insert id="newLinkTag">
+        INSERT INTO `hydra_task_node_tree`
+        (
+            `guid`,
+            `linked_type`,
+            `tag_name`,
+            `tag_guid`,
+            `parent_guid`
+        )
+        VALUES
+        (
+            #{originalGuid},
+            #{linkedType},
+            #{tagName},
+            #{tagGuid},
+            #{dirGuid}
+        )
+    </insert>
+
+    <update id="updateLinkTagName">
+        UPDATE `hydra_task_node_tree`
+        SET
+            `tag_name` = #{tagName}
+        WHERE `tag_guid` = #{tagGuid}
+    </update>
+
+    <select id="getOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` = #{dirGuid}
+    </select>
+
+    <select id="getOriginalGuidByNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="getReparseLinkNode" resultMap="TreeReparseLinkNodeMap">
+        SELECT
+            `guid` AS targetNodeGuid,
+            `parent_guid` AS parentNodeGuid,
+            `linked_type` AS linkedType,
+            `tag_name` AS tagName,
+            `tag_guid` AS tagGuid
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` = #{parentDirGuid}
+    </select>
+
+    <select id="getReparseLinkNodeByNodeGuid" resultMap="TreeReparseLinkNodeMap">
+        SELECT
+            `guid` AS targetNodeGuid,
+            `parent_guid` AS parentNodeGuid,
+            `linked_type` AS linkedType,
+            `tag_name` AS tagName,
+            `tag_guid` AS tagGuid
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="fetchOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+    </select>
+
+    <select id="fetchOriginalGuidRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `tag_name` = #{tagName}
+          AND `parent_guid` IS NULL
+    </select>
+
+    <select id="isTagGuid" resultType="boolean">
+        SELECT COUNT(*)
+        FROM `hydra_task_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </select>
+
+    <delete id="removeReparseLink">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </delete>
+
+    <select id="getOriginalGuidByTagGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `tag_guid` = #{tagGuid}
+    </select>
+
+    <select id="listHardlinks" resultMap="HardlinkEntryMap">
+        SELECT
+            `guid` AS targetNodeGuid,
+            `parent_guid` AS parentNodeGuid,
+            `linked_type` AS linkedType,
+            `tag_name` AS tagName,
+            `tag_guid` AS tagGuid,
+            `create_time` AS createTime,
+            `update_time` AS updateTime
+        FROM `hydra_task_node_tree`
+        WHERE `linked_type` = 'Hard'
+        <if test="keyword != null and keyword != ''">
+          AND (
+                `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+          )
+        </if>
+        ORDER BY `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHardlinks" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_task_node_tree`
+        WHERE `linked_type` = 'Hard'
+        <if test="keyword != null and keyword != ''">
+          AND (
+                `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+             OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+          )
+        </if>
     </select>
 
 </mapper>

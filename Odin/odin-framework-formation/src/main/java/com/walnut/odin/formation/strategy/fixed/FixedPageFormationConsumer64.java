@@ -73,23 +73,27 @@ public class FixedPageFormationConsumer64 extends ArchFormationConsumer<Formatio
     protected void consumeFrame( FormationFrame frame ) {
         try {
             FormationFrameFeedback feedback = this.mFrameConsumerAdapter.consumeFrame( frame );
-            GUID instanceGuid = this.resolveInstanceGuid( feedback.submitResult() );
-            this.mMasterManipulator.frameManipulator().markSubmitted( frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
+            GUID instanceGuid = this.requireInstanceGuid( feedback.submitResult() );
+            int nUpdated = this.mMasterManipulator.frameManipulator().markSubmitted( frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
                     ? ( (com.walnut.odin.formation.plan.GenericFormationFrame)frame ).getGuid()
                     : null, instanceGuid );
-            this.mMasterManipulator.runManipulator().increaseSubmitted( this.mRunGuid );
+            if ( nUpdated > 0 ) {
+                this.mMasterManipulator.runManipulator().increaseSubmitted( this.mRunGuid );
+            }
             if ( this.mRuntime instanceof GenericFormationStrategyRuntime) {
                 ( (GenericFormationStrategyRuntime)this.mRuntime ).increaseConsumedCount();
             }
         }
         catch ( Exception e ) {
-            this.mMasterManipulator.frameManipulator().markFailed(
+            int nUpdated = this.mMasterManipulator.frameManipulator().markFailed(
                     frame instanceof com.walnut.odin.formation.plan.GenericFormationFrame
                             ? ( (com.walnut.odin.formation.plan.GenericFormationFrame)frame ).getGuid()
                             : null,
                     e.getMessage()
             );
-            this.mMasterManipulator.runManipulator().increaseFailed( this.mRunGuid );
+            if ( nUpdated > 0 ) {
+                this.mMasterManipulator.runManipulator().increaseFailed( this.mRunGuid );
+            }
         }
     }
 
@@ -102,5 +106,13 @@ public class FixedPageFormationConsumer64 extends ArchFormationConsumer<Formatio
             return null;
         }
         return instance.getInstanceEntry().getGuid();
+    }
+
+    protected GUID requireInstanceGuid( TaskInstantaneousSubmitResult result ) {
+        GUID instanceGuid = this.resolveInstanceGuid( result );
+        if ( instanceGuid == null ) {
+            throw new IllegalStateException( "Formation frame submit result has no task instance guid." );
+        }
+        return instanceGuid;
     }
 }

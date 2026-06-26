@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.PatrolWatchdogLogMapper">
+
+    <resultMap id="PatrolWatchdogLogMap" type="com.walnut.odin.patrol.GenericPatrolWatchdogLog">
+        <id column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="watchdog_name" property="watchdogName"/>
+        <result column="rule_code" property="ruleCode"/>
+        <result column="rule_name" property="ruleName"/>
+        <result column="target_type" property="targetType"/>
+        <result column="target_guid" property="targetGuid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="exec_id" property="execId"/>
+        <result column="process_guid" property="processGuid"/>
+        <result column="executed_processor" property="executedProcessor"/>
+        <result column="patrol_state" property="patrolState"/>
+        <result column="severity" property="severity"/>
+        <result column="action_type" property="actionType"/>
+        <result column="action_state" property="actionState"/>
+        <result column="message" property="message"/>
+        <result column="payload" property="payload"/>
+        <result column="patrol_time" property="patrolTime"/>
+        <result column="action_time" property="actionTime"/>
+    </resultMap>
+
+    <sql id="PatrolWatchdogLogColumns">
+        id,
+        guid,
+        watchdog_name,
+        rule_code,
+        rule_name,
+        target_type,
+        target_guid,
+        task_guid,
+        instance_guid,
+        exec_id,
+        process_guid,
+        executed_processor,
+        patrol_state,
+        severity,
+        action_type,
+        action_state,
+        message,
+        payload,
+        patrol_time,
+        action_time
+    </sql>
+
+    <sql id="PatrolWatchdogLogFilter">
+        <where>
+            <if test="ruleCode != null and ruleCode != ''">
+                AND rule_code = #{ruleCode}
+            </if>
+            <if test="patrolState != null and patrolState != ''">
+                AND patrol_state = #{patrolState}
+            </if>
+            <if test="severity != null and severity != ''">
+                AND severity = #{severity}
+            </if>
+            <if test="actionState != null and actionState != ''">
+                AND action_state = #{actionState}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.walnut.odin.patrol.PatrolWatchdogLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO odin_patrol_watchdog_log (
+            guid,
+            watchdog_name,
+            rule_code,
+            rule_name,
+            target_type,
+            target_guid,
+            task_guid,
+            instance_guid,
+            exec_id,
+            process_guid,
+            executed_processor,
+            patrol_state,
+            severity,
+            action_type,
+            action_state,
+            message,
+            payload,
+            patrol_time,
+            action_time
+        ) VALUES (
+            #{guid},
+            #{watchdogName},
+            #{ruleCode},
+            #{ruleName},
+            #{targetType},
+            #{targetGuid},
+            #{taskGuid},
+            #{instanceGuid},
+            #{execId},
+            #{processGuid},
+            #{executedProcessor},
+            #{patrolState},
+            #{severity},
+            #{actionType},
+            #{actionState},
+            #{message},
+            #{payload},
+            #{patrolTime},
+            #{actionTime}
+        )
+    </insert>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_patrol_watchdog_log
+        <include refid="PatrolWatchdogLogFilter"/>
+    </select>
+
+    <select id="page" resultMap="PatrolWatchdogLogMap">
+        SELECT
+            <include refid="PatrolWatchdogLogColumns"/>
+        FROM odin_patrol_watchdog_log
+        <include refid="PatrolWatchdogLogFilter"/>
+        ORDER BY patrol_time DESC, id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="latest" resultMap="PatrolWatchdogLogMap">
+        SELECT
+            <include refid="PatrolWatchdogLogColumns"/>
+        FROM odin_patrol_watchdog_log
+        ORDER BY patrol_time DESC, id DESC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByTaskGuids">
+        DELETE FROM odin_patrol_watchdog_log
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
+</mapper>

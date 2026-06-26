@@ -8,6 +8,7 @@ import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.walnut.odin.project.TaskProjectInstrument;
 import com.walnut.odin.specific.TaskSpecificService;
+import com.walnut.odin.task.deletion.TaskDirectoryDeleteSafetyReport;
 import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 import com.walnut.odin.task.system.TaskPathInvalidException;
@@ -29,6 +30,22 @@ public interface CentralizedTaskInstrument extends TaskInstrument {
     GUID assertGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException;
 
     GUID assertTaskGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException, IllegalArgumentException;
+
+    TaskDirectoryDeleteSafetyReport checkDirectoryDelete( GUID guid );
+
+    TaskDirectoryDeleteSafetyReport checkDirectoryDelete( String path );
+
+    TaskDirectoryDeleteSafetyReport checkDirectoryPurge( GUID guid );
+
+    TaskDirectoryDeleteSafetyReport checkDirectoryPurge( String path );
+
+    TaskDirectoryDeleteSafetyReport purgeDirectory( GUID guid );
+
+    TaskDirectoryDeleteSafetyReport purgeDirectory( String path );
+
+    void move( String sourcePath, String destinationPath );
+
+    void move( GUID sourceGuid, GUID destinationGuid );
 
 
 

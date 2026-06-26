@@ -6,13 +6,16 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.system.ko.MetaPersistenceException;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.schedule.entity.TaskSchedulerRuntimeSnapshot;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitRequest;
 import com.walnut.odin.conduct.schedule.entity.TaskInstantaneousSubmitResult;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
+import com.walnut.odin.patrol.PatrolWatchdog;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
+import com.walnut.odin.task.launch.TaskLaunchFeatureProviderRegistry;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
 
@@ -28,7 +31,11 @@ public interface UniformTaskScheduler extends Pinenut {
 
     TaskExecutionLauncher taskExecutionLauncher();
 
+    TaskInstanceLifecycleExaminer taskInstanceLifecycleExaminer();
+
     TaskDispatcher taskDispatcher();
+
+    TaskLaunchFeatureProviderRegistry taskLaunchFeatureProviderRegistry();
 
     String getPartitionName();
 
@@ -40,11 +47,17 @@ public interface UniformTaskScheduler extends Pinenut {
 
     TaskSchedulerRuntimeSnapshot runtimeSnapshot();
 
+    void startCycleEngine();
+
+    void stopCycleEngine();
+
     void pulseSchedule();
 
     void pulseSchedule( LocalDateTime pulseTime );
 
     void pulseScheduleDaily( LocalDateTime pulseTime );
+
+    InstantaneousEngine instantaneousEngine();
 
     TaskInstantaneousSubmitResult submitInstantaneousTask( TaskInstantaneousSubmitRequest request )
             throws MetaPersistenceException, InstanceLaunchException, TaskDispatchException;
@@ -60,5 +73,7 @@ public interface UniformTaskScheduler extends Pinenut {
     InstanceDepartureGate instanceDepartureGate();
 
     InstanceScheduleAllocator instanceScheduleAllocator();
+
+    PatrolWatchdog patrolWatchdog();
 
 }

@@ -5,12 +5,6 @@ import com.walnut.odin.formation.service.FlowService;
 import com.walnut.odin.formation.service.FormationFlowService;
 import com.walnut.odin.formation.service.FormationRunService;
 import com.walnut.odin.formation.service.RunService;
-import com.walnut.odin.formation.source.FormationGroupMapper;
-import com.walnut.odin.formation.source.FormationGroupTaskMapper;
-import com.walnut.odin.formation.source.FormationRunFrameMapper;
-import com.walnut.odin.formation.source.FormationRunMapper;
-import com.walnut.odin.formation.source.FormationRunPageMapper;
-import com.walnut.odin.formation.source.KernelMasterManipulator;
 import com.walnut.odin.formation.source.MasterManipulator;
 
 public class RavenFormationInstrument implements FormationInstrument {
@@ -25,21 +19,11 @@ public class RavenFormationInstrument implements FormationInstrument {
     public RavenFormationInstrument(
             FormationConfig config,
             GuidAllocator guidAllocator,
-            FormationGroupMapper groupMapper,
-            FormationGroupTaskMapper groupTaskMapper,
-            FormationRunMapper runMapper,
-            FormationRunPageMapper pageMapper,
-            FormationRunFrameMapper frameMapper
+            MasterManipulator masterManipulator
     ) {
         this.mConfig = config;
         this.mGuidAllocator = guidAllocator;
-        this.mMasterManipulator = new KernelMasterManipulator(
-                groupMapper,
-                groupTaskMapper,
-                runMapper,
-                pageMapper,
-                frameMapper
-        );
+        this.mMasterManipulator = masterManipulator;
         this.prepareServices();
     }
 

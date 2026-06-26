@@ -12,7 +12,6 @@ import com.pinecone.slime.meta.TableIndex64Meta;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -57,11 +56,9 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     }
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name}" )
-    List<GUID> getGuidsByName( String name );
+    List<GUID> getGuidsByName( @Param("name") String name );
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 

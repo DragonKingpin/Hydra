@@ -30,19 +30,23 @@ import com.pinecone.hydra.task.kom.instance.InstanceEntry;
 import com.pinecone.hydra.task.kom.instance.InstanceInstrument;
 import com.pinecone.hydra.task.marshal.TaskScheduleCycle;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
-import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionReason;
 import com.walnut.odin.conduct.lifecycle.TaskInstanceTransitionResult;
 import com.walnut.odin.proc.ProcessRemoteEventHandler;
 import com.walnut.odin.proc.RemoteImageResolutionMode;
 import com.walnut.odin.proc.RemoteProcess;
+import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.entity.RemoteProcessCreationContext;
+import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstance;
+import com.walnut.odin.task.audit.InstanceExecAuditPayloads;
+import com.walnut.odin.task.mapper.InstanceExecAuditMapper;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
 
 public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jTraceable {
@@ -59,7 +63,9 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
     protected InstanceExecMapper mInstanceExecMapper;
 
-    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+    protected InstanceExecAuditMapper mInstanceExecAuditMapper;
+
+    protected TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
 
     protected ProcessManager mProcessManager;
 
@@ -82,7 +88,8 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         this.mTaskInstrument              = taskRegiment.taskInstrument();
         this.mInstanceInstrument          = this.mTaskInstrument.getInstanceInstrument();
         this.mInstanceExecMapper          = this.mTaskInstrument.getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceExecMapper();
-        this.mTaskInstanceLifecycleInstrument = taskRegiment.taskInstanceLifecycleInstrument();
+        this.mInstanceExecAuditMapper     = this.mTaskInstrument.getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceExecAuditMapper();
+        this.mTaskInstanceLifecycleExaminer = taskRegiment.taskInstanceLifecycleExaminer();
         this.mRavenTaskConfig             = (RavenTaskConfig) this.mTaskInstrument.getConfig();
         this.mGuidAllocator               = this.mTaskInstrument.getGuidAllocator();
         this.mInstanceTitleTimeFormat     = DatePattern.createFormatter( this.mRavenTaskConfig.getInstanceTitleTimeFormat() );
@@ -294,9 +301,122 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             LocalDateTime startTime, LocalDateTime runTime, LocalDateTime finishTime
     ) {
         InstanceEntry entry = instance.getInstanceEntry();
-        this.mInstanceExecMapper.updateStateRetryMonotonic(
+        int nAffectedRows = this.mInstanceExecMapper.updateStateRetryMonotonic(
                 entry.getGuid(), entry.getSequenceCnt(), entry.getRetryCnt(), state.getName(), startTime, runTime, finishTime
         );
+        if ( nAffectedRows <= 0 ) {
+            this.mLogger.warn(
+                    "[TaskLaunchSequence] [ExecStateUpdateMissed] "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, TargetState: `{}`, InstanceStatus: `{}`) <Ignored>",
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    state.getName(),
+                    entry.getRunStatus()
+            );
+        }
+        else if ( this.isTerminalExecutionState( state ) ) {
+            this.recordExecutionLoggerAudit( instance, state, finishTime );
+        }
+    }
+
+    protected TaskInstanceTransitionResult transitCurrentRetryWithRuntimeFields(
+            RavenTaskInstance instance,
+            List<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            TaskInstanceTransitionReason reason,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        InstanceEntry entry = instance.getInstanceEntry();
+        return this.mTaskInstanceLifecycleExaminer.transitCurrentRetryWithRuntimeFields(
+                entry.getGuid(),
+                entry.getSequenceCnt(),
+                entry.getRetryCnt(),
+                fromStatuses,
+                toStatus,
+                reason,
+                latestStartTime,
+                latestEndTime,
+                finishTime,
+                errorCause
+        );
+    }
+
+    protected boolean isTerminalExecutionState( TaskInstanceExecState state ) {
+        return state == TaskInstanceExecState.Success
+                || state == TaskInstanceExecState.Fail
+                || state == TaskInstanceExecState.Killed;
+    }
+
+    protected void recordExecutionLoggerAudit(
+            RavenTaskInstance instance, TaskInstanceExecState state, LocalDateTime finishTime
+    ) {
+        if ( this.mInstanceExecAuditMapper == null || instance == null || instance.getInstanceEntry() == null ) {
+            return;
+        }
+
+        InstanceEntry entry = instance.getInstanceEntry();
+        if ( entry.getGuid() == null ) {
+            return;
+        }
+
+        try {
+            this.mInstanceExecAuditMapper.upsertLogger(
+                    entry.getTaskGuid(),
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    this.executionAuditMessage( state, entry ),
+                    this.executionAuditPayload( state, entry, finishTime ),
+                    entry.getLastStartTime(),
+                    finishTime
+            );
+        }
+        catch ( RuntimeException e ) {
+            this.mLogger.warn(
+                    "[TaskLaunchSequence] [ExecAuditLoggerFailed] "
+                            + "(InstanceGuid: `{}`, SequenceCnt: {}, RetryCnt: {}, ExecState: `{}`) <Ignored>",
+                    entry.getGuid(),
+                    entry.getSequenceCnt(),
+                    entry.getRetryCnt(),
+                    state.getName(),
+                    e
+            );
+        }
+    }
+
+    protected String executionAuditMessage( TaskInstanceExecState state, InstanceEntry entry ) {
+        if ( state == TaskInstanceExecState.Success ) {
+            return "Execution finished with Success.";
+        }
+        if ( state == TaskInstanceExecState.Killed ) {
+            String szCause = entry.getErrorCause();
+            if ( szCause == null || szCause.trim().isEmpty() ) {
+                return "Execution finished with Killed.";
+            }
+            return this.truncate( "Execution finished with Killed: " + szCause, 1024 );
+        }
+        String szCause = entry.getErrorCause();
+        if ( szCause == null || szCause.trim().isEmpty() ) {
+            return "Execution finished with Fail.";
+        }
+        return this.truncate( "Execution finished with Fail: " + szCause, 1024 );
+    }
+
+    protected String executionAuditPayload(
+            TaskInstanceExecState state, InstanceEntry entry, LocalDateTime finishTime
+    ) {
+        return InstanceExecAuditPayloads.from( state, entry, finishTime );
+    }
+
+    protected String truncate( String value, int maxLength ) {
+        if ( value == null || value.length() <= maxLength ) {
+            return value;
+        }
+        return value.substring( 0, Math.max( 0, maxLength ) );
     }
 
     protected void afterProcessCreated( RavenTaskInstance instance, UProcess process ) throws MetaPersistenceException {
@@ -307,16 +427,20 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
 
         InstanceEntry entry = instance.getInstanceEntry();
         instance.update();
+        this.updateExecutionState( instance, TaskInstanceExecState.Submitted, LocalDateTime.now(), null, null );
 
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAny(
-                entry.getGuid(),
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
                 TaskInstanceStatus.ProcessStandby,
-                TaskInstanceTransitionReason.ProcessCreated
+                TaskInstanceTransitionReason.ProcessCreated,
+                null,
+                null,
+                null,
+                null
         );
         if ( result.isSucceeded() ) {
             entry.setInstanceStatus( TaskInstanceStatus.ProcessStandby );
-            this.updateExecutionState( instance, TaskInstanceExecState.Submitted, LocalDateTime.now(), null, null );
         }
     }
 
@@ -328,8 +452,10 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         }
 
         LocalDateTime now = LocalDateTime.now();
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
-                entry.getGuid(),
+        entry.setErrorCause( szCause );
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of( TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
                 TaskInstanceStatus.Error,
                 TaskInstanceTransitionReason.ProcessCreationFailed,
@@ -343,7 +469,6 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             entry.setErrorCause( szCause );
             entry.setLastEndTime( now );
             entry.setFinishTime( now );
-            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
     }
 
@@ -605,10 +730,12 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         if ( szCause == null ) {
             szCause = cause.getClass().getName();
         }
+        entry.setErrorCause( szCause );
 
         LocalDateTime now = LocalDateTime.now();
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
-                entry.getGuid(),
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating, TaskInstanceStatus.New, TaskInstanceStatus.DepartureStandby ),
                 TaskInstanceStatus.Error,
                 TaskInstanceTransitionReason.ProcessFailed,
@@ -622,7 +749,6 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             entry.setErrorCause( szCause );
             entry.setLastEndTime( now );
             entry.setFinishTime( now );
-            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
         this.mLogger.error(
                 "[TaskLaunchSequence] [ProcessStartFailure] (Process: `{}`, PID: `{}`, Instance: `{}`) <Error>",
@@ -634,12 +760,13 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
     }
 
     protected void afterOwnedProcessFinished( RavenTaskInstance instance, UProcess process ) {
+        LocalDateTime now = LocalDateTime.now();
+        this.updateExecutionState( instance, TaskInstanceExecState.Success, null, null, now );
         if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Finished ) {
             return;
         }
-        LocalDateTime now = LocalDateTime.now();
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
-                instance.getInstanceEntry().getGuid(),
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of(
                         TaskInstanceStatus.Running,
                         TaskInstanceStatus.ProcessStandby,
@@ -656,18 +783,31 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Finished );
             instance.getInstanceEntry().setLastEndTime( now );
             instance.getInstanceEntry().setFinishTime( now );
-            this.updateExecutionState( instance, TaskInstanceExecState.Success, null, null, now );
         }
     }
 
     protected void afterOwnedProcessFailed( RavenTaskInstance instance, UProcess process, Object caused ) {
-        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
+        if ( this.isSignalTerminationReport( caused ) ) {
+            this.afterOwnedProcessKilled( instance, process, caused );
             return;
         }
         LocalDateTime now = LocalDateTime.now();
         String szCause = caused == null ? null : String.valueOf( caused );
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
-                instance.getInstanceEntry().getGuid(),
+        instance.getInstanceEntry().setErrorCause( szCause );
+        this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
+        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Error ) {
+            this.mLogger.warn(
+                    "[TaskLaunchSequence] [LateProcessFailure] "
+                            + "(Process: `{}`, PID: `{}`, Instance: `{}`, Cause: `{}`) <ExecStateRecorded>",
+                    process == null ? null : process.getName(),
+                    process == null ? null : process.getPID(),
+                    instance.getInstanceEntry().getGuid(),
+                    szCause
+            );
+            return;
+        }
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of(
                         TaskInstanceStatus.Running,
                         TaskInstanceStatus.ProcessStandby,
@@ -687,14 +827,62 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
             if ( szCause != null ) {
                 instance.getInstanceEntry().setErrorCause( szCause );
             }
-            this.updateExecutionState( instance, TaskInstanceExecState.Fail, null, null, now );
         }
+    }
+
+    protected void afterOwnedProcessKilled( RavenTaskInstance instance, UProcess process, Object caused ) {
+        LocalDateTime now = LocalDateTime.now();
+        String szCause = caused == null ? "Remote process killed by signal." : String.valueOf( caused );
+        instance.getInstanceEntry().setErrorCause( szCause );
+        this.updateExecutionState( instance, TaskInstanceExecState.Killed, null, null, now );
+        if ( instance.getInstanceEntry().getInstanceStatus() == TaskInstanceStatus.Killed ) {
+            this.mLogger.warn(
+                    "[TaskLaunchSequence] [LateProcessKilled] "
+                            + "(Process: `{}`, PID: `{}`, Instance: `{}`, Cause: `{}`) <ExecStateRecorded>",
+                    process == null ? null : process.getName(),
+                    process == null ? null : process.getPID(),
+                    instance.getInstanceEntry().getGuid(),
+                    szCause
+            );
+            return;
+        }
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
+                List.of(
+                        TaskInstanceStatus.Running,
+                        TaskInstanceStatus.ProcessStandby,
+                        TaskInstanceStatus.ProcessCreating
+                ),
+                TaskInstanceStatus.Killed,
+                TaskInstanceTransitionReason.ProcessKilled,
+                null,
+                now,
+                now,
+                szCause
+        );
+        if ( result.isSucceeded() ) {
+            instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Killed );
+            instance.getInstanceEntry().setLastEndTime( now );
+            instance.getInstanceEntry().setFinishTime( now );
+            instance.getInstanceEntry().setErrorCause( szCause );
+        }
+    }
+
+    protected boolean isSignalTerminationReport( Object caused ) {
+        if ( !( caused instanceof RemoteTerminationReport ) ) {
+            return false;
+        }
+        RemoteTerminationStatus status = ( (RemoteTerminationReport)caused ).optStatus();
+        return status == RemoteTerminationStatus.SignalInterrupted
+                || status == RemoteTerminationStatus.SignalApoptosis
+                || status == RemoteTerminationStatus.SignalElimination;
     }
 
     protected void afterOwnedProcessStarted( RavenTaskInstance instance, UProcess process ) throws InstanceLaunchException {
         LocalDateTime now = LocalDateTime.now();
-        TaskInstanceTransitionResult result = this.mTaskInstanceLifecycleInstrument.transitAnyWithRuntimeFields(
-                instance.getInstanceEntry().getGuid(),
+        this.updateExecutionState( instance, TaskInstanceExecState.Running, null, now, null );
+        TaskInstanceTransitionResult result = this.transitCurrentRetryWithRuntimeFields(
+                instance,
                 List.of( TaskInstanceStatus.ProcessStandby, TaskInstanceStatus.ProcessCreating ),
                 TaskInstanceStatus.Running,
                 TaskInstanceTransitionReason.ProcessStarted,
@@ -706,7 +894,6 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         if ( result.isSucceeded() ) {
             instance.getInstanceEntry().setInstanceStatus( TaskInstanceStatus.Running );
             instance.getInstanceEntry().setLastStartTime( now );
-            this.updateExecutionState( instance, TaskInstanceExecState.Running, null, now, null );
         }
     }
 

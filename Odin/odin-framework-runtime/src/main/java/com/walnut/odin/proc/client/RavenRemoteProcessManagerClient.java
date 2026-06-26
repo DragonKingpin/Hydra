@@ -6,6 +6,7 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.uma.DuplexAppointClient;
 import com.pinecone.hydra.uma.wolf.WolvesAppointClient;
@@ -20,8 +21,13 @@ import com.walnut.odin.proc.RemoteProcessLifecycleExaminer;
 import com.walnut.odin.proc.ProcessLifecycleExaminer;
 import com.walnut.odin.proc.RemoteProcessLifecycleException;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
+import com.walnut.odin.proc.RemoteTerminationStatus;
+import com.pinecone.hydra.proc.signal.ProcessSignalHandler;
+import com.pinecone.hydra.proc.signal.ProcSignal;
+import com.pinecone.hydra.proc.signal.SignalHandleResult;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
 import com.walnut.odin.proc.control.RemoteProcessControlFrameIface;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -34,6 +40,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -66,6 +74,8 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
     protected long                           mnClientId;
 
     protected UlfClient                      mRPCClient;
+
+    protected ConcurrentMap<GUID, RemoteTerminationStatus> mSignalTerminationStatuses = new ConcurrentHashMap<>();
 
     public RavenRemoteProcessManagerClient( ProcessManager processManager, UlfClient rpcClient ) {
         super( processManager );
@@ -480,6 +490,152 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         UProcessRuntimeMeta meta = ProcessesUtils.extractProcessMeta( process );
         // 不要直接return 老子好打断点.
         return meta;
+    }
+
+    @Override
+    public RemoteProcessSignalResult signalLocalUProcess( GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason ) {
+        ProcSignal appliedSignal = signal == null ? ProcSignal.SIGTERM : signal;
+        UProcess process = this.mProcessManager.getProcess( pid );
+        RemoteProcessSignalResult result = this.newSignalResult( pid, appliedSignal, process != null );
+        result.setReason( szReason );
+        if ( process == null ) {
+            result.setMessage( "Local process not found." );
+            result.setOperatorActionRequired( true );
+            return result;
+        }
+
+        this.registerSignalTerminationStatus( pid, appliedSignal );
+        try {
+            SignalHandleResult entryPointResult = this.signalEntryPoint( process, appliedSignal, graceTimeoutMillis, szReason );
+            if ( entryPointResult != null ) {
+                this.applySignalHandleResult( result, entryPointResult );
+            }
+            else {
+                this.interpretSignal( process, appliedSignal, result );
+            }
+        }
+        catch ( Exception e ) {
+            this.consumeSignalTerminationStatus( pid );
+            result.setAccepted( false );
+            result.setMessage( this.describeThrowable( e ) );
+            result.setOperatorActionRequired( true );
+            return result;
+        }
+
+        boolean terminal = process.getStatus() != null && process.getStatus().isTerminal();
+        if ( appliedSignal == ProcSignal.SIGKILL && result.getTerminator() == null ) {
+            result.setSchedulerClosed( true );
+            result.setPhysicalClosed( terminal );
+            result.setOperatorActionRequired( !terminal );
+            if ( !terminal ) {
+                result.setMessage( "Java internal process interpreted SIGKILL; physical closure is cooperative." );
+                this.getLogger().warn(
+                        "[RemoteProcessSignal] [JavaInternal] (ProcessId: `{}`, Signal: `{}`) <CooperativeClosureRequired>",
+                        pid,
+                        appliedSignal
+                );
+            }
+        }
+        else {
+            if ( !result.isSchedulerClosed() ) {
+                result.setSchedulerClosed( terminal );
+            }
+            if ( !result.isPhysicalClosed() ) {
+                result.setPhysicalClosed( terminal );
+            }
+            result.setOperatorActionRequired( result.isOperatorActionRequired() || appliedSignal == ProcSignal.SIGKILL && !result.isPhysicalClosed() );
+        }
+        return result;
+    }
+
+    protected SignalHandleResult signalEntryPoint(
+            UProcess process, ProcSignal signal, long graceTimeoutMillis, String szReason
+    ) {
+        if ( process == null || process.getExecutionImage() == null ) {
+            return null;
+        }
+        EntryPointRunnable entryPoint = process.getExecutionImage().getEntryPoint();
+        if ( !( entryPoint instanceof ProcessSignalHandler ) ) {
+            return null;
+        }
+        ProcessSignalHandler handler = (ProcessSignalHandler)entryPoint;
+        if ( !handler.supports( signal ) ) {
+            return null;
+        }
+        return handler.signal( signal, graceTimeoutMillis, szReason );
+    }
+
+    protected void applySignalHandleResult( RemoteProcessSignalResult target, SignalHandleResult source ) {
+        if ( source == null || target == null ) {
+            return;
+        }
+        target.setAccepted( source.isAccepted() );
+        target.setSchedulerClosed( source.isSchedulerClosed() );
+        target.setPhysicalClosed( source.isPhysicalClosed() );
+        target.setOperatorActionRequired( source.isOperatorActionRequired() );
+        target.setTerminator( source.getTerminator() );
+        target.setMessage( source.getMessage() );
+    }
+
+    protected void interpretSignal( UProcess process, ProcSignal appliedSignal, RemoteProcessSignalResult result ) {
+        switch ( appliedSignal ) {
+            case SIGINT:
+                process.interrupt();
+                result.setMessage( "Local process interrupt signal accepted." );
+                break;
+            case SIGKILL:
+                process.kill();
+                result.setMessage( "Local process kill signal accepted." );
+                break;
+            case SIGTERM:
+            default:
+                process.apoptosis();
+                result.setMessage( "Local process apoptosis signal accepted." );
+                break;
+        }
+    }
+
+    protected void registerSignalTerminationStatus( GUID pid, ProcSignal signal ) {
+        if ( pid == null ) {
+            return;
+        }
+        this.mSignalTerminationStatuses.put( pid, this.toSignalTerminationStatus( signal ) );
+    }
+
+    @Override
+    public RemoteTerminationStatus consumeSignalTerminationStatus( GUID pid ) {
+        if ( pid == null ) {
+            return null;
+        }
+        return this.mSignalTerminationStatuses.remove( pid );
+    }
+
+    protected RemoteTerminationStatus toSignalTerminationStatus( ProcSignal signal ) {
+        if ( signal == null ) {
+            return RemoteTerminationStatus.SignalApoptosis;
+        }
+        switch ( signal ) {
+            case SIGINT:
+                return RemoteTerminationStatus.SignalInterrupted;
+            case SIGKILL:
+                return RemoteTerminationStatus.SignalElimination;
+            case SIGTERM:
+            default:
+                return RemoteTerminationStatus.SignalApoptosis;
+        }
+    }
+
+    protected RemoteProcessSignalResult newSignalResult( GUID pid, ProcSignal signal, boolean accepted ) {
+        RemoteProcessSignalResult result = new RemoteProcessSignalResult();
+        result.setProcessId( pid == null ? null : pid.toString() );
+        result.setSignal( signal == null ? ProcSignal.SIGTERM.name() : signal.name() );
+        result.setAccepted( accepted );
+        result.setTransport( "husky-local" );
+        result.setTerminator( "odin-uprocess" );
+        result.setSchedulerClosed( false );
+        result.setPhysicalClosed( false );
+        result.setOperatorActionRequired( false );
+        return result;
     }
 
     @Override

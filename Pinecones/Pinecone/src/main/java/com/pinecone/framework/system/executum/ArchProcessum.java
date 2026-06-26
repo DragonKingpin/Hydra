@@ -5,6 +5,7 @@ import com.pinecone.framework.system.ApoptosisRejectSignalException;
 import com.pinecone.framework.system.GenericMasterTaskManager;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 
 public abstract class ArchProcessum extends ArchExecutum implements Processum {
@@ -37,27 +38,25 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
 
     @Override
     public void interrupt() {
-        if( this.getAffiliateThread() != null ) {
+        if ( this.getTaskManager() != null ) {
+            this.getTaskManager().terminate();
+        }
+        if ( this.getAffiliateThread() != null ) {
             this.getAffiliateThread().interrupt();
         }
     }
 
     @Override
-    public void  kill() {
-        this.getTaskManager().terminate();
-        if( this.getAffiliateThread() != null ) {
-            this.getAffiliateThread().stop();
-        }
+    public void kill() {
+        this.interrupt();
     }
 
     @Override
     public void  suspend() {
-        this.getAffiliateThread().suspend();
     }
 
     @Override
     public void  resume() {
-        this.getAffiliateThread().resume();
     }
 
     @Override
@@ -72,7 +71,12 @@ public abstract class ArchProcessum extends ArchExecutum implements Processum {
 
     @Override
     public Map<Long, Executum > getOwnThreadGroup() {
-        return this.getTaskManager().getExecutumPool();
+        if ( this.getTaskManager() == null ) {
+            return Collections.emptyMap();
+        }
+        else {
+            return this.getTaskManager().getExecutumPool();
+        }
     }
 
     @Override

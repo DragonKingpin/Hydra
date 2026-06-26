@@ -95,6 +95,28 @@
         </if>
     </select>
 
+    <sql id="FormationGroupTaskWhere">
+        WHERE formation_guid = #{formationGuid}
+        <if test="enable != null">
+          AND enable = #{enable}
+        </if>
+        <if test="scheduleType != null and scheduleType != ''">
+          AND schedule_type = #{scheduleType}
+        </if>
+        <if test="taskKeyword != null and taskKeyword != ''">
+          AND (
+              task_guid = #{taskKeyword}
+              OR task_name LIKE CONCAT('%', #{taskKeyword}, '%')
+          )
+        </if>
+    </sql>
+
+    <select id="countByFormationGuidWithFilters" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_group_tasks
+        <include refid="FormationGroupTaskWhere"/>
+    </select>
+
     <select id="listByFormationGuid0" resultMap="FormationGroupTaskMap">
         SELECT
             <include refid="FormationGroupTaskColumns"/>
@@ -106,6 +128,27 @@
         ORDER BY sequence_no ASC, id ASC
     </select>
 
+    <select id="pageByFormationGuid0" resultMap="FormationGroupTaskMap">
+        SELECT
+            <include refid="FormationGroupTaskColumns"/>
+        FROM odin_formation_group_tasks
+        WHERE formation_guid = #{formationGuid}
+        <if test="enable != null">
+          AND enable = #{enable}
+        </if>
+        ORDER BY sequence_no ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="pageByFormationGuidWithFilters0" resultMap="FormationGroupTaskMap">
+        SELECT
+            <include refid="FormationGroupTaskColumns"/>
+        FROM odin_formation_group_tasks
+        <include refid="FormationGroupTaskWhere"/>
+        ORDER BY sequence_no ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <update id="updateEnable">
         UPDATE odin_formation_group_tasks
         SET enable = #{enable}
@@ -115,5 +158,13 @@
     <delete id="removeByGuid">
         DELETE FROM odin_formation_group_tasks
         WHERE guid = #{guid}
+    </delete>
+
+    <delete id="removeByFormationGuids">
+        DELETE FROM odin_formation_group_tasks
+        WHERE formation_guid IN
+        <foreach collection="formationGuids" item="formationGuid" open="(" separator="," close=")">
+            #{formationGuid}
+        </foreach>
     </delete>
 </mapper>

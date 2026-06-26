@@ -4,8 +4,10 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.walnut.odin.proc.ProcessesUtils;
+import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.RemoteVitalizationStatus;
+import com.walnut.odin.proc.entity.RemoteProcessSignalResult;
 import com.walnut.odin.proc.entity.RemoteTerminationReport;
 import com.walnut.odin.proc.entity.RemoteVitalizationResponse;
 import com.walnut.odin.proc.entity.UProcessMirrorDTO;
@@ -13,6 +15,7 @@ import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.CommandResult;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.ErrorFrame;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessId;
+import com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessSignal;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.ProcessRuntimeMeta;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrame;
 import com.walnut.odin.proc.server.transport.grpc.lifecycle.RemoteProcessControlFrameType;
@@ -74,6 +77,20 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         return meta;
     }
 
+    public RemoteProcessSignalResult toSignalResult( CommandResult source, GUID pid, ProcSignal signal, String szReason ) {
+        RemoteProcessSignalResult result = new RemoteProcessSignalResult();
+        result.setProcessId( pid == null ? null : pid.toString() );
+        result.setSignal( signal == null ? ProcSignal.SIGTERM.name() : signal.name() );
+        result.setReason( szReason );
+        result.setTransport( "grpc" );
+        result.setAccepted( source != null && source.getSuccess() );
+        result.setSchedulerClosed( source != null && source.getSuccess() );
+        result.setPhysicalClosed( source != null && source.getSuccess() );
+        result.setOperatorActionRequired( source == null || !source.getSuccess() );
+        result.setMessage( source == null ? "Empty gRPC command result." : source.getMessage() );
+        return result;
+    }
+
     public RemoteTerminationReport toTerminationReport( ProcessRuntimeMeta source ) {
         RemoteTerminationReport report = new RemoteTerminationReport();
         if ( source == null ) {
@@ -99,6 +116,25 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         if ( pid != null ) {
             builder.setProcessId( ProcessId.newBuilder().setPid( pid.toString() ).build() );
         }
+        return builder.build();
+    }
+
+    public RemoteProcessControlFrame processSignalFrame(
+            long clientId, String szCorrelationGuid, GUID pid, ProcSignal signal, long graceTimeoutMillis, String szReason
+    ) {
+        RemoteProcessControlFrame.Builder builder = this.baseFrame(
+                clientId, szCorrelationGuid, RemoteProcessControlFrameType.SIGNAL_REMOTE_PROCESS
+        );
+        ProcessSignal.Builder signalBuilder = ProcessSignal.newBuilder();
+        if ( pid != null ) {
+            signalBuilder.setPid( pid.toString() );
+        }
+        signalBuilder.setSignal( signal == null ? ProcSignal.SIGTERM.name() : signal.name() );
+        signalBuilder.setGraceTimeoutMillis( graceTimeoutMillis );
+        if ( szReason != null ) {
+            signalBuilder.setReason( szReason );
+        }
+        builder.setProcessSignal( signalBuilder.build() );
         return builder.build();
     }
 
@@ -161,6 +197,11 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
             return RemoteTerminationStatus.Error;
         }
 
+        RemoteTerminationStatus explicitStatus = this.parseTerminationStatus( source.getTerminationStatus() );
+        if ( explicitStatus != null ) {
+            return explicitStatus;
+        }
+
         String szMessage = source.getMessage() == null ? "" : source.getMessage();
         if ( szMessage.startsWith( "[NoImage]" )
                 || szMessage.startsWith( "[ScriptDefinitionNotFound]" )
@@ -173,6 +214,19 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         }
 
         return source.getExitCode() == 0 ? RemoteTerminationStatus.Expected : RemoteTerminationStatus.Error;
+    }
+
+    protected RemoteTerminationStatus parseTerminationStatus( String szTerminationStatus ) {
+        if ( szTerminationStatus == null || szTerminationStatus.trim().isEmpty() ) {
+            return null;
+        }
+        String szNormalized = szTerminationStatus.trim();
+        for ( RemoteTerminationStatus status : RemoteTerminationStatus.values() ) {
+            if ( status.name().equalsIgnoreCase( szNormalized ) ) {
+                return status;
+            }
+        }
+        return null;
     }
 
     protected void applyMirrorContext( RemoteVitalizationResponse response, UProcessMirrorDTO source ) {

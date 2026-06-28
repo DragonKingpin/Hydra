@@ -32,6 +32,10 @@ public class TestServiceLegionary {
             ServiceLegionaryIdempotencyDevilCase idempotencyCase = new ServiceLegionaryIdempotencyDevilCase( this );
             ServiceLegionaryHuskyAutoReconnectDevilCase huskyAutoReconnectCase =
                     new ServiceLegionaryHuskyAutoReconnectDevilCase( this );
+            ServiceLegionaryDetachedGraceDevilCase detachedGraceCase =
+                    new ServiceLegionaryDetachedGraceDevilCase( this );
+            ServiceLegionaryExpiredDevilCase expiredCase = new ServiceLegionaryExpiredDevilCase( this );
+            ServiceLegionaryOfflineDevilCase offlineCase = new ServiceLegionaryOfflineDevilCase( this );
 
             if ( this.shouldRun( "grpc" ) ) {
                 smokeCase.run( new GrpcServiceLegionaryScenario() );
@@ -42,6 +46,18 @@ public class TestServiceLegionary {
                 smokeCase.run( new HuskyServiceLegionaryScenario() );
                 devilCase.run( new HuskyServiceLegionaryScenario(), 10 );
                 idempotencyCase.run( new HuskyServiceLegionaryScenario(), 10 );
+            }
+            if ( this.shouldRun( "detached" ) ) {
+                detachedGraceCase.run( new GrpcServiceLegionaryScenario(), 5 );
+                detachedGraceCase.run( new HuskyServiceLegionaryScenario(), 5 );
+            }
+            if ( this.shouldRun( "expired" ) ) {
+                expiredCase.run( new GrpcServiceLegionaryScenario( false ) );
+                expiredCase.run( new HuskyServiceLegionaryScenario() );
+            }
+            if ( this.shouldRun( "offline" ) ) {
+                offlineCase.run( new GrpcServiceLegionaryScenario( false ) );
+                offlineCase.run( new HuskyServiceLegionaryScenario() );
             }
             if ( this.shouldRun( "husky-auto" ) ) {
                 huskyAutoReconnectCase.run( 10 );

@@ -85,12 +85,6 @@
             <version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.walnut.sparta.api.uac</groupId>
-            <artifactId>sparta-api-uac</artifactId>
-            <version>2.1.0</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
 </project>

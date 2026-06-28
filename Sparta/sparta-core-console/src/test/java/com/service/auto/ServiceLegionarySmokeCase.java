@@ -46,6 +46,10 @@ public class ServiceLegionarySmokeCase implements Pinenut {
 
     protected ServiceLegionarySmokeContext createStartedContext( ServiceLegionaryTransportScenario scenario ) throws Exception {
         ServiceLegionarySmokeContext context = new ServiceLegionarySmokeContext( this.mSystem, scenario );
+        return this.createStartedContext( context );
+    }
+
+    protected ServiceLegionarySmokeContext createStartedContext( ServiceLegionarySmokeContext context ) throws Exception {
         KOIMappingDriver driver = new ServiceMappingDriver(
                 this.mSystem,
                 (IbatisClient) this.mSystem.getMiddlewareDirector().getRDBManager().getRDBClientByName( "MySQLKingHydranium" ),
@@ -53,10 +57,13 @@ public class ServiceLegionarySmokeCase implements Pinenut {
         );
         context.serviceInstrument = new UniformServiceInstrument( driver );
         context.serviceManager = new UniformServiceManager( context.serviceInstrument );
-        scenario.hookServerTransport( context );
+        if ( context.detachedObservationConfig != null ) {
+            context.serviceManager.configureDetachedObservation( context.detachedObservationConfig );
+        }
+        context.scenario.hookServerTransport( context );
         context.regiment = new RedCollectiveServiceRegiment( this.mSystem, context.serviceInstrument, context.serviceManager );
         context.regiment.startServiceManage();
-        context.serviceClient = scenario.createServiceClient( context );
+        context.serviceClient = context.scenario.createServiceClient( context );
         return context;
     }
 

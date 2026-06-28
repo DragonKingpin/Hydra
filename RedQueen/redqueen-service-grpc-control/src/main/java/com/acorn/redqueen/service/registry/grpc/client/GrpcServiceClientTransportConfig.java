@@ -17,6 +17,8 @@ public class GrpcServiceClientTransportConfig extends JSONConfig implements Patr
 
     protected long mnHeartbeatIntervalMillis;
 
+    protected boolean mbAutoSynchronizeOnStreamError;
+
     public GrpcServiceClientTransportConfig() {
         this( (Map<String, Object>) null, null );
     }
@@ -31,6 +33,7 @@ public class GrpcServiceClientTransportConfig extends JSONConfig implements Patr
         this.mnCommandTimeoutMillis = this.optLong( "commandTimeoutMillis", 30000L );
         this.mbEnableHeartbeat = this.optBoolean( "enableHeartbeat", false );
         this.mnHeartbeatIntervalMillis = this.optLong( "heartbeatIntervalMillis", 2000L );
+        this.mbAutoSynchronizeOnStreamError = this.optBoolean( "autoSynchronizeOnStreamError", true );
     }
 
     public long getControlSyncTimeoutMillis() {
@@ -47,6 +50,10 @@ public class GrpcServiceClientTransportConfig extends JSONConfig implements Patr
 
     public long getHeartbeatIntervalMillis() {
         return this.mnHeartbeatIntervalMillis;
+    }
+
+    public boolean isAutoSynchronizeOnStreamError() {
+        return this.mbAutoSynchronizeOnStreamError;
     }
 
 }

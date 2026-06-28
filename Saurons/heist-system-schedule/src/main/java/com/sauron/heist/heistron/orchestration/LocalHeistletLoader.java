@@ -1,5 +1,8 @@
 package com.sauron.heist.heistron.orchestration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pinecone.hydra.servgram.ArchGramLoader;
 import com.pinecone.hydra.servgram.GramFactory;
 import com.pinecone.hydra.servgram.GramScope;
@@ -11,6 +14,7 @@ import javassist.bytecode.annotation.Annotation;
 
 public class LocalHeistletLoader extends ArchGramLoader {
     protected AnnotationValueFilter mAnnoValueFilter    ;
+    protected Logger                mLogger = LoggerFactory.getLogger( this.getClass() );
 
     public LocalHeistletLoader( GramScope classScope, ClassLoader classLoader, ClassPool classPool ) {
         super( classScope, classLoader, classPool );
@@ -49,6 +53,12 @@ public class LocalHeistletLoader extends ArchGramLoader {
             }
         }
         catch ( ClassNotFoundException e ) {
+            return null;
+        }
+        catch ( NoClassDefFoundError e ) {
+            this.mLogger.warn(
+                    "[HeistletLoader] Direct load skipped: {}, cause: {}." , szFullClassName, e.getMessage()
+            );
             return null;
         }
 

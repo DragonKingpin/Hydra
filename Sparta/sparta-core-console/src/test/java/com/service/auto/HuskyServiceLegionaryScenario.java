@@ -4,7 +4,6 @@ import com.acorn.redqueen.service.registry.husky.client.HuskyServiceClientTransp
 import com.acorn.redqueen.service.registry.husky.server.HuskyServiceControlTransportFactory;
 import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.hydra.service.registry.client.UniformServiceClient;
-import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportSyncReasons;
 import com.pinecone.hydra.umc.wolf.client.UlfClient;
 import com.pinecone.hydra.umc.wolf.client.WolfMCClient;
 import com.pinecone.hydra.umc.wolf.server.WolfMCServer;
@@ -76,9 +75,6 @@ public class HuskyServiceLegionaryScenario implements ServiceLegionaryTransportS
     public void breakClientConnection( ServiceLegionarySmokeContext context ) {
         if ( this.mClient != null ) {
             this.mClient.close();
-        }
-        if ( this.mTransport != null ) {
-            this.mTransport.requestControlStateSynchronization( ServiceClientTransportSyncReasons.StreamError );
         }
     }
 

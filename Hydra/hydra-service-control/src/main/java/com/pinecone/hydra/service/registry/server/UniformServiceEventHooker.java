@@ -41,8 +41,7 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
 
                 if ( client.connectionCount() < 1 ) {
                     if ( this.mUniformServiceManager.mClientRegistry.remove( clientId, client ) ) {
-                        this.mUniformServiceManager.transportRegistry().detachClient( clientId );
-                        this.mUniformServiceManager.deregisterServiceInstance( clientId );
+                        this.mUniformServiceManager.markServiceInstanceDetached( clientId, connection );
                     }
                 }
             }

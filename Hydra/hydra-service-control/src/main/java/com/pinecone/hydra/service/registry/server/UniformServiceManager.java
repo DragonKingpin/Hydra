@@ -20,6 +20,9 @@ import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.constant.ServiceInstanceStatus;
 import com.pinecone.hydra.service.registry.event.InstanceLifecycleEvent;
 import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationEntry;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationRegistry;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
@@ -39,10 +42,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -62,6 +70,10 @@ public class UniformServiceManager implements ServiceManager {
 
     protected final ServiceLifecycleService                                                 mServiceLifecycleService;
     protected final ServiceMetaService                                                      mServiceMetaService;
+    protected final ServiceDetachedObservationRegistry                                      mDetachedObservationRegistry;
+    protected ServiceDetachedObservationConfig                                              mDetachedObservationConfig;
+    protected ScheduledExecutorService                                                      mDetachedObservationSweeper;
+    protected ExecutorService                                                               mDetachedExpirationExecutor;
 
     private final Logger mLogger;
 
@@ -99,6 +111,8 @@ public class UniformServiceManager implements ServiceManager {
         this.mGuidAllocator             = serviceInstrument.getGuidAllocator();
         this.mServiceEventHooker        = new UniformServiceEventHooker( this );
         this.mTransportRegistry         = new UniformServiceControlTransportRegistry();
+        this.mDetachedObservationConfig = new ServiceDetachedObservationConfig();
+        this.mDetachedObservationRegistry = new ServiceDetachedObservationRegistry();
 
 
         this.mServiceLifecycleService   = new ServiceLifecycleService( this );
@@ -164,6 +178,15 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public ServiceControlTransportRegistry transportRegistry() {
         return this.mTransportRegistry;
+    }
+
+    @Override
+    public void configureDetachedObservation( ServiceDetachedObservationConfig config ) {
+        if ( config == null ) {
+            this.mDetachedObservationConfig = new ServiceDetachedObservationConfig();
+            return;
+        }
+        this.mDetachedObservationConfig = config;
     }
 
 
@@ -285,10 +308,12 @@ public class UniformServiceManager implements ServiceManager {
             }
         }
         this.vitalizeRPCSubsystem();
+        this.startDetachedObservationSweeper();
     }
 
     @Override
     public void terminateService() throws IllegalStateException {
+        this.stopDetachedObservationSweeper();
         for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
             if ( !transport.isTerminated() ) {
                 transport.terminateService();
@@ -419,6 +444,7 @@ public class UniformServiceManager implements ServiceManager {
 
             ServiceInstance existing = this.mCIdInstanceRegistry.get( clientId );
             if ( existing != null ) {
+                boolean bRecovered = this.mDetachedObservationRegistry.get( clientId ) != null;
                 boolean bRestoreRegistration = this.isServiceInstanceRestoreRegistration( existing, serviceDTO );
                 GUID existingGuid = this.affirmExistingRegistration(
                         existing,
@@ -433,6 +459,14 @@ public class UniformServiceManager implements ServiceManager {
                 else {
                     this.mLogger.info( "Remote serviceInstance {} register idempotently. <IP:{}>", existingGuid, ip );
                 }
+                if ( bRecovered ) {
+                    this.recoverDetachedServiceInstance(
+                            clientId,
+                            (GUID) existing.getId(),
+                            (GUID) existing.getServiceId(),
+                            existing
+                    );
+                }
                 return existingGuid;
             }
 
@@ -440,6 +474,7 @@ public class UniformServiceManager implements ServiceManager {
             if ( resumed != null ) {
                 ServiceInstance serviceInstance = this.createRuntimeServiceInstance( serviceDTO.getClientId(), serviceId, resumed.getGuid() );
                 this.registerServiceInstance( serviceInstance );
+                this.mDetachedObservationRegistry.remove( clientId );
                 this.mLogger.info( "Remote serviceInstance {} resume success. <IP:{}>", resumed.getGuid(), ip );
                 return resumed.getGuid();
             }
@@ -632,10 +667,224 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     protected boolean isTerminalInstanceStatus( ServiceInstanceStatus status ) {
-        return ServiceInstanceStatus.Terminated == status
+        return ServiceInstanceStatus.Offline == status
                 || ServiceInstanceStatus.Deregistered == status
                 || ServiceInstanceStatus.Expired == status
                 || ServiceInstanceStatus.Error == status;
+    }
+
+    @Override
+    public void markServiceInstanceDetached( Long clientId, Object caused ) {
+        if ( clientId == null ) {
+            return;
+        }
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            this.deregisterServiceInstance( clientId );
+            return;
+        }
+
+        synchronized ( this.mServiceRegistry ) {
+            ServiceInstance instance = this.mCIdInstanceRegistry.get( clientId );
+            if ( instance == null ) {
+                this.transportRegistry().detachClient( clientId );
+                return;
+            }
+
+            long nowMillis = System.currentTimeMillis();
+            GUID instanceGuid = (GUID) instance.getId();
+            GUID serviceGuid = (GUID) instance.getServiceId();
+            this.mDetachedObservationRegistry.put(
+                    new ServiceDetachedObservationEntry(
+                            clientId,
+                            instanceGuid,
+                            serviceGuid,
+                            nowMillis,
+                            nowMillis + this.mDetachedObservationConfig.getGraceMillis(),
+                            caused
+                    )
+            );
+            this.transportRegistry().detachClient( clientId );
+            this.updateServiceInstanceStatus( instanceGuid, ServiceInstanceStatus.Detached );
+            this.getLogger().info(
+                    "Service instance detached, { clientId: {}, instanceId: {}, serviceId: {}, graceMillis: {} }. <Detached>",
+                    new Object[]{
+                            clientId,
+                            instanceGuid,
+                            serviceGuid,
+                            this.mDetachedObservationConfig.getGraceMillis()
+                    }
+            );
+            this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Detached, caused );
+        }
+    }
+
+    protected void recoverDetachedServiceInstance( Long clientId, GUID instanceGuid, GUID serviceGuid, Object caused ) {
+        ServiceDetachedObservationEntry detached = this.mDetachedObservationRegistry.remove( clientId );
+        if ( detached == null ) {
+            return;
+        }
+
+        this.getLogger().info(
+                "Detached service instance recovered, { clientId: {}, instanceId: {}, serviceId: {} }. <Recovered>",
+                new Object[]{ clientId, instanceGuid, serviceGuid }
+        );
+        this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Recovered, caused );
+    }
+
+    protected void settleDetachedServiceInstance( ServiceDetachedObservationEntry entry ) {
+        if ( entry == null || entry.getClientId() == null ) {
+            return;
+        }
+        if ( this.mDetachedObservationRegistry.remove( entry.getClientId() ) == null ) {
+            return;
+        }
+
+        synchronized ( this.mServiceRegistry ) {
+            ServiceInstance instance = this.mCIdInstanceRegistry.get( entry.getClientId() );
+            if ( instance == null || !Objects.equals( instance.getId(), entry.getInstanceGuid() ) ) {
+                return;
+            }
+
+            ServiceInstanceStatus status = this.resolveDetachedMissingStatus();
+            InstanceLifecycleEvent event = this.resolveDetachedMissingEvent( status );
+            this.removeRuntimeServiceInstance( instance, entry.getClientId(), status );
+            this.getLogger().info(
+                    "Detached service instance settled, { clientId: {}, instanceId: {}, serviceId: {}, status: {} }. <{}>",
+                    new Object[]{
+                            entry.getClientId(),
+                            entry.getInstanceGuid(),
+                            entry.getServiceGuid(),
+                            status.getName(),
+                            status.getName()
+                    }
+            );
+            this.triggerServiceEvent(
+                    entry.getClientId(),
+                    entry.getInstanceGuid(),
+                    entry.getServiceGuid(),
+                    event,
+                    entry.getCaused()
+            );
+        }
+    }
+
+    protected ServiceInstanceStatus resolveDetachedMissingStatus() {
+        String policy = this.mDetachedObservationConfig.getMissingAfterReconnectPolicy();
+        String normalizedPolicy = policy == null ? "" : policy.trim().toUpperCase( Locale.ROOT );
+        if ( ServiceInstanceStatus.Expired.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy ) ) {
+            return ServiceInstanceStatus.Expired;
+        }
+        if ( ServiceInstanceStatus.Offline.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy )
+                || "OFFLINE".equals( normalizedPolicy ) ) {
+            return ServiceInstanceStatus.Offline;
+        }
+
+        this.getLogger().warn(
+                "Unknown detached missing policy `{}`, fallback to `{}`.",
+                policy,
+                ServiceInstanceStatus.Offline.getName()
+        );
+        return ServiceInstanceStatus.Offline;
+    }
+
+    protected InstanceLifecycleEvent resolveDetachedMissingEvent( ServiceInstanceStatus status ) {
+        if ( ServiceInstanceStatus.Expired == status ) {
+            return InstanceLifecycleEvent.Expired;
+        }
+        return InstanceLifecycleEvent.Offline;
+    }
+
+    protected Collection<ServiceInstance> removeRuntimeServiceInstance(
+            ServiceInstance instance,
+            Long clientId,
+            ServiceInstanceStatus status
+    ) {
+        if ( instance == null || clientId == null ) {
+            return null;
+        }
+
+        ServiceInstance eliminated = this.mCIdInstanceRegistry.remove( clientId );
+        if ( eliminated == null ) {
+            return null;
+        }
+
+        ConcurrentMap<Long, ServiceInstance> instances = this.mServiceRegistry.get( eliminated.getServiceId() );
+        if ( instances == null ) {
+            throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
+        }
+
+        ServiceInstance removed = instances.remove( clientId );
+        if ( removed == null ) {
+            return null;
+        }
+
+        ClientInstance clientInstance = this.mInstanceRegistry.get( removed.getId() );
+        if ( clientInstance != null && Objects.equals( clientInstance.getClientId(), clientId ) ) {
+            this.mInstanceRegistry.remove( removed.getId(), clientInstance );
+        }
+
+        if ( instances.isEmpty() ) {
+            this.mServiceRegistry.remove( removed.getServiceId(), instances );
+        }
+
+        this.transportRegistry().detachClient( clientId );
+        this.updateServiceInstanceStatus( (GUID) removed.getId(), status );
+        return List.of( removed );
+    }
+
+    protected void sweepDetachedServiceInstances() {
+        if ( !this.mDetachedObservationConfig.isEnable() || this.mDetachedExpirationExecutor == null ) {
+            return;
+        }
+
+        Collection<ServiceDetachedObservationEntry> expired =
+                this.mDetachedObservationRegistry.snapshotExpired( System.currentTimeMillis() );
+        for ( ServiceDetachedObservationEntry entry : expired ) {
+            this.mDetachedExpirationExecutor.submit( () -> this.settleDetachedServiceInstance( entry ) );
+        }
+    }
+
+    protected void startDetachedObservationSweeper() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+        if ( this.mDetachedObservationSweeper != null ) {
+            return;
+        }
+
+        this.mDetachedExpirationExecutor = Executors.newFixedThreadPool(
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+        this.mDetachedObservationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "RedQueen-ServiceDetachedObservationSweeper" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mDetachedObservationSweeper.scheduleWithFixedDelay(
+                this::sweepDetachedServiceInstances,
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                TimeUnit.MILLISECONDS
+        );
+        this.getLogger().info(
+                "[ServiceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Started>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void stopDetachedObservationSweeper() {
+        if ( this.mDetachedObservationSweeper != null ) {
+            this.mDetachedObservationSweeper.shutdownNow();
+            this.mDetachedObservationSweeper = null;
+        }
+        if ( this.mDetachedExpirationExecutor != null ) {
+            this.mDetachedExpirationExecutor.shutdownNow();
+            this.mDetachedExpirationExecutor = null;
+        }
     }
 
     @Override
@@ -722,46 +971,39 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public Collection<ServiceInstance >  deregisterServiceInstance( Long clientId ) {
         synchronized ( this.mServiceRegistry ) {
-            ServiceInstance eliminated = this.mCIdInstanceRegistry.remove( clientId );
-            // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
-            // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
-            if ( eliminated != null ) {
-                ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( eliminated.getServiceId() );
-                if ( instances != null ) {
-                    ServiceInstance removed = instances.remove( clientId );
-                    if ( removed == null ) {
-                        return null;
-                    }
-
-                    ClientInstance clientInstance = this.mInstanceRegistry.get( removed.getId() );
-                    if ( clientInstance != null && Objects.equals( clientInstance.getClientId(), clientId ) ) {
-                        this.mInstanceRegistry.remove( removed.getId(), clientInstance );
-                    }
-
-                    if ( instances.isEmpty() ) {
-                        this.mServiceRegistry.remove( removed.getServiceId(), instances );
-                    }
-
-                    this.updateServiceInstanceStatus( (GUID) removed.getId(), ServiceInstanceStatus.Terminated );
-                    this.getLogger().info(
-                            "Detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
-                            new Object[]{ clientId, removed.getId(), removed.getServiceId() }
-                    );
-
-                    this.triggerServiceEvent(
-                            clientId,
-                            removed.getId(),
-                            (GUID) removed.getServiceId(),
-                            InstanceLifecycleEvent.Deregistered,
-                            removed
-                    );
-                    return List.of( removed );
-                }
-                else {
-                    throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
-                }
+            ServiceInstance eliminated = this.mCIdInstanceRegistry.get( clientId );
+            ServiceDetachedObservationEntry detached = this.mDetachedObservationRegistry.get( clientId );
+            if ( detached != null
+                    && eliminated != null
+                    && Objects.equals( eliminated.getId(), detached.getInstanceGuid() ) ) {
+                this.getLogger().info(
+                        "Skip offline detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
+                        new Object[]{ clientId, eliminated.getId(), eliminated.getServiceId() }
+                );
+                return List.of();
             }
-            return null;
+            Collection<ServiceInstance> removed = this.removeRuntimeServiceInstance(
+                    eliminated,
+                    clientId,
+                    ServiceInstanceStatus.Offline
+            );
+            this.mDetachedObservationRegistry.remove( clientId );
+            if ( removed != null && !removed.isEmpty() ) {
+                ServiceInstance serviceInstance = removed.iterator().next();
+                this.getLogger().info(
+                        "Offline service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Offline>",
+                        new Object[]{ clientId, serviceInstance.getId(), serviceInstance.getServiceId() }
+                );
+
+                this.triggerServiceEvent(
+                        clientId,
+                        serviceInstance.getId(),
+                        (GUID) serviceInstance.getServiceId(),
+                        InstanceLifecycleEvent.Offline,
+                        serviceInstance
+                );
+            }
+            return removed;
         }
     }
 

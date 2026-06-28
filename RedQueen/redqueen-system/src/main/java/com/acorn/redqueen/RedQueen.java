@@ -17,6 +17,7 @@ import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceControlException;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
@@ -97,8 +98,27 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
 
         this.mServiceInstrument = new UniformServiceInstrument( serviceMappingDriver );
         this.mServiceManager = new UniformServiceManager( this.mServiceInstrument );
+        this.configure_service_detached_observation();
 
         this.infoLifecycle( "<RedQueen> Constructing component `ServiceInstrument`.", LogStatuses.StatusDone );
+    }
+
+    protected void configure_service_detached_observation() {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "serviceControl" );
+        JSONObject detachedObservationConfig = null;
+        if ( controlConfig != null ) {
+            detachedObservationConfig = controlConfig.optJSONObject( "detachedObservation" );
+        }
+        ServiceDetachedObservationConfig config = new ServiceDetachedObservationConfig( detachedObservationConfig );
+        this.mServiceManager.configureDetachedObservation( config );
+        this.getLogger().info(
+                "[ServiceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                config.isEnable(),
+                config.getGraceMillis(),
+                config.getSweepMillis(),
+                config.getExpireAsyncThreads(),
+                config.getMissingAfterReconnectPolicy()
+        );
     }
 
     protected String resolveServiceInstrumentDatabaseKey() {

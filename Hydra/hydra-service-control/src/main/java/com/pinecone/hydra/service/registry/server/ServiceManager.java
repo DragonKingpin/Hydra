@@ -13,6 +13,7 @@ import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
 import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
@@ -45,6 +46,10 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
     ServiceEventHooker serviceEventHooker();
 
     ServiceControlTransportRegistry transportRegistry();
+
+    void configureDetachedObservation( ServiceDetachedObservationConfig config );
+
+    void markServiceInstanceDetached( Long clientId, Object caused );
 
 
 

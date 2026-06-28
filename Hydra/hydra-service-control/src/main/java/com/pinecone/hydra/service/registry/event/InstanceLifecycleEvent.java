@@ -5,9 +5,17 @@ public enum InstanceLifecycleEvent {
 
     Registered   ( 0x01, "Registered" ),
 
-    Deregistered ( 0x02, "Deregistered" ),
+    Detached     ( 0x02, "Detached" ),
 
-    Detached     ( 0x03, "Detached" ),
+    Recovered    ( 0x03, "Recovered" ),
+
+    Deregistered ( 0x04, "Deregistered" ),
+
+    Offline      ( 0x05, "Offline" ),
+
+    Expired      ( 0x06, "Expired" ),
+
+    Error        ( 0x07, "Error" ),
 
     ;
 

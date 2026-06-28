@@ -6,6 +6,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.client.UniformServiceClient;
 import com.pinecone.hydra.service.registry.dto.ServiceMetaDTO;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
 import com.pinecone.tritium.Tritium;
 
@@ -28,6 +29,8 @@ public class ServiceLegionarySmokeContext implements Pinenut {
     public ServiceMetaDTO serviceMeta;
 
     public ServiceLegionaryLifecycleProbe probe;
+
+    public ServiceDetachedObservationConfig detachedObservationConfig;
 
     public ServiceLegionarySmokeContext( Tritium system, ServiceLegionaryTransportScenario scenario ) {
         this.system = system;

@@ -15,11 +15,21 @@ public class GrpcServiceLegionaryScenario implements ServiceLegionaryTransportSc
 
     protected static final int Port = 5668;
 
+    protected final boolean mbAutoSynchronizeOnStreamError;
+
     protected GrpcAppointServer mServer;
 
     protected GrpcAppointClient mClient;
 
     protected GrpcServiceClientTransport mTransport;
+
+    public GrpcServiceLegionaryScenario() {
+        this( true );
+    }
+
+    public GrpcServiceLegionaryScenario( boolean bAutoSynchronizeOnStreamError ) {
+        this.mbAutoSynchronizeOnStreamError = bAutoSynchronizeOnStreamError;
+    }
 
     @Override
     public String name() {
@@ -58,7 +68,8 @@ public class GrpcServiceLegionaryScenario implements ServiceLegionaryTransportSc
                 clientConfig
         );
         GrpcServiceClientTransportConfig transportConfig = new GrpcServiceClientTransportConfig( new JSONMaptron(
-                "{controlSyncTimeoutMillis:5000, commandTimeoutMillis:10000, enableHeartbeat:true, heartbeatIntervalMillis:500}"
+                "{controlSyncTimeoutMillis:5000, commandTimeoutMillis:10000, enableHeartbeat:true, heartbeatIntervalMillis:500, autoSynchronizeOnStreamError:"
+                        + this.mbAutoSynchronizeOnStreamError + "}"
         ) );
         this.mTransport = new GrpcServiceClientTransport(
                 this.mClient,

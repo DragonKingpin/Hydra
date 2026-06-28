@@ -4,6 +4,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportSyncReasons;
 import com.pinecone.hydra.service.registry.constant.ServiceInstanceStatus;
 import com.pinecone.tritium.Tritium;
 
@@ -43,6 +44,7 @@ public class ServiceLegionaryReconnectDevilCase implements Pinenut {
         GUID before = context.legionary.getInstanceGuid();
         context.probe.record( "Devil", nRound, "BREAK", context.legionary );
         context.scenario.breakClientConnection( context );
+        context.scenario.requestStateSynchronization( context, ServiceClientTransportSyncReasons.StreamError );
 
         ServiceLegionaryAssertions.awaitTrue(
                 context.scenario.name() + " round " + nRound + " did not rejoin.",

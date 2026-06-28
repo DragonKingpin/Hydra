@@ -413,6 +413,9 @@ public class GrpcServiceClientTransport implements ServiceClientTransport {
         this.mCorrelationWaiter.completeAllExceptionally(
                 throwable == null ? new IllegalStateException( "gRPC stream broken." ) : throwable
         );
+        if ( !this.mConfig.isAutoSynchronizeOnStreamError() ) {
+            return;
+        }
         this.requestControlStateSynchronization( ServiceClientTransportSyncReasons.StreamError );
     }
 

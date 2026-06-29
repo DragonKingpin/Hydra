@@ -1,12 +1,15 @@
 package com.pinecone.hydra.device.kom;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.device.generic.GenericDeviceSchema;
 import com.pinecone.hydra.device.generic.GenericDeviceSchemaDesigner;
 import com.pinecone.hydra.device.generic.GenericDeviceType;
+import com.pinecone.hydra.device.kom.digest.DeviceElementDigest;
 import com.pinecone.hydra.device.kom.entity.ContainerElement;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
 import com.pinecone.hydra.device.kom.entity.GenericDeviceElement;
 import com.pinecone.hydra.device.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.device.kom.entity.QuickElement;
@@ -57,6 +60,14 @@ public interface DeviceInstrument extends ReparseKOMTree {
 
     ElementNode             queryElement( String path );
 
+    Collection<DeviceElementDigest> fetchDeviceElementDigests( DeviceElementDigestQuery query );
+
+    Collection<DeviceElementDigest> fetchDeviceElementDigestsByGuids( List<GUID> guids );
+
+    long                    countDeviceElementDigests( DeviceElementDigestQuery query );
+
+    DeviceElementDigestPage fetchDeviceElementDigestPage( DeviceElementDigestQuery query );
+
     void                    createDeviceInstance( DeviceInstanceEntry deviceInstanceEntry );
 
     DeviceInstanceEntry     queryDeviceInstance( GUID instanceGuid );
@@ -67,9 +78,19 @@ public interface DeviceInstrument extends ReparseKOMTree {
 
     Collection<DeviceInstanceEntry> fetchDeviceInstancesByDeviceGuid( GUID deviceGuid );
 
+    Collection<DeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid( GUID ownerInstanceGuid );
+
     DeviceInstancePage      fetchDeviceInstancePage( DeviceInstanceQuery query );
 
     void                    updateDeviceInstance( DeviceInstanceEntry deviceInstanceEntry );
+
+    DeviceNodeOwnershipEntry queryDeviceNodeOwnership( GUID guid );
+
+    Collection<GUID>        fetchOwnedDeviceGuids( GUID ownerDeviceGuid );
+
+    Collection<DeviceNodeOwnershipEntry> fetchOwnedDeviceNodes( GUID ownerDeviceGuid );
+
+    void                    updateDeviceNodeOwnership( GUID guid, GUID ownerDeviceGuid, boolean deviceNode );
 
     boolean                 containsChild( GUID parentGuid, String childName );
 

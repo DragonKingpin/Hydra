@@ -7,6 +7,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.device.kom.UniformDeviceInstrument;
 import com.pinecone.hydra.device.registry.client.UniformDeviceClient;
 import com.pinecone.hydra.device.registry.server.UniformDeviceManager;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationConfig;
 import com.pinecone.tritium.Tritium;
 
 public class DeviceLegionarySmokeContext implements Pinenut {
@@ -30,6 +31,8 @@ public class DeviceLegionarySmokeContext implements Pinenut {
     public String devicePath;
 
     public DeviceLegionaryLifecycleProbe probe;
+
+    public DeviceDetachedObservationConfig detachedObservationConfig;
 
     public DeviceLegionarySmokeContext( Tritium system, DeviceLegionaryTransportScenario scenario ) {
         this.system = system;

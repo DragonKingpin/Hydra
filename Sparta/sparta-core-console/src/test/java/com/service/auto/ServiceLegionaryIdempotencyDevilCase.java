@@ -3,6 +3,7 @@ package com.service.auto;
 import java.util.Collection;
 
 import com.acorn.redqueen.service.conduct.ServiceLegionaryJoinResponse;
+import com.acorn.redqueen.service.conduct.ServiceLegionaryState;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
@@ -66,7 +67,7 @@ public class ServiceLegionaryIdempotencyDevilCase implements Pinenut {
                 5000L,
                 () -> context.legionary.getInstanceGuid() != null
                         && stable.equals( context.legionary.getInstanceGuid() )
-                        && context.legionary.getState() == com.acorn.redqueen.service.conduct.ServiceLegionaryState.Online
+                        && context.legionary.getState() == ServiceLegionaryState.Online
         );
         this.sleepQuietly( 500L );
         ServiceLegionaryAssertions.assertTrue(

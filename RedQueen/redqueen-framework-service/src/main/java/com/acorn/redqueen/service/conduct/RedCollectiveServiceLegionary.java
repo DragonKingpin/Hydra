@@ -14,8 +14,6 @@ import com.pinecone.hydra.service.registry.client.ServiceClientStateSynchronized
 import com.pinecone.hydra.service.registry.client.control.ServiceClientManipulationHandler;
 import com.pinecone.hydra.service.registry.instruction.ServiceShutdownInstruction;
 import com.pinecone.hydra.service.registry.instruction.ServiceDeregisterInstruction;
-import com.pinecone.hydra.service.registry.instruction.ServiceRegisterInstruction;
-import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 import com.pinecone.hydra.service.registry.client.transport.ServiceClientTransportException;
 
 public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary {
@@ -31,6 +29,8 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
     protected ServiceClient mServiceClient;
 
     protected ServiceLegionaryJoinRequest mJoinRequest;
+
+    protected ServiceLegionaryJoinFactory mJoinFactory;
 
     protected ServiceClientStateSynchronizedHandler mServiceClientStateSynchronizedHandler;
 
@@ -64,6 +64,7 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
         this.mszName = szName;
         this.mServiceClient = serviceClient;
         this.mJoinRequest = joinRequest;
+        this.mJoinFactory = new ServiceLegionaryJoinFactory();
         this.mServiceGuid = joinRequest == null ? null : joinRequest.getServiceGuid();
         this.mState = ServiceLegionaryState.New;
         this.mRegimentRejoinLock = new ReentrantLock();
@@ -189,10 +190,11 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
             this.assertJoinRequestReady();
             this.mState = ServiceLegionaryState.Joining;
 
-            ServiceRegisterInstruction instruction = this.mJoinRequest.toServiceRegisterInstruction( this.getClientId() );
-            instruction.setInstanceGuid( this.mInstanceGuid );
-            ServiceClientRegisterResult response = this.mServiceClient.lifecycle().register( instruction );
-            ServiceLegionaryJoinResponse joinResponse = ServiceLegionaryJoinResponse.from( response );
+            ServiceLegionaryJoinResponse joinResponse = this.mJoinFactory.fromRegisterResult(
+                    this.mServiceClient.lifecycle().register(
+                            this.mJoinFactory.toRegisterInstruction( this.getClientId(), this.mInstanceGuid, this.mJoinRequest )
+                    )
+            );
             this.mServiceGuid = joinResponse.getServiceGuid();
             this.mInstanceGuid = joinResponse.getInstanceGuid();
             this.mState = ServiceLegionaryState.Online;
@@ -417,4 +419,3 @@ public class RedCollectiveServiceLegionary implements CollectiveServiceLegionary
     }
 
 }
-

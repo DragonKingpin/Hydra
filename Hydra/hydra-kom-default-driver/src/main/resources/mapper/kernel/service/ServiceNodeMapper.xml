@@ -206,4 +206,14 @@
         LIMIT #{query.offset}, #{query.limit}
     </select>
 
+    <select id="fetchServicesByGuids0" resultMap="ServiceNodeWideMap">
+        SELECT
+        <include refid="ServiceWideFields"/>
+        FROM `hydra_service_service_node`
+        WHERE `guid` IN
+        <foreach collection="guids" item="guid" open="(" separator="," close=")">
+            #{guid}
+        </foreach>
+    </select>
+
 </mapper>

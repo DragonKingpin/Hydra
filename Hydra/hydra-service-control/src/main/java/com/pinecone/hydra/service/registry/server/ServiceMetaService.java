@@ -14,7 +14,6 @@ import com.pinecone.hydra.service.kom.ServiceElementQuery;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.ServiceInstancePage;
 import com.pinecone.hydra.service.kom.ServiceInstanceQuery;
-import com.pinecone.hydra.service.kom.entity.ApplicationElement;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
@@ -105,19 +104,51 @@ public class ServiceMetaService implements Pinenut {
         return node.getGuid().toString();
     }
 
-    public String createNewService( String parentAppPath, ServiceMetaDTO meta ) {
-        ElementNode node = this.mServiceInstrument.queryElement( parentAppPath );
-        if ( node instanceof ApplicationElement) {
-            ApplicationElement applicationElement = (ApplicationElement) node;
-            ServiceElement serviceElement = ServiceMetaDTO.toServiceElement( meta, this.mServiceInstrument.getGuidAllocator() );
-            if ( serviceElement.getGuid() == null ) {
-                serviceElement.setGuid( this.mServiceInstrument.getGuidAllocator().nextGUID() );
-            }
-            this.mServiceInstrument.put( serviceElement );
-            this.mServiceInstrument.affirmOwnedNode( applicationElement.getGuid(), serviceElement.getGuid() );
-            return serviceElement.getGuid().toString();
+    public String createNewService( String parentPath, ServiceMetaDTO meta ) {
+        if ( meta == null || this.isBlank( meta.getName() ) ) {
+            return null;
         }
-        return null;
+
+        String servicePath = this.joinServicePath( parentPath, meta.getName() );
+        ElementNode existed = this.mServiceInstrument.queryElement( servicePath );
+        if ( existed != null && existed.evinceServiceElement() == null ) {
+            return null;
+        }
+
+        ServiceElement serviceElement = existed == null
+                ? this.mServiceInstrument.affirmService( servicePath )
+                : existed.evinceServiceElement();
+        if ( serviceElement == null ) {
+            return null;
+        }
+
+        ServiceElement incoming = ServiceMetaDTO.toServiceElement( meta, this.mServiceInstrument.getGuidAllocator() );
+        serviceElement.setType( incoming.getType() );
+        serviceElement.setAlias( incoming.getAlias() );
+        serviceElement.setResourceType( incoming.getResourceType() );
+        serviceElement.setServiceType( incoming.getServiceType() );
+        serviceElement.setScenario( incoming.getScenario() );
+        serviceElement.setPrimaryImplLang( incoming.getPrimaryImplLang() );
+        serviceElement.setLevel( incoming.getLevel() );
+        serviceElement.setDescription( incoming.getDescription() );
+        serviceElement.setExtraInformation( incoming.getExtraInformation() );
+        this.mServiceInstrument.update( serviceElement );
+        return serviceElement.getGuid().toString();
+    }
+
+    protected String joinServicePath( String parentPath, String serviceName ) {
+        String parent = parentPath == null ? "" : parentPath.trim();
+        String name = serviceName == null ? "" : serviceName.trim();
+        while ( parent.endsWith( "/" ) && parent.length() > 1 ) {
+            parent = parent.substring( 0, parent.length() - 1 );
+        }
+        while ( name.startsWith( "/" ) ) {
+            name = name.substring( 1 );
+        }
+        if ( parent.isEmpty() || "/".equals( parent ) ) {
+            return "/" + name;
+        }
+        return parent + "/" + name;
     }
 
     protected ServiceElementQuery toServiceElementQuery( ServiceQueryDTO dto ) {

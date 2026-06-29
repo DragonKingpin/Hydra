@@ -2,7 +2,6 @@ package com.acorn.redqueen.service.conduct;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.service.registry.client.entity.ServiceClientRegisterResult;
 
 public class ServiceLegionaryJoinResponse implements Pinenut {
 
@@ -56,19 +55,4 @@ public class ServiceLegionaryJoinResponse implements Pinenut {
         this.mnExpireTimeMillis = nExpireTimeMillis;
     }
 
-    public static ServiceLegionaryJoinResponse from( ServiceClientRegisterResult response ) {
-        ServiceLegionaryJoinResponse result = new ServiceLegionaryJoinResponse();
-        if ( response == null ) {
-            return result;
-        }
-
-        result.setServiceGuid( response.getServiceGuid() );
-        result.setInstanceGuid( response.getInstanceGuid() );
-        result.setStatus( response.getStatus() );
-        result.setRegisterTimeMillis( response.getRegisterTimeMillis() );
-        result.setExpireTimeMillis( response.getExpireTimeMillis() );
-        return result;
-    }
-
 }
-

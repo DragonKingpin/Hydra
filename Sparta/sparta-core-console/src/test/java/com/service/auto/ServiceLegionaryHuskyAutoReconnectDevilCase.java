@@ -1,5 +1,6 @@
 package com.service.auto;
 
+import com.acorn.redqueen.service.conduct.ServiceLegionaryState;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
@@ -58,7 +59,7 @@ public class ServiceLegionaryHuskyAutoReconnectDevilCase implements Pinenut {
         if ( context.legionary.getInstanceGuid() == null || !instanceGuid.equals( context.legionary.getInstanceGuid() ) ) {
             return false;
         }
-        if ( context.legionary.getState() != com.acorn.redqueen.service.conduct.ServiceLegionaryState.Online ) {
+        if ( context.legionary.getState() != ServiceLegionaryState.Online ) {
             return false;
         }
 

@@ -173,18 +173,7 @@ public class SkyCollectiveDeviceRegiment implements CollectiveDeviceRegiment {
 
     @Override
     public void stopDeviceManager() {
-        for ( DeviceControlTransport transport : this.mDeviceManager.getTransports() ) {
-            try {
-                transport.close();
-            }
-            catch ( Exception e ) {
-                this.mLogger.warn(
-                        "[SkynetCollectiveDeviceRegiment] [StopDeviceManager] (Transport: `{}`) <Failure>",
-                        transport == null ? null : transport.getName(),
-                        e
-                );
-            }
-        }
+        this.mDeviceManager.stopDeviceManager();
     }
 
     protected boolean isBlank( String szValue ) {

@@ -30,12 +30,22 @@ public class TestDeviceLegionary {
             DeviceLegionarySmokeCase smokeCase = new DeviceLegionarySmokeCase( this );
             DeviceLegionaryHuskyAutoReconnectDevilCase huskyAutoReconnectCase =
                     new DeviceLegionaryHuskyAutoReconnectDevilCase( this );
+            DeviceLegionaryDetachedGraceDevilCase detachedGraceCase =
+                    new DeviceLegionaryDetachedGraceDevilCase( this );
+            DeviceLegionaryOwnerLifecycleDevilCase ownerLifecycleCase =
+                    new DeviceLegionaryOwnerLifecycleDevilCase( this );
 
             if ( this.shouldRun( "smoke" ) ) {
                 smokeCase.run( new HuskyAutoReconnectDeviceLegionaryScenario() );
             }
             if ( this.shouldRun( "husky-auto" ) ) {
                 huskyAutoReconnectCase.run( 10 );
+            }
+            if ( this.shouldRun( "detached" ) ) {
+                detachedGraceCase.run();
+            }
+            if ( this.shouldRun( "owner" ) ) {
+                ownerLifecycleCase.run();
             }
         }
 

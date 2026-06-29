@@ -19,5 +19,7 @@ public interface DeviceInstanceManipulator extends Pinenut {
 
     List<DeviceInstanceEntry> fetchDeviceInstancesByDeviceGuid( GUID deviceGuid );
 
+    List<DeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid( GUID ownerInstanceGuid );
+
     void updateDeviceInstance( DeviceInstanceEntry element );
 }

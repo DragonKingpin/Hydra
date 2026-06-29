@@ -12,6 +12,10 @@ public interface DeviceInstanceEntry extends Pinenut {
 
     void setInstanceGuid( GUID instanceGuid );
 
+    GUID getOwnerInstanceGuid();
+
+    void setOwnerInstanceGuid( GUID ownerInstanceGuid );
+
     GUID getDeviceGuid();
 
     void setDeviceGuid( GUID deviceGuid );

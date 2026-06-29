@@ -46,6 +46,14 @@ public interface DeviceInstanceMapper extends DeviceInstanceManipulator {
         return (List) this.fetchDeviceInstancesByDeviceGuid0( deviceGuid );
     }
 
+    List<GenericDeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid0( @Param( "ownerInstanceGuid" ) GUID ownerInstanceGuid );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<DeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid( GUID ownerInstanceGuid ) {
+        return (List) this.fetchDeviceInstancesByOwnerInstanceGuid0( ownerInstanceGuid );
+    }
+
     @Override
     void updateDeviceInstance( DeviceInstanceEntry element );
 }

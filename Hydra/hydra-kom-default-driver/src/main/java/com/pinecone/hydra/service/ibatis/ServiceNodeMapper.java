@@ -74,4 +74,15 @@ public interface ServiceNodeMapper extends ServiceNodeManipulator {
 
         return (List) this.fetchServices0( safeQuery );
     }
+
+    List<GenericServiceElement> fetchServicesByGuids0( @Param( "guids" ) List<GUID> guids );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ServiceElement> fetchServicesByGuids( List<GUID> guids ) {
+        if ( guids == null || guids.isEmpty() ) {
+            return List.of();
+        }
+        return (List) this.fetchServicesByGuids0( guids );
+    }
 }

@@ -217,4 +217,9 @@
         WHERE `guid` = #{guid}
     </update>
 
+    <delete id="deleteServiceInstancesByServiceGuid">
+        DELETE FROM `hydra_service_instances`
+        WHERE `service_guid` = #{serviceGuid}
+    </delete>
+
 </mapper>

@@ -7,6 +7,8 @@ import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
+import com.acorn.redqueen.service.deletion.ServiceDirectoryDeleteService;
+import com.acorn.redqueen.service.purge.PurgeService;
 
 public interface CollectiveServiceRegiment extends Regiment, Slf4jTraceable {
 
@@ -21,5 +23,8 @@ public interface CollectiveServiceRegiment extends Regiment, Slf4jTraceable {
     ServiceControlTransportRegistry transportRegistry();
 
     ServiceControlInspection inspectServiceControl();
-}
 
+    PurgeService purgeService();
+
+    ServiceDirectoryDeleteService directoryDeleteService();
+}

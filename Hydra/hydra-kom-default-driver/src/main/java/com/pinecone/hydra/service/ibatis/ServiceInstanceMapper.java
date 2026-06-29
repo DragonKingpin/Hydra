@@ -55,4 +55,7 @@ public interface ServiceInstanceMapper extends ServiceInstanceManipulator {
 
     @Override
     void updateServiceInstance(ServiceInstanceEntry element);
+
+    @Override
+    void deleteServiceInstancesByServiceGuid( @Param( "serviceGuid" ) GUID serviceGuid );
 }

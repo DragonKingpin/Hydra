@@ -6,6 +6,7 @@ import com.acorn.redqueen.service.conduct.RedCollectiveServiceLegionary;
 import com.acorn.redqueen.service.conduct.RedCollectiveServiceRegiment;
 import com.acorn.redqueen.service.conduct.ServiceLegionaryJoinRequest;
 import com.acorn.redqueen.service.conduct.ServiceLegionaryJoinResponse;
+import com.acorn.redqueen.service.conduct.ServiceLegionaryState;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.hydra.service.ibatis.hydranium.ServiceMappingDriver;
@@ -113,7 +114,7 @@ public class ServiceLegionarySmokeCase implements Pinenut {
         ServiceLegionaryAssertions.awaitTrue(
                 context.scenario.name() + " legionary did not terminate after passive shutdown.",
                 5000L,
-                () -> context.legionary.getState() == com.acorn.redqueen.service.conduct.ServiceLegionaryState.Terminated
+                () -> context.legionary.getState() == ServiceLegionaryState.Terminated
         );
         ServiceLegionaryAssertions.assertTerminated( context.legionary );
         context.probe.record( "Smoke", 0, "TERMINATED", context.legionary );

@@ -19,4 +19,6 @@ public interface ServiceInstanceManipulator extends Pinenut {
     List<ServiceInstanceEntry> fetchServiceInstancesByServiceGuid( GUID serviceGuid );
 
     void updateServiceInstance( ServiceInstanceEntry element );
+
+    void deleteServiceInstancesByServiceGuid( GUID serviceGuid );
 }

@@ -6,12 +6,13 @@ public enum DeviceStatus implements Pinenut {
     New( 0x01, "New" ),                    // 设备新建 / Device New
     Registering( 0x02, "Registering" ),    // 设备注册中 / Device Registering
     Online( 0x03, "Online" ),              // 设备在线 / Device Online
-    Suspect( 0x04, "Suspect" ),            // 设备疑似异常 / Device Suspect
-    Deregistered( 0x05, "Deregistered" ),  // 设备已注销但RPC未断开 / Device Deregistered while RPC alive
-    Offline( 0x06, "Offline" ),            // 设备离线 / Device Offline
-    Expired( 0x07, "Expired" ),            // 设备租约过期 / Device Lease Expired
-    Suspended( 0x08, "Suspended" ),        // 设备已暂停 / Device Suspended
-    Retired( 0x09, "Retired" ),            // 设备已退役 / Device Retired
+    Detached( 0x04, "Detached" ),          // 控制连接断开，处于宽限观察期 / Control connection detached in grace window
+    Suspect( 0x05, "Suspect" ),            // 设备疑似异常 / Device Suspect
+    Deregistered( 0x06, "Deregistered" ),  // 设备已注销但RPC未断开 / Device Deregistered while RPC alive
+    Offline( 0x07, "Offline" ),            // 设备离线 / Device Offline
+    Expired( 0x08, "Expired" ),            // 设备租约过期 / Device Lease Expired
+    Suspended( 0x09, "Suspended" ),        // 设备已暂停 / Device Suspended
+    Retired( 0x0A, "Retired" ),            // 设备已退役 / Device Retired
     Error( 0x0F, "Error" );                // 设备异常 / Device Error
 
     private final int code;

@@ -1,5 +1,6 @@
 package com.service.auto;
 
+import com.acorn.redqueen.service.conduct.ServiceLegionaryState;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.Debug;
 import com.pinecone.framework.util.id.GUID;
@@ -68,7 +69,7 @@ public class ServiceLegionaryDetachedGraceDevilCase implements Pinenut {
                 10000L,
                 () -> context.legionary.getInstanceGuid() != null
                         && context.legionary.getInstanceGuid().equals( before )
-                        && context.legionary.getState() == com.acorn.redqueen.service.conduct.ServiceLegionaryState.Online
+                        && context.legionary.getState() == ServiceLegionaryState.Online
                         && this.hasStatus( context, before, ServiceInstanceStatus.Online )
         );
         context.probe.record( "DetachedGraceDevil", nRound, "RECOVERED", context.legionary );

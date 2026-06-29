@@ -9,6 +9,8 @@ public class GenericDeviceInstanceEntry implements DeviceInstanceEntry {
 
     protected GUID instanceGuid;
 
+    protected GUID ownerInstanceGuid;
+
     protected GUID deviceGuid;
 
     protected long clientId;
@@ -61,6 +63,16 @@ public class GenericDeviceInstanceEntry implements DeviceInstanceEntry {
     @Override
     public void setInstanceGuid( GUID instanceGuid ) {
         this.instanceGuid = instanceGuid;
+    }
+
+    @Override
+    public GUID getOwnerInstanceGuid() {
+        return this.ownerInstanceGuid;
+    }
+
+    @Override
+    public void setOwnerInstanceGuid( GUID ownerInstanceGuid ) {
+        this.ownerInstanceGuid = ownerInstanceGuid;
     }
 
     @Override

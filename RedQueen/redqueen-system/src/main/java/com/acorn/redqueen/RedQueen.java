@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import com.acorn.redqueen.service.conduct.CollectiveServiceRegiment;
 import com.acorn.redqueen.service.conduct.RedCollectiveServiceRegiment;
+import com.acorn.redqueen.service.purge.PurgeService;
 import com.pinecone.framework.system.IrrationalProvokedException;
 import com.acorn.redqueen.system.ServiceCentralControl;
 import com.pinecone.framework.util.config.PatriarchalConfig;
@@ -306,5 +307,13 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
     @Override
     public CollectiveServiceRegiment serviceRegiment() {
         return this.mServiceRegiment;
+    }
+
+    @Override
+    public PurgeService servicePurgeService() {
+        if ( this.mServiceRegiment != null ) {
+            return this.mServiceRegiment.purgeService();
+        }
+        return null;
     }
 }

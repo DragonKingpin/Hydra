@@ -28,4 +28,9 @@ public class HuskyDeviceTopologyController implements HuskyDeviceController {
     public List<DeviceMetaDTO> fetchChildrenMeta( String parentGuid ) {
         return this.deviceTopologyService.fetchChildrenMeta( parentGuid );
     }
+
+    @AddressMapping( "fetchOwnedDeviceMeta" )
+    public List<DeviceMetaDTO> fetchOwnedDeviceMeta( String ownerDeviceGuid ) {
+        return this.deviceTopologyService.fetchOwnedDeviceMeta( ownerDeviceGuid );
+    }
 }

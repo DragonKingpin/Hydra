@@ -29,5 +29,7 @@ public interface ServiceNodeManipulator extends GUIDNameManipulator {
 
     List<ServiceElement> fetchServices( ServiceElementQuery query );
 
+    List<ServiceElement> fetchServicesByGuids( List<GUID> guids );
+
     long countServices( ServiceElementQuery query );
 }

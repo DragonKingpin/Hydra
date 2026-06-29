@@ -24,6 +24,7 @@ import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.UniformDeviceInstrument;
 import com.pinecone.hydra.device.registry.server.DeviceManager;
 import com.pinecone.hydra.device.registry.server.UniformDeviceManager;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationConfig;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.LogStatuses;
@@ -97,6 +98,7 @@ public class Skynet extends ArchModularizedSubsystem implements SkynetSubsystem 
         this.infoLifecycle( "<Skynet> Constructing component `DeviceInstrument`.", LogStatuses.StatusDone );
 
         this.mDeviceManager = new UniformDeviceManager( this.mDeviceInstrument );
+        this.configure_device_detached_observation();
         this.infoLifecycle( "<Skynet> Constructing component `DeviceManager`.", LogStatuses.StatusDone );
 
         this.prepare_device_control_transports();
@@ -153,6 +155,15 @@ public class Skynet extends ArchModularizedSubsystem implements SkynetSubsystem 
 
             throw new IrrationalProvokedException( "Unknown device control transport type `" + szType + "`." );
         }
+    }
+
+    protected void configure_device_detached_observation() {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "deviceControl" );
+        JSONObject detachedObservationConfig = null;
+        if ( controlConfig != null ) {
+            detachedObservationConfig = controlConfig.optJSONObject( "detachedObservation" );
+        }
+        this.mDeviceManager.configureDetachedObservation( new DeviceDetachedObservationConfig( detachedObservationConfig ) );
     }
 
     protected void hook_husky_device_control_transport( String szDriver ) {

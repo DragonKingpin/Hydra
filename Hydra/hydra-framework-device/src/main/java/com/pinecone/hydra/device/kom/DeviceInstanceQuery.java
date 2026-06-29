@@ -19,6 +19,8 @@ public class DeviceInstanceQuery implements Pinenut {
 
     protected GUID instanceGuid;
 
+    protected GUID ownerInstanceGuid;
+
     protected GUID deviceGuid;
 
     protected Long clientId;
@@ -69,6 +71,14 @@ public class DeviceInstanceQuery implements Pinenut {
 
     public void setInstanceGuid( GUID instanceGuid ) {
         this.instanceGuid = instanceGuid;
+    }
+
+    public GUID getOwnerInstanceGuid() {
+        return this.ownerInstanceGuid;
+    }
+
+    public void setOwnerInstanceGuid( GUID ownerInstanceGuid ) {
+        this.ownerInstanceGuid = ownerInstanceGuid;
     }
 
     public GUID getDeviceGuid() {

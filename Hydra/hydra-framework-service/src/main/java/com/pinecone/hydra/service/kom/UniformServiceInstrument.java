@@ -110,6 +110,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         );
     }
 
+    @Override
+    public ServiceMasterManipulator getServiceMasterManipulator() {
+        return this.serviceMasterManipulator;
+    }
+
     protected ServiceTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
         List<String > parts = this.pathResolver.resolvePathParts( path );
         this.assertValidTreePath( path, parts );
@@ -418,6 +423,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     @Override
     public List<ServiceElement> fetchServices( ServiceElementQuery query ) {
         return this.serviceNodeManipulator.fetchServices( query );
+    }
+
+    @Override
+    public List<ServiceElement> fetchServicesByGuids( List<GUID> guids ) {
+        return this.serviceNodeManipulator.fetchServicesByGuids( guids );
     }
 
     @Override

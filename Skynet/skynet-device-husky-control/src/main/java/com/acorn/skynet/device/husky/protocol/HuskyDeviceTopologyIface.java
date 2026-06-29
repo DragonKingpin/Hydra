@@ -13,4 +13,6 @@ public interface HuskyDeviceTopologyIface extends Pinenut {
     boolean affirmOwnedRelation( DeviceTopologyDTO topologyDTO );
 
     List<DeviceMetaDTO> fetchChildrenMeta( String parentGuid );
+
+    List<DeviceMetaDTO> fetchOwnedDeviceMeta( String ownerDeviceGuid );
 }

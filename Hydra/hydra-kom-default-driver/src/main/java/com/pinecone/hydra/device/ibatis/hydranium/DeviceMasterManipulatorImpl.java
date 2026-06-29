@@ -4,6 +4,7 @@ import com.pinecone.framework.system.construction.Structure;
 import com.pinecone.hydra.device.ibatis.ContainerElementMapper;
 import com.pinecone.hydra.device.ibatis.DeviceNamespaceMapper;
 import com.pinecone.hydra.device.ibatis.DeviceInstanceMapper;
+import com.pinecone.hydra.device.ibatis.DeviceElementDigestMapper;
 import com.pinecone.hydra.device.ibatis.DeviceNodeOwnerMapper;
 import com.pinecone.hydra.device.ibatis.DeviceTreeMapper;
 import com.pinecone.hydra.device.ibatis.GenericDeviceMapper;
@@ -16,7 +17,9 @@ import com.pinecone.hydra.device.ibatis.VirtualMachineMapper;
 import com.pinecone.hydra.device.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceMasterManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceNamespaceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceElementDigestManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceInstanceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceNodeOwnershipManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceSchemaManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceTypeManipulator;
@@ -42,6 +45,10 @@ public class DeviceMasterManipulatorImpl implements DeviceMasterManipulator {
     @Resource
     @Structure(type = DeviceTreeMapper.class )
     TrieTreeManipulator trieTreeManipulator;
+
+    @Resource
+    @Structure(type = DeviceTreeMapper.class )
+    DeviceNodeOwnershipManipulator deviceNodeOwnershipManipulator;
 
     @Resource
     @Structure(type = ClusterNodeMapper.class )
@@ -83,6 +90,10 @@ public class DeviceMasterManipulatorImpl implements DeviceMasterManipulator {
     @Resource
     @Structure( type = DeviceInstanceMapper.class )
     DeviceInstanceManipulator deviceInstanceManipulator;
+
+    @Resource
+    @Structure( type = DeviceElementDigestMapper.class )
+    DeviceElementDigestManipulator deviceElementDigestManipulator;
 
     @Resource( type = DeviceMasterTreeManipulatorImpl.class )
     KOISkeletonMasterManipulator skeletonMasterManipulator;
@@ -161,5 +172,15 @@ public class DeviceMasterManipulatorImpl implements DeviceMasterManipulator {
     @Override
     public DeviceInstanceManipulator getDeviceInstanceManipulator() {
         return this.deviceInstanceManipulator;
+    }
+
+    @Override
+    public DeviceNodeOwnershipManipulator getDeviceNodeOwnershipManipulator() {
+        return this.deviceNodeOwnershipManipulator;
+    }
+
+    @Override
+    public DeviceElementDigestManipulator getDeviceElementDigestManipulator() {
+        return this.deviceElementDigestManipulator;
     }
 }

@@ -18,6 +18,7 @@ import com.pinecone.hydra.device.generic.GenericDeviceSchemaValidator;
 import com.pinecone.hydra.device.generic.GenericDeviceType;
 import com.pinecone.hydra.device.kom.entity.ClusterElement;
 import com.pinecone.hydra.device.kom.entity.ContainerElement;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
 import com.pinecone.hydra.device.kom.entity.GenericContainerElement;
 import com.pinecone.hydra.device.kom.entity.GenericDeviceElement;
 import com.pinecone.hydra.device.kom.entity.GenericPhysicalHostElement;
@@ -26,6 +27,7 @@ import com.pinecone.hydra.device.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.device.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.device.kom.entity.QuickElement;
 import com.pinecone.hydra.device.kom.entity.VirtualMachineElement;
+import com.pinecone.hydra.device.kom.digest.DeviceElementDigest;
 import com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry;
 import com.pinecone.hydra.device.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.device.kom.source.QuickElementManipulator;
@@ -48,7 +50,9 @@ import com.pinecone.hydra.device.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.device.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceMasterManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceNamespaceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceElementDigestManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceInstanceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceNodeOwnershipManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceSchemaManipulator;
 import com.pinecone.hydra.device.kom.source.GenericDeviceTypeManipulator;
@@ -90,6 +94,10 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
 
     protected DeviceInstanceManipulator             deviceInstanceManipulator;
 
+    protected DeviceNodeOwnershipManipulator        deviceNodeOwnershipManipulator;
+
+    protected DeviceElementDigestManipulator        deviceElementDigestManipulator;
+
     protected GenericDeviceSchemaValidator          genericDeviceSchemaValidator;
 
     protected GenericDeviceSchemaTransformer        genericDeviceSchemaTransformer;
@@ -111,6 +119,8 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
         this.genericDeviceTypeManipulator = this.deviceMasterManipulator.getGenericDeviceTypeManipulator();
         this.genericDeviceSchemaManipulator = this.deviceMasterManipulator.getGenericDeviceSchemaManipulator();
         this.deviceInstanceManipulator = this.deviceMasterManipulator.getDeviceInstanceManipulator();
+        this.deviceNodeOwnershipManipulator = this.deviceMasterManipulator.getDeviceNodeOwnershipManipulator();
+        this.deviceElementDigestManipulator = this.deviceMasterManipulator.getDeviceElementDigestManipulator();
         this.genericDeviceSchemaValidator = new GenericDeviceSchemaValidator();
         this.genericDeviceSchemaTransformer = new GenericDeviceSchemaTransformer();
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
@@ -486,6 +496,32 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
     }
 
     @Override
+    public Collection<DeviceElementDigest> fetchDeviceElementDigests( DeviceElementDigestQuery query ) {
+        return this.deviceElementDigestManipulator.fetchDeviceElementDigests( query );
+    }
+
+    @Override
+    public Collection<DeviceElementDigest> fetchDeviceElementDigestsByGuids( List<GUID> guids ) {
+        return this.deviceElementDigestManipulator.fetchDeviceElementDigestsByGuids( guids );
+    }
+
+    @Override
+    public long countDeviceElementDigests( DeviceElementDigestQuery query ) {
+        return this.deviceElementDigestManipulator.countDeviceElementDigests( query );
+    }
+
+    @Override
+    public DeviceElementDigestPage fetchDeviceElementDigestPage( DeviceElementDigestQuery query ) {
+        DeviceElementDigestQuery safeQuery = query == null ? new DeviceElementDigestQuery() : query;
+        return new DeviceElementDigestPage(
+                new ArrayList<>( this.fetchDeviceElementDigests( safeQuery ) ),
+                this.countDeviceElementDigests( safeQuery ),
+                safeQuery.getOffset(),
+                safeQuery.getLimit()
+        );
+    }
+
+    @Override
     public void createDeviceInstance( DeviceInstanceEntry deviceInstanceEntry ) {
         this.deviceInstanceManipulator.initDeviceInstance( deviceInstanceEntry );
     }
@@ -511,6 +547,11 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
     }
 
     @Override
+    public Collection<DeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid( GUID ownerInstanceGuid ) {
+        return this.deviceInstanceManipulator.fetchDeviceInstancesByOwnerInstanceGuid( ownerInstanceGuid );
+    }
+
+    @Override
     public DeviceInstancePage fetchDeviceInstancePage( DeviceInstanceQuery query ) {
         DeviceInstanceQuery safeQuery = query == null ? new DeviceInstanceQuery() : query;
         return new DeviceInstancePage(
@@ -524,6 +565,26 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
     @Override
     public void updateDeviceInstance( DeviceInstanceEntry deviceInstanceEntry ) {
         this.deviceInstanceManipulator.updateDeviceInstance( deviceInstanceEntry );
+    }
+
+    @Override
+    public DeviceNodeOwnershipEntry queryDeviceNodeOwnership( GUID guid ) {
+        return this.deviceNodeOwnershipManipulator.queryDeviceNodeOwnership( guid );
+    }
+
+    @Override
+    public Collection<GUID> fetchOwnedDeviceGuids( GUID ownerDeviceGuid ) {
+        return this.deviceNodeOwnershipManipulator.fetchOwnedDeviceGuids( ownerDeviceGuid );
+    }
+
+    @Override
+    public Collection<DeviceNodeOwnershipEntry> fetchOwnedDeviceNodes( GUID ownerDeviceGuid ) {
+        return this.deviceNodeOwnershipManipulator.fetchOwnedDeviceNodes( ownerDeviceGuid );
+    }
+
+    @Override
+    public void updateDeviceNodeOwnership( GUID guid, GUID ownerDeviceGuid, boolean deviceNode ) {
+        this.deviceNodeOwnershipManipulator.updateDeviceNodeOwnership( guid, ownerDeviceGuid, deviceNode );
     }
 
     protected DeviceTreeNode queryElementByDirectPath( String path ) {

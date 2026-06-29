@@ -28,4 +28,8 @@ public interface DeviceMasterManipulator extends KOIMasterManipulator {
     GenericDeviceSchemaManipulator getGenericDeviceSchemaManipulator();
 
     DeviceInstanceManipulator getDeviceInstanceManipulator();
+
+    DeviceNodeOwnershipManipulator getDeviceNodeOwnershipManipulator();
+
+    DeviceElementDigestManipulator getDeviceElementDigestManipulator();
 }

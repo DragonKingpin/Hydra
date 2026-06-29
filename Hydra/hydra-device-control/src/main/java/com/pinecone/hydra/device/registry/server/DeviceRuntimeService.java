@@ -2,12 +2,14 @@ package com.pinecone.hydra.device.registry.server;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.device.kom.DeviceInstrument;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceValidationException;
 import com.pinecone.hydra.device.registry.server.connection.DeviceConnection;
@@ -19,6 +21,8 @@ import com.pinecone.hydra.device.registry.instruction.DeviceDeregisterInstructio
 import com.pinecone.hydra.device.registry.instruction.DeviceRegisterInstruction;
 import com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry;
 import com.pinecone.hydra.device.kom.instance.GenericDeviceInstanceEntry;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationEntry;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationRegistry;
 import com.pinecone.hydra.device.registry.server.runtime.DeviceRuntimeRegistry;
 import com.pinecone.hydra.device.registry.server.runtime.UniformDeviceRuntimeRegistry;
 
@@ -52,6 +56,7 @@ public class DeviceRuntimeService implements Pinenut {
         }
 
         GUID deviceGuid = device.getGuid();
+        this.assertMajorDevice( deviceGuid );
         long clientId = DeviceClientIdentity.fromDeviceGuid( deviceGuid );
         if ( command.getClientId() != null && command.getClientId() != clientId ) {
             throw new DeviceValidationException( "Device client id does not match device guid." );
@@ -63,6 +68,11 @@ public class DeviceRuntimeService implements Pinenut {
                 if ( this.isRestoreRegistration( boundByConnection, command ) ) {
                     this.refreshDeviceInstanceRegistration( boundByConnection, connection, command, true );
                     this.bindRuntime( connection, boundByConnection );
+                    this.ensureOwnedDeviceInstances( boundByConnection );
+                    this.syncOwnedDeviceInstancesStatus( boundByConnection, DeviceStatus.Online, null );
+                }
+                else if ( command.getInstanceGuid() != null ) {
+                    throw new DeviceValidationException( "Device connection has already bound another device instance." );
                 }
                 return boundByConnection;
             }
@@ -74,6 +84,9 @@ public class DeviceRuntimeService implements Pinenut {
             if ( this.isRestoreRegistration( active, command ) ) {
                 this.refreshDeviceInstanceRegistration( active, connection, command, true );
                 this.bindRuntime( connection, active );
+                this.recoverDetachedDeviceInstance( active );
+                this.ensureOwnedDeviceInstances( active );
+                this.syncOwnedDeviceInstancesStatus( active, DeviceStatus.Online, null );
                 return active;
             }
             throw new DeviceValidationException( "Device already has an active runtime instance." );
@@ -108,6 +121,8 @@ public class DeviceRuntimeService implements Pinenut {
 
         this.mDeviceInstrument.createDeviceInstance( instance );
         this.bindRuntime( connection, instance );
+        this.markDeviceStatus( instance.getDeviceGuid(), DeviceStatus.Online );
+        this.createOwnedDeviceInstances( instance );
         return instance;
     }
 
@@ -118,12 +133,14 @@ public class DeviceRuntimeService implements Pinenut {
             return;
         }
 
-        instance.setStatus( DeviceStatus.Deregistered );
-        instance.setStatusReason( command == null ? null : command.getReason() );
+        this.removeDetachedObservation( instance );
+        this.markInstanceStatus( instance, DeviceStatus.Deregistered, command == null ? null : command.getReason() );
         LocalDateTime now = LocalDateTime.now();
         instance.setDeregisterTime( now );
         instance.setLatestEndTime( now );
         this.mDeviceInstrument.updateDeviceInstance( instance );
+        this.markDeviceStatus( instance.getDeviceGuid(), DeviceStatus.Deregistered );
+        this.syncOwnedDeviceInstancesStatus( instance, DeviceStatus.Deregistered, command == null ? null : command.getReason() );
         this.unbind( instance );
     }
 
@@ -138,13 +155,7 @@ public class DeviceRuntimeService implements Pinenut {
             return;
         }
 
-        instance.setStatus( DeviceStatus.Offline );
-        instance.setStatusReason( "Connection detached." );
-        LocalDateTime now = LocalDateTime.now();
-        instance.setOfflineTime( now );
-        instance.setLatestEndTime( now );
-        this.mDeviceInstrument.updateDeviceInstance( instance );
-        this.unbind( instance );
+        this.markConnectionDetached( instance, "Connection detached." );
     }
 
     public synchronized void detachConnectionByClientId( long clientId, String reason ) {
@@ -153,13 +164,7 @@ public class DeviceRuntimeService implements Pinenut {
             return;
         }
 
-        instance.setStatus( DeviceStatus.Offline );
-        instance.setStatusReason( this.isBlank( reason ) ? "Connection detached." : reason );
-        LocalDateTime now = LocalDateTime.now();
-        instance.setOfflineTime( now );
-        instance.setLatestEndTime( now );
-        this.mDeviceInstrument.updateDeviceInstance( instance );
-        this.unbind( instance );
+        this.markConnectionDetached( instance, this.isBlank( reason ) ? "Connection detached." : reason );
     }
 
     public DeviceInstanceEntry queryDeviceRuntime( GUID deviceGuid ) {
@@ -211,9 +216,15 @@ public class DeviceRuntimeService implements Pinenut {
         if ( !Objects.equals( entry.getDeviceGuid(), deviceGuid ) ) {
             throw new DeviceValidationException( "Device instance does not belong to requested device." );
         }
+        if ( !this.canResumeDeviceInstance( entry ) ) {
+            throw new DeviceValidationException( "Device instance status cannot resume runtime registration." );
+        }
 
         this.refreshDeviceInstanceRegistration( entry, connection, command, true );
         this.bindRuntime( connection, entry );
+        this.recoverDetachedDeviceInstance( entry );
+        this.ensureOwnedDeviceInstances( entry );
+        this.syncOwnedDeviceInstancesStatus( entry, DeviceStatus.Online, null );
         return entry;
     }
 
@@ -243,10 +254,21 @@ public class DeviceRuntimeService implements Pinenut {
         }
         entry.setMetadataJson( command.getMetadataJson() );
         this.mDeviceInstrument.updateDeviceInstance( entry );
+        this.markDeviceStatus( entry.getDeviceGuid(), DeviceStatus.Online );
     }
 
     protected boolean isRestoreRegistration( DeviceInstanceEntry active, DeviceRegisterInstruction command ) {
         return command.getInstanceGuid() != null && Objects.equals( active.getInstanceGuid(), command.getInstanceGuid() );
+    }
+
+    protected boolean canResumeDeviceInstance( DeviceInstanceEntry entry ) {
+        if ( entry == null || entry.getStatus() == null ) {
+            return false;
+        }
+
+        return entry.getStatus() == DeviceStatus.Online
+                || entry.getStatus() == DeviceStatus.Detached
+                || entry.getStatus() == DeviceStatus.Suspect;
     }
 
     protected void bindRuntime( DeviceConnection connection, DeviceInstanceEntry instance ) {
@@ -259,6 +281,264 @@ public class DeviceRuntimeService implements Pinenut {
         this.mConnectionRegistry.bindConnection( connection );
         this.mRuntimeRegistry.bind( instance );
         this.mConnectionRegistry.bindInstance( connection.getConnectionId(), instance );
+    }
+
+    public synchronized void settleDetachedDeviceInstance( DeviceDetachedObservationEntry entry ) {
+        if ( entry == null || entry.getClientId() == null ) {
+            return;
+        }
+
+        DeviceDetachedObservationRegistry registry = this.detachedObservationRegistry();
+        if ( registry == null || registry.remove( entry.getClientId() ) == null ) {
+            return;
+        }
+
+        DeviceInstanceEntry instance = this.mRuntimeRegistry.queryByClientId( entry.getClientId() );
+        if ( instance == null || !Objects.equals( instance.getInstanceGuid(), entry.getInstanceGuid() ) ) {
+            return;
+        }
+
+        DeviceStatus status = this.resolveDetachedMissingStatus();
+        this.markInstanceStatus( instance, status, "Detached grace expired." );
+        this.mDeviceInstrument.updateDeviceInstance( instance );
+        this.markDeviceStatus( instance.getDeviceGuid(), status );
+        this.syncOwnedDeviceInstancesStatus( instance, status, "Detached grace expired." );
+        this.unbind( instance );
+        this.mDeviceManager.getLogger().info(
+                "Detached device instance settled, { clientId: {}, instanceId: {}, deviceId: {}, status: {} }. <{}>",
+                new Object[]{
+                        entry.getClientId(),
+                        entry.getInstanceGuid(),
+                        entry.getDeviceGuid(),
+                        status.getName(),
+                        status.getName()
+                }
+        );
+    }
+
+    protected void markConnectionDetached( DeviceInstanceEntry instance, String reason ) {
+        if ( instance == null ) {
+            return;
+        }
+
+        if ( !this.mDeviceManager.detachedObservationConfig().isEnable() ) {
+            this.markInstanceStatus( instance, DeviceStatus.Offline, reason );
+            this.mDeviceInstrument.updateDeviceInstance( instance );
+            this.markDeviceStatus( instance.getDeviceGuid(), DeviceStatus.Offline );
+            this.syncOwnedDeviceInstancesStatus( instance, DeviceStatus.Offline, reason );
+            this.unbind( instance );
+            return;
+        }
+
+        long nowMillis = System.currentTimeMillis();
+        DeviceDetachedObservationRegistry registry = this.detachedObservationRegistry();
+        if ( registry != null ) {
+            registry.put(
+                    new DeviceDetachedObservationEntry(
+                            instance.getClientId(),
+                            instance.getInstanceGuid(),
+                            instance.getDeviceGuid(),
+                            instance.getConnectionId(),
+                            nowMillis,
+                            nowMillis + this.mDeviceManager.detachedObservationConfig().getGraceMillis(),
+                            reason
+                    )
+            );
+        }
+
+        this.mConnectionRegistry.detachConnection( instance.getConnectionId() );
+        this.markInstanceStatus( instance, DeviceStatus.Detached, reason );
+        this.mDeviceInstrument.updateDeviceInstance( instance );
+        this.markDeviceStatus( instance.getDeviceGuid(), DeviceStatus.Detached );
+        this.syncOwnedDeviceInstancesStatus( instance, DeviceStatus.Detached, reason );
+        this.mDeviceManager.getLogger().info(
+                "Device instance detached, { clientId: {}, instanceId: {}, deviceId: {}, graceMillis: {} }. <Detached>",
+                new Object[]{
+                        instance.getClientId(),
+                        instance.getInstanceGuid(),
+                        instance.getDeviceGuid(),
+                        this.mDeviceManager.detachedObservationConfig().getGraceMillis()
+                }
+        );
+    }
+
+    protected void recoverDetachedDeviceInstance( DeviceInstanceEntry instance ) {
+        if ( instance == null ) {
+            return;
+        }
+
+        DeviceDetachedObservationRegistry registry = this.detachedObservationRegistry();
+        DeviceDetachedObservationEntry detached = registry == null ? null : registry.removeByInstanceGuid( instance.getInstanceGuid() );
+        if ( detached == null ) {
+            return;
+        }
+
+        this.mDeviceManager.getLogger().info(
+                "Detached device instance recovered, { clientId: {}, instanceId: {}, deviceId: {} }. <Recovered>",
+                new Object[]{ instance.getClientId(), instance.getInstanceGuid(), instance.getDeviceGuid() }
+        );
+    }
+
+    protected void assertMajorDevice( GUID deviceGuid ) {
+        DeviceNodeOwnershipEntry ownership = this.mDeviceInstrument.queryDeviceNodeOwnership( deviceGuid );
+        if ( ownership != null && ownership.getOwnerDeviceGuid() != null ) {
+            throw new DeviceValidationException( "Logic minor device cannot register runtime directly." );
+        }
+    }
+
+    protected void ensureOwnedDeviceInstances( DeviceInstanceEntry majorInstance ) {
+        if ( majorInstance == null || majorInstance.getInstanceGuid() == null ) {
+            return;
+        }
+
+        Collection<DeviceInstanceEntry> existed = this.mDeviceInstrument.fetchDeviceInstancesByOwnerInstanceGuid( majorInstance.getInstanceGuid() );
+        if ( existed == null || existed.isEmpty() ) {
+            this.createOwnedDeviceInstances( majorInstance );
+        }
+    }
+
+    protected void createOwnedDeviceInstances( DeviceInstanceEntry majorInstance ) {
+        if ( majorInstance == null || majorInstance.getDeviceGuid() == null || majorInstance.getInstanceGuid() == null ) {
+            return;
+        }
+
+        Collection<GUID> ownedDeviceGuids = this.mDeviceInstrument.fetchOwnedDeviceGuids( majorInstance.getDeviceGuid() );
+        if ( ownedDeviceGuids == null || ownedDeviceGuids.isEmpty() ) {
+            return;
+        }
+
+        for ( GUID ownedDeviceGuid : ownedDeviceGuids ) {
+            this.createOwnedDeviceInstance( majorInstance, ownedDeviceGuid );
+        }
+    }
+
+    protected DeviceInstanceEntry createOwnedDeviceInstance( DeviceInstanceEntry majorInstance, GUID ownedDeviceGuid ) {
+        DeviceInstanceEntry instance = new GenericDeviceInstanceEntry();
+        instance.setInstanceGuid( this.mGuidAllocator.nextGUID() );
+        instance.setOwnerInstanceGuid( majorInstance.getInstanceGuid() );
+        instance.setDeviceGuid( ownedDeviceGuid );
+        instance.setClientId( DeviceClientIdentity.fromDeviceGuid( ownedDeviceGuid ) );
+        instance.setConnectionId( majorInstance.getConnectionId() );
+        instance.setSessionGuid( majorInstance.getSessionGuid() );
+        instance.setTransportType( majorInstance.getTransportType() );
+        instance.setRemoteAddress( majorInstance.getRemoteAddress() );
+        instance.setEndpointProtocol( majorInstance.getEndpointProtocol() );
+        instance.setEndpointHost( majorInstance.getEndpointHost() );
+        instance.setEndpointPort( majorInstance.getEndpointPort() );
+        instance.setEndpointPath( majorInstance.getEndpointPath() );
+        instance.setEndpointAddress( majorInstance.getEndpointAddress() );
+        instance.setStatus( majorInstance.getStatus() );
+        instance.setStatusReason( majorInstance.getStatusReason() );
+        instance.setRegisterTime( majorInstance.getRegisterTime() );
+        instance.setLastHeartbeatTime( majorInstance.getLastHeartbeatTime() );
+        instance.setConnectionCount( majorInstance.getConnectionCount() );
+        instance.setLatestStartTime( majorInstance.getLatestStartTime() );
+        instance.setMetadataJson( majorInstance.getMetadataJson() );
+
+        this.mDeviceInstrument.createDeviceInstance( instance );
+        this.markDeviceStatus( ownedDeviceGuid, majorInstance.getStatus() );
+        return instance;
+    }
+
+    protected void syncOwnedDeviceInstancesStatus( DeviceInstanceEntry majorInstance, DeviceStatus status, String reason ) {
+        if ( majorInstance == null || majorInstance.getInstanceGuid() == null || status == null ) {
+            return;
+        }
+
+        Collection<DeviceInstanceEntry> ownedInstances = this.mDeviceInstrument.fetchDeviceInstancesByOwnerInstanceGuid( majorInstance.getInstanceGuid() );
+        if ( ownedInstances == null || ownedInstances.isEmpty() ) {
+            return;
+        }
+
+        for ( DeviceInstanceEntry ownedInstance : ownedInstances ) {
+            this.markInstanceStatus( ownedInstance, status, reason );
+            ownedInstance.setConnectionId( majorInstance.getConnectionId() );
+            ownedInstance.setSessionGuid( majorInstance.getSessionGuid() );
+            ownedInstance.setTransportType( majorInstance.getTransportType() );
+            ownedInstance.setRemoteAddress( majorInstance.getRemoteAddress() );
+            ownedInstance.setEndpointProtocol( majorInstance.getEndpointProtocol() );
+            ownedInstance.setEndpointHost( majorInstance.getEndpointHost() );
+            ownedInstance.setEndpointPort( majorInstance.getEndpointPort() );
+            ownedInstance.setEndpointPath( majorInstance.getEndpointPath() );
+            ownedInstance.setEndpointAddress( majorInstance.getEndpointAddress() );
+            ownedInstance.setLastHeartbeatTime( majorInstance.getLastHeartbeatTime() );
+            ownedInstance.setConnectionCount( majorInstance.getConnectionCount() );
+            ownedInstance.setLatestStartTime( majorInstance.getLatestStartTime() );
+            ownedInstance.setMetadataJson( majorInstance.getMetadataJson() );
+            this.mDeviceInstrument.updateDeviceInstance( ownedInstance );
+            this.markDeviceStatus( ownedInstance.getDeviceGuid(), status );
+        }
+    }
+
+    protected void removeDetachedObservation( DeviceInstanceEntry instance ) {
+        DeviceDetachedObservationRegistry registry = this.detachedObservationRegistry();
+        if ( registry != null && instance != null ) {
+            registry.removeByInstanceGuid( instance.getInstanceGuid() );
+        }
+    }
+
+    protected DeviceDetachedObservationRegistry detachedObservationRegistry() {
+        if ( this.mDeviceManager instanceof UniformDeviceManager ) {
+            return ( (UniformDeviceManager) this.mDeviceManager ).detachedObservationRegistry();
+        }
+        return null;
+    }
+
+    protected void markInstanceStatus( DeviceInstanceEntry instance, DeviceStatus status, String reason ) {
+        if ( instance == null || status == null ) {
+            return;
+        }
+        instance.setStatus( status );
+        instance.setStatusReason( reason );
+        if ( this.isTerminalStatus( status ) ) {
+            LocalDateTime now = LocalDateTime.now();
+            if ( DeviceStatus.Deregistered == status ) {
+                instance.setDeregisterTime( now );
+            }
+            else {
+                instance.setOfflineTime( now );
+            }
+            instance.setLatestEndTime( now );
+        }
+    }
+
+    protected void markDeviceStatus( GUID deviceGuid, DeviceStatus status ) {
+        if ( deviceGuid == null || status == null ) {
+            return;
+        }
+
+        ElementNode device = this.mDeviceManager.queryDeviceByGuid( deviceGuid );
+        if ( device == null ) {
+            return;
+        }
+        device.setStatus( status.getName() );
+        this.mDeviceInstrument.update( device );
+    }
+
+    protected boolean isTerminalStatus( DeviceStatus status ) {
+        return DeviceStatus.Deregistered == status
+                || DeviceStatus.Offline == status
+                || DeviceStatus.Expired == status
+                || DeviceStatus.Error == status;
+    }
+
+    protected DeviceStatus resolveDetachedMissingStatus() {
+        String policy = this.mDeviceManager.detachedObservationConfig().getMissingAfterReconnectPolicy();
+        String normalizedPolicy = policy == null ? "" : policy.trim().toUpperCase( Locale.ROOT );
+        if ( DeviceStatus.Expired.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy ) ) {
+            return DeviceStatus.Expired;
+        }
+        if ( DeviceStatus.Offline.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy )
+                || "OFFLINE".equals( normalizedPolicy ) ) {
+            return DeviceStatus.Offline;
+        }
+
+        this.mDeviceManager.getLogger().warn(
+                "Unknown detached missing policy `{}`, fallback to `{}`.",
+                policy,
+                DeviceStatus.Offline.getName()
+        );
+        return DeviceStatus.Offline;
     }
 
     protected ElementNode resolveDevice( DeviceRegisterInstruction command ) {

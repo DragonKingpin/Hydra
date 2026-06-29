@@ -1,6 +1,10 @@
 package com.pinecone.hydra.device.registry.server;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +15,8 @@ import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceControlRPCException;
 import com.pinecone.hydra.device.registry.DeviceValidationException;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationConfig;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationRegistry;
 import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
 import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransportRegistry;
 import com.pinecone.hydra.device.registry.server.transport.UniformDeviceControlTransportRegistry;
@@ -33,6 +39,14 @@ public class UniformDeviceManager implements DeviceManager {
 
     protected final Logger mLogger;
 
+    protected final DeviceDetachedObservationRegistry mDetachedObservationRegistry;
+
+    protected DeviceDetachedObservationConfig mDetachedObservationConfig;
+
+    protected ScheduledExecutorService mDetachedObservationSweeper;
+
+    protected ExecutorService mDetachedExpirationExecutor;
+
     public UniformDeviceManager( DeviceInstrument deviceInstrument ) {
         if ( deviceInstrument == null ) {
             throw new DeviceValidationException( "DeviceInstrument is required." );
@@ -45,6 +59,8 @@ public class UniformDeviceManager implements DeviceManager {
         this.mDeviceTopologyService = new DeviceTopologyService( this );
         this.mDeviceRuntimeService = new DeviceRuntimeService( this );
         this.mLogger = LoggerFactory.getLogger( this.getClass() );
+        this.mDetachedObservationConfig = new DeviceDetachedObservationConfig();
+        this.mDetachedObservationRegistry = new DeviceDetachedObservationRegistry();
     }
 
     @Override
@@ -110,11 +126,51 @@ public class UniformDeviceManager implements DeviceManager {
                     transport.execute();
                 }
             }
+            this.startDetachedObservationSweeper();
             this.infoLifecycle( "Device Manager RPC Subsystem Vitalization", LogStatuses.StatusDone );
         }
         catch ( Exception e ) {
             throw new DeviceControlRPCException( e );
         }
+    }
+
+    @Override
+    public void stopDeviceManager() {
+        this.stopDetachedObservationSweeper();
+        for ( DeviceControlTransport transport : this.mTransportRegistry.fetchTransports() ) {
+            try {
+                transport.close();
+            }
+            catch ( Exception e ) {
+                this.mLogger.warn(
+                        "[DeviceControl] [StopDeviceManager] (Transport: `{}`) <Failure>",
+                        transport == null ? null : transport.getName(),
+                        e
+                );
+            }
+        }
+    }
+
+    @Override
+    public void configureDetachedObservation( DeviceDetachedObservationConfig config ) {
+        if ( config == null ) {
+            this.mDetachedObservationConfig = new DeviceDetachedObservationConfig();
+            return;
+        }
+        this.mDetachedObservationConfig = config;
+        this.getLogger().info(
+                "[DeviceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    @Override
+    public DeviceDetachedObservationConfig detachedObservationConfig() {
+        return this.mDetachedObservationConfig;
     }
 
     @Override
@@ -184,6 +240,63 @@ public class UniformDeviceManager implements DeviceManager {
     @Override
     public DeviceControlTransportRegistry deviceControlTransportRegistry() {
         return this.mTransportRegistry;
+    }
+
+    public DeviceDetachedObservationRegistry detachedObservationRegistry() {
+        return this.mDetachedObservationRegistry;
+    }
+
+    protected void sweepDetachedDeviceInstances() {
+        if ( !this.mDetachedObservationConfig.isEnable() || this.mDetachedExpirationExecutor == null ) {
+            return;
+        }
+
+        for ( var entry : this.mDetachedObservationRegistry.snapshotExpired( System.currentTimeMillis() ) ) {
+            this.mDetachedExpirationExecutor.submit( () -> this.mDeviceRuntimeService.settleDetachedDeviceInstance( entry ) );
+        }
+    }
+
+    protected void startDetachedObservationSweeper() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+        if ( this.mDetachedObservationSweeper != null ) {
+            return;
+        }
+
+        this.mDetachedExpirationExecutor = Executors.newFixedThreadPool(
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+        this.mDetachedObservationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "Skynet-DeviceDetachedObservationSweeper" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mDetachedObservationSweeper.scheduleWithFixedDelay(
+                this::sweepDetachedDeviceInstances,
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                TimeUnit.MILLISECONDS
+        );
+        this.getLogger().info(
+                "[DeviceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Started>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void stopDetachedObservationSweeper() {
+        if ( this.mDetachedObservationSweeper != null ) {
+            this.mDetachedObservationSweeper.shutdownNow();
+            this.mDetachedObservationSweeper = null;
+        }
+        if ( this.mDetachedExpirationExecutor != null ) {
+            this.mDetachedExpirationExecutor.shutdownNow();
+            this.mDetachedExpirationExecutor = null;
+        }
     }
 
     protected void validateRegistration( DeviceRegistrationDTO registrationDTO ) {

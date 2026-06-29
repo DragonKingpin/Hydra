@@ -7,6 +7,7 @@ import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceControlRPCException;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationConfig;
 import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
 import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransportRegistry;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
@@ -30,6 +31,12 @@ public interface DeviceManager extends Slf4jTraceable {
     int transportSize();
 
     void startDeviceManager() throws DeviceControlRPCException;
+
+    void stopDeviceManager();
+
+    void configureDetachedObservation( DeviceDetachedObservationConfig config );
+
+    DeviceDetachedObservationConfig detachedObservationConfig();
 
     GUID enrollDevice( DeviceRegistrationDTO registrationDTO );
 

@@ -1,6 +1,7 @@
 package com.walnut.odin.proc.server.transport.grpc;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +122,7 @@ public class GrpcProcessorLifecycleService extends com.walnut.odin.proc.server.t
         }
         conductRequest.setNodeName( request.getNodeName() );
         conductRequest.setClientId( request.getClientId() );
+        conductRequest.setMetadata( new LinkedHashMap<>( request.getMetadataMap() ) );
         return conductRequest;
     }
 

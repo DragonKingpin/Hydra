@@ -21,6 +21,9 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
     GenericTaskProcessorEntity selectByGuid( @Param("guid") GUID guid );
 
 
+    GenericTaskProcessorEntity selectMetadataByGuid( @Param("guid") GUID guid );
+
+
     List<GenericTaskProcessorEntity> selectByClusterName0( @Param("clusterName") String clusterName );
 
 
@@ -52,6 +55,12 @@ public interface TaskProcessorMapper extends TaskProcessorManipulator {
             @Param("maxCapacity") int maxCapacity,
             @Param("minCapacity") int minCapacity,
             @Param("runtimeCapacity") int runtimeCapacity
+    );
+
+
+    int updateDynamicMetadataCache(
+            @Param("guid") GUID guid,
+            @Param("dyMetadataCache") String dyMetadataCache
     );
 
 

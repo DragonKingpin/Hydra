@@ -18,10 +18,10 @@ public class GenericClassImage extends ArchExecutionImage implements JVMClassExe
     }
 
     public GenericClassImage(
-            String name, EntryPointRunnable entryPoint, Class<? extends UProcess> processClassType, ImageLoader imageLoader
+            String name, EntryPointRunnableFactory entryPointFactory, Class<? extends UProcess> processClassType, ImageLoader imageLoader
     ) throws ImageLoadProcedureException {
         super(
-                name, entryPoint, processClassType, evalClassURI( entryPoint.getClass() ),
+                name, entryPointFactory, processClassType, evalClassURI( entryPointFactory.getClass() ),
                 imageLoader, JVMClassExecutionImage.class.getSimpleName(), ControllableLevel.Absolute
         );
     }

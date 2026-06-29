@@ -13,6 +13,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.executum.TaskManager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.entity.ElementNode;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.ResurgentTombstone;
@@ -32,6 +33,7 @@ public abstract class ArchUProcess implements UProcess {
     protected ProcessManager         mProcessManager;
 
     protected ExecutionImage         mExecutionImage;
+    protected EntryPointRunnable     mEntryPoint;
 
     protected Map<String, String>  mStartupArgs;
     protected Map<String, String>  mEnvironmentVars;
@@ -43,13 +45,14 @@ public abstract class ArchUProcess implements UProcess {
 
     public ArchUProcess(
             @Nullable Processum localProcess, GUID guid, String szName,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
             Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this.mLocalProcess      = localProcess;
         this.mProcessManager    = processManager;
         this.mProcessID         = guid;
         this.mExecutionImage    = image;
+        this.mEntryPoint        = entryPoint;
         this.mProcSpace         = procSpace;
         this.mRuntimeTombstone  = new ResurgentTombstone();
         this.mStartupArgs       = startupArgs;
@@ -69,18 +72,18 @@ public abstract class ArchUProcess implements UProcess {
 
     public ArchUProcess(
             @Nullable Processum localSystemProc, String szName,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
             Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
+        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, entryPoint, procSpace, startupArgs, environmentVars );
     }
 
     public ArchUProcess(
             Processum localSystemProc,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
             Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
+        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, entryPoint, procSpace, startupArgs, environmentVars );
     }
 
     @Override
@@ -189,6 +192,11 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public ExecutionImage getExecutionImage() {
         return this.mExecutionImage;
+    }
+
+    @Override
+    public EntryPointRunnable getEntryPoint() {
+        return this.mEntryPoint;
     }
 
     @Override

@@ -74,6 +74,9 @@ public class GrpcRemoteProcessFrameMapper implements Pinenut {
         meta.setStartTime( Long.toString( source.getStartTimeMillis() ) );
         meta.setEndTime( Long.toString( source.getFinishTimeMillis() ) );
         meta.setLastUpdateTime( Long.toString( System.currentTimeMillis() ) );
+        meta.setExitCode( source.getExitCode() );
+        meta.setMessage( source.getMessage() );
+        meta.setTerminationStatus( source.getTerminationStatus() );
         return meta;
     }
 

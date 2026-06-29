@@ -42,8 +42,12 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
             );
             if ( acceptance.isDuplicate() ) {
                 this.mRemoteProcessManagerServer.getLogger().info(
-                        "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Duplicate>",
-                        clientId, terminationReport.getPID(), terminationReport.getExitCode()
+                        "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Duplicate>",
+                        clientId,
+                        terminationReport.getPID(),
+                        terminationReport.optStatus(),
+                        terminationReport.getExitCode(),
+                        terminationReport.getErrorMsg()
                 );
                 return;
             }
@@ -61,8 +65,12 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
                 procName = process.getName();
             }
             this.mRemoteProcessManagerServer.getLogger().info(
-                    "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
-                    clientId, terminationReport.getPID(), terminationReport.getExitCode()
+                    "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Done>",
+                    clientId,
+                    terminationReport.getPID(),
+                    terminationReport.optStatus(),
+                    terminationReport.getExitCode(),
+                    terminationReport.getErrorMsg()
             );
             this.mRemoteProcessManagerServer.getLogger().info(
                     "[RemoteProcessTerminated] [RPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
@@ -79,8 +87,12 @@ public class ReactiveSlaveProcessLifecycleController implements Pinenut {
             remoteProcess.notifyRemoteEvent( clientId, UProcessStatus.Terminated, terminationReport );
         }
         this.mRemoteProcessManagerServer.getLogger().info(
-                "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
-                clientId, terminationReport.getPID(), terminationReport.getExitCode()
+                "[RemoteProcessTerminated] [RPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Done>",
+                clientId,
+                terminationReport.getPID(),
+                terminationReport.optStatus(),
+                terminationReport.getExitCode(),
+                terminationReport.getErrorMsg()
         );
         this.mRemoteProcessManagerServer.getLogger().info(
                 "[RemoteProcessTerminated] [RPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>", clientId, terminationReport.getPID(), procName

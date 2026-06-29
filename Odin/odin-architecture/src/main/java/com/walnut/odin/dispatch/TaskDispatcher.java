@@ -1,12 +1,16 @@
 package com.walnut.odin.dispatch;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
@@ -22,9 +26,21 @@ public interface TaskDispatcher extends Pinenut {
 
     TaskProcessorEntity registerProcessor( String szProcessorName, long nClientId ) throws IllegalArgumentException;
 
+    TaskProcessorEntity registerProcessor( String szProcessorName, long nClientId, Map<String, String> metadata ) throws IllegalArgumentException;
+
+    TaskProcessorEntity registerIncorporatedProcessor( String szProcessorName, long nClientId, Map<String, String> metadata ) throws IllegalArgumentException;
+
     void unregisterProcessor( String szProcessorName );
 
     void unregisterProcessor( long nClientId );
+
+    TaskExecutionProcessor removeIncorporatedProcessorByClientId( long nClientId );
+
+    AnonymousTaskProcessorRegistry anonymousProcessorRegistry();
+
+    TaskProcessorEventHookRegistry processorEventHookRegistry();
+
+    TaskProcessorRuntime processorRuntime();
 
     Collection<TaskExecutionProcessor> fetchProcessors();
 

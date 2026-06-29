@@ -637,7 +637,7 @@ public class RavenTaskScheduler implements UniformTaskScheduler {
 
     protected void traceSchedulerCycleEngineBanner() {
         log.info( "---------------------------------------------------------------" );
-        log.info( " Bean Nuts Acorn Odin Scheduler Cycle Engine" );
+        log.info( " Bean Nuts Walnut Odin Scheduler Cycle Engine" );
         log.info( " Mode       : {}", this.mRavenTaskConfig.getSchedulerMode() );
         log.info( " Partition  : {}", this.mszPartitionName );
         log.info( " Node       : {}", this.mRavenTaskConfig.getSchedulerNodeId() );

@@ -5,6 +5,8 @@ import com.pinecone.framework.system.architecture.CascadeComponent;
 import com.pinecone.framework.util.name.Namespace;
 import com.pinecone.hydra.proc.image.kom.ImageElement;
 import com.pinecone.hydra.proc.image.kom.VirtualExeImageInstrument;
+import com.pinecone.hydra.proc.image.path.ImageInstrumentPath;
+import com.pinecone.hydra.proc.image.path.ImagePosixPath;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
@@ -42,13 +44,15 @@ public class FileSystemMappingImageLoader extends ArchImageLoader implements Ima
 
     @Override
     public ExecutionImage queryExecutionImage( String path ) {
-        ExecutionImage image = this.mVirtualExeImageInstrument.queryImage( path );
+        String szPath = ImagePosixPath.normalize( path );
+        String szInstrumentPath = ImageInstrumentPath.normalize( szPath );
+        ExecutionImage image = this.mVirtualExeImageInstrument.queryImage( szInstrumentPath );
         if ( image != null ) {
             return image;
         }
 
         if ( this.getSystem() instanceof UniformCentralSystem ) {
-            EntityNode e = ((UniformCentralSystem) this.getSystem()).imperiumPrivy().getExpressInstrument().queryNode( path );
+            EntityNode e = ((UniformCentralSystem) this.getSystem()).imperiumPrivy().getExpressInstrument().queryNode( szInstrumentPath );
             if ( e instanceof ImageElement) {
                 return ((ImageElement) e).getImage();
             }
@@ -59,6 +63,6 @@ public class FileSystemMappingImageLoader extends ArchImageLoader implements Ima
 
     @Override
     public void registerLocalScopeExecutionImage( String dirPath, ExecutionImage image ) {
-        this.mVirtualExeImageInstrument.mount( dirPath, image );
+        this.mVirtualExeImageInstrument.mount( ImageInstrumentPath.normalize( dirPath ), image );
     }
 }

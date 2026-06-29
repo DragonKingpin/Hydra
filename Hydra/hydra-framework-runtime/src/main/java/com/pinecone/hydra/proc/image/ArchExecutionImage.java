@@ -12,7 +12,7 @@ public abstract class ArchExecutionImage implements ExecutionImage {
     protected String                        mszImageAddress;
     protected Class<? extends UProcess>     mProcessClassType;
     protected ClassLoader                   mClassLoader;
-    protected EntryPointRunnable            mEntryPoint;
+    protected EntryPointRunnableFactory     mEntryPointFactory;
     protected ImageLoader                   mImageLoader;
     protected boolean                       mbReadOnly;
     protected boolean                       mbReusable;
@@ -20,13 +20,13 @@ public abstract class ArchExecutionImage implements ExecutionImage {
     protected ControllableLevel             mControllableLevel;
 
     protected ArchExecutionImage(
-            String name, EntryPointRunnable entryPoint, Class<? extends UProcess> processClassType,
+            String name, EntryPointRunnableFactory entryPointFactory, Class<? extends UProcess> processClassType,
             URI resourceURI, ClassLoader classLoader, ImageLoader imageLoader,
             boolean readOnly, boolean reusable, String signature,
             ControllableLevel controllableLevel
     ) {
         this.mszName            = name;
-        this.mEntryPoint        = entryPoint;
+        this.mEntryPointFactory = entryPointFactory;
         this.mProcessClassType  = processClassType;
         this.mResourceURI       = resourceURI;
         this.mClassLoader       = classLoader;
@@ -38,9 +38,10 @@ public abstract class ArchExecutionImage implements ExecutionImage {
     }
 
     protected ArchExecutionImage(
-            String name, EntryPointRunnable entryPoint, Class<? extends UProcess> processClassType, URI resourceURI, ImageLoader imageLoader, String signature, ControllableLevel controllableLevel
+            String name, EntryPointRunnableFactory entryPointFactory, Class<? extends UProcess> processClassType,
+            URI resourceURI, ImageLoader imageLoader, String signature, ControllableLevel controllableLevel
     ) {
-        this( name, entryPoint, processClassType, resourceURI, imageLoader.getClassLoader(), imageLoader,
+        this( name, entryPointFactory, processClassType, resourceURI, imageLoader.getClassLoader(), imageLoader,
               true, true, signature, controllableLevel
         );
     }
@@ -66,12 +67,20 @@ public abstract class ArchExecutionImage implements ExecutionImage {
 
     @Override
     public Class<UProcess> processClassType() {
-        return null;
+        return (Class<UProcess>) this.mProcessClassType;
     }
 
     @Override
-    public EntryPointRunnable getEntryPoint() {
-        return this.mEntryPoint;
+    public EntryPointRunnable createEntryPoint() {
+        if ( this.mEntryPointFactory == null ) {
+            throw new IllegalStateException( "Execution image entry point factory is not available." );
+        }
+
+        EntryPointRunnable entryPoint = this.mEntryPointFactory.create();
+        if ( entryPoint == null ) {
+            throw new IllegalStateException( "Execution image entry point factory returned null." );
+        }
+        return entryPoint;
     }
 
     @Override
@@ -102,20 +111,6 @@ public abstract class ArchExecutionImage implements ExecutionImage {
     @Override
     public ControllableLevel getControllableLevel() {
         return this.mControllableLevel;
-    }
-
-    @Override
-    public ExecutionImage clone() {
-        try {
-            ArchExecutionImage that = (ArchExecutionImage) super.clone();
-            if ( this.mEntryPoint != null ) {
-                that.mEntryPoint = this.mEntryPoint.clone();
-            }
-            return that;
-        }
-        catch ( CloneNotSupportedException e ) {
-            throw new IllegalStateException( "Execution image is not cloneable.", e );
-        }
     }
 
 }

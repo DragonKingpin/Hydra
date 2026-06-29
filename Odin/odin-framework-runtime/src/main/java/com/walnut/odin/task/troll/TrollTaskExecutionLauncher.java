@@ -497,7 +497,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         List<ProcessEventHandler> handlers = feature.getSysProcEventHandlers();
         if ( CollectionUtils.isNoneEmpty(handlers) ) {
             for ( ProcessEventHandler handler : handlers ) {
-                this.mImageModifier.addSystemProcessEventHandler( process.getExecutionImage().getEntryPoint(), handler );
+                this.mImageModifier.addSystemProcessEventHandler( process.getEntryPoint(), handler );
             }
         }
         return process;
@@ -977,7 +977,7 @@ public class TrollTaskExecutionLauncher implements TaskExecutionLauncher, Slf4jT
         this.mLogger.info( "[TaskLaunchSequence] [LocalProcessStandby] (Process: `{}`, PID: `{}`) <LaunchServerAck>", process.getName(), process.getPID() );
         this.mLogger.info( "[TaskLaunchSequence] [ExecutingVitalizationInstruction] (Process: `{}`, PID: `{}`) <Start>", process.getName(), process.getPID() );
 
-        this.mImageModifier.addSystemProcessEventHandler(process.getExecutionImage().getEntryPoint(), new ProcessEventHandler() {
+        this.mImageModifier.addSystemProcessEventHandler(process.getEntryPoint(), new ProcessEventHandler() {
             @Override
             public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
                 if ( event == UProcessStatus.Terminated ) {

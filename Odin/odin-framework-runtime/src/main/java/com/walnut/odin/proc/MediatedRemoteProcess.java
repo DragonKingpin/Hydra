@@ -18,6 +18,7 @@ import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.signal.ProcSignal;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -35,6 +36,8 @@ public class MediatedRemoteProcess implements RemoteProcess {
     protected ProcessManager                      mProcessManager;
 
     protected ExecutionImage                      mExecutionImage;
+
+    protected EntryPointRunnable                  mEntryPoint;
 
     protected String                              mszImageAddress;
 
@@ -245,6 +248,11 @@ public class MediatedRemoteProcess implements RemoteProcess {
     @Override
     public ExecutionImage getExecutionImage() {
         return this.mExecutionImage;
+    }
+
+    @Override
+    public EntryPointRunnable getEntryPoint() {
+        return this.mEntryPoint;
     }
 
     public String getImageAddress() {

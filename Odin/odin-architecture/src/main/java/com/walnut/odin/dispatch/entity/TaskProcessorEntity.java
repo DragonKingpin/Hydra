@@ -25,6 +25,14 @@ public interface TaskProcessorEntity extends Pinenut {
 
     void setExecCaps( String execCaps );
 
+    String getExtraMetadata();
+
+    void setExtraMetadata( String extraMetadata );
+
+    String getDyMetadataCache();
+
+    void setDyMetadataCache( String dyMetadataCache );
+
     boolean isLocal();
 
     boolean isExclusive();

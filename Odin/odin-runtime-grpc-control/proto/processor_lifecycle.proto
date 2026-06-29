@@ -14,6 +14,7 @@ service ProcessorLifecycle {
 message RegimentJoinRequest {
   string node_name = 1;
   int64 client_id = 2;
+  map<string, string> metadata = 20;
 }
 
 message RegimentJoinResponse {

@@ -10,8 +10,9 @@ import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
+import com.pinecone.hydra.proc.exit.ProcessExitCodes;
 
-public interface EntryPointRunnable extends Runnable, Executor, Cloneable {
+public interface EntryPointRunnable extends Runnable, Executor {
 
     UProcess ownedProcess();
 
@@ -20,8 +21,6 @@ public interface EntryPointRunnable extends Runnable, Executor, Cloneable {
     ProcessEventHandler processEventHandler();
 
     void applyProcessEventHandler( ProcessEventHandler handler );
-
-    EntryPointRunnable clone();
 
     int main( Map<String, String> args ) throws Exception;
 
@@ -48,6 +47,7 @@ public interface EntryPointRunnable extends Runnable, Executor, Cloneable {
         }
         catch ( Exception e ) {
             this.ownedProcess().actionTape().setLastError( e );
+            this.ownedProcess().actionTape().setExitCode( ProcessExitCodes.UnhandledException );
             terminalStatus = UProcessStatus.Error;
             throw new ProvokeHandleException( e );
         }

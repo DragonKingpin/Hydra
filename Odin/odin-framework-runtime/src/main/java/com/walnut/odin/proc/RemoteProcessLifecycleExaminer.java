@@ -35,15 +35,14 @@ public class RemoteProcessLifecycleExaminer implements ProcessLifecycleExaminer 
     @Override
     public void startProcess( UProcess process ) {
         this.mLogger.info( "[RemoteProcessVitalization] (Process: `{}`, PID: `{}`) <InstructionAccepted>", process.getName(), process.getPID() );
-        ExecutionImage image = process.getExecutionImage();
-        this.mImageModifier.addSystemProcessEventHandler( image.getEntryPoint(), new RPCRecallSysProcessEventHandler(
+        this.mImageModifier.addSystemProcessEventHandler( process.getEntryPoint(), new RPCRecallSysProcessEventHandler(
                 this.mRemoteProcessManagerNode, this.mSlaveProcessLifecycleIface
         ) );
 
         process.start(); // TODO, Process Joint
 
         this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Activated
+                process.getExecutionImage().getImageAddress(), process.getEntryPoint(), UProcessStatus.Activated
         );
 
         this.mLogger.info( "[RemoteProcessVitalization] (Process: `{}`, PID: `{}`) <InstructionPerformed>", process.getName(), process.getPID() );

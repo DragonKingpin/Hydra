@@ -17,7 +17,8 @@ public class Hydroxy extends ArchUProcess {
             UProcess parent, ExecutionImage image, ProcSpace procSpace,
             Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        super( hostedSystem, parent, hostedSystem.processManager(), image, procSpace, startupArgs, environmentVars );
+        super( hostedSystem, parent, hostedSystem.processManager(), image, image.createEntryPoint(), procSpace, startupArgs, environmentVars );
+        this.getEntryPoint().applyOwnedProcess( this );
 
         this.revealNearestSystem().infoLifecycle(
                 "HydraSystemProcess [UProcessProxy] [Name: `" + this.getName() + "`]",

@@ -15,10 +15,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RegimentJoinRejectionException;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorMetadataParser;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.anonymous.GenericAnonymousTaskProcessorMetadataParser;
+import com.walnut.odin.processor.anonymous.RavenAnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.event.GenericTaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.runtime.GenericTaskProcessorRuntime;
+import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
 import com.walnut.odin.task.mapper.InstanceExecMapper;
@@ -37,6 +46,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     protected final Map<Long, TaskExecutionProcessor>    mClientProcessorsIndex;
     protected final Map<DispatchKey, TaskProcPair>       mAffinityTable;
 
+    protected final AnonymousTaskProcessorMetadataParser mAnonymousMetadataParser;
+    protected final AnonymousTaskProcessorRegistry       mAnonymousProcessorRegistry;
+    protected final TaskProcessorEventHookRegistry       mProcessorEventHookRegistry;
+    protected final TaskProcessorRuntime                 mProcessorRuntime;
 
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
     protected InstanceExecMapper        mInstanceExecMapper;
@@ -50,6 +63,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mAffinityTable              = new HashMap<>();
         this.mDispatchStrategy           = strategy;
         this.mClientProcessorsIndex      = new HashMap<>();
+        this.mAnonymousMetadataParser    = new GenericAnonymousTaskProcessorMetadataParser();
+        this.mAnonymousProcessorRegistry = new RavenAnonymousTaskProcessorRegistry( this.mAnonymousMetadataParser );
+        this.mProcessorEventHookRegistry = new GenericTaskProcessorEventHookRegistry();
+        this.mProcessorRuntime           = new GenericTaskProcessorRuntime( this, this.mAnonymousMetadataParser );
         this.mCollectiveTaskRegiment     = regiment;
         this.mTaskExecutionLauncher      = regiment.taskExecutionLauncher();
         this.mTaskProcessorManipulator   = regiment.taskInstrument().getRavenTaskMasterManipulator().getTaskProcessorManipulator();
@@ -95,6 +112,20 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public TaskProcessorEntity registerProcessor( String szProcessorName, long nClientId ) throws IllegalArgumentException {
+        return this.registerProcessor( szProcessorName, nClientId, null );
+    }
+
+    @Override
+    public TaskProcessorEntity registerProcessor(
+            String szProcessorName, long nClientId, Map<String, String> metadata
+    ) throws IllegalArgumentException {
+        return this.registerIncorporatedProcessor( szProcessorName, nClientId, metadata );
+    }
+
+    @Override
+    public TaskProcessorEntity registerIncorporatedProcessor(
+            String szProcessorName, long nClientId, Map<String, String> metadata
+    ) throws IllegalArgumentException {
         TaskProcessorEntity entity = this.mTaskProcessorManipulator.selectByProcessorName( szProcessorName );
         if ( entity == null ) {
             throw new IllegalArgumentException( szProcessorName + " not found" );
@@ -105,6 +136,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         }
 
         entity.setControlClientId( nClientId );
+        this.refreshDynamicMetadataCache( entity, metadata );
         TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(
                 entity,
                 new GenericI32TaskQueue( entity.getTaskQueueMeta() ),
@@ -113,6 +145,22 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         );
         this.registerProcessor( processor );
         return entity;
+    }
+
+    protected void refreshDynamicMetadataCache( TaskProcessorEntity entity, Map<String, String> metadata ) {
+        if ( entity == null || entity.getGuid() == null ) {
+            return;
+        }
+        String szMetadata = this.serializeMetadata( metadata );
+        entity.setDyMetadataCache( szMetadata );
+        this.mTaskProcessorManipulator.updateDynamicMetadataCache( entity.getGuid(), szMetadata );
+    }
+
+    protected String serializeMetadata( Map<String, String> metadata ) {
+        if ( metadata == null || metadata.isEmpty() ) {
+            return null;
+        }
+        return JSON.stringify( metadata );
     }
 
     @Override
@@ -133,19 +181,42 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public void unregisterProcessor( long nClientId ) {
+        TaskExecutionProcessor processor = this.removeIncorporatedProcessorByClientId( nClientId );
+        if ( processor != null ) {
+            this.log.info( "Unregistered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor removeIncorporatedProcessorByClientId( long nClientId ) {
         TaskExecutionProcessor processor = null;
         this.mLock.lock();
         try {
             processor = this.mClientProcessorsIndex.remove( nClientId );
+            if ( processor != null ) {
+                this.mProcessors.remove( processor.getName(), processor );
+                this.removeAffinityBindingByProcessorLocked( processor.getName() );
+            }
+            return processor;
         }
         finally {
             this.mLock.unlock();
-
-            if ( processor != null ) {
-                this.unregisterProcessor( processor.getName() );
-                this.log.info( "Unregistered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
-            }
         }
+    }
+
+    @Override
+    public AnonymousTaskProcessorRegistry anonymousProcessorRegistry() {
+        return this.mAnonymousProcessorRegistry;
+    }
+
+    @Override
+    public TaskProcessorEventHookRegistry processorEventHookRegistry() {
+        return this.mProcessorEventHookRegistry;
+    }
+
+    @Override
+    public TaskProcessorRuntime processorRuntime() {
+        return this.mProcessorRuntime;
     }
 
     @Override

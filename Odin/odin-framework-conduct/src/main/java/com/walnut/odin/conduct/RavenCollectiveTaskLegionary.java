@@ -16,6 +16,8 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
 import com.walnut.odin.proc.client.RemoteProcessManagerClient;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,6 +31,7 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
     protected static final long                  RejoinRetryDelayMillis2 = 2000;
 
     protected String                           mszNodeName;
+    protected Map<String, String>              mProcessorRegisterMetadata;
     protected RemoteProcessManagerClient       mRemoteProcessManagerClient;
     protected ProcessManager                   mLocalProcessManager;
     protected ProcessorLifecycleIface          mProcessLifecycleIface;
@@ -47,6 +50,7 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
 
     protected RavenCollectiveTaskLegionary( ProcessManager processManager, @Postpone RemoteProcessManagerClient pmClient, String szNodeName ) {
         this.mszNodeName                 = szNodeName;
+        this.mProcessorRegisterMetadata  = new LinkedHashMap<>();
         this.mLocalProcessManager        = processManager;
         this.mRemoteProcessManagerClient = pmClient;
         this.mLogger                     = LoggerFactory.getLogger( this.getClass() );
@@ -79,6 +83,14 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
     @Override
     public long getClientId() {
         return this.mRemoteProcessManagerClient.getClientId();
+    }
+
+    public Map<String, String> getProcessorRegisterMetadata() {
+        return new LinkedHashMap<>( this.mProcessorRegisterMetadata );
+    }
+
+    public void setProcessorRegisterMetadata( Map<String, String> metadata ) {
+        this.mProcessorRegisterMetadata = metadata == null ? new LinkedHashMap<>() : new LinkedHashMap<>( metadata );
     }
 
     @Override
@@ -297,6 +309,7 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
         RegimentJoinRequest request = new RegimentJoinRequest();
         request.setClientId( this.mRemoteProcessManagerClient.getClientId() );
         request.setNodeName( this.mszNodeName );
+        request.setMetadata( this.mProcessorRegisterMetadata );
         RegimentJoinResponse response = this.mProcessLifecycleIface.joinRegiment( request );
         if ( response == null ) {
             throw new RegimentException( "ProcessorLifecycleIface.joinRegiment returned null; controller may not be registered or iface may not be compiled." );

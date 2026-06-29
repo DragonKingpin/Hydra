@@ -10,6 +10,8 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.proc.UProcessStatus;
+import com.walnut.odin.proc.RemoteTerminationStatus;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 public final class ProcessesUtils {
@@ -53,8 +55,18 @@ public final class ProcessesUtils {
         meta.setEndTime( formatTime( that.getEndTime() ) );
         meta.setLastUpdateTime( formatTime( that.getLastUpdateTime() ) );
 
-        meta.setStatus( that.getStatus().toString() );
+        UProcessStatus status = that.getStatus();
+        meta.setStatus( status == null ? null : status.toString() );
         meta.setTerminated( that.isTerminated() );
+        meta.setExitCode( that.actionTape().getExitCode() );
+        Throwable lastError = that.actionTape().getLastError();
+        if ( lastError != null ) {
+            meta.setMessage( lastError.getMessage() );
+            meta.setTerminationStatus( RemoteTerminationStatus.Error.name() );
+        }
+        else if ( that.isTerminated() ) {
+            meta.setTerminationStatus( RemoteTerminationStatus.Expected.name() );
+        }
 
         return meta;
     }

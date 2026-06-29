@@ -301,8 +301,12 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             );
             if ( acceptance.isDuplicate() ) {
                 this.log.info(
-                        "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Duplicate>",
-                        session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+                        "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Duplicate>",
+                        session.clientId(),
+                        terminationReport.getPID(),
+                        terminationReport.optStatus(),
+                        terminationReport.getExitCode(),
+                        terminationReport.getErrorMsg()
                 );
                 return;
             }
@@ -317,8 +321,12 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
             UProcess process = acceptance.getProcess();
             String procName = process == null ? "NonExistent" : process.getName();
             this.log.info(
-                    "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
-                    session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+                    "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Done>",
+                    session.clientId(),
+                    terminationReport.getPID(),
+                    terminationReport.optStatus(),
+                    terminationReport.getExitCode(),
+                    terminationReport.getErrorMsg()
             );
             this.log.info(
                     "[RemoteProcessTerminated] [gRPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
@@ -332,16 +340,31 @@ public class GrpcRemoteProcessControlTransport implements RemoteProcessControlTr
         if ( that instanceof RemoteProcess ) {
             procName = that.getName();
             RemoteProcess remoteProcess = (RemoteProcess) that;
-            remoteProcess.notifyRemoteEvent( session.clientId(), UProcessStatus.Terminated, terminationReport );
+            remoteProcess.notifyRemoteEvent(
+                    session.clientId(),
+                    this.resolveUProcessStatus( terminationReport ),
+                    terminationReport
+            );
         }
         this.log.info(
-                "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, ExitCode: `{}`) <Done>",
-                session.clientId(), terminationReport.getPID(), terminationReport.getExitCode()
+                "[RemoteProcessTerminated] [gRPC] (ClientId: `{}`, PID: `{}`, Status: `{}`, ExitCode: `{}`, Error: `{}`) <Done>",
+                session.clientId(),
+                terminationReport.getPID(),
+                terminationReport.optStatus(),
+                terminationReport.getExitCode(),
+                terminationReport.getErrorMsg()
         );
         this.log.info(
                 "[RemoteProcessTerminated] [gRPC] [MirrorUnhook] (ClientId: `{}`, PID: `{}`, Process: `{}`) <Done>",
                 session.clientId(), terminationReport.getPID(), procName
         );
+    }
+
+    protected UProcessStatus resolveUProcessStatus( RemoteTerminationReport terminationReport ) {
+        if ( terminationReport == null || terminationReport.optStatus() == com.walnut.odin.proc.RemoteTerminationStatus.Expected ) {
+            return UProcessStatus.Terminated;
+        }
+        return UProcessStatus.Error;
     }
 
     @Override

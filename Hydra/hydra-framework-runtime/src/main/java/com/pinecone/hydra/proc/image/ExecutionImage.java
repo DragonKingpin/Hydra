@@ -6,7 +6,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.hydra.proc.ControllableLevel;
 import com.pinecone.hydra.proc.UProcess;
 
-public interface ExecutionImage extends Pinenut, Cloneable {
+public interface ExecutionImage extends Pinenut {
 
     String getName();
 
@@ -16,7 +16,7 @@ public interface ExecutionImage extends Pinenut, Cloneable {
 
     Class<UProcess> processClassType();
 
-    EntryPointRunnable getEntryPoint();
+    EntryPointRunnable createEntryPoint();
 
     ClassLoader getClassLoader();
 
@@ -29,7 +29,5 @@ public interface ExecutionImage extends Pinenut, Cloneable {
     String getSignature();
 
     ControllableLevel getControllableLevel();
-
-    ExecutionImage clone();
 
 }

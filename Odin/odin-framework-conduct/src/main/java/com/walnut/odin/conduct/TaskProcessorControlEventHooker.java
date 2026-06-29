@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlEventHooker;
 import com.walnut.odin.proc.server.transport.RemoteProcessControlTransport;
+import com.walnut.odin.processor.runtime.TaskProcessorUnregisterResult;
 
 public class TaskProcessorControlEventHooker implements RemoteProcessControlEventHooker {
 
@@ -28,10 +29,10 @@ public class TaskProcessorControlEventHooker implements RemoteProcessControlEven
             return;
         }
 
-        this.mTaskDispatcher.unregisterProcessor( clientId );
+        TaskProcessorUnregisterResult result = this.mTaskDispatcher.processorRuntime().unregister( clientId );
         this.log.info(
-                "[TaskProcessorControl] [ClientDetached] (ClientId: `{}`) <ProcessorUnregistered>",
-                clientId
+                "[TaskProcessorControl] [ClientDetached] (ClientId: `{}`, Removed: `{}`) <ProcessorUnregistered>",
+                clientId, result != null && result.hasAny()
         );
     }
 }

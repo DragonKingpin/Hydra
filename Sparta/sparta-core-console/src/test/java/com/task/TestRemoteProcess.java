@@ -78,7 +78,7 @@ class Dante extends EnderHydra {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "image1", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "image1", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
@@ -102,7 +102,7 @@ class Dante extends EnderHydra {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "gay", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
@@ -135,7 +135,7 @@ class Dante extends EnderHydra {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "image_c", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "image_c", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );

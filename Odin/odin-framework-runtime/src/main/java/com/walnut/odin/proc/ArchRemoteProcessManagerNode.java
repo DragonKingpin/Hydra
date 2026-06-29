@@ -133,25 +133,28 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
 
         this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
 
-        ExecutionImage image;
+        ExecutionImage resolvedImage;
         if ( isURI ) {
-            image = this.queryExecutionImage( URI.create( imageAddress ) );
+            resolvedImage = this.queryExecutionImage( URI.create( imageAddress ) );
         }
         else {
-            image = this.queryExecutionImage( imageAddress );
+            resolvedImage = this.queryExecutionImage( imageAddress );
         }
 
-        if ( image == null ) {
+        if ( resolvedImage == null ) {
             if ( imageResolutionMode != RemoteImageResolutionMode.REMOTE_CLIENT_IMAGE ) {
                 throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
             }
             else {
                 this.getLogger().info( "[Notice] [MirrorAsymmetric] `{}` is not accessible in this server.", imageAddress );
-                image = new RemoteSurrogateExecutionImage( imageAddress, this.imageLoader() );
             }
         }
-        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
-        process.mExecutionImage = image;
+        RemoteSurrogateExecutionImage mirrorImage = new RemoteSurrogateExecutionImage(
+                imageAddress, this.imageLoader(), resolvedImage
+        );
+        this.mProcessManager.getImageModifier().applyImageAddress( mirrorImage, imageAddress );
+        process.mExecutionImage = mirrorImage;
+        process.mEntryPoint = mirrorImage.createEntryPoint();
 
         process.mszImageAddress = imageAddress;
         process.mImageResolutionMode = imageResolutionMode;

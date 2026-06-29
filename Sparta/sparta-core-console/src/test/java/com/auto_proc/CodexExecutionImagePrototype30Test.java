@@ -56,7 +56,7 @@ class CodexExecutionImagePrototype30Rig extends EnderHydra {
             }
         };
 
-        ExecutionImage imagePrototype = new LocalHostedClassImage( "codex_prototype_30", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage imagePrototype = new LocalHostedClassImage( "codex_prototype_30", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 try {
@@ -88,10 +88,10 @@ class CodexExecutionImagePrototype30Rig extends EnderHydra {
             processes.add( process );
 
             if ( process.getExecutionImage() == imagePrototype ) {
-                failures.add( "process image was not cloned: " + process.getPID() );
+                failures.add( "process image was not instantiated: " + process.getPID() );
             }
-            if ( process.getExecutionImage().getEntryPoint() == imagePrototype.getEntryPoint() ) {
-                failures.add( "process entry point was not cloned: " + process.getPID() );
+            if ( process.getEntryPoint() == null ) {
+                failures.add( "process entry point was not instantiated: " + process.getPID() );
             }
         }
 

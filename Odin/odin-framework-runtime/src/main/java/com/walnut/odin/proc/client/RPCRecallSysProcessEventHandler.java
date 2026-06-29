@@ -74,19 +74,19 @@ public class RPCRecallSysProcessEventHandler implements ProcessEventHandler {
             }
             report.setRemoteTerminationStatus( signalStatus );
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Terminated
+                    process.getExecutionImage().getImageAddress(), process.getEntryPoint(), UProcessStatus.Terminated
             );
         }
         else if ( lastError != null ) {
             report.setErrorMsg( lastError.getMessage() );
             report.setRemoteTerminationStatus( RemoteTerminationStatus.Error );
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Error
+                    process.getExecutionImage().getImageAddress(), process.getEntryPoint(), UProcessStatus.Error
             );
         }
         else {
             this.mRemoteProcessManagerNode.notifyProcessLifecycleHandlers(
-                    process.getExecutionImage().getImageAddress(), process.getExecutionImage().getEntryPoint(), UProcessStatus.Terminated
+                    process.getExecutionImage().getImageAddress(), process.getEntryPoint(), UProcessStatus.Terminated
             );
         }
 

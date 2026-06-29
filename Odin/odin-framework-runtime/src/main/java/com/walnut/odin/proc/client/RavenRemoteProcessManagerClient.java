@@ -554,7 +554,7 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
         if ( process == null || process.getExecutionImage() == null ) {
             return null;
         }
-        EntryPointRunnable entryPoint = process.getExecutionImage().getEntryPoint();
+        EntryPointRunnable entryPoint = process.getEntryPoint();
         if ( !( entryPoint instanceof ProcessSignalHandler ) ) {
             return null;
         }

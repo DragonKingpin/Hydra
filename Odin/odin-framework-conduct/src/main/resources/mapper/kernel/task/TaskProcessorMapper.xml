@@ -19,6 +19,8 @@
         <result column="queue_min_capacity"              property="queueMinCapacity"/>
         <result column="queue_runtime_instance_capacity" property="queueRuntimeInstanceCapacity"/>
         <result column="enable"                          property="enable"/>
+        <result column="extra_metadata"                  property="extraMetadata"/>
+        <result column="dy_metadata_cache"               property="dyMetadataCache"/>
     </resultMap>
 
     <sql id="TaskProcessorColumns">
@@ -40,6 +42,16 @@
         update_time
     </sql>
 
+    <sql id="TaskProcessorMetadataColumns">
+        id,
+        guid,
+        processor_name,
+        extra_metadata,
+        dy_metadata_cache,
+        create_time,
+        update_time
+    </sql>
+
     <select id="selectByProcessorName" resultMap="TaskProcessorMap">
         SELECT
         <include refid="TaskProcessorColumns"/>
@@ -49,7 +61,15 @@
 
     <select id="selectByGuid" resultMap="TaskProcessorMap">
         SELECT
-        <include refid="TaskProcessorColumns"/>
+        <include refid="TaskProcessorColumns"/>,
+        extra_metadata
+        FROM odin_task_processor
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="selectMetadataByGuid" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorMetadataColumns"/>
         FROM odin_task_processor
         WHERE guid = #{guid}
     </select>
@@ -83,6 +103,8 @@
             queue_max_capacity,
             queue_min_capacity,
             queue_runtime_instance_capacity,
+            extra_metadata,
+            dy_metadata_cache,
             enable
         )
         VALUES
@@ -99,6 +121,8 @@
             #{entity.queueMaxCapacity},
             #{entity.queueMinCapacity},
             #{entity.queueRuntimeInstanceCapacity},
+            #{entity.extraMetadata},
+            #{entity.dyMetadataCache},
             #{entity.enable}
         )
     </insert>
@@ -117,6 +141,7 @@
             queue_max_capacity = #{queueMaxCapacity},
             queue_min_capacity = #{queueMinCapacity},
             queue_runtime_instance_capacity = #{queueRuntimeInstanceCapacity},
+            extra_metadata = #{extraMetadata},
             enable = #{enable}
         WHERE guid = #{guid}
     </update>
@@ -127,6 +152,12 @@
             queue_max_capacity = #{maxCapacity},
             queue_min_capacity = #{minCapacity},
             queue_runtime_instance_capacity = #{runtimeCapacity}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateDynamicMetadataCache">
+        UPDATE odin_task_processor
+        SET dy_metadata_cache = #{dyMetadataCache}
         WHERE guid = #{guid}
     </update>
 

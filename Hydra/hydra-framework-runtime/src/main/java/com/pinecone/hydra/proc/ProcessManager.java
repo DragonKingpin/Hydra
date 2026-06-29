@@ -63,7 +63,7 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
         if ( imagePrototype == null ) {
             throw new IllegalArgumentException( "Execution image prototype is required." );
         }
-        return this.createLocalHostedProcess( imagePrototype.clone(), parent, startupArgs, contextEnvironmentVars );
+        return this.createLocalHostedProcess( imagePrototype, parent, startupArgs, contextEnvironmentVars );
     }
 
     UProcess getProcess( GUID pid );

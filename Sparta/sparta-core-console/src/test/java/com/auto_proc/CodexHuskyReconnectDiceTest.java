@@ -157,7 +157,7 @@ class CodexHuskyReconnectDiceRig extends EnderHydra {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "echo", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "echo", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "[CodexHuskyReconnectDice] Remote image invoked: " + args );

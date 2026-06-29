@@ -81,7 +81,7 @@ class Floki extends EnderHydra {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "gay", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );

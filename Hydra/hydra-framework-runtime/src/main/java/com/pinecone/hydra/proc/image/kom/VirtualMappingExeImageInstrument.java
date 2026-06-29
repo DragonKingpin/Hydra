@@ -4,6 +4,7 @@ import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.image.ExecutionImage;
+import com.pinecone.hydra.proc.image.path.ImageInstrumentPath;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
 import com.pinecone.hydra.system.ko.runtime.ArchRuntimeKOMTree;
@@ -27,14 +28,14 @@ public class VirtualMappingExeImageInstrument extends ArchRuntimeKOMTree impleme
     public ImageElement mount( String parentPath, ExecutionImage image ) {
         ImageElement element = new GenericImageElement( image, this.guidAllocator.nextGUID() );
 
-        this.add( parentPath + this.getConfig().getPathNameSeparator() + image.getName(), element );
+        this.add( ImageInstrumentPath.join( parentPath, image.getName() ), element );
 
         return element;
     }
 
     @Override
     public ImageElement queryImageElement( String path ) {
-        EntityNode e = this.queryNode( path );
+        EntityNode e = this.queryNode( ImageInstrumentPath.normalize( path ) );
         if ( e instanceof ImageElement ) {
             return (ImageElement) e;
         }

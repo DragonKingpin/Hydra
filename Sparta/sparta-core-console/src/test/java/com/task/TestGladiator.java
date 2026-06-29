@@ -79,7 +79,7 @@ class Thor extends EnderHydra implements Pinenut {
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "echo", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "echo", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
             public int main( Map<String, String> args ) {
                 Debug.greenfs( "[GladiatorTest] Fake image invoked: " + args );

@@ -13,6 +13,12 @@ import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.deploy.Server;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.anonymous.RavenAnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.event.GenericTaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.runtime.GenericTaskProcessorRuntime;
+import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
@@ -146,6 +152,20 @@ class AdaptiveCapacityDispatchStrategyExclusiveTest {
         public com.walnut.odin.dispatch.entity.TaskProcessorEntity registerProcessor(
                 String szProcessorName, long nClientId
         ) {
+            return this.registerProcessor( szProcessorName, nClientId, null );
+        }
+
+        @Override
+        public com.walnut.odin.dispatch.entity.TaskProcessorEntity registerProcessor(
+                String szProcessorName, long nClientId, Map<String, String> metadata
+        ) {
+            return null;
+        }
+
+        @Override
+        public com.walnut.odin.dispatch.entity.TaskProcessorEntity registerIncorporatedProcessor(
+                String szProcessorName, long nClientId, Map<String, String> metadata
+        ) {
             return null;
         }
 
@@ -155,6 +175,26 @@ class AdaptiveCapacityDispatchStrategyExclusiveTest {
 
         @Override
         public void unregisterProcessor( long nClientId ) {
+        }
+
+        @Override
+        public TaskExecutionProcessor removeIncorporatedProcessorByClientId( long nClientId ) {
+            return null;
+        }
+
+        @Override
+        public AnonymousTaskProcessorRegistry anonymousProcessorRegistry() {
+            return new RavenAnonymousTaskProcessorRegistry();
+        }
+
+        @Override
+        public TaskProcessorEventHookRegistry processorEventHookRegistry() {
+            return new GenericTaskProcessorEventHookRegistry();
+        }
+
+        @Override
+        public TaskProcessorRuntime processorRuntime() {
+            return new GenericTaskProcessorRuntime( this, null );
         }
 
         @Override

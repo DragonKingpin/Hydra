@@ -20,6 +20,11 @@ public final class ProcessorLifecycleProto {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_MetadataEntry_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_MetadataEntry_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_walnut_odin_proc_control_legionary_RegimentJoinResponse_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -34,24 +39,27 @@ public final class ProcessorLifecycleProto {
   static {
     java.lang.String[] descriptorData = {
       "\n\031processor_lifecycle.proto\022\"walnut.odin" +
-      ".proc.control.legionary\";\n\023RegimentJoinR" +
-      "equest\022\021\n\tnode_name\030\001 \001(\t\022\021\n\tclient_id\030\002" +
-      " \001(\003\"\223\002\n\024RegimentJoinResponse\022\014\n\004guid\030\001 " +
-      "\001(\t\022\014\n\004name\030\002 \001(\t\022\024\n\014cluster_path\030\003 \001(\t\022" +
-      "\024\n\014cluster_name\030\004 \001(\t\022\031\n\021control_client_" +
-      "id\030\005 \001(\003\022\020\n\010priority\030\006 \001(\005\022\022\n\nqueue_name" +
-      "\030\024 \001(\t\022\032\n\022queue_max_capacity\030\025 \001(\005\022\032\n\022qu" +
-      "eue_min_capacity\030\026 \001(\005\022\'\n\037queue_runtime_" +
-      "instance_capacity\030\027 \001(\005\022\021\n\terror_msg\030Z \001" +
-      "(\t2\230\001\n\022ProcessorLifecycle\022\201\001\n\014JoinRegime" +
-      "nt\0227.walnut.odin.proc.control.legionary." +
-      "RegimentJoinRequest\0328.walnut.odin.proc.c" +
-      "ontrol.legionary.RegimentJoinResponseB\235\001" +
-      "\n4com.walnut.odin.proc.server.transport." +
-      "grpc.legionaryB\027ProcessorLifecycleProtoP" +
-      "\001ZJgithub.com/DragonKingpin/gladiator/gl" +
-      "adius/slave/iface/lifecycle;lifecycleb\006p" +
-      "roto3"
+      ".proc.control.legionary\"\305\001\n\023RegimentJoin" +
+      "Request\022\021\n\tnode_name\030\001 \001(\t\022\021\n\tclient_id\030" +
+      "\002 \001(\003\022W\n\010metadata\030\024 \003(\0132E.walnut.odin.pr" +
+      "oc.control.legionary.RegimentJoinRequest" +
+      ".MetadataEntry\032/\n\rMetadataEntry\022\013\n\003key\030\001" +
+      " \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\223\002\n\024RegimentJoin" +
+      "Response\022\014\n\004guid\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\024\n\014" +
+      "cluster_path\030\003 \001(\t\022\024\n\014cluster_name\030\004 \001(\t" +
+      "\022\031\n\021control_client_id\030\005 \001(\003\022\020\n\010priority\030" +
+      "\006 \001(\005\022\022\n\nqueue_name\030\024 \001(\t\022\032\n\022queue_max_c" +
+      "apacity\030\025 \001(\005\022\032\n\022queue_min_capacity\030\026 \001(" +
+      "\005\022\'\n\037queue_runtime_instance_capacity\030\027 \001" +
+      "(\005\022\021\n\terror_msg\030Z \001(\t2\230\001\n\022ProcessorLifec" +
+      "ycle\022\201\001\n\014JoinRegiment\0227.walnut.odin.proc" +
+      ".control.legionary.RegimentJoinRequest\0328" +
+      ".walnut.odin.proc.control.legionary.Regi" +
+      "mentJoinResponseB\235\001\n4com.walnut.odin.pro" +
+      "c.server.transport.grpc.legionaryB\027Proce" +
+      "ssorLifecycleProtoP\001ZJgithub.com/DragonK" +
+      "ingpin/gladiator/gladius/slave/iface/lif" +
+      "ecycle;lifecycleb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -62,7 +70,13 @@ public final class ProcessorLifecycleProto {
     internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_descriptor,
-        new java.lang.String[] { "NodeName", "ClientId", });
+        new java.lang.String[] { "NodeName", "ClientId", "Metadata", });
+    internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_MetadataEntry_descriptor =
+      internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_descriptor.getNestedTypes().get(0);
+    internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_MetadataEntry_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_walnut_odin_proc_control_legionary_RegimentJoinRequest_MetadataEntry_descriptor,
+        new java.lang.String[] { "Key", "Value", });
     internal_static_walnut_odin_proc_control_legionary_RegimentJoinResponse_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_walnut_odin_proc_control_legionary_RegimentJoinResponse_fieldAccessorTable = new

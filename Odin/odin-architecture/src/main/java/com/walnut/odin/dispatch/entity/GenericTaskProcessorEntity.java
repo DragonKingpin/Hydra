@@ -16,6 +16,8 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     protected String         mszClusterName;
     protected long           mnControlClientId;
     protected String         mszExecCaps;
+    protected String         mszExtraMetadata;
+    protected String         mszDyMetadataCache;
     protected boolean        mbLocal;
     protected boolean        mbExclusive;
     protected int            mnPriority;
@@ -113,6 +115,16 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     }
 
     @Override
+    public String getExtraMetadata() {
+        return this.mszExtraMetadata;
+    }
+
+    @Override
+    public String getDyMetadataCache() {
+        return this.mszDyMetadataCache;
+    }
+
+    @Override
     public boolean isLocal() {
         return this.mbLocal;
     }
@@ -189,6 +201,16 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     @Override
     public void setExecCaps( String execCaps ) {
         this.mszExecCaps = execCaps;
+    }
+
+    @Override
+    public void setExtraMetadata( String extraMetadata ) {
+        this.mszExtraMetadata = extraMetadata;
+    }
+
+    @Override
+    public void setDyMetadataCache( String dyMetadataCache ) {
+        this.mszDyMetadataCache = dyMetadataCache;
     }
 
     public void setLocal( boolean bLocal ) {

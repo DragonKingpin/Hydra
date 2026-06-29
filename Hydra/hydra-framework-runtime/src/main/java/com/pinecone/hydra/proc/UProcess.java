@@ -6,6 +6,7 @@ import java.util.Map;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.entity.ProcessElement;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
@@ -32,6 +33,8 @@ public interface UProcess extends Processum, ProcessElement {
     ObjectTable getObjectTable();
 
     ExecutionImage getExecutionImage();
+
+    EntryPointRunnable getEntryPoint();
 
     ControllableLevel getControllableLevel();
 

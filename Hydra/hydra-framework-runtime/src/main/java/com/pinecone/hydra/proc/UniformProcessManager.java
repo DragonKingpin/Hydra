@@ -16,6 +16,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
 import com.pinecone.hydra.proc.image.ImageModifier;
@@ -262,20 +263,21 @@ public class UniformProcessManager extends ArchProcessManager implements Process
         if ( parent == null ) {
             parent = this.mRootUProcess;
         }
+        EntryPointRunnable entryPoint = image.createEntryPoint();
         Processum hosted = new ArchProcessum( image.getName(), parent ) {};
-        Thread primaryThread = new Thread( image.getEntryPoint(), ( image.getName() + "-main" ).toLowerCase() );
+        Thread primaryThread = new Thread( entryPoint, ( image.getName() + "-main" ).toLowerCase() );
         hosted.setThreadAffinity( primaryThread );
 
         if ( startupArgs == null ) {
             startupArgs = new HashMap<>();
         }
         LocalUProcess process = new LocalHostedProcess(
-                hosted, parent, this, image, new GenericSegregationSpace(), startupArgs,
+                hosted, parent, this, image, entryPoint, new GenericSegregationSpace(), startupArgs,
                 this.mProcessEnvironmentSection.extendsFrom( parent, contextEnvironmentVars )
         );
 
         // Register the process in the entry-point-runnable for process status surveillance purpose.
-        image.getEntryPoint().applyOwnedProcess( process );
+        entryPoint.applyOwnedProcess( process );
         this.register( process );
 
         return process;

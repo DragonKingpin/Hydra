@@ -29,6 +29,10 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
 import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistration;
+import com.walnut.odin.processor.event.TaskProcessorEstablishment;
+import com.walnut.odin.processor.runtime.GenericTaskProcessorRegisterContext;
+import com.walnut.odin.processor.runtime.TaskProcessorRegisterResult;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.GenericRavenTask;
@@ -280,8 +284,24 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
                 throw new IllegalArgumentException( "RegimentJoinRequest is null." );
             }
 
-            TaskProcessorEntity entity = this.mTaskDispatcher.registerProcessor( request.getNodeName(), request.getClientId() );
+            TaskProcessorRegisterResult result = this.mTaskDispatcher.processorRuntime().register(
+                    GenericTaskProcessorRegisterContext.of(
+                            request.getNodeName(),
+                            request.getClientId(),
+                            request.getMetadata()
+                    )
+            );
 
+            if ( result.getEstablishment() == TaskProcessorEstablishment.Anonymous ) {
+                this.fillAnonymousJoinResponse( response, result.getAnonymousRegistration() );
+                this.mLogger.info(
+                        "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, establishment:`Anonymous` ) <Done>",
+                        response.getName(), response.getControlClientId()
+                );
+                return response;
+            }
+
+            TaskProcessorEntity entity = result.getIncorporatedEntity();
             response.setGuid( entity.getGuid().toString() );
             response.setName( entity.getName() );
             response.setClusterPath( entity.getClusterPath() );
@@ -327,6 +347,22 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
         }
 
         return response;
+    }
+
+    protected void fillAnonymousJoinResponse(
+            RegimentJoinResponse response,
+            AnonymousTaskProcessorRegistration registration
+    ) {
+        response.setGuid( null );
+        response.setName( registration == null ? null : registration.getNodeName() );
+        response.setClusterPath( null );
+        response.setClusterName( null );
+        response.setControlClientId( registration == null ? 0 : registration.getClientId() );
+        response.setPriority( 0 );
+        response.setQueueName( null );
+        response.setQueueMaxCapacity( 0 );
+        response.setQueueMinCapacity( 0 );
+        response.setQueueRuntimeInstanceCapacity( 0 );
     }
 
     protected String getJoinRequestNodeName( RegimentJoinRequest request ) {

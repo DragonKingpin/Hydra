@@ -54,20 +54,6 @@ public abstract class ArchEntryPointRunnable implements EntryPointRunnable {
         this.mOwnedProcess = process;
     }
 
-    @Override
-    public EntryPointRunnable clone() {
-        try {
-            ArchEntryPointRunnable that = (ArchEntryPointRunnable) super.clone();
-            that.mOwnedProcess = null;
-            that.mSysProcEventHandlers = new ArrayList<>( this.mSysProcEventHandlers );
-            return that;
-        }
-        catch ( CloneNotSupportedException e ) {
-            throw new IllegalStateException( "Entry point runnable is not cloneable.", e );
-        }
-    }
-
-
     static List<ProcessEventHandler> getSysProcEventHandlers( EntryPointRunnable entryPointRunnable ) {
         if ( entryPointRunnable instanceof ArchEntryPointRunnable ) {
             return ((ArchEntryPointRunnable) entryPointRunnable).mSysProcEventHandlers;

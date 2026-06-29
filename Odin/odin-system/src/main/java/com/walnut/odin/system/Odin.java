@@ -79,7 +79,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     protected void traceWelcomeInfo() {
         Tracer console = this.mPrimarySystem.console();
         console.getOut().print( "---------------------------------------------------------------\n" );
-        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin\u001B[0m\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Walnut Odin\u001B[0m\n" );
         console.getOut().print( "\u001B[31mMassive Task Orchestration System \u001B[0m\n" );
         console.getOut().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         console.getOut().print( "---------------------------------------------------------------\n" );
@@ -301,7 +301,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     protected void traceSchedulerCycleEngineBanner( RavenTaskConfig config ) {
         Tracer console = this.mPrimarySystem.console();
         console.getOut().print( "---------------------------------------------------------------\n" );
-        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin Scheduler Cycle Engine\u001B[0m\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Walnut Odin Scheduler Cycle Engine\u001B[0m\n" );
         console.getOut().print( "Mode       : " + config.getSchedulerMode() + "\n" );
         console.getOut().print( "Partition  : " + config.getSchedulePartitionName() + "\n" );
         console.getOut().print( "Node       : " + config.getSchedulerNodeId() + "\n" );

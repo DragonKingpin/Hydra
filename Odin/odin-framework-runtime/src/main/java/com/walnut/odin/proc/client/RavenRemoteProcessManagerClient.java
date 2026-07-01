@@ -128,9 +128,10 @@ public class RavenRemoteProcessManagerClient extends ArchRemoteProcessManagerNod
 
                 if ( RavenRemoteProcessManagerClient.this.isControlPassiveChannel( block ) ) {
                     RavenRemoteProcessManagerClient.this.getLogger().info(
-                            "[RemoteProcessControlSync] [ChannelConnected] (ClientId: `{}`) <PassiveChannelPass>",
+                            "[RemoteProcessControlSync] [ChannelConnected] (ClientId: `{}`) <PassiveChannelRequested>",
                             RavenRemoteProcessManagerClient.this.mnClientId
                     );
+                    RavenRemoteProcessManagerClient.this.requestControlStateSynchronization( RemoteProcessControlSyncReasons.ChannelConnected );
                     return;
                 }
 

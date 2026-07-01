@@ -27,7 +27,7 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
 
     protected static final long                   RetryDelayMillis2 = 2000;
 
-    protected static final long                   AsyncSynchronizeQuietMillis = 1000;
+    protected static final long                   AsyncSynchronizeQuietMillis = 500;
 
     protected static final long                   ControlSyncRpcTimeoutMillis = 5000;
 
@@ -72,7 +72,7 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         Thread syncThread = new Thread( new Runnable() {
             @Override
             public void run() {
-                RemoteProcessControlStateSynchronizer.this.awaitAsyncSynchronizeQuietWindow();
+                RemoteProcessControlStateSynchronizer.this.awaitAsyncSynchronizeQuietWindow( szReason );
                 RemoteProcessControlStateSynchronizer.this.runSynchronizeLoop( szReason );
             }
         }, "odin-control-state-sync" );
@@ -205,11 +205,15 @@ public class RemoteProcessControlStateSynchronizer implements Pinenut {
         }
     }
 
-    protected void awaitAsyncSynchronizeQuietWindow() {
-        long nNanos = TimeUnit.MILLISECONDS.toNanos( AsyncSynchronizeQuietMillis );
+    protected long asyncSynchronizeQuietMillis( String szReason ) {
+        return AsyncSynchronizeQuietMillis;
+    }
+
+    protected void awaitAsyncSynchronizeQuietWindow( String szReason ) {
+        long nNanos = TimeUnit.MILLISECONDS.toNanos( this.asyncSynchronizeQuietMillis( szReason ) );
         this.mSyncLock.lock();
         try {
-            while ( nNanos > 0L ) {
+            while ( nNanos > 0L && !this.mbResyncRequested ) {
                 try {
                     nNanos = this.mRetryCondition.awaitNanos( nNanos );
                 }

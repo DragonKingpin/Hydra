@@ -99,6 +99,11 @@
         WHERE `guid` = #{guid}
     </delete>
 
+    <delete id="removeNodeRecord">
+        DELETE FROM `hydra_task_nodes`
+        WHERE `guid` = #{guid}
+    </delete>
+
     <delete id="removeTreeNode">
         DELETE FROM `hydra_task_node_tree`
         WHERE `guid` = #{guid}

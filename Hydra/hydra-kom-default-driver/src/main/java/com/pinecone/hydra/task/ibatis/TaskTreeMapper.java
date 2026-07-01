@@ -52,12 +52,14 @@ public interface TaskTreeMapper extends TrieTreeManipulator, TaskTreeDigestManip
 
     @Override
     default void purge( GUID guid ) {
-        this.removeNodeMeta( guid );
+        this.removeNodeRecord( guid );
         this.removeTreeNode( guid );
         this.removeOwnedTreeNode( guid );
     }
 
     void removeNodeMeta( @Param("guid") GUID guid );
+
+    void removeNodeRecord( @Param("guid") GUID guid );
 
     void removeTreeNode( @Param("guid") GUID guid );
 

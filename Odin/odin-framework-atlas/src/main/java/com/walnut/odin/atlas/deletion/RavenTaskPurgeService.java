@@ -12,11 +12,14 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.signal.ProcSignal;
 import com.pinecone.hydra.task.TaskInstanceExecState;
 import com.pinecone.hydra.task.TaskInstanceStatus;
+import com.pinecone.hydra.task.ibatis.AppNodeMapper;
 import com.pinecone.hydra.task.ibatis.InstanceNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskPathCacheMapper;
+import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
+import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.instance.InstanceEntry;
@@ -324,6 +327,8 @@ public class RavenTaskPurgeService implements TaskPurgeService {
         TaskNodeOwnerMapper ownerMapper = scope.mapper( TaskNodeOwnerMapper.class );
         TaskNodeMapper taskNodeMapper = scope.mapper( TaskNodeMapper.class );
         TaskNamespaceMapper namespaceMapper = scope.mapper( TaskNamespaceMapper.class );
+        AppNodeMapper appNodeMapper = scope.mapper( AppNodeMapper.class );
+        TaskTreeMapper taskTreeMapper = scope.mapper( TaskTreeMapper.class );
 
         for ( int i = taskGuids.size() - 1; i >= 0; i-- ) {
             GUID taskGuid = taskGuids.get( i );
@@ -336,9 +341,13 @@ public class RavenTaskPurgeService implements TaskPurgeService {
             if ( treeNode instanceof Namespace ) {
                 namespaceMapper.remove( taskGuid );
             }
+            else if ( treeNode instanceof AppElement ) {
+                appNodeMapper.remove( taskGuid );
+            }
             else {
                 taskNodeMapper.remove( taskGuid );
             }
+            taskTreeMapper.removeNodeRecord( taskGuid );
             nRemovedCount++;
         }
         return nRemovedCount;

@@ -18,9 +18,11 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
+import com.pinecone.hydra.task.ibatis.AppNodeMapper;
 import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
 import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
 import com.pinecone.hydra.task.ibatis.TaskPathCacheMapper;
+import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
 import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
@@ -200,6 +202,9 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         if ( node == null ) {
             throw new IllegalArgumentException( "Task directory not found: " + guid );
         }
+        if ( !this.isDirectoryNode( node ) ) {
+            throw new IllegalArgumentException( "Task node is not a directory: " + guid );
+        }
 
         List<TreeNode> children = this.uniformTaskInstrument.getChildren( guid );
         TaskDirectoryDeleteSafetyReport report = new TaskDirectoryDeleteSafetyReport();
@@ -245,11 +250,18 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         if ( !report.isDeletable() ) {
             throw new IllegalArgumentException( report.getMessage() );
         }
+        TreeNode node = this.uniformTaskInstrument.get( guid );
 
         this.ravenTaskMasterManipulator.transaction().required( scope -> {
             scope.mapper( TaskPathCacheMapper.class ).remove( guid );
             scope.mapper( TaskNodeOwnerMapper.class ).removeBySubordinate( guid );
-            scope.mapper( TaskNamespaceMapper.class ).remove( guid );
+            if ( node instanceof AppElement ) {
+                scope.mapper( AppNodeMapper.class ).remove( guid );
+            }
+            else {
+                scope.mapper( TaskNamespaceMapper.class ).remove( guid );
+            }
+            scope.mapper( TaskTreeMapper.class ).removeNodeRecord( guid );
             return null;
         } );
         return report;
@@ -422,6 +434,10 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     protected boolean isMoveDestinationNode( TreeNode node ) {
+        return this.isDirectoryNode( node );
+    }
+
+    protected boolean isDirectoryNode( TreeNode node ) {
         return node instanceof Namespace || node instanceof AppElement;
     }
 

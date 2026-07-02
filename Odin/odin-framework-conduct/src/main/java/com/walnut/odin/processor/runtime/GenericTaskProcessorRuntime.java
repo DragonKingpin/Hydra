@@ -1,6 +1,10 @@
 package com.walnut.odin.processor.runtime;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.walnut.odin.dispatch.TaskExecutionProcessor;
+import com.walnut.odin.dispatch.TaskQueueMeta;
 import com.walnut.odin.dispatch.TaskDispatcher;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorMetadataParser;
@@ -10,6 +14,7 @@ import com.walnut.odin.processor.event.GenericTaskProcessorEvent;
 import com.walnut.odin.processor.event.TaskProcessorEstablishment;
 import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
 import com.walnut.odin.processor.event.TaskProcessorEventType;
+import com.walnut.odin.processor.metadata.TaskProcessorRegisterMetadataSpec;
 import com.walnut.odin.processor.runtime.TaskProcessorRegisterContext;
 import com.walnut.odin.processor.runtime.TaskProcessorRegisterResult;
 import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
@@ -51,8 +56,25 @@ public class GenericTaskProcessorRuntime implements TaskProcessorRuntime {
                     context.getMetadata()
             );
             String szProcessorGuid = this.getProcessorGuid( entity );
-            this.dispatchEvent( TaskProcessorEventType.JoinAccepted, establishment, context, szProcessorGuid, null );
-            this.dispatchEvent( TaskProcessorEventType.Registered, establishment, context, szProcessorGuid, null );
+            Map<String, String> metadata = this.incorporatedEventMetadata( entity, context );
+            this.dispatchEvent(
+                    TaskProcessorEventType.JoinAccepted,
+                    establishment,
+                    context.getClientId(),
+                    context.getNodeName(),
+                    metadata,
+                    szProcessorGuid,
+                    null
+            );
+            this.dispatchEvent(
+                    TaskProcessorEventType.Registered,
+                    establishment,
+                    context.getClientId(),
+                    context.getNodeName(),
+                    metadata,
+                    szProcessorGuid,
+                    null
+            );
             return GenericTaskProcessorRegisterResult.acceptedIncorporated( entity );
         }
         catch ( RuntimeException e ) {
@@ -67,12 +89,13 @@ public class GenericTaskProcessorRuntime implements TaskProcessorRuntime {
         AnonymousTaskProcessorRegistration anonymousRegistration = this.anonymousProcessorRegistry().unregister( nClientId );
 
         if ( incorporatedProcessor != null ) {
+            Map<String, String> metadata = this.incorporatedEventMetadata( incorporatedProcessor );
             this.dispatchEvent(
                     TaskProcessorEventType.Detached,
                     TaskProcessorEstablishment.Incorporated,
                     nClientId,
                     incorporatedProcessor.getName(),
-                    null,
+                    metadata,
                     null,
                     null
             );
@@ -81,7 +104,7 @@ public class GenericTaskProcessorRuntime implements TaskProcessorRuntime {
                     TaskProcessorEstablishment.Incorporated,
                     nClientId,
                     incorporatedProcessor.getName(),
-                    null,
+                    metadata,
                     null,
                     null
             );
@@ -133,6 +156,75 @@ public class GenericTaskProcessorRuntime implements TaskProcessorRuntime {
             return null;
         }
         return entity.getGuid().toString();
+    }
+
+    protected Map<String, String> incorporatedEventMetadata(
+            TaskProcessorEntity entity,
+            TaskProcessorRegisterContext context
+    ) {
+        Map<String, String> metadata = new LinkedHashMap<>();
+        if ( context != null && context.getMetadata() != null ) {
+            metadata.putAll( context.getMetadata() );
+        }
+        this.applyIncorporatedEntityMetadata( metadata, entity );
+        return metadata;
+    }
+
+    protected Map<String, String> incorporatedEventMetadata( TaskExecutionProcessor processor ) {
+        Map<String, String> metadata = new LinkedHashMap<>();
+        if ( processor == null ) {
+            return metadata;
+        }
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT, TaskProcessorRegisterMetadataSpec.ESTABLISHMENT_INCORPORATED );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_NAME, processor.getName() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_CLUSTER_NAME, processor.getClusterName() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_CLUSTER_PATH, processor.getClusterPath() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, processor.getExecCaps() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_LOCAL, String.valueOf( processor.isLocal() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_EXCLUSIVE, String.valueOf( processor.isExclusive() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_PRIORITY, String.valueOf( processor.getPriority() ) );
+        this.applyQueueMetadata( metadata, processor.getTaskExecutionQueue() );
+        return metadata;
+    }
+
+    protected void applyIncorporatedEntityMetadata( Map<String, String> metadata, TaskProcessorEntity entity ) {
+        if ( entity == null ) {
+            return;
+        }
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT, TaskProcessorRegisterMetadataSpec.ESTABLISHMENT_INCORPORATED );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_GUID, this.getProcessorGuid( entity ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_NAME, entity.getName() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_CLUSTER_NAME, entity.getClusterName() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_CLUSTER_PATH, entity.getClusterPath() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, entity.getExecCaps() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_LOCAL, String.valueOf( entity.isLocal() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_EXCLUSIVE, String.valueOf( entity.isExclusive() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_ENABLE, String.valueOf( entity.isEnable() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_PRIORITY, String.valueOf( entity.getPriority() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_EXTRA_METADATA, entity.getExtraMetadata() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_DYNAMIC_METADATA, entity.getDyMetadataCache() );
+        this.applyQueueMetadata( metadata, entity.getTaskQueueMeta() );
+    }
+
+    protected void applyQueueMetadata( Map<String, String> metadata, TaskQueueMeta queueMeta ) {
+        if ( queueMeta == null ) {
+            return;
+        }
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_QUEUE_NAME, queueMeta.getName() );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_QUEUE_MAX_CAPACITY, String.valueOf( queueMeta.getMaxCapacity() ) );
+        this.put( metadata, TaskProcessorRegisterMetadataSpec.KEY_QUEUE_MIN_CAPACITY, String.valueOf( queueMeta.getMinCapacity() ) );
+        this.put(
+                metadata,
+                TaskProcessorRegisterMetadataSpec.KEY_QUEUE_RUNTIME_INSTANCE_CAPACITY,
+                String.valueOf( queueMeta.getRuntimeInstanceCapacity() )
+        );
+    }
+
+    protected void put( Map<String, String> metadata, String szKey, String szValue ) {
+        if ( metadata == null || szKey == null || szValue == null ) {
+            return;
+        }
+        metadata.put( szKey, szValue );
     }
 
     protected void dispatchEvent(

@@ -83,9 +83,15 @@ class GenericTaskProcessorRuntimeTest {
                 dispatcher,
                 new GenericAnonymousTaskProcessorMetadataParser()
         );
+        List<TaskProcessorEvent> events = new ArrayList<>();
+        dispatcher.processorEventHookRegistry().addHooker( events::add );
+
+        Map<String, String> metadata = new LinkedHashMap<>();
+        metadata.put( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, "[\"SCRIPT\"]" );
+        metadata.put( TaskProcessorRegisterMetadataSpec.KEY_ALIAS, "client-alias" );
 
         TaskProcessorRegisterResult result = runtime.register(
-                GenericTaskProcessorRegisterContext.of( "incorporated-processor", 4096L, Collections.emptyMap() )
+                GenericTaskProcessorRegisterContext.of( "incorporated-processor", 4096L, metadata )
         );
 
         Assertions.assertTrue( result.isAccepted() );
@@ -93,6 +99,31 @@ class GenericTaskProcessorRuntimeTest {
         Assertions.assertTrue( dispatcher.registerIncorporatedCalled );
         Assertions.assertEquals( 1, dispatcher.fetchProcessors().size() );
         Assertions.assertNull( dispatcher.anonymousProcessorRegistry().getByClientId( 4096L ) );
+
+        TaskProcessorEvent registered = events.stream()
+                .filter( event -> event.getType() == TaskProcessorEventType.Registered )
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertEquals(
+                TaskProcessorRegisterMetadataSpec.ESTABLISHMENT_INCORPORATED,
+                registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT )
+        );
+        Assertions.assertEquals(
+                "ANY",
+                registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS )
+        );
+        Assertions.assertEquals(
+                "incorporated-processor",
+                registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_NAME )
+        );
+        Assertions.assertEquals(
+                "incorporated-processor-queue",
+                registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_QUEUE_NAME )
+        );
+        Assertions.assertEquals(
+                "client-alias",
+                registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_ALIAS )
+        );
     }
 
     @Test
@@ -118,6 +149,33 @@ class GenericTaskProcessorRuntimeTest {
         Assertions.assertNull( dispatcher.anonymousProcessorRegistry().getByClientId( 2048L ) );
         Assertions.assertNotNull( incorporatedResult.getIncorporatedProcessor() );
         Assertions.assertTrue( dispatcher.fetchProcessors().isEmpty() );
+    }
+
+    @Test
+    void unregisterIncorporatedProcessorEmitsLastAuthoritativeMetadata() {
+        StubDispatcher dispatcher = new StubDispatcher();
+        GenericTaskProcessorRuntime runtime = new GenericTaskProcessorRuntime(
+                dispatcher,
+                new GenericAnonymousTaskProcessorMetadataParser()
+        );
+        List<TaskProcessorEvent> events = new ArrayList<>();
+        dispatcher.processorEventHookRegistry().addHooker( events::add );
+
+        runtime.register( GenericTaskProcessorRegisterContext.of( "incorporated", 4096L, Collections.emptyMap() ) );
+        runtime.unregister( 4096L );
+
+        TaskProcessorEvent detached = events.stream()
+                .filter( event -> event.getType() == TaskProcessorEventType.Detached )
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertEquals(
+                "ANY",
+                detached.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS )
+        );
+        Assertions.assertEquals(
+                "incorporated",
+                detached.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_NAME )
+        );
     }
 
     private static class StubDispatcher implements TaskDispatcher {
@@ -170,6 +228,8 @@ class GenericTaskProcessorRuntimeTest {
             entity.setControlClientId( nClientId );
             entity.setClusterPath( "/test" );
             entity.setClusterName( "test" );
+            entity.setExecCaps( "ANY" );
+            entity.setEnable( true );
             entity.setQueueName( szProcessorName + "-queue" );
             entity.setQueueMaxCapacity( 1 );
             entity.setQueueRuntimeInstanceCapacity( 1 );

@@ -23,6 +23,13 @@ public interface FolderMapper extends FolderManipulator {
     List<GUID > getGuidsByNameID(@Param("name") String name, @Param("guid") GUID guid );
 
     List<GUID > dumpGuid();
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
     boolean isFolder(GUID guid);
 
     void rename( @Param("fileGuid") GUID fileGuid, @Param("newName") String newName );

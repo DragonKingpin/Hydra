@@ -11,6 +11,7 @@ public class GenericInstanceEvent implements InstanceEvent {
     protected GUID          instanceGuid;
     protected String        instanceName;
     protected int           retryTimes;
+    protected int           sequenceCnt;
     protected int           currentRetryNumber;
     protected String        eventType;
     protected String        state;
@@ -72,6 +73,16 @@ public class GenericInstanceEvent implements InstanceEvent {
     @Override
     public void setRetryTimes(int retryTimes) {
         this.retryTimes = retryTimes;
+    }
+
+    @Override
+    public int getSequenceCnt() {
+        return this.sequenceCnt;
+    }
+
+    @Override
+    public void setSequenceCnt(int sequenceCnt) {
+        this.sequenceCnt = sequenceCnt;
     }
 
     @Override

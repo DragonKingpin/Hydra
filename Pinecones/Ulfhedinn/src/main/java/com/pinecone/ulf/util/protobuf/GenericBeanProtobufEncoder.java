@@ -21,6 +21,9 @@ import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.stereotype.JavaBeans;
 import com.pinecone.framework.util.ReflectionUtils;
 import com.pinecone.framework.util.StringUtils;
+import com.pinecone.ulf.util.protobuf.map.MapProtobufSupport;
+import com.pinecone.ulf.util.protobuf.map.MapTypeResolver;
+import com.pinecone.ulf.util.protobuf.map.MapTypeSpec;
 
 public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
     @Override
@@ -52,7 +55,14 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
         }
 
         Class<?> dependenceComponentType = null;
-        if( Collection.class.isAssignableFrom( elemType ) ) {
+        boolean bMapField = MapTypeResolver.isMapType( valType );
+        if( bMapField ) {
+            MapTypeSpec spec = MapTypeResolver.resolve( valType, componentGLabel, this.getClass().getClassLoader() );
+            fieldBuilder = MapProtobufSupport.transformMapField(
+                    key, fieldNumber, spec, dependencies, exceptedKeys, options, thisKey, this
+            );
+        }
+        else if( Collection.class.isAssignableFrom( elemType ) ) {
             if ( value != null ) {
                 Collection co = (Collection) value;
                 if( co.isEmpty() ) {
@@ -99,7 +109,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                     .setType( fieldType );
         }
 
-        if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
+        if ( !bMapField && fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
             Descriptors.Descriptor nestedDescriptor;
             if ( dependenceComponentType != null ) {
                 nestedDescriptor = this.transform0( dependenceComponentType, thisKey, value, exceptedKeys, options );
@@ -239,7 +249,14 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
 
                     DescriptorProtos.FieldDescriptorProto.Builder fieldBuilder;
                     Class<?> dependenceComponentType = null;
-                    if( Collection.class.isAssignableFrom( elemRetType ) ) {
+                    MapTypeSpec mapTypeSpec = MapTypeResolver.resolveGetter( method, this.getClass().getClassLoader() );
+                    boolean bMapField = mapTypeSpec != null;
+                    if( bMapField ) {
+                        fieldBuilder = MapProtobufSupport.transformMapField(
+                                key, fieldNumber, mapTypeSpec, dependencies, exceptedKeys, options, szEntityName + "_" + key, this
+                        );
+                    }
+                    else if( Collection.class.isAssignableFrom( elemRetType ) ) {
                         Type gt = method.getGenericReturnType();
                         String[] genericTypeNames = ReflectionUtils.extractGenericClassNames( gt.getTypeName() );
                         if( genericTypeNames != null && genericTypeNames.length > 0 ) {
@@ -282,7 +299,7 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                     fieldNumber++;
 
 
-                    if ( fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
+                    if ( !bMapField && fieldType == DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE ) {
                         Class<?> nestedClass = method.getReturnType();
                         Object dyChild = null;
 
@@ -436,7 +453,12 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
                         Object value = getter.invoke( dynamicObject );
 
                         if ( value != null ) {
-                            if ( fieldDescriptor.isRepeated() ) {
+                            if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+                                MapProtobufSupport.encodeMapField(
+                                        fieldDescriptor, messageBuilder, (Map<?, ?>) value, this, exceptedKeys, options
+                                );
+                            }
+                            else if ( fieldDescriptor.isRepeated() ) {
                                 if ( value instanceof Collection<?> ) {
                                     Collection<?> collection = (Collection<?>) value;
                                     if ( !collection.isEmpty() ) {
@@ -562,7 +584,12 @@ public class GenericBeanProtobufEncoder implements BeanProtobufEncoder {
             return;
         }
 
-        if ( value == null ) {
+        if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+            MapProtobufSupport.encodeMapField(
+                    fieldDescriptor, messageBuilder, (Map<?, ?>) value, this, exceptedKeys, options
+            );
+        }
+        else if ( value == null ) {
             if ( fieldDescriptor.isRepeated() ) {
                 messageBuilder.setField( fieldDescriptor, List.of() );
             }

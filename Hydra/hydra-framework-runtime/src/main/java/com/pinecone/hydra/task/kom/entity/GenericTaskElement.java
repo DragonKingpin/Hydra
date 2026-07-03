@@ -14,12 +14,16 @@ import com.pinecone.hydra.task.marshal.TaskScheduleType;
 public class GenericTaskElement extends ArchElementNode implements TaskElement {
     protected String                   taskType;
     protected String                   imagePath;
+    protected String                   execArch;
     protected String                   resourceType;
     protected String                   deploymentMethod;
 
     protected short                    priority;
     protected short                    actuallyPriority;
     protected boolean                  dryRun;
+    protected Long                     timeoutSeconds = 86400L;
+    protected int                      retryTimes = 2;
+    protected long                     retryIntervalSeconds;
 
     protected String                   scheduleCron;
     protected TaskScheduleCycle        scheduleCycle;
@@ -78,6 +82,16 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     }
 
     @Override
+    public String getExecArch() {
+        return this.execArch;
+    }
+
+    @Override
+    public void setExecArch( String execArch ) {
+        this.execArch = execArch;
+    }
+
+    @Override
     public String getResourceType() {
         return this.resourceType;
     }
@@ -126,6 +140,36 @@ public class GenericTaskElement extends ArchElementNode implements TaskElement {
     @Override
     public void setDryRun( boolean dryRun ) {
         this.dryRun = dryRun;
+    }
+
+    @Override
+    public Long getTimeoutSeconds() {
+        return this.timeoutSeconds;
+    }
+
+    @Override
+    public void setTimeoutSeconds( Long timeoutSeconds ) {
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    @Override
+    public int getRetryTimes() {
+        return this.retryTimes;
+    }
+
+    @Override
+    public void setRetryTimes( int retryTimes ) {
+        this.retryTimes = retryTimes;
+    }
+
+    @Override
+    public long getRetryIntervalSeconds() {
+        return this.retryIntervalSeconds;
+    }
+
+    @Override
+    public void setRetryIntervalSeconds( long retryIntervalSeconds ) {
+        this.retryIntervalSeconds = retryIntervalSeconds;
     }
 
 

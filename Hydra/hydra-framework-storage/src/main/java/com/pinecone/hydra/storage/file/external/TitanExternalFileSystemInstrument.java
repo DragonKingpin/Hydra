@@ -18,6 +18,7 @@ import com.pinecone.hydra.unit.imperium.ImperialTree;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -58,23 +59,69 @@ public class TitanExternalFileSystemInstrument implements ExternalFileSystemInst
 
     @Override
     public ElementNode queryElement( String path ) {
-        GUID guid = this.queryGUIDByPath(path);
-        if( guid == null ) {
+        Path nativePath = this.resolveNativePath( path );
+        if ( nativePath == null ) {
             return null;
         }
 
-        ExternalSymbolic externalSymbolic = this.externalSymbolicManipulator.getSymbolicByGuid(guid);
-        String externalPath = this.fileSystem.getPath(externalSymbolic.getGuid());
-        String separator = this.fileSystem.getConfig().getPathNameSeparator();
-        String remainingPath = this.trimLeadingSeparator( path.substring(externalPath.length()), separator );
-
-        File file = this.resolveNativePath( externalSymbolic.getReparsedPoint(), remainingPath, separator ).toFile();
+        File file = nativePath.toFile();
         if( file.isDirectory() ){
             return new GenericNativeExternalFolder( file );
         }
         else {
             return new GenericNativeExternalFile( file );
         }
+    }
+
+    @Override
+    public ExternalFolder affirmFolder( String path ) {
+        Path nativePath = this.resolveNativePath( path );
+        if ( nativePath == null ) {
+            return null;
+        }
+        try {
+            Files.createDirectories( nativePath );
+        }
+        catch ( IOException e ) {
+            throw new IllegalStateException( "Failed to create native external folder: " + path, e );
+        }
+        return new GenericNativeExternalFolder( nativePath.toFile() );
+    }
+
+    @Override
+    public boolean remove( String path ) {
+        ElementNode node = this.queryElement( path );
+        if ( node instanceof ExternalFile ) {
+            ExternalFile file = (ExternalFile) node;
+            if ( !file.exists() ) {
+                return false;
+            }
+            return file.delete();
+        }
+        if ( node instanceof ExternalFolder ) {
+            ExternalFolder folder = (ExternalFolder) node;
+            if ( !folder.getNativeFile().exists() ) {
+                return false;
+            }
+            return folder.delete();
+        }
+        return false;
+    }
+
+    protected Path resolveNativePath( String path ) {
+        GUID guid = this.queryGUIDByPath(path);
+        if( guid == null ) {
+            return null;
+        }
+        ExternalSymbolic externalSymbolic = this.externalSymbolicManipulator.getSymbolicByGuid(guid);
+        if ( externalSymbolic == null ) {
+            return null;
+        }
+        String separator = this.fileSystem.getConfig().getPathNameSeparator();
+        String externalPath = this.normalizeUofsPath( this.fileSystem.getPath( externalSymbolic.getGuid() ) );
+        String logicalPath = this.normalizeUofsPath( path );
+        String remainingPath = this.resolveRemainingPath( logicalPath, externalPath, separator );
+        return this.resolveNativePath( externalSymbolic.getReparsedPoint(), remainingPath, separator );
     }
 
     @Override
@@ -123,6 +170,26 @@ public class TitanExternalFileSystemInstrument implements ExternalFileSystemInst
             ret = ret.substring( separator.length() );
         }
         return ret;
+    }
+
+    protected String normalizeUofsPath( String path ) {
+        String[] parts = this.pathResolver.segmentPathParts( path );
+        List<String > resolvedParts = this.pathResolver.resolvePath( parts );
+        return this.pathResolver.assemblePath( resolvedParts );
+    }
+
+    protected String resolveRemainingPath( String logicalPath, String externalPath, String separator ) {
+        if ( logicalPath == null || logicalPath.isBlank() || externalPath == null || externalPath.isBlank() ) {
+            return "";
+        }
+        if ( logicalPath.equals( externalPath ) ) {
+            return "";
+        }
+        String prefix = externalPath + separator;
+        if ( logicalPath.startsWith( prefix ) ) {
+            return logicalPath.substring( prefix.length() );
+        }
+        return "";
     }
 
     protected Path resolveNativePath( String rootPath, String logicalPath, String separator ) {

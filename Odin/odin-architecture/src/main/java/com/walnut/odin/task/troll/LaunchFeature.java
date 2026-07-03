@@ -23,13 +23,21 @@ public class LaunchFeature implements Pinenut {
 
     private GUID parentPid;
 
-    private Map<String, String[]> startupArgs;
+    private Map<String, String> startupArgs;
 
-    private Map<String, String[]> contextEnvironmentVars;
+    private Map<String, String> contextEnvironmentVars;
 
     private LocalDateTime bizTimeEpoch;
 
     private List<ProcessEventHandler> sysProcEventHandlers;
+
+    private boolean allowAsymmetricImage = true;
+
+    private boolean allowInstantaneousDepartureBypass;
+
+    private boolean businessTimeVisible = true;
+
+    private String instanceNameQualifier;
 
     public LaunchFeature() {
         this.bizTimeEpoch = LocalDateTime.now().minusDays( 1 ); // dtm
@@ -47,11 +55,11 @@ public class LaunchFeature implements Pinenut {
         return this.parentProcess;
     }
 
-    public Map<String, String[]> getStartupArgs() {
+    public Map<String, String> getStartupArgs() {
         return this.startupArgs;
     }
 
-    public Map<String, String[]> getContextEnvironmentVars() {
+    public Map<String, String> getContextEnvironmentVars() {
         return this.contextEnvironmentVars;
     }
 
@@ -63,13 +71,92 @@ public class LaunchFeature implements Pinenut {
         return this.sysProcEventHandlers;
     }
 
+    public boolean isAllowAsymmetricImage() {
+        return this.allowAsymmetricImage;
+    }
+
+    public void setAllowAsymmetricImage( boolean allowAsymmetricImage ) {
+        this.allowAsymmetricImage = allowAsymmetricImage;
+    }
+
+    public LaunchFeature withAllowAsymmetricImage( boolean allowAsymmetricImage ) {
+        this.allowAsymmetricImage = allowAsymmetricImage;
+        return this;
+    }
+
+    public boolean isAllowInstantaneousDepartureBypass() {
+        return this.allowInstantaneousDepartureBypass;
+    }
+
+    public void setAllowInstantaneousDepartureBypass( boolean allowInstantaneousDepartureBypass ) {
+        this.allowInstantaneousDepartureBypass = allowInstantaneousDepartureBypass;
+    }
+
+    public LaunchFeature withAllowInstantaneousDepartureBypass( boolean allowInstantaneousDepartureBypass ) {
+        this.allowInstantaneousDepartureBypass = allowInstantaneousDepartureBypass;
+        return this;
+    }
+
+    public LaunchFeature mergeLaunchOptions( LaunchFeature that ) {
+        if ( that == null ) {
+            return this;
+        }
+
+        this.allowAsymmetricImage = that.isAllowAsymmetricImage();
+        this.allowInstantaneousDepartureBypass = that.isAllowInstantaneousDepartureBypass();
+        this.businessTimeVisible = that.isBusinessTimeVisible();
+        this.instanceNameQualifier = that.getInstanceNameQualifier();
+
+        if ( that.getProcessorDesignated() != null ) {
+            this.processorDesignated = that.getProcessorDesignated();
+        }
+
+        if ( that.getDesignatedImageURI() != null ) {
+            this.designatedImageURI = that.getDesignatedImageURI();
+        }
+
+        if ( that.getStartupArgs() != null ) {
+            this.startupArgs = that.getStartupArgs();
+        }
+
+        if ( that.getContextEnvironmentVars() != null ) {
+            this.contextEnvironmentVars = that.getContextEnvironmentVars();
+        }
+
+        if ( that.getParentPid() != null ) {
+            this.parentPid = that.getParentPid();
+        }
+
+        if ( that.getParentProcess() != null ) {
+            this.parentProcess = that.getParentProcess();
+        }
+
+        if ( that.getBizTimeEpoch() != null ) {
+            this.bizTimeEpoch = that.getBizTimeEpoch();
+        }
+
+        return this;
+    }
+
     public String getProcessorDesignated() {
         return this.processorDesignated;
     }
 
     public LaunchFeature withProcessorDesignated( String processorName ) {
-        this.processorDesignated = processorName;
+        this.processorDesignated = this.normalizeProcessorDesignated( processorName );
         return this;
+    }
+
+    protected String normalizeProcessorDesignated( String processorName ) {
+        if ( processorName == null ) {
+            return null;
+        }
+
+        String szProcessorName = processorName.trim();
+        if ( szProcessorName.isEmpty() || "auto".equalsIgnoreCase( szProcessorName ) ) {
+            return null;
+        }
+        return szProcessorName;
     }
 
     public LaunchFeature withParentPid( GUID pid ) {
@@ -83,6 +170,32 @@ public class LaunchFeature implements Pinenut {
 
     public void setBizTimeEpoch( LocalDateTime bizTimeEpoch ) {
         this.bizTimeEpoch = bizTimeEpoch;
+    }
+
+    public boolean isBusinessTimeVisible() {
+        return this.businessTimeVisible;
+    }
+
+    public void setBusinessTimeVisible( boolean businessTimeVisible ) {
+        this.businessTimeVisible = businessTimeVisible;
+    }
+
+    public LaunchFeature withBusinessTimeVisible( boolean businessTimeVisible ) {
+        this.businessTimeVisible = businessTimeVisible;
+        return this;
+    }
+
+    public String getInstanceNameQualifier() {
+        return this.instanceNameQualifier;
+    }
+
+    public void setInstanceNameQualifier( String instanceNameQualifier ) {
+        this.instanceNameQualifier = instanceNameQualifier;
+    }
+
+    public LaunchFeature withInstanceNameQualifier( String instanceNameQualifier ) {
+        this.instanceNameQualifier = instanceNameQualifier;
+        return this;
     }
 
     public LaunchFeature withRetry(boolean retry ) {
@@ -101,12 +214,12 @@ public class LaunchFeature implements Pinenut {
         return this;
     }
 
-    public LaunchFeature withStartupArgs( Map<String, String[]> startupArgs ) {
+    public LaunchFeature withStartupArgs( Map<String, String> startupArgs ) {
         this.startupArgs = startupArgs;
         return this;
     }
 
-    public LaunchFeature withContextEnvironmentVars( Map<String, String[]> contextEnvironmentVars ) {
+    public LaunchFeature withContextEnvironmentVars( Map<String, String> contextEnvironmentVars ) {
         this.contextEnvironmentVars = contextEnvironmentVars;
         return this;
     }

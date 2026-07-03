@@ -41,6 +41,11 @@ public class TaskInstanceTransition implements Pinenut {
         return new TaskInstanceTransition( instanceGuid, fromStatuses, toStatus, reason, "{}" );
     }
 
+    public TaskInstanceTransition withEventContext( String szEventContext ) {
+        this.mszEventContext = szEventContext;
+        return this;
+    }
+
     public GUID getInstanceGuid() {
         return this.mInstanceGuid;
     }

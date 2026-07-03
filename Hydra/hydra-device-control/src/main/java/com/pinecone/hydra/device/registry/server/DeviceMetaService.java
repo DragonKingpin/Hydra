@@ -1,6 +1,7 @@
 package com.pinecone.hydra.device.registry.server;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
@@ -55,7 +56,18 @@ public class DeviceMetaService implements Pinenut {
 
         meta.applyTo( node, this.mGuidAllocator );
         this.mDeviceManager.updateDevice( node );
+        this.updateDeviceNodeOwnership( node, meta );
         return true;
+    }
+
+    protected void updateDeviceNodeOwnership( ElementNode node, DeviceMetaDTO meta ) {
+        if ( node.getGuid() == null ) {
+            return;
+        }
+
+        GUID ownerDeviceGuid = isBlank( meta.getOwnerDeviceGuid() ) ? null : this.mGuidAllocator.parse( meta.getOwnerDeviceGuid() );
+        boolean deviceNode = meta.getDeviceNode() == null || meta.getDeviceNode();
+        this.mDeviceInstrument.updateDeviceNodeOwnership( node.getGuid(), ownerDeviceGuid, deviceNode );
     }
 
     protected boolean isBlank( String value ) {

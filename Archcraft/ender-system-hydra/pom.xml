@@ -45,6 +45,12 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.walnut.ender.system</groupId>
+            <artifactId>ender-hydra-arch</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,11 +15,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pinecone.framework.util.id.Identification;
+import com.pinecone.framework.util.json.JSON;
 import com.pinecone.hydra.proc.UProcess;
 import com.walnut.odin.conduct.CollectiveTaskRegiment;
+import com.walnut.odin.conduct.RegimentJoinRejectionException;
 import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorMetadataParser;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.anonymous.GenericAnonymousTaskProcessorMetadataParser;
+import com.walnut.odin.processor.anonymous.RavenAnonymousTaskProcessorRegistry;
+import com.walnut.odin.processor.event.GenericTaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.runtime.GenericTaskProcessorRuntime;
+import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.source.TaskProcessorManipulator;
+import com.walnut.odin.task.mapper.InstanceExecMapper;
 import com.walnut.odin.task.troll.InstanceLaunchException;
 import com.walnut.odin.task.troll.LaunchFeature;
 import com.walnut.odin.task.troll.TaskExecutionLauncher;
@@ -32,10 +44,15 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     protected final Map<String, TaskExecutionProcessor>  mProcessors;
     protected final Map<Long, TaskExecutionProcessor>    mClientProcessorsIndex;
-    protected final Map<Identification, TaskProcPair>    mAffinityTable;
+    protected final Map<DispatchKey, TaskProcPair>       mAffinityTable;
 
+    protected final AnonymousTaskProcessorMetadataParser mAnonymousMetadataParser;
+    protected final AnonymousTaskProcessorRegistry       mAnonymousProcessorRegistry;
+    protected final TaskProcessorEventHookRegistry       mProcessorEventHookRegistry;
+    protected final TaskProcessorRuntime                 mProcessorRuntime;
 
     protected TaskProcessorManipulator  mTaskProcessorManipulator;
+    protected InstanceExecMapper        mInstanceExecMapper;
     protected DispatchStrategy          mDispatchStrategy;
     protected TaskExecutionLauncher     mTaskExecutionLauncher;
     protected CollectiveTaskRegiment    mCollectiveTaskRegiment;
@@ -46,9 +63,14 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         this.mAffinityTable              = new HashMap<>();
         this.mDispatchStrategy           = strategy;
         this.mClientProcessorsIndex      = new HashMap<>();
+        this.mAnonymousMetadataParser    = new GenericAnonymousTaskProcessorMetadataParser();
+        this.mAnonymousProcessorRegistry = new RavenAnonymousTaskProcessorRegistry( this.mAnonymousMetadataParser );
+        this.mProcessorEventHookRegistry = new GenericTaskProcessorEventHookRegistry();
+        this.mProcessorRuntime           = new GenericTaskProcessorRuntime( this, this.mAnonymousMetadataParser );
         this.mCollectiveTaskRegiment     = regiment;
         this.mTaskExecutionLauncher      = regiment.taskExecutionLauncher();
         this.mTaskProcessorManipulator   = regiment.taskInstrument().getRavenTaskMasterManipulator().getTaskProcessorManipulator();
+        this.mInstanceExecMapper         = regiment.taskInstrument().getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceExecMapper();
     }
 
     public RavenTaskDispatcher( CollectiveTaskRegiment regiment ) {
@@ -62,11 +84,25 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
+    public CollectiveTaskRegiment collectiveTaskRegiment() {
+        return this.mCollectiveTaskRegiment;
+    }
+
+    @Override
     public void registerProcessor( TaskExecutionProcessor processor ) {
         this.mLock.lock();
         try {
-            this.mProcessors.put( processor.getName(), processor );
-            this.mClientProcessorsIndex.put( processor.getControlClientId(), processor );
+            TaskExecutionProcessor previousByName = this.mProcessors.put( processor.getName(), processor );
+            if ( previousByName != null ) {
+                this.mClientProcessorsIndex.remove( previousByName.getControlClientId() );
+                this.removeAffinityBindingByProcessorLocked( previousByName.getName() );
+            }
+
+            TaskExecutionProcessor previousByClient = this.mClientProcessorsIndex.put( processor.getControlClientId(), processor );
+            if ( previousByClient != null && !Objects.equals( previousByClient.getName(), processor.getName() ) ) {
+                this.mProcessors.remove( previousByClient.getName(), previousByClient );
+                this.removeAffinityBindingByProcessorLocked( previousByClient.getName() );
+            }
             this.log.info( "Registered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
         }
         finally {
@@ -76,28 +112,66 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public TaskProcessorEntity registerProcessor( String szProcessorName, long nClientId ) throws IllegalArgumentException {
+        return this.registerProcessor( szProcessorName, nClientId, null );
+    }
+
+    @Override
+    public TaskProcessorEntity registerProcessor(
+            String szProcessorName, long nClientId, Map<String, String> metadata
+    ) throws IllegalArgumentException {
+        return this.registerIncorporatedProcessor( szProcessorName, nClientId, metadata );
+    }
+
+    @Override
+    public TaskProcessorEntity registerIncorporatedProcessor(
+            String szProcessorName, long nClientId, Map<String, String> metadata
+    ) throws IllegalArgumentException {
         TaskProcessorEntity entity = this.mTaskProcessorManipulator.selectByProcessorName( szProcessorName );
         if ( entity == null ) {
             throw new IllegalArgumentException( szProcessorName + " not found" );
         }
 
+        if ( entity.isLocal() ) {
+            throw new RegimentJoinRejectionException( "Local processor `" + szProcessorName + "` cannot bind RPC control client." );
+        }
+
         entity.setControlClientId( nClientId );
-        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor( entity, this.mTaskExecutionLauncher );
+        this.refreshDynamicMetadataCache( entity, metadata );
+        TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(
+                entity,
+                new GenericI32TaskQueue( entity.getTaskQueueMeta() ),
+                this.mTaskExecutionLauncher,
+                this.mInstanceExecMapper
+        );
         this.registerProcessor( processor );
         return entity;
+    }
+
+    protected void refreshDynamicMetadataCache( TaskProcessorEntity entity, Map<String, String> metadata ) {
+        if ( entity == null || entity.getGuid() == null ) {
+            return;
+        }
+        String szMetadata = this.serializeMetadata( metadata );
+        entity.setDyMetadataCache( szMetadata );
+        this.mTaskProcessorManipulator.updateDynamicMetadataCache( entity.getGuid(), szMetadata );
+    }
+
+    protected String serializeMetadata( Map<String, String> metadata ) {
+        if ( metadata == null || metadata.isEmpty() ) {
+            return null;
+        }
+        return JSON.stringify( metadata );
     }
 
     @Override
     public void unregisterProcessor( String szProcessorName ) {
         this.mLock.lock();
         try {
-            this.mProcessors.remove( szProcessorName );
-            this.mAffinityTable.entrySet().removeIf( entry -> {
-                if ( entry.getValue().processor.getName().equals( szProcessorName ) ) {
-                    return true;
-                }
-                return false;
-            } );
+            TaskExecutionProcessor processor = this.mProcessors.remove( szProcessorName );
+            if ( processor != null ) {
+                this.mClientProcessorsIndex.remove( processor.getControlClientId() );
+            }
+            this.removeAffinityBindingByProcessorLocked( szProcessorName );
             this.log.info( "Unregistered processor, name:`{}`", szProcessorName );
         }
         finally {
@@ -107,19 +181,42 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public void unregisterProcessor( long nClientId ) {
+        TaskExecutionProcessor processor = this.removeIncorporatedProcessorByClientId( nClientId );
+        if ( processor != null ) {
+            this.log.info( "Unregistered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor removeIncorporatedProcessorByClientId( long nClientId ) {
         TaskExecutionProcessor processor = null;
         this.mLock.lock();
         try {
             processor = this.mClientProcessorsIndex.remove( nClientId );
+            if ( processor != null ) {
+                this.mProcessors.remove( processor.getName(), processor );
+                this.removeAffinityBindingByProcessorLocked( processor.getName() );
+            }
+            return processor;
         }
         finally {
             this.mLock.unlock();
-
-            if ( processor != null ) {
-                this.unregisterProcessor( processor.getName() );
-                this.log.info( "Unregistered processor, name:`{}`, clientId:`{}` ", processor.getName(), processor.getControlClientId() );
-            }
         }
+    }
+
+    @Override
+    public AnonymousTaskProcessorRegistry anonymousProcessorRegistry() {
+        return this.mAnonymousProcessorRegistry;
+    }
+
+    @Override
+    public TaskProcessorEventHookRegistry processorEventHookRegistry() {
+        return this.mProcessorEventHookRegistry;
+    }
+
+    @Override
+    public TaskProcessorRuntime processorRuntime() {
+        return this.mProcessorRuntime;
     }
 
     @Override
@@ -136,6 +233,28 @@ public class RavenTaskDispatcher implements TaskDispatcher {
     }
 
     @Override
+    public TaskExecutionProcessor getProcessorByName( String szProcessorName ) {
+        this.mLock.lock();
+        try {
+            return this.mProcessors.get( szProcessorName );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor getProcessorByClientId( long nClientId ) {
+        this.mLock.lock();
+        try {
+            return this.mClientProcessorsIndex.get( nClientId );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
     public void setProcessorAffinity( String szProcessorName, TaskLaunchContext launchContext ) {
         this.mLock.lock();
         try {
@@ -143,7 +262,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             if ( processor == null ) {
                 throw new IllegalArgumentException( "Processor not found: " + szProcessorName );
             }
-            this.mAffinityTable.put( launchContext.getTaskId(), new TaskProcPair( processor, launchContext ) );
+            this.bindProcessorLocked( processor, launchContext );
         }
         finally {
             this.mLock.unlock();
@@ -152,11 +271,41 @@ public class RavenTaskDispatcher implements TaskDispatcher {
 
     @Override
     public TaskExecutionProcessor getAffinityTasks( Identification taskId ) {
-        TaskProcPair pair = this.mAffinityTable.get( taskId );
-        if ( pair != null ) {
-            return pair.processor;
+        this.mLock.lock();
+        try {
+            for ( TaskProcPair pair : this.mAffinityTable.values() ) {
+                if ( pair == null || pair.launchContext == null ) {
+                    continue;
+                }
+                if ( Objects.equals( pair.launchContext.getTaskId(), taskId ) ) {
+                    return pair.processor;
+                }
+            }
+            return null;
         }
-        return null;
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    @Override
+    public TaskExecutionProcessor getAffinityTask( TaskLaunchContext launchContext ) {
+        DispatchKey key = DispatchKey.of( launchContext );
+        if ( key == null ) {
+            return null;
+        }
+
+        this.mLock.lock();
+        try {
+            TaskProcPair pair = this.mAffinityTable.get( key );
+            if ( pair != null ) {
+                return pair.processor;
+            }
+            return null;
+        }
+        finally {
+            this.mLock.unlock();
+        }
     }
 
     @Override
@@ -227,6 +376,66 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         return this.executeScheme( plan, false, false );
     }
 
+    @Override
+    public PipelineLaunchReport pipeLaunchPrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan;
+
+        this.mLock.lock();
+        try {
+            plan = this.mDispatchStrategy.dispatch(
+                    new ArrayList<>( this.mProcessors.values() ), contexts, this
+            );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+
+        return this.executeScheme( plan, false, true );
+    }
+
+    @Override
+    public PipelineLaunchReport pipeStartPrepared( Collection<TaskLaunchContext> contexts ) throws InstanceLaunchException, TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = this.buildBoundScheme( contexts );
+        return this.executeStartScheme( plan );
+    }
+
+    protected Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> buildBoundScheme(
+            Collection<TaskLaunchContext> contexts
+    ) throws TaskDispatchException {
+        Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new LinkedHashMap<>();
+        if ( contexts == null || contexts.isEmpty() ) {
+            return plan;
+        }
+
+        this.mLock.lock();
+        try {
+            for ( TaskLaunchContext context : contexts ) {
+                TaskExecutionProcessor processor = null;
+                String szProcessorName = context.getAffinityProcessorName();
+                if ( szProcessorName != null ) {
+                    processor = this.mProcessors.get( szProcessorName );
+                }
+                if ( processor == null ) {
+                    TaskProcPair pair = this.queryBoundPair( context );
+                    if ( pair != null ) {
+                        processor = pair.processor;
+                    }
+                }
+                if ( processor == null ) {
+                    throw new TaskDispatchException(
+                            "No bound processor found for prepared start, taskId=" + context.getTaskId()
+                    );
+                }
+                plan.computeIfAbsent( processor, k -> new ArrayList<>() ).add( context );
+            }
+        }
+        finally {
+            this.mLock.unlock();
+        }
+
+        return plan;
+    }
+
     protected PipelineLaunchReport executeScheme(
             Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme, boolean bCreation, boolean bPrepared
     ) throws InstanceLaunchException, TaskDispatchException {
@@ -237,6 +446,10 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         for ( Map.Entry<TaskExecutionProcessor, Collection<TaskLaunchContext>> entry : scheme.entrySet() ) {
             TaskExecutionProcessor processor = entry.getKey();
             Collection<TaskLaunchContext> assigned = entry.getValue();
+            for ( TaskLaunchContext context : assigned ) {
+                context.setAffinityProcessorName( processor.getName() );
+                this.bindProcessor( processor, context );
+            }
 
             PipelineLaunchReport report;
 
@@ -246,6 +459,9 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             else if ( bCreation ) {
                 report = processor.pipeCreate( assigned );
             }
+            else if ( bPrepared ) {
+                report = processor.pipeLaunchPrepared( assigned );
+            }
             else {
                 report = processor.pipeLaunch( assigned );
             }
@@ -253,6 +469,7 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             launched.addAll( report.launchedProcesses() );
             consumed.addAll( report.launchedContext() );
             waiting.addAll( report.waitingContext() );
+            this.recordExecutedProcessors( report.launchedContext(), processor );
         }
 
         return DefaultPipelineLaunchReport.executed(
@@ -260,6 +477,100 @@ public class RavenTaskDispatcher implements TaskDispatcher {
                 launched,
                 consumed,
                 waiting
+        );
+    }
+
+    protected PipelineLaunchReport executeStartScheme(
+            Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> scheme
+    ) throws TaskDispatchException {
+        List<UProcess> launched = new ArrayList<>();
+        List<TaskLaunchContext> consumed = new ArrayList<>();
+        List<TaskLaunchContext> waiting  = new ArrayList<>();
+
+        for ( Map.Entry<TaskExecutionProcessor, Collection<TaskLaunchContext>> entry : scheme.entrySet() ) {
+            TaskExecutionProcessor processor = entry.getKey();
+            Collection<TaskLaunchContext> assigned = entry.getValue();
+            PipelineLaunchReport report = processor.pipeStartPrepared( assigned );
+
+            launched.addAll( report.launchedProcesses() );
+            consumed.addAll( report.launchedContext() );
+            waiting.addAll( report.waitingContext() );
+            this.recordExecutedProcessors( report.launchedContext(), processor );
+        }
+
+        return DefaultPipelineLaunchReport.executed(
+                null,
+                launched,
+                consumed,
+                waiting
+        );
+    }
+
+    protected void bindProcessor( TaskExecutionProcessor processor, TaskLaunchContext context ) {
+        this.mLock.lock();
+        try {
+            this.bindProcessorLocked( processor, context );
+        }
+        finally {
+            this.mLock.unlock();
+        }
+    }
+
+    protected void bindProcessorLocked( TaskExecutionProcessor processor, TaskLaunchContext context ) {
+        DispatchKey key = DispatchKey.of( context );
+        if ( key == null ) {
+            return;
+        }
+        this.mAffinityTable.put( key, new TaskProcPair( processor, context ) );
+    }
+
+    protected void removeAffinityBindingByProcessorLocked( String szProcessorName ) {
+        this.mAffinityTable.entrySet().removeIf( entry -> {
+            TaskProcPair pair = entry.getValue();
+            if ( pair == null || pair.processor == null ) {
+                return true;
+            }
+            return Objects.equals( pair.processor.getName(), szProcessorName );
+        } );
+    }
+
+    protected TaskProcPair queryBoundPair( TaskLaunchContext context ) {
+        DispatchKey key = DispatchKey.of( context );
+        if ( key == null ) {
+            return null;
+        }
+        return this.mAffinityTable.get( key );
+    }
+
+    protected void recordExecutedProcessors(
+            Collection<TaskLaunchContext> contexts, TaskExecutionProcessor processor
+    ) {
+        if ( contexts == null || contexts.isEmpty() ) {
+            return;
+        }
+        for ( TaskLaunchContext context : contexts ) {
+            this.recordExecutedProcessor( context, processor );
+        }
+    }
+
+    protected void recordExecutedProcessor( TaskLaunchContext context, TaskExecutionProcessor processor ) {
+        if ( context == null || processor == null || context.getTaskInstance() == null ) {
+            return;
+        }
+        if ( context.getLaunchedProcess() == null ) {
+            return;
+        }
+        if ( context.getTaskInstance().getInstanceEntry() == null ) {
+            return;
+        }
+        if ( context.getTaskInstance().getInstanceEntry().getGuid() == null ) {
+            return;
+        }
+        this.mInstanceExecMapper.updateExecutedProcessorByInstanceGuidAndRetry(
+                context.getTaskInstance().getInstanceEntry().getGuid(),
+                context.getTaskInstance().getInstanceEntry().getSequenceCnt(),
+                context.getTaskInstance().getInstanceEntry().getRetryCnt(),
+                processor.getName()
         );
     }
 
@@ -285,6 +596,47 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         public TaskProcPair( TaskExecutionProcessor processor, TaskLaunchContext launchContext ) {
             this.processor = processor;
             this.launchContext = launchContext;
+        }
+    }
+
+    protected static class DispatchKey {
+
+        protected Identification instanceId;
+        protected int            nRetry;
+
+        protected DispatchKey( Identification instanceId, int nRetry ) {
+            this.instanceId = instanceId;
+            this.nRetry     = nRetry;
+        }
+
+        public static DispatchKey of( TaskLaunchContext context ) {
+            if ( context == null || context.getTaskInstance() == null || context.getTaskInstance().getInstanceEntry() == null ) {
+                return null;
+            }
+            if ( context.getTaskInstance().getInstanceEntry().getGuid() == null ) {
+                return null;
+            }
+            return new DispatchKey(
+                    context.getTaskInstance().getInstanceEntry().getGuid(),
+                    context.getTaskInstance().getInstanceEntry().getRetryCnt()
+            );
+        }
+
+        @Override
+        public boolean equals( Object that ) {
+            if ( this == that ) {
+                return true;
+            }
+            if ( !( that instanceof DispatchKey ) ) {
+                return false;
+            }
+            DispatchKey dispatchKey = (DispatchKey)that;
+            return this.nRetry == dispatchKey.nRetry && Objects.equals( this.instanceId, dispatchKey.instanceId );
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash( this.instanceId, this.nRetry );
         }
     }
 }

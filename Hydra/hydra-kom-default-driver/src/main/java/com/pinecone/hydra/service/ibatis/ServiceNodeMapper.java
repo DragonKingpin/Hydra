@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.service.kom.ServiceElementQuery;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
@@ -48,4 +49,40 @@ public interface ServiceNodeMapper extends ServiceNodeManipulator {
     }
 
     List<GenericServiceElement> fetchAllService0();
+
+    long countServices0( @Param( "query" ) ServiceElementQuery query );
+
+    @Override
+    default long countServices( ServiceElementQuery query ) {
+        ServiceElementQuery safeQuery = query;
+        if ( safeQuery == null ) {
+            safeQuery = new ServiceElementQuery();
+        }
+
+        return this.countServices0( safeQuery );
+    }
+
+    List<GenericServiceElement> fetchServices0( @Param( "query" ) ServiceElementQuery query );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ServiceElement> fetchServices( ServiceElementQuery query ) {
+        ServiceElementQuery safeQuery = query;
+        if ( safeQuery == null ) {
+            safeQuery = new ServiceElementQuery();
+        }
+
+        return (List) this.fetchServices0( safeQuery );
+    }
+
+    List<GenericServiceElement> fetchServicesByGuids0( @Param( "guids" ) List<GUID> guids );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ServiceElement> fetchServicesByGuids( List<GUID> guids ) {
+        if ( guids == null || guids.isEmpty() ) {
+            return List.of();
+        }
+        return (List) this.fetchServicesByGuids0( guids );
+    }
 }

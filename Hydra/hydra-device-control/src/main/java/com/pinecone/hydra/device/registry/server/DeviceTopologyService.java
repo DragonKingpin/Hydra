@@ -54,6 +54,23 @@ public class DeviceTopologyService implements Pinenut {
         return children;
     }
 
+    public List<DeviceMetaDTO> fetchOwnedDeviceMeta( String ownerDeviceGuid ) {
+        List<DeviceMetaDTO> children = new ArrayList<>();
+        if ( isBlank( ownerDeviceGuid ) ) {
+            return children;
+        }
+
+        Collection<GUID> childGuids = this.mDeviceInstrument.fetchOwnedDeviceGuids( this.mGuidAllocator.parse( ownerDeviceGuid ) );
+        for ( GUID childGuid : childGuids ) {
+            ElementNode childNode = this.mDeviceManager.queryDeviceByGuid( childGuid );
+            DeviceMetaDTO childMeta = DeviceMetaDTO.from( childNode, this.mDeviceInstrument );
+            if ( childMeta != null ) {
+                children.add( childMeta );
+            }
+        }
+        return children;
+    }
+
     protected boolean isBlank( String value ) {
         return value == null || value.trim().isEmpty();
     }

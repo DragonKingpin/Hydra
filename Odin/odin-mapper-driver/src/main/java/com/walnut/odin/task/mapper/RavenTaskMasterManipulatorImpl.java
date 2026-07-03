@@ -6,9 +6,10 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
-import com.walnut.odin.project.RavenTaskProjectInstrument;
-import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.mapper.transaction.OdinMappingTransaction;
+import com.walnut.odin.specific.mapper.TaskSpecificMapper;
 import com.walnut.odin.project.mapper.TaskProjectMapper;
+import com.walnut.odin.specific.source.TaskSpecificManipulator;
 import com.walnut.odin.project.source.TaskProjectManipulator;
 import com.walnut.odin.task.source.ScheduleManipulator;
 import com.walnut.odin.task.source.CategoryMappingManipulator;
@@ -28,6 +29,8 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     protected KOISkeletonMasterManipulator skeletonMasterManipulator;
 
     protected TaskMappingDriver            taskMappingDriver;
+
+    protected OdinTaskMappingDriver        odinTaskMappingDriver;
 
     protected TaskMasterManipulator        taskMasterManipulator;
 
@@ -51,18 +54,20 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     @Structure( type = TaskProjectMapper.class )
     protected TaskProjectManipulator taskProjectManipulator;
 
-    protected ScheduleManipulator    scheduleManipulator;
+    @Resource
+    @Structure( type = TaskSpecificMapper.class )
+    protected TaskSpecificManipulator taskSpecificManipulator;
 
-    protected TaskProjectInstrument  taskProjectInstrument;
+    protected ScheduleManipulator    scheduleManipulator;
 
     public RavenTaskMasterManipulatorImpl( KOIMappingDriver driver, TaskMappingDriver taskMappingDriver ) {
         driver.autoConstruct( RavenTaskMasterManipulatorImpl.class, Map.of(), this );
+        this.odinTaskMappingDriver    = (OdinTaskMappingDriver) driver;
         this.taskMappingDriver         = taskMappingDriver;
         this.taskMasterManipulator     = (TaskMasterManipulator)taskMappingDriver.getMasterManipulator();
         this.skeletonMasterManipulator = this.taskMasterManipulator.getSkeletonMasterManipulator();
 
         this.scheduleManipulator       = new ScheduleManipulatorImpl( driver );
-        this.taskProjectInstrument     = new RavenTaskProjectInstrument( this.taskProjectManipulator );
     }
 
     @Override
@@ -111,7 +116,12 @@ public class RavenTaskMasterManipulatorImpl implements RavenTaskMasterManipulato
     }
 
     @Override
-    public TaskProjectInstrument getTaskProjectInstrument() {
-        return this.taskProjectInstrument;
+    public TaskSpecificManipulator getTaskSpecificManipulator() {
+        return this.taskSpecificManipulator;
+    }
+
+    @Override
+    public OdinMappingTransaction transaction() {
+        return this.odinTaskMappingDriver.transaction();
     }
 }

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class GenericJournal implements Journal {
     protected Long id;
     protected GUID guid;
+    protected GUID bucketGuid;
     protected JournalType journalType;
     protected JournalStatus journalStatus;
     protected GUID fileGuid;
@@ -27,6 +28,10 @@ public class GenericJournal implements Journal {
     public GUID getGuid() { return this.guid; }
     @Override
     public void setGuid( GUID guid ) { this.guid = guid; }
+    @Override
+    public GUID getBucketGuid() { return this.bucketGuid; }
+    @Override
+    public void setBucketGuid( GUID bucketGuid ) { this.bucketGuid = bucketGuid; }
     @Override
     public JournalType getJournalType() { return this.journalType; }
     @Override

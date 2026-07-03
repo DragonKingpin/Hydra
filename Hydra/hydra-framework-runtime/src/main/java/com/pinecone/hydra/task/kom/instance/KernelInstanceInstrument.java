@@ -77,6 +77,14 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        return this.mInstanceManipulator.fetchInstanceDigests( query );
+    }
+
+    @Override
     public List<InstanceEntry> queryInstances( String taskPath, long offset, long pageSize ) {
         GUID guid = this.mTaskInstrument.queryGUIDByPath( taskPath );
         if ( guid == null ) {
@@ -118,6 +126,89 @@ public class KernelInstanceInstrument implements InstanceInstrument {
     }
 
     @Override
+    public int transitStatusInMonotonic( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        return this.mInstanceManipulator.transitStatusInMonotonic( instanceGuid, fromStatuses, toStatus );
+    }
+
+    @Override
+    public int transitStatusInMonotonicWithFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        return this.mInstanceManipulator.transitStatusInMonotonicWithFields(
+                instanceGuid, fromStatuses, toStatus, scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    @Override
+    public int transitStatusInMonotonicWithFieldsGuarded(
+            GUID instanceGuid,
+            int sequenceCnt,
+            int retryCnt,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        return this.mInstanceManipulator.transitStatusInMonotonicWithFieldsGuarded(
+                instanceGuid, sequenceCnt, retryCnt, fromStatuses, toStatus, scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    @Override
+    public int resetForRetry(
+            GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime
+    ) {
+        return this.mInstanceManipulator.resetForRetry( instanceGuid, currentRetryCnt, expectTime, fireTime, scheduleTime );
+    }
+
+    @Override
+    public int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    ) {
+        return this.mInstanceManipulator.resetForSequence(
+                instanceGuid,
+                currentSequenceCnt,
+                expectTime,
+                fireTime,
+                scheduleTime,
+                imagePath,
+                execArch,
+                priority,
+                actuallyPriority,
+                dryRun,
+                timeoutSeconds,
+                retryTimes,
+                retryIntervalSeconds,
+                taskType,
+                designatedProcessor
+        );
+    }
+
+    @Override
     public long countInstanceByGuid( GUID taskGuid ) {
         return this.mInstanceManipulator.countInstanceByTaskGuid( taskGuid );
     }
@@ -131,6 +222,8 @@ public class KernelInstanceInstrument implements InstanceInstrument {
             instanceEntry.setTaskGuid( taskGuid );
             instanceEntry.setGuid( this.mTaskInstrument.getGuidAllocator().nextGUID() );
             instanceEntry.setPriority( taskElement.getPriority() );
+            // TODO priority-system: instance effective priority is currently mirrored from configured task priority.
+            // Replace this with the kernel effective-priority policy when dynamic priority is implemented.
             instanceEntry.setActuallyPriority( taskElement.getPriority() );
             instanceEntry.setTaskType( taskElement.getType() );
 //            instanceEntry.setInstanceName( taskElement.getName() );
@@ -140,6 +233,9 @@ public class KernelInstanceInstrument implements InstanceInstrument {
             instanceEntry.setScheduleType( taskElement.getScheduleType() );
             instanceEntry.setRunCount( 0 );
             instanceEntry.setDryRun( taskElement.isDryRun() );
+            instanceEntry.setTimeoutSeconds( taskElement.getTimeoutSeconds() );
+            instanceEntry.setRetryTimes( taskElement.getRetryTimes() );
+            instanceEntry.setRetryIntervalSeconds( taskElement.getRetryIntervalSeconds() );
             instanceEntry.setInstanceStatus( TaskInstanceStatus.New );
             return instanceEntry;
         }
@@ -182,6 +278,28 @@ public class KernelInstanceInstrument implements InstanceInstrument {
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority
     ) {
         return this.mInstanceManipulator.fetchSchedulableInstances( this.mTaskInstrument, idMin, idMax, runStatuses, targetTime, actuallyPriority );
+    }
+
+    @Override
+    public TableIndexMeta queryRetryableTerminalIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime ) {
+        return this.mInstanceManipulator.selectRetryableTerminalIdRange( runStatuses, targetTime );
+    }
+
+    @Override
+    public List<InstanceEntry> fetchRetryableTerminalInstances(
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    ) {
+        return this.mInstanceManipulator.fetchRetryableTerminalInstances( this.mTaskInstrument, idMin, idMax, runStatuses, targetTime );
+    }
+
+    @Override
+    public TableIndexMeta queryTimedOutRunningIdRange( LocalDateTime targetTime ) {
+        return this.mInstanceManipulator.selectTimedOutRunningIdRange( targetTime );
+    }
+
+    @Override
+    public List<InstanceEntry> fetchTimedOutRunningInstances( long idMin, long idMax, LocalDateTime targetTime ) {
+        return this.mInstanceManipulator.fetchTimedOutRunningInstances( this.mTaskInstrument, idMin, idMax, targetTime );
     }
 
 

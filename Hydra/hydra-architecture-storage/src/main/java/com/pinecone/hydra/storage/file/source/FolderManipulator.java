@@ -24,6 +24,10 @@ public interface FolderManipulator extends GUIDNameManipulator {
 
     List<GUID > dumpGuid();
 
+    long countByBucketGuid( GUID bucketGuid );
+
+    void deleteByBucketGuid( GUID bucketGuid );
+
     boolean isFolder(GUID guid);
 
     void rename( GUID fileGuid, String newName );

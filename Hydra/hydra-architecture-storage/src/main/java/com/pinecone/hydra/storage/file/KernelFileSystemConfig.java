@@ -16,6 +16,7 @@ public class KernelFileSystemConfig extends ArchStorageConfig implements FileSys
     protected long mPathQueryExpiryTimeHotMil   = DefaultCacheConstants.PathQueryExpiryTimeHotMil;
     protected boolean mbJournalEnabled          = FileConstants.DefaultJournalEnabled;
     protected boolean mbJournalAutoRecoveryEnabled = FileConstants.DefaultJournalAutoRecoveryEnabled;
+    protected int mnRemoveAsyncThreshold        = 32;
 
     public KernelFileSystemConfig() {
         super();
@@ -30,6 +31,7 @@ public class KernelFileSystemConfig extends ArchStorageConfig implements FileSys
         this.mPathQueryExpiryTimeHotMil    = ((Number) config.getOrDefault("pathQueryExpiryTimeHotMil", DefaultCacheConstants.PathQueryExpiryTimeHotMil)).longValue();
         this.mbJournalEnabled              = this.booleanValue( config, "journalEnabled", FileConstants.DefaultJournalEnabled );
         this.mbJournalAutoRecoveryEnabled  = this.booleanValue( config, "journalAutoRecoveryEnabled", FileConstants.DefaultJournalAutoRecoveryEnabled );
+        this.mnRemoveAsyncThreshold        = this.removeAsyncThreshold( config );
     }
 
 
@@ -64,6 +66,32 @@ public class KernelFileSystemConfig extends ArchStorageConfig implements FileSys
     @Override
     public boolean isJournalAutoRecoveryEnabled() {
         return this.mbJournalAutoRecoveryEnabled;
+    }
+
+    @Override
+    public int getRemoveAsyncThreshold() {
+        return this.mnRemoveAsyncThreshold;
+    }
+
+    protected int removeAsyncThreshold( Map<String, Object> config ) {
+        Object removeConfig = config.get( "remove" );
+        if ( removeConfig instanceof Map ) {
+            Object value = ( (Map<?, ?>) removeConfig ).get( "asyncThreshold" );
+            if ( value instanceof Number ) {
+                return Math.max( 1, ( (Number) value ).intValue() );
+            }
+            if ( value != null ) {
+                return Math.max( 1, Integer.parseInt( String.valueOf( value ) ) );
+            }
+        }
+        Object value = config.get( "removeAsyncThreshold" );
+        if ( value instanceof Number ) {
+            return Math.max( 1, ( (Number) value ).intValue() );
+        }
+        if ( value != null ) {
+            return Math.max( 1, Integer.parseInt( String.valueOf( value ) ) );
+        }
+        return this.mnRemoveAsyncThreshold;
     }
 
     protected boolean booleanValue( Map<String, Object> config, String key, boolean defaultValue ) {

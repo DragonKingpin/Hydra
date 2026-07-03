@@ -22,5 +22,15 @@ public interface FileChunkManipulator extends Pinenut {
 
     List<GenericFileChunk> listByFileGuid( GUID fileGuid );
 
+    long countAll();
+
+    long countByBucketGuid( GUID bucketGuid );
+
+    List<GenericFileChunk> listPage( int offset, int limit );
+
     List<GenericFileChunk> listByFileRange( GUID fileGuid, long startOffset, long endOffset );
+
+    Long sumValidSizeByBucketGuid( GUID bucketGuid );
+
+    void deleteByBucketGuid( GUID bucketGuid );
 }

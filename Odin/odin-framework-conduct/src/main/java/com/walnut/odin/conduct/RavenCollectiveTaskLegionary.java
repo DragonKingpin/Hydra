@@ -16,20 +16,46 @@ import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.client.RavenRemoteProcessManagerClient;
 import com.walnut.odin.proc.client.RemoteProcessManagerClient;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
 
+    protected static final long                  RejoinRetryDelayMillis0 = 500;
+
+    protected static final long                  RejoinRetryDelayMillis1 = 1000;
+
+    protected static final long                  RejoinRetryDelayMillis2 = 2000;
+
     protected String                           mszNodeName;
+    protected Map<String, String>              mProcessorRegisterMetadata;
     protected RemoteProcessManagerClient       mRemoteProcessManagerClient;
     protected ProcessManager                   mLocalProcessManager;
     protected ProcessorLifecycleIface          mProcessLifecycleIface;
+
+    protected RavenRemoteProcessManagerClient.ControlStateSynchronizedHandler mControlStateSynchronizedHandler;
+
+    protected ReentrantLock                   mRegimentRejoinLock;
+    protected Condition                       mRegimentRejoinCondition;
+    protected boolean                         mbRegimentRejoining;
+    protected boolean                         mbRegimentRejoinRequested;
+    protected boolean                         mbRegimentRejected;
+    protected String                          mszRegimentRejoinReason;
+    protected String                          mszRegimentRejectedReason;
 
     protected Logger                           mLogger;
 
     protected RavenCollectiveTaskLegionary( ProcessManager processManager, @Postpone RemoteProcessManagerClient pmClient, String szNodeName ) {
         this.mszNodeName                 = szNodeName;
+        this.mProcessorRegisterMetadata  = new LinkedHashMap<>();
         this.mLocalProcessManager        = processManager;
         this.mRemoteProcessManagerClient = pmClient;
         this.mLogger                     = LoggerFactory.getLogger( this.getClass() );
+        this.mRegimentRejoinLock         = new ReentrantLock();
+        this.mRegimentRejoinCondition    = this.mRegimentRejoinLock.newCondition();
     }
 
     public RavenCollectiveTaskLegionary( String szNodeName, ProcessManager processManager, RemoteProcessManagerClient pmClient ) {
@@ -59,6 +85,14 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
         return this.mRemoteProcessManagerClient.getClientId();
     }
 
+    public Map<String, String> getProcessorRegisterMetadata() {
+        return new LinkedHashMap<>( this.mProcessorRegisterMetadata );
+    }
+
+    public void setProcessorRegisterMetadata( Map<String, String> metadata ) {
+        this.mProcessorRegisterMetadata = metadata == null ? new LinkedHashMap<>() : new LinkedHashMap<>( metadata );
+    }
+
     @Override
     public ProcessManager processManager() {
         return this.mLocalProcessManager;
@@ -76,6 +110,198 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
         DuplexAppointClient duplexAppointClient = this.mRemoteProcessManagerClient.duplexAppointClient();
         duplexAppointClient.compile( ProcessorLifecycleIface.class,false );
         this.mProcessLifecycleIface = duplexAppointClient.getIface( ProcessorLifecycleIface.class );
+        this.registerControlStateSynchronizedHandler();
+    }
+
+    protected void registerControlStateSynchronizedHandler() {
+        if ( this.mControlStateSynchronizedHandler != null ) {
+            return;
+        }
+        if ( !( this.mRemoteProcessManagerClient instanceof RavenRemoteProcessManagerClient ) ) {
+            return;
+        }
+
+        this.mControlStateSynchronizedHandler = new RavenRemoteProcessManagerClient.ControlStateSynchronizedHandler() {
+            @Override
+            public void afterControlStateSynchronized( String szReason ) {
+                RavenCollectiveTaskLegionary.this.requestRejoinRegiment( szReason );
+            }
+        };
+        ( (RavenRemoteProcessManagerClient)this.mRemoteProcessManagerClient ).registerControlStateSynchronizedHandler( this.mControlStateSynchronizedHandler );
+    }
+
+    protected void requestRejoinRegiment( String szReason ) {
+        if ( this.mProcessLifecycleIface == null ) {
+            return;
+        }
+
+        this.mRegimentRejoinLock.lock();
+        try {
+            if ( this.mbRegimentRejected ) {
+                return;
+            }
+            this.mbRegimentRejoinRequested = true;
+            this.mszRegimentRejoinReason = szReason;
+            this.mRegimentRejoinCondition.signalAll();
+            if ( this.mbRegimentRejoining ) {
+                return;
+            }
+            this.mbRegimentRejoining = true;
+        }
+        finally {
+            this.mRegimentRejoinLock.unlock();
+        }
+
+        Thread rejoinThread = new Thread( new Runnable() {
+            @Override
+            public void run() {
+                RavenCollectiveTaskLegionary.this.runRejoinRegimentLoop();
+            }
+        }, "odin-regiment-rejoin" );
+        rejoinThread.setDaemon( true );
+        rejoinThread.start();
+    }
+
+    protected void runRejoinRegimentLoop() {
+        int nFailureCount = 0;
+        try {
+            while ( true ) {
+                String szReason = this.consumeRejoinReason();
+                if ( szReason == null ) {
+                    return;
+                }
+
+                if ( this.rejoinRegimentOnce( szReason ) ) {
+                    nFailureCount = 0;
+                    continue;
+                }
+
+                this.awaitBeforeRejoinRetry( nFailureCount );
+                ++nFailureCount;
+                this.requestRejoinRegiment( szReason );
+            }
+        }
+        finally {
+            this.mRegimentRejoinLock.lock();
+            try {
+                this.mbRegimentRejoining = false;
+                if ( this.mbRegimentRejected ) {
+                    this.mbRegimentRejoinRequested = false;
+                    return;
+                }
+                if ( this.mbRegimentRejoinRequested ) {
+                    this.requestRejoinRegiment( this.mszRegimentRejoinReason );
+                }
+            }
+            finally {
+                this.mRegimentRejoinLock.unlock();
+            }
+        }
+    }
+
+    protected String consumeRejoinReason() {
+        this.mRegimentRejoinLock.lock();
+        try {
+            if ( !this.mbRegimentRejoinRequested ) {
+                return null;
+            }
+
+            this.mbRegimentRejoinRequested = false;
+            return this.mszRegimentRejoinReason;
+        }
+        finally {
+            this.mRegimentRejoinLock.unlock();
+        }
+    }
+
+    protected boolean rejoinRegimentOnce( String szReason ) {
+        try {
+            this.joinRegiment();
+            this.mLogger.info(
+                    "[NewProcessorRegister] (Reason: `{}`, name:`{}`, clientId:`{}`) <Rejoined>",
+                    szReason,
+                    this.mszNodeName,
+                    this.getClientId()
+            );
+            return true;
+        }
+        catch ( RegimentException e ) {
+            if ( RegimentJoinInstructs.isApoptosis( e.getMessage() ) ) {
+                this.markRegimentRejected( e.getMessage() );
+                this.mLogger.error(
+                        "[NewProcessorRegister] (Reason: `{}`, name:`{}`, clientId:`{}`) <RejectedFatal>",
+                        szReason,
+                        this.mszNodeName,
+                        this.getClientId(),
+                        e
+                );
+                this.terminateAfterRegimentRejected();
+                return true;
+            }
+            this.mLogger.warn(
+                    "[NewProcessorRegister] (Reason: `{}`, name:`{}`, clientId:`{}`) <RejoinFailure>",
+                    szReason,
+                    this.mszNodeName,
+                    this.getClientId(),
+                    e
+            );
+            return false;
+        }
+    }
+
+    protected void markRegimentRejected( String szReason ) {
+        this.mRegimentRejoinLock.lock();
+        try {
+            this.mbRegimentRejected = true;
+            this.mszRegimentRejectedReason = szReason;
+            this.mbRegimentRejoinRequested = false;
+            this.mRegimentRejoinCondition.signalAll();
+        }
+        finally {
+            this.mRegimentRejoinLock.unlock();
+        }
+    }
+
+    protected void terminateAfterRegimentRejected() {
+        try {
+            this.mRemoteProcessManagerClient.terminateService();
+        }
+        catch ( Exception e ) {
+            this.mLogger.warn(
+                    "[NewProcessorRegister] (name:`{}`, clientId:`{}`, reason:`{}`) <RejectedTerminationFailure>",
+                    this.mszNodeName,
+                    this.getClientId(),
+                    this.mszRegimentRejectedReason,
+                    e
+            );
+        }
+    }
+
+    protected long rejoinRetryDelayMillis( int nFailureCount ) {
+        if ( nFailureCount <= 0 ) {
+            return RejoinRetryDelayMillis0;
+        }
+        if ( nFailureCount == 1 ) {
+            return RejoinRetryDelayMillis1;
+        }
+        return RejoinRetryDelayMillis2;
+    }
+
+    protected void awaitBeforeRejoinRetry( int nFailureCount ) {
+        long nDelayMillis = this.rejoinRetryDelayMillis( nFailureCount );
+        this.mRegimentRejoinLock.lock();
+        try {
+            if ( this.mbRegimentRejoinRequested ) {
+                return;
+            }
+            this.mRegimentRejoinCondition.await( nDelayMillis, TimeUnit.MILLISECONDS );
+        }
+        catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+        }
+        finally {
+            this.mRegimentRejoinLock.unlock();
+        }
     }
 
     @Override
@@ -83,9 +309,10 @@ public class RavenCollectiveTaskLegionary implements CollectiveTaskLegionary {
         RegimentJoinRequest request = new RegimentJoinRequest();
         request.setClientId( this.mRemoteProcessManagerClient.getClientId() );
         request.setNodeName( this.mszNodeName );
+        request.setMetadata( this.mProcessorRegisterMetadata );
         RegimentJoinResponse response = this.mProcessLifecycleIface.joinRegiment( request );
         if ( response == null ) {
-            throw new RegimentException( "response is null" );
+            throw new RegimentException( "ProcessorLifecycleIface.joinRegiment returned null; controller may not be registered or iface may not be compiled." );
         }
         else if ( StringUtils.isNoneEmpty( response.getErrorMsg() ) ) {
             throw new RegimentException( response.getErrorMsg() );

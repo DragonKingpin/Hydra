@@ -13,14 +13,13 @@ import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
-import com.pinecone.hydra.uma.DuplexAppointServer;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.walnut.odin.conduct.entity.LaunchedContext;
 import com.walnut.odin.conduct.entity.RegimentJoinRequest;
 import com.walnut.odin.conduct.entity.RegimentJoinResponse;
-import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleInstrument;
-import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleInstrument;
+import com.walnut.odin.conduct.lifecycle.KernelTaskInstanceLifecycleExaminer;
+import com.walnut.odin.conduct.lifecycle.TaskInstanceLifecycleExaminer;
 import com.walnut.odin.dispatch.RavenTaskDispatcher;
 import com.walnut.odin.dispatch.TaskDispatchException;
 import com.walnut.odin.dispatch.TaskDispatcher;
@@ -29,6 +28,11 @@ import com.walnut.odin.dispatch.entity.TaskProcessorEntity;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
+import com.walnut.odin.processor.anonymous.AnonymousTaskProcessorRegistration;
+import com.walnut.odin.processor.event.TaskProcessorEstablishment;
+import com.walnut.odin.processor.runtime.GenericTaskProcessorRegisterContext;
+import com.walnut.odin.processor.runtime.TaskProcessorRegisterResult;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.RavenTaskInstance;
 import com.walnut.odin.task.troll.GenericRavenTask;
@@ -55,7 +59,7 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     protected TaskDispatcher                mTaskDispatcher;
 
-    protected TaskInstanceLifecycleInstrument mTaskInstanceLifecycleInstrument;
+    protected TaskInstanceLifecycleExaminer mTaskInstanceLifecycleExaminer;
 
 
 
@@ -74,11 +78,11 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     protected void prepare_odin_collective_regiment_subsystem() {
         this.infoLifecycle( "Preparing Odin`s army, constructing task-regiment.", LogStatuses.StatusStart );
 
-        this.mTaskInstanceLifecycleInstrument = new KernelTaskInstanceLifecycleInstrument(
+        this.mTaskInstanceLifecycleExaminer = new KernelTaskInstanceLifecycleExaminer(
                 this.mTaskInstrument.getInstanceInstrument(),
                 this.mTaskInstrument.getRavenTaskMasterManipulator().getScheduleManipulator().getInstanceEventMapper()
         );
-        this.infoLifecycle( "TaskInstanceLifecycleInstrument: `" + this.mTaskInstanceLifecycleInstrument.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
+        this.infoLifecycle( "TaskInstanceLifecycleExaminer: `" + this.mTaskInstanceLifecycleExaminer.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
 
         this.mTaskExecutionLauncher = new TrollTaskExecutionLauncher( this );
         this.infoLifecycle( "TaskExecutionLauncher: `" + this.mTaskExecutionLauncher.getClass().getName() + "` <Constructed>.", LogStatuses.StatusDone );
@@ -104,7 +108,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     public RavenCollectiveTaskRegiment( ProcessManagerSystema system, CentralizedTaskInstrument taskInstrument, UlfServer rpcServer ) {
-        this( system, taskInstrument, system.processManager(), new RavenRemoteProcessManagerServer( system.processManager(), rpcServer ) );
+        this( system, taskInstrument, system.processManager(), new RavenRemoteProcessManagerServer( system.processManager() ) );
+        this.mRemoteProcessManagerServer.hookTransport( HuskyRemoteProcessControlTransportFactory.create( this.mRemoteProcessManagerServer, rpcServer ) );
     }
 
     @Override
@@ -119,12 +124,11 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
 
     @Override
     public void startRemoteProcessServer() throws RemoteProcessServiceRPCException {
-        this.mRemoteProcessManagerServer.startService();
-
         ProcessorLifecycleController controller = new ProcessorLifecycleController( this );
-        DuplexAppointServer duplexAppointServer = this.mRemoteProcessManagerServer.duplexAppointServer();
-        duplexAppointServer.registerController( controller );
-        duplexAppointServer.compile( ProcessorLifecycleIface.class, false );
+        this.mRemoteProcessManagerServer.hookTransportEvent( new TaskProcessorControlEventHooker( this.mTaskDispatcher ) );
+        this.mRemoteProcessManagerServer.registerController( controller );
+        this.mRemoteProcessManagerServer.compileIface( ProcessorLifecycleIface.class, false );
+        this.mRemoteProcessManagerServer.startService();
     }
 
     @Override
@@ -148,8 +152,8 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     }
 
     @Override
-    public TaskInstanceLifecycleInstrument taskInstanceLifecycleInstrument() {
-        return this.mTaskInstanceLifecycleInstrument;
+    public TaskInstanceLifecycleExaminer taskInstanceLifecycleExaminer() {
+        return this.mTaskInstanceLifecycleExaminer;
     }
 
     @Override
@@ -276,8 +280,28 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
     public RegimentJoinResponse invokeJoinRegiment( RegimentJoinRequest request ) {
         RegimentJoinResponse response = new RegimentJoinResponse();
         try {
-            TaskProcessorEntity entity = this.mTaskDispatcher.registerProcessor( request.getNodeName(), request.getClientId() );
+            if ( request == null ) {
+                throw new IllegalArgumentException( "RegimentJoinRequest is null." );
+            }
 
+            TaskProcessorRegisterResult result = this.mTaskDispatcher.processorRuntime().register(
+                    GenericTaskProcessorRegisterContext.of(
+                            request.getNodeName(),
+                            request.getClientId(),
+                            request.getMetadata()
+                    )
+            );
+
+            if ( result.getEstablishment() == TaskProcessorEstablishment.Anonymous ) {
+                this.fillAnonymousJoinResponse( response, result.getAnonymousRegistration() );
+                this.mLogger.info(
+                        "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, establishment:`Anonymous` ) <Done>",
+                        response.getName(), response.getControlClientId()
+                );
+                return response;
+            }
+
+            TaskProcessorEntity entity = result.getIncorporatedEntity();
             response.setGuid( entity.getGuid().toString() );
             response.setName( entity.getName() );
             response.setClusterPath( entity.getClusterPath() );
@@ -300,11 +324,59 @@ public class RavenCollectiveTaskRegiment implements CollectiveTaskRegiment {
                     queueMeta.getMaxCapacity(), queueMeta.getRuntimeInstanceCapacity()
             );
         }
+        catch ( RegimentJoinRejectionException e ) {
+            response.setErrorMsg( RegimentJoinInstructs.apoptosis( e.getMessage() ) );
+            this.mLogger.warn(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <RejectedApoptosis>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), response.getErrorMsg()
+            );
+        }
         catch ( IllegalArgumentException e ) {
             response.setErrorMsg( e.getMessage() );
+            this.mLogger.warn(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <Rejected>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), e.getMessage()
+            );
+        }
+        catch ( Exception e ) {
+            response.setErrorMsg( e.getMessage() == null ? e.getClass().getName() : e.getMessage() );
+            this.mLogger.error(
+                    "[NewProcessorRegister] ( name:`{}`, clientId:`{}`, reason:`{}` ) <Compromised>",
+                    this.getJoinRequestNodeName( request ), this.getJoinRequestClientId( request ), response.getErrorMsg(), e
+            );
         }
 
         return response;
+    }
+
+    protected void fillAnonymousJoinResponse(
+            RegimentJoinResponse response,
+            AnonymousTaskProcessorRegistration registration
+    ) {
+        response.setGuid( null );
+        response.setName( registration == null ? null : registration.getNodeName() );
+        response.setClusterPath( null );
+        response.setClusterName( null );
+        response.setControlClientId( registration == null ? 0 : registration.getClientId() );
+        response.setPriority( 0 );
+        response.setQueueName( null );
+        response.setQueueMaxCapacity( 0 );
+        response.setQueueMinCapacity( 0 );
+        response.setQueueRuntimeInstanceCapacity( 0 );
+    }
+
+    protected String getJoinRequestNodeName( RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return "undefined";
+        }
+        return request.getNodeName();
+    }
+
+    protected long getJoinRequestClientId( RegimentJoinRequest request ) {
+        if ( request == null ) {
+            return 0;
+        }
+        return request.getClientId();
     }
 
 

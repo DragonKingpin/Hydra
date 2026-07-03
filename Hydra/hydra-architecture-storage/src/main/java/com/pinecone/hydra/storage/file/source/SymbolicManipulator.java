@@ -6,11 +6,18 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.Symbolic;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 
+import java.util.List;
+
 public interface SymbolicManipulator extends Pinenut, GUIDNameManipulator {
     Symbolic getSymbolic(GUID guid, ElementNode element);
     void insert( Symbolic symbolic );
     void remove( GUID guid );
+    void rename( GUID guid, String newName );
     Symbolic getSymbolicByGuid(GUID guid);
     Symbolic getSymbolicByNameGuid( String nodeName, GUID guid );
     boolean isSymbolicMatchedByNameGuid( String nodeName, GUID guid );
+    List<? extends Symbolic> listPage( String keyword, int offset, int limit );
+    long count( String keyword );
+    long countByBucketGuid( GUID bucketGuid );
+    void deleteByBucketGuid( GUID bucketGuid );
 }

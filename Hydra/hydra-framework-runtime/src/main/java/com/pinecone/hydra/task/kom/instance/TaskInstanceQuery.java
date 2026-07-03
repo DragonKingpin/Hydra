@@ -27,7 +27,7 @@ public class TaskInstanceQuery implements Pinenut {
 
     protected String mszScheduleType;
 
-    protected String mszProcessorName;
+    protected String mszAffinityProcessor;
 
     protected LocalDateTime mBusinessTimeStart;
 
@@ -113,12 +113,12 @@ public class TaskInstanceQuery implements Pinenut {
         this.mszScheduleType = szScheduleType;
     }
 
-    public String getProcessorName() {
-        return this.mszProcessorName;
+    public String getAffinityProcessor() {
+        return this.mszAffinityProcessor;
     }
 
-    public void setProcessorName( String szProcessorName ) {
-        this.mszProcessorName = szProcessorName;
+    public void setAffinityProcessor( String szAffinityProcessor ) {
+        this.mszAffinityProcessor = szAffinityProcessor;
     }
 
     public LocalDateTime getBusinessTimeStart() {

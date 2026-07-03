@@ -16,7 +16,7 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessLifecycleHandler;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
@@ -124,24 +124,43 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
         return this.mProcessManager.searchProcessesByNameNoCase( procName );
     }
 
-    protected void afterMediatedRemoteProcess( MediatedRemoteProcess process, String imageAddress, boolean isURI ) {
-        this.notifyProcessLifecycleHandlers( imageAddress, null, ProcessEvent.Prepare );
+    protected void afterMediatedRemoteProcess(
+            MediatedRemoteProcess process, String imageAddress, boolean isURI, RemoteImageResolutionMode imageResolutionMode
+    ) {
+        if ( imageAddress == null || imageAddress.isEmpty() ) {
+            throw new IllegalStateException( "[MirrorCompromised] image address is required for mediated remote process." );
+        }
 
-        ExecutionImage image;
+        this.notifyProcessLifecycleHandlers( imageAddress, null, UProcessStatus.Preparing );
+
+        ExecutionImage resolvedImage;
         if ( isURI ) {
-            image = this.queryExecutionImage( URI.create( imageAddress ) );
+            resolvedImage = this.queryExecutionImage( URI.create( imageAddress ) );
         }
         else {
-            image = this.queryExecutionImage( imageAddress );
+            resolvedImage = this.queryExecutionImage( imageAddress );
         }
 
-        if ( image == null ) {
-            throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
+        if ( resolvedImage == null ) {
+            if ( imageResolutionMode != RemoteImageResolutionMode.REMOTE_CLIENT_IMAGE ) {
+                throw new IllegalStateException( "[MirrorCompromised] `" + imageAddress + "` is not a valid image address." );
+            }
+            else {
+                this.getLogger().info( "[Notice] [MirrorAsymmetric] `{}` is not accessible in this server.", imageAddress );
+            }
         }
+        RemoteSurrogateExecutionImage mirrorImage = new RemoteSurrogateExecutionImage(
+                imageAddress, this.imageLoader(), resolvedImage
+        );
+        this.mProcessManager.getImageModifier().applyImageAddress( mirrorImage, imageAddress );
+        process.mExecutionImage = mirrorImage;
+        process.mEntryPoint = mirrorImage.createEntryPoint();
 
-        this.mProcessManager.getImageModifier().applyImageAddress( image, imageAddress );
-
-        process.mExecutionImage = image;
+        process.mszImageAddress = imageAddress;
+        process.mImageResolutionMode = imageResolutionMode;
+        if ( process.mImageResolutionMode == null ) {
+            process.mImageResolutionMode = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
+        }
         process.mProcessManager = this.mProcessManager;
     }
 
@@ -183,7 +202,7 @@ public abstract class ArchRemoteProcessManagerNode implements RemoteProcessManag
 
     @Override
     @Unsafe
-    public void notifyProcessLifecycleHandlers( String imageAddress, EntryPointRunnable runnable, ProcessEvent event ) {
+    public void notifyProcessLifecycleHandlers( String imageAddress, EntryPointRunnable runnable, UProcessStatus event ) {
         this.mnClientLock.readLock().lock();
         try {
             for ( ProcessLifecycleHandler handler : this.mLifecycleHandlers ) {

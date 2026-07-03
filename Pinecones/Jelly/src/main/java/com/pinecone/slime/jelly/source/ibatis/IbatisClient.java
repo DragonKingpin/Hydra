@@ -2,6 +2,7 @@ package com.pinecone.slime.jelly.source.ibatis;
 
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.slime.source.DAOScanner;
+import com.pinecone.slime.jelly.source.ibatis.transaction.IbatisTransaction;
 import com.pinecone.slime.source.rdb.RDBClient;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.ExecutorType;
@@ -31,6 +32,8 @@ public interface IbatisClient extends RDBClient {
 
     <T> void addMapper( Class<T> type ) ;
 
+
+    IbatisTransaction transaction();
 
 
     SqlSessionFactory getSqlSessionFactory();

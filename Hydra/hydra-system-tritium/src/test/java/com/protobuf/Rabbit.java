@@ -1,5 +1,8 @@
 package com.protobuf;
 
+import java.util.List;
+import java.util.Map;
+
 import com.pinecone.framework.util.json.homotype.GenericBeanJSONEncoder;
 
 public class Rabbit {
@@ -10,6 +13,12 @@ public class Rabbit {
     public Monkey monkey;
 
     public Monkey[] monkeys;
+
+    public Map<String, Monkey> stringMonkeyMap;
+
+    public Map<Long, Monkey> longMonkeyMap;
+
+    public List<Monkey> monkeyList;
 
     public Rabbit sub;
 
@@ -37,6 +46,30 @@ public class Rabbit {
 
     public Monkey[] getMonkeys() {
         return this.monkeys;
+    }
+
+    public Map<String, Monkey> getStringMonkeyMap() {
+        return this.stringMonkeyMap;
+    }
+
+    public void setStringMonkeyMap( Map<String, Monkey> stringMonkeyMap ) {
+        this.stringMonkeyMap = stringMonkeyMap;
+    }
+
+    public Map<Long, Monkey> getLongMonkeyMap() {
+        return this.longMonkeyMap;
+    }
+
+    public void setLongMonkeyMap( Map<Long, Monkey> longMonkeyMap ) {
+        this.longMonkeyMap = longMonkeyMap;
+    }
+
+    public List<Monkey> getMonkeyList() {
+        return this.monkeyList;
+    }
+
+    public void setMonkeyList( List<Monkey> monkeyList ) {
+        this.monkeyList = monkeyList;
     }
 
     public void setMonkey( Monkey monkey ) {

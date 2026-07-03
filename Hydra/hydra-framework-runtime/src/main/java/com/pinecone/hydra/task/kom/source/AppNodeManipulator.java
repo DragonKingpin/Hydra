@@ -17,6 +17,6 @@ public interface AppNodeManipulator extends GUIDNameManipulator {
 
     void update( AppElement appElement);
 
-    List<AppElement> fetchJobNodeByName( String name );
+    List<AppElement> fetchAppNodeByName( String name );
 
 }

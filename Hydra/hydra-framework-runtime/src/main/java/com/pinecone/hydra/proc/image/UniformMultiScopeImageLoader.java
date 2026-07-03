@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.architecture.CascadeComponent;
 import com.pinecone.framework.util.name.Namespace;
+import com.pinecone.hydra.proc.image.path.ImagePosixPath;
 import com.pinecone.hydra.system.HyComponent;
 import com.pinecone.hydra.system.Hydrogen;
 import com.pinecone.hydra.system.centrum.UniformCentralSystem;
@@ -66,6 +67,9 @@ public class UniformMultiScopeImageLoader extends ArchImageLoader implements Uni
 
     @Override
     public ExecutionImage queryExecutionImage( URI uri ) {
+        if ( uri == null || uri.getScheme() == null ) {
+            return null;
+        }
         String p = uri.getScheme().toLowerCase();
         ImageLoader imageLoader = this.mLoaderScope.get( p );
         if ( imageLoader == null ) {
@@ -77,7 +81,7 @@ public class UniformMultiScopeImageLoader extends ArchImageLoader implements Uni
             return urlImageLoader.queryExecutionImage( uri );
         }
 
-        ExecutionImage image = imageLoader.queryExecutionImage( uri.getPath() );
+        ExecutionImage image = imageLoader.queryExecutionImage( ImagePosixPath.normalize( uri ) );
         if ( image != null ) {
             return image;
         }
@@ -94,14 +98,18 @@ public class UniformMultiScopeImageLoader extends ArchImageLoader implements Uni
 
     @Override
     public ExecutionImage queryExecutionImage( String path ) {
-        ExecutionImage image = this.mLocalMappingImageLoader.queryExecutionImage( path );
+        if ( path == null ) {
+            return null;
+        }
+        String szPath = ImagePosixPath.normalize( path );
+        ExecutionImage image = this.mLocalMappingImageLoader.queryExecutionImage( szPath );
         if ( image != null ) {
             return image;
         }
 
         CascadeComponent component = this.parent();
         if ( component instanceof ImageLoader ) {
-            image = ( (ImageLoader) component ).queryExecutionImage( path );
+            image = ( (ImageLoader) component ).queryExecutionImage( szPath );
             if ( image != null ) {
                 return image;
             }

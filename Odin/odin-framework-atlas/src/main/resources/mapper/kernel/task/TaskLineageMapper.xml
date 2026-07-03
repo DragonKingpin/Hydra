@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.walnut.odin.atlas.mapper.TaskLineageMapper">
+
+    <insert id="addDependency">
+        INSERT IGNORE INTO `odin_atlas_task_lineage_adjacent`
+        (
+            `task_guid`,
+            `parent_task_guid`
+        )
+        VALUES
+        (
+            #{taskGuid},
+            #{parentTaskGuid}
+        )
+    </insert>
+
+    <delete id="removeDependency">
+        DELETE FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `task_guid` = #{taskGuid}
+          AND `parent_task_guid` = #{parentTaskGuid}
+    </delete>
+
+    <select id="fetchParentTaskGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `parent_task_guid`
+        FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `task_guid` = #{taskGuid}
+        ORDER BY `id` ASC
+    </select>
+
+    <select id="fetchChildTaskGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `task_guid`
+        FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `parent_task_guid` = #{taskGuid}
+        ORDER BY `id` ASC
+    </select>
+
+    <select id="countParents" resultType="long">
+        SELECT COUNT(*)
+        FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `task_guid` = #{taskGuid}
+    </select>
+
+    <select id="countChildren" resultType="long">
+        SELECT COUNT(*)
+        FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `parent_task_guid` = #{taskGuid}
+    </select>
+
+    <delete id="deleteByTaskGuids">
+        DELETE FROM `odin_atlas_task_lineage_adjacent`
+        WHERE `task_guid` IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+           OR `parent_task_guid` IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
+</mapper>

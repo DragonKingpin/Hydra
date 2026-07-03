@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.transfer.UofsTransferItemMapper">
+
+    <resultMap id="UofsTransferItemMap" type="com.pinecone.hydra.storage.file.transfer.GenericUofsTransferItem">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="item_index" property="itemIndex"/>
+        <result column="depth" property="depth"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="source_bucket_guid" property="sourceBucketGuid"/>
+        <result column="source_guid" property="sourceGuid"/>
+        <result column="source_parent_guid" property="sourceParentGuid"/>
+        <result column="source_path" property="sourcePath"/>
+        <result column="source_path_hash" property="sourcePathHash"/>
+        <result column="target_bucket_guid" property="targetBucketGuid"/>
+        <result column="target_guid" property="targetGuid"/>
+        <result column="target_parent_guid" property="targetParentGuid"/>
+        <result column="target_path" property="targetPath"/>
+        <result column="target_path_hash" property="targetPathHash"/>
+        <result column="status" property="status"/>
+        <result column="phase" property="phase"/>
+        <result column="total_bytes" property="totalBytes"/>
+        <result column="done_bytes" property="doneBytes"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="message" property="message"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="ItemColumns">
+        id, guid, task_guid, item_index, depth, source_type, source_bucket_guid, source_guid, source_parent_guid, source_path,
+        source_path_hash, target_bucket_guid, target_guid, target_parent_guid, target_path, target_path_hash, status, phase,
+        total_bytes, done_bytes, retry_count, message, error_message, ext_config, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.file.transfer.UofsTransferItem">
+        INSERT INTO hydra_uofs_transfer_item
+            (guid, task_guid, item_index, depth, source_type, source_bucket_guid, source_guid, source_parent_guid, source_path,
+             source_path_hash, target_bucket_guid, target_guid, target_parent_guid, target_path, target_path_hash, status, phase,
+             total_bytes, done_bytes, message, ext_config)
+        VALUES
+            (#{guid}, #{taskGuid}, #{itemIndex}, #{depth}, #{sourceType}, #{sourceBucketGuid}, #{sourceGuid}, #{sourceParentGuid}, #{sourcePath},
+             #{sourcePathHash}, #{targetBucketGuid}, #{targetGuid}, #{targetParentGuid}, #{targetPath}, #{targetPathHash}, #{status}, #{phase},
+             #{totalBytes}, #{doneBytes}, #{message}, #{extConfig})
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO hydra_uofs_transfer_item
+            (guid, task_guid, item_index, depth, source_type, source_bucket_guid, source_guid, source_parent_guid, source_path,
+             source_path_hash, target_bucket_guid, target_guid, target_parent_guid, target_path, target_path_hash, status, phase,
+             total_bytes, done_bytes, message, ext_config)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.guid}, #{item.taskGuid}, #{item.itemIndex}, #{item.depth}, #{item.sourceType}, #{item.sourceBucketGuid},
+             #{item.sourceGuid}, #{item.sourceParentGuid}, #{item.sourcePath}, #{item.sourcePathHash}, #{item.targetBucketGuid},
+             #{item.targetGuid}, #{item.targetParentGuid}, #{item.targetPath}, #{item.targetPathHash}, #{item.status}, #{item.phase},
+             #{item.totalBytes}, #{item.doneBytes}, #{item.message}, #{item.extConfig})
+        </foreach>
+    </insert>
+
+    <select id="get" resultMap="UofsTransferItemMap">
+        SELECT <include refid="ItemColumns"/>
+        FROM hydra_uofs_transfer_item
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="countByTaskGuid" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_uofs_transfer_item
+        WHERE task_guid = #{taskGuid}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+    </select>
+
+    <select id="listByTaskGuid" resultMap="UofsTransferItemMap">
+        SELECT <include refid="ItemColumns"/>
+        FROM hydra_uofs_transfer_item
+        WHERE task_guid = #{taskGuid}
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY item_index ASC, id ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="listRunnable" resultMap="UofsTransferItemMap">
+        SELECT <include refid="ItemColumns"/>
+        FROM hydra_uofs_transfer_item
+        WHERE task_guid = #{taskGuid}
+          AND status IN ('PREPARED', 'FAILED')
+        ORDER BY item_index ASC, id ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE hydra_uofs_transfer_item
+        SET status = #{status},
+            phase = #{phase},
+            message = #{message},
+            error_message = #{errorMessage}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateProgress">
+        UPDATE hydra_uofs_transfer_item
+        SET status = 'RUNNING',
+            phase = #{phase},
+            done_bytes = #{doneBytes},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateDone">
+        UPDATE hydra_uofs_transfer_item
+        SET status = 'DONE',
+            phase = 'DONE',
+            done_bytes = total_bytes,
+            target_guid = #{targetGuid},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="increaseRetry">
+        UPDATE hydra_uofs_transfer_item
+        SET retry_count = retry_count + 1
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="deleteByTaskGuid">
+        DELETE FROM hydra_uofs_transfer_item
+        WHERE task_guid = #{taskGuid}
+    </delete>
+</mapper>

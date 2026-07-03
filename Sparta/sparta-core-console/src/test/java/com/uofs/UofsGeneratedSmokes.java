@@ -53,7 +53,7 @@ enum UofsGeneratedSmoke implements UofsSmokeCase {
 
     @Override
     public void run( UofsSmokeContext context ) throws Exception {
-        File sourceFile = new File( context.root + "\\generated\\" + this.mGeneratedFileName );
+        File sourceFile = new File( new File( context.root, "generated" ), this.mGeneratedFileName );
         for ( long size : this.mSizes ) {
             this.writePatternFile( sourceFile, size );
             Debug.trace( "==== generated source prepared ====", sourceFile.getPath(), "size", size );

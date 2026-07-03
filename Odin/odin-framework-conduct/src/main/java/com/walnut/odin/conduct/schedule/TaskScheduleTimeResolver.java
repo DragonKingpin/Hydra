@@ -30,7 +30,6 @@ public class TaskScheduleTimeResolver implements Pinenut {
             case Minute: {
                 return expectTime.withSecond( 0 ).withNano( 0 );
             }
-            case Undefined:
             default: {
                 return expectTime;
             }

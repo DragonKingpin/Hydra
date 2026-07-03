@@ -12,6 +12,8 @@ public interface TaskProcessorManipulator extends Pinenut {
 
     TaskProcessorEntity selectByGuid( GUID guid );
 
+    TaskProcessorEntity selectMetadataByGuid( GUID guid );
+
     List<TaskProcessorEntity> selectByClusterName( String clusterName );
 
     List<TaskProcessorEntity> selectAll();
@@ -25,6 +27,11 @@ public interface TaskProcessorManipulator extends Pinenut {
             int maxCapacity,
             int minCapacity,
             int runtimeCapacity
+    );
+
+    int updateDynamicMetadataCache(
+            GUID guid,
+            String dyMetadataCache
     );
 
     int deleteByGuid( GUID guid );

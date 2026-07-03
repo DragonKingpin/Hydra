@@ -14,9 +14,11 @@ import com.pinecone.hydra.proc.ProcessActionTape;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.entity.ElementNode;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
+import com.pinecone.hydra.proc.signal.ProcSignal;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.tomb.RuntimeTombstone;
 import com.pinecone.hydra.system.ko.entity.ObjectTable;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
@@ -35,6 +37,12 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected ExecutionImage                      mExecutionImage;
 
+    protected EntryPointRunnable                  mEntryPoint;
+
+    protected String                              mszImageAddress;
+
+    protected RemoteImageResolutionMode           mImageResolutionMode;
+
     protected String                              mszName;
 
     protected long                                mnControlClientId;
@@ -45,15 +53,17 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     protected GUID                                mProcessId;
 
-    protected Map<String, String[]>               mStartupArguments;
+    protected Map<String, String>               mStartupArguments;
 
-    protected Map<String, String[]>               mEnvironmentVariables;
+    protected Map<String, String>               mEnvironmentVariables;
 
     protected List<ProcessRemoteEventHandler>     mRemoteEventHandlers;
 
+    protected UProcessStatus                      mStatus;
+
     public MediatedRemoteProcess(
             long controlClientId, RemoteProcessManagerServer server, String name, long localPID, GUID processId,
-            Map<String, String[]> startupArguments, Map<String, String[]> environmentVariables
+            Map<String, String> startupArguments, Map<String, String> environmentVariables
     ) {
         this.mnControlClientId           = controlClientId;
         this.mRemoteProcessManagerServer = server;
@@ -62,7 +72,9 @@ public class MediatedRemoteProcess implements RemoteProcess {
         this.mProcessId                  = processId;
         this.mStartupArguments           = startupArguments;
         this.mEnvironmentVariables       = environmentVariables;
+        this.mImageResolutionMode        = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
         this.mRemoteEventHandlers        = new ArrayList<>();
+        this.mStatus                     = UProcessStatus.Registered;
     }
 
     public MediatedRemoteProcess( long controlClientId, RemoteProcessManagerServer server, String name, long pid, GUID guid ) {
@@ -71,22 +83,36 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public void addRemoteEventHandler( ProcessRemoteEventHandler handler ) {
-        this.mRemoteEventHandlers.add( handler );
+        if ( handler == null ) {
+            return;
+        }
+        synchronized ( this.mRemoteEventHandlers ) {
+            this.mRemoteEventHandlers.add( handler );
+        }
     }
 
     @Override
     public void removeRemoteEventHandler( ProcessRemoteEventHandler handler ) {
-        this.mRemoteEventHandlers.remove( handler );
+        synchronized ( this.mRemoteEventHandlers ) {
+            this.mRemoteEventHandlers.remove( handler );
+        }
     }
 
     @Override
     public int remoteEventHandlerSize() {
-        return this.mRemoteEventHandlers.size();
+        synchronized ( this.mRemoteEventHandlers ) {
+            return this.mRemoteEventHandlers.size();
+        }
     }
 
     @Override
-    public void notifyRemoteEvent( long pmClientId, ProcessEvent event, Object caused ) {
-        for ( ProcessRemoteEventHandler handler : this.mRemoteEventHandlers ) {
+    public void notifyRemoteEvent( long pmClientId, UProcessStatus event, Object caused ) {
+        this.applyStatus( event );
+        List<ProcessRemoteEventHandler> handlers;
+        synchronized ( this.mRemoteEventHandlers ) {
+            handlers = new ArrayList<>( this.mRemoteEventHandlers );
+        }
+        for ( ProcessRemoteEventHandler handler : handlers ) {
             handler.fired( pmClientId, event, caused );
         }
     }
@@ -166,8 +192,7 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public boolean isTerminated() {
-        UProcessRuntimeMeta meta = this.optRemoteRuntimeMeta();
-        return meta.isTerminated();
+        return this.getStatus().isTerminal();
     }
 
     @Override
@@ -226,6 +251,22 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
+    public EntryPointRunnable getEntryPoint() {
+        return this.mEntryPoint;
+    }
+
+    public String getImageAddress() {
+        return this.mszImageAddress;
+    }
+
+    public RemoteImageResolutionMode getImageResolutionMode() {
+        if ( this.mImageResolutionMode == null ) {
+            return RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE;
+        }
+        return this.mImageResolutionMode;
+    }
+
+    @Override
     public ControllableLevel getControllableLevel() {
         return null;
     }
@@ -241,12 +282,12 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
-    public Map<String, String[]> getStartupArguments() {
+    public Map<String, String> getStartupArguments() {
         return this.mStartupArguments;
     }
 
     @Override
-    public Map<String, String[]> getEnvironmentVariables() {
+    public Map<String, String> getEnvironmentVariables() {
         return this.mEnvironmentVariables;
     }
 
@@ -267,8 +308,19 @@ public class MediatedRemoteProcess implements RemoteProcess {
     }
 
     @Override
+    public void applyStatus( UProcessStatus status ) {
+        this.mStatus = status == null ? UProcessStatus.Unknown : status;
+    }
+
+    @Override
+    public UProcessStatus getStatus() {
+        return this.mStatus == null ? UProcessStatus.Unknown : this.mStatus;
+    }
+
+    @Override
     public void start() throws ProvokeHandleException {
         try {
+            this.applyStatus( UProcessStatus.Activated );
             this.mRemoteProcessManagerServer.startRemoteUProcess( this.mProcessId );
         }
         catch ( RemoteProcessServiceRPCException e ) {
@@ -298,17 +350,34 @@ public class MediatedRemoteProcess implements RemoteProcess {
 
     @Override
     public void apoptosis() throws ApoptosisRejectSignalException {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGTERM, 30000L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            ApoptosisRejectSignalException signalException = new ApoptosisRejectSignalException( e.getMessage() );
+            signalException.initCause( e );
+            throw signalException;
+        }
     }
 
     @Override
     public void kill() {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGKILL, 0L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override
     public void interrupt() {
-
+        try {
+            this.mRemoteProcessManagerServer.signalRemoteUProcess( this.mProcessId, ProcSignal.SIGINT, 0L );
+        }
+        catch ( RemoteProcessLifecycleException e ) {
+            throw new IllegalStateException( e );
+        }
     }
 
     @Override
@@ -351,3 +420,4 @@ public class MediatedRemoteProcess implements RemoteProcess {
         return null;
     }
 }
+

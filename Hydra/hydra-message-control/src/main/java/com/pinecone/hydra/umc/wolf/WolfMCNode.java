@@ -53,7 +53,7 @@ public abstract class WolfMCNode extends WolfNettyServgram implements UlfMessage
         this.setTargetingName( szName );
     }
 
-    public WolfMCNode(long nodeId, String szName, Hydrogen system, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
+    public WolfMCNode( long nodeId, String szName, Hydrogen system, Map<String, Object> joConf, @Nullable ExtraHeadCoder extraHeadCoder ) {
         this( nodeId, szName, system, null, joConf, extraHeadCoder );
     }
 

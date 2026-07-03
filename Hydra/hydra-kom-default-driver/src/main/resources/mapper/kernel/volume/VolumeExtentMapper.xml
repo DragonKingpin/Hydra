@@ -74,6 +74,18 @@
         ORDER BY physical_offset ASC, id ASC
     </select>
 
+    <select id="countByPhysicalGuid" resultType="long">
+        SELECT COUNT(`id`)
+        FROM hydra_volume_extent
+        WHERE physical_guid = #{physicalGuid} AND status != 'DELETED'
+    </select>
+
+    <select id="countByChildGuid" resultType="long">
+        SELECT COUNT(`id`)
+        FROM hydra_volume_extent
+        WHERE child_guid = #{childGuid} AND status != 'DELETED'
+    </select>
+
     <delete id="remove">
         DELETE FROM hydra_volume_extent WHERE guid = #{guid}
     </delete>

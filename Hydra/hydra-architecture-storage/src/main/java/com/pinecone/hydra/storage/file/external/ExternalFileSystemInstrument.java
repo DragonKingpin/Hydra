@@ -14,6 +14,10 @@ public interface ExternalFileSystemInstrument extends Instrument {
 
     ElementNode queryElement( String path );
 
+    ExternalFolder affirmFolder( String path );
+
+    boolean remove( String path );
+
     void copy( String sourcePath, String destinationPath ) throws IOException;
 
 }

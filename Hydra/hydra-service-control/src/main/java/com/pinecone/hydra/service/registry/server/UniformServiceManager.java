@@ -11,14 +11,24 @@ import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.UniformService;
 import com.pinecone.hydra.service.registry.WolfServiceInstance;
 import com.pinecone.hydra.service.registry.appoint.ServiceClientile;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
-import com.pinecone.hydra.service.registry.constant.ServiceStatus;
-import com.pinecone.hydra.service.registry.event.ServiceRegisterEvent;
-import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
+import com.pinecone.hydra.service.registry.constant.ServiceInstanceStatus;
+import com.pinecone.hydra.service.registry.event.InstanceLifecycleEvent;
+import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationEntry;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationRegistry;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
+import com.pinecone.hydra.service.registry.server.transport.UniformServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceTransportInspection;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -30,10 +40,17 @@ import java.net.SocketAddress;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -46,12 +63,17 @@ public class UniformServiceManager implements ServiceManager {
     protected final ConcurrentMap<Identification, ClientInstance >                          mInstanceRegistry; // InstanceId => Instance
     protected final ConcurrentMap<Long, ServiceClientile>                                   mClientRegistry; // ClientId => Client
 
-    protected final List<ServiceRegisterEventHandler>                                       mRegisterEventHandlers;
+    protected final List<InstanceLifecycleEventHandler>                                     mRegisterEventHandlers;
     protected final GuidAllocator                                                           mGuidAllocator;
     protected final ServiceEventHooker                                                      mServiceEventHooker;
+    protected final ServiceControlTransportRegistry                                         mTransportRegistry;
 
     protected final ServiceLifecycleService                                                 mServiceLifecycleService;
     protected final ServiceMetaService                                                      mServiceMetaService;
+    protected final ServiceDetachedObservationRegistry                                      mDetachedObservationRegistry;
+    protected ServiceDetachedObservationConfig                                              mDetachedObservationConfig;
+    protected ScheduledExecutorService                                                      mDetachedObservationSweeper;
+    protected ExecutorService                                                               mDetachedExpirationExecutor;
 
     private final Logger mLogger;
 
@@ -88,6 +110,9 @@ public class UniformServiceManager implements ServiceManager {
         this.mRegisterEventHandlers     = new ArrayList<>();
         this.mGuidAllocator             = serviceInstrument.getGuidAllocator();
         this.mServiceEventHooker        = new UniformServiceEventHooker( this );
+        this.mTransportRegistry         = new UniformServiceControlTransportRegistry();
+        this.mDetachedObservationConfig = new ServiceDetachedObservationConfig();
+        this.mDetachedObservationRegistry = new ServiceDetachedObservationRegistry();
 
 
         this.mServiceLifecycleService   = new ServiceLifecycleService( this );
@@ -150,6 +175,20 @@ public class UniformServiceManager implements ServiceManager {
         return this.mServiceEventHooker;
     }
 
+    @Override
+    public ServiceControlTransportRegistry transportRegistry() {
+        return this.mTransportRegistry;
+    }
+
+    @Override
+    public void configureDetachedObservation( ServiceDetachedObservationConfig config ) {
+        if ( config == null ) {
+            this.mDetachedObservationConfig = new ServiceDetachedObservationConfig();
+            return;
+        }
+        this.mDetachedObservationConfig = config;
+    }
+
 
 
 
@@ -164,12 +203,132 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public void startService() throws ServiceControlRPCException {
-        this.vitalizeRPCSubsystem();
+    public ServiceControlInspection inspectServiceControl() {
+        ServiceControlInspection status = new ServiceControlInspection();
+        List<ServiceTransportInspection> transportStatuses = new ArrayList<>();
+        boolean bAnyTransportStarted = false;
+        boolean bAllTransportStarted = !this.mTransportRegistry.transports().isEmpty();
+        int nConnectedClientCount = 0;
+
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            ServiceTransportInspection transportStatus = this.inspectTransport( transport );
+            transportStatuses.add( transportStatus );
+            if ( transportStatus.isStarted() ) {
+                bAnyTransportStarted = true;
+            }
+            if ( !transportStatus.isStarted() ) {
+                bAllTransportStarted = false;
+            }
+            nConnectedClientCount += transportStatus.getConnectedClientCount();
+        }
+
+        status.setServiceInstrumentReady( this.mServiceInstrument != null );
+        status.setServiceManagerStarted( bAllTransportStarted );
+        status.setRegisteredServiceCount( this.mServiceRegistry.size() );
+        status.setRuntimeInstanceCount( this.mInstanceRegistry.size() );
+        status.setConnectedClientCount( nConnectedClientCount );
+        status.setTransports( transportStatuses );
+        status.setInstanceStatusCounts( this.queryInstanceStatusCounts() );
+        status.setOverallStatus( this.resolveOverallStatus( status, bAnyTransportStarted, bAllTransportStarted ) );
+        return status;
+    }
+
+    protected ServiceTransportInspection inspectTransport( ServiceControlTransport transport ) {
+        ServiceTransportInspection status = new ServiceTransportInspection();
+        status.setType( transport.transportType().name() );
+        status.setRuntimeIfaceCompileSupported( transport.supportsRuntimeIfaceCompile() );
+        status.setControllerSummary( transport.queryControllerSummary() );
+        status.setIfaceSummary( transport.queryIfaceSummary() );
+        status.setControllerCount( transport.queryRegisteredControllerCount() );
+        status.setIfaceCount( transport.queryCompiledIfaceCount() );
+
+        try {
+            status.setStarted( transport.isStarted() );
+            status.setTerminated( transport.isTerminated() );
+            status.setAvailable( status.isStarted() && !status.isTerminated() );
+            status.setConnectedClientCount( transport.queryConnectedClientCount() );
+        }
+        catch ( RuntimeException exception ) {
+            status.setAvailable( false );
+            status.setLastError( exception.getMessage() );
+        }
+        return status;
+    }
+
+    protected Map<String, Integer> queryInstanceStatusCounts() {
+        Map<String, Integer> statusCounts = new LinkedHashMap<>();
+        for ( ServiceInstanceStatus status : ServiceInstanceStatus.values() ) {
+            statusCounts.put( status.getName(), 0 );
+        }
+
+        for ( ClientInstance clientInstance : this.mInstanceRegistry.values() ) {
+            if ( clientInstance == null || clientInstance.getInstance() == null ) {
+                continue;
+            }
+            ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( (GUID) clientInstance.getInstance().getId() );
+            if ( entry == null || entry.getStatus() == null ) {
+                continue;
+            }
+            Integer nCount = statusCounts.get( entry.getStatus() );
+            statusCounts.put( entry.getStatus(), nCount == null ? 1 : nCount + 1 );
+        }
+        return statusCounts;
+    }
+
+    protected String resolveOverallStatus(
+            ServiceControlInspection status,
+            boolean bAnyTransportStarted,
+            boolean bAllTransportStarted
+    ) {
+        if ( !status.isServiceInstrumentReady() ) {
+            status.setDiagnosticMessage( "ServiceInstrument is not ready." );
+            return "Error";
+        }
+        if ( status.getTransports().isEmpty() ) {
+            status.setDiagnosticMessage( "No service control transport is registered." );
+            return "Stopped";
+        }
+        if ( bAllTransportStarted ) {
+            return "Running";
+        }
+        if ( bAnyTransportStarted ) {
+            status.setDiagnosticMessage( "Only part of service control transports are started." );
+            return "Partial";
+        }
+
+        status.setDiagnosticMessage( "Service control transports are not started." );
+        return "Stopped";
     }
 
     @Override
-    public void addRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+    public void startService() throws ServiceControlRPCException {
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( !transport.isStarted() ) {
+                transport.startService();
+            }
+        }
+        this.vitalizeRPCSubsystem();
+        this.startDetachedObservationSweeper();
+    }
+
+    @Override
+    public void terminateService() throws IllegalStateException {
+        this.stopDetachedObservationSweeper();
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( !transport.isTerminated() ) {
+                transport.terminateService();
+            }
+        }
+
+        for ( ServiceAppointServer appointServer : this.mServerPoolMap.values() ) {
+            if ( appointServer != null ) {
+                appointServer.close();
+            }
+        }
+    }
+
+    @Override
+    public void addRegisterEventHandler( InstanceLifecycleEventHandler handler ) {
         try {
             this.mEventHandlerLock.writeLock().lock();
             this.mRegisterEventHandlers.add( handler );
@@ -180,7 +339,7 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
-    public void removeRegisterEventHandler( ServiceRegisterEventHandler handler ) {
+    public void removeRegisterEventHandler( InstanceLifecycleEventHandler handler ) {
         try {
             this.mEventHandlerLock.readLock().lock();
             this.mRegisterEventHandlers.remove( handler );
@@ -201,14 +360,22 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected void triggerServiceEvent( long clientId, Identification insId, ServiceRegisterEvent event, Object caused ) {
+    protected void triggerServiceEvent(long clientId, Identification insId, InstanceLifecycleEvent event, Object caused ) {
         ServiceInstance instance = this.mCIdInstanceRegistry.get( clientId );
         if ( instance == null ) {
             return;
         }
         GUID serviceId = (GUID) instance.getUSII().getServiceId();
 
-        for ( ServiceRegisterEventHandler handler : this.mRegisterEventHandlers ) {
+        for ( InstanceLifecycleEventHandler handler : this.mRegisterEventHandlers ) {
+            handler.fired( clientId, (GUID) insId, serviceId, event, caused );
+        }
+    }
+
+    protected void triggerServiceEvent(
+            long clientId, Identification insId, GUID serviceId, InstanceLifecycleEvent event, Object caused
+    ) {
+        for ( InstanceLifecycleEventHandler handler : this.mRegisterEventHandlers ) {
             handler.fired( clientId, (GUID) insId, serviceId, event, caused );
         }
     }
@@ -245,12 +412,24 @@ public class UniformServiceManager implements ServiceManager {
             return ins;
         } );
 
-        this.triggerServiceEvent( clientId, instance.getId(), ServiceRegisterEvent.Registered, instance );
+        this.triggerServiceEvent( clientId, instance.getId(), InstanceLifecycleEvent.Registered, instance );
     }
 
     @Override
     public GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException {
+        RegisterServiceDTO serviceDTO = new RegisterServiceDTO( clientId, serviceId.toString(), deployGuid == null ? null : deployGuid.toString() );
+        return this.registerService( serviceDTO );
+    }
+
+    @Override
+    public GUID registerService( RegisterServiceDTO serviceDTO ) throws ClientServiceRegisterException {
         synchronized ( this.mServiceRegistry ) {
+            Long clientId = serviceDTO.getClientId();
+            GUID serviceId = this.mGuidAllocator.parse( serviceDTO.getServiceId() );
+            GUID deployGuid = null;
+            if ( serviceDTO.getDeployId() != null && !serviceDTO.getDeployId().isBlank() ) {
+                deployGuid = this.mGuidAllocator.parse( serviceDTO.getDeployId() );
+            }
             ServiceClientile client = this.mClientRegistry.get( clientId );
             if ( client == null ) {
                 throw new ClientServiceRegisterException( "Client " + clientId + " is not existed." );
@@ -260,15 +439,50 @@ public class UniformServiceManager implements ServiceManager {
             String ip = "";
             if ( remote instanceof InetSocketAddress ) {
                 InetSocketAddress inet = (InetSocketAddress) remote;
-                ip = inet.getAddress().getHostAddress();
+                ip = this.getInetSocketHost( inet );
             }
 
-            ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceId, deployGuid, ip ); // new
-            ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceStatus.SERVICE_RUNNING );
+            ServiceInstance existing = this.mCIdInstanceRegistry.get( clientId );
+            if ( existing != null ) {
+                boolean bRecovered = this.mDetachedObservationRegistry.get( clientId ) != null;
+                boolean bRestoreRegistration = this.isServiceInstanceRestoreRegistration( existing, serviceDTO );
+                GUID existingGuid = this.affirmExistingRegistration(
+                        existing,
+                        serviceDTO,
+                        serviceId,
+                        deployGuid,
+                        remote
+                );
+                if ( bRestoreRegistration ) {
+                    this.mLogger.info( "Remote serviceInstance {} restore success. <IP:{}>", existingGuid, ip );
+                }
+                else {
+                    this.mLogger.info( "Remote serviceInstance {} register idempotently. <IP:{}>", existingGuid, ip );
+                }
+                if ( bRecovered ) {
+                    this.recoverDetachedServiceInstance(
+                            clientId,
+                            (GUID) existing.getId(),
+                            (GUID) existing.getServiceId(),
+                            existing
+                    );
+                }
+                return existingGuid;
+            }
 
-            TreeNode node = this.mServiceInstrument.get( serviceId );
-            ServiceElement serviceElement = (ServiceElement) node;
-            ServiceInstance serviceInstance = new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), element.getGuid() );
+            ServiceInstanceEntry resumed = this.resumeServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote );
+            if ( resumed != null ) {
+                ServiceInstance serviceInstance = this.createRuntimeServiceInstance( serviceDTO.getClientId(), serviceId, resumed.getGuid() );
+                this.registerServiceInstance( serviceInstance );
+                this.mDetachedObservationRegistry.remove( clientId );
+                this.mLogger.info( "Remote serviceInstance {} resume success. <IP:{}>", resumed.getGuid(), ip );
+                return resumed.getGuid();
+            }
+
+            ServiceInstanceEntry neo = this.createServiceInstanceMeta( serviceDTO, serviceId, deployGuid, remote ); // new
+            ServiceInstanceEntry element = this.updateServiceInstanceStatus( neo.getGuid(), ServiceInstanceStatus.Online );
+
+            ServiceInstance serviceInstance = this.createRuntimeServiceInstance( clientId, serviceId, element.getGuid() );
             this.registerServiceInstance( serviceInstance );
             this.mLogger.info( "Remote serviceInstance {} register success. <IP:{}>", element.getGuid(), ip );
 
@@ -276,15 +490,401 @@ public class UniformServiceManager implements ServiceManager {
         }
     }
 
-    protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceStatus status ) {
+    protected ServiceInstance createRuntimeServiceInstance( Long clientId, GUID serviceId, GUID instanceId ) {
+        TreeNode node = this.mServiceInstrument.get( serviceId );
+        ServiceElement serviceElement = (ServiceElement) node;
+        return new WolfServiceInstance( clientId, new UniformService( serviceId, serviceElement ), instanceId );
+    }
+
+    protected ServiceInstanceEntry resumeServiceInstanceMeta(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) throws ClientServiceRegisterException {
+        String szInstanceId = serviceDTO.getInstanceGuid();
+        if ( szInstanceId == null || szInstanceId.isBlank() ) {
+            return null;
+        }
+
+        GUID instanceId = this.mGuidAllocator.parse( szInstanceId );
+        ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( instanceId );
+        if ( entry == null ) {
+            return null;
+        }
+
+        this.assertSameRegistrationValue( "serviceGuid", entry.getServiceGuid(), serviceId );
+        this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+        this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+        return entry;
+    }
+
+    protected GUID affirmExistingRegistration(
+            ServiceInstance existing,
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) throws ClientServiceRegisterException {
+        if ( !Objects.equals( existing.getServiceId(), serviceId ) ) {
+            throw new ClientServiceRegisterException(
+                    "Client " + serviceDTO.getClientId() + " has registered another service, existing => `"
+                            + existing.getServiceId() + "`, request => `" + serviceId + "`."
+            );
+        }
+
+        ServiceInstanceEntry entry = this.mServiceInstrument.queryServiceInstance( (GUID) existing.getId() );
+        if ( entry == null ) {
+            return (GUID) existing.getId();
+        }
+
+        if ( this.isServiceInstanceRestoreRegistration( existing, serviceDTO ) ) {
+            this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+
+        String remoteAddress = remote == null ? "" : remote.toString();
+        String endpointHost = "";
+        Integer endpointPort = null;
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = this.getInetSocketHost( inet );
+            endpointPort = inet.getPort();
+        }
+
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        String szEndpointProtocol = this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType );
+        String szEndpointHost = this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost );
+        Integer nEndpointPort = serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort();
+        String szEndpointAddress = this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress );
+
+        this.assertSameRegistrationValue( "deployGuid", entry.getDeployGuid(), deployGuid );
+        if ( !ServiceInstanceStatus.Online.getName().equals( entry.getStatus() ) ) {
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+        if ( !Objects.equals( entry.getRemoteAddress(), remoteAddress )
+                || !Objects.equals( entry.getEndpointProtocol(), szEndpointProtocol )
+                || !Objects.equals( entry.getEndpointHost(), szEndpointHost )
+                || !Objects.equals( entry.getEndpointPort(), nEndpointPort )
+                || !Objects.equals( entry.getEndpointAddress(), szEndpointAddress ) ) {
+            this.refreshServiceInstanceRegistration( entry, serviceDTO, remote, true );
+            return entry.getGuid();
+        }
+
+        this.assertSameRegistrationValue( "transportType", entry.getTransportType(), szTransportType );
+        this.assertSameRegistrationValue( "endpointProtocol", entry.getEndpointProtocol(), szEndpointProtocol );
+        this.assertSameRegistrationValue( "endpointHost", entry.getEndpointHost(), szEndpointHost );
+        this.assertSameRegistrationValue( "endpointPort", entry.getEndpointPort(), nEndpointPort );
+        this.assertSameRegistrationValue( "endpointPath", entry.getEndpointPath(), serviceDTO.getEndpointPath() );
+        this.assertSameRegistrationValue( "endpointAddress", entry.getEndpointAddress(), szEndpointAddress );
+        this.assertSameRegistrationValue( "version", entry.getVersion(), serviceDTO.getVersion() );
+        this.assertSameRegistrationValue( "zone", entry.getZone(), serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            this.assertSameRegistrationValue( "weight", entry.getWeight(), serviceDTO.getWeight() );
+        }
+        this.assertSameRegistrationValue( "metadataJson", entry.getMetadataJson(), serviceDTO.getMetadataJson() );
+
+        return entry.getGuid();
+    }
+
+    protected boolean isServiceInstanceRestoreRegistration( ServiceInstance existing, RegisterServiceDTO serviceDTO ) {
+        String szInstanceGuid = serviceDTO.getInstanceGuid();
+        if ( szInstanceGuid == null || szInstanceGuid.isBlank() ) {
+            return false;
+        }
+
+        GUID requestedInstanceGuid = this.mGuidAllocator.parse( szInstanceGuid );
+        return Objects.equals( existing.getId(), requestedInstanceGuid );
+    }
+
+    protected void refreshServiceInstanceRegistration(
+            ServiceInstanceEntry entry,
+            RegisterServiceDTO serviceDTO,
+            SocketAddress remote,
+            boolean bIncreaseConnectionCount
+    ) {
+        LocalDateTime time = LocalDateTime.now();
+        String remoteAddress = remote == null ? "" : remote.toString();
+        String endpointHost = "";
+        Integer endpointPort = null;
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = this.getInetSocketHost( inet );
+            endpointPort = inet.getPort();
+        }
+
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        entry.setClientId( serviceDTO.getClientId() );
+        entry.setTransportType( szTransportType );
+        entry.setRemoteAddress( remoteAddress );
+        entry.setEndpointProtocol( this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType ) );
+        entry.setEndpointHost( this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost ) );
+        entry.setEndpointPort( serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort() );
+        entry.setEndpointPath( serviceDTO.getEndpointPath() );
+        entry.setEndpointAddress( this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress ) );
+        entry.setStatus( ServiceInstanceStatus.Online.getName() );
+        entry.setStatusReason( null );
+        entry.setVersion( serviceDTO.getVersion() );
+        entry.setZone( serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            entry.setWeight( serviceDTO.getWeight() );
+        }
+        entry.setLastHeartbeatTime( time );
+        entry.setLatestStartTime( time );
+        if ( bIncreaseConnectionCount ) {
+            entry.setConnectionCount( entry.getConnectionCount() + 1 );
+        }
+        entry.setMetadataJson( serviceDTO.getMetadataJson() );
+        this.mServiceInstrument.updateServiceInstance( entry );
+    }
+
+    protected void assertSameRegistrationValue( String szName, Object existing, Object requested )
+            throws ClientServiceRegisterException {
+        if ( Objects.equals( existing, requested ) ) {
+            return;
+        }
+        throw new ClientServiceRegisterException(
+                "Client registration conflicts on `" + szName + "`, existing => `" + existing
+                        + "`, request => `" + requested + "`."
+        );
+    }
+
+    protected ServiceInstanceEntry updateServiceInstanceStatus( GUID id, ServiceInstanceStatus status ) {
         ServiceInstanceEntry element = this.mServiceInstrument.queryServiceInstance( id );
         if ( element != null ) {
             element.setStatus( status.getName() );
-            element.setRunCount( element.getRunCount() + 1 );
+            if ( this.isTerminalInstanceStatus( status ) ) {
+                LocalDateTime time = LocalDateTime.now();
+                element.setOfflineTime( time );
+                element.setLatestEndTime( time );
+            }
             this.mServiceInstrument.updateServiceInstance( element );
         }
 
         return element;
+    }
+
+    protected boolean isTerminalInstanceStatus( ServiceInstanceStatus status ) {
+        return ServiceInstanceStatus.Offline == status
+                || ServiceInstanceStatus.Deregistered == status
+                || ServiceInstanceStatus.Expired == status
+                || ServiceInstanceStatus.Error == status;
+    }
+
+    @Override
+    public void markServiceInstanceDetached( Long clientId, Object caused ) {
+        if ( clientId == null ) {
+            return;
+        }
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            this.deregisterServiceInstance( clientId );
+            return;
+        }
+
+        synchronized ( this.mServiceRegistry ) {
+            ServiceInstance instance = this.mCIdInstanceRegistry.get( clientId );
+            if ( instance == null ) {
+                this.transportRegistry().detachClient( clientId );
+                return;
+            }
+
+            long nowMillis = System.currentTimeMillis();
+            GUID instanceGuid = (GUID) instance.getId();
+            GUID serviceGuid = (GUID) instance.getServiceId();
+            this.mDetachedObservationRegistry.put(
+                    new ServiceDetachedObservationEntry(
+                            clientId,
+                            instanceGuid,
+                            serviceGuid,
+                            nowMillis,
+                            nowMillis + this.mDetachedObservationConfig.getGraceMillis(),
+                            caused
+                    )
+            );
+            this.transportRegistry().detachClient( clientId );
+            this.updateServiceInstanceStatus( instanceGuid, ServiceInstanceStatus.Detached );
+            this.getLogger().info(
+                    "Service instance detached, { clientId: {}, instanceId: {}, serviceId: {}, graceMillis: {} }. <Detached>",
+                    new Object[]{
+                            clientId,
+                            instanceGuid,
+                            serviceGuid,
+                            this.mDetachedObservationConfig.getGraceMillis()
+                    }
+            );
+            this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Detached, caused );
+        }
+    }
+
+    protected void recoverDetachedServiceInstance( Long clientId, GUID instanceGuid, GUID serviceGuid, Object caused ) {
+        ServiceDetachedObservationEntry detached = this.mDetachedObservationRegistry.remove( clientId );
+        if ( detached == null ) {
+            return;
+        }
+
+        this.getLogger().info(
+                "Detached service instance recovered, { clientId: {}, instanceId: {}, serviceId: {} }. <Recovered>",
+                new Object[]{ clientId, instanceGuid, serviceGuid }
+        );
+        this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Recovered, caused );
+    }
+
+    protected void settleDetachedServiceInstance( ServiceDetachedObservationEntry entry ) {
+        if ( entry == null || entry.getClientId() == null ) {
+            return;
+        }
+        if ( this.mDetachedObservationRegistry.remove( entry.getClientId() ) == null ) {
+            return;
+        }
+
+        synchronized ( this.mServiceRegistry ) {
+            ServiceInstance instance = this.mCIdInstanceRegistry.get( entry.getClientId() );
+            if ( instance == null || !Objects.equals( instance.getId(), entry.getInstanceGuid() ) ) {
+                return;
+            }
+
+            ServiceInstanceStatus status = this.resolveDetachedMissingStatus();
+            InstanceLifecycleEvent event = this.resolveDetachedMissingEvent( status );
+            this.removeRuntimeServiceInstance( instance, entry.getClientId(), status );
+            this.getLogger().info(
+                    "Detached service instance settled, { clientId: {}, instanceId: {}, serviceId: {}, status: {} }. <{}>",
+                    new Object[]{
+                            entry.getClientId(),
+                            entry.getInstanceGuid(),
+                            entry.getServiceGuid(),
+                            status.getName(),
+                            status.getName()
+                    }
+            );
+            this.triggerServiceEvent(
+                    entry.getClientId(),
+                    entry.getInstanceGuid(),
+                    entry.getServiceGuid(),
+                    event,
+                    entry.getCaused()
+            );
+        }
+    }
+
+    protected ServiceInstanceStatus resolveDetachedMissingStatus() {
+        String policy = this.mDetachedObservationConfig.getMissingAfterReconnectPolicy();
+        String normalizedPolicy = policy == null ? "" : policy.trim().toUpperCase( Locale.ROOT );
+        if ( ServiceInstanceStatus.Expired.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy ) ) {
+            return ServiceInstanceStatus.Expired;
+        }
+        if ( ServiceInstanceStatus.Offline.getName().toUpperCase( Locale.ROOT ).equals( normalizedPolicy )
+                || "OFFLINE".equals( normalizedPolicy ) ) {
+            return ServiceInstanceStatus.Offline;
+        }
+
+        this.getLogger().warn(
+                "Unknown detached missing policy `{}`, fallback to `{}`.",
+                policy,
+                ServiceInstanceStatus.Offline.getName()
+        );
+        return ServiceInstanceStatus.Offline;
+    }
+
+    protected InstanceLifecycleEvent resolveDetachedMissingEvent( ServiceInstanceStatus status ) {
+        if ( ServiceInstanceStatus.Expired == status ) {
+            return InstanceLifecycleEvent.Expired;
+        }
+        return InstanceLifecycleEvent.Offline;
+    }
+
+    protected Collection<ServiceInstance> removeRuntimeServiceInstance(
+            ServiceInstance instance,
+            Long clientId,
+            ServiceInstanceStatus status
+    ) {
+        if ( instance == null || clientId == null ) {
+            return null;
+        }
+
+        ServiceInstance eliminated = this.mCIdInstanceRegistry.remove( clientId );
+        if ( eliminated == null ) {
+            return null;
+        }
+
+        ConcurrentMap<Long, ServiceInstance> instances = this.mServiceRegistry.get( eliminated.getServiceId() );
+        if ( instances == null ) {
+            throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
+        }
+
+        ServiceInstance removed = instances.remove( clientId );
+        if ( removed == null ) {
+            return null;
+        }
+
+        ClientInstance clientInstance = this.mInstanceRegistry.get( removed.getId() );
+        if ( clientInstance != null && Objects.equals( clientInstance.getClientId(), clientId ) ) {
+            this.mInstanceRegistry.remove( removed.getId(), clientInstance );
+        }
+
+        if ( instances.isEmpty() ) {
+            this.mServiceRegistry.remove( removed.getServiceId(), instances );
+        }
+
+        this.transportRegistry().detachClient( clientId );
+        this.updateServiceInstanceStatus( (GUID) removed.getId(), status );
+        return List.of( removed );
+    }
+
+    protected void sweepDetachedServiceInstances() {
+        if ( !this.mDetachedObservationConfig.isEnable() || this.mDetachedExpirationExecutor == null ) {
+            return;
+        }
+
+        Collection<ServiceDetachedObservationEntry> expired =
+                this.mDetachedObservationRegistry.snapshotExpired( System.currentTimeMillis() );
+        for ( ServiceDetachedObservationEntry entry : expired ) {
+            this.mDetachedExpirationExecutor.submit( () -> this.settleDetachedServiceInstance( entry ) );
+        }
+    }
+
+    protected void startDetachedObservationSweeper() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+        if ( this.mDetachedObservationSweeper != null ) {
+            return;
+        }
+
+        this.mDetachedExpirationExecutor = Executors.newFixedThreadPool(
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+        this.mDetachedObservationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "RedQueen-ServiceDetachedObservationSweeper" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mDetachedObservationSweeper.scheduleWithFixedDelay(
+                this::sweepDetachedServiceInstances,
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                TimeUnit.MILLISECONDS
+        );
+        this.getLogger().info(
+                "[ServiceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Started>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void stopDetachedObservationSweeper() {
+        if ( this.mDetachedObservationSweeper != null ) {
+            this.mDetachedObservationSweeper.shutdownNow();
+            this.mDetachedObservationSweeper = null;
+        }
+        if ( this.mDetachedExpirationExecutor != null ) {
+            this.mDetachedExpirationExecutor.shutdownNow();
+            this.mDetachedExpirationExecutor = null;
+        }
     }
 
     @Override
@@ -371,38 +971,39 @@ public class UniformServiceManager implements ServiceManager {
     @Override
     public Collection<ServiceInstance >  deregisterServiceInstance( Long clientId ) {
         synchronized ( this.mServiceRegistry ) {
-            ServiceInstance eliminated = this.mCIdInstanceRegistry.remove( clientId );
-            // It’s not thread-safe beyond this critical zone, as the size may be mutated by other threads after this point.
-            // 该临界区后面线程并不安全, size 可能在该临界区后被其他线程破坏.
-            if ( eliminated != null ) {
-                ConcurrentMap<Long, ServiceInstance > instances = this.mServiceRegistry.get( eliminated.getServiceId() );
-                if ( instances != null ) {
-                    this.mInstanceRegistry.remove( eliminated.getId() );
-                    this.updateServiceInstanceStatus( (GUID) eliminated.getId(), ServiceStatus.SERVICE_TERMINATED );
-                    this.getLogger().info(
-                            "Detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
-                            clientId, eliminated.getId(), eliminated.getServiceId()
-                    );
-
-                    if ( instances.size() <= 1 ) {
-                        instances = this.mServiceRegistry.remove( eliminated.getServiceId() );
-                        return instances.values();
-                    }
-                    else {
-                        // 副本实例，不用额外变更状态
-                        ServiceInstance instance = instances.remove( clientId );
-                        if ( instance != null ) {
-                            return List.of( instance );
-                        }
-                    }
-                }
-                else {
-                    throw new AssertionFailedException( "Illegal internal statue, mismatched elimination-service size." );
-                }
-
-                this.triggerServiceEvent( clientId, eliminated.getId(), ServiceRegisterEvent.Deregistered, eliminated );
+            ServiceInstance eliminated = this.mCIdInstanceRegistry.get( clientId );
+            ServiceDetachedObservationEntry detached = this.mDetachedObservationRegistry.get( clientId );
+            if ( detached != null
+                    && eliminated != null
+                    && Objects.equals( eliminated.getId(), detached.getInstanceGuid() ) ) {
+                this.getLogger().info(
+                        "Skip offline detached service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Detached>",
+                        new Object[]{ clientId, eliminated.getId(), eliminated.getServiceId() }
+                );
+                return List.of();
             }
-            return null;
+            Collection<ServiceInstance> removed = this.removeRuntimeServiceInstance(
+                    eliminated,
+                    clientId,
+                    ServiceInstanceStatus.Offline
+            );
+            this.mDetachedObservationRegistry.remove( clientId );
+            if ( removed != null && !removed.isEmpty() ) {
+                ServiceInstance serviceInstance = removed.iterator().next();
+                this.getLogger().info(
+                        "Offline service instance, { clientId: {}, instanceId: {}, serviceId: {} }. <Offline>",
+                        new Object[]{ clientId, serviceInstance.getId(), serviceInstance.getServiceId() }
+                );
+
+                this.triggerServiceEvent(
+                        clientId,
+                        serviceInstance.getId(),
+                        (GUID) serviceInstance.getServiceId(),
+                        InstanceLifecycleEvent.Offline,
+                        serviceInstance
+                );
+            }
+            return removed;
         }
     }
 
@@ -429,6 +1030,17 @@ public class UniformServiceManager implements ServiceManager {
     }
 
     @Override
+    public void shutdownServiceInstance( Identification instanceId, String szReason ) throws ServiceControlRPCException {
+        ClientInstance clientInstance = this.mInstanceRegistry.get( instanceId );
+        if ( clientInstance == null ) {
+            throw new ServiceControlRPCException( "Service instance is not registered, instanceId => `" + instanceId + "`." );
+        }
+
+        ServiceControlTransport transport = this.mTransportRegistry.requireTransport( clientInstance.getClientId() );
+        transport.shutdownClientService( clientInstance.getClientId(), (GUID) instanceId, szReason );
+    }
+
+    @Override
     public ServiceInstrument getServicesInstrument() {
         return this.mServiceInstrument;
     }
@@ -439,20 +1051,72 @@ public class UniformServiceManager implements ServiceManager {
     }
 
 
-    protected ServiceInstanceEntry createServiceInstanceMeta( GUID serviceId, GUID deployGuid, String ip ) {
+    protected ServiceInstanceEntry createServiceInstanceMeta(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceId,
+            GUID deployGuid,
+            SocketAddress remote
+    ) {
         GUID guid = this.mGuidAllocator.nextGUID();
         ServiceInstanceEntry instanceEntity = new GenericServiceInstanceEntity();
+        LocalDateTime registerTime = LocalDateTime.now();
+        String remoteAddress = "";
+        String endpointHost = "";
+        Integer endpointPort = null;
+
+        if ( remote != null ) {
+            remoteAddress = remote.toString();
+        }
+        if ( remote instanceof InetSocketAddress ) {
+            InetSocketAddress inet = (InetSocketAddress) remote;
+            endpointHost = this.getInetSocketHost( inet );
+            endpointPort = inet.getPort();
+        }
 
         instanceEntity.setDeployGuid( deployGuid );
-        instanceEntity.setStatus( ServiceStatus.SERVICE_NEW.getName() );
-        instanceEntity.setLatestStartTime( LocalDateTime.now() );
-        instanceEntity.setIp( ip );
+        instanceEntity.setStatus( ServiceInstanceStatus.New.getName() );
+        instanceEntity.setClientId( serviceDTO.getClientId() );
+        String szTransportType = this.notBlankOrDefault( serviceDTO.getTransportType(), ServiceControlTransportType.Husky.name() );
+        instanceEntity.setTransportType( szTransportType );
+        instanceEntity.setRemoteAddress( remoteAddress );
+        instanceEntity.setEndpointProtocol( this.notBlankOrDefault( serviceDTO.getEndpointProtocol(), szTransportType ) );
+        instanceEntity.setEndpointHost( this.notBlankOrDefault( serviceDTO.getEndpointHost(), endpointHost ) );
+        instanceEntity.setEndpointPort( serviceDTO.getEndpointPort() == null ? endpointPort : serviceDTO.getEndpointPort() );
+        instanceEntity.setEndpointPath( serviceDTO.getEndpointPath() );
+        instanceEntity.setEndpointAddress( this.notBlankOrDefault( serviceDTO.getEndpointAddress(), remoteAddress ) );
+        instanceEntity.setRegisterTime( registerTime );
+        instanceEntity.setLastHeartbeatTime( registerTime );
+        instanceEntity.setConnectionCount( 1 );
+        instanceEntity.setLatestStartTime( registerTime );
         instanceEntity.setGuid( guid );
         instanceEntity.setServiceGuid( serviceId );
+        instanceEntity.setVersion( serviceDTO.getVersion() );
+        instanceEntity.setZone( serviceDTO.getZone() );
+        if ( serviceDTO.getWeight() != null ) {
+            instanceEntity.setWeight( serviceDTO.getWeight() );
+        }
+        instanceEntity.setMetadataJson( serviceDTO.getMetadataJson() );
 
         this.mServiceInstrument.createServiceInstance( instanceEntity );
 
         return instanceEntity;
+    }
+
+    protected String notBlankOrDefault( String szValue, String szDefault ) {
+        if ( szValue == null || szValue.isBlank() ) {
+            return szDefault;
+        }
+        return szValue;
+    }
+
+    protected String getInetSocketHost( InetSocketAddress inet ) {
+        if ( inet == null ) {
+            return "";
+        }
+        if ( inet.getAddress() != null ) {
+            return inet.getAddress().getHostAddress();
+        }
+        return inet.getHostString();
     }
 
 

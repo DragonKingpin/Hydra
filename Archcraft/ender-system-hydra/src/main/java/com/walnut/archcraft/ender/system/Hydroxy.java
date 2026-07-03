@@ -1,15 +1,11 @@
 package com.walnut.archcraft.ender.system;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.pinecone.framework.system.RuntimeSystem;
-import com.pinecone.framework.util.Debug;
-import com.pinecone.framework.util.config.StartupCommandParser;
 import com.pinecone.hydra.proc.ArchUProcess;
 import com.pinecone.hydra.proc.UProcess;
 import com.pinecone.hydra.proc.image.ExecutionImage;
-import com.pinecone.hydra.proc.image.GenericClassImage;
 import com.pinecone.hydra.proc.ns.GenericSegregationSpace;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.system.component.LogStatuses;
@@ -19,9 +15,10 @@ public class Hydroxy extends ArchUProcess {
     public Hydroxy(
             HydraEmpire hostedSystem,
             UProcess parent, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        super( hostedSystem, parent, hostedSystem.processManager(), image, procSpace, startupArgs, environmentVars );
+        super( hostedSystem, parent, hostedSystem.processManager(), image, image.createEntryPoint(), procSpace, startupArgs, environmentVars );
+        this.getEntryPoint().applyOwnedProcess( this );
 
         this.revealNearestSystem().infoLifecycle(
                 "HydraSystemProcess [UProcessProxy] [Name: `" + this.getName() + "`]",

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.lifecycle.ibatis.StorageLifecycleTaskMapper">
+
+    <resultMap id="StorageLifecycleTaskMap" type="com.pinecone.hydra.storage.lifecycle.GenericStorageLifecycleTask">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="task_type" property="taskType"/>
+        <result column="target_type" property="targetType"/>
+        <result column="target_guid" property="targetGuid"/>
+        <result column="target_name" property="targetName"/>
+        <result column="target_count" property="targetCount"/>
+        <result column="operation_mode" property="operationMode"/>
+        <result column="status" property="status"/>
+        <result column="phase" property="phase"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="done_count" property="doneCount"/>
+        <result column="last_cursor" property="lastCursor"/>
+        <result column="risk_level" property="riskLevel"/>
+        <result column="message" property="message"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="plan_snapshot" property="planSnapshot"/>
+        <result column="result_snapshot" property="resultSnapshot"/>
+        <result column="operator_guid" property="operatorGuid"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="TaskColumns">
+        id, guid, task_type, target_type, target_guid, target_name, target_count, operation_mode, status, phase, total_count, done_count, last_cursor, risk_level, message, error_message, plan_snapshot, result_snapshot, operator_guid, ext_config, create_time, update_time
+    </sql>
+
+    <sql id="TaskFilter">
+        <where>
+            <if test="taskType != null">
+                AND task_type = #{taskType}
+            </if>
+            <if test="targetType != null">
+                AND target_type = #{targetType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="targetGuid != null">
+                AND target_guid = #{targetGuid}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.lifecycle.StorageLifecycleTask">
+        INSERT INTO hydra_storage_lifecycle_task
+            (guid, task_type, target_type, target_guid, target_name, target_count, operation_mode, status, phase, total_count, done_count, risk_level, message, plan_snapshot, operator_guid, ext_config)
+        VALUES
+            (#{guid}, #{taskType}, #{targetType}, #{targetGuid}, #{targetName}, #{targetCount}, #{operationMode}, #{status}, #{phase}, #{totalCount}, #{doneCount}, #{riskLevel}, #{message}, #{planSnapshot}, #{operatorGuid}, #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.lifecycle.StorageLifecycleTask">
+        UPDATE hydra_storage_lifecycle_task
+        SET
+            task_type = #{taskType},
+            target_type = #{targetType},
+            target_guid = #{targetGuid},
+            target_name = #{targetName},
+            target_count = #{targetCount},
+            operation_mode = #{operationMode},
+            status = #{status},
+            phase = #{phase},
+            total_count = #{totalCount},
+            done_count = #{doneCount},
+            last_cursor = #{lastCursor},
+            risk_level = #{riskLevel},
+            message = #{message},
+            error_message = #{errorMessage},
+            plan_snapshot = #{planSnapshot},
+            result_snapshot = #{resultSnapshot},
+            operator_guid = #{operatorGuid},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="StorageLifecycleTaskMap">
+        SELECT <include refid="TaskColumns"/>
+        FROM hydra_storage_lifecycle_task
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_storage_lifecycle_task
+        <include refid="TaskFilter"/>
+    </select>
+
+    <select id="listPage" resultMap="StorageLifecycleTaskMap">
+        SELECT <include refid="TaskColumns"/>
+        FROM hydra_storage_lifecycle_task
+        <include refid="TaskFilter"/>
+        ORDER BY update_time DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <update id="updateProgress">
+        UPDATE hydra_storage_lifecycle_task
+        SET status = 'RUNNING',
+            phase = #{phase},
+            total_count = #{totalCount},
+            done_count = #{doneCount},
+            last_cursor = #{lastCursor},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE hydra_storage_lifecycle_task
+        SET status = #{status},
+            phase = #{phase},
+            error_message = #{errorMessage},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateDone">
+        UPDATE hydra_storage_lifecycle_task
+        SET status = 'DONE',
+            phase = #{phase},
+            total_count = #{totalCount},
+            done_count = #{doneCount},
+            message = #{message},
+            result_snapshot = #{resultSnapshot}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateBlocked">
+        UPDATE hydra_storage_lifecycle_task
+        SET status = 'BLOCKED',
+            phase = #{phase},
+            message = 'Lifecycle task is blocked by dependencies.',
+            result_snapshot = #{resultSnapshot}
+        WHERE guid = #{guid}
+    </update>
+</mapper>

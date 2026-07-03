@@ -14,6 +14,9 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.system.stereotype.JavaBeans;
 import com.pinecone.framework.unit.Units;
+import com.pinecone.ulf.util.protobuf.map.MapProtobufSupport;
+import com.pinecone.ulf.util.protobuf.map.MapTypeResolver;
+import com.pinecone.ulf.util.protobuf.map.MapTypeSpec;
 
 public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
 
@@ -65,7 +68,12 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                 Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
-                    if ( fieldDescriptor.isRepeated() ) {
+                    if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+                        result.put( fieldName, MapProtobufSupport.decodeMapField(
+                                fieldDescriptor, value, this, exceptedKeys, options
+                        ) );
+                    }
+                    else if ( fieldDescriptor.isRepeated() ) {
                         List<?> values = (List<?>) value;
                         List<Object> decodedValues = new ArrayList<>();
                         for ( Object item : values ) {
@@ -144,7 +152,13 @@ public class GenericBeanProtobufDecoder implements BeanProtobufDecoder {
                         }
 
 
-                        if ( fieldDescriptor.isRepeated() ) {
+                        if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+                            MapTypeSpec mapTypeSpec = MapTypeResolver.resolveSetter( setter, this.getClass().getClassLoader() );
+                            setter.invoke( bean, MapProtobufSupport.decodeMapField(
+                                    fieldDescriptor, value, mapTypeSpec.getKeyType(), mapTypeSpec.getValueType(), this, exceptedKeys, options
+                            ) );
+                        }
+                        else if ( fieldDescriptor.isRepeated() ) {
                             Class<?>[] pars = setter.getParameterTypes();
                             if( pars.length > 0 ) {
                                 Class<?> nestedType = pars[ 0 ];

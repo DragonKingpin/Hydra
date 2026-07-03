@@ -31,7 +31,7 @@ public abstract class ArchThreadum extends ArchExecutum implements Executum {
 
     @Override
     public void  kill() {
-        this.getAffiliateThread().stop();
+        this.interrupt();
     }
 
     @Override
@@ -42,15 +42,11 @@ public abstract class ArchThreadum extends ArchExecutum implements Executum {
     }
 
     @Override
-    @SuppressWarnings( "deprecated" )
     public void  suspend() {
-        this.getAffiliateThread().suspend();
     }
 
     @Override
-    @SuppressWarnings( "deprecated" )
     public void  resume() {
-        this.getAffiliateThread().resume();
     }
 
     @Override

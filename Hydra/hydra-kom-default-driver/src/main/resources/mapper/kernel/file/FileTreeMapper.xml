@@ -6,11 +6,16 @@
 <mapper namespace="com.pinecone.hydra.file.ibatis.FileTreeMapper">
 
     <insert id="insertRootNode">
-        INSERT INTO `hydra_uofs_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )
+        INSERT INTO `hydra_uofs_node_tree` ( `guid`, `bucket_guid`, `linked_type` )
+        SELECT #{guid}, `bucket_guid`, #{linkedType} FROM `hydra_uofs_nodes` WHERE `guid` = #{guid}
     </insert>
 
     <insert id="insertTreeNode">
         INSERT INTO hydra_uofs_nodes (`guid`, `type`,`base_data_guid`,`node_meta_guid`) VALUES (#{guid},#{type},#{baseDataGuid},#{nodeMetaGuid})
+    </insert>
+
+    <insert id="insertBucketTreeNode">
+        INSERT INTO `hydra_uofs_nodes` ( `guid`, `bucket_guid`, `type`, `base_data_guid`, `node_meta_guid` ) VALUES ( #{guid}, #{bucketGuid}, #{type}, #{baseDataGuid}, #{nodeMetaGuid} )
     </insert>
 
     <select id="getNodeExtendsFromMeta" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
@@ -61,6 +66,104 @@
         SELECT `guid` FROM `hydra_uofs_node_tree` WHERE `parent_guid` = #{parentGuid}
     </select>
 
+    <sql id="childNameExpression">
+        COALESCE(`fo`.`name`, `fi`.`name`, `sy`.`name`, `t`.`guid`)
+    </sql>
+
+    <sql id="childCreateTimeExpression">
+        COALESCE(`fo`.`create_time`, `fi`.`create_time`, `sy`.`create_time`)
+    </sql>
+
+    <sql id="childUpdateTimeExpression">
+        COALESCE(`fo`.`update_time`, `fi`.`update_time`, `sy`.`update_time`)
+    </sql>
+
+    <sql id="childTypeFilter">
+        <if test="hasTypeFilter">
+            AND (
+            <trim prefixOverrides="OR">
+                <if test="includeFolder">
+                    OR `fo`.`guid` IS NOT NULL
+                </if>
+                <if test="includeFile">
+                    OR `fi`.`guid` IS NOT NULL
+                </if>
+                <if test="includeReparse">
+                    OR `sy`.`guid` IS NOT NULL
+                </if>
+            </trim>
+            )
+        </if>
+    </sql>
+
+    <sql id="childOrderBy">
+        ORDER BY
+        <choose>
+            <when test="orderByCreateTime">
+                <include refid="childCreateTimeExpression"/>
+            </when>
+            <when test="orderByUpdateTime">
+                <include refid="childUpdateTimeExpression"/>
+            </when>
+            <otherwise>
+                <include refid="childNameExpression"/>
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="ascending">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+        , `t`.`id` ASC
+    </sql>
+
+    <select id="fetchChildren" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `t`.`guid`
+        FROM `hydra_uofs_node_tree` `t`
+        INNER JOIN `hydra_uofs_nodes` `n` ON `n`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_folders` `fo` ON `fo`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_files` `fi` ON `fi`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_symbolic` `sy` ON `sy`.`guid` = `t`.`guid`
+        WHERE `t`.`parent_guid` = #{parentGuid}
+        <include refid="childTypeFilter"/>
+        <include refid="childOrderBy"/>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countChildren" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_uofs_node_tree` `t`
+        INNER JOIN `hydra_uofs_nodes` `n` ON `n`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_folders` `fo` ON `fo`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_files` `fi` ON `fi`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_symbolic` `sy` ON `sy`.`guid` = `t`.`guid`
+        WHERE `t`.`parent_guid` = #{parentGuid}
+        <include refid="childTypeFilter"/>
+    </select>
+
+    <select id="fetchRootChildren" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT `t`.`guid`
+        FROM `hydra_uofs_node_tree` `t`
+        INNER JOIN `hydra_uofs_nodes` `n` ON `n`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_folders` `fo` ON `fo`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_files` `fi` ON `fi`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_symbolic` `sy` ON `sy`.`guid` = `t`.`guid`
+        WHERE `t`.`parent_guid` IS NULL
+        <include refid="childTypeFilter"/>
+        <include refid="childOrderBy"/>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countRoot" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_uofs_node_tree` `t`
+        INNER JOIN `hydra_uofs_nodes` `n` ON `n`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_folders` `fo` ON `fo`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_files` `fi` ON `fi`.`guid` = `t`.`guid`
+        LEFT JOIN `hydra_uofs_symbolic` `sy` ON `sy`.`guid` = `t`.`guid`
+        WHERE `t`.`parent_guid` IS NULL
+        <include refid="childTypeFilter"/>
+    </select>
+
     <select id="fetchParentGuids" resultType="com.pinecone.framework.util.id.GUID">
         SELECT `parent_guid` FROM `hydra_uofs_node_tree` WHERE `guid`=#{guid}
     </select>
@@ -72,6 +175,22 @@
     <update id="updateBucketGuid">
         UPDATE `hydra_uofs_nodes` SET `bucket_guid` = #{bucketGuid} WHERE `guid` = #{guid}
     </update>
+
+    <select id="countNodesByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_nodes` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <select id="countTreeByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_node_tree` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <delete id="deleteNodesByBucketGuid">
+        DELETE FROM `hydra_uofs_nodes` WHERE `bucket_guid` = #{bucketGuid}
+    </delete>
+
+    <delete id="deleteTreeByBucketGuid">
+        DELETE FROM `hydra_uofs_node_tree` WHERE `bucket_guid` = #{bucketGuid}
+    </delete>
 
     <select id="fetchRoot" resultType="com.pinecone.framework.util.id.GUID">
         SELECT guid FROM hydra_uofs_node_tree WHERE parent_guid IS NULL 
@@ -90,8 +209,8 @@
     </select>
 
     <insert id="newLinkTag">
-        INSERT INTO `hydra_uofs_node_tree` (`guid`, `linked_type`,`tag_name`,`tag_guid`,`parent_guid`) 
-        VALUES (#{originalGuid}, #{linkedType}, #{tagName}, #{tagGuid}, #{dirGuid})
+        INSERT INTO `hydra_uofs_node_tree` ( `guid`, `bucket_guid`, `linked_type`, `tag_name`, `tag_guid`, `parent_guid` )
+        SELECT #{originalGuid}, `bucket_guid`, #{linkedType}, #{tagName}, #{tagGuid}, #{dirGuid} FROM `hydra_uofs_nodes` WHERE `guid` = #{originalGuid}
     </insert>
 
     <update id="updateLinkTagName">
@@ -132,6 +251,35 @@
 
     <select id="getOriginalGuidByTagGuid" resultType="com.pinecone.framework.util.id.GUID">
         SELECT `guid` FROM `hydra_uofs_node_tree` WHERE `tag_guid` = #{tagGuid}
+    </select>
+
+    <sql id="HardlinkFilter">
+        <where>
+            `linked_type` = 'Hard'
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="listHardlinks" resultType="com.pinecone.hydra.unit.imperium.entity.HardlinkEntry">
+        SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType,
+               `tag_name` AS tagName, `tag_guid` AS tagGuid, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_uofs_node_tree`
+        <include refid="HardlinkFilter"/>
+        ORDER BY `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHardlinks" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_uofs_node_tree`
+        <include refid="HardlinkFilter"/>
     </select>
 
 </mapper>

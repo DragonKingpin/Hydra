@@ -1,0 +1,29 @@
+# Sauron Project Development Environment
+
+```dec-studio
+
+@freeze(
+    "Read and Write file with UTF8 for all text files under Windows, NO BOM.",
+    "Read-Method, like `Get-Content` MUST and FORCE to use UTF-8 !!!"
+) !important !mandatory
+
+@toolchains(
+    "D:/ProgramFiles/ToolChains/",
+    include = [ gcc, git, go, jdk, nodejs, python, protoc, ...etc ]
+)
+
+@toolchains(
+    "D:/ProgramFiles/JetBrains/IntelliJ IDEA 2025.3.2/plugins/maven/lib/maven3/bin/mvn.cmd",
+    include = [ maven ]
+)
+
+
+@deprecated(
+    "Global `PATH` variable is deprecated, due to multiple toolchain versions."
+)
+
+@taboo(
+    "Global `PATH` variable is strictly prohibited to modify."
+)
+
+```

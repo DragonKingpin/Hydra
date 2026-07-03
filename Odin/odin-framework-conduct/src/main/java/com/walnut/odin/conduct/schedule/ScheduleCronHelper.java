@@ -174,4 +174,37 @@ public final class ScheduleCronHelper {
         }
     }
 
+    public static LocalDateTime computeLatestByCronBeforeOrAt(
+            String cron, LocalDateTime searchStartTime, LocalDateTime referenceTime
+    ) {
+        if ( searchStartTime == null ) {
+            throw new IllegalArgumentException( "Search start time is null." );
+        }
+        if ( referenceTime == null ) {
+            throw new IllegalArgumentException( "Reference time is null." );
+        }
+        if ( searchStartTime.isAfter( referenceTime ) ) {
+            return null;
+        }
+
+        LocalDateTime latest = null;
+        LocalDateTime cursor = ScheduleCronHelper.computeNextByCron( cron, searchStartTime.minusSeconds( 1 ) );
+        while ( cursor != null && !cursor.isAfter( referenceTime ) ) {
+            latest = cursor;
+            cursor = ScheduleCronHelper.computeNextByCron( cron, cursor );
+        }
+        return latest;
+    }
+
+    public static LocalDateTime computeCurrentCycleFireByCron(
+            TaskScheduleCycle cycle, String cron, LocalDateTime referenceTime
+    ) {
+        if ( cron == null || cron.isBlank() ) {
+            throw new IllegalArgumentException( "Cron expression is blank." );
+        }
+
+        LocalDateTime cycleStartTime = ScheduleCronHelper.alignToCycleStart( cycle, referenceTime );
+        return ScheduleCronHelper.computeLatestByCronBeforeOrAt( cron, cycleStartTime, referenceTime );
+    }
+
 }

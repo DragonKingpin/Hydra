@@ -13,6 +13,7 @@ import com.pinecone.hydra.storage.file.entity.ElementNode;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
+import com.pinecone.hydra.storage.file.transmit.channel.InternalUFileChannel;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileChannel;
 import com.pinecone.hydra.storage.file.transmit.channel.UFileOpenOption;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
@@ -41,11 +42,10 @@ final class UofsSmokeTools {
         return new KernelFileSystemConfig( config );
     }
 
-    static void cleanupOldUofsFile( KOMFileSystem fileSystem, String uofsPath ) {
+    static void cleanupOldUofsFile( KOMFileSystem fileSystem, UofsVolumeFixture fixture, String uofsPath ) {
         ElementNode oldNode = fileSystem.queryElement( uofsPath );
         if ( oldNode != null ) {
-            fileSystem.getFatChunkInstrument().deleteFileChunks( oldNode.getGuid() );
-            fileSystem.remove( oldNode.getGuid() );
+            fileSystem.remove( uofsPath, fixture.volumeManager );
             Debug.trace( "old uofs file removed", oldNode.getGuid() );
         }
     }
@@ -79,13 +79,13 @@ final class UofsSmokeTools {
             throw new IllegalStateException( "Source file not found: " + sourceFile.getPath() );
         }
         try ( InputStream inputStream = Files.newInputStream( sourceFile.toPath() );
-              UFileChannel channel = fileSystem.open( uofsPath, UFileOpenOption.CREATE_OVERWRITE, fixture.volumeManager ) ) {
+              InternalUFileChannel channel = (InternalUFileChannel) fileSystem.open( uofsPath, UFileOpenOption.CREATE_OVERWRITE, fixture.volumeManager ) ) {
             long writtenBytes = channel.write( inputStream, sourceFile.length() );
             Debug.trace( "source file", sourceFile.getPath() );
             Debug.trace( "source size", sourceFile.length() );
             Debug.trace( "written bytes", writtenBytes );
-            Debug.trace( "file guid", channel.getFileNode().getGuid() );
-            return channel.getFileNode();
+            Debug.trace( "file guid", channel.getFile().getGuid() );
+            return channel.getFile();
         }
     }
 

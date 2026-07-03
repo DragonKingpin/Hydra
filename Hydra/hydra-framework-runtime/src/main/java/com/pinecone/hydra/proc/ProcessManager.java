@@ -54,8 +54,17 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     boolean autopsy( UProcess that );
 
     LocalUProcess createLocalHostedProcess(
-             ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+             ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
     );
+
+    default LocalUProcess createLocalHostedProcessPrototypically(
+            ExecutionImage imagePrototype, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
+    ) {
+        if ( imagePrototype == null ) {
+            throw new IllegalArgumentException( "Execution image prototype is required." );
+        }
+        return this.createLocalHostedProcess( imagePrototype, parent, startupArgs, contextEnvironmentVars );
+    }
 
     UProcess getProcess( GUID pid );
 
@@ -66,11 +75,18 @@ public interface ProcessManager extends CascadeKernelObjectInstrument, Regiment,
     boolean containProcess( GUID pid );
 
     default LocalUProcess createLocalHostedProcess(
-            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs
+            ExecutionImage image, UProcess parent, Map<String, String> startupArgs
     ) {
         return this.createLocalHostedProcess( image, parent, startupArgs, null );
+    }
+
+    default LocalUProcess createLocalHostedProcessPrototypically(
+            ExecutionImage imagePrototype, UProcess parent, Map<String, String> startupArgs
+    ) {
+        return this.createLocalHostedProcessPrototypically( imagePrototype, parent, startupArgs, null );
     }
 
     ImageModifier getImageModifier();
 
 }
+

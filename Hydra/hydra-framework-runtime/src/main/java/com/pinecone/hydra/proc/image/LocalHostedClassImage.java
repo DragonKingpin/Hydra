@@ -6,21 +6,21 @@ import com.pinecone.hydra.proc.ProcessManager;
 public class LocalHostedClassImage extends GenericClassImage {
 
     public LocalHostedClassImage(
-            String name, EntryPointRunnable entryPoint, ImageLoader imageLoader
+            String name, EntryPointRunnableFactory entryPointFactory, ImageLoader imageLoader
     ) throws ImageLoadProcedureException {
-        super( name, entryPoint, LocalHostedProcess.class, imageLoader );
+        super( name, entryPointFactory, LocalHostedProcess.class, imageLoader );
     }
 
     public LocalHostedClassImage(
-            String name, EntryPointRunnable entryPoint, ProcessManager manager
+            String name, EntryPointRunnableFactory entryPointFactory, ProcessManager manager
     ) throws ImageLoadProcedureException {
-        this( name, entryPoint, manager.getImageLoader() );
+        this( name, entryPointFactory, manager.getImageLoader() );
     }
 
     public LocalHostedClassImage(
-            EntryPointRunnable entryPoint, ProcessManager manager
+            EntryPointRunnableFactory entryPointFactory, ProcessManager manager
     ) throws ImageLoadProcedureException {
-        this( "", entryPoint, manager.getImageLoader() );
+        this( "", entryPointFactory, manager.getImageLoader() );
 
         this.mszName = this.getClass().getName();
     }

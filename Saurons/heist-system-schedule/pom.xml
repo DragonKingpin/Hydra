@@ -202,5 +202,11 @@
             <version>2.1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sauron.heist</groupId>
+            <artifactId>heist-framework-tissue</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

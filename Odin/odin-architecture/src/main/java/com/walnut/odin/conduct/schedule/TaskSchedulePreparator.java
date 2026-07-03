@@ -23,4 +23,9 @@ public interface TaskSchedulePreparator extends Pinenut {
 
     List<TaskElement> fetchSchedulableTasksInRange( long idMin, long idMax, Collection<TaskScheduleCycle> cycles, LocalDateTime targetTime );
 
+    default void startService() {
+    }
+
+    default void terminateService( long nGracefulShutdownMillis ) {
+    }
 }

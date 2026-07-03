@@ -6,21 +6,131 @@
 <mapper namespace="com.pinecone.hydra.service.ibatis.ServiceNodeMapper">
 
     <resultMap id="ServiceNodeMap" type="com.pinecone.hydra.service.kom.entity.GenericServiceElement">
-        <id     column="id"    property="enumId"/>
-        <result column="guid"  property="guid"/>
-        <result column="name"  property="name"/>
+        <id     column="id"                    property="enumId"/>
+        <result column="guid"                  property="guid"/>
+        <result column="name"                  property="name"/>
+        <result column="path"                  property="path"/>
+        <result column="type"                  property="type"/>
+        <result column="alias"                 property="alias"/>
+        <result column="resource_type"         property="resourceType"/>
+        <result column="service_type"          property="serviceType"/>
+        <result column="scenario"              property="scenario"/>
+        <result column="primary_impl_lang"     property="primaryImplLang"/>
+        <result column="level"                 property="level"/>
+        <result column="description"           property="description"/>
+        <result column="extra_information"     property="extraInformation"/>
+        <result column="create_time"           property="createTime"/>
+        <result column="update_time"           property="updateTime"/>
     </resultMap>
+
+    <resultMap id="ServiceNodeWideMap" type="com.pinecone.hydra.service.kom.entity.GenericServiceElement">
+        <id     column="id"                    property="enumId"/>
+        <result column="guid"                  property="guid"/>
+        <result column="name"                  property="name"/>
+        <result column="path"                  property="path"/>
+        <result column="type"                  property="type"/>
+        <result column="alias"                 property="alias"/>
+        <result column="resource_type"         property="resourceType"/>
+        <result column="service_type"          property="serviceType"/>
+        <result column="scenario"              property="scenario"/>
+        <result column="primary_impl_lang"     property="primaryImplLang"/>
+        <result column="level"                 property="level"/>
+        <result column="description"           property="description"/>
+        <result column="extra_information"     property="extraInformation"/>
+        <result column="create_time"           property="createTime"/>
+        <result column="update_time"           property="updateTime"/>
+    </resultMap>
+
+    <sql id="ServiceWideFields">
+        `id`,
+        `guid`,
+        `name`,
+        `path`,
+        `type`,
+        `alias`,
+        `resource_type`,
+        `service_type`,
+        `scenario`,
+        `primary_impl_lang`,
+        `level`,
+        `description`,
+        `extra_information`,
+        `create_time`,
+        `update_time`
+    </sql>
+
+    <sql id="ServiceQueryFrom">
+        FROM `hydra_service_service_node`
+    </sql>
+
+    <sql id="ServiceQueryWhere">
+        <where>
+            <if test="query.serviceGuid != null">
+                AND `guid` = #{query.serviceGuid}
+            </if>
+            <if test="query.type != null and query.type != ''">
+                AND `type` = #{query.type}
+            </if>
+            <if test="query.alias != null and query.alias != ''">
+                AND `alias` = #{query.alias}
+            </if>
+            <if test="query.resourceType != null and query.resourceType != ''">
+                AND `resource_type` = #{query.resourceType}
+            </if>
+            <if test="query.serviceType != null and query.serviceType != ''">
+                AND `service_type` = #{query.serviceType}
+            </if>
+            <if test="query.scenario != null and query.scenario != ''">
+                AND `scenario` = #{query.scenario}
+            </if>
+            <if test="query.primaryImplLang != null and query.primaryImplLang != ''">
+                AND `primary_impl_lang` = #{query.primaryImplLang}
+            </if>
+            <if test="query.level != null and query.level != ''">
+                AND `level` = #{query.level}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    `guid` = #{query.keyword}
+                    OR `name` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `alias` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `service_type` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `description` LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
 
     <insert id="insert" parameterType="com.pinecone.hydra.service.kom.entity.GenericServiceElement">
         INSERT INTO `hydra_service_service_node`
         (
             `guid`,
-            `name`
+            `name`,
+            `path`,
+            `type`,
+            `alias`,
+            `resource_type`,
+            `service_type`,
+            `scenario`,
+            `primary_impl_lang`,
+            `level`,
+            `description`,
+            `extra_information`
         )
         VALUES
         (
             #{guid},
-            #{name}
+            #{name},
+            #{path},
+            #{type},
+            #{alias},
+            #{resourceType},
+            #{serviceType},
+            #{scenario},
+            #{primaryImplLang},
+            #{level},
+            #{description},
+            #{extraInformation}
         )
     </insert>
 
@@ -31,9 +141,7 @@
 
     <select id="getServiceNode" resultMap="ServiceNodeMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`
+        <include refid="ServiceWideFields"/>
         FROM `hydra_service_service_node`
         WHERE `guid` = #{guid}
     </select>
@@ -41,15 +149,23 @@
     <update id="update" parameterType="com.pinecone.hydra.service.kom.entity.GenericServiceElement">
         UPDATE `hydra_service_service_node`
         SET
-            `name` = #{name}
+            `name` = #{name},
+            `path` = #{path},
+            `type` = #{type},
+            `alias` = #{alias},
+            `resource_type` = #{resourceType},
+            `service_type` = #{serviceType},
+            `scenario` = #{scenario},
+            `primary_impl_lang` = #{primaryImplLang},
+            `level` = #{level},
+            `description` = #{description},
+            `extra_information` = #{extraInformation}
         WHERE `guid` = #{guid}
     </update>
 
     <select id="fetchServiceNodeByName0" resultMap="ServiceNodeMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`
+        <include refid="ServiceWideFields"/>
         FROM `hydra_service_service_node`
         WHERE `name` = #{name}
     </select>
@@ -71,10 +187,33 @@
 
     <select id="fetchAllService0" resultMap="ServiceNodeMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`
+        <include refid="ServiceWideFields"/>
         FROM `hydra_service_service_node`
+    </select>
+
+    <select id="countServices0" resultType="long">
+        SELECT COUNT(*)
+        <include refid="ServiceQueryFrom"/>
+        <include refid="ServiceQueryWhere"/>
+    </select>
+
+    <select id="fetchServices0" resultMap="ServiceNodeWideMap">
+        SELECT
+        <include refid="ServiceWideFields"/>
+        <include refid="ServiceQueryFrom"/>
+        <include refid="ServiceQueryWhere"/>
+        ORDER BY `update_time` DESC, `id` DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="fetchServicesByGuids0" resultMap="ServiceNodeWideMap">
+        SELECT
+        <include refid="ServiceWideFields"/>
+        FROM `hydra_service_service_node`
+        WHERE `guid` IN
+        <foreach collection="guids" item="guid" open="(" separator="," close=")">
+            #{guid}
+        </foreach>
     </select>
 
 </mapper>

@@ -18,13 +18,16 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
             Long clientId, Object connectId, Object connection, Object context,
             Supplier<ServiceClientile> constructor
     ) {
-        this.mUniformServiceManager.mClientRegistry.compute( clientId, (key, ins ) -> {
-            if ( ins == null ) {
-                ins = constructor.get();
-            }
-            ins.afterNewConnectionInbound( clientId, connectId, connection, context );
-            return ins;
-        } );
+        synchronized ( this.mUniformServiceManager.mClientRegistry ) {
+            this.mUniformServiceManager.mClientRegistry.compute( clientId, (key, ins ) -> {
+                if ( ins == null ) {
+                    ins = constructor.get();
+                }
+                ins.afterNewConnectionInbound( clientId, connectId, connection, context );
+                this.mUniformServiceManager.transportRegistry().queryTransportHandle( clientId );
+                return ins;
+            } );
+        }
     }
 
     @Override
@@ -37,8 +40,9 @@ public class UniformServiceEventHooker implements ServiceEventHooker {
                 client.afterConnectionDetach( clientId, channelId, connection );
 
                 if ( client.connectionCount() < 1 ) {
-                    this.mUniformServiceManager.mClientRegistry.remove( clientId );
-                    this.mUniformServiceManager.deregisterServiceInstance( clientId );
+                    if ( this.mUniformServiceManager.mClientRegistry.remove( clientId, client ) ) {
+                        this.mUniformServiceManager.markServiceInstanceDetached( clientId, connection );
+                    }
                 }
             }
         }

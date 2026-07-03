@@ -5,7 +5,6 @@ import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
-import com.pinecone.hydra.service.kom.source.ServiceMetaManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
 import com.pinecone.hydra.system.ko.UOIUtils;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
@@ -14,7 +13,6 @@ import com.pinecone.framework.util.id.GuidAllocator;
 
 public class ServiceElementOperator extends ArchElementOperator implements ElementOperator {
     protected ServiceNodeManipulator  serviceNodeManipulator;
-    protected ServiceMetaManipulator  serviceMetaManipulator;
 
     public ServiceElementOperator( ElementOperatorFactory factory ) {
         this( factory.getServiceMasterManipulator(),factory.getServicesTree() );
@@ -24,7 +22,6 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
     public ServiceElementOperator( ServiceMasterManipulator masterManipulator, ServiceInstrument serviceInstrument){
         super( masterManipulator, serviceInstrument);
        this.serviceNodeManipulator = masterManipulator.getServiceNodeManipulator();
-       this.serviceMetaManipulator = masterManipulator.getServiceMetaManipulator();
 
     }
 
@@ -40,21 +37,8 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         serviceElement.setGuid(serviceNodeGUID);
         this.serviceNodeManipulator.insert( serviceElement );
 
-        //将应用节点基础信息存入信息表
-        GUID metaGUID = guidAllocator.nextGUID();
-        if ( serviceElement.getMetaGuid() == null ){
-            serviceElement.setMetaGuid( metaGUID );
-        }
-        this.serviceMetaManipulator.insert( serviceElement );
-
-
-        //将应用元信息存入元信息表
-       this.nodeMetaManipulator.insert( serviceElement );
-
-
         //将节点信息存入主表
         GUIDImperialTrieNode node = new GUIDImperialTrieNode();
-        node.setNodeMetadataGUID( metaGUID );
         node.setGuid( serviceNodeGUID );
         node.setType( UOIUtils.createLocalJavaClass( treeNode.getClass().getName() ) );
         this.imperialTree.insert( node );
@@ -69,16 +53,13 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
     @Override
     public ServiceElement get( GUID guid ) {
         GUIDImperialTrieNode node = this.imperialTree.getNode(guid);
-        ServiceElement serviceElement = new GenericServiceElement();
-        if( node.getNodeMetadataGUID() != null ){
-            serviceElement = this.serviceMetaManipulator.getServiceMeta( node.getNodeMetadataGUID() );
+        ServiceElement serviceElement = this.serviceNodeManipulator.getServiceNode(guid);
+        if ( serviceElement == null ) {
+            serviceElement = new GenericServiceElement();
         }
-
-        this.applyCommonMeta( serviceElement, this.nodeMetaManipulator.getNodeCommonMeta( guid ) );
 
         serviceElement.setDistributedTreeNode(node);
         serviceElement.setGuid( guid );
-        serviceElement.setName( this.serviceNodeManipulator.getServiceNode(guid).getName() );
 
         return serviceElement;
     }
@@ -97,8 +78,6 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
     public void update( TreeNode nodeWideData ) {
         GenericServiceElement serviceElement = (GenericServiceElement) nodeWideData;
         this.serviceNodeManipulator.update( serviceElement );
-        this.serviceMetaManipulator.update( serviceElement );
-        this.nodeMetaManipulator.update( serviceElement );
     }
 
     @Override
@@ -111,7 +90,5 @@ public class ServiceElementOperator extends ArchElementOperator implements Eleme
         this.imperialTree.purge( guid );
         this.imperialTree.removeCachePath( guid );
         this.serviceNodeManipulator.remove( node.getGuid() );
-        this.serviceMetaManipulator.remove( node.getAttributesGUID() );
-        this.nodeMetaManipulator.remove( node.getNodeMetadataGUID() );
     }
 }

@@ -11,6 +11,8 @@ import com.pinecone.hydra.servgram.GramTransaction;
 import com.pinecone.hydra.servgram.LocalGramTransaction;
 import com.pinecone.hydra.servgram.Servgram;
 import com.sauron.heist.heistron.Heistgram;
+import com.sauron.heist.heistron.orchestration.provider.HeistletProviderRegistry;
+import com.sauron.heist.heistron.orchestration.provider.HeistletResolveContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ public class LocalHeistumOrchestrator extends ArchServgramOrchestrator implement
     protected Heistgram mHeistgram;
     protected List            mPreloadPrefixes;
     protected List            mPreloadSuffixes;
+    protected HeistletProviderRegistry mProviderRegistry = new HeistletProviderRegistry();
 
     public LocalHeistumOrchestrator( Processum parent, PatriarchalConfig sectionConfig, @Nullable GramFactory factory, GramTransaction transaction ) {
         super( parent, sectionConfig, factory, transaction );
@@ -80,10 +83,22 @@ public class LocalHeistumOrchestrator extends ArchServgramOrchestrator implement
     }
 
     @Override
+    public HeistletProviderRegistry providerRegistry() {
+        return this.mProviderRegistry;
+    }
+
+    @Override
     @SuppressWarnings( "unchecked" )
     protected List<Servgram > popping( String szName ) {
         List<String > prefixes = new ArrayList<>( this.mPreloadPrefixes );
         prefixes.add( szName + "." );
+
+        List<Servgram> provided = this.providerRegistry().popping(
+                new HeistletResolveContext( this.getHeistgram(), null, szName, false )
+        );
+        if ( !provided.isEmpty() ) {
+            return provided;
+        }
 
         return ( (GramFactory)this.getClassFactory() ).popping(
                 new FixScopeName(szName, prefixes, (List<String >)this.mPreloadSuffixes), this.getHeistgram()
@@ -92,6 +107,12 @@ public class LocalHeistumOrchestrator extends ArchServgramOrchestrator implement
 
     @Override
     protected List<Servgram > popping( Name name ) {
+        List<Servgram> provided = this.providerRegistry().popping(
+                new HeistletResolveContext( this.getHeistgram(), null, name.getName(), false )
+        );
+        if ( !provided.isEmpty() ) {
+            return provided;
+        }
         return ( (GramFactory)this.getClassFactory() ).popping( name, this.getHeistgram() );
     }
 }

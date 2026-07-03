@@ -2,6 +2,7 @@ package com.pinecone.hydra.task.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.task.kom.TaskInstrument;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.task.kom.entity.GenericTaskElement;
 import com.pinecone.hydra.task.kom.entity.TaskElement;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
@@ -11,7 +12,6 @@ import com.pinecone.slime.meta.TableIndex64Meta;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -39,6 +39,13 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     @Override
     void update( TaskElement taskElement );
 
+    @Override
+    int updateScheduleOffsetIfEnabled(
+            @Param( "guid" ) GUID guid,
+            @Param( "scheduleCron" ) String scheduleCron,
+            @Param( "nextScheduleTime" ) LocalDateTime nextScheduleTime
+    );
+
     List<GenericTaskElement> fetchTaskNodeByName0( @Param("name") String name );
 
     @Override
@@ -49,11 +56,9 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     }
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name}" )
-    List<GUID> getGuidsByName( String name );
+    List<GUID> getGuidsByName( @Param("name") String name );
 
     @Override
-    @Select( "SELECT `guid` FROM `hydra_task_task_node` WHERE `name` = #{name} AND `guid` = #{guid}" )
     List<GUID> getGuidsByNameID( @Param("name") String name, @Param("guid") GUID guid );
 
 
@@ -85,4 +90,9 @@ public interface TaskNodeMapper extends TaskNodeManipulator {
     @Override
     List<TaskElement> listPage(int offset, int pageSize);
 
+    @Override
+    List<TaskElementDigest> listDigests( @Param( "offset" ) int offset, @Param( "pageSize" ) int pageSize );
+
+    @Override
+    List<TaskElementDigest> fetchDigestsByGuids( @Param( "guids" ) Collection<GUID> guids );
 }

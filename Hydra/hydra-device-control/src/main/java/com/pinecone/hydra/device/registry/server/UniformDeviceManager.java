@@ -1,9 +1,10 @@
 package com.pinecone.hydra.device.registry.server;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +14,12 @@ import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 import com.pinecone.hydra.device.registry.DeviceControlRPCException;
 import com.pinecone.hydra.device.registry.DeviceValidationException;
-import com.pinecone.hydra.device.registry.appoint.DeviceAppointServer;
 import com.pinecone.hydra.device.registry.dto.DeviceRegistrationDTO;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationConfig;
+import com.pinecone.hydra.device.registry.server.detached.DeviceDetachedObservationRegistry;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransportRegistry;
+import com.pinecone.hydra.device.registry.server.transport.UniformDeviceControlTransportRegistry;
 import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
@@ -22,7 +27,7 @@ public class UniformDeviceManager implements DeviceManager {
 
     protected final DeviceInstrument mDeviceInstrument;
 
-    protected final ConcurrentMap<Long, DeviceAppointServer> mServerPoolMap;
+    protected final DeviceControlTransportRegistry mTransportRegistry;
 
     protected final DeviceLifecycleService mDeviceLifecycleService;
 
@@ -30,7 +35,17 @@ public class UniformDeviceManager implements DeviceManager {
 
     protected final DeviceTopologyService mDeviceTopologyService;
 
+    protected final DeviceRuntimeService mDeviceRuntimeService;
+
     protected final Logger mLogger;
+
+    protected final DeviceDetachedObservationRegistry mDetachedObservationRegistry;
+
+    protected DeviceDetachedObservationConfig mDetachedObservationConfig;
+
+    protected ScheduledExecutorService mDetachedObservationSweeper;
+
+    protected ExecutorService mDetachedExpirationExecutor;
 
     public UniformDeviceManager( DeviceInstrument deviceInstrument ) {
         if ( deviceInstrument == null ) {
@@ -38,11 +53,14 @@ public class UniformDeviceManager implements DeviceManager {
         }
 
         this.mDeviceInstrument = deviceInstrument;
-        this.mServerPoolMap = new ConcurrentHashMap<>();
+        this.mTransportRegistry = new UniformDeviceControlTransportRegistry();
         this.mDeviceLifecycleService = new DeviceLifecycleService( this );
         this.mDeviceMetaService = new DeviceMetaService( this );
         this.mDeviceTopologyService = new DeviceTopologyService( this );
+        this.mDeviceRuntimeService = new DeviceRuntimeService( this );
         this.mLogger = LoggerFactory.getLogger( this.getClass() );
+        this.mDetachedObservationConfig = new DeviceDetachedObservationConfig();
+        this.mDetachedObservationRegistry = new DeviceDetachedObservationRegistry();
     }
 
     @Override
@@ -56,28 +74,28 @@ public class UniformDeviceManager implements DeviceManager {
     }
 
     @Override
-    public Collection<DeviceAppointServer> getServers() {
-        return this.mServerPoolMap.values();
+    public Collection<DeviceControlTransport> getTransports() {
+        return this.mTransportRegistry.fetchTransports();
     }
 
     @Override
-    public DeviceManager addAppointServer( DeviceAppointServer appointServer ) {
-        this.mServerPoolMap.put( appointServer.getMessageNodeId(), appointServer );
+    public DeviceManager addTransport( DeviceControlTransport transport ) {
+        this.mTransportRegistry.addTransport( transport );
         return this;
     }
 
     @Override
-    public DeviceManager hookAppointServer( DeviceAppointServer appointServer ) {
-        this.addAppointServer( appointServer );
-        appointServer.hookDeviceManager( this );
+    public DeviceManager hookTransport( DeviceControlTransport transport ) {
+        this.addTransport( transport );
+        transport.hookDeviceManager( this );
         return this;
     }
 
     @Override
-    public DeviceManager vitalizeAppointServer( DeviceAppointServer appointServer ) throws DeviceControlRPCException {
+    public DeviceManager vitalizeTransport( DeviceControlTransport transport ) throws DeviceControlRPCException {
         try {
-            this.hookAppointServer( appointServer );
-            appointServer.execute();
+            this.hookTransport( transport );
+            transport.execute();
             return this;
         }
         catch ( Exception e ) {
@@ -86,37 +104,73 @@ public class UniformDeviceManager implements DeviceManager {
     }
 
     @Override
-    public DeviceAppointServer getAppointServerById( Long appointNodeId ) {
-        return this.mServerPoolMap.get( appointNodeId );
+    public DeviceControlTransport getTransportById( Long transportId ) {
+        return this.mTransportRegistry.getTransportById( transportId );
     }
 
     @Override
-    public DeviceAppointServer evictAppointServerById( Long appointNodeId ) {
-        DeviceAppointServer legacy = this.mServerPoolMap.remove( appointNodeId );
-        if ( legacy != null ) {
-            legacy.close();
-        }
-        return legacy;
+    public DeviceControlTransport evictTransportById( Long transportId ) {
+        return this.mTransportRegistry.evictTransportById( transportId );
     }
 
     @Override
-    public int serverSize() {
-        return this.mServerPoolMap.size();
+    public int transportSize() {
+        return this.mTransportRegistry.size();
     }
 
     @Override
     public void startDeviceManager() throws DeviceControlRPCException {
         try {
-            for ( Map.Entry<Long, DeviceAppointServer> entry : this.mServerPoolMap.entrySet() ) {
-                if ( !entry.getValue().isStarted() ) {
-                    entry.getValue().execute();
+            for ( DeviceControlTransport transport : this.mTransportRegistry.fetchTransports() ) {
+                if ( !transport.isStarted() ) {
+                    transport.execute();
                 }
             }
+            this.startDetachedObservationSweeper();
             this.infoLifecycle( "Device Manager RPC Subsystem Vitalization", LogStatuses.StatusDone );
         }
         catch ( Exception e ) {
             throw new DeviceControlRPCException( e );
         }
+    }
+
+    @Override
+    public void stopDeviceManager() {
+        this.stopDetachedObservationSweeper();
+        for ( DeviceControlTransport transport : this.mTransportRegistry.fetchTransports() ) {
+            try {
+                transport.close();
+            }
+            catch ( Exception e ) {
+                this.mLogger.warn(
+                        "[DeviceControl] [StopDeviceManager] (Transport: `{}`) <Failure>",
+                        transport == null ? null : transport.getName(),
+                        e
+                );
+            }
+        }
+    }
+
+    @Override
+    public void configureDetachedObservation( DeviceDetachedObservationConfig config ) {
+        if ( config == null ) {
+            this.mDetachedObservationConfig = new DeviceDetachedObservationConfig();
+            return;
+        }
+        this.mDetachedObservationConfig = config;
+        this.getLogger().info(
+                "[DeviceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    @Override
+    public DeviceDetachedObservationConfig detachedObservationConfig() {
+        return this.mDetachedObservationConfig;
     }
 
     @Override
@@ -176,6 +230,73 @@ public class UniformDeviceManager implements DeviceManager {
     @Override
     public DeviceTopologyService deviceTopologyService() {
         return this.mDeviceTopologyService;
+    }
+
+    @Override
+    public DeviceRuntimeService deviceRuntimeService() {
+        return this.mDeviceRuntimeService;
+    }
+
+    @Override
+    public DeviceControlTransportRegistry deviceControlTransportRegistry() {
+        return this.mTransportRegistry;
+    }
+
+    public DeviceDetachedObservationRegistry detachedObservationRegistry() {
+        return this.mDetachedObservationRegistry;
+    }
+
+    protected void sweepDetachedDeviceInstances() {
+        if ( !this.mDetachedObservationConfig.isEnable() || this.mDetachedExpirationExecutor == null ) {
+            return;
+        }
+
+        for ( var entry : this.mDetachedObservationRegistry.snapshotExpired( System.currentTimeMillis() ) ) {
+            this.mDetachedExpirationExecutor.submit( () -> this.mDeviceRuntimeService.settleDetachedDeviceInstance( entry ) );
+        }
+    }
+
+    protected void startDetachedObservationSweeper() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+        if ( this.mDetachedObservationSweeper != null ) {
+            return;
+        }
+
+        this.mDetachedExpirationExecutor = Executors.newFixedThreadPool(
+                this.mDetachedObservationConfig.getExpireAsyncThreads()
+        );
+        this.mDetachedObservationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+            Thread thread = new Thread( runnable, "Skynet-DeviceDetachedObservationSweeper" );
+            thread.setDaemon( true );
+            return thread;
+        } );
+        this.mDetachedObservationSweeper.scheduleWithFixedDelay(
+                this::sweepDetachedDeviceInstances,
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                TimeUnit.MILLISECONDS
+        );
+        this.getLogger().info(
+                "[DeviceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Started>",
+                this.mDetachedObservationConfig.isEnable(),
+                this.mDetachedObservationConfig.getGraceMillis(),
+                this.mDetachedObservationConfig.getSweepMillis(),
+                this.mDetachedObservationConfig.getExpireAsyncThreads(),
+                this.mDetachedObservationConfig.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void stopDetachedObservationSweeper() {
+        if ( this.mDetachedObservationSweeper != null ) {
+            this.mDetachedObservationSweeper.shutdownNow();
+            this.mDetachedObservationSweeper = null;
+        }
+        if ( this.mDetachedExpirationExecutor != null ) {
+            this.mDetachedExpirationExecutor.shutdownNow();
+            this.mDetachedExpirationExecutor = null;
+        }
     }
 
     protected void validateRegistration( DeviceRegistrationDTO registrationDTO ) {

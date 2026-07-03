@@ -1,11 +1,17 @@
 package com.walnut.odin.system;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import com.pinecone.framework.util.config.PatriarchalConfig;
 import com.pinecone.framework.util.io.Tracer;
+import com.pinecone.framework.util.json.JSONArray;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.MapStructure;
+import com.pinecone.hydra.grpc.server.GrpcAppointServer;
+import com.pinecone.hydra.grpc.server.GrpcServerConfig;
 import com.pinecone.framework.system.IrrationalProvokedException;
-import com.pinecone.hydra.layer.ibatis.hydranium.LayerMappingDriver;
 import com.pinecone.hydra.proc.ProcessManager;
 import com.pinecone.hydra.proc.ProcessManagerSystema;
 import com.pinecone.hydra.system.ArchModularizedSubsystem;
@@ -14,9 +20,6 @@ import com.pinecone.hydra.system.component.LogStatuses;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.umc.msg.MessageNode;
 import com.pinecone.hydra.umc.wolf.server.UlfServer;
-import com.pinecone.hydra.unit.vgraph.layer.LayerInstrument;
-import com.pinecone.hydra.unit.vgraph.layer.VLayerInstrument;
-import com.pinecone.hydra.unit.vgraph.source.AtlasMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.tritium.system.TritiumSystem;
 import com.walnut.odin.atlas.graph.RuntimeAtlasInstrument;
@@ -26,11 +29,18 @@ import com.walnut.odin.conduct.CollectiveTaskRegiment;
 import com.walnut.odin.conduct.RavenCollectiveTaskRegiment;
 import com.walnut.odin.conduct.schedule.RavenTaskScheduler;
 import com.walnut.odin.conduct.schedule.UniformTaskScheduler;
+import com.walnut.odin.formation.FormationColonel;
+import com.walnut.odin.formation.RavenFormationColonel;
 import com.walnut.odin.proc.RemoteProcessServiceRPCException;
 import com.walnut.odin.proc.server.RavenRemoteProcessManagerServer;
 import com.walnut.odin.proc.server.RemoteProcessManagerServer;
+import com.walnut.odin.proc.server.detached.RemoteProcessDetachedObservationConfig;
+import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlEventHooker;
+import com.walnut.odin.proc.server.transport.grpc.GrpcRemoteProcessControlTransportFactory;
+import com.walnut.odin.proc.server.transport.husky.HuskyRemoteProcessControlTransportFactory;
 import com.walnut.odin.task.CentralizedTaskInstrument;
 import com.walnut.odin.task.GenericRavenTaskConfig;
+import com.walnut.odin.task.RavenTaskConfig;
 import com.walnut.odin.task.RavenTaskInstrument;
 import com.walnut.odin.task.mapper.OdinUniformTaskMappingDriver;
 
@@ -38,10 +48,13 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     private CollectiveTaskRegiment  mTaskRegiment;
 
-    private LayerInstrument         mLayerInstrument;
     private RuntimeAtlasInstrument  mAtlasInstrument;
 
     private UniformTaskScheduler    mTaskScheduler;
+
+    private FormationColonel        mFormationColonel;
+
+    private List<GrpcAppointServer> mAutonomousGrpcServers = new ArrayList<>();
 
     @MapStructure("metaDependent.atlasDatabase")
     private String                  mszAtlasDatabaseKey;
@@ -66,7 +79,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
     protected void traceWelcomeInfo() {
         Tracer console = this.mPrimarySystem.console();
         console.getOut().print( "---------------------------------------------------------------\n" );
-        console.getOut().print( "\u001B[31mBean Nuts Acorn Odin\u001B[0m\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Walnut Odin\u001B[0m\n" );
         console.getOut().print( "\u001B[31mMassive Task Orchestration System \u001B[0m\n" );
         console.getOut().print( "\u001B[32mCopyright(C) 2008-2028 Bean Nuts Foundation. All rights reserved.\u001B[0m\n" );
         console.getOut().print( "---------------------------------------------------------------\n" );
@@ -88,12 +101,7 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
 
         TritiumSystem sys = (TritiumSystem) this.parentSystem();
-        KOIMappingDriver layerMappingDriver = new LayerMappingDriver(
-                sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
-                sys.getDispenserCenter()
-        );
-
-        AtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
+        OdinAtlasMappingDriver atlasMappingDriver = new OdinAtlasMappingDriver(
                 sys, (IbatisClient) sys.getMiddlewareDirector().getRDBManager().getRDBClientByName( this.mszAtlasDatabaseKey ),
                 sys.getDispenserCenter()
         );
@@ -109,24 +117,119 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         );
         this.infoLifecycle( "<Odin> Constructing component `TaskInstrument`.", LogStatuses.StatusDone );
 
-        this.mLayerInstrument = new VLayerInstrument( layerMappingDriver );
-        this.mAtlasInstrument = new UniformRuntimeAtlas( atlasMappingDriver, taskInstrument, this.mLayerInstrument );
+        this.mAtlasInstrument = new UniformRuntimeAtlas( taskInstrument, atlasMappingDriver.taskLineageMapper() );
         this.infoLifecycle( "<Odin> Constructing component `AtlasInstrument`.", LogStatuses.StatusDone );
 
-        MessageNode messageNode = sys.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( this.mszControlRPCDriverKey );
-        if ( messageNode == null ) {
-            messageNode = (MessageNode) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszControlRPCDriverKey );
+        ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
+        if ( pm == null ) {
+            throw new IrrationalProvokedException( "ProcessManager `" + this.mszProcessManagerKey + "` does not exist." );
         }
-        UlfServer rpcServer = (UlfServer) messageNode;
-        if ( rpcServer != null ) {
-            ProcessManager pm = (ProcessManager) sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( this.mszProcessManagerKey );
-            RemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm, rpcServer );
-            this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
-        }
+        RavenRemoteProcessManagerServer server = new RavenRemoteProcessManagerServer( pm );
+        this.configure_remote_process_detached_observation( server );
+        this.prepare_remote_process_control_transports( sys, server );
+        this.mTaskRegiment = new RavenCollectiveTaskRegiment( (ProcessManagerSystema) sys, taskInstrument, server );
         this.infoLifecycle( "<Odin> Constructing component `TaskRegiment`.", LogStatuses.StatusDone );
 
 
         this.infoLifecycle( "<Odin> Constructing components `Instrumentation`.", LogStatuses.StatusDone );
+    }
+
+    protected void configure_remote_process_detached_observation( RavenRemoteProcessManagerServer server ) {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "remoteProcessControl" );
+        JSONObject detachedObservationConfig = null;
+        if ( controlConfig != null ) {
+            detachedObservationConfig = controlConfig.optJSONObject( "detachedObservation" );
+        }
+
+        RemoteProcessDetachedObservationConfig config = new RemoteProcessDetachedObservationConfig( detachedObservationConfig );
+        server.configureDetachedObservation( config );
+        this.getLogger().info(
+                "[RemoteProcessControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                config.isEnable(),
+                config.getGraceMillis(),
+                config.getSweepMillis(),
+                config.getExpireAsyncThreads(),
+                config.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void prepare_remote_process_control_transports( TritiumSystem sys, RemoteProcessManagerServer server ) {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "remoteProcessControl" );
+        JSONArray transportConfigs = null;
+        if ( controlConfig != null ) {
+            transportConfigs = controlConfig.optJSONArray( "transports" );
+        }
+
+        if ( transportConfigs == null || transportConfigs.isEmpty() ) {
+            this.hook_husky_remote_process_control_transport( sys, server, this.mszControlRPCDriverKey );
+            return;
+        }
+
+        for ( int i = 0; i < transportConfigs.length(); i++ ) {
+            JSONObject transportConfig = transportConfigs.optJSONObject( i );
+            if ( transportConfig == null ) {
+                throw new IrrationalProvokedException( "Remote process control transport config at index `" + i + "` is not object." );
+            }
+            if ( !transportConfig.optBoolean( "enable", true ) ) {
+                continue;
+            }
+
+            String szType = transportConfig.optString( "type", "" ).toLowerCase( Locale.ROOT );
+            if ( "husky".equals( szType ) ) {
+                String szDriver = transportConfig.optString( "driver", this.mszControlRPCDriverKey );
+                this.hook_husky_remote_process_control_transport( sys, server, szDriver );
+                continue;
+            }
+            if ( "grpc".equals( szType ) ) {
+                this.hook_grpc_remote_process_control_transport( server, transportConfig );
+                continue;
+            }
+
+            throw new IrrationalProvokedException( "Unknown remote process control transport type `" + szType + "`." );
+        }
+    }
+
+    protected void hook_husky_remote_process_control_transport( TritiumSystem sys, RemoteProcessManagerServer server, String szDriver ) {
+        UlfServer rpcServer = this.resolve_husky_rpc_server( sys, szDriver );
+        server.hookTransport( HuskyRemoteProcessControlTransportFactory.create( server, rpcServer ) );
+        this.getLogger().info( "[RemoteProcessControlTransport] [Husky] (Driver: `{}`) <Hooked>", szDriver );
+    }
+
+    protected UlfServer resolve_husky_rpc_server( TritiumSystem sys, String szDriver ) {
+        Object component = null;
+        MessageNode messageNode = sys.getMiddlewareDirector().getMessagersManager().getMessageNodeByName( szDriver );
+        if ( messageNode != null ) {
+            component = messageNode;
+        }
+        if ( component == null ) {
+            component = sys.getDispenserCenter().getInstanceDispenser().getRegisteredInstance( szDriver );
+        }
+        if ( component instanceof UlfServer ) {
+            return (UlfServer) component;
+        }
+
+        throw new IrrationalProvokedException( "Control RPC driver `" + szDriver + "` does not exist or is not UlfServer." );
+    }
+
+    protected void hook_grpc_remote_process_control_transport( RemoteProcessManagerServer server, JSONObject transportConfig ) {
+        GrpcServerConfig grpcConfig = new GrpcServerConfig( transportConfig );
+        if ( !grpcConfig.isEnabled() ) {
+            return;
+        }
+
+        String szName = transportConfig.optString( "name", "OdinGrpcControlServer" );
+        long nMessageNodeId = transportConfig.optLong( "messageNodeId", grpcConfig.getPort() );
+        GrpcAppointServer grpcServer = new GrpcAppointServer( szName, nMessageNodeId, grpcConfig );
+
+        server.hookTransport(
+                new GrpcRemoteProcessControlTransportFactory().create(
+                        server,
+                        grpcServer,
+                        new GrpcRemoteProcessControlEventHooker( server.transportRegistry() )
+                )
+        );
+        this.mAutonomousGrpcServers.add( grpcServer );
+        this.getLogger().info( "[RemoteProcessControlTransport] [gRPC] (Name: `{}`, Port: `{}`) <Hooked>", szName, grpcConfig.getPort() );
     }
 
     protected void prepare_remote_process_server() {
@@ -152,12 +255,72 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         this.infoLifecycle( "<Odin> Constructing component `TaskScheduler`.", LogStatuses.StatusDone );
     }
 
+    protected void prepare_scheduler_runtime() {
+        if ( this.mTaskScheduler == null ) {
+            return;
+        }
+
+        RavenTaskConfig config = this.mTaskScheduler.ravenTaskConfig();
+        if ( !config.isSchedulerEnabled() ) {
+            this.getLogger().info( "[OdinScheduler] [RuntimeDisabled] (Reason: `scheduler-disabled`) <Pass>" );
+            return;
+        }
+        if ( !"single-master".equals( config.getSchedulerMode().toLowerCase( Locale.ROOT ) ) ) {
+            this.getLogger().info(
+                    "[OdinScheduler] [RuntimeDisabled] (Reason: `unsupported-mode`, Mode: `{}`) <Pass>",
+                    config.getSchedulerMode()
+            );
+            return;
+        }
+
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerRuntime`.", LogStatuses.StatusStart );
+        if ( config.isSchedulerCycleEngineEnabled() ) {
+            this.traceSchedulerCycleEngineBanner( config );
+        }
+        this.mTaskScheduler.startService();
+        this.infoLifecycle( "<Odin> Starting component `TaskSchedulerRuntime`.", LogStatuses.StatusReady );
+    }
+
+    protected void prepare_formation_colonel() {
+        this.infoLifecycle( "<Odin> Constructing component `FormationColonel`.", LogStatuses.StatusStart );
+        this.mFormationColonel = new RavenFormationColonel( this );
+        this.mFormationColonel.prepare();
+        this.infoLifecycle( "<Odin> Constructing component `FormationColonel`.", LogStatuses.StatusDone );
+    }
+
+    protected void prepare_formation_engine() {
+        if ( this.mFormationColonel == null ) {
+            return;
+        }
+
+        this.infoLifecycle( "<Odin> Starting component `FormationEngine`.", LogStatuses.StatusStart );
+        this.mFormationColonel.start();
+        this.infoLifecycle( "<Odin> Starting component `FormationEngine`.", LogStatuses.StatusReady );
+    }
+
+    protected void traceSchedulerCycleEngineBanner( RavenTaskConfig config ) {
+        Tracer console = this.mPrimarySystem.console();
+        console.getOut().print( "---------------------------------------------------------------\n" );
+        console.getOut().print( "\u001B[31mBean Nuts Walnut Odin Scheduler Cycle Engine\u001B[0m\n" );
+        console.getOut().print( "Mode       : " + config.getSchedulerMode() + "\n" );
+        console.getOut().print( "Partition  : " + config.getSchedulePartitionName() + "\n" );
+        console.getOut().print( "Node       : " + config.getSchedulerNodeId() + "\n" );
+        console.getOut().print( "Tick       : " + Math.max( 1L, config.getScheduleCycleEngineTickMillis() ) + " ms\n" );
+        console.getOut().print( "Hourly     : " + config.getScheduleCycleEngineHourlyPulseMillis() + " ms\n" );
+        console.getOut().print( "Daily      : " + config.getScheduleCycleEngineDailyPulseMillis() + " ms\n" );
+        console.getOut().print( "Recovery   : " + config.getScheduleCycleEngineRecoveryPulseMillis() + " ms\n" );
+        console.getOut().print( "---------------------------------------------------------------\n" );
+    }
+
     protected void prepare_system_skeleton() {
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusStart );
 
         this.prepare_instrumentation();
         this.prepare_remote_process_server();
         this.prepare_scheduler();
+        this.prepare_scheduler_runtime();
+        this.prepare_formation_colonel();
+        this.prepare_formation_engine();
 
 
         this.infoLifecycle( "<Odin> Preparing system skeleton.", LogStatuses.StatusDone );
@@ -170,12 +333,19 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
 
     @Override
     public void terminate() {
-
-    }
-
-
-    public LayerInstrument layerInstrument() {
-        return this.mLayerInstrument;
+        if ( this.mFormationColonel != null ) {
+            this.mFormationColonel.shutdown();
+        }
+        if ( this.mTaskScheduler != null ) {
+            this.mTaskScheduler.terminateService();
+        }
+        if ( this.mTaskRegiment != null ) {
+            this.mTaskRegiment.remoteProcessManagerServer().terminateService();
+        }
+        for ( GrpcAppointServer grpcServer : this.mAutonomousGrpcServers ) {
+            grpcServer.shutdown();
+        }
+        this.mAutonomousGrpcServers.clear();
     }
 
     public RuntimeAtlasInstrument atlasInstrument() {
@@ -190,5 +360,8 @@ public class Odin extends ArchModularizedSubsystem implements TaskCentralControl
         return this.mTaskScheduler;
     }
 
+    public FormationColonel formationColonel() {
+        return this.mFormationColonel;
+    }
 
 }

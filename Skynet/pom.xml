@@ -19,5 +19,7 @@
         <module>skynet-architecture</module>
         <module>skynet-system</module>
         <module>skynet-framework-device</module>
+        <module>skynet-device-husky-control</module>
+        <module>skynet-device-grpc-control</module>
     </modules>
 </project>

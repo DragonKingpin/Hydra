@@ -1,13 +1,17 @@
 package com.pinecone.hydra.task.kom;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.system.ko.KernelObjectConfig;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.GenericAppElement;
@@ -23,6 +27,7 @@ import com.pinecone.hydra.task.kom.source.AppNodeManipulator;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNamespaceManipulator;
 import com.pinecone.hydra.task.kom.source.TaskNodeManipulator;
+import com.pinecone.hydra.task.kom.source.TaskTreeDigestManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -31,6 +36,7 @@ import com.pinecone.hydra.system.ko.driver.KOISkeletonMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ArchReparseKOMTree;
 import com.pinecone.hydra.system.ko.kom.GenericReparseKOMTreeAddition;
 import com.pinecone.hydra.system.ko.kom.MultiFolderPathSelector;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -45,6 +51,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected TaskMasterManipulator       taskMasterManipulator;
 
+    protected TaskTreeDigestManipulator   taskTreeDigestManipulator;
+
     protected TaskNamespaceManipulator    taskNamespaceManipulator;
 
     protected AppNodeManipulator          appNodeManipulator;
@@ -57,6 +65,10 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
 
     protected InstanceInstrument          instanceInstrument;
 
+    protected TaskScheduleSemanticValidator mTaskScheduleSemanticValidator;
+
+    protected ThreadLocal<Boolean>          mTaskScheduleValidationSilenced;
+
     public UniformTaskInstrument(
             Processum superiorProcess, KOIMasterManipulator masterManipulator, TaskInstrument parent, String name, KernelObjectConfig config,
             @Nullable GuidAllocator guidAllocator
@@ -64,6 +76,7 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         super( superiorProcess, masterManipulator, TaskInstrument.KernelServiceConfig, parent, name, guidAllocator );
 
         this.taskMasterManipulator       = (TaskMasterManipulator) masterManipulator;
+        this.taskTreeDigestManipulator   = this.taskMasterManipulator.getTaskTreeDigestManipulator();
         this.taskNamespaceManipulator    = this.taskMasterManipulator.getNamespaceManipulator();
         this.appNodeManipulator          = this.taskMasterManipulator.getAppNodeManipulator();
         this.taskNodeManipulator         = this.taskMasterManipulator.getTaskNodeManipulator();
@@ -81,6 +94,8 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         );
         this.mReparseKOM                 = new GenericReparseKOMTreeAddition( this );
         this.instanceInstrument          = new KernelInstanceInstrument( this, this.taskMasterManipulator.getInstanceNodeManipulator() );
+        this.mTaskScheduleSemanticValidator = new TaskScheduleSemanticValidator();
+        this.mTaskScheduleValidationSilenced = ThreadLocal.withInitial( () -> false );
         this.kernelObjectConfig          = config;
     }
 
@@ -162,25 +177,199 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
-    public AppElement affirmJob(String path ) {
-        return (AppElement) this.affirmTreeNodeByPath( path, GenericAppElement.class, GenericNamespace.class );
+    public TaskTreeElementDigest queryTaskTreeDigestByPath( String path ) {
+        TaskTreeElementDigest digest = null;
+        GUID guid = this.queryGUIDByPath( path );
+        if ( guid != null ) {
+            digest = this.taskTreeDigestManipulator.queryDigestByGuid( guid );
+        }
+        return this.rectifyTaskTreeDigestPath( digest, path, null );
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid ) {
+        return this.rectifyTaskTreeDigestPath( this.taskTreeDigestManipulator.queryDigestByGuid( guid ), null, null );
+    }
+
+    @Override
+    public List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid ) {
+        return this.rectifyTaskTreeDigestPaths(
+                this.taskTreeDigestManipulator.fetchChildDigests( parentGuid ),
+                this.safeGetPath( parentGuid )
+        );
+    }
+
+    @Override
+    public List<TaskElementDigest> listTaskElementDigests( int offset, int pageSize ) {
+        return this.rectifyTaskElementDigestPaths( this.taskNodeManipulator.listDigests( offset, pageSize ) );
+    }
+
+    @Override
+    public List<TaskElementDigest> fetchTaskElementDigestsByGuids( Collection<GUID> guids ) {
+        return this.rectifyTaskElementDigestPaths( this.taskNodeManipulator.fetchDigestsByGuids( guids ) );
+    }
+
+    protected List<TaskTreeElementDigest> rectifyTaskTreeDigestPaths( List<TaskTreeElementDigest> digests, String szParentPath ) {
+        if ( digests == null || digests.isEmpty() ) {
+            return digests;
+        }
+
+        for ( TaskTreeElementDigest digest : digests ) {
+            this.rectifyTaskTreeDigestPath( digest, null, szParentPath );
+        }
+        return digests;
+    }
+
+    protected TaskTreeElementDigest rectifyTaskTreeDigestPath( TaskTreeElementDigest digest, String szRequestPath, String szParentPath ) {
+        if ( digest == null ) {
+            return null;
+        }
+
+        String szResolvedPath = this.resolveJoinedPath( digest.getPath(), digest.getLongPath() );
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.safeGetPath( digest.getGuid() );
+        }
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = szRequestPath;
+        }
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.joinPath( szParentPath, this.resolveDigestName( digest ) );
+        }
+        if ( !this.isBlank( szResolvedPath ) ) {
+            digest.setPath( szResolvedPath );
+        }
+        return digest;
+    }
+
+    protected List<TaskElementDigest> rectifyTaskElementDigestPaths( List<TaskElementDigest> digests ) {
+        if ( digests == null || digests.isEmpty() ) {
+            return digests;
+        }
+
+        for ( TaskElementDigest digest : digests ) {
+            this.rectifyTaskElementDigestPath( digest );
+        }
+        return digests;
+    }
+
+    protected TaskElementDigest rectifyTaskElementDigestPath( TaskElementDigest digest ) {
+        if ( digest == null ) {
+            return null;
+        }
+
+        String szResolvedPath = this.resolveJoinedPath( digest.getKomPath(), digest.getSystemKernelObjectPath() );
+        if ( this.isBlank( szResolvedPath ) ) {
+            szResolvedPath = this.safeGetPath( digest.getGuid() );
+        }
+        if ( !this.isBlank( szResolvedPath ) ) {
+            digest.setKomPath( szResolvedPath );
+        }
+
+        String szSystemPath = this.safeQuerySystemKernelObjectPath( digest.getGuid() );
+        digest.setSystemKernelObjectPath( this.isBlank( szSystemPath ) ? szResolvedPath : szSystemPath );
+        return digest;
+    }
+
+    protected String resolveJoinedPath( String szPath, String szLongPath ) {
+        if ( this.isBlank( szPath ) ) {
+            return szLongPath;
+        }
+        if ( this.isBlank( szLongPath ) ) {
+            return szPath;
+        }
+        if ( szLongPath.startsWith( szPath ) ) {
+            return szLongPath;
+        }
+        return szPath + szLongPath;
+    }
+
+    protected String safeGetPath( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+        try {
+            return this.getPath( guid );
+        } catch ( RuntimeException exception ) {
+            return null;
+        }
+    }
+
+    protected String safeQuerySystemKernelObjectPath( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+        try {
+            return this.querySystemKernelObjectPath( guid );
+        } catch ( RuntimeException exception ) {
+            return null;
+        }
+    }
+
+    protected String resolveDigestName( TaskTreeElementDigest digest ) {
+        if ( digest == null ) {
+            return null;
+        }
+        if ( !this.isBlank( digest.getName() ) ) {
+            return digest.getName();
+        }
+        return digest.getGuid() == null ? null : digest.getGuid().toString();
+    }
+
+    protected String joinPath( String szParentPath, String szName ) {
+        if ( this.isBlank( szName ) ) {
+            return szParentPath;
+        }
+        if ( this.isBlank( szParentPath ) ) {
+            return szName;
+        }
+
+        String szSeparator = this.kernelObjectConfig.getPathNameSeparator();
+        String szNormalizedParent = szParentPath.endsWith( szSeparator )
+                ? szParentPath.substring( 0, szParentPath.length() - szSeparator.length() )
+                : szParentPath;
+        return szNormalizedParent + szSeparator + szName;
+    }
+
+    protected boolean isBlank( String szValue ) {
+        return szValue == null || szValue.trim().isEmpty();
+    }
+
+    @Override
+    public AppElement affirmApp( String path ) {
+        return ( AppElement ) this.affirmTreeNodeByPath( path, GenericAppElement.class, GenericNamespace.class );
     }
 
     @Override
     public TaskElement affirmTask( String path ,TaskElement metaInfos) {
-        TaskElement taskElement =  (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+        this.mTaskScheduleSemanticValidator.validate( metaInfos );
+
+        boolean bOriginalSilenced = this.mTaskScheduleValidationSilenced.get();
+        this.mTaskScheduleValidationSilenced.set( true );
+        TaskElement taskElement;
+        try {
+            taskElement =  (TaskElement) this.affirmTreeNodeByPath( path, GenericTaskElement.class, GenericNamespace.class );
+        }
+        finally {
+            this.mTaskScheduleValidationSilenced.set( bOriginalSilenced );
+        }
+
         taskElement.setActuallyPriority( metaInfos.getActuallyPriority() );
         taskElement.setDeploymentMethod( metaInfos.getDeploymentMethod() );
         taskElement.setEnable( metaInfos.isEnable());
         taskElement.setDryRun( metaInfos.isDryRun() );
+        taskElement.setTimeoutSeconds( metaInfos.getTimeoutSeconds() );
+        taskElement.setRetryTimes( metaInfos.getRetryTimes() );
+        taskElement.setRetryIntervalSeconds( metaInfos.getRetryIntervalSeconds() );
         taskElement.setPriority( metaInfos.getPriority() );
         taskElement.setResourceType( metaInfos.getResourceType() );
         taskElement.setScheduleCycle( metaInfos.getScheduleCycle() );
         taskElement.setScheduleType( metaInfos.getScheduleType() );
         taskElement.setType( metaInfos.getType() );
         taskElement.setImagePath( metaInfos.getImagePath() );
+        taskElement.setExecArch( metaInfos.getExecArch() );
         taskElement.setName( metaInfos.getName() );
         taskElement.setGuid( metaInfos.getGuid() );
+        this.mTaskScheduleSemanticValidator.validate( taskElement );
         return taskElement;
     }
 
@@ -226,6 +415,102 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
         return false;
     }
 
+    @Override
+    public void move( String sourcePath, String destinationPath ) {
+        GUID sourceGuid = this.queryGUIDByPath( sourcePath );
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source path not found: " + sourcePath );
+        }
+
+        GUID destinationGuid = this.queryGUIDByPath( destinationPath );
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination path not found: " + destinationPath );
+        }
+
+        this.move( sourceGuid, destinationGuid );
+    }
+
+    @Override
+    public void move( GUID sourceGuid, GUID destinationGuid ) {
+        this.assertMovable( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+        this.imperialTree.moveTo( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+    }
+
+    protected void assertMovable( GUID sourceGuid, GUID destinationGuid ) {
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source guid should not be null." );
+        }
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination guid should not be null." );
+        }
+        if ( sourceGuid.equals( destinationGuid ) ) {
+            throw new IllegalArgumentException( "Task move destination should not be source node: " + sourceGuid );
+        }
+        if ( this.imperialTree.isRoot( sourceGuid ) ) {
+            throw new IllegalArgumentException( "Task root node cannot be moved: " + sourceGuid );
+        }
+
+        TreeNode sourceNode = this.get( sourceGuid );
+        if ( sourceNode == null ) {
+            throw new IllegalArgumentException( "Task move source node not found: " + sourceGuid );
+        }
+
+        TreeNode destinationNode = this.get( destinationGuid );
+        if ( !this.isMoveDestinationNode( destinationNode ) ) {
+            throw new IllegalArgumentException( "Task move destination should be directory node: " + destinationGuid );
+        }
+
+        this.assertMoveNotDescendant( sourceGuid, destinationGuid );
+        this.assertMoveNoConflict( sourceGuid, destinationGuid, sourceNode.getName() );
+    }
+
+    protected boolean isMoveDestinationNode( TreeNode node ) {
+        return node instanceof Namespace || node instanceof AppElement;
+    }
+
+    protected void assertMoveNotDescendant( GUID sourceGuid, GUID destinationGuid ) {
+        List<GUID> frontier = new ArrayList<>();
+        frontier.add( destinationGuid );
+        Set<GUID> visited = new HashSet<>();
+        while ( !frontier.isEmpty() ) {
+            GUID current = frontier.remove( frontier.size() - 1 );
+            if ( current == null || !visited.add( current ) ) {
+                continue;
+            }
+            if ( current.equals( sourceGuid ) ) {
+                throw new IllegalArgumentException( "Task move destination is under source node: " + sourceGuid );
+            }
+            List<GUID> parentGuids = this.imperialTree.fetchParentGuids( current );
+            if ( parentGuids != null ) {
+                frontier.addAll( parentGuids );
+            }
+        }
+    }
+
+    protected void assertMoveNoConflict( GUID sourceGuid, GUID destinationGuid, String szName ) {
+        List<TreeNode> children = this.getChildren( destinationGuid );
+        for ( TreeNode child : children ) {
+            if ( child == null || child.getGuid() == null || child.getGuid().equals( sourceGuid ) ) {
+                continue;
+            }
+            if ( szName != null && szName.equals( child.getName() ) ) {
+                throw new IllegalArgumentException( "Task move destination already contains node: " + szName );
+            }
+        }
+    }
+
+    protected void removeCachePathRecursively( GUID guid ) {
+        this.imperialTree.removeCachePath( guid );
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.removeCachePathRecursively( child.getGuid() );
+            }
+        }
+    }
+
 
     /**
      * Affirm path exist in cache, if required.
@@ -244,7 +529,16 @@ public class UniformTaskInstrument extends ArchReparseKOMTree implements TaskIns
     }
 
     @Override
+    public GUID put( TreeNode treeNode ) {
+        if ( !this.mTaskScheduleValidationSilenced.get() ) {
+            this.mTaskScheduleSemanticValidator.validateForPersistence( treeNode );
+        }
+        return super.put( treeNode );
+    }
+
+    @Override
     public void update( TreeNode treeNode ) {
+        this.mTaskScheduleSemanticValidator.validateForPersistence( treeNode );
         TreeNodeOperator operator = this.operatorFactory.getOperator( treeNode.getMetaType() );
         operator.update( treeNode );
     }

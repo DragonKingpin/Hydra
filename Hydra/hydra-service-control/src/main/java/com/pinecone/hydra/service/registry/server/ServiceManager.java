@@ -1,7 +1,6 @@
 package com.pinecone.hydra.service.registry.server;
 
 import java.util.Collection;
-import java.util.function.Supplier;
 
 import com.pinecone.framework.system.regime.arch.Manager;
 import com.pinecone.framework.util.id.GUID;
@@ -10,9 +9,13 @@ import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
+import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
 import com.pinecone.hydra.service.registry.appoint.ServiceAppointServer;
-import com.pinecone.hydra.service.registry.event.ServiceRegisterEventHandler;
+import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
+import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
+import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
+import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.system.component.Slf4jTraceable;
 
 public interface ServiceManager extends Manager, Slf4jTraceable {
@@ -42,13 +45,23 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
 
     ServiceEventHooker serviceEventHooker();
 
+    ServiceControlTransportRegistry transportRegistry();
+
+    void configureDetachedObservation( ServiceDetachedObservationConfig config );
+
+    void markServiceInstanceDetached( Long clientId, Object caused );
+
 
 
     void startService () throws ServiceControlRPCException;
 
+    void terminateService () throws IllegalStateException;
+
     void registerServiceInstance( ServiceInstance instance );
 
     GUID registerService( Long clientId, GUID serviceId, GUID deployGuid ) throws ClientServiceRegisterException;
+
+    GUID registerService( RegisterServiceDTO serviceDTO ) throws ClientServiceRegisterException;
 
     void destroyServiceInstance( GUID serviceId, GUID instanceGuid );
 
@@ -114,6 +127,8 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
 
     Collection<ServiceInstance >  deregisterService( Identification serviceId );
 
+    void shutdownServiceInstance( Identification instanceId, String szReason ) throws ServiceControlRPCException;
+
 
 
     ServiceInstrument getServicesInstrument();
@@ -122,9 +137,9 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
 
 
 
-    void addRegisterEventHandler( ServiceRegisterEventHandler handler ) ;
+    void addRegisterEventHandler( InstanceLifecycleEventHandler handler ) ;
 
-    void removeRegisterEventHandler( ServiceRegisterEventHandler handler ) ;
+    void removeRegisterEventHandler( InstanceLifecycleEventHandler handler ) ;
 
     int registerEventHandlerSize(  ) ;
 
@@ -134,5 +149,7 @@ public interface ServiceManager extends Manager, Slf4jTraceable {
     ServiceLifecycleService serviceLifecycleService();
 
     ServiceMetaService getServiceMetaService();
+
+    ServiceControlInspection inspectServiceControl();
 
 }

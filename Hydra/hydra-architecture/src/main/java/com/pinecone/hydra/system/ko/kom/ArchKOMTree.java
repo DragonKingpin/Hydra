@@ -232,7 +232,10 @@ public abstract class ArchKOMTree extends ArchRegimentObjectModel implements KOM
 
         guid = this.pathSelector.searchGUID( resolvedParts );
         if( guid != null ){
-            this.imperialTree.insertCachePath( guid, path );
+            try {
+                this.imperialTree.insertCachePath( guid, path );
+            } catch ( RuntimeException ignored ) {
+            }
         }
         return guid;
     }

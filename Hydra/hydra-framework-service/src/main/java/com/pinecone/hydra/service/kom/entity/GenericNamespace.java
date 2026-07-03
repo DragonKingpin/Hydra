@@ -1,5 +1,6 @@
 package com.pinecone.hydra.service.kom.entity;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
 
@@ -10,7 +11,6 @@ import com.pinecone.framework.util.json.JSONMaptron;
 import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.framework.util.json.homotype.BeanColonist;
 import com.pinecone.framework.util.json.homotype.BeanMapDecoder;
-import com.pinecone.hydra.service.kom.GenericNamespaceRules;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
@@ -20,15 +20,19 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     protected GUID                        metaGuid;
 
-    protected GUIDImperialTrieNode distributedTreeNode;
+    protected LocalDateTime               createTime;
 
-    protected GenericNamespaceRules       classificationRules;
+    protected LocalDateTime               updateTime;
+
+    protected GUIDImperialTrieNode distributedTreeNode;
 
     protected ServiceNamespaceManipulator namespaceManipulator;
 
 
     public GenericNamespace() {
         super();
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public GenericNamespace( Map<String, Object > joEntity ) {
@@ -43,6 +47,8 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
 
     public GenericNamespace( ServiceInstrument serviceInstrument) {
         super(serviceInstrument);
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 
     public GenericNamespace(ServiceInstrument serviceInstrument, ServiceNamespaceManipulator namespaceManipulator ) {
@@ -58,16 +64,6 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     @Override
     public void setDistributedTreeNode( GUIDImperialTrieNode distributedTreeNode ) {
         this.distributedTreeNode = distributedTreeNode;
-    }
-
-    @Override
-    public GenericNamespaceRules getClassificationRules() {
-        return this.classificationRules;
-    }
-
-    @Override
-    public void setClassificationRules( GenericNamespaceRules classificationRules ) {
-        this.classificationRules = classificationRules;
     }
 
     @Override
@@ -88,6 +84,22 @@ public class GenericNamespace extends ArchElementNode implements Namespace {
     @Override
     public void setRulesGUID( GUID rulesGUID ) {
         this.rulesGUID = rulesGUID;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return this.createTime;
+    }
+
+    public void setCreateTime( LocalDateTime createTime ) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return this.updateTime;
+    }
+
+    public void setUpdateTime( LocalDateTime updateTime ) {
+        this.updateTime = updateTime;
     }
 
     @Override

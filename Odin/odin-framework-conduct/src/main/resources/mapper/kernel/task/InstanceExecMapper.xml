@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceExecMapper">
+
+    <resultMap id="InstanceExecMap" type="com.walnut.odin.conduct.entity.GenericInstanceExec">
+        <result column="id"                     property="id"/>
+        <result column="task_guid"              property="taskGuid"/>
+        <result column="instance_guid"          property="instanceGuid"/>
+        <result column="task_name"              property="taskName"/>
+        <result column="process_guid"           property="processGuid"/>
+        <result column="instance_name"          property="instanceName"/>
+        <result column="processor_queue"        property="processorQueue"/>
+        <result column="affinity_processor"     property="affinityProcessor"/>
+        <result column="designated_processor"   property="designatedProcessor"/>
+        <result column="executed_processor"     property="executedProcessor"/>
+        <result column="image_path"             property="imagePath"/>
+        <result column="cluster_name"           property="clusterName"/>
+        <result column="exec_state"             property="execState"/>
+        <result column="sequence_cnt"           property="sequenceCnt"/>
+        <result column="current_retry_number"   property="currentRetryNumber"/>
+        <result column="retry_times"            property="retryTimes"/>
+        <result column="start_time"             property="startTime"/>
+        <result column="run_time"               property="runTime"/>
+        <result column="finish_time"            property="finishTime"/>
+    </resultMap>
+
+    <resultMap id="TableIndex64MetaMap" type="com.pinecone.slime.meta.TableIndex64Meta">
+        <result column="min_id" property="minId"/>
+        <result column="max_id" property="maxId"/>
+    </resultMap>
+
+    <sql id="ExecStateOrderByCurrent">
+        CASE exec_state
+            WHEN 'Submitted' THEN 1
+            WHEN 'Running' THEN 2
+            WHEN 'Success' THEN 10
+            WHEN 'Fail' THEN 10
+            WHEN 'Killed' THEN 10
+            ELSE 0
+        END
+    </sql>
+
+    <sql id="ExecStateOrderByTarget">
+        CASE #{execState}
+            WHEN 'Submitted' THEN 1
+            WHEN 'Running' THEN 2
+            WHEN 'Success' THEN 10
+            WHEN 'Fail' THEN 10
+            WHEN 'Killed' THEN 10
+            ELSE 0
+        END
+    </sql>
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO odin_task_instance_exec (
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        ) VALUES (
+                     #{taskGuid},
+                     #{instanceGuid},
+                     #{taskName},
+                     #{processGuid},
+                     #{instanceName},
+                     #{processorQueue},
+                     #{affinityProcessor},
+                     #{designatedProcessor},
+                     #{executedProcessor},
+                     #{imagePath},
+                     #{clusterName},
+                     #{execState},
+                     #{sequenceCnt},
+                     #{currentRetryNumber},
+                     #{retryTimes},
+                     #{startTime},
+                     #{runTime},
+                     #{finishTime}
+                 )
+    </insert>
+
+    <select id="queryByInstanceGuid" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY sequence_cnt DESC, current_retry_number DESC, id DESC
+        LIMIT 1
+    </select>
+
+    <select id="fetchByInstanceGuid" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY sequence_cnt DESC, current_retry_number DESC, id DESC
+    </select>
+
+    <select id="fetchByTaskGuids" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+        ORDER BY instance_guid, sequence_cnt DESC, current_retry_number DESC, id DESC
+    </select>
+
+    <select id="fetchActiveByTaskGuids" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+          AND exec_state IN
+        <foreach collection="execStates" item="execState" open="(" separator="," close=")">
+            #{execState}
+        </foreach>
+        ORDER BY instance_guid, sequence_cnt DESC, current_retry_number DESC, id DESC
+    </select>
+
+    <select id="queryByInstanceGuidAndRetry" resultMap="InstanceExecMap">
+        SELECT
+            id,
+            task_guid,
+            instance_guid,
+            task_name,
+            process_guid,
+            instance_name,
+            processor_queue,
+            affinity_processor,
+            designated_processor,
+            executed_processor,
+            image_path,
+            cluster_name,
+            exec_state,
+            sequence_cnt,
+            current_retry_number,
+            retry_times,
+            start_time,
+            run_time,
+            finish_time
+        FROM odin_task_instance_exec
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+        LIMIT 1
+    </select>
+
+    <select id="fetchTerminalExecsMissingLoggerAudit" resultMap="InstanceExecMap">
+        SELECT
+            exec.id,
+            exec.task_guid,
+            exec.instance_guid,
+            exec.task_name,
+            exec.process_guid,
+            exec.instance_name,
+            exec.processor_queue,
+            exec.affinity_processor,
+            exec.designated_processor,
+            exec.executed_processor,
+            exec.image_path,
+            exec.cluster_name,
+            exec.exec_state,
+            exec.sequence_cnt,
+            exec.current_retry_number,
+            exec.retry_times,
+            exec.start_time,
+            exec.run_time,
+            exec.finish_time
+        FROM odin_task_instance_exec exec
+        LEFT JOIN odin_task_ins_exec_audit audit
+          ON audit.instance_guid = exec.instance_guid
+         AND audit.sequence_cnt = exec.sequence_cnt
+         AND audit.current_retry_number = exec.current_retry_number
+         AND audit.audit_type = 'Logger'
+        WHERE exec.exec_state IN ('Success', 'Fail', 'Killed')
+          AND audit.id IS NULL
+        ORDER BY exec.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectRunningExecIdRange" resultMap="TableIndex64MetaMap">
+        SELECT
+            MIN( `id` ) AS min_id,
+            MAX( `id` ) AS max_id
+        FROM odin_task_instance_exec
+        WHERE exec_state = 'Running'
+    </select>
+
+    <resultMap id="RunningExecPatrolEntryMap" type="com.walnut.odin.patrol.GenericRunningExecPatrolEntry">
+        <result column="exec_id"                  property="execId"/>
+        <result column="task_guid"                property="taskGuid"/>
+        <result column="instance_guid"            property="instanceGuid"/>
+        <result column="task_name"                property="taskName"/>
+        <result column="instance_name"            property="instanceName"/>
+        <result column="process_guid"             property="processGuid"/>
+        <result column="executed_processor"       property="executedProcessor"/>
+        <result column="exec_state"               property="execState"/>
+        <result column="sequence_cnt"             property="sequenceCnt"/>
+        <result column="current_retry_number"     property="currentRetryNumber"/>
+        <result column="exec_start_time"          property="execStartTime"/>
+        <result column="exec_run_time"            property="execRunTime"/>
+        <result column="exec_update_time"         property="execUpdateTime"/>
+        <result column="instance_status"          property="instanceStatus"/>
+        <result column="instance_sequence_cnt"    property="instanceSequenceCnt"/>
+        <result column="instance_retry_cnt"       property="instanceRetryCnt"/>
+        <result column="dry_run"                  property="dryRun"/>
+        <result column="instance_update_time"     property="instanceUpdateTime"/>
+    </resultMap>
+
+    <select id="fetchRunningExecPatrolEntries" resultMap="RunningExecPatrolEntryMap">
+        SELECT
+            exec.id AS exec_id,
+            exec.task_guid,
+            exec.instance_guid AS instance_guid,
+            exec.task_name,
+            exec.instance_name,
+            exec.process_guid,
+            exec.executed_processor,
+            exec.exec_state,
+            exec.sequence_cnt,
+            exec.current_retry_number,
+            exec.start_time AS exec_start_time,
+            exec.run_time AS exec_run_time,
+            exec.update_time AS exec_update_time,
+            ins.run_status AS instance_status,
+            ins.sequence_cnt AS instance_sequence_cnt,
+            ins.retry_cnt AS instance_retry_cnt,
+            ins.dry_run,
+            ins.update_time AS instance_update_time
+        FROM odin_task_instance_exec exec
+        JOIN hydra_task_instances ins
+          ON ins.guid = exec.instance_guid
+        WHERE exec.id <![CDATA[ >= ]]> #{idMin}
+          AND exec.id <![CDATA[ <= ]]> #{idMax}
+          AND exec.exec_state = 'Running'
+          AND COALESCE( ins.dry_run, 0 ) = 0
+        ORDER BY exec.id ASC
+    </select>
+
+    <update id="updateStateByInstanceGuid" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="currentRetryNumber != null">
+                current_retry_number = #{currentRetryNumber},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+    </update>
+
+    <update id="updateStateByInstanceGuidAndRetry" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExec">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+            <if test="imagePath != null and imagePath != ''">
+                image_path = #{imagePath},
+            </if>
+            <if test="executedProcessor != null and executedProcessor != ''">
+                executed_processor = #{executedProcessor},
+            </if>
+            <if test="processGuid != null">
+                process_guid = #{processGuid},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateStateByInstanceGuidAndRetryFields">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateStateRetryMonotonic">
+        UPDATE odin_task_instance_exec
+        <set>
+            <if test="execState != null and execState != ''">
+                exec_state = #{execState},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="runTime != null">
+                run_time = #{runTime},
+            </if>
+            <if test="finishTime != null">
+                finish_time = #{finishTime},
+            </if>
+        </set>
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+          AND (
+              <include refid="ExecStateOrderByCurrent"/> <![CDATA[ < ]]> <include refid="ExecStateOrderByTarget"/>
+              OR exec_state = #{execState}
+          )
+    </update>
+
+    <update id="updateImagePathByInstanceGuidAndRetry">
+        UPDATE odin_task_instance_exec
+        SET image_path = #{imagePath}
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateExecutedProcessorByInstanceGuidAndRetry">
+        UPDATE odin_task_instance_exec
+        SET executed_processor = #{executedProcessor}
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <update id="updateProcessGuidByInstanceGuidAndRetry">
+        UPDATE odin_task_instance_exec
+        SET process_guid = #{processGuid}
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+    </update>
+
+    <delete id="deleteByTaskGuids">
+        DELETE FROM odin_task_instance_exec
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
+</mapper>

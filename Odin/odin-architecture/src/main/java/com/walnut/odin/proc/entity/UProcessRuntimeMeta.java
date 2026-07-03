@@ -15,8 +15,11 @@ public class UProcessRuntimeMeta implements Pinenut {
     private String      mszStartTime;
     private String      mszEndTime;
     private String      mszLastUpdateTime;
-    private String      mszMainThreadStatus;
+    private String      mszStatus;
     private boolean     mbTerminated;
+    private int         mnExitCode;
+    private String      mszMessage;
+    private String      mszTerminationStatus;
 
 
     public UProcessRuntimeMeta() {
@@ -57,12 +60,12 @@ public class UProcessRuntimeMeta implements Pinenut {
 
 
 
-    public String getMainThreadStatus() {
-        return this.mszMainThreadStatus;
+    public String getStatus() {
+        return this.mszStatus;
     }
 
-    public void setMainThreadStatus( String mainThreadStatus ) {
-        this.mszMainThreadStatus = mainThreadStatus;
+    public void setStatus( String status ) {
+        this.mszStatus = status;
     }
 
     public boolean isTerminated() {
@@ -71,6 +74,30 @@ public class UProcessRuntimeMeta implements Pinenut {
 
     public void setTerminated( boolean terminated ) {
         this.mbTerminated = terminated;
+    }
+
+    public int getExitCode() {
+        return this.mnExitCode;
+    }
+
+    public void setExitCode( int exitCode ) {
+        this.mnExitCode = exitCode;
+    }
+
+    public String getMessage() {
+        return this.mszMessage;
+    }
+
+    public void setMessage( String message ) {
+        this.mszMessage = message;
+    }
+
+    public String getTerminationStatus() {
+        return this.mszTerminationStatus;
+    }
+
+    public void setTerminationStatus( String terminationStatus ) {
+        this.mszTerminationStatus = terminationStatus;
     }
 
 

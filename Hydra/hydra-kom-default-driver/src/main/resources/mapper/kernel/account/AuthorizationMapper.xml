@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.AuthorizationMapper">
+
+    <sql id="AuthorizationColumns">
+        `id` AS `enumId`,
+        `guid`,
+        `user_name` AS `userName`,
+        `user_guid` AS `userGuid`,
+        `credential_guid` AS `credentialGuid`,
+        `privilege_token` AS `privilegeToken`,
+        `privilege_guid` AS `privilegeGuid`,
+        `create_time` AS `createTime`,
+        `update_time` AS `updateTime`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `hydra_account_authorization`
+        (
+            `guid`,
+            `user_name`,
+            `user_guid`,
+            `credential_guid`,
+            `privilege_token`,
+            `privilege_guid`,
+            `create_time`,
+            `update_time`
+        )
+        VALUES
+        (
+            #{guid},
+            #{userName},
+            #{userGuid},
+            #{credentialGuid},
+            #{privilegeToken},
+            #{privilegeGuid},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_account_authorization`
+        WHERE `guid` = #{authorizationGuid}
+    </delete>
+
+    <update id="update">
+        UPDATE `hydra_account_authorization`
+        SET
+            `update_time` = CURRENT_TIMESTAMP
+        WHERE `guid` = #{authorizationGuid}
+    </update>
+
+    <select id="queryCredential" resultType="com.pinecone.hydra.account.entity.GenericAuthorization">
+        SELECT
+            <include refid="AuthorizationColumns"/>
+        FROM `hydra_account_authorization`
+        WHERE `guid` = #{authorizationGuid}
+    </select>
+
+    <select id="queryAuthorizationByUserGuid" resultType="com.pinecone.hydra.account.entity.GenericAuthorization">
+        SELECT
+            <include refid="AuthorizationColumns"/>
+        FROM `hydra_account_authorization`
+        WHERE `user_guid` = #{userGuid}
+    </select>
+
+    <delete id="removeAuthorizationByUserGuid">
+        DELETE FROM `hydra_account_authorization`
+        WHERE `user_guid` = #{userGuid}
+    </delete>
+
+    <select id="queryAllAuthorization" resultType="com.pinecone.hydra.account.entity.GenericAuthorization">
+        SELECT
+            <include refid="AuthorizationColumns"/>
+        FROM `hydra_account_authorization`
+    </select>
+
+</mapper>

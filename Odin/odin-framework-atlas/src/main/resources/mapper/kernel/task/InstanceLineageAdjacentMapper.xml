@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceLineageAdjacentMapper">
+
+    <resultMap id="InstanceLineageAdjacentMap" type="com.walnut.odin.conduct.entity.GenericInstanceLineageAdjacent">
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="parent_instance_guid" property="parentInstanceGuid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="parent_task_guid" property="parentTaskGuid"/>
+        <result column="task_name" property="taskName"/>
+        <result column="parent_task_name" property="parentTaskName"/>
+        <result column="instance_name" property="instanceName"/>
+        <result column="parent_instance_name" property="parentInstanceName"/>
+        <result column="business_time" property="businessTime"/>
+        <result column="parent_business_time" property="parentBusinessTime"/>
+    </resultMap>
+
+    <insert id="insertIgnore" parameterType="com.walnut.odin.conduct.entity.GenericInstanceLineageAdjacent">
+        INSERT IGNORE INTO odin_atlas_task_instance_lineage_adjacent (
+            instance_guid,
+            parent_instance_guid,
+            task_guid,
+            parent_task_guid,
+            task_name,
+            parent_task_name,
+            instance_name,
+            parent_instance_name,
+            business_time,
+            parent_business_time
+        ) VALUES (
+                     #{instanceGuid},
+                     #{parentInstanceGuid},
+                     #{taskGuid},
+                     #{parentTaskGuid},
+                     #{taskName},
+                     #{parentTaskName},
+                     #{instanceName},
+                     #{parentInstanceName},
+                     #{businessTime},
+                     #{parentBusinessTime}
+                 )
+    </insert>
+
+    <delete id="deleteByInstanceGuid">
+        DELETE FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE instance_guid = #{instanceGuid}
+    </delete>
+
+    <delete id="deleteByInstanceGuids">
+        DELETE FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE instance_guid IN
+        <foreach collection="instanceGuids" item="instanceGuid" open="(" separator="," close=")">
+            #{instanceGuid}
+        </foreach>
+           OR parent_instance_guid IN
+        <foreach collection="instanceGuids" item="instanceGuid" open="(" separator="," close=")">
+            #{instanceGuid}
+        </foreach>
+    </delete>
+
+    <select id="countByInstanceGuidAndParentInstanceGuid" resultType="long">
+        SELECT COUNT(*)
+        FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE instance_guid = #{instanceGuid}
+          AND parent_instance_guid = #{parentInstanceGuid}
+    </select>
+
+    <select id="fetchParentsByInstanceGuid" resultMap="InstanceLineageAdjacentMap">
+        SELECT
+            instance_guid,
+            parent_instance_guid,
+            task_guid,
+            parent_task_guid,
+            task_name,
+            parent_task_name,
+            instance_name,
+            parent_instance_name,
+            business_time,
+            parent_business_time
+        FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY parent_task_name, parent_instance_guid
+    </select>
+
+    <select id="fetchChildrenByInstanceGuid" resultMap="InstanceLineageAdjacentMap">
+        SELECT
+            instance_guid,
+            parent_instance_guid,
+            task_guid,
+            parent_task_guid,
+            task_name,
+            parent_task_name,
+            instance_name,
+            parent_instance_name,
+            business_time,
+            parent_business_time
+        FROM odin_atlas_task_instance_lineage_adjacent
+        WHERE parent_instance_guid = #{instanceGuid}
+        ORDER BY task_name, instance_guid
+    </select>
+
+    <select id="fetchDependencyBlockages" resultType="com.walnut.odin.conduct.schedule.entity.GenericDependencyBlockage">
+        SELECT
+            edge.`instance_guid`        AS `instanceGuid`,
+            edge.`parent_instance_guid` AS `dependentInstanceGuid`
+        FROM `odin_atlas_task_instance_lineage_adjacent` AS edge
+                 JOIN `hydra_task_instances` AS parent_instance
+                      ON parent_instance.`guid` = edge.`parent_instance_guid`
+        WHERE edge.`instance_guid` IN
+        <foreach collection="instanceGuids" item="instanceGuid" open="(" separator="," close=")">
+            #{instanceGuid}
+        </foreach>
+          AND (
+              parent_instance.`run_status` IS NULL
+              OR parent_instance.`run_status` != #{finishedStatus}
+          )
+    </select>
+
+</mapper>

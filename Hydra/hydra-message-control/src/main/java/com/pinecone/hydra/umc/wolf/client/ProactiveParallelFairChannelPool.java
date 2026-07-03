@@ -118,10 +118,28 @@ public class ProactiveParallelFairChannelPool<ID > extends ArchChannelPool imple
     @Override
     public ProactiveParallelFairChannelPool setIdleChannel( ChannelControlBlock block ) {
         this.mPoolIOLock.writeLock().lock();
-        try{
+        try {
             block.getChannel().setChannelStatus( UlfChannelStatus.IDLE );
             this.mChannelIdleQueue.put( this.warpKey( block.getChannel().getChannelID() ), block );
             //Debug.trace( this.mChannelIdleQueue, this.mChannelIdleQueue.size(), block );
+        }
+        finally {
+            this.mPoolIOLock.writeLock().unlock();
+        }
+        return this;
+    }
+
+    public ProactiveParallelFairChannelPool replaceChannel( Object oldId, ChannelControlBlock block ) {
+        this.mPoolIOLock.writeLock().lock();
+        try {
+            if ( oldId != null ) {
+                this.onlyRemove( oldId );
+            }
+
+            ID id = this.warpKey( block.getChannel().getChannelID() );
+            this.mChannelMapQueue.put( id, block );
+            block.getChannel().setChannelStatus( UlfChannelStatus.IDLE );
+            this.mChannelIdleQueue.put( id, block );
         }
         finally {
             this.mPoolIOLock.writeLock().unlock();

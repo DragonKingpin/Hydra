@@ -7,9 +7,11 @@ public class GenericSymbolic extends ArchReparseSemanticNode implements Symbolic
 
     public GenericSymbolic() {
         super();
+        this.targetScheme = "UOFS";
     }
 
     public GenericSymbolic( SymbolicManipulator symbolicManipulator ) {
+        this();
         this.symbolicManipulator = symbolicManipulator;
     }
 

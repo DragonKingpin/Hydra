@@ -23,11 +23,29 @@ public interface SymbolicMapper extends SymbolicManipulator {
 
     void remove( GUID guid );
 
+    void rename( @Param("guid") GUID guid, @Param("newName") String newName );
+
     GenericSymbolic getSymbolicByGuid( GUID guid );
 
     GenericSymbolic getSymbolicByNameGuid( @Param("nodeName") String nodeName, @Param("guid") GUID guid );
 
     boolean isSymbolicMatchedByNameGuid( @Param("nodeName") String nodeName, @Param("guid") GUID guid );
+
+    @Override
+    List<GenericSymbolic> listPage(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    long count( @Param("keyword") String keyword );
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 
     List<GUID> getGuidsByName( String name );
 

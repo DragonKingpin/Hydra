@@ -16,7 +16,7 @@ public interface ExecutionImage extends Pinenut {
 
     Class<UProcess> processClassType();
 
-    EntryPointRunnable getEntryPoint();
+    EntryPointRunnable createEntryPoint();
 
     ClassLoader getClassLoader();
 
@@ -29,6 +29,5 @@ public interface ExecutionImage extends Pinenut {
     String getSignature();
 
     ControllableLevel getControllableLevel();
-
 
 }

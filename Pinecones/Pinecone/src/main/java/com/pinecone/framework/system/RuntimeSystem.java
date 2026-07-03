@@ -10,9 +10,9 @@ import java.util.Map;
 public interface RuntimeSystem extends Pinenut, Systemum, Lifecycle {
     String[]                   getStartupCommand();
 
-    Map<String, String[] >     getStartupCommandMap();
+    Map<String, String >       getStartupCommandMap();
 
-    Map<String, String[] >     getEnvironmentVars();
+    Map<String, String >       getEnvironmentVars();
 
     SystemConfig               getGlobalConfig();
 

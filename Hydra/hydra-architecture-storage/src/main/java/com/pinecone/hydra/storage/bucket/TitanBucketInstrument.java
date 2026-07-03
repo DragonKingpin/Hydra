@@ -31,6 +31,11 @@ public class TitanBucketInstrument implements BucketInstrument {
     }
 
     @Override
+    public void updateStatus( GUID guid, String status ) {
+        this.bucketManipulator.updateStatus( guid, status );
+    }
+
+    @Override
     public void remove( GUID guid ) {
         this.bucketManipulator.remove( guid );
     }
@@ -38,6 +43,11 @@ public class TitanBucketInstrument implements BucketInstrument {
     @Override
     public Bucket get( GUID guid ) {
         return this.bucketManipulator.get( guid );
+    }
+
+    @Override
+    public Bucket getByBucketIdentifier( String bucketIdentifier ) {
+        return this.bucketManipulator.getByBucketIdentifier( bucketIdentifier );
     }
 
     @Override
@@ -52,12 +62,32 @@ public class TitanBucketInstrument implements BucketInstrument {
 
     @Override
     public long count( String userIdentifier, String bucketName ) {
-        return this.bucketManipulator.count( userIdentifier, bucketName );
+        return this.bucketManipulator.count( userIdentifier, bucketName, null );
+    }
+
+    @Override
+    public long count( String userIdentifier, String bucketName, String bucketIdentifier ) {
+        return this.bucketManipulator.count( userIdentifier, bucketName, bucketIdentifier );
+    }
+
+    @Override
+    public long countByVolumeGuid( GUID volumeGuid ) {
+        return this.bucketManipulator.countByVolumeGuid( volumeGuid );
+    }
+
+    @Override
+    public List<GenericBucket> listByVolumeGuid( GUID volumeGuid, int offset, int limit ) {
+        return this.bucketManipulator.listByVolumeGuid( volumeGuid, offset, limit );
     }
 
     @Override
     public List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
-        return this.bucketManipulator.listPage( userIdentifier, bucketName, offset, limit );
+        return this.bucketManipulator.listPage( userIdentifier, bucketName, null, offset, limit );
+    }
+
+    @Override
+    public List<GenericBucket> listPage( String userIdentifier, String bucketName, String bucketIdentifier, int offset, int limit ) {
+        return this.bucketManipulator.listPage( userIdentifier, bucketName, bucketIdentifier, offset, limit );
     }
 
     @Override

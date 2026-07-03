@@ -1,0 +1,176 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.acorn.redqueen.service.registry.grpc.protocol.meta.proto";
+option java_outer_classname = "ServiceMetaProto";
+
+service ServiceMeta {
+  rpc FetchServicePage(FetchServicePageRequest) returns (ServicePageReply);
+  rpc FetchServiceInstancePage(FetchServiceInstancePageRequest) returns (ServiceInstancePageReply);
+  rpc QueryService(QueryServiceRequest) returns (ServiceReply);
+  rpc QueryServiceInstance(QueryServiceInstanceRequest) returns (ServiceInstanceReply);
+  rpc FetchNamespaceChildren(FetchNamespaceChildrenRequest) returns (NamespaceChildrenReply);
+
+  rpc FetchServiceInsMetaByClientId(FetchServiceInsMetaByClientIdRequest) returns (ServiceMetaListReply);
+  rpc FetchServiceInsMetaByServiceId(FetchServiceInsMetaByServiceIdRequest) returns (ServiceMetaListReply);
+  rpc QueryServiceMetaByPath(QueryServiceMetaByPathRequest) returns (ServiceMetaReply);
+  rpc QueryServiceMetaByGuid(QueryServiceMetaByGuidRequest) returns (ServiceMetaReply);
+  rpc EvalCreationStatement(EvalCreationStatementRequest) returns (GuidReply);
+  rpc CreateNewService(CreateNewServiceRequest) returns (GuidReply);
+}
+
+message FetchServicePageRequest {
+  string keyword = 1;
+  string namespaceGuid = 2;
+  string applicationGuid = 3;
+  int32 offset = 4;
+  int32 limit = 5;
+}
+
+message FetchServiceInstancePageRequest {
+  string serviceGuid = 1;
+  string status = 2;
+  string clientId = 3;
+  int32 offset = 4;
+  int32 limit = 5;
+}
+
+message QueryServiceRequest {
+  string serviceGuid = 1;
+  string path = 2;
+}
+
+message QueryServiceInstanceRequest {
+  string instanceGuid = 1;
+  string clientId = 2;
+}
+
+message FetchNamespaceChildrenRequest {
+  string parentGuid = 1;
+  string path = 2;
+}
+
+message FetchServiceInsMetaByClientIdRequest {
+  int64 clientId = 1;
+}
+
+message FetchServiceInsMetaByServiceIdRequest {
+  string serviceId = 1;
+}
+
+message QueryServiceMetaByPathRequest {
+  string path = 1;
+}
+
+message QueryServiceMetaByGuidRequest {
+  string guid = 1;
+}
+
+message EvalCreationStatementRequest {
+  string jonsStatement = 1;
+}
+
+message CreateNewServiceRequest {
+  string parentAppPath = 1;
+  ServiceMetaDTO meta = 2;
+}
+
+message ServiceDTO {
+  string guid = 1;
+  string name = 2;
+  string displayName = 3;
+  string description = 4;
+  string type = 5;
+  string fullName = 6;
+  string groupNamespace = 7;
+  string groupName = 8;
+  string scenario = 9;
+  string primaryImplLang = 10;
+  string extraInformation = 11;
+  string level = 12;
+}
+
+message ServiceMetaDTO {
+  string guid = 1;
+  string name = 2;
+  string type = 3;
+  string alias = 4;
+  string resourceType = 5;
+  string serviceType = 6;
+  string displayName = 7;
+  string description = 8;
+  string fullName = 9;
+  string groupNamespace = 10;
+  string groupName = 11;
+  string scenario = 12;
+  string primaryImplLang = 13;
+  string extraInformation = 14;
+  string level = 15;
+}
+
+message ServiceInstanceDTO {
+  string guid = 1;
+  string serviceGuid = 2;
+  string deployGuid = 3;
+  string connectionId = 4;
+  string clientId = 5;
+  string transportType = 6;
+  string remoteAddress = 7;
+  string endpointProtocol = 8;
+  string endpointHost = 9;
+  int32 endpointPort = 10;
+  string endpointPath = 11;
+  string endpointAddress = 12;
+  string status = 13;
+  string statusReason = 14;
+  string version = 15;
+  string zone = 16;
+  int32 weight = 17;
+  string metadataJson = 18;
+}
+
+message NamespaceNodeDTO {
+  string guid = 1;
+  string name = 2;
+  string type = 3;
+  string description = 4;
+  bool leaf = 5;
+}
+
+message ServicePageReply {
+  repeated ServiceDTO items = 1;
+  int64 total = 2;
+  int32 offset = 3;
+  int32 limit = 4;
+}
+
+message ServiceInstancePageReply {
+  repeated ServiceInstanceDTO items = 1;
+  int64 total = 2;
+  int32 offset = 3;
+  int32 limit = 4;
+}
+
+message ServiceReply {
+  ServiceDTO service = 1;
+}
+
+message ServiceInstanceReply {
+  ServiceInstanceDTO instance = 1;
+}
+
+message NamespaceChildrenReply {
+  repeated NamespaceNodeDTO items = 1;
+}
+
+message ServiceMetaListReply {
+  repeated ServiceMetaDTO items = 1;
+}
+
+message ServiceMetaReply {
+  ServiceMetaDTO meta = 1;
+}
+
+message GuidReply {
+  string guid = 1;
+}

@@ -10,12 +10,17 @@ import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.slime.jelly.source.ibatis.ProxySessionMapperPool;
+import com.walnut.odin.mapper.transaction.OdinMappingTransaction;
 import com.walnut.odin.project.mapper.TaskProjectMapper;
+import com.walnut.odin.specific.mapper.TaskSpecificMapper;
+import com.walnut.odin.task.mapper.transaction.IbatisOdinMappingTransaction;
 
 public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements OdinTaskMappingDriver {
     protected KOIMasterManipulator mKOIMasterManipulator;
 
     protected KOIMappingDriver     mParentDriver;
+
+    protected OdinMappingTransaction mTransaction;
 
     public OdinUniformTaskMappingDriver( Processum superiorProcess ) {
         super( superiorProcess );
@@ -25,17 +30,27 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
         super( superiorProcess, ibatisClient, dispenserCenter, OdinUniformTaskMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
 
         this.prepare_project_mapper( ibatisClient, dispenserCenter );
+        this.prepare_specific_mapper( ibatisClient, dispenserCenter );
 
         this.mParentDriver = new TaskMappingDriver(
                 superiorProcess, ibatisClient, dispenserCenter
         );
 
+        this.mTransaction = new IbatisOdinMappingTransaction( ibatisClient );
         this.mKOIMasterManipulator = new RavenTaskMasterManipulatorImpl( this, (TaskMappingDriver)this.getParentDriver() );
     }
 
     protected void prepare_project_mapper( IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         ibatisClient.addXMLObjectScope( "mapper.kernel.project" );
         List<Class<? > > mapperCandidates = ibatisClient.addDataAccessObjectScope( TaskProjectMapper.class.getPackageName() );
+        for ( Class<? > mapperClass : mapperCandidates ) {
+            dispenserCenter.getInstanceDispenser().register( mapperClass, new ProxySessionMapperPool( ibatisClient, mapperClass ) );
+        }
+    }
+
+    protected void prepare_specific_mapper( IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
+        ibatisClient.addXMLObjectScope( "mapper.kernel.specific" );
+        List<Class<? > > mapperCandidates = ibatisClient.addDataAccessObjectScope( TaskSpecificMapper.class.getPackageName() );
         for ( Class<? > mapperClass : mapperCandidates ) {
             dispenserCenter.getInstanceDispenser().register( mapperClass, new ProxySessionMapperPool( ibatisClient, mapperClass ) );
         }
@@ -49,6 +64,11 @@ public class OdinUniformTaskMappingDriver extends ArchMappingDriver implements O
     @Override
     public KOIMappingDriver getParentDriver() {
         return this.mParentDriver;
+    }
+
+    @Override
+    public OdinMappingTransaction transaction() {
+        return this.mTransaction;
     }
 
 }

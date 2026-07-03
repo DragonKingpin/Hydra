@@ -14,6 +14,7 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected LocalDateTime businessTime;
     protected short priority;
     protected String imagePath;
+    protected String execArch;
     protected short actuallyPriority;
     protected TaskInstanceStatus instanceStatus;
     protected String taskType;
@@ -22,6 +23,9 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected int retryCnt;
     protected String errorCause;
     protected boolean dryRun;
+    protected Long timeoutSeconds = 86400L;
+    protected int retryTimes;
+    protected Long retryIntervalSeconds;
     protected TaskScheduleCycle scheduleCycle;
     protected TaskScheduleType scheduleType;
     protected LocalDateTime lastStartTime;
@@ -33,7 +37,8 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     protected LocalDateTime scheduleHostTime;
     protected LocalDateTime submitTime;
     protected LocalDateTime scheduleTime;
-    protected String        processorName;
+    protected String affinityProcessor;
+    protected String designatedProcessor;
     protected LocalDateTime createTime;
     protected LocalDateTime updateTime;
 
@@ -70,6 +75,11 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public String getImagePath() {
         return this.imagePath;
+    }
+
+    @Override
+    public String getExecArch() {
+        return this.execArch;
     }
 
     @Override
@@ -112,6 +122,21 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     @Override
     public boolean isDryRun() {
         return this.dryRun;
+    }
+
+    @Override
+    public Long getTimeoutSeconds() {
+        return this.timeoutSeconds;
+    }
+
+    @Override
+    public int getRetryTimes() {
+        return this.retryTimes;
+    }
+
+    @Override
+    public Long getRetryIntervalSeconds() {
+        return this.retryIntervalSeconds;
     }
 
     @Override
@@ -206,13 +231,23 @@ public abstract class ArchInstanceMeta implements TaskInstanceMeta {
     }
 
     @Override
-    public String getProcessorName() {
-        return this.processorName;
+    public String getAffinityProcessor() {
+        return this.affinityProcessor;
     }
 
     @Override
-    public void setProcessorName(String processorName) {
-        this.processorName = processorName;
+    public void setAffinityProcessor(String affinityProcessor) {
+        this.affinityProcessor = affinityProcessor;
+    }
+
+    @Override
+    public String getDesignatedProcessor() {
+        return this.designatedProcessor;
+    }
+
+    @Override
+    public void setDesignatedProcessor(String designatedProcessor) {
+        this.designatedProcessor = designatedProcessor;
     }
 
     @Override

@@ -5,11 +5,14 @@ import java.time.LocalDateTime;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.device.kom.DeviceInstrument;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
 
 public class DeviceMetaDTO implements DeviceDTO {
 
     protected String guid;
+    protected String ownerDeviceGuid;
+    protected Boolean deviceNode;
     protected String metaGuid;
     protected String path;
     protected String name;
@@ -33,6 +36,11 @@ public class DeviceMetaDTO implements DeviceDTO {
 
         DeviceMetaDTO dto = new DeviceMetaDTO();
         dto.setGuid( stringify( node.getGuid() ) );
+        DeviceNodeOwnershipEntry ownership = node.getGuid() == null ? null : deviceInstrument.queryDeviceNodeOwnership( node.getGuid() );
+        if ( ownership != null ) {
+            dto.setOwnerDeviceGuid( stringify( ownership.getOwnerDeviceGuid() ) );
+            dto.setDeviceNode( ownership.isDeviceNode() );
+        }
         dto.setMetaGuid( stringify( node.getMetaGuid() ) );
         dto.setPath( node.getGuid() == null ? null : deviceInstrument.getPath( node.getGuid() ) );
         dto.setName( node.getName() );
@@ -116,6 +124,22 @@ public class DeviceMetaDTO implements DeviceDTO {
 
     public void setGuid( String guid ) {
         this.guid = guid;
+    }
+
+    public String getOwnerDeviceGuid() {
+        return this.ownerDeviceGuid;
+    }
+
+    public void setOwnerDeviceGuid( String ownerDeviceGuid ) {
+        this.ownerDeviceGuid = ownerDeviceGuid;
+    }
+
+    public Boolean getDeviceNode() {
+        return this.deviceNode;
+    }
+
+    public void setDeviceNode( Boolean deviceNode ) {
+        this.deviceNode = deviceNode;
     }
 
     public String getMetaGuid() {

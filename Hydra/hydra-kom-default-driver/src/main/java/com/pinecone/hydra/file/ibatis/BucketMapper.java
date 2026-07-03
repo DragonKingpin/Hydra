@@ -23,10 +23,16 @@ public interface BucketMapper extends BucketManipulator {
     void updateVolume( @Param( "guid" ) GUID guid, @Param( "volumeGuid" ) GUID volumeGuid );
 
     @Override
+    void updateStatus( @Param( "guid" ) GUID guid, @Param( "status" ) String status );
+
+    @Override
     void remove( GUID guid );
 
     @Override
     GenericBucket get( GUID guid );
+
+    @Override
+    GenericBucket getByBucketIdentifier( @Param( "bucketIdentifier" ) String bucketIdentifier );
 
     @Override
     GenericBucket getByUserIdentifierAndBucket( @Param( "userIdentifier" ) String userIdentifier, @Param( "bucketName" ) String bucketName );
@@ -35,12 +41,27 @@ public interface BucketMapper extends BucketManipulator {
     List<GenericBucket> listAll();
 
     @Override
-    long count( @Param( "userIdentifier" ) String userIdentifier, @Param( "bucketName" ) String bucketName );
+    long count(
+            @Param( "userIdentifier" ) String userIdentifier,
+            @Param( "bucketName" ) String bucketName,
+            @Param( "bucketIdentifier" ) String bucketIdentifier
+    );
+
+    @Override
+    long countByVolumeGuid( @Param( "volumeGuid" ) GUID volumeGuid );
+
+    @Override
+    List<GenericBucket> listByVolumeGuid(
+            @Param( "volumeGuid" ) GUID volumeGuid,
+            @Param( "offset" ) int offset,
+            @Param( "limit" ) int limit
+    );
 
     @Override
     List<GenericBucket> listPage(
             @Param( "userIdentifier" ) String userIdentifier,
             @Param( "bucketName" ) String bucketName,
+            @Param( "bucketIdentifier" ) String bucketIdentifier,
             @Param( "offset" ) int offset,
             @Param( "limit" ) int limit
     );

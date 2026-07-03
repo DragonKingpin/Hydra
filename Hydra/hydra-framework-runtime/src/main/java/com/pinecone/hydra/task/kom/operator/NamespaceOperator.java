@@ -4,9 +4,7 @@ import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
-import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.task.kom.TaskInstrument;
-import com.pinecone.hydra.task.kom.entity.GenericAppElement;
 import com.pinecone.hydra.task.kom.entity.GenericNamespace;
 import com.pinecone.hydra.task.kom.entity.Namespace;
 import com.pinecone.hydra.task.kom.source.TaskMasterManipulator;
@@ -62,7 +60,7 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
             List<GUID > subordinates = this.imperialTree.getSubordinates(guid);
             if ( !subordinates.isEmpty() ){
                 for ( GUID subordinateGuid : subordinates ){
-                    this.purge( subordinateGuid );
+                    this.purgeByNodeType( subordinateGuid );
                 }
             }
             childNodes = this.imperialTree.getChildren( guid );
@@ -72,23 +70,16 @@ public class NamespaceOperator extends ArchElementOperator implements ElementOpe
                     this.imperialTree.removeInheritance(childNode.getGuid(),guid);
                 }
                 else {
-                    this.purge( childNode.getGuid() );
+                    this.purgeByNodeType( childNode.getGuid() );
                 }
             }
         }
 
-        if ( node.getType().getObjectName().equals(GenericNamespace.class.getName()) ||  node.getType().getObjectName().equals(GenericAppElement.class.getName())){
+        if ( this.isFolderElement( node ) && this.isAssignedToThisOperator( node ) ){
             this.removeNode(guid);
         }
         else {
-            UOI uoi = node.getType();
-            String metaType = this.getOperatorFactory().getMetaType( uoi.getObjectName() );
-            if( metaType == null ) {
-                TreeNode newInstance = (TreeNode)uoi.newInstance( new Class<? >[]{ TaskInstrument.class }, this.taskInstrument);
-                metaType = newInstance.getMetaType();
-            }
-
-            ElementOperator operator = this.getOperatorFactory().getOperator( metaType );
+            ElementOperator operator = this.resolveOperator( node );
             operator.purge( guid );
         }
     }

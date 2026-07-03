@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.InstanceExecAuditMapper">
+
+    <resultMap id="InstanceExecAuditMap" type="com.walnut.odin.conduct.entity.GenericInstanceExecAudit">
+        <result column="id"                   property="id"/>
+        <result column="task_guid"            property="taskGuid"/>
+        <result column="instance_guid"        property="instanceGuid"/>
+        <result column="sequence_cnt"         property="sequenceCnt"/>
+        <result column="current_retry_number" property="currentRetryNumber"/>
+        <result column="audit_state"          property="auditState"/>
+        <result column="audit_type"           property="auditType"/>
+        <result column="message"              property="message"/>
+        <result column="artifact_uri"         property="artifactUri"/>
+        <result column="artifact_digest"      property="artifactDigest"/>
+        <result column="payload"              property="payload"/>
+        <result column="start_time"           property="startTime"/>
+        <result column="finish_time"          property="finishTime"/>
+        <result column="create_time"          property="createTime"/>
+        <result column="update_time"          property="updateTime"/>
+    </resultMap>
+
+    <sql id="InstanceExecAuditColumns">
+        id,
+        task_guid,
+        instance_guid,
+        sequence_cnt,
+        current_retry_number,
+        audit_state,
+        audit_type,
+        message,
+        artifact_uri,
+        artifact_digest,
+        payload,
+        start_time,
+        finish_time,
+        create_time,
+        update_time
+    </sql>
+
+    <insert id="upsert" parameterType="com.walnut.odin.conduct.entity.GenericInstanceExecAudit">
+        INSERT INTO odin_task_ins_exec_audit (
+            task_guid,
+            instance_guid,
+            sequence_cnt,
+            current_retry_number,
+            audit_state,
+            audit_type,
+            message,
+            artifact_uri,
+            artifact_digest,
+            payload,
+            start_time,
+            finish_time
+        ) VALUES (
+            #{taskGuid},
+            #{instanceGuid},
+            #{sequenceCnt},
+            #{currentRetryNumber},
+            #{auditState},
+            #{auditType},
+            #{message},
+            #{artifactUri},
+            #{artifactDigest},
+            #{payload},
+            #{startTime},
+            #{finishTime}
+        )
+        ON DUPLICATE KEY UPDATE
+            task_guid = VALUES(task_guid),
+            audit_state = VALUES(audit_state),
+            message = VALUES(message),
+            artifact_uri = VALUES(artifact_uri),
+            artifact_digest = VALUES(artifact_digest),
+            payload = VALUES(payload),
+            start_time = VALUES(start_time),
+            finish_time = VALUES(finish_time),
+            update_time = CURRENT_TIMESTAMP
+    </insert>
+
+    <insert id="upsertLogger">
+        INSERT INTO odin_task_ins_exec_audit (
+            task_guid,
+            instance_guid,
+            sequence_cnt,
+            current_retry_number,
+            audit_state,
+            audit_type,
+            message,
+            payload,
+            start_time,
+            finish_time
+        ) VALUES (
+            #{taskGuid},
+            #{instanceGuid},
+            #{sequenceCnt},
+            #{currentRetryNumber},
+            'Logged',
+            'Logger',
+            #{message},
+            #{payload},
+            #{startTime},
+            #{finishTime}
+        )
+        ON DUPLICATE KEY UPDATE
+            task_guid = VALUES(task_guid),
+            audit_state = VALUES(audit_state),
+            message = VALUES(message),
+            payload = VALUES(payload),
+            start_time = VALUES(start_time),
+            finish_time = VALUES(finish_time),
+            update_time = CURRENT_TIMESTAMP
+    </insert>
+
+    <select id="queryByInstanceGuidAndRetryAndType" resultMap="InstanceExecAuditMap">
+        SELECT
+        <include refid="InstanceExecAuditColumns"/>
+        FROM odin_task_ins_exec_audit
+        WHERE instance_guid = #{instanceGuid}
+          AND sequence_cnt = #{sequenceCnt}
+          AND current_retry_number = #{currentRetryNumber}
+          AND audit_type = #{auditType}
+        LIMIT 1
+    </select>
+
+    <select id="fetchByInstanceGuid" resultMap="InstanceExecAuditMap">
+        SELECT
+        <include refid="InstanceExecAuditColumns"/>
+        FROM odin_task_ins_exec_audit
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY sequence_cnt DESC, current_retry_number DESC, id DESC
+    </select>
+
+    <delete id="deleteByTaskGuids">
+        DELETE FROM odin_task_ins_exec_audit
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
+</mapper>

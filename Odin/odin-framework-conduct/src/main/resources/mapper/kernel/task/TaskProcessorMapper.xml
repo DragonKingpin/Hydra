@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.walnut.odin.task.mapper.TaskProcessorMapper">
+
+    <resultMap id="TaskProcessorMap" type="com.walnut.odin.dispatch.entity.GenericTaskProcessorEntity">
+        <result column="guid"                            property="guid"/>
+        <result column="processor_name"                  property="name"/>
+        <result column="cluster_path"                    property="clusterPath"/>
+        <result column="cluster_name"                    property="clusterName"/>
+        <result column="is_local"                        property="local"/>
+        <result column="is_exclusive"                    property="exclusive"/>
+        <result column="priority"                        property="priority"/>
+        <result column="exec_caps"                       property="execCaps"/>
+        <result column="queue_name"                      property="queueName"/>
+        <result column="queue_max_capacity"              property="queueMaxCapacity"/>
+        <result column="queue_min_capacity"              property="queueMinCapacity"/>
+        <result column="queue_runtime_instance_capacity" property="queueRuntimeInstanceCapacity"/>
+        <result column="enable"                          property="enable"/>
+        <result column="extra_metadata"                  property="extraMetadata"/>
+        <result column="dy_metadata_cache"               property="dyMetadataCache"/>
+    </resultMap>
+
+    <sql id="TaskProcessorColumns">
+        id,
+        guid,
+        processor_name,
+        cluster_path,
+        cluster_name,
+        is_local,
+        is_exclusive,
+        priority,
+        exec_caps,
+        queue_name,
+        queue_max_capacity,
+        queue_min_capacity,
+        queue_runtime_instance_capacity,
+        enable,
+        create_time,
+        update_time
+    </sql>
+
+    <sql id="TaskProcessorMetadataColumns">
+        id,
+        guid,
+        processor_name,
+        extra_metadata,
+        dy_metadata_cache,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="selectByProcessorName" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorColumns"/>
+        FROM odin_task_processor
+        WHERE processor_name = #{name}
+    </select>
+
+    <select id="selectByGuid" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorColumns"/>,
+        extra_metadata
+        FROM odin_task_processor
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="selectMetadataByGuid" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorMetadataColumns"/>
+        FROM odin_task_processor
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="selectByClusterName0" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorColumns"/>
+        FROM odin_task_processor
+        WHERE cluster_name = #{clusterName}
+          AND enable = 1
+    </select>
+
+    <select id="selectAll0" resultMap="TaskProcessorMap">
+        SELECT
+        <include refid="TaskProcessorColumns"/>
+        FROM odin_task_processor
+    </select>
+
+    <insert id="insert">
+        INSERT INTO odin_task_processor
+        (
+            guid,
+            processor_name,
+            cluster_path,
+            cluster_name,
+            is_local,
+            is_exclusive,
+            priority,
+            exec_caps,
+            queue_name,
+            queue_max_capacity,
+            queue_min_capacity,
+            queue_runtime_instance_capacity,
+            extra_metadata,
+            dy_metadata_cache,
+            enable
+        )
+        VALUES
+        (
+            #{entity.guid},
+            #{entity.name},
+            #{entity.clusterPath},
+            #{entity.clusterName},
+            #{entity.local},
+            #{entity.exclusive},
+            #{entity.priority},
+            #{entity.execCaps},
+            #{entity.queueName},
+            #{entity.queueMaxCapacity},
+            #{entity.queueMinCapacity},
+            #{entity.queueRuntimeInstanceCapacity},
+            #{entity.extraMetadata},
+            #{entity.dyMetadataCache},
+            #{entity.enable}
+        )
+    </insert>
+
+    <update id="updateByGuid">
+        UPDATE odin_task_processor
+        SET
+            cluster_path = #{clusterPath},
+            cluster_name = #{clusterName},
+            is_local = #{local},
+            is_exclusive = #{exclusive},
+            priority = #{priority},
+            processor_name = #{name},
+            exec_caps = #{execCaps},
+            queue_name = #{queueName},
+            queue_max_capacity = #{queueMaxCapacity},
+            queue_min_capacity = #{queueMinCapacity},
+            queue_runtime_instance_capacity = #{queueRuntimeInstanceCapacity},
+            extra_metadata = #{extraMetadata},
+            enable = #{enable}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateQueueCapacity">
+        UPDATE odin_task_processor
+        SET
+            queue_max_capacity = #{maxCapacity},
+            queue_min_capacity = #{minCapacity},
+            queue_runtime_instance_capacity = #{runtimeCapacity}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateDynamicMetadataCache">
+        UPDATE odin_task_processor
+        SET dy_metadata_cache = #{dyMetadataCache}
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="deleteByGuid">
+        DELETE FROM odin_task_processor
+        WHERE guid = #{guid}
+    </delete>
+
+    <update id="enable">
+        UPDATE odin_task_processor
+        SET enable = 1
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="disable">
+        UPDATE odin_task_processor
+        SET enable = 0
+        WHERE guid = #{guid}
+    </update>
+
+</mapper>

@@ -16,6 +16,7 @@ public class UserMappingDriver extends ArchMappingDriver implements KOIMappingDr
 
     public UserMappingDriver( Processum superiorProcess, IbatisClient ibatisClient, ResourceDispenserCenter dispenserCenter ) {
         super( superiorProcess, ibatisClient, dispenserCenter, UserMappingDriver.class.getPackageName().replace( "hydranium", "" ) );
+        ibatisClient.addXMLObjectScope( "mapper.kernel.account" );
 
         this.mKOIMasterManipulator = new UserMasterManipulatorImpl( this );
     }

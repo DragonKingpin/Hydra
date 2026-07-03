@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.UserTreeMapper">
+
+    <insert id="insertRootNode">
+        INSERT INTO `hydra_account_node_tree` (`guid`, `linked_type`)
+        VALUES (#{guid}, 'Owned')
+    </insert>
+
+    <insert id="insertTreeNode">
+        INSERT INTO `hydra_account_nodes`
+        (
+            `guid`,
+            `type`,
+            `base_data_guid`,
+            `node_meta_guid`
+        )
+        VALUES
+        (
+            #{guid},
+            #{type},
+            #{baseDataGuid},
+            #{nodeMetaGuid}
+        )
+    </insert>
+
+    <select id="getNodeExtendsFromMeta" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `type`,
+            `base_data_guid` AS `baseDataGUID`,
+            `node_meta_guid` AS `nodeMetadataGUID`
+        FROM `hydra_account_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="contains" resultType="boolean">
+        SELECT
+            COUNT(`id`)
+        FROM `hydra_account_nodes`
+        WHERE `guid` = #{key}
+    </select>
+
+    <select id="getTreeNodeOnly" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        SELECT
+            `id`,
+            `guid`,
+            `parent_guid` AS `parentGuid`
+        FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+        AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="countNode" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+        AND `parent_guid` = #{parentGuid}
+    </select>
+
+    <delete id="removeNodeMeta">
+        DELETE FROM `hydra_account_nodes`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNode">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <delete id="removeTreeNodeByParentGuid">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeYoke">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+        AND `parent_guid` = #{parent_guid}
+    </delete>
+
+    <delete id="removeTreeNodeWithLinkedType">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+        AND `linked_type` = #{linkedType}
+    </delete>
+
+    <delete id="removeInheritance">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `guid` = #{childGuid}
+        AND `parent_guid` = #{parentGuid}
+    </delete>
+
+    <select id="getChildren" resultType="com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode">
+        SELECT
+            `id` AS `enumId`,
+            `guid`,
+            `parent_guid` AS `parentGuid`
+        FROM `hydra_account_node_tree`
+        WHERE `parent_guid` = #{guid}
+    </select>
+
+    <select id="fetchChildrenGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `parent_guid` = #{parentGuid}
+    </select>
+
+    <select id="fetchParentGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `parent_guid`
+        FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <update id="updateType">
+        UPDATE `hydra_account_nodes`
+        SET
+            `type` = #{type}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="fetchRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `parent_guid` IS NULL
+    </select>
+
+    <select id="isRoot" resultType="boolean">
+        SELECT
+            COUNT(`guid`)
+        FROM `hydra_account_node_tree`
+        WHERE `parent_guid` IS NULL
+        AND `guid` = #{guid}
+    </select>
+
+    <update id="addChild">
+        UPDATE `hydra_account_node_tree`
+        SET
+            `parent_guid` = #{parentGuid},
+            `linked_type` = 'Owned'
+        WHERE `guid` = #{childGuid}
+    </update>
+
+    <select id="queryLinkedCount" resultType="long">
+        SELECT
+            COUNT(`guid`)
+        FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+        AND `linked_type` = #{linkedType}
+    </select>
+
+    <select id="queryAllLinkedCount" resultType="long">
+        SELECT
+            COUNT(`guid`)
+        FROM `hydra_account_node_tree`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <insert id="newLinkTag">
+        INSERT INTO `hydra_account_node_tree`
+        (
+            `guid`,
+            `linked_type`,
+            `tag_name`,
+            `tag_guid`,
+            `parent_guid`
+        )
+        VALUES
+        (
+            #{originalGuid},
+            #{linkedType},
+            #{tagName},
+            #{tagGuid},
+            #{dirGuid}
+        )
+    </insert>
+
+    <update id="updateLinkTagName">
+        UPDATE `hydra_account_node_tree`
+        SET
+            `tag_name` = #{tagName}
+        WHERE `tag_guid` = #{tagGuid}
+    </update>
+
+    <select id="getOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+        AND `parent_guid` = #{parentDirGuid}
+    </select>
+
+    <select id="getOriginalGuidByNodeGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+        AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="getReparseLinkNode" resultType="com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode">
+        SELECT
+            `guid` AS `targetNodeGuid`,
+            `parent_guid` AS `parentNodeGuid`,
+            `linked_type` AS `linkedType`,
+            `tag_name` AS `tagName`,
+            `tag_guid` AS `tagGuid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+        AND `parent_guid` = #{parentDirGuid}
+    </select>
+
+    <select id="getReparseLinkNodeByNodeGuid" resultType="com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode">
+        SELECT
+            `guid` AS `targetNodeGuid`,
+            `parent_guid` AS `parentNodeGuid`,
+            `linked_type` AS `linkedType`,
+            `tag_name` AS `tagName`,
+            `tag_guid` AS `tagGuid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+        AND `guid` = #{nodeGuid}
+    </select>
+
+    <select id="fetchOriginalGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+    </select>
+
+    <select id="fetchOriginalGuidRoot" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_name` = #{tagName}
+        AND `parent_guid` IS NULL
+    </select>
+
+    <select id="isTagGuid" resultType="boolean">
+        SELECT
+            COUNT(*)
+        FROM `hydra_account_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </select>
+
+    <select id="getOriginalGuidByTagGuid" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_account_node_tree`
+        WHERE `tag_guid` = #{tagGuid}
+    </select>
+
+    <delete id="removeReparseLink">
+        DELETE FROM `hydra_account_node_tree`
+        WHERE `tag_guid` = #{guid}
+    </delete>
+
+    <sql id="HardlinkFilter">
+        <where>
+            `linked_type` = 'Hard'
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="listHardlinks" resultType="com.pinecone.hydra.unit.imperium.entity.HardlinkEntry">
+        SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType,
+               `tag_name` AS tagName, `tag_guid` AS tagGuid, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_account_node_tree`
+        <include refid="HardlinkFilter"/>
+        ORDER BY `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHardlinks" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_account_node_tree`
+        <include refid="HardlinkFilter"/>
+    </select>
+
+</mapper>

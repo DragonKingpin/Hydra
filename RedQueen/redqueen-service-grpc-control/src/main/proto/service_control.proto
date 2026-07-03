@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto";
+option java_outer_classname = "ServiceControlProto";
+
+service ServiceControl {
+  rpc Control(stream ServiceControlFrame) returns (stream ServiceControlFrame);
+}
+
+enum ServiceControlFrameType {
+  UNKNOWN = 0;
+  CLIENT_MUSTER = 1;
+  CLIENT_READY = 2;
+  REGISTER_SERVICE = 3;
+  REGISTER_ACCEPTED = 4;
+  HEARTBEAT = 5;
+  DEREGISTER = 6;
+  DEREGISTERED = 7;
+  SHUTDOWN_SERVICE = 8;
+  SHUTDOWN_ACCEPTED = 9;
+  ERROR = 10;
+}
+
+message ServiceControlFrame {
+  string frameGuid = 1;
+  string correlationGuid = 2;
+  int64 clientId = 3;
+  string sessionGuid = 4;
+  int64 createTimeMillis = 5;
+  ServiceControlFrameType frameType = 6;
+
+  oneof body {
+    ClientMuster clientMuster = 10;
+    ClientReady clientReady = 11;
+    RegisterServiceCommand registerService = 12;
+    RegisterServiceAccepted registerAccepted = 13;
+    Heartbeat heartbeat = 14;
+    DeregisterCommand deregister = 15;
+    Deregistered deregistered = 16;
+    ShutdownServiceCommand shutdownService = 17;
+    ShutdownServiceAccepted shutdownAccepted = 18;
+    ErrorFrame error = 19;
+  }
+}
+
+message ClientMuster {
+  int64 clientId = 1;
+  string clientName = 2;
+  string transportVersion = 3;
+  map<string, string> attributes = 4;
+}
+
+message ClientReady {
+  int64 clientId = 1;
+  string sessionGuid = 2;
+  string remoteAddress = 3;
+  int64 serverTimeMillis = 4;
+}
+
+message RegisterServiceCommand {
+  string serviceGuid = 1;
+  string deployGuid = 2;
+  string endpointProtocol = 3;
+  string endpointHost = 4;
+  int32 endpointPort = 5;
+  string endpointPath = 6;
+  string endpointAddress = 7;
+  string version = 8;
+  string zone = 9;
+  int32 weight = 10;
+  repeated string tags = 11;
+  string metadataJson = 12;
+  int64 heartbeatIntervalMillis = 13;
+  int64 leaseTimeoutMillis = 14;
+  string instanceGuid = 15;
+}
+
+message RegisterServiceAccepted {
+  string instanceGuid = 1;
+  string serviceGuid = 2;
+  string sessionGuid = 3;
+  string status = 4;
+  int64 registerTimeMillis = 5;
+  int64 expireTimeMillis = 6;
+}
+
+message Heartbeat {
+  string instanceGuid = 1;
+  string status = 2;
+  int64 clientTimeMillis = 3;
+  string message = 4;
+}
+
+message DeregisterCommand {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message Deregistered {
+  string instanceGuid = 1;
+  string status = 2;
+  string reason = 3;
+}
+
+message ShutdownServiceCommand {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message ShutdownServiceAccepted {
+  string instanceGuid = 1;
+  string reason = 2;
+}
+
+message ErrorFrame {
+  string code = 1;
+  string message = 2;
+  string detail = 3;
+}
+

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.DeviceInstanceMapper">
+
+    <resultMap id="DeviceInstanceMap" type="com.pinecone.hydra.device.kom.instance.GenericDeviceInstanceEntry">
+        <id     column="guid"                property="instanceGuid"/>
+        <result column="owner_instance_guid" property="ownerInstanceGuid"/>
+        <result column="device_guid"         property="deviceGuid"/>
+        <result column="client_id"           property="clientId"/>
+        <result column="connection_id"       property="connectionId"/>
+        <result column="session_guid"        property="sessionGuid"/>
+        <result column="transport_type"      property="transportType"/>
+        <result column="remote_address"      property="remoteAddress"/>
+        <result column="endpoint_protocol"   property="endpointProtocol"/>
+        <result column="endpoint_host"       property="endpointHost"/>
+        <result column="endpoint_port"       property="endpointPort"/>
+        <result column="endpoint_path"       property="endpointPath"/>
+        <result column="endpoint_address"    property="endpointAddress"/>
+        <result column="status"              property="status"/>
+        <result column="status_reason"       property="statusReason"/>
+        <result column="register_time"       property="registerTime"/>
+        <result column="last_heartbeat_time" property="lastHeartbeatTime"/>
+        <result column="expire_time"         property="expireTime"/>
+        <result column="offline_time"        property="offlineTime"/>
+        <result column="deregister_time"     property="deregisterTime"/>
+        <result column="connection_count"    property="connectionCount"/>
+        <result column="latest_start_time"   property="latestStartTime"/>
+        <result column="latest_end_time"     property="latestEndTime"/>
+        <result column="metadata_json"       property="metadataJson"/>
+    </resultMap>
+
+    <sql id="DeviceInstanceFields">
+        `guid`,
+        `owner_instance_guid`,
+        `device_guid`,
+        `client_id`,
+        `connection_id`,
+        `session_guid`,
+        `transport_type`,
+        `remote_address`,
+        `endpoint_protocol`,
+        `endpoint_host`,
+        `endpoint_port`,
+        `endpoint_path`,
+        `endpoint_address`,
+        `status_code`,
+        `status`,
+        `status_reason`,
+        `register_time`,
+        `last_heartbeat_time`,
+        `expire_time`,
+        `offline_time`,
+        `deregister_time`,
+        `connection_count`,
+        `latest_start_time`,
+        `latest_end_time`,
+        `metadata_json`
+    </sql>
+
+    <sql id="DeviceInstanceQueryWhere">
+        <where>
+            <if test="query.instanceGuid != null">
+                AND `guid` = #{query.instanceGuid}
+            </if>
+            <if test="query.deviceGuid != null">
+                AND `device_guid` = #{query.deviceGuid}
+            </if>
+            <if test="query.ownerInstanceGuid != null">
+                AND `owner_instance_guid` = #{query.ownerInstanceGuid}
+            </if>
+            <if test="query.clientId != null">
+                AND `client_id` = #{query.clientId}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND `status` = #{query.status}
+            </if>
+            <if test="query.transportType != null and query.transportType != ''">
+                AND `transport_type` = #{query.transportType}
+            </if>
+            <if test="query.latestStartTimeStart != null">
+                AND `latest_start_time` <![CDATA[ >= ]]> #{query.latestStartTimeStart}
+            </if>
+            <if test="query.latestStartTimeEnd != null">
+                AND `latest_start_time` <![CDATA[ <= ]]> #{query.latestStartTimeEnd}
+            </if>
+            <if test="query.latestEndTimeStart != null">
+                AND `latest_end_time` <![CDATA[ >= ]]> #{query.latestEndTimeStart}
+            </if>
+            <if test="query.latestEndTimeEnd != null">
+                AND `latest_end_time` <![CDATA[ <= ]]> #{query.latestEndTimeEnd}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    `guid` = #{query.keyword}
+                    OR `owner_instance_guid` = #{query.keyword}
+                    OR `device_guid` = #{query.keyword}
+                    OR `connection_id` = #{query.keyword}
+                    OR `session_guid` = #{query.keyword}
+                    OR `endpoint_host` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `endpoint_address` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `status` LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <insert id="initDeviceInstance" parameterType="com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry">
+        INSERT INTO `hydra_device_instances`
+        (
+            `guid`,
+            `owner_instance_guid`,
+            `device_guid`,
+            `client_id`,
+            `connection_id`,
+            `session_guid`,
+            `transport_type`,
+            `remote_address`,
+            `endpoint_protocol`,
+            `endpoint_host`,
+            `endpoint_port`,
+            `endpoint_path`,
+            `endpoint_address`,
+            `status_code`,
+            `status`,
+            `status_reason`,
+            `register_time`,
+            `last_heartbeat_time`,
+            `expire_time`,
+            `offline_time`,
+            `deregister_time`,
+            `connection_count`,
+            `latest_start_time`,
+            `latest_end_time`,
+            `metadata_json`
+        )
+        VALUES
+        (
+            #{instanceGuid},
+            #{ownerInstanceGuid},
+            #{deviceGuid},
+            #{clientId},
+            #{connectionId},
+            #{sessionGuid},
+            #{transportType},
+            #{remoteAddress},
+            #{endpointProtocol},
+            #{endpointHost},
+            #{endpointPort},
+            #{endpointPath},
+            #{endpointAddress},
+            #{status.code},
+            #{status.name},
+            #{statusReason},
+            #{registerTime},
+            #{lastHeartbeatTime},
+            #{expireTime},
+            #{offlineTime},
+            #{deregisterTime},
+            #{connectionCount},
+            #{latestStartTime},
+            #{latestEndTime},
+            #{metadataJson}
+        )
+    </insert>
+
+    <select id="queryDeviceInstance" resultMap="DeviceInstanceMap">
+        SELECT
+        <include refid="DeviceInstanceFields"/>
+        FROM `hydra_device_instances`
+        WHERE `guid` = #{instanceGuid}
+    </select>
+
+    <select id="fetchDeviceInstances0" resultMap="DeviceInstanceMap">
+        SELECT
+        <include refid="DeviceInstanceFields"/>
+        FROM `hydra_device_instances`
+        <include refid="DeviceInstanceQueryWhere"/>
+        ORDER BY `register_time` DESC, `guid` DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="countDeviceInstances0" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_device_instances`
+        <include refid="DeviceInstanceQueryWhere"/>
+    </select>
+
+    <select id="fetchDeviceInstancesByDeviceGuid0" resultMap="DeviceInstanceMap">
+        SELECT
+        <include refid="DeviceInstanceFields"/>
+        FROM `hydra_device_instances`
+        WHERE `device_guid` = #{deviceGuid}
+        ORDER BY `register_time` DESC, `guid` DESC
+    </select>
+
+    <select id="fetchDeviceInstancesByOwnerInstanceGuid0" resultMap="DeviceInstanceMap">
+        SELECT
+        <include refid="DeviceInstanceFields"/>
+        FROM `hydra_device_instances`
+        WHERE `owner_instance_guid` = #{ownerInstanceGuid}
+        ORDER BY `register_time` DESC, `guid` DESC
+    </select>
+
+    <update id="updateDeviceInstance" parameterType="com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry">
+        UPDATE `hydra_device_instances`
+        SET
+            `owner_instance_guid` = #{ownerInstanceGuid},
+            `device_guid` = #{deviceGuid},
+            `client_id` = #{clientId},
+            `connection_id` = #{connectionId},
+            `session_guid` = #{sessionGuid},
+            `transport_type` = #{transportType},
+            `remote_address` = #{remoteAddress},
+            `endpoint_protocol` = #{endpointProtocol},
+            `endpoint_host` = #{endpointHost},
+            `endpoint_port` = #{endpointPort},
+            `endpoint_path` = #{endpointPath},
+            `endpoint_address` = #{endpointAddress},
+            `status_code` = #{status.code},
+            `status` = #{status.name},
+            `status_reason` = #{statusReason},
+            `register_time` = #{registerTime},
+            `last_heartbeat_time` = #{lastHeartbeatTime},
+            `expire_time` = #{expireTime},
+            `offline_time` = #{offlineTime},
+            `deregister_time` = #{deregisterTime},
+            `connection_count` = #{connectionCount},
+            `latest_start_time` = #{latestStartTime},
+            `latest_end_time` = #{latestEndTime},
+            `metadata_json` = #{metadataJson}
+        WHERE `guid` = #{instanceGuid}
+    </update>
+</mapper>

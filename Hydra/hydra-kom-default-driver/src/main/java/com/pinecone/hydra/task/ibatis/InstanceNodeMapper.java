@@ -67,6 +67,12 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return (List) list;
     }
 
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query ) {
+        return (List) this.fetchInstancesByQuery0( query );
+    }
+
     List<GenericInstanceEntry> fetchInstances0( @Param("offset") long offset, @Param("pageSize") long pageSize );
 
     @Override
@@ -158,7 +164,152 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
         return this.transitStatusIn0( instanceGuid, szFromStatuses, toStatus.getName() );
     }
 
+    int transitStatusInMonotonic0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus
+    );
+
+    @Override
+    default int transitStatusInMonotonic( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonic0( instanceGuid, szFromStatuses, toStatus.getName() );
+    }
+
+    int transitStatusInMonotonicWithFields0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "latestStartTime" ) LocalDateTime latestStartTime,
+            @Param( "latestEndTime" ) LocalDateTime latestEndTime,
+            @Param( "finishTime" ) LocalDateTime finishTime,
+            @Param( "errorCause" ) String szErrorCause
+    );
+
+    @Override
+    default int transitStatusInMonotonicWithFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonicWithFields0(
+                instanceGuid, szFromStatuses, toStatus.getName(), scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    int transitStatusInMonotonicWithFieldsGuarded0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "sequenceCnt" ) int nSequenceCnt,
+            @Param( "retryCnt" ) int nRetryCnt,
+            @Param( "fromStatuses" ) Collection<String> fromStatuses,
+            @Param( "toStatus" ) String szToStatus,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "latestStartTime" ) LocalDateTime latestStartTime,
+            @Param( "latestEndTime" ) LocalDateTime latestEndTime,
+            @Param( "finishTime" ) LocalDateTime finishTime,
+            @Param( "errorCause" ) String szErrorCause
+    );
+
+    @Override
+    default int transitStatusInMonotonicWithFieldsGuarded(
+            GUID instanceGuid,
+            int sequenceCnt,
+            int retryCnt,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    ) {
+        Collection<String> szFromStatuses = fromStatuses.stream().map( TaskInstanceStatus::getName ).collect( Collectors.toList() );
+        return this.transitStatusInMonotonicWithFieldsGuarded0(
+                instanceGuid, sequenceCnt, retryCnt, szFromStatuses, toStatus.getName(),
+                scheduleTime, latestStartTime, latestEndTime, finishTime, errorCause
+        );
+    }
+
+    int resetForRetry0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "currentRetryCnt" ) int nCurrentRetryCnt,
+            @Param( "expectTime" ) LocalDateTime expectTime,
+            @Param( "fireTime" ) LocalDateTime fireTime,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime
+    );
+
+    @Override
+    default int resetForRetry(
+            GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime
+    ) {
+        return this.resetForRetry0( instanceGuid, currentRetryCnt, expectTime, fireTime, scheduleTime );
+    }
+
+    int resetForSequence0(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "currentSequenceCnt" ) int nCurrentSequenceCnt,
+            @Param( "expectTime" ) LocalDateTime expectTime,
+            @Param( "fireTime" ) LocalDateTime fireTime,
+            @Param( "scheduleTime" ) LocalDateTime scheduleTime,
+            @Param( "imagePath" ) String szImagePath,
+            @Param( "execArch" ) String szExecArch,
+            @Param( "priority" ) int nPriority,
+            @Param( "actuallyPriority" ) int nActuallyPriority,
+            @Param( "dryRun" ) boolean bDryRun,
+            @Param( "timeoutSeconds" ) Long nTimeoutSeconds,
+            @Param( "retryTimes" ) int nRetryTimes,
+            @Param( "retryIntervalSeconds" ) Long nRetryIntervalSeconds,
+            @Param( "taskType" ) String szTaskType,
+            @Param( "designatedProcessor" ) String szDesignatedProcessor
+    );
+
+    @Override
+    default int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    ) {
+        return this.resetForSequence0(
+                instanceGuid,
+                currentSequenceCnt,
+                expectTime,
+                fireTime,
+                scheduleTime,
+                imagePath,
+                execArch,
+                priority,
+                actuallyPriority,
+                dryRun,
+                timeoutSeconds,
+                retryTimes,
+                retryIntervalSeconds,
+                taskType,
+                designatedProcessor
+        );
+    }
+
     long countInstanceByTaskGuid( GUID taskGuid );
+
+    int deleteByTaskGuids( @Param( "taskGuids" ) Collection<GUID> taskGuids );
 
     GenericInstanceEntry findLastExecuted0( @Param("taskGuid") GUID taskGuid, @Param("bizTime") String bizTime );
 
@@ -194,6 +345,46 @@ public interface InstanceNodeMapper extends InstanceNodeManipulator {
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, @Nullable Short actuallyPriority
     ) {
         List<GenericInstanceEntry> list = this.fetchSchedulableInstances0( idMin, idMax, runStatuses, targetTime, actuallyPriority );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return CollectionUtils.genericConvert( list );
+    }
+
+    @Override
+    TableIndex64Meta selectRetryableTerminalIdRange(
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param("targetTime") LocalDateTime targetTime
+    );
+
+    List<GenericInstanceEntry> fetchRetryableTerminalInstances0(
+            @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax,
+            @Param("runStatuses") Collection<TaskInstanceStatus> runStatuses, @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    @Override
+    default List<InstanceEntry> fetchRetryableTerminalInstances(
+            TaskInstrument instrument,
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    ) {
+        List<GenericInstanceEntry> list = this.fetchRetryableTerminalInstances0( idMin, idMax, runStatuses, targetTime );
+        for ( GenericInstanceEntry entry : list ) {
+            entry.apply( instrument );
+        }
+        return CollectionUtils.genericConvert( list );
+    }
+
+    @Override
+    TableIndex64Meta selectTimedOutRunningIdRange( @Param("targetTime") LocalDateTime targetTime );
+
+    List<GenericInstanceEntry> fetchTimedOutRunningInstances0(
+            @Param( "idMin" ) long idMin, @Param( "idMax" ) long idMax, @Param( "targetTime" ) LocalDateTime targetTime
+    );
+
+    @Override
+    default List<InstanceEntry> fetchTimedOutRunningInstances(
+            TaskInstrument instrument, long idMin, long idMax, LocalDateTime targetTime
+    ) {
+        List<GenericInstanceEntry> list = this.fetchTimedOutRunningInstances0( idMin, idMax, targetTime );
         for ( GenericInstanceEntry entry : list ) {
             entry.apply( instrument );
         }

@@ -1,7 +1,7 @@
 # Bean Nuts Hazelnut Hydra <br> 九头龙，分布式操作系统
 <p align="center">
   <strong>
-  真超级个体, 一个人公司, 一个集团, 一个人中台, 大规模AI、数据、任务调度工业架构, 大规模控制, 
+  真超级个体, 一个人公司, 一个人集团, 一个人中台, 大规模AI、数据、任务调度工业架构, 大规模控制, 
   中央情报系统, 大规模分布式爬虫, 大数据处理, 数据仓库, 云计算, 中台
    </strong>
 </p>
@@ -83,9 +83,13 @@ Hydra为你打造个人PB级数仓、知识库、图库、任务编排和服务�
 
 ## 一、📝 描述
 ### 1.1、瞟一眼功能
-![TaskDev](assets/imgs/task/task_dev.png)
+![TaskDev](assets/imgs/task/task_dev.jpg)
 
-![TaskLineage](assets/imgs/task/task_lineage.png)
+![TaskLineage](assets/imgs/task/task_lineage.jpg)
+
+![TaskInstanceList](assets/imgs/task/task_instance_list.jpg)
+
+![GladiatorShell](assets/imgs/shell/gladiator_shell.jpg)
 
 ![StorageExplorer](assets/imgs/storage/titan-uofs-explorer.png)
 
@@ -93,7 +97,9 @@ Hydra为你打造个人PB级数仓、知识库、图库、任务编排和服务�
 
 ![StorageLogicVolumeStudio](assets/imgs/storage/titan-uofs-studio.png)
 
-![Device](assets/imgs/device/hydra-device.png)
+![Device](assets/imgs/service/hydra-service.jpg)
+
+![Device](assets/imgs/device/hydra-device.jpg)
 
 
 

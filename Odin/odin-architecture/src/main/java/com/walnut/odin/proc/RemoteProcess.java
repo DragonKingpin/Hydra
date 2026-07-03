@@ -1,7 +1,7 @@
 package com.walnut.odin.proc;
 
 import com.pinecone.hydra.proc.RemoteUProcess;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.walnut.odin.proc.entity.UProcessRuntimeMeta;
 
 import java.time.LocalDateTime;
@@ -23,6 +23,6 @@ public interface RemoteProcess extends RemoteUProcess {
 
     int remoteEventHandlerSize(  ) ;
 
-    void notifyRemoteEvent( long pmClientId, ProcessEvent event, Object caused );
+    void notifyRemoteEvent( long pmClientId, UProcessStatus event, Object caused );
 
 }

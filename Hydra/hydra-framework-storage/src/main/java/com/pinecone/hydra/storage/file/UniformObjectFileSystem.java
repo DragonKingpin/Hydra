@@ -3,8 +3,11 @@ package com.pinecone.hydra.storage.file;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
@@ -13,21 +16,39 @@ import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.uoi.UOI;
 
-import com.pinecone.hydra.storage.bucket.*;
+import com.pinecone.hydra.storage.bucket.Bucket;
+import com.pinecone.hydra.storage.bucket.BucketInstrument;
+import com.pinecone.hydra.storage.bucket.BucketNodeManipulator;
+import com.pinecone.hydra.storage.bucket.BucketPathCacheManipulator;
+import com.pinecone.hydra.storage.bucket.BucketResolver;
+import com.pinecone.hydra.storage.bucket.TitanBucketInstrument;
+import com.pinecone.hydra.storage.bucket.purge.BucketPurgeProgressListener;
+import com.pinecone.hydra.storage.bucket.purge.BucketPurgeReport;
+import com.pinecone.hydra.storage.bucket.purge.GenericBucketPurgeExecutor;
 import com.pinecone.ulf.util.guid.GUIDs;
 
 import com.pinecone.hydra.storage.StorageConstants;
 import com.pinecone.hydra.storage.file.cache.DefaultCacheConstants;
+import com.pinecone.hydra.storage.file.delete.UofsDeleteExecutor;
+import com.pinecone.hydra.storage.file.delete.UofsDeletePolicy;
+import com.pinecone.hydra.storage.file.delete.UofsFileDataDeleter;
+import com.pinecone.hydra.storage.file.delete.UofsMetadataDeleteOperator;
 import com.pinecone.hydra.storage.file.entity.ElementNode;
+import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.external.ExternalFileSystemInstrument;
+import com.pinecone.hydra.storage.file.external.ExternalFile;
+import com.pinecone.hydra.storage.file.external.ExternalFolder;
+import com.pinecone.hydra.storage.file.external.NativeExternalFileChannel;
 import com.pinecone.hydra.storage.file.external.TitanExternalFileSystemInstrument;
 import com.pinecone.hydra.storage.file.entity.FSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.FileNode;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
 import com.pinecone.hydra.storage.file.entity.Folder;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.storage.file.entity.GenericFSNodeAllotment;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
+import com.pinecone.hydra.storage.file.entity.Symbolic;
 import com.pinecone.hydra.storage.file.fat.FatChunkInstrument;
 import com.pinecone.hydra.storage.file.fat.TitanFatChunkInstrument;
 import com.pinecone.hydra.storage.file.fat.entity.FileChunk;
@@ -46,14 +67,16 @@ import com.pinecone.hydra.storage.file.journal.TitanJournalRecoveryInstrument;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperator;
 import com.pinecone.hydra.storage.file.operator.FileSystemOperatorFactory;
 import com.pinecone.hydra.storage.file.operator.GenericFileSystemOperatorFactory;
+import com.pinecone.hydra.storage.file.query.FileChildPage;
+import com.pinecone.hydra.storage.file.query.FileChildQuery;
 import com.pinecone.hydra.storage.file.reparse.TitanUofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicPathResolver;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicResolveConfig;
 import com.pinecone.hydra.storage.file.reparse.UofsSymbolicResolveResult;
+import com.pinecone.hydra.storage.file.source.FileChildManipulator;
 import com.pinecone.hydra.storage.file.source.FileManipulator;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
 import com.pinecone.hydra.storage.file.source.FolderManipulator;
-import com.pinecone.hydra.storage.file.source.FolderVolumeMappingManipulator;
 import com.pinecone.hydra.storage.file.source.SymbolicManipulator;
 import com.pinecone.hydra.storage.file.transmit.address.UofsAddress;
 import com.pinecone.hydra.storage.file.transmit.address.UofsAddressResolver;
@@ -92,7 +115,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     protected FileManipulator                         fileManipulator;
     protected FolderManipulator                       folderManipulator;
     protected SymbolicManipulator                     symbolicManipulator;
-    protected FolderVolumeMappingManipulator          folderVolumeMappingManipulator;
+    protected FileChildManipulator                    fileChildManipulator;
 
     protected FSNodeAllotment                         fsNodeAllotment;
     protected FatChunkInstrument                      fatChunkInstrument;
@@ -169,8 +192,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         this.fileManipulator                = this.fileMasterManipulator.getFileManipulator();
         this.folderManipulator              = this.fileMasterManipulator.getFolderManipulator();
         this.symbolicManipulator            = this.fileMasterManipulator.getSymbolicManipulator();
-        this.folderVolumeMappingManipulator = this.fileMasterManipulator.getFolderVolumeRelationManipulator();
-
+        this.fileChildManipulator           = this.fileMasterManipulator.getFileChildManipulator();
         this.bucketInstrument               = new TitanBucketInstrument( this.fileMasterManipulator.getBucketManipulator() );
         this.bucketResolver                 = new BucketResolver( this.bucketInstrument );
     }
@@ -276,6 +298,147 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         return (List) super.fetchRoot();
     }
 
+    @Override
+    public FileChildPage fetchRoot( FileChildQuery query ) {
+        FileChildQuery normalized = this.normalizeChildQuery( query );
+        List<GUID> guids = this.fileChildManipulator.fetchRootChildren( normalized );
+        List<FileTreeNode> nodes = this.hydrateFileTreeNodes( guids );
+        long total = this.fileChildManipulator.countRoot( normalized );
+        return FileChildPage.of( nodes, total, normalized.getOffset(), normalized.getLimit() );
+    }
+
+    @Override
+    public long countRoot( FileChildQuery query ) {
+        return this.fileChildManipulator.countRoot( this.normalizeChildQuery( query ) );
+    }
+
+    @Override
+    public FileChildPage fetchChildren( GUID parentGuid, FileChildQuery query ) {
+        FileChildQuery normalized = this.normalizeChildQuery( query );
+        normalized.setParentGuid( parentGuid );
+        List<GUID> guids = this.fileChildManipulator.fetchChildren( normalized );
+        List<FileTreeNode> nodes = this.hydrateFileTreeNodes( guids );
+        long total = this.fileChildManipulator.countChildren( normalized );
+        return FileChildPage.of( nodes, total, normalized.getOffset(), normalized.getLimit() );
+    }
+
+    @Override
+    public FileChildPage fetchChildren( String path, FileChildQuery query ) {
+        ElementNode parent = this.queryElement( path );
+        if ( parent == null ) {
+            return FileChildPage.of( List.of(), 0L, this.normalizeChildQuery( query ).getOffset(), this.normalizeChildQuery( query ).getLimit() );
+        }
+        if ( parent instanceof ExternalSymbolic ) {
+            ElementNode externalElement = this.directFileSystemAccessor.queryElement( path );
+            if ( externalElement != null ) {
+                parent = externalElement;
+            }
+        }
+        Symbolic symbolic = parent.evinceSymbolic();
+        if ( symbolic != null ) {
+            return this.fetchChildren( symbolic.getReparsedPoint(), query );
+        }
+        if ( parent instanceof ExternalFolder ) {
+            return this.fetchExternalChildren( (ExternalFolder) parent, query );
+        }
+        if ( parent instanceof Folder ) {
+            return this.fetchChildren( parent.getGuid(), query );
+        }
+        throw new IllegalArgumentException( "UOFS path is not a folder: " + path );
+    }
+
+    @Override
+    public List<HardlinkEntry> listHardlinks( String keyword, int offset, int limit ) {
+        return this.imperialTree.listHardlinks( keyword, offset, limit );
+    }
+
+    @Override
+    public long countHardlinks( String keyword ) {
+        return this.imperialTree.countHardlinks( keyword );
+    }
+
+    protected FileChildQuery normalizeChildQuery( FileChildQuery query ) {
+        return query == null ? new FileChildQuery() : query.normalized();
+    }
+
+    protected List<FileTreeNode> hydrateFileTreeNodes( List<GUID> guids ) {
+        List<FileTreeNode> nodes = new ArrayList<>();
+        if ( guids == null ) {
+            return nodes;
+        }
+        for ( GUID guid : guids ) {
+            FileTreeNode node = this.get( guid );
+            if ( node != null ) {
+                nodes.add( node );
+            }
+        }
+        return nodes;
+    }
+
+    protected FileChildPage fetchExternalChildren( ExternalFolder folder, FileChildQuery query ) {
+        FileChildQuery normalized = this.normalizeChildQuery( query );
+        List<FileTreeNode> source = folder.listItem();
+        List<FileTreeNode> filtered = new ArrayList<>();
+        for ( FileTreeNode node : source ) {
+            if ( this.matchExternalChildQuery( node, normalized ) ) {
+                filtered.add( node );
+            }
+        }
+        filtered.sort( this.externalChildComparator( normalized ) );
+
+        int offset = Math.min( normalized.getOffset(), filtered.size() );
+        int limit = normalized.getLimit();
+        int end = Math.min( filtered.size(), offset + limit );
+        return FileChildPage.of( filtered.subList( offset, end ), filtered.size(), offset, limit );
+    }
+
+    protected boolean matchExternalChildQuery( FileTreeNode node, FileChildQuery query ) {
+        if ( !query.getHasTypeFilter() ) {
+            return true;
+        }
+        if ( node instanceof ExternalFolder ) {
+            return query.getIncludeFolder();
+        }
+        if ( node instanceof ExternalFile ) {
+            return query.getIncludeFile();
+        }
+        if ( node instanceof ElementNode ) {
+            ElementNode elementNode = (ElementNode) node;
+            if ( elementNode.evinceFolder() != null ) {
+                return query.getIncludeFolder();
+            }
+            if ( elementNode.evinceFileNode() != null ) {
+                return query.getIncludeFile();
+            }
+            if ( elementNode.evinceSymbolic() != null ) {
+                return query.getIncludeReparse();
+            }
+        }
+        return false;
+    }
+
+    protected Comparator<FileTreeNode> externalChildComparator( FileChildQuery query ) {
+        Comparator<FileTreeNode> comparator;
+        if ( query.getOrderByCreateTime() ) {
+            comparator = Comparator.comparing( this::externalChildCreateTime, Comparator.nullsLast( Comparator.naturalOrder() ) );
+        }
+        else if ( query.getOrderByUpdateTime() ) {
+            comparator = Comparator.comparing( this::externalChildUpdateTime, Comparator.nullsLast( Comparator.naturalOrder() ) );
+        }
+        else {
+            comparator = Comparator.comparing( FileTreeNode::getName, Comparator.nullsLast( String::compareToIgnoreCase ) );
+        }
+        return query.getAscending() ? comparator : comparator.reversed();
+    }
+
+    protected java.time.LocalDateTime externalChildCreateTime( FileTreeNode node ) {
+        return node instanceof ElementNode ? ( (ElementNode) node ).getCreateTime() : null;
+    }
+
+    protected java.time.LocalDateTime externalChildUpdateTime( FileTreeNode node ) {
+        return node instanceof ElementNode ? ( (ElementNode) node ).getUpdateTime() : null;
+    }
+
 
 
     @Override
@@ -299,15 +462,156 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
 
     @Override
     public void remove( String path ) {
-        String key = DefaultCacheConstants.FilePathCacheNS + path;
-        this.globalPathGuidCacheQuerier.erase(key);
-        super.remove(path);
+        this.remove( path, null );
+    }
+
+    @Override
+    public void remove( String path, VolumeManager volumeManager ) {
+        this.newDeleteExecutor( volumeManager ).remove( path );
     }
 
     @Override
     public void remove( GUID guid ){
-        super.remove( guid );
-        this.deleteFileChunks( guid );
+        this.remove( guid, null );
+    }
+
+    @Override
+    public void remove( GUID guid, VolumeManager volumeManager ){
+        this.newDeleteExecutor( volumeManager ).remove( guid );
+    }
+
+    @Override
+    public BucketPurgeReport purgeBucket( GUID bucketGuid, VolumeManager volumeManager, @Nullable BucketPurgeProgressListener listener ) {
+        return new GenericBucketPurgeExecutor( this, volumeManager ).purgeBucket( bucketGuid, listener );
+    }
+
+    @Override
+    public BucketPurgeReport formatBucket( GUID bucketGuid, VolumeManager volumeManager, @Nullable BucketPurgeProgressListener listener ) {
+        return new GenericBucketPurgeExecutor( this, volumeManager ).formatBucket( bucketGuid, listener );
+    }
+
+    protected UofsDeleteExecutor newDeleteExecutor( VolumeManager volumeManager ) {
+        return new UofsDeleteExecutor(
+                this,
+                this.directFileSystemAccessor,
+                this::queryDirectGUIDByPath,
+                this::erasePathCache,
+                this.newFileDataDeleter( volumeManager ),
+                this.newMetadataDeleteOperator(),
+                UofsDeletePolicy.strict()
+        );
+    }
+
+    protected UofsMetadataDeleteOperator newMetadataDeleteOperator() {
+        return new UofsMetadataDeleteOperator() {
+            @Override
+            public void removeFile( GUID guid ) {
+                UniformObjectFileSystem.this.removeFileMetadata( guid );
+            }
+
+            @Override
+            public void removeFolder( GUID guid ) {
+                UniformObjectFileSystem.this.removeFolderMetadata( guid );
+            }
+
+            @Override
+            public void removeInternalSymbolic( GUID guid ) {
+                UniformObjectFileSystem.this.removeInternalSymbolicMetadata( guid );
+            }
+
+            @Override
+            public void removeExternalSymbolic( GUID guid ) {
+                UniformObjectFileSystem.this.removeExternalSymbolicMetadata( guid );
+            }
+
+            @Override
+            public void unlink( GUID parentGuid, GUID childGuid ) {
+                UniformObjectFileSystem.this.unlinkMetadata( parentGuid, childGuid );
+            }
+        };
+    }
+
+    protected UofsFileDataDeleter newFileDataDeleter( VolumeManager volumeManager ) {
+        if ( volumeManager == null ) {
+            return this::deleteFileIndex;
+        }
+        return fileNode -> this.deleteFileData( fileNode, volumeManager );
+    }
+
+    protected void removeFileMetadata( GUID guid ) {
+        this.imperialTree.purge( guid );
+        this.fileManipulator.remove( guid );
+        this.imperialTree.removeCachePath( guid );
+    }
+
+    protected void removeFolderMetadata( GUID guid ) {
+        this.imperialTree.purge( guid );
+        this.folderManipulator.remove( guid );
+        this.imperialTree.removeCachePath( guid );
+    }
+
+    protected void removeInternalSymbolicMetadata( GUID guid ) {
+        this.imperialTree.purge( guid );
+        this.symbolicManipulator.remove( guid );
+        this.imperialTree.removeCachePath( guid );
+    }
+
+    protected void removeExternalSymbolicMetadata( GUID guid ) {
+        this.imperialTree.purge( guid );
+        this.fileMasterManipulator.getExternalSymbolicManipulator().remove( guid );
+        this.imperialTree.removeCachePath( guid );
+    }
+
+    protected void unlinkMetadata( GUID parentGuid, GUID childGuid ) {
+        if ( parentGuid == null || childGuid == null ) {
+            return;
+        }
+        this.imperialTree.removeInheritance( childGuid, parentGuid );
+        this.imperialTree.removeCachePath( childGuid );
+    }
+
+    protected void deleteFileIndex( FileNode fileNode ) {
+        if ( fileNode != null ) {
+            this.deleteFileChunks( fileNode.getGuid() );
+        }
+    }
+
+    protected void deleteFileData( FileNode fileNode, VolumeManager volumeManager ) {
+        try {
+            this.newFatFileStore( fileNode, volumeManager ).delete( fileNode );
+        }
+        catch ( IOException e ) {
+            throw new IllegalStateException( "Failed to delete UOFS file data: " + fileNode.getGuid(), e );
+        }
+    }
+
+    protected FatFileStore newFatFileStore( FileNode fileNode, VolumeManager volumeManager ) {
+        FatChunkStore chunkStore = new TitanFatChunkStore( volumeManager );
+        VolumeSpaceAllocator allocator = new LinearVolumeSpaceAllocator(
+                this.fileMasterManipulator.getFileChunkLocationManipulator()
+        );
+        GUID writeVolumeGuid = this.resolveWriteVolumeGuid( fileNode );
+        return new TitanFatFileStore(
+                this,
+                this.fatChunkInstrument,
+                chunkStore,
+                allocator,
+                volumeManager,
+                fileNode.getBucketGuid(),
+                writeVolumeGuid,
+                this.journalInstrument,
+                JournalType.DELETE
+        );
+    }
+
+    protected GUID resolveWriteVolumeGuid( FileNode fileNode ) {
+        if ( fileNode.getBucketGuid() != null ) {
+            Bucket bucket = this.bucketInstrument.get( fileNode.getBucketGuid() );
+            if ( bucket != null && bucket.getVolumeGuid() != null ) {
+                return bucket.getVolumeGuid();
+            }
+        }
+        return this.guidAllocator.parse( this.getConfig().getDefaultVolumeGuid() );
     }
 
     @Override
@@ -327,7 +631,11 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     protected FileTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
-        String[] parts = this.pathResolver.segmentPathParts( path );
+        return this.affirmTreeNodeByPath( path, cnSup, nsSup, null );
+    }
+
+    protected FileTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup, GUID bucketGuid ) {
+        List<String> parts = this.pathResolver.resolvePathParts( path );
         String currentPath = "";
         GUID parentGuid = GUIDs.Dummy128();
 
@@ -337,20 +645,24 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         }
 
         FileTreeNode ret = null;
-        for( int i = 0; i < parts.length; ++i ){
-            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + parts[ i ];
+        for( int i = 0; i < parts.size(); ++i ){
+            String part = parts.get( i );
+            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + part;
             node = this.queryElement( currentPath );
             if ( node == null){
-                if ( i == parts.length - 1 && cnSup != null ){
+                GUID effectiveBucketGuid = this.resolveCreationBucketGuid( bucketGuid, parentGuid, currentPath );
+                if ( i == parts.size() - 1 && cnSup != null ){
                     FileNode fileNode = (FileNode) this.dynamicFactory.optNewInstance( cnSup, new Object[]{ this } );
-                    fileNode.setName( parts[i] );
+                    fileNode.setName( part );
+                    fileNode.setBucketGuid( effectiveBucketGuid );
                     GUID guid = this.put( fileNode );
                     this.affirmOwnedNode( parentGuid, guid );
                     return fileNode;
                 }
                 else {
                     Folder folder = (Folder) this.dynamicFactory.optNewInstance( nsSup, new Object[]{ this } );
-                    folder.setName(parts[i]);
+                    folder.setName(part);
+                    folder.setBucketGuid( effectiveBucketGuid );
                     GUID guid = this.put(folder);
                     if ( i != 0 ){
                         this.affirmOwnedNode( parentGuid, guid );
@@ -377,10 +689,111 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         return fileNode;
     }
 
+    public FileNode affirmFileNode( String path, GUID bucketGuid ) {
+        FileNode fileNode = (FileNode) this.affirmTreeNodeByPath( path, GenericFileNode.class, GenericFolder.class, bucketGuid );
+        return fileNode;
+    }
+
     @Override
     public Folder affirmFolder( String path ) {
         Folder folder = (Folder) this.affirmTreeNodeByPath(path, null, GenericFolder.class);
         return folder;
+    }
+
+    public Folder affirmFolder( String path, GUID bucketGuid ) {
+        Folder folder = (Folder) this.affirmTreeNodeByPath( path, null, GenericFolder.class, bucketGuid );
+        return folder;
+    }
+
+    @Override
+    public ElementNode affirmFolderElement( String path ) {
+        return this.affirmFolderElement( path, null );
+    }
+
+    public ElementNode affirmFolderElement( String path, GUID bucketGuid ) {
+        GUID directGuid = this.queryDirectGUIDByPath( path );
+        if ( directGuid != null ) {
+            ElementNode node = (ElementNode) this.get( directGuid );
+            if ( node instanceof ExternalSymbolic ) {
+                ElementNode externalNode = this.directFileSystemAccessor.queryElement( path );
+                if ( externalNode instanceof ExternalFolder ) {
+                    return externalNode;
+                }
+            }
+            if ( node.evinceFolder() == null ) {
+                throw new IllegalArgumentException( "UOFS path is not a folder: " + path );
+            }
+            return node;
+        }
+
+        ElementNode externalNode = this.directFileSystemAccessor.queryElement( path );
+        if ( externalNode instanceof ExternalFolder ) {
+            return externalNode;
+        }
+        if ( externalNode instanceof ExternalFile ) {
+            ExternalFile externalFile = (ExternalFile) externalNode;
+            if ( externalFile.exists() ) {
+                throw new IllegalArgumentException( "UOFS path is a native external file: " + path );
+            }
+            return this.directFileSystemAccessor.affirmFolder( path );
+        }
+
+        return this.affirmFolder( path, bucketGuid );
+    }
+
+    protected GUID resolveCreationBucketGuid( GUID bucketGuid, GUID parentGuid, String currentPath ) {
+        if ( bucketGuid != null ) {
+            return bucketGuid;
+        }
+        GUID inheritedBucketGuid = this.resolveBucketGuidFromParent( parentGuid );
+        if ( inheritedBucketGuid != null ) {
+            return inheritedBucketGuid;
+        }
+        return this.resolveBucketGuidFromRootPath( currentPath );
+    }
+
+    protected GUID resolveBucketGuidFromParent( GUID parentGuid ) {
+        if ( parentGuid == null || Objects.equals( parentGuid, GUIDs.Dummy128() ) ) {
+            return null;
+        }
+        FileTreeNode parent = this.get( parentGuid );
+        if ( parent instanceof ElementNode ) {
+            return ( (ElementNode) parent ).getBucketGuid();
+        }
+        return null;
+    }
+
+    protected GUID resolveBucketGuidFromRootPath( String currentPath ) {
+        if ( this.bucketInstrument == null || !StringUtils.isNotBlank( currentPath ) ) {
+            return null;
+        }
+        String root = currentPath;
+        int pathSeparator = root.indexOf( this.getConfig().getPathNameSeparator() );
+        if ( pathSeparator >= 0 ) {
+            root = root.substring( 0, pathSeparator );
+        }
+        int bucketSeparator = root.indexOf( '@' );
+        Bucket bucket = null;
+        if ( bucketSeparator > 0 && bucketSeparator < root.length() - 1 ) {
+            bucket = this.bucketInstrument.getByUserIdentifierAndBucket(
+                    root.substring( 0, bucketSeparator ),
+                    root.substring( bucketSeparator + 1 )
+            );
+        }
+        if ( bucket == null ) {
+            bucket = this.bucketInstrument.getByBucketIdentifier( root );
+        }
+        return bucket == null ? null : bucket.getGuid();
+    }
+
+    protected void erasePathCache( String path ) {
+        if ( this.globalPathGuidCacheQuerier == null ) {
+            return;
+        }
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        this.globalPathGuidCacheQuerier.erase( this.buildPathGuidCacheKey( bucketGuid, path ) );
+        this.globalPathGuidCacheQuerier.erase( this.buildLegacyPathGuidCacheKey( path ) );
+        this.globalPathGuidCacheQuerier.erase( DefaultCacheConstants.FilePathCacheNS + path );
     }
 
     @Override
@@ -392,20 +805,20 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     @Override
     public GUID queryGUIDByPath( String path ) {
         FileSystemConfig config = this.getConfig();
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        String key = this.buildPathGuidCacheKey( bucketGuid, path );
         if ( this.globalPathGuidCacheQuerier != null ) {
-            String key = DefaultCacheConstants.FilePathCacheNS + path;
             String szGUID = this.globalPathGuidCacheQuerier.get( key );
             if ( StringUtils.isNoneEmpty( szGUID ) ) {
-                return GUIDs.GUID128( szGUID );
+                return this.guidAllocator.parse( szGUID );
             }
         }
-        GUID guid =  this.queryDirectGUIDByPath(path); // Into OLTP-RDB
+        GUID guid =  this.queryDirectGUIDByResolvedPath( path ); // Into OLTP-RDB
         if ( guid == null ) {
-            UofsSymbolicResolveResult result = this.symbolicPathResolver.resolve(path, this::queryDirectGUIDByPath);
+            UofsSymbolicResolveResult result = this.symbolicPathResolver.resolve(path, this::queryDirectGUIDByResolvedPath);
             guid = result.getResolvedGuid();
         }
         if ( this.globalPathGuidCacheQuerier != null ) {
-            String key = DefaultCacheConstants.FilePathCacheNS + path;
             if ( guid != null ) {
                 this.globalPathGuidCacheQuerier.insert( key, guid.toString(), config.getPathQueryExpiryTimeHotMil() );
             }
@@ -413,8 +826,52 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         return guid;
     }
 
+    protected String buildPathGuidCacheKey( GUID bucketGuid, String path ) {
+        if ( bucketGuid == null ) {
+            return this.buildLegacyPathGuidCacheKey( path );
+        }
+        return DefaultCacheConstants.FilePathCacheNS + "bucket:" + bucketGuid + ":path:" + path;
+    }
+
+    protected String buildLegacyPathGuidCacheKey( String path ) {
+        return DefaultCacheConstants.FilePathCacheNS + "legacy:path:" + path;
+    }
+
+    protected GUID queryDirectGUIDByResolvedPath( String path ) {
+        GUID bucketGuid = this.resolveBucketGuidFromRootPath( path );
+        if ( bucketGuid != null ) {
+            return this.queryDirectGUIDByBucketPath( bucketGuid, path );
+        }
+        return this.queryDirectGUIDByPath( path );
+    }
+
+    protected GUID queryDirectGUIDByBucketPath( GUID bucketGuid, String path ) {
+        BucketPathCacheManipulator manipulator = this.getBucketPathCacheManipulator();
+        if ( manipulator == null ) {
+            return this.queryDirectGUIDByPath( path );
+        }
+        GUID guid = manipulator.queryGUIDByBucketPath( bucketGuid, path );
+        if ( guid != null ) {
+            return guid;
+        }
+        return this.queryDirectGUIDByPath( path );
+    }
+
     protected GUID queryDirectGUIDByPath( String path ) {
         return super.queryGUIDByPath(path);
+    }
+
+    protected BucketPathCacheManipulator getBucketPathCacheManipulator() {
+        if ( this.fileMasterManipulator == null || this.fileMasterManipulator.getSkeletonMasterManipulator() == null ) {
+            return null;
+        }
+        if ( this.fileMasterManipulator.getSkeletonMasterManipulator() instanceof TreeMasterManipulator ) {
+            TreeMasterManipulator treeMasterManipulator = (TreeMasterManipulator) this.fileMasterManipulator.getSkeletonMasterManipulator();
+            if ( treeMasterManipulator.getTriePathCacheManipulator() instanceof BucketPathCacheManipulator ) {
+                return (BucketPathCacheManipulator) treeMasterManipulator.getTriePathCacheManipulator();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -432,6 +889,169 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    public void rename( GUID guid, String name ) {
+        String normalizedName = this.normalizeRenameName( name );
+        FileTreeNode node = this.get( guid );
+        if ( node == null ) {
+            throw new IllegalArgumentException( "Undefined UOFS rename node: " + guid );
+        }
+        List<GUID> parentGuids = this.imperialTree.fetchParentGuids( guid );
+        this.assertRenameParent( guid, parentGuids );
+        this.assertRenameNoConflict( guid, normalizedName, parentGuids );
+
+        this.eraseGlobalPathCacheRecursively( guid );
+        FileSystemOperator operator = (FileSystemOperator) this.operatorFactory.getOperator( node.getMetaType() );
+        if ( operator == null ) {
+            throw new IllegalArgumentException( "Unsupported UOFS rename node type: " + node.getMetaType() );
+        }
+        operator.rename( guid, normalizedName );
+        this.removeCachePathRecursively( guid );
+    }
+
+    protected String normalizeRenameName( String name ) {
+        if ( name == null ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be null." );
+        }
+        String ret = name.trim();
+        if ( ret.isEmpty() ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be blank." );
+        }
+        if ( ret.equals( "." ) || ret.equals( ".." ) ) {
+            throw new IllegalArgumentException( "UOFS rename name should not be relative path token: " + ret );
+        }
+        if ( ret.contains( "/" ) || ret.contains( "\\" ) ) {
+            throw new IllegalArgumentException( "UOFS rename name should not contain path separator: " + ret );
+        }
+        if ( ret.length() > 255 ) {
+            throw new IllegalArgumentException( "UOFS rename name is too long: " + ret.length() );
+        }
+        return ret;
+    }
+
+    protected void assertRenameParent( GUID guid, List<GUID> parentGuids ) {
+        if ( parentGuids == null || parentGuids.isEmpty() ) {
+            throw new IllegalArgumentException( "UOFS root node can not be renamed: " + guid );
+        }
+        for ( GUID parentGuid : parentGuids ) {
+            if ( parentGuid != null ) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException( "UOFS root node can not be renamed: " + guid );
+    }
+
+    protected void assertRenameNoConflict( GUID guid, String name, List<GUID> parentGuids ) {
+        for ( GUID parentGuid : parentGuids ) {
+            if ( parentGuid == null ) {
+                continue;
+            }
+            List<TreeNode> children = this.getChildren( parentGuid );
+            for ( TreeNode child : children ) {
+                if ( child == null || child.getGuid() == null || child.getGuid().equals( guid ) ) {
+                    continue;
+                }
+                if ( name.equals( child.getName() ) ) {
+                    throw new IllegalArgumentException( "UOFS rename target already exists: " + name );
+                }
+            }
+        }
+    }
+
+    protected void eraseGlobalPathCacheRecursively( GUID guid ) {
+        String path = this.getPath( guid );
+        if ( path != null ) {
+            this.erasePathCache( path );
+        }
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.eraseGlobalPathCacheRecursively( child.getGuid() );
+            }
+        }
+    }
+
+    protected void removeCachePathRecursively( GUID guid ) {
+        this.imperialTree.removeCachePath( guid );
+        List<TreeNode> children = this.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.removeCachePathRecursively( child.getGuid() );
+            }
+        }
+    }
+
+    @Override
+    public void relocateNode( GUID sourceGuid, GUID targetParentGuid, @Nullable String newName ) {
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "UOFS relocate sourceGuid should not be null." );
+        }
+        if ( targetParentGuid == null ) {
+            throw new IllegalArgumentException( "UOFS relocate targetParentGuid should not be null." );
+        }
+        if ( sourceGuid.equals( targetParentGuid ) ) {
+            throw new IllegalArgumentException( "UOFS relocate target parent should not be source node: " + sourceGuid );
+        }
+
+        FileTreeNode sourceNode = this.get( sourceGuid );
+        if ( sourceNode == null ) {
+            throw new IllegalArgumentException( "Undefined UOFS relocate source node: " + sourceGuid );
+        }
+        FileTreeNode targetParent = this.get( targetParentGuid );
+        if ( !( targetParent instanceof Folder ) ) {
+            throw new IllegalArgumentException( "UOFS relocate target parent should be folder: " + targetParentGuid );
+        }
+
+        String targetName = newName == null || newName.isBlank()
+                ? sourceNode.getName()
+                : this.normalizeRenameName( newName );
+        this.assertRelocateNotDescendant( sourceGuid, targetParentGuid );
+        this.assertRelocateNoConflict( sourceGuid, targetParentGuid, targetName );
+
+        this.eraseGlobalPathCacheRecursively( sourceGuid );
+        if ( !targetName.equals( sourceNode.getName() ) ) {
+            FileSystemOperator operator = (FileSystemOperator) this.operatorFactory.getOperator( sourceNode.getMetaType() );
+            if ( operator == null ) {
+                throw new IllegalArgumentException( "Unsupported UOFS relocate node type: " + sourceNode.getMetaType() );
+            }
+            operator.rename( sourceGuid, targetName );
+        }
+        this.imperialTree.moveTo( sourceGuid, targetParentGuid );
+        this.removeCachePathRecursively( sourceGuid );
+    }
+
+    protected void assertRelocateNotDescendant( GUID sourceGuid, GUID targetParentGuid ) {
+        List<GUID> frontier = new ArrayList<>();
+        frontier.add( targetParentGuid );
+        Set<GUID> visited = new HashSet<>();
+        while ( !frontier.isEmpty() ) {
+            GUID current = frontier.remove( frontier.size() - 1 );
+            if ( current == null || !visited.add( current ) ) {
+                continue;
+            }
+            if ( current.equals( sourceGuid ) ) {
+                throw new IllegalArgumentException( "UOFS relocate target parent is under source node: " + sourceGuid );
+            }
+            List<GUID> parentGuids = this.imperialTree.fetchParentGuids( current );
+            if ( parentGuids != null ) {
+                frontier.addAll( parentGuids );
+            }
+        }
+    }
+
+    protected void assertRelocateNoConflict( GUID sourceGuid, GUID targetParentGuid, String name ) {
+        List<TreeNode> children = this.getChildren( targetParentGuid );
+        for ( TreeNode child : children ) {
+            if ( child == null || child.getGuid() == null || child.getGuid().equals( sourceGuid ) ) {
+                continue;
+            }
+            if ( name.equals( child.getName() ) ) {
+                throw new IllegalArgumentException( "UOFS relocate target already exists: " + name );
+            }
+        }
+    }
+
+    @Override
+    @Deprecated
     public void moveTo( String sourcePath, String destinationPath ) {
         GUID[] pair = this.assertCopyMove( sourcePath, destinationPath );
         GUID sourceGuid      = pair[ 0 ];
@@ -442,6 +1062,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void move( String sourcePath, String destinationPath ) {
         GUID sourceGuid         = this.assertPath( sourcePath, "source" );
 
@@ -504,6 +1125,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void copy( String sourcePath, String destinationPath, VolumeManager volumeManager ) throws  IOException {
         ElementNode sourceNode = this.queryElement( sourcePath );
         if ( !( sourceNode instanceof FileTreeNode ) ) {
@@ -517,6 +1139,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
     }
 
     @Override
+    @Deprecated
     public void directCopy( String sourcePath, String destinationPath ) throws IOException {
         this.directFileSystemAccessor.copy( sourcePath,destinationPath );
     }
@@ -674,9 +1297,32 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
         Bucket bucket = this.resolveBucket( address );
         String treePath = this.toBucketTreePath( address );
 
+        ElementNode elementNode = this.queryElement( treePath );
+        if ( elementNode instanceof ExternalSymbolic ) {
+            ElementNode externalElement = this.directFileSystemAccessor.queryElement( treePath );
+            if ( externalElement != null ) {
+                elementNode = externalElement;
+            }
+        }
+        if ( elementNode != null && elementNode.evinceSymbolic() != null ) {
+            elementNode = this.queryElement( elementNode.evinceSymbolic().getReparsedPoint() );
+        }
+        if ( elementNode instanceof ExternalFolder ) {
+            throw new IllegalArgumentException( "UOFS path is a native external folder: " + path );
+        }
+        if ( elementNode instanceof ExternalFile ) {
+            ExternalFile externalFile = (ExternalFile) elementNode;
+            if ( option == UFileOpenOption.READ && !externalFile.exists() ) {
+                throw new IllegalArgumentException( "UOFS native external file not found: " + path );
+            }
+            if ( option == UFileOpenOption.CREATE && externalFile.exists() ) {
+                throw new IllegalArgumentException( "UOFS native external file already exists: " + path );
+            }
+            return new NativeExternalFileChannel( externalFile, option );
+        }
+
         FileNode fileNode;
         if ( option == UFileOpenOption.READ || option == UFileOpenOption.APPEND ) {
-            ElementNode elementNode = this.queryElement( treePath );
             if ( !( elementNode instanceof FileNode ) ) {
                 throw new IllegalArgumentException( "UOFS file not found: " + path );
             }
@@ -686,10 +1332,10 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             if ( this.queryElement( treePath ) != null ) {
                 throw new IllegalArgumentException( "UOFS file already exists: " + path );
             }
-            fileNode = this.affirmFileNode( treePath );
+            fileNode = this.affirmFileNode( treePath, bucket.getGuid() );
         }
         else if ( option == UFileOpenOption.CREATE_OVERWRITE ) {
-            fileNode = this.affirmFileNode( treePath );
+            fileNode = this.affirmFileNode( treePath, bucket.getGuid() );
         }
         else {
             throw new IllegalArgumentException( "Unsupported UOFS open option: " + option );
@@ -705,7 +1351,7 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
                 option,
                 volumeManager,
                 fileNode.getBucketGuid(),
-                GUIDs.GUID128( this.getConfig().getDefaultVolumeGuid() )
+                this.guidAllocator.parse( this.getConfig().getDefaultVolumeGuid() )
         );
     }
 
@@ -775,21 +1421,6 @@ public class UniformObjectFileSystem extends ArchReparseKOMTree implements KOMFi
             return (BucketNodeManipulator) treeManipulator;
         }
         return null;
-    }
-
-    @Override
-    public void setFolderVolumeMapping( GUID folderGuid, GUID volumeGuid ) {
-        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
-    }
-
-    @Override
-    public GUID getMappingVolume( GUID folderGuid ) {
-        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
-    }
-
-    @Override
-    public GUID getMappingVolume( String path ) {
-        throw new UnsupportedOperationException( "Folder volume mapping has been replaced by UOFS bucket volume binding" );
     }
 
     @Override

@@ -10,6 +10,8 @@ import com.sauron.heist.heistron.CascadeHeist;
 import com.sauron.heist.heistron.Heistgram;
 import com.sauron.heist.heistron.Heistium;
 import com.sauron.heist.heistron.Heistum;
+import com.sauron.heist.heistron.orchestration.provider.HeistletProviderRegistry;
+import com.sauron.heist.heistron.orchestration.provider.HeistletResolveContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class LocalChildHeistOrchestrator extends ArchServgramOrchestrator implem
     private final AtomicInteger mAutoIncrementTaskId  = new AtomicInteger( 0 ) ;
     protected Heistium mHeistium                                                ;
     protected JSONConfig        mChildren                                                ;
+    protected HeistletProviderRegistry mProviderRegistry = new HeistletProviderRegistry();
 
     public LocalChildHeistOrchestrator( Processum parent, PatriarchalConfig sectionConfig, @Nullable GramFactory factory, GramTransaction transaction ) {
         super( parent, sectionConfig, factory, transaction );
@@ -33,6 +36,7 @@ public class LocalChildHeistOrchestrator extends ArchServgramOrchestrator implem
         if( parent instanceof Heistium ) {
             this.mHeistium = (Heistium)parent;
             this.mChildren = this.getHeist().getConfig().getChild( Heistum.ConfigChildrenKey );
+            this.mProviderRegistry = this.getHeist().getGramHeistletOrchestrator().providerRegistry();
         }
     }
 
@@ -57,19 +61,41 @@ public class LocalChildHeistOrchestrator extends ArchServgramOrchestrator implem
     }
 
     @Override
+    public HeistletProviderRegistry providerRegistry() {
+        return this.mProviderRegistry;
+    }
+
+    protected void applyChildModifier( CascadeHeist heistum ) {
+        ChildHeistInstanceModifier modifier = this.getHeist().getChildHeistInstanceModifier();
+        if ( modifier != null ) {
+            heistum.applyChildHeistInstanceModifier( modifier );
+            modifier.modify( heistum );
+        }
+    }
+
+    @Override
     protected List<Servgram> popping( String szName ) {
         List<Servgram> list = new ArrayList<>();
         if( this.mChildren.hasOwnProperty( szName ) ) {
+            List<Servgram> provided = this.providerRegistry().popping(
+                    new HeistletResolveContext( this.getHeistgram(), this.getHeist(), szName, true )
+            );
+            if ( !provided.isEmpty() ) {
+                for ( Servgram servgram : provided ) {
+                    if ( servgram instanceof CascadeHeist ) {
+                        this.applyChildModifier( (CascadeHeist) servgram );
+                        this.infoLifecycle(  "Child contrived -> " + ( (CascadeHeist) servgram ).getInstanceFullName() ) ;
+                    }
+                }
+                return provided;
+            }
+
             try{
                 CascadeHeist heistum = this.getHeist().getClass().getConstructor( Heistgram.class, CascadeHeist.class, String.class ).newInstance(
                         this.getHeistgram(), this.getHeist(), szName
                 );
 
-                ChildHeistInstanceModifier modifier = this.getHeist().getChildHeistInstanceModifier();
-                if ( modifier != null ) {
-                    heistum.applyChildHeistInstanceModifier( modifier );
-                    modifier.modify( heistum );
-                }
+                this.applyChildModifier( heistum );
 
                 this.infoLifecycle(  "Child contrived -> " + heistum.getInstanceFullName() ) ;
                 list.add( heistum );

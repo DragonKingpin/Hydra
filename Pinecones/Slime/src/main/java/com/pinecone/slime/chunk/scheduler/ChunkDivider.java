@@ -1,5 +1,6 @@
 package com.pinecone.slime.chunk.scheduler;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.slime.chunk.Chunk;
 import com.pinecone.slime.chunk.DivisibleChunk;

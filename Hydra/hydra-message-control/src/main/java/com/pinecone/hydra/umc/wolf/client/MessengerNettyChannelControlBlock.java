@@ -8,6 +8,7 @@ import io.netty.channel.Channel;
 
 import java.io.IOException;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -15,6 +16,9 @@ import java.util.concurrent.locks.Lock;
 public class MessengerNettyChannelControlBlock extends ArchChannelControlBlock implements UlfAsyncMessengerChannelControlBlock {
     protected ArchAsyncMessenger          mParentMessenger;
     protected BlockingDeque<UMCMessage >  mSyncRetMsgQueue = new LinkedBlockingDeque<>();
+    protected CompletableFuture<Void>     mConnectionArriveFuture = CompletableFuture.completedFuture( null );
+    protected Channel                     mConnectionArriveExpectedChannel;
+    protected Channel                     mConnectionArriveLastChannel;
 
     public MessengerNettyChannelControlBlock( ArchAsyncMessenger messenger, UlfChannel channel, boolean bForceSyncMode ) {
         super( messenger, channel, bForceSyncMode );
@@ -40,6 +44,39 @@ public class MessengerNettyChannelControlBlock extends ArchChannelControlBlock i
 
     protected void                        afterConnectionArrive( Medium medium, boolean bRenew ) {
         super.afterConnectionArrive( medium, bRenew, this.getSynRequestLock() );
+        Object source = medium == null ? null : medium.getNativeMessageSource();
+        if ( source instanceof Channel ) {
+            this.mConnectionArriveLastChannel = (Channel)source;
+        }
+        if ( !this.mConnectionArriveFuture.isDone() && this.mConnectionArriveExpectedChannel == null ) {
+            return;
+        }
+        if ( this.mConnectionArriveExpectedChannel != null && source != this.mConnectionArriveExpectedChannel ) {
+            return;
+        }
+        this.mConnectionArriveLastChannel = null;
+        this.mConnectionArriveExpectedChannel = null;
+        this.mConnectionArriveFuture.complete( null );
+    }
+
+    public CompletableFuture<Void>        prepareConnectionArriveFuture() {
+        return this.prepareConnectionArriveFuture( null );
+    }
+
+    public CompletableFuture<Void>        prepareConnectionArriveFuture( Channel expectedChannel ) {
+        this.mConnectionArriveExpectedChannel = expectedChannel;
+        this.mConnectionArriveLastChannel = null;
+        this.mConnectionArriveFuture = new CompletableFuture<>();
+        return this.mConnectionArriveFuture;
+    }
+
+    public void                           expectConnectionArriveChannel( Channel expectedChannel ) {
+        this.mConnectionArriveExpectedChannel = expectedChannel;
+        if ( !this.mConnectionArriveFuture.isDone() && this.mConnectionArriveLastChannel == expectedChannel ) {
+            this.mConnectionArriveLastChannel = null;
+            this.mConnectionArriveExpectedChannel = null;
+            this.mConnectionArriveFuture.complete( null );
+        }
     }
 
 

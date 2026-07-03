@@ -10,6 +10,9 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
 import com.pinecone.framework.lang.field.FieldEntity;
 import com.pinecone.framework.unit.KeyValue;
+import com.pinecone.ulf.util.protobuf.map.MapProtobufSupport;
+import com.pinecone.ulf.util.protobuf.map.MapTypeResolver;
+import com.pinecone.ulf.util.protobuf.map.MapTypeSpec;
 
 public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder implements FieldProtobufDecoder {
 
@@ -37,7 +40,12 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                 Object value = ProtobufUtils.evalValue( dynamicMessage, fieldDescriptor );
 
                 if ( value != null ) {
-                    if ( fieldDescriptor.isRepeated() ) {
+                    if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+                        result[ i ] = new KeyValue<>( fieldName, MapProtobufSupport.decodeMapField(
+                                fieldDescriptor, value, this, exceptedKeys, options
+                        ) );
+                    }
+                    else if ( fieldDescriptor.isRepeated() ) {
                         List<?> values = (List<?>) value;
                         List<Object> decodedValues = new ArrayList<>();
                         for ( Object item : values ) {
@@ -100,7 +108,15 @@ public class GenericFieldProtobufDecoder extends GenericBeanProtobufDecoder impl
                 if ( value != null ) {
                     FieldEntity entity = entities[ i ];
 
-                    if ( fieldDescriptor.isRepeated() ) {
+                    if ( MapProtobufSupport.isMapField( fieldDescriptor ) ) {
+                        MapTypeSpec mapTypeSpec = MapTypeResolver.resolve(
+                                entity.getType(), entity.getGenericTypeLabel(), this.getClass().getClassLoader()
+                        );
+                        entity.setValue( MapProtobufSupport.decodeMapField(
+                                fieldDescriptor, value, mapTypeSpec.getKeyType(), mapTypeSpec.getValueType(), this, exceptedKeys, options
+                        ) );
+                    }
+                    else if ( fieldDescriptor.isRepeated() ) {
                         Object decodedValues = this.decodeRepeated( value, fieldDescriptor, options, entity.getType(), entity.getGenericTypeLabel() );
                         entity.setValue( decodedValues );
                     }

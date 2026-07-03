@@ -9,8 +9,6 @@ import com.walnut.odin.proc.entity.UProcessMirrorDTO;
 @Iface
 public interface SlaveProcessLifecycleIface extends Pinenut {
 
-    long reportClientInitialized( long clientId );
-
     void registerRemoteProcess( long clientId, UProcessMirrorDTO processDTO );
 
     void reportProcessTerminated( long clientId, RemoteTerminationReport terminationReport );

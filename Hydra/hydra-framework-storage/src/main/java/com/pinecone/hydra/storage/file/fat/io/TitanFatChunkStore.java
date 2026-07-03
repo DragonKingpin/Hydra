@@ -72,10 +72,7 @@ public class TitanFatChunkStore implements FatChunkStore {
 
     @Override
     public void delete( FileChunkLocation location ) throws IOException {
-        if ( this.resolveLocationType( location ) == FileChunkLocationType.VOLUME_DIRECT_OBJECT ) {
-            Path path = this.resolveObjectPath( location );
-            Files.deleteIfExists( path );
-        }
+        this.mVolumeManager.release( location );
     }
 
     protected FileChunkLocationType resolveLocationType( FileChunkLocation location ) throws IOException {

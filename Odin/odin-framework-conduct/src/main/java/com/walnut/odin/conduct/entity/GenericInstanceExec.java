@@ -12,11 +12,16 @@ public class GenericInstanceExec implements InstanceExec {
     protected GUID          taskGuid;
     protected GUID          instanceGuid;
     protected String        taskName;
+    protected GUID          processGuid;
     protected String        instanceName;
     protected String        processorQueue;
+    protected String        affinityProcessor;
+    protected String        designatedProcessor;
+    protected String        executedProcessor;
     protected String        imagePath;
     protected String        clusterName;
     protected String        execState;
+    protected int           sequenceCnt;
     protected int           currentRetryNumber;
     protected int           retryTimes;
     protected LocalDateTime startTime;
@@ -71,6 +76,16 @@ public class GenericInstanceExec implements InstanceExec {
     }
 
     @Override
+    public GUID getProcessGuid() {
+        return this.processGuid;
+    }
+
+    @Override
+    public void setProcessGuid(GUID processGuid) {
+        this.processGuid = processGuid;
+    }
+
+    @Override
     public String getInstanceName() {
         return this.instanceName;
     }
@@ -88,6 +103,36 @@ public class GenericInstanceExec implements InstanceExec {
     @Override
     public void setProcessorQueue(String processorQueue) {
         this.processorQueue = processorQueue;
+    }
+
+    @Override
+    public String getAffinityProcessor() {
+        return this.affinityProcessor;
+    }
+
+    @Override
+    public void setAffinityProcessor(String affinityProcessor) {
+        this.affinityProcessor = affinityProcessor;
+    }
+
+    @Override
+    public String getDesignatedProcessor() {
+        return this.designatedProcessor;
+    }
+
+    @Override
+    public void setDesignatedProcessor(String designatedProcessor) {
+        this.designatedProcessor = designatedProcessor;
+    }
+
+    @Override
+    public String getExecutedProcessor() {
+        return this.executedProcessor;
+    }
+
+    @Override
+    public void setExecutedProcessor(String executedProcessor) {
+        this.executedProcessor = executedProcessor;
     }
 
     @Override
@@ -118,6 +163,16 @@ public class GenericInstanceExec implements InstanceExec {
     @Override
     public void setExecState(String execState) {
         this.execState = execState;
+    }
+
+    @Override
+    public int getSequenceCnt() {
+        return this.sequenceCnt;
+    }
+
+    @Override
+    public void setSequenceCnt(int sequenceCnt) {
+        this.sequenceCnt = sequenceCnt;
     }
 
     @Override

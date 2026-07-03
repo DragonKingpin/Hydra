@@ -240,6 +240,10 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         return this.mMasterEventGroup.isTerminated();
     }
 
+    protected boolean isBound() {
+        return this.mPrimaryBindFuture != null && this.mPrimaryBindFuture.isSuccess();
+    }
+
     protected void handleArrivedMessage(UlfAsyncMsgHandleAdapter handle, Medium medium, ChannelControlBlock block, UMCMessage msg, ChannelHandlerContext ctx, Object rawMsg ) throws Exception {
         if( this.getErrorMessageAudit().isErrorMessage( msg ) ) {
             handle.onErrorMsgReceived( medium, block, msg, ctx, msg );
@@ -248,7 +252,6 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
             handle.onSuccessfulMsgReceived( medium, block, msg, ctx, msg );
         }
     }
-
 
     protected void initNettySubsystem() throws IOException, UMCServiceException {
         this.mMasterEventGroup    = new NioEventLoopGroup();
@@ -390,8 +393,23 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         synchronized ( this.mPrimaryThreadJoinMutex ) {
             try {
                 this.mPrimaryThreadJoinMutex.wait( this.getConnectionArguments().getSocketTimeout() );
+                if ( !this.isBound() ) {
+                    Throwable cause = this.mPrimaryBindFuture == null ? null : this.mPrimaryBindFuture.cause();
+                    BindException bindException = new BindException(
+                            String.format( "%s [Serve], binding `%s` compromised.", this.className(), this.mPrimaryBindAddress.toString() )
+                    );
+                    if ( cause != null ) {
+                        bindException.initCause( cause );
+                    }
+                    this.close();
+                    throw bindException;
+                }
                 if( this.isShutdown() ) {
-                    throw new BindException( String.format( "%s [Serve], binding `%s` compromised.", this.className(), this.mPrimaryBindAddress.toString() ) );
+                    throw new BindException(
+                            String.format( "%s [Serve], starting server `%s` compromised, unexpected shutdown.",
+                            this.className(),
+                            this.mPrimaryBindAddress.toString() )
+                    );
                 }
             }
             catch ( InterruptedException e ) {
@@ -466,7 +484,7 @@ public class WolfMCServer extends WolfMCNode implements UlfServer {
         primaryThread.start();
 
         this.joinOuterThread();
-        if( !this.isShutdown() ) {
+        if( this.isBound() ) {
             this.infoLifecycle( String.format( "Wolf<\uD83D\uDC3A>::BindServer(%s)", this.mPrimaryBindAddress.toString() ), "Ready" );
         }
 

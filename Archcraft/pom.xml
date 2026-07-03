@@ -18,5 +18,6 @@
         <module>redstone-architecture</module>
         <module>redstone-message-stones</module>
         <module>ender-system-hydra</module>
+        <module>ender-hydra-arch</module>
     </modules>
 </project>

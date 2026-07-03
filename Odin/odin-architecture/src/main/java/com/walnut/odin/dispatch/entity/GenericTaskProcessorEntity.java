@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.Server;
+import com.walnut.odin.dispatch.ExecutionArchitects;
 import com.walnut.odin.dispatch.TaskQueueMeta;
 
 public class GenericTaskProcessorEntity implements TaskProcessorEntity {
@@ -14,6 +15,9 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     protected String         mszClusterPath;
     protected String         mszClusterName;
     protected long           mnControlClientId;
+    protected String         mszExecCaps;
+    protected String         mszExtraMetadata;
+    protected String         mszDyMetadataCache;
     protected boolean        mbLocal;
     protected boolean        mbExclusive;
     protected int            mnPriority;
@@ -50,6 +54,11 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
         Object controlClientId = jo.get( "controlClientId" );
         if ( controlClientId instanceof Number ) {
             this.mnControlClientId = ( (Number) controlClientId ).intValue();
+        }
+
+        Object execCaps = jo.get( "execCaps" );
+        if ( execCaps instanceof String ) {
+            this.mszExecCaps = (String) execCaps;
         }
 
         Object local = jo.get( "local" );
@@ -98,6 +107,21 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     @Override
     public long getControlClientId() {
         return this.mnControlClientId;
+    }
+
+    @Override
+    public String getExecCaps() {
+        return ExecutionArchitects.normalizeExecCaps( this.mszExecCaps );
+    }
+
+    @Override
+    public String getExtraMetadata() {
+        return this.mszExtraMetadata;
+    }
+
+    @Override
+    public String getDyMetadataCache() {
+        return this.mszDyMetadataCache;
     }
 
     @Override
@@ -172,6 +196,21 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
     @Override
     public void setControlClientId( long controlClientId ) {
         this.mnControlClientId = controlClientId;
+    }
+
+    @Override
+    public void setExecCaps( String execCaps ) {
+        this.mszExecCaps = execCaps;
+    }
+
+    @Override
+    public void setExtraMetadata( String extraMetadata ) {
+        this.mszExtraMetadata = extraMetadata;
+    }
+
+    @Override
+    public void setDyMetadataCache( String dyMetadataCache ) {
+        this.mszDyMetadataCache = dyMetadataCache;
     }
 
     public void setLocal( boolean bLocal ) {

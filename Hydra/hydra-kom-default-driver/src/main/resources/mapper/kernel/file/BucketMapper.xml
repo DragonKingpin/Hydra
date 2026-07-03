@@ -6,15 +6,19 @@
 <mapper namespace="com.pinecone.hydra.file.ibatis.BucketMapper">
 
     <insert id="insert">
-        INSERT INTO `hydra_uofs_bucket` ( `guid`, `user_identifier`, `bucket_name`, `volume_guid`, `ext_config` ) VALUES ( #{guid}, #{userIdentifier}, #{bucketName}, #{volumeGuid}, #{extConfig} )
+        INSERT INTO `hydra_uofs_bucket` ( `guid`, `bucket_identifier`, `user_identifier`, `bucket_name`, `volume_guid`, `ext_config` ) VALUES ( #{guid}, #{bucketIdentifier}, #{userIdentifier}, #{bucketName}, #{volumeGuid}, #{extConfig} )
     </insert>
 
     <update id="update">
-        UPDATE `hydra_uofs_bucket` SET `user_identifier` = #{userIdentifier}, `bucket_name` = #{bucketName}, `volume_guid` = #{volumeGuid}, `ext_config` = #{extConfig} WHERE `guid` = #{guid}
+        UPDATE `hydra_uofs_bucket` SET `bucket_identifier` = #{bucketIdentifier}, `user_identifier` = #{userIdentifier}, `bucket_name` = #{bucketName}, `volume_guid` = #{volumeGuid}, `ext_config` = #{extConfig} WHERE `guid` = #{guid}
     </update>
 
     <update id="updateVolume">
         UPDATE `hydra_uofs_bucket` SET `volume_guid` = #{volumeGuid} WHERE `guid` = #{guid}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE `hydra_uofs_bucket` SET `bucket_status` = #{status} WHERE `guid` = #{guid}
     </update>
 
     <delete id="remove">
@@ -22,15 +26,19 @@
     </delete>
 
     <select id="get" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
-        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `guid` = #{guid}
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `guid` = #{guid}
+    </select>
+
+    <select id="getByBucketIdentifier" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `bucket_identifier` = #{bucketIdentifier}
     </select>
 
     <select id="getByUserIdentifierAndBucket" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
-        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `user_identifier` = #{userIdentifier} AND `bucket_name` = #{bucketName}
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` WHERE `user_identifier` = #{userIdentifier} AND `bucket_name` = #{bucketName}
     </select>
 
     <select id="listAll" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
-        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` ORDER BY `create_time` DESC
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_bucket` ORDER BY `create_time` DESC
     </select>
 
     <select id="count" resultType="long">
@@ -42,11 +50,26 @@
           <if test='bucketName != null and bucketName != ""'>
             AND `bucket_name` = #{bucketName}
           </if>
+          <if test='bucketIdentifier != null and bucketIdentifier != ""'>
+            AND `bucket_identifier` = #{bucketIdentifier}
+          </if>
         </where>
     </select>
 
+    <select id="countByVolumeGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_bucket` WHERE `volume_guid` = #{volumeGuid}
+    </select>
+
+    <select id="listByVolumeGuid" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_uofs_bucket`
+        WHERE `volume_guid` = #{volumeGuid}
+        ORDER BY `create_time` DESC, `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <select id="listPage" resultType="com.pinecone.hydra.storage.bucket.GenericBucket">
-        SELECT `id`, `guid`, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
+        SELECT `id`, `guid`, `bucket_identifier` AS bucketIdentifier, `user_identifier` AS userIdentifier, `bucket_name` AS bucketName, `volume_guid` AS volumeGuid, `bucket_status` AS status, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime
         FROM `hydra_uofs_bucket`
         <where>
           <if test='userIdentifier != null and userIdentifier != ""'>
@@ -54,6 +77,9 @@
           </if>
           <if test='bucketName != null and bucketName != ""'>
             AND `bucket_name` = #{bucketName}
+          </if>
+          <if test='bucketIdentifier != null and bucketIdentifier != ""'>
+            AND `bucket_identifier` = #{bucketIdentifier}
           </if>
         </where>
         ORDER BY `create_time` DESC

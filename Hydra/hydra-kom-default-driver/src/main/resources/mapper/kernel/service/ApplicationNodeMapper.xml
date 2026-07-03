@@ -6,21 +6,59 @@
 <mapper namespace="com.pinecone.hydra.service.ibatis.ApplicationNodeMapper">
 
     <resultMap id="ApplicationNodeMap" type="com.pinecone.hydra.service.kom.entity.GenericApplicationElement">
-        <id     column="id"    property="enumId"/>
-        <result column="guid"  property="guid"/>
-        <result column="name"  property="name"/>
+        <id     column="id"                 property="enumId"/>
+        <result column="guid"               property="guid"/>
+        <result column="name"               property="name"/>
+        <result column="path"               property="path"/>
+        <result column="type"               property="type"/>
+        <result column="alias"              property="alias"/>
+        <result column="resource_type"      property="resourceType"/>
+        <result column="deployment_method"  property="deploymentMethod"/>
+        <result column="description"        property="description"/>
+        <result column="extra_information"  property="extraInformation"/>
+        <result column="create_time"        property="createTime"/>
+        <result column="update_time"        property="updateTime"/>
     </resultMap>
+
+    <sql id="ApplicationNodeFields">
+        `id`,
+        `guid`,
+        `name`,
+        `path`,
+        `type`,
+        `alias`,
+        `resource_type`,
+        `deployment_method`,
+        `description`,
+        `extra_information`,
+        `create_time`,
+        `update_time`
+    </sql>
 
     <insert id="insert" parameterType="com.pinecone.hydra.service.kom.entity.ApplicationElement">
         INSERT INTO `hydra_service_application_node`
         (
             `guid`,
-            `name`
+            `name`,
+            `path`,
+            `type`,
+            `alias`,
+            `resource_type`,
+            `deployment_method`,
+            `description`,
+            `extra_information`
         )
         VALUES
         (
             #{guid},
-            #{name}
+            #{name},
+            #{path},
+            #{type},
+            #{alias},
+            #{resourceType},
+            #{deploymentMethod},
+            #{description},
+            #{extraInformation}
         )
     </insert>
 
@@ -31,9 +69,7 @@
 
     <select id="getApplicationNode" resultMap="ApplicationNodeMap">
         SELECT
-            `id`,
-            `guid`,
-            `name`
+        <include refid="ApplicationNodeFields"/>
         FROM `hydra_service_application_node`
         WHERE `guid` = #{guid}
     </select>
@@ -41,7 +77,14 @@
     <update id="update" parameterType="com.pinecone.hydra.service.kom.entity.ApplicationElement">
         UPDATE `hydra_service_application_node`
         SET
-            `name` = #{name}
+            `name` = #{name},
+            `path` = #{path},
+            `type` = #{type},
+            `alias` = #{alias},
+            `resource_type` = #{resourceType},
+            `deployment_method` = #{deploymentMethod},
+            `description` = #{description},
+            `extra_information` = #{extraInformation}
         WHERE `guid` = #{guid}
     </update>
 

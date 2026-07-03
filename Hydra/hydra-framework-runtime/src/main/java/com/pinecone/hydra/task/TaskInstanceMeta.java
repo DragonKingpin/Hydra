@@ -22,6 +22,8 @@ public interface TaskInstanceMeta extends Pinenut {
 
     String getImagePath();
 
+    String getExecArch();
+
     short getActuallyPriority();
 
     TaskInstanceStatus getInstanceStatus ();
@@ -37,6 +39,12 @@ public interface TaskInstanceMeta extends Pinenut {
     String getErrorCause();
 
     boolean isDryRun() ;
+
+    Long getTimeoutSeconds();
+
+    int getRetryTimes();
+
+    Long getRetryIntervalSeconds();
 
     TaskScheduleCycle getKernelScheduleCycle ();
 
@@ -65,7 +73,9 @@ public interface TaskInstanceMeta extends Pinenut {
 
     LocalDateTime getScheduleTime();
 
-    String getProcessorName();
+    String getAffinityProcessor();
+
+    String getDesignatedProcessor();
 
     void setExpectTime(LocalDateTime expectTime);
 
@@ -81,5 +91,7 @@ public interface TaskInstanceMeta extends Pinenut {
 
     void setScheduleTime(LocalDateTime scheduleTime);
 
-    void setProcessorName(String processorName);
+    void setAffinityProcessor(String affinityProcessor);
+
+    void setDesignatedProcessor(String designatedProcessor);
 }

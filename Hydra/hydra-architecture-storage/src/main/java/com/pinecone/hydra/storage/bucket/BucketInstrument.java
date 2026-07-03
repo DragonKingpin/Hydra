@@ -12,17 +12,33 @@ public interface BucketInstrument extends Pinenut {
 
     void updateVolume( GUID guid, GUID volumeGuid );
 
+    void updateStatus( GUID guid, String status );
+
     void remove( GUID guid );
 
     Bucket get( GUID guid );
+
+    Bucket getByBucketIdentifier( String bucketIdentifier );
 
     Bucket getByUserIdentifierAndBucket( String userIdentifier, String bucketName );
 
     List<GenericBucket> listAll();
 
-    long count( String userIdentifier, String bucketName );
+    default long count( String userIdentifier, String bucketName ) {
+        return this.count( userIdentifier, bucketName, null );
+    }
 
-    List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit );
+    long count( String userIdentifier, String bucketName, String bucketIdentifier );
+
+    long countByVolumeGuid( GUID volumeGuid );
+
+    List<GenericBucket> listByVolumeGuid( GUID volumeGuid, int offset, int limit );
+
+    default List<GenericBucket> listPage( String userIdentifier, String bucketName, int offset, int limit ) {
+        return this.listPage( userIdentifier, bucketName, null, offset, limit );
+    }
+
+    List<GenericBucket> listPage( String userIdentifier, String bucketName, String bucketIdentifier, int offset, int limit );
 
     boolean existsNode( GUID bucketGuid );
 

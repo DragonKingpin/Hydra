@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.device.ibatis.DeviceElementDigestMapper">
+
+    <resultMap id="DeviceElementDigestMap" type="com.pinecone.hydra.device.kom.digest.DeviceElementDigest">
+        <id     column="guid"                  property="guid"/>
+        <result column="name"                  property="name"/>
+        <result column="path"                  property="path"/>
+        <result column="object_category_name"  property="objectCategoryName"/>
+        <result column="class_name"            property="className"/>
+        <result column="alias"                 property="alias"/>
+        <result column="code"                  property="code"/>
+        <result column="category"              property="category"/>
+        <result column="device_type"           property="deviceType"/>
+        <result column="class_code"            property="classCode"/>
+        <result column="deployment_profile"    property="deploymentProfile"/>
+        <result column="topology_role"         property="topologyRole"/>
+        <result column="ip_address"            property="ipAddress"/>
+        <result column="region"                property="region"/>
+        <result column="zone"                  property="zone"/>
+        <result column="location"              property="location"/>
+        <result column="vendor"                property="vendor"/>
+        <result column="model"                 property="model"/>
+        <result column="tags"                  property="tags"/>
+        <result column="resource_summary"      property="resourceSummary"/>
+        <result column="status"                property="status"/>
+        <result column="lifecycle_status"      property="lifecycleStatus"/>
+        <result column="generic_dev_type_code" property="genericDevTypeCode"/>
+        <result column="schema_guid"           property="schemaGuid"/>
+        <result column="schema_data_json"      property="schemaDataJson"/>
+        <result column="enabled"               property="enabled"/>
+    </resultMap>
+
+    <sql id="DeviceDigestFields">
+        q.`guid`,
+        q.`name`,
+        q.`path`,
+        q.`object_category_name`,
+        q.`class_name`,
+        q.`alias`,
+        q.`code`,
+        q.`category`,
+        q.`device_type`,
+        q.`class_code`,
+        q.`deployment_profile`,
+        q.`topology_role`,
+        q.`ip_address`,
+        q.`region`,
+        q.`zone`,
+        q.`location`,
+        q.`vendor`,
+        q.`model`,
+        q.`tags`,
+        q.`resource_summary`,
+        q.`status`,
+        q.`lifecycle_status`,
+        q.`generic_dev_type_code`,
+        q.`schema_guid`,
+        q.`schema_data_json`,
+        q.`enabled`
+    </sql>
+
+    <sql id="DeviceDigestFilter">
+        <where>
+            <if test="query.path != null and query.path != ''">
+                AND ( `path` = #{query.path} OR `path` LIKE CONCAT(#{query.path}, '/%') )
+            </if>
+            <if test="query.category != null and query.category != ''">
+                AND `category` = #{query.category}
+            </if>
+            <if test="query.deploymentProfile != null and query.deploymentProfile != ''">
+                AND `deployment_profile` = #{query.deploymentProfile}
+            </if>
+            <if test="query.topologyRole != null and query.topologyRole != ''">
+                AND `topology_role` = #{query.topologyRole}
+            </if>
+            <if test="query.lifecycleStatus != null and query.lifecycleStatus != ''">
+                AND `lifecycle_status` = #{query.lifecycleStatus}
+            </if>
+            <if test="query.region != null and query.region != ''">
+                AND `region` = #{query.region}
+            </if>
+            <if test="query.tags != null and query.tags != ''">
+                AND `tags` LIKE CONCAT('%', #{query.tags}, '%')
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    `name` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `code` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `ip_address` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `model` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `resource_summary` LIKE CONCAT('%', #{query.keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <sql id="DeviceDigestSource">
+        SELECT
+            d.`guid`,
+            d.`name`,
+            p.`path`,
+            d.`object_category_name`,
+            d.`class_name`,
+            d.`alias`,
+            d.`code`,
+            d.`category`,
+            d.`device_type`,
+            d.`class_code`,
+            d.`deployment_profile`,
+            d.`topology_role`,
+            d.`ip_address`,
+            d.`region`,
+            d.`zone`,
+            d.`location`,
+            d.`vendor`,
+            d.`model`,
+            d.`tags`,
+            d.`resource_summary`,
+            d.`status`,
+            d.`lifecycle_status`,
+            d.`generic_dev_type_code`,
+            d.`schema_guid`,
+            d.`schema_data_json`,
+            d.`enabled`
+        FROM (
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericNamespace' AS `class_name`,
+                `alias`, NULL AS `code`, NULL AS `category`, NULL AS `device_type`, NULL AS `class_code`,
+                NULL AS `deployment_profile`, NULL AS `topology_role`, NULL AS `ip_address`, NULL AS `region`,
+                NULL AS `zone`, NULL AS `location`, NULL AS `vendor`, NULL AS `model`, NULL AS `tags`,
+                NULL AS `resource_summary`, NULL AS `status`, NULL AS `lifecycle_status`,
+                NULL AS `generic_dev_type_code`, NULL AS `schema_guid`, NULL AS `schema_data_json`,
+                1 AS `enabled`, `update_time`
+            FROM `hydra_device_namespace_node`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericClusterElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, NULL AS `generic_dev_type_code`, NULL AS `schema_guid`,
+                NULL AS `schema_data_json`, `enabled`, `update_time`
+            FROM `hydra_device_cluster_node`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericPhysicalHostElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, NULL AS `generic_dev_type_code`, NULL AS `schema_guid`,
+                NULL AS `schema_data_json`, `enabled`, `update_time`
+            FROM `hydra_device_physical_host`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericVirtualMachineElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, NULL AS `generic_dev_type_code`, NULL AS `schema_guid`,
+                NULL AS `schema_data_json`, `enabled`, `update_time`
+            FROM `hydra_device_virtual_machine`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericContainerElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, NULL AS `generic_dev_type_code`, NULL AS `schema_guid`,
+                NULL AS `schema_data_json`, `enabled`, `update_time`
+            FROM `hydra_device_container`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericQuickElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, NULL AS `generic_dev_type_code`, NULL AS `schema_guid`,
+                NULL AS `schema_data_json`, `enabled`, `update_time`
+            FROM `hydra_device_quick`
+            UNION ALL
+            SELECT
+                `guid`, `name`, 'Device' AS `object_category_name`,
+                'com.pinecone.hydra.device.kom.entity.GenericDeviceElement' AS `class_name`,
+                `alias`, `code`, `category`, `device_type`, `class_code`, `deployment_profile`, `topology_role`,
+                `ip_address`, `region`, `zone`, `location`, `vendor`, `model`, `tags`, `resource_summary`,
+                `status`, `lifecycle_status`, `generic_dev_type_code`, `schema_guid`, `schema_data_json`,
+                `enabled`, `update_time`
+            FROM `hydra_device_generic_dev`
+        ) d
+        LEFT JOIN (
+            SELECT `guid`, MIN(`path`) AS `path`
+            FROM `hydra_device_node_cache_path`
+            GROUP BY `guid`
+        ) p ON p.`guid` = d.`guid`
+    </sql>
+
+    <select id="countDeviceElementDigests0" resultType="long">
+        SELECT COUNT(*)
+        FROM (
+            <include refid="DeviceDigestSource"/>
+        ) q
+        <include refid="DeviceDigestFilter"/>
+    </select>
+
+    <select id="fetchDeviceElementDigests0" resultMap="DeviceElementDigestMap">
+        SELECT
+        <include refid="DeviceDigestFields"/>
+        FROM (
+            <include refid="DeviceDigestSource"/>
+        ) q
+        <include refid="DeviceDigestFilter"/>
+        ORDER BY `path` ASC, `name` ASC, `guid` ASC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="fetchDeviceElementDigestsByGuids0" resultMap="DeviceElementDigestMap">
+        SELECT
+        <include refid="DeviceDigestFields"/>
+        FROM (
+            <include refid="DeviceDigestSource"/>
+        ) q
+        WHERE q.`guid` IN
+        <foreach collection="guids" item="guid" open="(" separator="," close=")">
+            #{guid}
+        </foreach>
+    </select>
+</mapper>

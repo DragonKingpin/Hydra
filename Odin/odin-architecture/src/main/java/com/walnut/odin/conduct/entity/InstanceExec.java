@@ -18,11 +18,23 @@ public interface InstanceExec extends Pinenut {
     String getTaskName();
     void setTaskName(String taskName);
 
+    GUID getProcessGuid();
+    void setProcessGuid(GUID processGuid);
+
     String getInstanceName();
     void setInstanceName(String instanceName);
 
     String getProcessorQueue();
     void setProcessorQueue(String processorQueue);
+
+    String getAffinityProcessor();
+    void setAffinityProcessor(String affinityProcessor);
+
+    String getDesignatedProcessor();
+    void setDesignatedProcessor(String designatedProcessor);
+
+    String getExecutedProcessor();
+    void setExecutedProcessor(String executedProcessor);
 
     String getImagePath();
     void setImagePath(String imagePath);
@@ -32,6 +44,9 @@ public interface InstanceExec extends Pinenut {
 
     String getExecState();
     void setExecState(String execState);
+
+    int getSequenceCnt();
+    void setSequenceCnt(int sequenceCnt);
 
     int getCurrentRetryNumber();
     void setCurrentRetryNumber(int currentRetryNumber);

@@ -19,5 +19,7 @@
         <module>redqueen-computation-suit</module>
         <module>redqueen-system</module>
         <module>redqueen-framework-service</module>
+        <module>redqueen-service-grpc-control</module>
+        <module>redqueen-service-husky-control</module>
     </modules>
 </project>

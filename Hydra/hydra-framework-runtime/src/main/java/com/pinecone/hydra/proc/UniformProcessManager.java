@@ -16,6 +16,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.lang.DynamicFactory;
 import com.pinecone.framework.util.lang.GenericDynamicFactory;
 import com.pinecone.framework.util.name.Namespace;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.image.ImageLoader;
 import com.pinecone.hydra.proc.image.ImageModifier;
@@ -222,6 +223,9 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     @Override
     public void register( UProcess that ) {
         if( !this.autopsy( that ) ) {
+            if ( that.getStatus() == UProcessStatus.Unknown || that.getStatus() == UProcessStatus.Created ) {
+                that.applyStatus( UProcessStatus.Registered );
+            }
             this.mProcessMap.put( that.getPID(), that );
             ++this.mnVitalizeCount;
         }
@@ -249,30 +253,31 @@ public class UniformProcessManager extends ArchProcessManager implements Process
 
     @Override
     public boolean autopsy( UProcess that ) {
-        return that.getState() == Thread.State.TERMINATED;
+        return that.getStatus().isTerminal();
     }
 
     @Override
     public LocalUProcess createLocalHostedProcess(
-            ExecutionImage image, UProcess parent, Map<String, String[]> startupArgs, Map<String, String[]> contextEnvironmentVars
+            ExecutionImage image, UProcess parent, Map<String, String> startupArgs, Map<String, String> contextEnvironmentVars
     ) {
         if ( parent == null ) {
             parent = this.mRootUProcess;
         }
+        EntryPointRunnable entryPoint = image.createEntryPoint();
         Processum hosted = new ArchProcessum( image.getName(), parent ) {};
-        Thread primaryThread = new Thread( image.getEntryPoint(), ( image.getName() + "-main" ).toLowerCase() );
+        Thread primaryThread = new Thread( entryPoint, ( image.getName() + "-main" ).toLowerCase() );
         hosted.setThreadAffinity( primaryThread );
 
         if ( startupArgs == null ) {
             startupArgs = new HashMap<>();
         }
         LocalUProcess process = new LocalHostedProcess(
-                hosted, parent, this, image, new GenericSegregationSpace(), startupArgs,
+                hosted, parent, this, image, entryPoint, new GenericSegregationSpace(), startupArgs,
                 this.mProcessEnvironmentSection.extendsFrom( parent, contextEnvironmentVars )
         );
 
         // Register the process in the entry-point-runnable for process status surveillance purpose.
-        image.getEntryPoint().applyOwnedProcess( process );
+        entryPoint.applyOwnedProcess( process );
         this.register( process );
 
         return process;
@@ -340,7 +345,7 @@ public class UniformProcessManager extends ArchProcessManager implements Process
             return null;
         }
         if( split.length > 1 ) {
-            // 后续补齐查找逻辑
+            // 鍚庣画琛ラ綈鏌ユ壘閫昏緫
             return null;
         }
         else {
@@ -353,3 +358,4 @@ public class UniformProcessManager extends ArchProcessManager implements Process
     }
 
 }
+

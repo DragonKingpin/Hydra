@@ -6,11 +6,13 @@
 <mapper namespace="com.pinecone.hydra.file.ibatis.FileOwnerMapper">
 
     <insert id="insertRootNode">
-        INSERT INTO `hydra_uofs_node_tree` (`guid`, `linked_type`) VALUES ( #{guid}, #{linkedType} )
+        INSERT INTO `hydra_uofs_node_tree` ( `guid`, `bucket_guid`, `linked_type` )
+        SELECT #{guid}, `bucket_guid`, #{linkedType} FROM `hydra_uofs_nodes` WHERE `guid` = #{guid}
     </insert>
 
     <insert id="insert">
-        INSERT INTO `hydra_uofs_node_tree` (`guid`, `parent_guid`,`linked_type`) VALUES (#{targetGuid}, #{parentGuid}, #{linkedType})
+        INSERT INTO `hydra_uofs_node_tree` ( `guid`, `bucket_guid`, `parent_guid`, `linked_type` )
+        SELECT #{targetGuid}, `bucket_guid`, #{parentGuid}, #{linkedType} FROM `hydra_uofs_nodes` WHERE `guid` = #{targetGuid}
     </insert>
 
     <update id="update">

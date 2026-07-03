@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.file.ibatis.transfer.UofsTransferTaskMapper">
+
+    <resultMap id="UofsTransferTaskMap" type="com.pinecone.hydra.storage.file.transfer.GenericUofsTransferTask">
+        <id column="id" property="enumId"/>
+        <result column="guid" property="guid"/>
+        <result column="operation" property="operation"/>
+        <result column="source_count" property="sourceCount"/>
+        <result column="status" property="status"/>
+        <result column="phase" property="phase"/>
+        <result column="source_path" property="sourcePath"/>
+        <result column="source_path_hash" property="sourcePathHash"/>
+        <result column="source_bucket_guid" property="sourceBucketGuid"/>
+        <result column="source_guid" property="sourceGuid"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="target_path" property="targetPath"/>
+        <result column="target_path_hash" property="targetPathHash"/>
+        <result column="target_bucket_guid" property="targetBucketGuid"/>
+        <result column="target_parent_guid" property="targetParentGuid"/>
+        <result column="target_guid" property="targetGuid"/>
+        <result column="conflict_policy" property="conflictPolicy"/>
+        <result column="link_policy" property="linkPolicy"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="done_count" property="doneCount"/>
+        <result column="failed_count" property="failedCount"/>
+        <result column="total_bytes" property="totalBytes"/>
+        <result column="done_bytes" property="doneBytes"/>
+        <result column="last_item_guid" property="lastItemGuid"/>
+        <result column="last_source_guid" property="lastSourceGuid"/>
+        <result column="last_target_guid" property="lastTargetGuid"/>
+        <result column="message" property="message"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="plan_snapshot" property="planSnapshot"/>
+        <result column="result_snapshot" property="resultSnapshot"/>
+        <result column="operator_guid" property="operatorGuid"/>
+        <result column="ext_config" property="extConfig"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="TaskColumns">
+        id, guid, operation, source_count, status, phase, source_path, source_path_hash, source_bucket_guid, source_guid, source_type,
+        target_path, target_path_hash, target_bucket_guid, target_parent_guid, target_guid, conflict_policy, link_policy,
+        total_count, done_count, failed_count, total_bytes, done_bytes, last_item_guid, last_source_guid, last_target_guid,
+        message, error_message, plan_snapshot, result_snapshot, operator_guid, ext_config, create_time, update_time
+    </sql>
+
+    <sql id="TaskFilter">
+        <where>
+            <if test="operation != null">
+                AND operation = #{operation}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="sourceBucketGuid != null">
+                AND source_bucket_guid = #{sourceBucketGuid}
+            </if>
+            <if test="targetBucketGuid != null">
+                AND target_bucket_guid = #{targetBucketGuid}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert" parameterType="com.pinecone.hydra.storage.file.transfer.UofsTransferTask">
+        INSERT INTO hydra_uofs_transfer_task
+            (guid, operation, source_count, status, phase, source_path, source_path_hash, source_bucket_guid, source_guid, source_type,
+             target_path, target_path_hash, target_bucket_guid, target_parent_guid, target_guid, conflict_policy, link_policy,
+             total_count, done_count, failed_count, total_bytes, done_bytes, message, plan_snapshot, operator_guid, ext_config)
+        VALUES
+            (#{guid}, #{operation}, #{sourceCount}, #{status}, #{phase}, #{sourcePath}, #{sourcePathHash}, #{sourceBucketGuid}, #{sourceGuid}, #{sourceType},
+             #{targetPath}, #{targetPathHash}, #{targetBucketGuid}, #{targetParentGuid}, #{targetGuid}, #{conflictPolicy}, #{linkPolicy},
+             #{totalCount}, #{doneCount}, #{failedCount}, #{totalBytes}, #{doneBytes}, #{message}, #{planSnapshot}, #{operatorGuid}, #{extConfig})
+    </insert>
+
+    <update id="update" parameterType="com.pinecone.hydra.storage.file.transfer.UofsTransferTask">
+        UPDATE hydra_uofs_transfer_task
+        SET operation = #{operation},
+            source_count = #{sourceCount},
+            status = #{status},
+            phase = #{phase},
+            source_path = #{sourcePath},
+            source_path_hash = #{sourcePathHash},
+            source_bucket_guid = #{sourceBucketGuid},
+            source_guid = #{sourceGuid},
+            source_type = #{sourceType},
+            target_path = #{targetPath},
+            target_path_hash = #{targetPathHash},
+            target_bucket_guid = #{targetBucketGuid},
+            target_parent_guid = #{targetParentGuid},
+            target_guid = #{targetGuid},
+            conflict_policy = #{conflictPolicy},
+            link_policy = #{linkPolicy},
+            total_count = #{totalCount},
+            done_count = #{doneCount},
+            failed_count = #{failedCount},
+            total_bytes = #{totalBytes},
+            done_bytes = #{doneBytes},
+            last_item_guid = #{lastItemGuid},
+            last_source_guid = #{lastSourceGuid},
+            last_target_guid = #{lastTargetGuid},
+            message = #{message},
+            error_message = #{errorMessage},
+            plan_snapshot = #{planSnapshot},
+            result_snapshot = #{resultSnapshot},
+            operator_guid = #{operatorGuid},
+            ext_config = #{extConfig}
+        WHERE guid = #{guid}
+    </update>
+
+    <select id="get" resultMap="UofsTransferTaskMap">
+        SELECT <include refid="TaskColumns"/>
+        FROM hydra_uofs_transfer_task
+        WHERE guid = #{guid}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_uofs_transfer_task
+        <include refid="TaskFilter"/>
+    </select>
+
+    <select id="listPage" resultMap="UofsTransferTaskMap">
+        SELECT <include refid="TaskColumns"/>
+        FROM hydra_uofs_transfer_task
+        <include refid="TaskFilter"/>
+        ORDER BY update_time DESC, id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE hydra_uofs_transfer_task
+        SET status = #{status},
+            phase = #{phase},
+            message = #{message},
+            error_message = #{errorMessage}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateProgress">
+        UPDATE hydra_uofs_transfer_task
+        SET status = 'RUNNING',
+            phase = #{phase},
+            total_count = #{totalCount},
+            done_count = #{doneCount},
+            failed_count = #{failedCount},
+            total_bytes = #{totalBytes},
+            done_bytes = #{doneBytes},
+            last_item_guid = #{lastItemGuid},
+            last_source_guid = #{lastSourceGuid},
+            last_target_guid = #{lastTargetGuid},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <update id="updateDone">
+        UPDATE hydra_uofs_transfer_task
+        SET status = 'DONE',
+            phase = 'DONE',
+            result_snapshot = #{resultSnapshot},
+            message = #{message}
+        WHERE guid = #{guid}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM hydra_uofs_transfer_task
+        WHERE guid = #{guid}
+    </delete>
+</mapper>

@@ -1,6 +1,10 @@
 package com.walnut.odin.task;
 
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
@@ -14,8 +18,15 @@ import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.task.ibatis.hydranium.TaskMappingDriver;
+import com.pinecone.hydra.task.ibatis.AppNodeMapper;
+import com.pinecone.hydra.task.ibatis.TaskNamespaceMapper;
+import com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper;
+import com.pinecone.hydra.task.ibatis.TaskPathCacheMapper;
+import com.pinecone.hydra.task.ibatis.TaskTreeMapper;
 import com.pinecone.hydra.task.kom.TaskInstrument;
 import com.pinecone.hydra.task.kom.UniformTaskInstrument;
+import com.pinecone.hydra.task.kom.digest.TaskElementDigest;
+import com.pinecone.hydra.task.kom.digest.TaskTreeElementDigest;
 import com.pinecone.hydra.task.kom.entity.ElementNode;
 import com.pinecone.hydra.task.kom.entity.AppElement;
 import com.pinecone.hydra.task.kom.entity.Namespace;
@@ -32,6 +43,12 @@ import com.walnut.odin.task.service.CategoryService;
 import com.walnut.odin.task.service.RavenCategoryService;
 import com.walnut.odin.task.source.RavenTaskMasterManipulator;
 
+import com.walnut.odin.project.RavenTaskProjectInstrument;
+import com.walnut.odin.project.TaskProjectInstrument;
+import com.walnut.odin.specific.RavenTaskSpecificService;
+import com.walnut.odin.specific.TaskSpecificService;
+import com.walnut.odin.task.deletion.TaskDirectoryDeleteChild;
+import com.walnut.odin.task.deletion.TaskDirectoryDeleteSafetyReport;
 import com.walnut.odin.task.system.TaskPathInvalidException;
 import com.walnut.odin.task.troll.GenericRavenTask;
 
@@ -42,7 +59,9 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
     protected CategoryService            categoryService;
 
+    protected TaskProjectInstrument      taskProjectInstrument;
 
+    protected TaskSpecificService        taskSpecificService;
 
 
     protected void overrideTaskInstrument( Processum superiorProcess, TaskMappingDriver driver, TaskInstrument parent, String name, KernelObjectConfig config, @Nullable GuidAllocator guidAllocator ) {
@@ -93,6 +112,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         this.overrideTaskInstrument     ( superiorProcess, driver, parent, name, config, guidAllocator );
 
         this.categoryService            = new RavenCategoryService( this );
+        this.taskProjectInstrument      = new RavenTaskProjectInstrument( this.ravenTaskMasterManipulator.getTaskProjectManipulator() );
+        this.taskSpecificService        = new RavenTaskSpecificService( this.ravenTaskMasterManipulator.getTaskSpecificManipulator() );
 
     }
 
@@ -119,6 +140,31 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     }
 
     @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByPath( String path ) {
+        return this.uniformTaskInstrument.queryTaskTreeDigestByPath( path );
+    }
+
+    @Override
+    public TaskTreeElementDigest queryTaskTreeDigestByGuid( GUID guid ) {
+        return this.uniformTaskInstrument.queryTaskTreeDigestByGuid( guid );
+    }
+
+    @Override
+    public List<TaskTreeElementDigest> fetchTaskTreeChildDigests( GUID parentGuid ) {
+        return this.uniformTaskInstrument.fetchTaskTreeChildDigests( parentGuid );
+    }
+
+    @Override
+    public List<TaskElementDigest> listTaskElementDigests( int offset, int pageSize ) {
+        return this.uniformTaskInstrument.listTaskElementDigests( offset, pageSize );
+    }
+
+    @Override
+    public List<TaskElementDigest> fetchTaskElementDigestsByGuids( Collection<GUID> guids ) {
+        return this.uniformTaskInstrument.fetchTaskElementDigestsByGuids( guids );
+    }
+
+    @Override
     public GUID assertGUIDByPath ( String taskTreePath ) throws TaskPathInvalidException {
         GUID guid = this.uniformTaskInstrument.queryGUIDByPath( taskTreePath );
         if ( guid == null ) {
@@ -141,6 +187,107 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
         return node.getGuid();
     }
 
+    @Override
+    public TaskDirectoryDeleteSafetyReport checkDirectoryDelete( GUID guid ) {
+        return this.checkDirectoryPurge( guid );
+    }
+
+    @Override
+    public TaskDirectoryDeleteSafetyReport checkDirectoryPurge( GUID guid ) {
+        if ( guid == null ) {
+            throw new IllegalArgumentException( "Task directory purge check missing guid." );
+        }
+
+        TreeNode node = this.uniformTaskInstrument.get( guid );
+        if ( node == null ) {
+            throw new IllegalArgumentException( "Task directory not found: " + guid );
+        }
+        if ( !this.isDirectoryNode( node ) ) {
+            throw new IllegalArgumentException( "Task node is not a directory: " + guid );
+        }
+
+        List<TreeNode> children = this.uniformTaskInstrument.getChildren( guid );
+        TaskDirectoryDeleteSafetyReport report = new TaskDirectoryDeleteSafetyReport();
+        report.setGuid( guid );
+        report.setName( node.getName() );
+        report.setType( node.getMetaType() );
+        report.setPath( this.uniformTaskInstrument.querySystemKernelObjectPath( guid ) );
+        int childCount = 0;
+        if ( children != null ) {
+            childCount = children.size();
+        }
+        report.setChildCount( childCount );
+        report.setDeletable( report.getChildCount() == 0 );
+        if ( report.isDeletable() ) {
+            report.setMessage( "Task directory purge safety check passed." );
+        }
+        else {
+            report.setMessage( "Task directory is not empty." );
+        }
+
+        if ( children != null ) {
+            for ( TreeNode child : children ) {
+                report.getChildrenPreview().add( this.toDirectoryDeleteChild( child ) );
+            }
+        }
+        return report;
+    }
+
+    @Override
+    public TaskDirectoryDeleteSafetyReport checkDirectoryDelete( String path ) {
+        return this.checkDirectoryPurge( path );
+    }
+
+    @Override
+    public TaskDirectoryDeleteSafetyReport checkDirectoryPurge( String path ) {
+        GUID guid = this.assertGUIDByPath( path );
+        return this.checkDirectoryPurge( guid );
+    }
+
+    @Override
+    public TaskDirectoryDeleteSafetyReport purgeDirectory( GUID guid ) {
+        TaskDirectoryDeleteSafetyReport report = this.checkDirectoryPurge( guid );
+        if ( !report.isDeletable() ) {
+            throw new IllegalArgumentException( report.getMessage() );
+        }
+        TreeNode node = this.uniformTaskInstrument.get( guid );
+
+        this.ravenTaskMasterManipulator.transaction().required( scope -> {
+            scope.mapper( TaskPathCacheMapper.class ).remove( guid );
+            scope.mapper( TaskNodeOwnerMapper.class ).removeBySubordinate( guid );
+            if ( node instanceof AppElement ) {
+                scope.mapper( AppNodeMapper.class ).remove( guid );
+            }
+            else {
+                scope.mapper( TaskNamespaceMapper.class ).remove( guid );
+            }
+            scope.mapper( TaskTreeMapper.class ).removeNodeRecord( guid );
+            return null;
+        } );
+        return report;
+    }
+
+    @Override
+    public TaskDirectoryDeleteSafetyReport purgeDirectory( String path ) {
+        GUID guid = this.assertGUIDByPath( path );
+        return this.purgeDirectory( guid );
+    }
+
+    protected TaskDirectoryDeleteChild toDirectoryDeleteChild( TreeNode child ) {
+        TaskDirectoryDeleteChild preview = new TaskDirectoryDeleteChild();
+        if ( child == null ) {
+            return preview;
+        }
+
+        preview.setGuid( child.getGuid() );
+        preview.setName( child.getName() );
+        preview.setType( child.getMetaType() );
+        if ( child.getGuid() != null ) {
+            preview.setPath( this.uniformTaskInstrument.querySystemKernelObjectPath( child.getGuid() ) );
+        }
+        return preview;
+    }
+
 
     @Override
     public UniformTaskInstrument getUniformTaskInstrument() {
@@ -150,6 +297,16 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public RavenTaskMasterManipulator getRavenTaskMasterManipulator() {
         return this.ravenTaskMasterManipulator;
+    }
+
+    @Override
+    public TaskProjectInstrument getTaskProjectInstrument() {
+        return this.taskProjectInstrument;
+    }
+
+    @Override
+    public TaskSpecificService getTaskSpecificService() {
+        return this.taskSpecificService;
     }
 
     @Override
@@ -201,8 +358,8 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
 
 
     @Override
-    public AppElement affirmJob(String path ) {
-        return this.uniformTaskInstrument.affirmJob( path );
+    public AppElement affirmApp( String path ) {
+        return this.uniformTaskInstrument.affirmApp( path );
     }
 
     @Override
@@ -223,6 +380,106 @@ public class RavenTaskInstrument implements CentralizedTaskInstrument {
     @Override
     public boolean containsChild( GUID parentGuid, String childName ) {
         return this.uniformTaskInstrument.containsChild( parentGuid, childName );
+    }
+
+    @Override
+    public void move( String sourcePath, String destinationPath ) {
+        GUID sourceGuid = this.uniformTaskInstrument.queryGUIDByPath( sourcePath );
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source path not found: " + sourcePath );
+        }
+
+        GUID destinationGuid = this.uniformTaskInstrument.queryGUIDByPath( destinationPath );
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination path not found: " + destinationPath );
+        }
+
+        this.move( sourceGuid, destinationGuid );
+    }
+
+    @Override
+    public void move( GUID sourceGuid, GUID destinationGuid ) {
+        this.assertMovable( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+        this.uniformTaskInstrument.getMasterTrieTree().moveTo( sourceGuid, destinationGuid );
+        this.removeCachePathRecursively( sourceGuid );
+    }
+
+    protected void assertMovable( GUID sourceGuid, GUID destinationGuid ) {
+        if ( sourceGuid == null ) {
+            throw new IllegalArgumentException( "Task move source guid should not be null." );
+        }
+        if ( destinationGuid == null ) {
+            throw new IllegalArgumentException( "Task move destination guid should not be null." );
+        }
+        if ( sourceGuid.equals( destinationGuid ) ) {
+            throw new IllegalArgumentException( "Task move destination should not be source node: " + sourceGuid );
+        }
+        if ( this.uniformTaskInstrument.getMasterTrieTree().isRoot( sourceGuid ) ) {
+            throw new IllegalArgumentException( "Task root node cannot be moved: " + sourceGuid );
+        }
+
+        TreeNode sourceNode = this.uniformTaskInstrument.get( sourceGuid );
+        if ( sourceNode == null ) {
+            throw new IllegalArgumentException( "Task move source node not found: " + sourceGuid );
+        }
+
+        TreeNode destinationNode = this.uniformTaskInstrument.get( destinationGuid );
+        if ( !this.isMoveDestinationNode( destinationNode ) ) {
+            throw new IllegalArgumentException( "Task move destination should be directory node: " + destinationGuid );
+        }
+
+        this.assertMoveNotDescendant( sourceGuid, destinationGuid );
+        this.assertMoveNoConflict( sourceGuid, destinationGuid, sourceNode.getName() );
+    }
+
+    protected boolean isMoveDestinationNode( TreeNode node ) {
+        return this.isDirectoryNode( node );
+    }
+
+    protected boolean isDirectoryNode( TreeNode node ) {
+        return node instanceof Namespace || node instanceof AppElement;
+    }
+
+    protected void assertMoveNotDescendant( GUID sourceGuid, GUID destinationGuid ) {
+        List<GUID> frontier = new ArrayList<>();
+        frontier.add( destinationGuid );
+        Set<GUID> visited = new HashSet<>();
+        while ( !frontier.isEmpty() ) {
+            GUID current = frontier.remove( frontier.size() - 1 );
+            if ( current == null || !visited.add( current ) ) {
+                continue;
+            }
+            if ( current.equals( sourceGuid ) ) {
+                throw new IllegalArgumentException( "Task move destination is under source node: " + sourceGuid );
+            }
+            List<GUID> parentGuids = this.uniformTaskInstrument.getMasterTrieTree().fetchParentGuids( current );
+            if ( parentGuids != null ) {
+                frontier.addAll( parentGuids );
+            }
+        }
+    }
+
+    protected void assertMoveNoConflict( GUID sourceGuid, GUID destinationGuid, String szName ) {
+        List<TreeNode> children = this.uniformTaskInstrument.getChildren( destinationGuid );
+        for ( TreeNode child : children ) {
+            if ( child == null || child.getGuid() == null || child.getGuid().equals( sourceGuid ) ) {
+                continue;
+            }
+            if ( szName != null && szName.equals( child.getName() ) ) {
+                throw new IllegalArgumentException( "Task move destination already contains node: " + szName );
+            }
+        }
+    }
+
+    protected void removeCachePathRecursively( GUID guid ) {
+        this.uniformTaskInstrument.getMasterTrieTree().removeCachePath( guid );
+        List<TreeNode> children = this.uniformTaskInstrument.getChildren( guid );
+        for ( TreeNode child : children ) {
+            if ( child != null && child.getGuid() != null ) {
+                this.removeCachePathRecursively( child.getGuid() );
+            }
+        }
     }
 
     @Override

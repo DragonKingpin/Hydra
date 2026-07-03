@@ -2,8 +2,11 @@ package com.pinecone.hydra.device.ibatis;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
+import com.pinecone.hydra.device.kom.source.DeviceNodeOwnershipManipulator;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
@@ -13,7 +16,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @IbatisDataAccessObject
-public interface DeviceTreeMapper extends TrieTreeManipulator {
+public interface DeviceTreeMapper extends TrieTreeManipulator, DeviceNodeOwnershipManipulator {
     void insertRootNode( @Param("guid")  GUID guid, @Param("linkedType") LinkedType linkedType );
 
     @Override
@@ -76,6 +79,22 @@ public interface DeviceTreeMapper extends TrieTreeManipulator {
 
     void updateType( @Param("type") UOI type, @Param("guid") GUID guid );
 
+    @Override
+    DeviceNodeOwnershipEntry queryDeviceNodeOwnership( @Param("guid") GUID guid );
+
+    @Override
+    List<GUID > fetchOwnedDeviceGuids( @Param("ownerDeviceGuid") GUID ownerDeviceGuid );
+
+    @Override
+    List<DeviceNodeOwnershipEntry> fetchOwnedDeviceNodes( @Param("ownerDeviceGuid") GUID ownerDeviceGuid );
+
+    @Override
+    void updateDeviceNodeOwnership(
+            @Param("guid") GUID guid,
+            @Param("ownerDeviceGuid") GUID ownerDeviceGuid,
+            @Param("deviceNode") boolean deviceNode
+    );
+
     List<GUID > fetchRoot();
 
     @Override
@@ -126,4 +145,14 @@ public interface DeviceTreeMapper extends TrieTreeManipulator {
 
     @Override
     GUID getOriginalGuidByTagGuid(@Param("tagGuid") GUID tagGuid);
+
+    @Override
+    List<HardlinkEntry> listHardlinks(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    long countHardlinks( @Param("keyword") String keyword );
 }

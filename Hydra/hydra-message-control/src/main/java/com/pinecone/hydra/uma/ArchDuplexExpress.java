@@ -21,6 +21,7 @@ import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.UMCReceiver;
 import com.pinecone.hydra.umc.msg.UMCTransmit;
 import com.pinecone.hydra.umc.wolf.UlfAsyncMsgHandleAdapter;
+import com.pinecone.hydra.umc.wolf.UlfInstructMessage;
 import com.pinecone.hydra.umc.wolf.UlfChannelStatus;
 import com.pinecone.hydra.umc.wolf.UlfMessageNode;
 import com.pinecone.hydra.umc.wolf.WolfMCStandardConstants;
@@ -100,6 +101,7 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
 
         if ( controlBits == HuskyCTPConstants.HCTP_DUP_CONTROL_PASSIVE_RESPONSE ) {
             RecipientChannelControlBlock cb = (RecipientChannelControlBlock)args[ 0 ];
+            ChannelControlBlock channelBlock = (ChannelControlBlock) cb;
             Channel channel = (Channel)cb.getChannel().getNativeHandle();
 
             long nWaitMillis;
@@ -122,17 +124,20 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
                     throw new ServiceInternalException( "Undefined MsgHandle." );
                 }
 
-
-
-                try {
-                    handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
-                }
-                catch ( Exception e ) {
-                    throw new ServiceInternalException( e );
-                }
+                handle.onSuccessfulMsgReceived( connection.getMessageSource(), connection.getTransmit(), connection.getReceiver(), msg, args );
             }
             catch ( InterruptedException e ) {
+                Thread.currentThread().interrupt();
                 throw new ServiceInternalException( e );
+            }
+            catch ( Exception e ) {
+                throw new ServiceInternalException( e );
+            }
+            finally {
+                ChannelPool pool = this.mMultiClientChannelRegistry.getPool( channelBlock.getChannel().getIdentityID() );
+                if ( pool != null && channelBlock.getChannelStatus() == UlfChannelStatus.WAITING_PASSIVE_RECEIVE ) {
+                    pool.setIdleChannel( channelBlock );
+                }
             }
 
             return true;
@@ -141,10 +146,17 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
     }
 
 
-    protected boolean interceptPassiveChannel( UMCConnection connection, Object[] args ) {
+    protected boolean interceptPassiveChannel( UMCConnection connection, Object[] args ) throws IOException {
         UMCConnection uc          = this.wrap( connection );
         UMCMessage msg            = uc.getMessage();
         int controlBits           = msg.getHead().getControlBits();
+        if ( ( controlBits & HuskyCTPConstants.HCTP_DUP_CONTROL_MASK ) == HuskyCTPConstants.HCTP_DUP_CONTROL_MASK ) {
+            ChannelControlBlock ccb = (ChannelControlBlock) args[ 0 ];
+            this.getLogger().info(
+                    "[PassiveChannel] [ControlFrame] (ControlBits: `0x{}`, ClientId: `{}`, ChannelId: `{}`) <Arrived>",
+                    new Object[]{ Integer.toHexString( controlBits ), ccb.getChannel().getIdentityID(), ccb.getChannel().getChannelID() }
+            );
+        }
         if ( controlBits == HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER ) {
             this.registerPassiveChannel( uc, connection, args );
             return true;
@@ -153,15 +165,17 @@ public abstract class ArchDuplexExpress implements DuplexExpress, MessageExpress
         return false;
     }
 
-    protected void registerPassiveChannel( UMCConnection uc, UMCConnection connection, Object[] args ) {
+    protected void registerPassiveChannel( UMCConnection uc, UMCConnection connection, Object[] args ) throws IOException {
         ChannelControlBlock ccb = (ChannelControlBlock) args[ 0 ];
         UMCChannel channel = ccb.getChannel();
         long                cid = channel.getIdentityID();
 
         this.mMultiClientChannelRegistry.register( cid, ccb );
+        this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSending>", cid, ccb.getChannel().getChannelID() );
+        connection.getTransmit().sendMsg( new UlfInstructMessage( HuskyCTPConstants.HCTP_DUP_CONTROL_REGISTER_ACK ), true );
+        this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <RegisterAckSent>", cid, ccb.getChannel().getChannelID() );
         this.getLogger().info( "[PassiveChannel] [ClientId: {}, ChannelId: {}] <{}>", cid, ccb.getChannel().getChannelID(), "Registered" );
     }
-
 
     static void reconnect( ChannelControlBlock block, long mils ) throws IOException {
         if( block.isShutdown() ) {

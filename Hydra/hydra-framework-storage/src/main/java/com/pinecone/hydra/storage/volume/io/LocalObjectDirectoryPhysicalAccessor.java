@@ -47,7 +47,7 @@ public class LocalObjectDirectoryPhysicalAccessor implements PhysicalAccessor {
 
     @Override
     public VolumePhysicalType getPhysicalType() {
-        return VolumePhysicalType.LOCAL_DIR;
+        return VolumePhysicalType.OBJECT;
     }
 
     @Override

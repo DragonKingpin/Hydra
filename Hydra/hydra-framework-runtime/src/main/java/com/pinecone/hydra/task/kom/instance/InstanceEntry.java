@@ -37,6 +37,8 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
 
      void setImagePath( String imagePath );
 
+     void setExecArch( String execArch );
+
      void setActuallyPriority ( int actuallyPriority );
 
      void setInstanceStatus ( TaskInstanceStatus instanceStatus );
@@ -52,6 +54,12 @@ public interface InstanceEntry extends TaskInstanceMeta, EntryNode {
      void setRunStatus( String runStatus );
 
      void setDryRun ( boolean dryRun );
+
+     void setTimeoutSeconds( Long timeoutSeconds );
+
+     void setRetryTimes( int retryTimes );
+
+     void setRetryIntervalSeconds( Long retryIntervalSeconds );
 
      void setErrorCause( String errorCause );
 

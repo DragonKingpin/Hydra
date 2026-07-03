@@ -5,37 +5,33 @@ import java.util.List;
 
 import com.pinecone.framework.system.prototype.Pinenut;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.hydra.unit.vgraph.entity.GraphNode;
-import com.walnut.odin.conduct.entity.InstanceAtlasAdjacent;
-import com.walnut.odin.conduct.entity.InstanceAtlasNode;
+import com.walnut.odin.conduct.entity.InstanceLineageAdjacent;
 import com.walnut.odin.task.RavenTaskInstance;
 
 public class ScheduledTaskInstanceLineage implements Pinenut {
 
     protected TaskScheduleContext context;
     protected RavenTaskInstance instance;
-    protected GraphNode graphNode;
-    protected List<GUID> parentIds;
-    protected InstanceAtlasNode instanceAtlasNode;
-    protected List<InstanceAtlasAdjacent> adjacents;
+    protected GUID taskGuid;
+    protected List<GUID> parentTaskGuids;
+    protected List<InstanceLineageAdjacent> adjacents;
     protected boolean created;
 
     public ScheduledTaskInstanceLineage(
-            TaskScheduleContext context, RavenTaskInstance instance, GraphNode graphNode,
-            List<GUID> parentIds, InstanceAtlasNode instanceAtlasNode
+            TaskScheduleContext context, RavenTaskInstance instance, GUID taskGuid,
+            List<GUID> parentTaskGuids
     ) {
-        this( context, instance, graphNode, parentIds, instanceAtlasNode, true );
+        this( context, instance, taskGuid, parentTaskGuids, true );
     }
 
     public ScheduledTaskInstanceLineage(
-            TaskScheduleContext context, RavenTaskInstance instance, GraphNode graphNode,
-            List<GUID> parentIds, InstanceAtlasNode instanceAtlasNode, boolean created
+            TaskScheduleContext context, RavenTaskInstance instance, GUID taskGuid,
+            List<GUID> parentTaskGuids, boolean created
     ) {
         this.context = context;
         this.instance = instance;
-        this.graphNode = graphNode;
-        this.parentIds = parentIds;
-        this.instanceAtlasNode = instanceAtlasNode;
+        this.taskGuid = taskGuid;
+        this.parentTaskGuids = parentTaskGuids;
         this.adjacents = new ArrayList<>();
         this.created = created;
     }
@@ -56,35 +52,27 @@ public class ScheduledTaskInstanceLineage implements Pinenut {
         this.instance = instance;
     }
 
-    public GraphNode getGraphNode() {
-        return this.graphNode;
+    public GUID getTaskGuid() {
+        return this.taskGuid;
     }
 
-    public void setGraphNode( GraphNode graphNode ) {
-        this.graphNode = graphNode;
+    public void setTaskGuid( GUID taskGuid ) {
+        this.taskGuid = taskGuid;
     }
 
-    public List<GUID> getParentIds() {
-        return this.parentIds;
+    public List<GUID> getParentTaskGuids() {
+        return this.parentTaskGuids;
     }
 
-    public void setParentIds( List<GUID> parentIds ) {
-        this.parentIds = parentIds;
+    public void setParentTaskGuids( List<GUID> parentTaskGuids ) {
+        this.parentTaskGuids = parentTaskGuids;
     }
 
-    public InstanceAtlasNode getInstanceAtlasNode() {
-        return this.instanceAtlasNode;
-    }
-
-    public void setInstanceAtlasNode( InstanceAtlasNode instanceAtlasNode ) {
-        this.instanceAtlasNode = instanceAtlasNode;
-    }
-
-    public List<InstanceAtlasAdjacent> getAdjacents() {
+    public List<InstanceLineageAdjacent> getAdjacents() {
         return this.adjacents;
     }
 
-    public void setAdjacents( List<InstanceAtlasAdjacent> adjacents ) {
+    public void setAdjacents( List<InstanceLineageAdjacent> adjacents ) {
         this.adjacents = adjacents;
     }
 

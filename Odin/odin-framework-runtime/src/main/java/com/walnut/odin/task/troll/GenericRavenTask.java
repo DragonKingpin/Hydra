@@ -50,8 +50,10 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         GUID guid = this.mGuidAllocator.nextGUID();
         GenericInstanceEntry entry = new GenericInstanceEntry( this.mTaskInstrument, this.mTaskElement );
         entry.setGuid( guid );
+        entry.setPriority( this.mTaskElement.getPriority() );
         entry.setActuallyPriority( this.mTaskElement.getActuallyPriority() );
         entry.setImagePath( this.mTaskElement.getImagePath() );
+        entry.setExecArch( this.mTaskElement.getExecArch() );
         entry.setTaskGuid( this.mTaskElement.getGuid());
         entry.setCreateTime( LocalDateTime.now() );
         entry.setScheduleCycle( this.mTaskElement.getScheduleCycle() );
@@ -60,9 +62,13 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
         entry.setSequenceCnt( 1 );
         entry.setRetryCnt( 0 );
         entry.setTaskType( this.mTaskElement.getType() );
+        entry.setDryRun( this.mTaskElement.isDryRun() );
+        entry.setTimeoutSeconds( this.mTaskElement.getTimeoutSeconds() );
+        entry.setRetryTimes( this.mTaskElement.getRetryTimes() );
+        entry.setRetryIntervalSeconds( this.mTaskElement.getRetryIntervalSeconds() );
         entry.setInstanceStatus( TaskInstanceStatus.New );
         entry.setTaskName( this.mTaskElement.getName() );
-        entry.setProcessorName( this.mTaskElement.getProcessorName() );
+        entry.setDesignatedProcessor( this.normalizeDesignatedProcessor( this.mTaskElement.getProcessorName() ) );
 
         GenericRavenTaskInstance instance = new GenericRavenTaskInstance( entry, this );
         return instance;
@@ -98,6 +104,18 @@ public class GenericRavenTask extends ArchRavenTask implements RavenTask {
 
     public void updateTaskMeta( InstanceEntry instanceEntry ) throws MetaPersistenceException {
         this.mInstanceInstrument.updateInstance( instanceEntry );
+    }
+
+    protected String normalizeDesignatedProcessor( String processorName ) {
+        if ( processorName == null ) {
+            return null;
+        }
+
+        String szProcessorName = processorName.trim();
+        if ( szProcessorName.isEmpty() || "auto".equalsIgnoreCase( szProcessorName ) ) {
+            return null;
+        }
+        return szProcessorName;
     }
 
 }

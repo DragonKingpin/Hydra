@@ -11,7 +11,7 @@ import com.pinecone.hydra.device.kom.UniformDeviceInstrument;
 import com.pinecone.hydra.proc.LocalHostedProcess;
 import com.pinecone.hydra.proc.LocalUProcess;
 import com.pinecone.hydra.proc.ProcessManager;
-import com.pinecone.hydra.proc.event.ProcessEvent;
+import com.pinecone.hydra.proc.UProcessStatus;
 import com.pinecone.hydra.proc.event.ProcessEventHandler;
 import com.pinecone.hydra.proc.image.ArchEntryPointRunnable;
 import com.pinecone.hydra.proc.image.EntryPointRunnable;
@@ -76,14 +76,14 @@ class Floki extends EnderHydra {
 
         ProcessEventHandler eventHandler = new ProcessEventHandler() {
             @Override
-            public void fired( EntryPointRunnable runnable, ProcessEvent event ) {
+            public void fired( EntryPointRunnable runnable, UProcessStatus event ) {
                 Debug.bluef( runnable, event );
             }
         };
 
-        ExecutionImage image = new LocalHostedClassImage( "gay", new ArchEntryPointRunnable( eventHandler ) {
+        ExecutionImage image = new LocalHostedClassImage( "gay", () -> new ArchEntryPointRunnable( eventHandler ) {
             @Override
-            public int main( Map<String, String[]> args ) {
+            public int main( Map<String, String> args ) {
                 Debug.greenfs( "Hello, hi, I am `" + this.ownedProcess().getName() + "`!" );
                 Debug.greenfs( this.ownedProcess().getPID() );
                 Debug.greenfs( this.ownedProcess().getLocalPID() );
@@ -96,7 +96,7 @@ class Floki extends EnderHydra {
                 return 0;
             }
         }, manager );
-        LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", new String[]{ "you", "she", "he", "it" } ) );
+        LocalUProcess process = manager.createLocalHostedProcess( image, null, Map.of( "fuck", "you,she,he,it" ) );
 
         Debug.redfs( manager.fetchProcesses() );
 

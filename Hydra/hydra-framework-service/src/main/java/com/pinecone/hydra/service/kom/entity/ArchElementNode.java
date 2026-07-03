@@ -42,8 +42,10 @@ public abstract class ArchElementNode extends ArchServiceFamilyMeta implements E
 
     public void apply( ServiceInstrument serviceInstrument) {
         this.serviceInstrument = serviceInstrument;
-        GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
-        this.setGuid( guidAllocator.nextGUID() );
+        if ( this.getGuid() == null ) {
+            GuidAllocator guidAllocator = this.serviceInstrument.getGuidAllocator();
+            this.setGuid( guidAllocator.nextGUID() );
+        }
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.util.Set;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.json.JSONObject;
-import com.pinecone.hydra.service.kom.GenericNamespaceRules;
 import com.pinecone.hydra.unit.imperium.GUIDImperialTrieNode;
 
 public interface Namespace extends FolderElement {
@@ -29,10 +28,6 @@ public interface Namespace extends FolderElement {
     GUID getRulesGUID();
 
     void setRulesGUID( GUID rulesGUID );
-
-    GenericNamespaceRules getClassificationRules();
-
-    void setClassificationRules( GenericNamespaceRules classificationRules );
 
     GUIDImperialTrieNode getDistributedTreeNode();
 

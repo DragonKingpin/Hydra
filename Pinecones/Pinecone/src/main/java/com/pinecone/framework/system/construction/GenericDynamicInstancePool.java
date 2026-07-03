@@ -1,34 +1,45 @@
 package com.pinecone.framework.system.construction;
 
+import com.pinecone.framework.system.BadAllocateException;
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.lang.DynamicFactory;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
-    private BlockingQueue<T > mPool;
-    private DynamicFactory    mFactory;
-    private Class<T >         mClassType;
-    private int               mCapacity;
-    private int               mFreeSize;
-    private int               mPreAllocate;
+    private final Queue<T >        mPool;
+    private final DynamicFactory   mFactory;
+    private final Class<T >        mClassType;
+    private final AtomicInteger    mCapacity;
+    private final AtomicInteger    mCreatedSize;
+    private final PoolSemaphore    mPermits;
+    private final ReentrantLock    mCreationLock;
+    private final ReentrantLock    mStateLock;
+    private final int              mPreAllocate;
 
-    public GenericDynamicInstancePool(DynamicFactory factory, Class<T > classType ) {
+    public GenericDynamicInstancePool( DynamicFactory factory, Class<T > classType ) {
         this( factory, 0, 0, classType );
     }
 
-    public GenericDynamicInstancePool(DynamicFactory factory, int preAllocate, Class<T > classType ) {
+    public GenericDynamicInstancePool( DynamicFactory factory, int preAllocate, Class<T > classType ) {
         this( factory, 0, preAllocate, classType );
     }
 
-    public GenericDynamicInstancePool(DynamicFactory factory, int capacity, int preAllocate, Class<T > classType ) {
-        this.mPool        = new LinkedBlockingQueue<>();
+    public GenericDynamicInstancePool( DynamicFactory factory, int capacity, int preAllocate, Class<T > classType ) {
+        int nCapacity     = capacity > 0 ? capacity : Integer.MAX_VALUE;
+        this.mPool        = new ConcurrentLinkedQueue<>();
         this.mFactory     = factory;
-        this.mCapacity    = capacity > 0 ? capacity : Integer.MAX_VALUE;
+        this.mCapacity    = new AtomicInteger( nCapacity );
         this.mClassType   = classType;
         this.mPreAllocate = preAllocate;
-        this.mFreeSize    = this.mCapacity;
+        this.mCreatedSize = new AtomicInteger( 0 );
+        this.mPermits     = new PoolSemaphore( nCapacity );
+        this.mCreationLock = new ReentrantLock();
+        this.mStateLock    = new ReentrantLock();
 
         this.preAllocate( preAllocate );
     }
@@ -43,41 +54,69 @@ public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
     }
 
     @Override
-    public T allocate() {
-        T obj = this.mPool.poll();
-        if ( obj == null ) {
-            int availableCapacity = this.freeSize();
-            if ( availableCapacity > 0 ) {
-                int allocateCount = 1;
-                if( this.mPreAllocate > 0 ) {
-                    allocateCount = Math.min( availableCapacity, this.mPreAllocate );
-                }
-                this.preAllocate( allocateCount );
-                obj = this.mPool.poll();
-                if ( obj == null ) {
-                    throw new InternalError( "Unable to allocate instance." );
-                }
-            }
-            else {
-                throw new IllegalStateException( "Out of capacity, too many instances[" + this.mCapacity + "]." );
-            }
+    public T allocate() throws BadAllocateException {
+        if ( !this.mPermits.tryAcquire() ) {
+            throw new BadAllocateException( "Out of capacity, too many instances[" + this.mCapacity.get() + "]." );
         }
 
-        --this.mFreeSize;
-        return obj;
+        T obj = this.mPool.poll();
+        if ( obj != null ) {
+            return obj;
+        }
+
+        return this.allocateNewAfterPermitAcquired();
+    }
+
+    protected T allocateNewAfterPermitAcquired() throws BadAllocateException {
+        this.mCreationLock.lock();
+        try {
+            T obj = this.mPool.poll();
+            if ( obj != null ) {
+                return obj;
+            }
+
+            int created = this.mCreatedSize.get();
+            int capacity = this.mCapacity.get();
+            if ( created >= capacity ) {
+                this.mPermits.release();
+                throw new BadAllocateException( "Unable to allocate instance." );
+            }
+
+            this.mCreatedSize.incrementAndGet();
+            try {
+                return this.newInstance();
+            }
+            catch ( RuntimeException e ) {
+                this.mCreatedSize.decrementAndGet();
+                this.mPermits.release();
+                throw new BadAllocateException( e );
+            }
+        }
+        finally {
+            this.mCreationLock.unlock();
+        }
     }
 
     @Override
     public void free( T obj ) {
         if ( obj != null ) {
-            this.mPool.offer( obj );
-            ++this.mFreeSize;
+            this.mStateLock.lock();
+            try {
+                if ( this.mPermits.availablePermits() >= this.mCapacity.get() ) {
+                    throw new IllegalStateException( "Instance pool is already full[" + this.mCapacity.get() + "]." );
+                }
+                this.mPool.offer( obj );
+                this.mPermits.release();
+            }
+            finally {
+                this.mStateLock.unlock();
+            }
         }
     }
 
     @Override
     public int freeSize() {
-        return this.mFreeSize;
+        return this.mPermits.availablePermits();
     }
 
     @Override
@@ -92,30 +131,74 @@ public class GenericDynamicInstancePool<T > implements DynamicInstancePool<T > {
 
     @Override
     public void preAllocate( int count ) {
-        for ( int i = 0; i < count; ++i) {
-            this.mPool.offer( this.newInstance() );
+        if ( count <= 0 ) {
+            return;
+        }
+
+        this.mCreationLock.lock();
+        try {
+            int nCount = Math.min( count, Math.max( 0, this.mCapacity.get() - this.mCreatedSize.get() ) );
+            for ( int i = 0; i < nCount; ++i) {
+                this.mPool.offer( this.newInstance() );
+                this.mCreatedSize.incrementAndGet();
+            }
+        }
+        finally {
+            this.mCreationLock.unlock();
         }
     }
 
     @Override
     public void setCapacity( int capacity ) {
-        if ( capacity < this.mCapacity - this.mFreeSize ) {
-            throw new IllegalArgumentException( "New capacity cannot be less than current capacity minus free size." );
-        }
-        if ( capacity > this.mCapacity ) {
-            int availableCapacity = this.freeSize();
-            if ( availableCapacity > 0 ) {
+        int nCapacity = capacity > 0 ? capacity : Integer.MAX_VALUE;
+        this.mStateLock.lock();
+        this.mCreationLock.lock();
+        try {
+            int nOldCapacity = this.mCapacity.get();
+            int borrowed = nOldCapacity - this.mPermits.availablePermits();
+            if ( nCapacity < borrowed ) {
+                throw new IllegalArgumentException( "New capacity cannot be less than current capacity minus free size." );
+            }
+
+            this.mCapacity.set( nCapacity );
+            int delta = nCapacity - nOldCapacity;
+            if ( delta > 0 ) {
+                this.mPermits.release( delta );
                 if( this.mPreAllocate > 0 ) {
-                    this.preAllocate( Math.min( availableCapacity, this.mPreAllocate ) );
+                    this.preAllocate( Math.min( this.freeSize(), this.mPreAllocate ) );
+                }
+            }
+            else if ( delta < 0 ) {
+                this.mPermits.reduce( -delta );
+                int maxIdle = nCapacity - borrowed;
+                while ( this.mPool.size() > maxIdle ) {
+                    T obj = this.mPool.poll();
+                    if ( obj == null ) {
+                        break;
+                    }
+                    this.mCreatedSize.decrementAndGet();
                 }
             }
         }
-        this.mCapacity = capacity;
+        finally {
+            this.mCreationLock.unlock();
+            this.mStateLock.unlock();
+        }
     }
 
     @Override
     public int getCapacity() {
-        return this.mCapacity;
+        return this.mCapacity.get();
+    }
+
+    private static class PoolSemaphore extends Semaphore {
+        PoolSemaphore( int permits ) {
+            super( permits );
+        }
+
+        void reduce( int reduction ) {
+            this.reducePermits( reduction );
+        }
     }
 
 }

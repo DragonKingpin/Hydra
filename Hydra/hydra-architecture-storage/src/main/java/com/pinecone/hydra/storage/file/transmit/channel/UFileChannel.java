@@ -1,7 +1,7 @@
 package com.pinecone.hydra.storage.file.transmit.channel;
 
 import com.pinecone.framework.system.prototype.Pinenut;
-import com.pinecone.hydra.storage.file.entity.FileNode;
+import com.pinecone.hydra.storage.mfs.UFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public interface UFileChannel extends Pinenut, AutoCloseable {
-    FileNode getFileNode();
+    UFile getFile();
 
     UFileStatus stat();
 

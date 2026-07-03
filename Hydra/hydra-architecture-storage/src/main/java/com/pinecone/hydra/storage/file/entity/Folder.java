@@ -27,6 +27,8 @@ public interface Folder extends ElementNode {
 
     Folder createFolder( String name );
 
+    Symbolic createInternalSymbolic( String name, String reparsedPoint );
+
     ExternalSymbolic createExternalSymbolic( String name, String reparsedPoint );
 
     KOMFileSystem getFileTree();
@@ -48,10 +50,6 @@ public interface Folder extends ElementNode {
     void copyTo(GUID destinationGuid);
     void copyNamespaceMetaTo(GUID destinationGuid);
     long TotalFolderSize();
-
-    void applyVolume( GUID volumeGuid );
-
-    GUID getRelationVolume();
 
     String getPath();
 

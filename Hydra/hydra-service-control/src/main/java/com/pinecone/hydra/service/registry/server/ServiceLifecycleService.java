@@ -40,7 +40,7 @@ public class ServiceLifecycleService implements Pinenut {
             deployId = this.mGuidAllocator.parse( serviceDTO.getDeployId() );
         }
 
-        GUID insId = this.mServiceManager.registerService( clientId, serviceId, deployId );
+        GUID insId = this.mServiceManager.registerService( serviceDTO );
 
         if ( insId != null ) {
             return insId.toString();

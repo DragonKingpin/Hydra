@@ -6,6 +6,7 @@ import com.pinecone.hydra.storage.file.fat.entity.GenericFileChunkLocation;
 import com.pinecone.hydra.storage.file.fat.source.FileChunkLocationManipulator;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,5 +29,20 @@ public interface FileChunkLocationMapper extends FileChunkLocationManipulator {
 
     List<GenericFileChunkLocation> listByChunkGuid( GUID chunkGuid );
 
+    long countAll();
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    long countByVolumeGuid( @Param("volumeGuid") GUID volumeGuid );
+
+    List<GenericFileChunkLocation> listPage( @Param("offset") int offset, @Param("limit") int limit );
+
     Long getMaxEndOffsetByVolumeGuid( GUID volumeGuid );
+
+    Long sumLengthByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 }

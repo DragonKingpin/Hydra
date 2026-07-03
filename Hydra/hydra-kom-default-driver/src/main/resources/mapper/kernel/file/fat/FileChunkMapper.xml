@@ -33,8 +33,28 @@
         SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid} ORDER BY `chunk_index` ASC
     </select>
 
+    <select id="countAll" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_fat_chunk`
+    </select>
+
+    <select id="countByBucketGuid" resultType="long">
+        SELECT COUNT( `id` ) FROM `hydra_uofs_fat_chunk` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <select id="listPage" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
+        SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` ORDER BY `id` ASC LIMIT #{limit} OFFSET #{offset}
+    </select>
+
     <select id="listByFileRange" resultType="com.pinecone.hydra.storage.file.fat.entity.GenericFileChunk">
         SELECT `id`, `guid`, `file_guid` AS fileGuid, `bucket_guid` AS bucketGuid, `chunk_index` AS chunkIndex, `logical_offset` AS logicalOffset, `chunk_size` AS chunkSize, `valid_size` AS validSize, `crc32`, `checksum`, `ext_config` AS extConfig, `create_time` AS createTime, `update_time` AS updateTime FROM `hydra_uofs_fat_chunk` WHERE `file_guid` = #{fileGuid} AND `logical_offset` &lt; #{endOffset} AND `logical_offset` + `valid_size` &gt; #{startOffset} ORDER BY `chunk_index` ASC
     </select>
+
+    <select id="sumValidSizeByBucketGuid" resultType="java.lang.Long">
+        SELECT COALESCE( SUM( `valid_size` ), 0 ) FROM `hydra_uofs_fat_chunk` WHERE `bucket_guid` = #{bucketGuid}
+    </select>
+
+    <delete id="deleteByBucketGuid">
+        DELETE FROM `hydra_uofs_fat_chunk` WHERE `bucket_guid` = #{bucketGuid}
+    </delete>
 
 </mapper>

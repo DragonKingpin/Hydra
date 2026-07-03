@@ -40,4 +40,12 @@ public interface TaskExecutionLauncher extends Manager {
     UProcess launchLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
 
     UProcess launchRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess launchPreparedLocally( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess launchPreparedRemotely( RavenTaskInstance instance, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess startLocally( RavenTaskInstance instance, UProcess process, LaunchFeature feature ) throws InstanceLaunchException;
+
+    UProcess startRemotely( RavenTaskInstance instance, UProcess process, long pmClientId, LaunchFeature feature ) throws InstanceLaunchException;
 }

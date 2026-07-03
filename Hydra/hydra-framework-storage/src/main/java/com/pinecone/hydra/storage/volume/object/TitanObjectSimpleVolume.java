@@ -11,7 +11,9 @@ import com.pinecone.hydra.storage.volume.core.VolumeStatus;
 import com.pinecone.hydra.storage.volume.core.VolumeType;
 
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -75,7 +77,9 @@ public class TitanObjectSimpleVolume extends ArchVolume implements ObjectSimpleV
 
     @Override
     public void deleteObject( String objectKey ) throws IOException {
-        Files.deleteIfExists( this.resolveObjectPath( objectKey ) );
+        Path objectPath = this.resolveObjectPath( objectKey ).normalize();
+        Files.deleteIfExists( objectPath );
+        this.deleteEmptyObjectParents( objectPath.getParent() );
     }
 
     @Override
@@ -106,5 +110,19 @@ public class TitanObjectSimpleVolume extends ArchVolume implements ObjectSimpleV
             ret = ret.substring( 0, ret.length() - separator.length() );
         }
         return ret;
+    }
+
+    protected void deleteEmptyObjectParents( Path parent ) throws IOException {
+        Path root = Paths.get( this.getObjectRoot() ).normalize();
+        Path current = parent == null ? null : parent.normalize();
+        while ( current != null && current.startsWith( root ) && !current.equals( root ) ) {
+            try {
+                Files.delete( current );
+            }
+            catch ( DirectoryNotEmptyException | NoSuchFileException ignored ) {
+                return;
+            }
+            current = current.getParent();
+        }
     }
 }

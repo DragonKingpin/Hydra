@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.RoleMapper">
+
+    <sql id="RoleColumns">
+        `id`,
+        `guid`,
+        `name`,
+        `create_time` AS `createTime`,
+        `update_time` AS `updateTime`,
+        `type`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO `hydra_account_role`
+        (
+            `guid`,
+            `name`,
+            `create_time`,
+            `update_time`,
+            `type`
+        )
+        VALUES
+        (
+            #{guid},
+            #{name},
+            #{createTime},
+            #{updateTime},
+            #{type}
+        )
+    </insert>
+
+    <delete id="remove">
+        DELETE FROM `hydra_account_role`
+        WHERE `guid` = #{roleGuid}
+    </delete>
+
+    <update id="updateRole">
+        UPDATE `hydra_account_role`
+        SET
+            `update_time` = #{updateTime},
+            `type` = #{type}
+        WHERE `name` = #{name}
+    </update>
+
+    <select id="queryRole" resultType="com.pinecone.hydra.account.entity.GenericRole">
+        SELECT
+            <include refid="RoleColumns"/>
+        FROM `hydra_account_role`
+        WHERE `guid` = #{roleGuid}
+    </select>
+
+    <select id="queryRolesByUserGuid" resultType="com.pinecone.hydra.account.entity.GenericRole">
+        SELECT
+            <include refid="RoleColumns"/>
+        FROM `hydra_account_role`
+        WHERE `name` = #{userGuid}
+    </select>
+
+    <select id="queryAllRoles" resultType="com.pinecone.hydra.account.entity.GenericRole">
+        SELECT
+            <include refid="RoleColumns"/>
+        FROM `hydra_account_role`
+    </select>
+
+    <delete id="removeRoleById">
+        DELETE FROM `hydra_account_role`
+        WHERE `id` = #{id}
+    </delete>
+
+</mapper>

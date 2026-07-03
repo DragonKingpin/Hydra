@@ -98,6 +98,10 @@ public abstract class ArchExecutum implements Executum {
 
     @Override
     public Thread.State getState() {
+        Thread th = this.getAffiliateThread();
+        if( th == null ) {
+            return Thread.State.NEW;
+        }
         return this.getAffiliateThread().getState();
     }
 

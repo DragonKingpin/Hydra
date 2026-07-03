@@ -1,23 +1,34 @@
 package com.pinecone.hydra.device.kom;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
+import com.pinecone.hydra.device.generic.GenericDeviceSchema;
+import com.pinecone.hydra.device.generic.GenericDeviceSchemaDesigner;
+import com.pinecone.hydra.device.generic.GenericDeviceSchemaTransformer;
+import com.pinecone.hydra.device.generic.GenericDeviceSchemaValidator;
+import com.pinecone.hydra.device.generic.GenericDeviceType;
 import com.pinecone.hydra.device.kom.entity.ClusterElement;
 import com.pinecone.hydra.device.kom.entity.ContainerElement;
+import com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry;
 import com.pinecone.hydra.device.kom.entity.GenericContainerElement;
+import com.pinecone.hydra.device.kom.entity.GenericDeviceElement;
 import com.pinecone.hydra.device.kom.entity.GenericPhysicalHostElement;
 import com.pinecone.hydra.device.kom.entity.GenericQuickElement;
 import com.pinecone.hydra.device.kom.entity.GenericVirtualMachineElement;
 import com.pinecone.hydra.device.kom.entity.PhysicalHostElement;
 import com.pinecone.hydra.device.kom.entity.QuickElement;
 import com.pinecone.hydra.device.kom.entity.VirtualMachineElement;
+import com.pinecone.hydra.device.kom.digest.DeviceElementDigest;
+import com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry;
 import com.pinecone.hydra.device.kom.source.PhysicalHostManipulator;
 import com.pinecone.hydra.device.kom.source.QuickElementManipulator;
 import com.pinecone.hydra.device.kom.source.VirtualMachineManipulator;
@@ -39,12 +50,19 @@ import com.pinecone.hydra.device.kom.source.ClusterNodeManipulator;
 import com.pinecone.hydra.device.kom.source.ContainerElementManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceMasterManipulator;
 import com.pinecone.hydra.device.kom.source.DeviceNamespaceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceElementDigestManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceInstanceManipulator;
+import com.pinecone.hydra.device.kom.source.DeviceNodeOwnershipManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceSchemaManipulator;
+import com.pinecone.hydra.device.kom.source.GenericDeviceTypeManipulator;
 import com.pinecone.hydra.unit.imperium.ImperialTree;
 import com.pinecone.hydra.unit.imperium.RegimentedImperialTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 import com.pinecone.hydra.unit.imperium.operator.TreeNodeOperator;
 import com.pinecone.hydra.unit.imperium.source.TreeMasterManipulator;
 import com.pinecone.ulf.util.guid.GUIDs;
+import com.pinecone.ulf.util.guid.i128.GuidAllocator128V7;
 
 public class UniformDeviceInstrument extends ArchReparseKOMTree implements DeviceInstrument {
     //GenericDistributedScopeTree
@@ -68,6 +86,22 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
 
     protected ContainerElementManipulator           containerElementManipulator;
 
+    protected GenericDeviceManipulator              genericDeviceManipulator;
+
+    protected GenericDeviceTypeManipulator          genericDeviceTypeManipulator;
+
+    protected GenericDeviceSchemaManipulator        genericDeviceSchemaManipulator;
+
+    protected DeviceInstanceManipulator             deviceInstanceManipulator;
+
+    protected DeviceNodeOwnershipManipulator        deviceNodeOwnershipManipulator;
+
+    protected DeviceElementDigestManipulator        deviceElementDigestManipulator;
+
+    protected GenericDeviceSchemaValidator          genericDeviceSchemaValidator;
+
+    protected GenericDeviceSchemaTransformer        genericDeviceSchemaTransformer;
+
     public UniformDeviceInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator, DeviceInstrument parent, String name, @Nullable GuidAllocator guidAllocator ) {
         super( superiorProcess, masterManipulator, DeviceInstrument.KERNEL_DEVICE_CONFIG, parent, name, guidAllocator );
 
@@ -81,6 +115,14 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
         this.physicalHostManipulator     = this.deviceMasterManipulator.getPhysicalHostManipulator();
         this.virtualMachineManipulator   = this.deviceMasterManipulator.getVirtualMachineManipulator();
         this.containerElementManipulator = this.deviceMasterManipulator.getContainerElementManipulator();
+        this.genericDeviceManipulator    = this.deviceMasterManipulator.getGenericDeviceManipulator();
+        this.genericDeviceTypeManipulator = this.deviceMasterManipulator.getGenericDeviceTypeManipulator();
+        this.genericDeviceSchemaManipulator = this.deviceMasterManipulator.getGenericDeviceSchemaManipulator();
+        this.deviceInstanceManipulator = this.deviceMasterManipulator.getDeviceInstanceManipulator();
+        this.deviceNodeOwnershipManipulator = this.deviceMasterManipulator.getDeviceNodeOwnershipManipulator();
+        this.deviceElementDigestManipulator = this.deviceMasterManipulator.getDeviceElementDigestManipulator();
+        this.genericDeviceSchemaValidator = new GenericDeviceSchemaValidator();
+        this.genericDeviceSchemaTransformer = new GenericDeviceSchemaTransformer();
         this.pathResolver                = new KOPathResolver( this.kernelObjectConfig );
         this.quickElementManipulator     = this.deviceMasterManipulator.getQuickElementManipulator();
         // TODO for customize service tree architecture.
@@ -89,14 +131,16 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
                 this.clusterNodeManipulator,
                 this.physicalHostManipulator,
                 this.virtualMachineManipulator,
-                this.containerElementManipulator
+                this.containerElementManipulator,
+                this.genericDeviceManipulator
         ) );
         this.fileManipulators            = new ArrayList<>( List.of(
                 this.clusterNodeManipulator,
                 this.physicalHostManipulator,
                 this.virtualMachineManipulator,
                 this.containerElementManipulator,
-                this.quickElementManipulator
+                this.quickElementManipulator,
+                this.genericDeviceManipulator
         ) );
         this.pathSelector                = new MultiFolderPathSelector(
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
@@ -106,7 +150,7 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
     }
 
     public UniformDeviceInstrument( Processum superiorProcess, KOIMasterManipulator masterManipulator ) {
-        this( superiorProcess, masterManipulator, null, DeviceInstrument.class.getSimpleName(), null );
+        this( superiorProcess, masterManipulator, null, DeviceInstrument.class.getSimpleName(), new GuidAllocator128V7() );
     }
 
 //    public UniformTaskInstrument( Hydrogen hydrogen ) {
@@ -218,6 +262,225 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
     }
 
     @Override
+    public GenericDeviceElement affirmGenericDevice( String path, String genericDevTypeCode, String schemaDataJson ) {
+        GenericDeviceType type = this.queryGenericDeviceType( genericDevTypeCode );
+        if ( type == null ) {
+            throw new IllegalArgumentException( "Generic device type does not exist: " + genericDevTypeCode );
+        }
+        if ( !type.isEnabled() ) {
+            throw new IllegalArgumentException( "Generic device type is disabled: " + genericDevTypeCode );
+        }
+
+        GenericDeviceSchema schema = type.getSchemaGuid() == null ? null : this.queryGenericDeviceSchema( type.getSchemaGuid() );
+        this.genericDeviceSchemaValidator.validate( schema, schemaDataJson );
+
+        DeviceTreeNode node = this.affirmGenericDeviceTreeNodeByPath( path, type, schemaDataJson );
+        if ( !( node instanceof GenericDeviceElement ) ) {
+            throw new IllegalArgumentException( "Device path has been occupied by non-generic element: " + path );
+        }
+
+        GenericDeviceElement element = (GenericDeviceElement) node;
+        element.setGenericDevTypeCode( type.getCode() );
+        element.setSchemaGuid( type.getSchemaGuid() == null ? null : type.getSchemaGuid().toString() );
+        element.setSchemaDataJson( schemaDataJson );
+        this.update( element );
+        return element;
+    }
+
+    @Override
+    public GenericDeviceSchema affirmGenericDeviceSchema( GenericDeviceSchema schema ) {
+        if ( schema == null ) {
+            throw new IllegalArgumentException( "Generic device schema is required." );
+        }
+        this.validateGenericDeviceSchema( schema );
+        if ( schema.getGuid() == null ) {
+            schema.setGuid( this.getGuidAllocator().nextGUID() );
+        }
+        if ( schema.getVersion() == null || schema.getVersion().trim().isEmpty() ) {
+            schema.setVersion( "1.0.0" );
+        }
+
+        GenericDeviceSchema existedSchema = this.queryGenericDeviceSchemaByCode( schema.getCode() );
+        if ( existedSchema == null ) {
+            this.fillGenericDeviceSchemaCreateTime( schema );
+            this.genericDeviceSchemaManipulator.insert( schema );
+            return schema;
+        }
+
+        schema.setGuid( existedSchema.getGuid() );
+        this.fillGenericDeviceSchemaUpdateTime( schema, existedSchema );
+        this.genericDeviceSchemaManipulator.update( schema );
+        return schema;
+    }
+
+    @Override
+    public GenericDeviceSchema affirmGenericDeviceSchema( GenericDeviceSchema schema, GenericDeviceSchemaDesigner designer ) {
+        if ( schema == null ) {
+            throw new IllegalArgumentException( "Generic device schema is required." );
+        }
+        schema.setSchemaJson( this.genericDeviceSchemaTransformer.encode( designer ) );
+        return this.affirmGenericDeviceSchema( schema );
+    }
+
+    @Override
+    public GenericDeviceType affirmGenericDeviceType( GenericDeviceType type ) {
+        if ( type == null ) {
+            throw new IllegalArgumentException( "Generic device type is required." );
+        }
+        this.validateGenericDeviceType( type );
+        if ( type.getGuid() == null ) {
+            type.setGuid( this.getGuidAllocator().nextGUID() );
+        }
+
+        GenericDeviceType existedType = this.queryGenericDeviceType( type.getCode() );
+        if ( existedType == null ) {
+            this.fillGenericDeviceTypeCreateTime( type );
+            this.genericDeviceTypeManipulator.insert( type );
+            return type;
+        }
+
+        type.setGuid( existedType.getGuid() );
+        this.fillGenericDeviceTypeUpdateTime( type, existedType );
+        this.genericDeviceTypeManipulator.update( type );
+        return type;
+    }
+
+    protected DeviceTreeNode affirmGenericDeviceTreeNodeByPath( String path, GenericDeviceType type, String schemaDataJson ) {
+        String[] parts = this.pathResolver.segmentPathParts( path );
+        String currentPath = "";
+        GUID parentGuid = GUIDs.Dummy128();
+
+        DeviceTreeNode node = this.queryElement( path );
+        if ( node != null ) {
+            return node;
+        }
+
+        DeviceTreeNode ret = null;
+        for ( int i = 0; i < parts.length; ++i ) {
+            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + parts[ i ];
+            node = i == 0 ? this.queryElement( currentPath ) : this.queryDirectChild( parentGuid, parts[ i ] );
+            if ( node == null ) {
+                if ( i == parts.length - 1 ) {
+                    GenericDeviceElement element = new GenericDeviceElement( this );
+                    element.setName( parts[ i ] );
+                    element.setGenericDevTypeCode( type.getCode() );
+                    element.setSchemaGuid( type.getSchemaGuid() == null ? null : type.getSchemaGuid().toString() );
+                    element.setSchemaDataJson( schemaDataJson );
+                    GUID guid = this.put( element );
+                    this.affirmOwnedNode( parentGuid, guid );
+                    return element;
+                }
+
+                Namespace namespace = new GenericNamespace( this );
+                namespace.setName( parts[ i ] );
+                GUID guid = this.put( namespace );
+                if ( i != 0 ) {
+                    this.affirmOwnedNode( parentGuid, guid );
+                }
+                parentGuid = guid;
+                ret = namespace;
+            }
+            else {
+                parentGuid = node.getGuid();
+            }
+        }
+
+        return ret;
+    }
+
+    @Override
+    public GenericDeviceElement queryGenericDevice( GUID guid ) {
+        DeviceTreeNode node = this.get( guid );
+        return node instanceof GenericDeviceElement ? (GenericDeviceElement) node : null;
+    }
+
+    @Override
+    public Collection<GenericDeviceSchema> fetchGenericDeviceSchemas() {
+        return this.genericDeviceSchemaManipulator.fetchGenericDeviceSchemas();
+    }
+
+    @Override
+    public Collection<GenericDeviceType> fetchGenericDeviceTypes() {
+        return this.genericDeviceTypeManipulator.fetchGenericDeviceTypes();
+    }
+
+    @Override
+    public GenericDeviceType queryGenericDeviceType( String code ) {
+        if ( code == null || code.trim().isEmpty() ) {
+            return null;
+        }
+        return this.genericDeviceTypeManipulator.getGenericDeviceTypeByCode( code );
+    }
+
+    @Override
+    public GenericDeviceSchema queryGenericDeviceSchema( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+        return this.genericDeviceSchemaManipulator.getGenericDeviceSchema( guid );
+    }
+
+    @Override
+    public GenericDeviceSchema queryGenericDeviceSchemaByCode( String code ) {
+        if ( code == null || code.trim().isEmpty() ) {
+            return null;
+        }
+        return this.genericDeviceSchemaManipulator.getGenericDeviceSchemaByCode( code );
+    }
+
+    protected void validateGenericDeviceSchema( GenericDeviceSchema schema ) {
+        if ( schema.getCode() == null || schema.getCode().trim().isEmpty() ) {
+            throw new IllegalArgumentException( "Generic device schema code is required." );
+        }
+        if ( schema.getName() == null || schema.getName().trim().isEmpty() ) {
+            throw new IllegalArgumentException( "Generic device schema name is required." );
+        }
+        this.genericDeviceSchemaTransformer.decode( schema.getSchemaJson() );
+    }
+
+    protected void validateGenericDeviceType( GenericDeviceType type ) {
+        if ( type.getCode() == null || type.getCode().trim().isEmpty() ) {
+            throw new IllegalArgumentException( "Generic device type code is required." );
+        }
+        if ( type.getName() == null || type.getName().trim().isEmpty() ) {
+            throw new IllegalArgumentException( "Generic device type name is required." );
+        }
+        if ( type.getSchemaGuid() != null && this.queryGenericDeviceSchema( type.getSchemaGuid() ) == null ) {
+            throw new IllegalArgumentException( "Generic device schema does not exist: " + type.getSchemaGuid() );
+        }
+    }
+
+    protected void fillGenericDeviceSchemaCreateTime( GenericDeviceSchema schema ) {
+        LocalDateTime now = LocalDateTime.now();
+        if ( schema.getCreateTime() == null ) {
+            schema.setCreateTime( now );
+        }
+        schema.setUpdateTime( now );
+    }
+
+    protected void fillGenericDeviceSchemaUpdateTime( GenericDeviceSchema schema, GenericDeviceSchema existedSchema ) {
+        if ( schema.getCreateTime() == null ) {
+            schema.setCreateTime( existedSchema.getCreateTime() );
+        }
+        schema.setUpdateTime( LocalDateTime.now() );
+    }
+
+    protected void fillGenericDeviceTypeCreateTime( GenericDeviceType type ) {
+        LocalDateTime now = LocalDateTime.now();
+        if ( type.getCreateTime() == null ) {
+            type.setCreateTime( now );
+        }
+        type.setUpdateTime( now );
+    }
+
+    protected void fillGenericDeviceTypeUpdateTime( GenericDeviceType type, GenericDeviceType existedType ) {
+        if ( type.getCreateTime() == null ) {
+            type.setCreateTime( existedType.getCreateTime() );
+        }
+        type.setUpdateTime( LocalDateTime.now() );
+    }
+
+    @Override
     public ElementNode queryElement( String path ) {
         DeviceTreeNode node = this.queryElementByDirectPath( path );
         if( node instanceof ElementNode ) {
@@ -230,6 +493,98 @@ public class UniformDeviceInstrument extends ArchReparseKOMTree implements Devic
         }
 
         return null;
+    }
+
+    @Override
+    public Collection<DeviceElementDigest> fetchDeviceElementDigests( DeviceElementDigestQuery query ) {
+        return this.deviceElementDigestManipulator.fetchDeviceElementDigests( query );
+    }
+
+    @Override
+    public Collection<DeviceElementDigest> fetchDeviceElementDigestsByGuids( List<GUID> guids ) {
+        return this.deviceElementDigestManipulator.fetchDeviceElementDigestsByGuids( guids );
+    }
+
+    @Override
+    public long countDeviceElementDigests( DeviceElementDigestQuery query ) {
+        return this.deviceElementDigestManipulator.countDeviceElementDigests( query );
+    }
+
+    @Override
+    public DeviceElementDigestPage fetchDeviceElementDigestPage( DeviceElementDigestQuery query ) {
+        DeviceElementDigestQuery safeQuery = query == null ? new DeviceElementDigestQuery() : query;
+        return new DeviceElementDigestPage(
+                new ArrayList<>( this.fetchDeviceElementDigests( safeQuery ) ),
+                this.countDeviceElementDigests( safeQuery ),
+                safeQuery.getOffset(),
+                safeQuery.getLimit()
+        );
+    }
+
+    @Override
+    public void createDeviceInstance( DeviceInstanceEntry deviceInstanceEntry ) {
+        this.deviceInstanceManipulator.initDeviceInstance( deviceInstanceEntry );
+    }
+
+    @Override
+    public DeviceInstanceEntry queryDeviceInstance( GUID instanceGuid ) {
+        return this.deviceInstanceManipulator.queryDeviceInstance( instanceGuid );
+    }
+
+    @Override
+    public Collection<DeviceInstanceEntry> fetchDeviceInstances( DeviceInstanceQuery query ) {
+        return this.deviceInstanceManipulator.fetchDeviceInstances( query );
+    }
+
+    @Override
+    public long countDeviceInstances( DeviceInstanceQuery query ) {
+        return this.deviceInstanceManipulator.countDeviceInstances( query );
+    }
+
+    @Override
+    public Collection<DeviceInstanceEntry> fetchDeviceInstancesByDeviceGuid( GUID deviceGuid ) {
+        return this.deviceInstanceManipulator.fetchDeviceInstancesByDeviceGuid( deviceGuid );
+    }
+
+    @Override
+    public Collection<DeviceInstanceEntry> fetchDeviceInstancesByOwnerInstanceGuid( GUID ownerInstanceGuid ) {
+        return this.deviceInstanceManipulator.fetchDeviceInstancesByOwnerInstanceGuid( ownerInstanceGuid );
+    }
+
+    @Override
+    public DeviceInstancePage fetchDeviceInstancePage( DeviceInstanceQuery query ) {
+        DeviceInstanceQuery safeQuery = query == null ? new DeviceInstanceQuery() : query;
+        return new DeviceInstancePage(
+                new ArrayList<>( this.fetchDeviceInstances( safeQuery ) ),
+                this.countDeviceInstances( safeQuery ),
+                safeQuery.getOffset(),
+                safeQuery.getLimit()
+        );
+    }
+
+    @Override
+    public void updateDeviceInstance( DeviceInstanceEntry deviceInstanceEntry ) {
+        this.deviceInstanceManipulator.updateDeviceInstance( deviceInstanceEntry );
+    }
+
+    @Override
+    public DeviceNodeOwnershipEntry queryDeviceNodeOwnership( GUID guid ) {
+        return this.deviceNodeOwnershipManipulator.queryDeviceNodeOwnership( guid );
+    }
+
+    @Override
+    public Collection<GUID> fetchOwnedDeviceGuids( GUID ownerDeviceGuid ) {
+        return this.deviceNodeOwnershipManipulator.fetchOwnedDeviceGuids( ownerDeviceGuid );
+    }
+
+    @Override
+    public Collection<DeviceNodeOwnershipEntry> fetchOwnedDeviceNodes( GUID ownerDeviceGuid ) {
+        return this.deviceNodeOwnershipManipulator.fetchOwnedDeviceNodes( ownerDeviceGuid );
+    }
+
+    @Override
+    public void updateDeviceNodeOwnership( GUID guid, GUID ownerDeviceGuid, boolean deviceNode ) {
+        this.deviceNodeOwnershipManipulator.updateDeviceNodeOwnership( guid, ownerDeviceGuid, deviceNode );
     }
 
     protected DeviceTreeNode queryElementByDirectPath( String path ) {

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 public abstract class ArchReparseSemanticNode extends ArchElementNode implements ReparseSemanticNode {
     protected String                  reparsedPoint;
+    protected String                  targetScheme;
+    protected String                  extConfig;
 
     protected KOMFileSystem           fileSystem;
 
@@ -30,6 +32,26 @@ public abstract class ArchReparseSemanticNode extends ArchElementNode implements
     @Override
     public void setReparsedPoint(String reparsedPoint) {
         this.reparsedPoint = reparsedPoint;
+    }
+
+    @Override
+    public String getTargetScheme() {
+        return this.targetScheme;
+    }
+
+    @Override
+    public void setTargetScheme( String targetScheme ) {
+        this.targetScheme = targetScheme;
+    }
+
+    @Override
+    public String getExtConfig() {
+        return this.extConfig;
+    }
+
+    @Override
+    public void setExtConfig( String extConfig ) {
+        this.extConfig = extConfig;
     }
 
     @Override

@@ -1,10 +1,6 @@
 package com.pinecone.hydra.storage.file.entity;
 
-public interface Symbolic extends ReparseSemanticNode {
-    void create();
-
-    void remove();
-
+public interface Symbolic extends InternalSymbolic {
     @Override
     default Symbolic evinceSymbolic() {
         return this;

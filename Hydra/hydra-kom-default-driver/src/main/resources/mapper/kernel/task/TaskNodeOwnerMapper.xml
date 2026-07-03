@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.task.ibatis.TaskNodeOwnerMapper">
+
+    <insert id="insertRootNode">
+        INSERT INTO `hydra_task_node_tree`
+        (
+            `guid`,
+            `linked_type`
+        )
+        VALUES
+        (
+            #{guid},
+            #{linkedType}
+        )
+    </insert>
+
+    <insert id="insert">
+        INSERT INTO `hydra_task_node_tree`
+        (
+            `guid`,
+            `parent_guid`,
+            `linked_type`
+        )
+        VALUES
+        (
+            #{targetGuid},
+            #{parentGuid},
+            #{linkedType}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE `hydra_task_node_tree`
+        SET
+            `guid` = #{targetGuid},
+            `parent_guid` = #{parentGuid},
+            `linked_type` = #{linkedType}
+        WHERE `guid` = #{targetGuid}
+    </update>
+
+    <update id="updateParentGuid">
+        UPDATE `hydra_task_node_tree`
+        SET
+            `guid` = #{targetGuid},
+            `parent_guid` = #{parentGuid}
+        WHERE `guid` = #{targetGuid}
+    </update>
+
+    <update id="updateLinkedType">
+        UPDATE `hydra_task_node_tree`
+        SET
+            `guid` = #{targetGuid},
+            `linked_type` = #{linkedType}
+        WHERE `guid` = #{targetGuid}
+    </update>
+
+    <delete id="remove">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{subordinateGuid}
+          AND `linked_type` = 'Owned'
+    </delete>
+
+    <delete id="removeBySubordinate">
+        DELETE FROM `hydra_task_node_tree`
+        WHERE `guid` = #{subordinateGuid}
+          AND `linked_type` = 'Owned'
+    </delete>
+
+    <select id="getOwner" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `parent_guid`
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{subordinateGuid}
+          AND `linked_type` = 'Owned'
+    </select>
+
+    <select id="getSubordinates" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_task_node_tree`
+        WHERE `parent_guid` = #{guid}
+          AND `linked_type` = 'Owned'
+    </select>
+
+    <update id="setLinkedType">
+        UPDATE `hydra_task_node_tree`
+        SET
+            `linked_type` = '#{linkedType}'
+        WHERE `guid` = #{sourceGuid}
+          AND `parent_guid` = #{targetGuid}
+    </update>
+
+    <select id="getLinkedType" resultType="com.pinecone.hydra.unit.imperium.LinkedType">
+        SELECT
+            `linked_type`
+        FROM `hydra_task_node_tree`
+        WHERE `guid` = #{childGuid}
+          AND `parent_guid` = #{parentGuid}
+    </select>
+
+</mapper>

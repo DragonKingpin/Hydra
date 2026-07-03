@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.acorn.skynet.device.grpc.protocol.meta.proto";
+option java_outer_classname = "DeviceMetaProto";
+
+service DeviceMeta {
+  rpc QueryDeviceMetaByPath(QueryDeviceMetaByPathRequest) returns (DeviceMetaReply);
+  rpc QueryDeviceMetaByGuid(QueryDeviceMetaByGuidRequest) returns (DeviceMetaReply);
+  rpc UpdateDeviceMetaByPath(UpdateDeviceMetaByPathRequest) returns (DeviceMetaUpdateReply);
+  rpc UpdateDeviceMetaByGuid(UpdateDeviceMetaByGuidRequest) returns (DeviceMetaUpdateReply);
+}
+
+message QueryDeviceMetaByPathRequest {
+  string path = 1;
+}
+
+message QueryDeviceMetaByGuidRequest {
+  string guid = 1;
+}
+
+message UpdateDeviceMetaByPathRequest {
+  string path = 1;
+  DeviceMetaDTO meta = 2;
+}
+
+message UpdateDeviceMetaByGuidRequest {
+  string guid = 1;
+  DeviceMetaDTO meta = 2;
+}
+
+message DeviceMetaDTO {
+  string guid = 1;
+  string metaGuid = 2;
+  string path = 3;
+  string name = 4;
+  string alias = 5;
+  string extraInformation = 6;
+  string resourceType = 7;
+  string deviceType = 8;
+  string vendor = 9;
+  string model = 10;
+  string serialNumber = 11;
+  string ipAddress = 12;
+  string status = 13;
+  string description = 14;
+  string createTime = 15;
+  string updateTime = 16;
+}
+
+message DeviceMetaReply {
+  DeviceMetaDTO meta = 1;
+}
+
+message DeviceMetaUpdateReply {
+  bool updated = 1;
+}

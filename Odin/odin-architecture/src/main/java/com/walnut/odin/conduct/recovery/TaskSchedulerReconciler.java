@@ -7,4 +7,6 @@ import com.pinecone.framework.system.prototype.Pinenut;
 public interface TaskSchedulerReconciler extends Pinenut {
 
     void reconcileLightweight( LocalDateTime targetTime );
+
+    void reconcileRetryableTerminalInstances( LocalDateTime targetTime );
 }

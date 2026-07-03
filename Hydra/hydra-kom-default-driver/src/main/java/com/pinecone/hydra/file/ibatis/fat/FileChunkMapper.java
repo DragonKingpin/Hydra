@@ -27,5 +27,17 @@ public interface FileChunkMapper extends FileChunkManipulator {
 
     List<GenericFileChunk> listByFileGuid( GUID fileGuid );
 
+    long countAll();
+
+    @Override
+    long countByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    List<GenericFileChunk> listPage( @Param("offset") int offset, @Param("limit") int limit );
+
     List<GenericFileChunk> listByFileRange( @Param( "fileGuid" ) GUID fileGuid, @Param( "startOffset" ) long startOffset, @Param( "endOffset" ) long endOffset );
+
+    Long sumValidSizeByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
+
+    @Override
+    void deleteByBucketGuid( @Param("bucketGuid") GUID bucketGuid );
 }

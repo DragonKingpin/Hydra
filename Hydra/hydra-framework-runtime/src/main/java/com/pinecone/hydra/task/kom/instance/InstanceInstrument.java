@@ -27,12 +27,23 @@ public interface InstanceInstrument extends Instrument {
 
     List<InstanceEntry> fetchInstances( TaskInstanceQuery query );
 
+    List<InstanceEntry> fetchInstanceDigests( TaskInstanceQuery query );
+
     default TaskInstancePage pageInstances( TaskInstanceQuery query ) {
         if ( query == null ) {
             query = new TaskInstanceQuery();
         }
         long nTotal = this.countInstances( query );
         List<InstanceEntry> items = this.fetchInstances( query );
+        return new TaskInstancePage( items, nTotal, query.getOffset(), query.getLimit() );
+    }
+
+    default TaskInstancePage pageInstanceDigests( TaskInstanceQuery query ) {
+        if ( query == null ) {
+            query = new TaskInstanceQuery();
+        }
+        long nTotal = this.countInstances( query );
+        List<InstanceEntry> items = this.fetchInstanceDigests( query );
         return new TaskInstancePage( items, nTotal, query.getOffset(), query.getLimit() );
     }
 
@@ -62,6 +73,52 @@ public interface InstanceInstrument extends Instrument {
 
     int transitStatusIn( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus );
 
+    int transitStatusInMonotonic( GUID instanceGuid, Collection<TaskInstanceStatus> fromStatuses, TaskInstanceStatus toStatus );
+
+    int transitStatusInMonotonicWithFields(
+            GUID instanceGuid,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    );
+
+    int transitStatusInMonotonicWithFieldsGuarded(
+            GUID instanceGuid,
+            int sequenceCnt,
+            int retryCnt,
+            Collection<TaskInstanceStatus> fromStatuses,
+            TaskInstanceStatus toStatus,
+            LocalDateTime scheduleTime,
+            LocalDateTime latestStartTime,
+            LocalDateTime latestEndTime,
+            LocalDateTime finishTime,
+            String errorCause
+    );
+
+    int resetForRetry( GUID instanceGuid, int currentRetryCnt, LocalDateTime expectTime, LocalDateTime fireTime, LocalDateTime scheduleTime );
+
+    int resetForSequence(
+            GUID instanceGuid,
+            int currentSequenceCnt,
+            LocalDateTime expectTime,
+            LocalDateTime fireTime,
+            LocalDateTime scheduleTime,
+            String imagePath,
+            String execArch,
+            int priority,
+            int actuallyPriority,
+            boolean dryRun,
+            Long timeoutSeconds,
+            int retryTimes,
+            Long retryIntervalSeconds,
+            String taskType,
+            String designatedProcessor
+    );
+
     TaskInstrument getTaskInstrument();
 
     InstanceEntry makeInstanceEntry( GUID taskGuid, @Nullable String insName, @Nullable LocalDateTime bizTime );
@@ -89,5 +146,15 @@ public interface InstanceInstrument extends Instrument {
     List<InstanceEntry> fetchSchedulableInstances(
             long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime, short actuallyPriority
     );
+
+    TableIndexMeta queryRetryableTerminalIdRange( Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchRetryableTerminalInstances(
+            long idMin, long idMax, Collection<TaskInstanceStatus> runStatuses, LocalDateTime targetTime
+    );
+
+    TableIndexMeta queryTimedOutRunningIdRange( LocalDateTime targetTime );
+
+    List<InstanceEntry> fetchTimedOutRunningInstances( long idMin, long idMax, LocalDateTime targetTime );
 
 }

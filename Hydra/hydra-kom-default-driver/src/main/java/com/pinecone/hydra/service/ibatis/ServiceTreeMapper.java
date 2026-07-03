@@ -3,6 +3,7 @@ package com.pinecone.hydra.service.ibatis;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.uoi.UOI;
 import com.pinecone.hydra.unit.imperium.LinkedType;
+import com.pinecone.hydra.unit.imperium.entity.HardlinkEntry;
 import com.pinecone.hydra.unit.imperium.entity.TreeReparseLinkNode;
 import com.pinecone.hydra.unit.imperium.source.TireOwnerManipulator;
 import com.pinecone.hydra.unit.imperium.source.TrieTreeManipulator;
@@ -127,4 +128,14 @@ public interface ServiceTreeMapper extends TrieTreeManipulator {
 
     @Override
     GUID getOriginalGuidByTagGuid(@Param("tagGuid") GUID tagGuid);
+
+    @Override
+    List<HardlinkEntry> listHardlinks(
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
+            @Param("limit") int limit
+    );
+
+    @Override
+    long countHardlinks( @Param("keyword") String keyword );
 }

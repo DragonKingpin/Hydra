@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.formation.source.FormationRunFrameMapper">
+
+    <resultMap id="FormationFrameMap" type="com.walnut.odin.formation.plan.GenericFormationFrame">
+        <result column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="run_guid" property="runGuid"/>
+        <result column="formation_guid" property="formationGuid"/>
+        <result column="group_guid" property="groupGuid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="task_name" property="taskName"/>
+        <result column="page_no" property="pageNo"/>
+        <result column="frame_no" property="frameNo"/>
+        <result column="queue_type" property="queueType"/>
+        <result column="frame_status" property="frameStatus"/>
+        <result column="priority" property="priority"/>
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="claim_owner" property="claimOwner"/>
+        <result column="claim_token" property="claimToken"/>
+        <result column="lease_expire_time" property="leaseExpireTime"/>
+        <result column="submit_time" property="submitTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="attempt_count" property="attemptCount"/>
+        <result column="error_cause" property="errorCause"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="frame.id">
+        INSERT INTO odin_formation_run_frames (
+            guid,
+            run_guid,
+            formation_guid,
+            group_guid,
+            task_guid,
+            task_name,
+            page_no,
+            frame_no,
+            queue_type,
+            frame_status,
+            priority
+        ) VALUES (
+            #{frame.guid},
+            #{frame.runGuid},
+            #{frame.formationGuid},
+            #{frame.groupGuid},
+            #{frame.taskGuid},
+            #{frame.taskName},
+            #{frame.pageNo},
+            #{frame.frameNo},
+            #{frame.queueType},
+            #{frame.frameStatus},
+            #{frame.priority}
+        )
+    </insert>
+
+    <select id="fetchPendingFramesByPage0" resultMap="FormationFrameMap">
+        SELECT
+            id,
+            guid,
+            run_guid,
+            formation_guid,
+            group_guid,
+            task_guid,
+            task_name,
+            page_no,
+            frame_no,
+            queue_type,
+            frame_status,
+            priority,
+            instance_guid,
+            claim_owner,
+            claim_token,
+            lease_expire_time,
+            submit_time,
+            finish_time,
+            attempt_count,
+            error_cause
+        FROM odin_formation_run_frames
+        WHERE run_guid = #{runGuid}
+          AND page_no = #{pageNo}
+          AND frame_status = 'Pending'
+        ORDER BY frame_no ASC
+    </select>
+
+    <select id="fetchPendingFrames0" resultMap="FormationFrameMap">
+        SELECT
+            id,
+            guid,
+            run_guid,
+            formation_guid,
+            group_guid,
+            task_guid,
+            task_name,
+            page_no,
+            frame_no,
+            queue_type,
+            frame_status,
+            priority,
+            instance_guid,
+            claim_owner,
+            claim_token,
+            lease_expire_time,
+            submit_time,
+            finish_time,
+            attempt_count,
+            error_cause
+        FROM odin_formation_run_frames
+        WHERE run_guid = #{runGuid}
+          AND frame_status = 'Pending'
+        ORDER BY priority DESC, frame_no ASC, id ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="claimFrame">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Claimed',
+            claim_owner = #{claimOwner},
+            claim_token = #{claimToken},
+            lease_expire_time = DATE_ADD(NOW(), INTERVAL #{leaseSeconds} SECOND)
+        WHERE guid = #{guid}
+          AND frame_status = 'Pending'
+    </update>
+
+    <sql id="FormationFrameColumns">
+        id,
+        guid,
+        run_guid,
+        formation_guid,
+        group_guid,
+        task_guid,
+        task_name,
+        page_no,
+        frame_no,
+        queue_type,
+        frame_status,
+        priority,
+        instance_guid,
+        claim_owner,
+        claim_token,
+        lease_expire_time,
+        submit_time,
+        finish_time,
+        attempt_count,
+        error_cause
+    </sql>
+
+    <sql id="FormationFrameWhere">
+        <where>
+            <if test="query.runGuid != null">
+                AND run_guid = #{query.runGuid}
+            </if>
+            <if test="query.frameStatus != null and query.frameStatus != ''">
+                AND frame_status = #{query.frameStatus}
+            </if>
+            <if test="query.pageNo != null">
+                AND page_no = #{query.pageNo}
+            </if>
+            <if test="query.frameNo != null">
+                AND frame_no = #{query.frameNo}
+            </if>
+            <if test="query.queueType != null and query.queueType != ''">
+                AND queue_type = #{query.queueType}
+            </if>
+            <if test="query.instanceGuid != null and query.instanceGuid != ''">
+                AND instance_guid = #{query.instanceGuid}
+            </if>
+            <if test="query.taskKeyword != null and query.taskKeyword != ''">
+                AND (
+                    task_guid = #{query.taskKeyword}
+                    OR task_name LIKE CONCAT('%', #{query.taskKeyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="countFrames0" resultType="long">
+        SELECT COUNT(1)
+        FROM odin_formation_run_frames
+        <include refid="FormationFrameWhere"/>
+    </select>
+
+    <select id="pageFrames0" resultMap="FormationFrameMap">
+        SELECT
+            <include refid="FormationFrameColumns"/>
+        FROM odin_formation_run_frames
+        <include refid="FormationFrameWhere"/>
+        ORDER BY frame_no ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <update id="markSubmitted">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Submitted',
+            instance_guid = #{instanceGuid},
+            submit_time = NOW(),
+            attempt_count = attempt_count + 1
+        WHERE guid = #{guid}
+          AND frame_status IN ('Pending', 'Claimed')
+    </update>
+
+    <update id="markCompleted">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Completed',
+            finish_time = NOW()
+        WHERE guid = #{guid}
+          AND frame_status = 'Submitted'
+    </update>
+
+    <update id="markFailed">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Failed',
+            finish_time = NOW(),
+            attempt_count = attempt_count + IF(frame_status IN ('Pending', 'Claimed'), 1, 0),
+            error_cause = #{errorCause}
+        WHERE guid = #{guid}
+          AND frame_status IN ('Pending', 'Claimed', 'Submitted')
+    </update>
+
+    <update id="markCompletedByInstanceGuid">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Completed',
+            finish_time = NOW()
+        WHERE instance_guid = #{instanceGuid}
+          AND frame_status = 'Submitted'
+    </update>
+
+    <update id="markFailedByInstanceGuid">
+        UPDATE odin_formation_run_frames
+        SET frame_status = 'Failed',
+            finish_time = NOW(),
+            error_cause = #{errorCause}
+        WHERE instance_guid = #{instanceGuid}
+          AND frame_status = 'Submitted'
+    </update>
+
+    <delete id="removeByFormationGuids">
+        DELETE FROM odin_formation_run_frames
+        WHERE formation_guid IN
+        <foreach collection="formationGuids" item="formationGuid" open="(" separator="," close=")">
+            #{formationGuid}
+        </foreach>
+    </delete>
+</mapper>

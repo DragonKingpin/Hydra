@@ -1,6 +1,5 @@
 package com.pinecone.framework.util;
 
-
 import com.pinecone.framework.system.Unsafe;
 import com.pinecone.framework.unit.AbstractMultiValueMap;
 import com.pinecone.framework.unit.MultiValueMap;
@@ -20,9 +19,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
-@SuppressWarnings( "unchecked" )
-public abstract class CollectionUtils {
-    public CollectionUtils() {
+public final class CollectionUtils {
+    private CollectionUtils() {
     }
 
     public static boolean isEmpty( Collection<?> collection ) {
@@ -41,50 +39,45 @@ public abstract class CollectionUtils {
         return !CollectionUtils.isEmpty( map );
     }
 
-    public static List arrayToList(Object source) {
-        return Arrays.asList(ObjectUtils.toObjectArray(source));
+    @SuppressWarnings( "rawtypes" )
+    public static List arrayToList( Object source ) {
+        return Arrays.asList( ObjectUtils.toObjectArray( source ) );
     }
 
-    public static <E> void mergeArrayIntoCollection(Object array, Collection<E> collection) {
-        if (collection == null) {
-            throw new IllegalArgumentException("Collection must not be null");
-        } else {
-            Object[] arr = ObjectUtils.toObjectArray(array);
-            Object[] var3 = arr;
-            int var4 = arr.length;
+    @SuppressWarnings( "unchecked" )
+    public static <E> void mergeArrayIntoCollection( Object array, Collection<E> collection ) {
+        if ( collection == null ) {
+            throw new IllegalArgumentException( "Collection must not be null" );
+        }
 
-            for(int var5 = 0; var5 < var4; ++var5) {
-                Object elem = var3[var5];
-                collection.add((E) elem);
-            }
-
+        Object[] arr = ObjectUtils.toObjectArray( array );
+        for ( Object elem : arr ) {
+            collection.add( (E) elem );
         }
     }
 
-    public static <K, V> void mergePropertiesIntoMap(Properties props, Map<String, Object> map) {
-        if (map == null) {
-            throw new IllegalArgumentException("Map must not be null");
-        } else {
-            String key;
-            Object value;
-            if (props != null) {
-                for(Enumeration en = props.propertyNames(); en.hasMoreElements(); map.put(key, value)) {
-                    key = (String)en.nextElement();
-                    value = props.getProperty(key);
-                    if (value == null) {
-                        value = props.get(key);
-                    }
+    public static <K, V> void mergePropertiesIntoMap( Properties props, Map<String, Object> map ) {
+        if ( map == null ) {
+            throw new IllegalArgumentException( "Map must not be null" );
+        }
+
+        if ( props != null ) {
+            for ( Enumeration<?> en = props.propertyNames(); en.hasMoreElements(); ) {
+                String key = (String) en.nextElement();
+                Object value = props.getProperty( key );
+                if ( value == null ) {
+                    value = props.get( key );
                 }
+                map.put( key, value );
             }
-
         }
     }
 
-    public static boolean contains(Iterator<?> iterator, Object element) {
-        if (iterator != null) {
-            while(iterator.hasNext()) {
+    public static boolean contains( Iterator<?> iterator, Object element ) {
+        if ( iterator != null ) {
+            while ( iterator.hasNext() ) {
                 Object candidate = iterator.next();
-                if (ObjectUtils.nullSafeEquals(candidate, element)) {
+                if ( ObjectUtils.nullSafeEquals( candidate, element ) ) {
                     return true;
                 }
             }
@@ -93,11 +86,11 @@ public abstract class CollectionUtils {
         return false;
     }
 
-    public static boolean contains(Enumeration<?> enumeration, Object element) {
-        if (enumeration != null) {
-            while(enumeration.hasMoreElements()) {
+    public static boolean contains( Enumeration<?> enumeration, Object element ) {
+        if ( enumeration != null ) {
+            while ( enumeration.hasMoreElements() ) {
                 Object candidate = enumeration.nextElement();
-                if (ObjectUtils.nullSafeEquals(candidate, element)) {
+                if ( ObjectUtils.nullSafeEquals( candidate, element ) ) {
                     return true;
                 }
             }
@@ -106,13 +99,10 @@ public abstract class CollectionUtils {
         return false;
     }
 
-    public static boolean containsInstance(Collection<?> collection, Object element) {
-        if (collection != null) {
-            Iterator var2 = collection.iterator();
-
-            while(var2.hasNext()) {
-                Object candidate = var2.next();
-                if (candidate == element) {
+    public static boolean containsInstance( Collection<?> collection, Object element ) {
+        if ( collection != null ) {
+            for ( Object candidate : collection ) {
+                if ( candidate == element ) {
                     return true;
                 }
             }
@@ -121,214 +111,184 @@ public abstract class CollectionUtils {
         return false;
     }
 
-    public static boolean containsAny(Collection<?> source, Collection<?> candidates) {
-        if (!isEmpty(source) && !isEmpty(candidates)) {
-            Iterator var2 = candidates.iterator();
-
-            Object candidate;
-            do {
-                if (!var2.hasNext()) {
-                    return false;
-                }
-
-                candidate = var2.next();
-            } while(!source.contains(candidate));
-
-            return true;
-        } else {
+    public static boolean containsAny( Collection<?> source, Collection<?> candidates ) {
+        if ( isEmpty( source ) || isEmpty( candidates ) ) {
             return false;
         }
-    }
 
-    public static <E> E findFirstMatch(Collection<?> source, Collection<E> candidates) {
-        if (!isEmpty(source) && !isEmpty(candidates)) {
-            Iterator var2 = candidates.iterator();
-
-            Object candidate;
-            do {
-                if (!var2.hasNext()) {
-                    return null;
-                }
-
-                candidate = var2.next();
-            } while(!source.contains(candidate));
-
-            return (E) candidate;
-        } else {
-            return null;
-        }
-    }
-
-    public static <T> T findValueOfType(Collection<?> collection, Class<T> type) {
-        if (isEmpty(collection)) {
-            return null;
-        } else {
-            T value = null;
-            Iterator var3 = collection.iterator();
-
-            while(true) {
-                Object element;
-                do {
-                    if (!var3.hasNext()) {
-                        return value;
-                    }
-
-                    element = var3.next();
-                } while(type != null && !type.isInstance(element));
-
-                if (value != null) {
-                    return null;
-                }
-
-                value = (T) element;
+        for ( Object candidate : candidates ) {
+            if ( source.contains( candidate ) ) {
+                return true;
             }
         }
+
+        return false;
     }
 
-    public static Object findValueOfType(Collection<?> collection, Class<?>[] types) {
-        if (!isEmpty(collection) && !ObjectUtils.isEmpty(types)) {
-            Class[] var2 = types;
-            int var3 = types.length;
-
-            for(int var4 = 0; var4 < var3; ++var4) {
-                Class<?> type = var2[var4];
-                Object value = findValueOfType(collection, type);
-                if (value != null) {
-                    return value;
-                }
-            }
-
-            return null;
-        } else {
+    public static <E> E findFirstMatch( Collection<?> source, Collection<E> candidates ) {
+        if ( isEmpty( source ) || isEmpty( candidates ) ) {
             return null;
         }
+
+        for ( E candidate : candidates ) {
+            if ( source.contains( candidate ) ) {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
-    public static boolean hasUniqueObject(Collection<?> collection) {
-        if (isEmpty(collection)) {
+    @SuppressWarnings( "unchecked" )
+    public static <T> T findValueOfType( Collection<?> collection, Class<T> type ) {
+        if ( isEmpty( collection ) ) {
+            return null;
+        }
+
+        T value = null;
+        for ( Object element : collection ) {
+            if ( type != null && !type.isInstance( element ) ) {
+                continue;
+            }
+
+            if ( value != null ) {
+                return null;
+            }
+
+            value = (T) element;
+        }
+
+        return value;
+    }
+
+    public static Object findValueOfType( Collection<?> collection, Class<?>[] types ) {
+        if ( isEmpty( collection ) || ObjectUtils.isEmpty( types ) ) {
+            return null;
+        }
+
+        for ( Class<?> type : types ) {
+            Object value = findValueOfType( collection, type );
+            if ( value != null ) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean hasUniqueObject( Collection<?> collection ) {
+        if ( isEmpty( collection ) ) {
             return false;
-        } else {
-            boolean hasCandidate = false;
-            Object candidate = null;
-            Iterator var3 = collection.iterator();
-
-            while(var3.hasNext()) {
-                Object elem = var3.next();
-                if (!hasCandidate) {
-                    hasCandidate = true;
-                    candidate = elem;
-                } else if (candidate != elem) {
-                    return false;
-                }
-            }
-
-            return true;
         }
+
+        boolean hasCandidate = false;
+        Object candidate = null;
+        for ( Object elem : collection ) {
+            if ( !hasCandidate ) {
+                hasCandidate = true;
+                candidate = elem;
+            }
+            else if ( candidate != elem ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public static Class<?> findCommonElementType(Collection<?> collection) {
-        if (isEmpty(collection)) {
+    public static Class<?> findCommonElementType( Collection<?> collection ) {
+        if ( isEmpty( collection ) ) {
             return null;
-        } else {
-            Class<?> candidate = null;
-            Iterator var2 = collection.iterator();
+        }
 
-            while(var2.hasNext()) {
-                Object val = var2.next();
-                if (val != null) {
-                    if (candidate == null) {
-                        candidate = val.getClass();
-                    } else if (candidate != val.getClass()) {
-                        return null;
-                    }
+        Class<?> candidate = null;
+        for ( Object val : collection ) {
+            if ( val != null ) {
+                if ( candidate == null ) {
+                    candidate = val.getClass();
+                }
+                else if ( candidate != val.getClass() ) {
+                    return null;
                 }
             }
-
-            return candidate;
-        }
-    }
-
-    public static <A, E extends A> A[] toArray(Enumeration<E> enumeration, A[] array) {
-        ArrayList elements = new ArrayList();
-
-        while(enumeration.hasMoreElements()) {
-            elements.add(enumeration.nextElement());
         }
 
-        return (A[]) elements.toArray(array);
+        return candidate;
     }
 
-    public static <E> Iterator<E> toIterator(Enumeration<E> enumeration) {
-        return new CollectionUtils.EnumerationIterator(enumeration);
-    }
+    public static <A, E extends A> A[] toArray( Enumeration<E> enumeration, A[] array ) {
+        ArrayList<E> elements = new ArrayList<>();
 
-    public static <K, V> MultiValueMap<K, V> toMultiValueMap(Map<K, List<V>> map) {
-        return new CollectionUtils.MultiValueMapAdapter(map);
-    }
-
-    public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap(MultiValueMap<? extends K, ? extends V> map) {
-        Assert.notNull(map, "'map' must not be null");
-        Map<K, List<V>> result = new LinkedHashMap(map.size());
-        Iterator var2 = map.entrySet().iterator();
-
-        while(var2.hasNext()) {
-            Entry<? extends K, ? extends List<? extends V>> entry = (Entry)var2.next();
-            List<V> values = Collections.unmodifiableList((List)entry.getValue());
-            result.put(entry.getKey(), values);
+        while ( enumeration.hasMoreElements() ) {
+            elements.add( enumeration.nextElement() );
         }
 
-        Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap(result);
-        return toMultiValueMap(unmodifiableMap);
+        return elements.toArray( array );
     }
 
-    private static class MultiValueMapAdapter<K, V> extends AbstractMultiValueMap<K, V > implements MultiValueMap<K, V>, Serializable {
+    public static <E> Iterator<E> toIterator( Enumeration<E> enumeration ) {
+        return new CollectionUtils.EnumerationIterator<>( enumeration );
+    }
+
+    public static <K, V> MultiValueMap<K, V> toMultiValueMap( Map<K, List<V>> map ) {
+        return new CollectionUtils.MultiValueMapAdapter<>( map );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public static <K, V> MultiValueMap<K, V> unmodifiableMultiValueMap( MultiValueMap<? extends K, ? extends V> map ) {
+        Assert.notNull( map, "'map' must not be null" );
+        Map<K, List<V>> result = new LinkedHashMap<>( map.size() );
+
+        for ( Entry<? extends K, ? extends List<? extends V>> entry : map.entrySet() ) {
+            List<V> values = Collections.unmodifiableList( (List<V>) entry.getValue() );
+            result.put( entry.getKey(), values );
+        }
+
+        Map<K, List<V>> unmodifiableMap = Collections.unmodifiableMap( result );
+        return toMultiValueMap( unmodifiableMap );
+    }
+
+    private static class MultiValueMapAdapter<K, V> extends AbstractMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable {
         private final Map<K, List<V>> map;
 
-        public MultiValueMapAdapter(Map<K, List<V>> map) {
-            Assert.notNull(map, "'map' must not be null");
+        public MultiValueMapAdapter( Map<K, List<V>> map ) {
+            Assert.notNull( map, "'map' must not be null" );
             this.map = map;
         }
 
         public V add( K key, V value ) {
-            List<V> values = (List)this.map.get(key);
-            if (values == null) {
-                values = new LinkedList();
-                this.map.put(key, values);
+            List<V> values = this.map.get( key );
+            if ( values == null ) {
+                values = new LinkedList<>();
+                this.map.put( key, values );
             }
 
-            ( (List) values ).add( value );
+            values.add( value );
             return value;
         }
 
-        public V getFirst(K key) {
-            List<V> values = (List)this.map.get(key);
-            return values != null ? values.get(0) : null;
+        public V getFirst( K key ) {
+            List<V> values = this.map.get( key );
+            return values != null ? values.get( 0 ) : null;
         }
 
         public V set( K key, V value ) {
-            List<V> values = new LinkedList();
-            values.add(value);
+            List<V> values = new LinkedList<>();
+            values.add( value );
             this.map.put( key, values );
             return value;
         }
 
-        public void setAll(Map<K, V> values) {
-            Iterator var2 = values.entrySet().iterator();
-
-            while(var2.hasNext()) {
-                Entry<K, V> entry = (Entry)var2.next();
-                this.set(entry.getKey(), entry.getValue());
+        public void setAll( Map<K, V> values ) {
+            for ( Entry<K, V> entry : values.entrySet() ) {
+                this.set( entry.getKey(), entry.getValue() );
             }
-
         }
 
         public Map<K, V> toSingleValueMap() {
-            LinkedHashMap<K, V> singleValueMap = new LinkedHashMap(this.map.size());
-            Iterator var2 = this.map.entrySet().iterator();
-
-            while(var2.hasNext()) {
-                Entry<K, List<V>> entry = (Entry)var2.next();
-                singleValueMap.put(entry.getKey(), (V) ((List)entry.getValue()).get(0));
+            LinkedHashMap<K, V> singleValueMap = new LinkedHashMap<>( this.map.size() );
+            for ( Entry<K, List<V>> entry : this.map.entrySet() ) {
+                singleValueMap.put( entry.getKey(), entry.getValue().get( 0 ) );
             }
 
             return singleValueMap;
@@ -342,28 +302,28 @@ public abstract class CollectionUtils {
             return this.map.isEmpty();
         }
 
-        public boolean containsKey(Object key) {
-            return this.map.containsKey(key);
+        public boolean containsKey( Object key ) {
+            return this.map.containsKey( key );
         }
 
-        public boolean containsValue(Object value) {
-            return this.map.containsValue(value);
+        public boolean containsValue( Object value ) {
+            return this.map.containsValue( value );
         }
 
-        public List<V> get(Object key) {
-            return (List)this.map.get(key);
+        public List<V> get( Object key ) {
+            return this.map.get( key );
         }
 
-        public List<V> put(K key, List<V> value) {
-            return (List)this.map.put(key, value);
+        public List<V> put( K key, List<V> value ) {
+            return this.map.put( key, value );
         }
 
-        public List<V> remove(Object key) {
-            return (List)this.map.remove(key);
+        public List<V> remove( Object key ) {
+            return this.map.remove( key );
         }
 
-        public void putAll(Map<? extends K, ? extends List<V>> m) {
-            this.map.putAll(m);
+        public void putAll( Map<? extends K, ? extends List<V>> m ) {
+            this.map.putAll( m );
         }
 
         public void clear() {
@@ -382,8 +342,8 @@ public abstract class CollectionUtils {
             return this.map.entrySet();
         }
 
-        public boolean equals(Object other) {
-            return this == other ? true : this.map.equals(other);
+        public boolean equals( Object other ) {
+            return this == other ? true : this.map.equals( other );
         }
 
         public int hashCode() {
@@ -396,9 +356,9 @@ public abstract class CollectionUtils {
     }
 
     private static class EnumerationIterator<E> implements Iterator<E> {
-        private Enumeration<E> enumeration;
+        private final Enumeration<E> enumeration;
 
-        public EnumerationIterator(Enumeration<E> enumeration) {
+        public EnumerationIterator( Enumeration<E> enumeration ) {
             this.enumeration = enumeration;
         }
 
@@ -411,23 +371,24 @@ public abstract class CollectionUtils {
         }
 
         public void remove() throws UnsupportedOperationException {
-            throw new UnsupportedOperationException("Not supported");
+            throw new UnsupportedOperationException( "Not supported" );
         }
     }
 
-
-
     @Unsafe
+    @SuppressWarnings( "unchecked" )
     public static <T> List<T> genericConvert( List list ) {
         return (List<T>) list;
     }
 
     @Unsafe
+    @SuppressWarnings( "unchecked" )
     public static <T> Collection<T> genericConvert( Collection collection ) {
         return (Collection<T>) collection;
     }
 
     @Unsafe
+    @SuppressWarnings( "unchecked" )
     public static <K, V> Map<K, V> genericConvert( Map map ) {
         return (Map<K, V>) map;
     }

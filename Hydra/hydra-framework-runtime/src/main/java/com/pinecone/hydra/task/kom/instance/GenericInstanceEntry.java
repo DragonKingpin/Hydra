@@ -122,6 +122,11 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     }
 
     @Override
+    public void setExecArch( String execArch ) {
+        this.execArch = execArch;
+    }
+
+    @Override
     public void setActuallyPriority ( int actuallyPriority ) {
         this.actuallyPriority = (short) actuallyPriority;
     }
@@ -154,6 +159,21 @@ public class GenericInstanceEntry extends ArchInstanceMeta implements InstanceEn
     @Override
     public void setDryRun ( boolean dryRun ) {
         this.dryRun = dryRun;
+    }
+
+    @Override
+    public void setTimeoutSeconds( Long timeoutSeconds ) {
+        this.timeoutSeconds = timeoutSeconds;
+    }
+
+    @Override
+    public void setRetryTimes( int retryTimes ) {
+        this.retryTimes = retryTimes;
+    }
+
+    @Override
+    public void setRetryIntervalSeconds( Long retryIntervalSeconds ) {
+        this.retryIntervalSeconds = retryIntervalSeconds;
     }
 
     @Override

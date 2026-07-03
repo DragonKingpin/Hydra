@@ -36,6 +36,8 @@ public interface TaskInstance extends Pinenut {
 
     String getImagePath();
 
+    String getExecArch();
+
     short getActuallyPriority();
 
     TaskInstanceStatus getInstanceStatus ();
@@ -80,6 +82,6 @@ public interface TaskInstance extends Pinenut {
 
     LocalDateTime getScheduleTime();
 
-    String getProcessorName();
+    String getAffinityProcessor();
 
 }

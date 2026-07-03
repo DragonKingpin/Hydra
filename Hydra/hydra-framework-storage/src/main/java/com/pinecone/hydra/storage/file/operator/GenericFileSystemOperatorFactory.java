@@ -3,6 +3,7 @@ package com.pinecone.hydra.storage.file.operator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.GenericFileNode;
+import com.pinecone.hydra.storage.file.entity.GenericExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.GenericFolder;
 import com.pinecone.hydra.storage.file.entity.GenericSymbolic;
 import com.pinecone.hydra.storage.file.source.FileMasterManipulator;
@@ -31,6 +32,7 @@ public class GenericFileSystemOperatorFactory implements FileSystemOperatorFacto
         this.registerDefaultMetaType( GenericFolder.class );
         this.registerDefaultMetaType( GenericFileNode.class );
         this.registerDefaultMetaType( GenericSymbolic.class );
+        this.registerDefaultMetaType( GenericExternalSymbolic.class );
     }
 
     public GenericFileSystemOperatorFactory( KOMFileSystem fileSystem, FileMasterManipulator fileMasterManipulator ){

@@ -9,6 +9,7 @@ import com.pinecone.hydra.storage.volume.block.StripedVolume;
 import com.pinecone.hydra.storage.volume.config.TitanVolumeDefaults;
 import com.pinecone.hydra.storage.volume.config.TitanVolumeSchema;
 import com.pinecone.hydra.storage.volume.core.ArchVolume;
+import com.pinecone.hydra.storage.volume.core.ObjectMappedType;
 import com.pinecone.hydra.storage.volume.core.VolumeAllocationMode;
 import com.pinecone.hydra.storage.volume.core.VolumeExtent;
 import com.pinecone.hydra.storage.volume.core.VolumeExtentRole;
@@ -38,7 +39,7 @@ final class UofsVolumeFactory {
         GUID physicalGuid = this.guid( seed, "101" );
         this.cleanup( seed );
 
-        File objectRoot = new File( this.mContext.root + "\\" + caseName + "\\object" );
+        File objectRoot = new File( new File( this.mContext.root, caseName ), "object" );
         PhysicalAccessor physical = new LocalObjectDirectoryPhysicalAccessor(
                 physicalGuid,
                 caseName + "-object",
@@ -49,8 +50,8 @@ final class UofsVolumeFactory {
 
         UniformVolumeManager manager = this.newManager();
         manager.registerPhysical( physical );
-        manager.persistPhysical( this.physicalRecord( physical, objectRoot.getPath(), VolumePhysicalType.LOCAL_DIR ) );
-        manager.createSimpleVolume(
+        manager.persistPhysical( this.physicalRecord( physical, objectRoot.getPath(), VolumePhysicalType.OBJECT ) );
+        manager.createObjectSimpleVolume(
                 volumeGuid,
                 caseName + "-object-simple",
                 VolumeExtent.forPhysical( this.guid( seed, "301" ), null, physical, 0L, DEFAULT_CAPACITY, 0, VolumeExtentRole.SIMPLE_BACKING )
@@ -64,7 +65,7 @@ final class UofsVolumeFactory {
         GUID physicalGuid = this.guid( seed, "101" );
         this.cleanup( seed );
 
-        File physicalFile = new File( this.mContext.root + "\\" + caseName + "\\" + TitanVolumeSchema.BlockBackingFileName );
+        File physicalFile = new File( new File( this.mContext.root, caseName ), TitanVolumeSchema.BlockBackingFileName );
         this.deleteFile( physicalFile );
         PhysicalAccessor physical = new LocalFilePhysicalAccessor(
                 physicalGuid,
@@ -77,8 +78,8 @@ final class UofsVolumeFactory {
 
         UniformVolumeManager manager = this.newManager();
         manager.registerPhysical( physical );
-        manager.persistPhysical( this.physicalRecord( physical, physicalFile.getPath(), VolumePhysicalType.LOCAL_FILE ) );
-        SimpleVolume volume = manager.createSimpleVolume(
+        manager.persistPhysical( this.physicalRecord( physical, physicalFile.getPath(), VolumePhysicalType.BLOCK ) );
+        SimpleVolume volume = manager.createBlockSimpleVolume(
                 volumeGuid,
                 caseName + "-block-simple",
                 VolumeExtent.forPhysical( this.guid( seed, "301" ), null, physical, 0L, DEFAULT_CAPACITY, 0, VolumeExtentRole.SIMPLE_BACKING )
@@ -98,7 +99,7 @@ final class UofsVolumeFactory {
         SimpleVolume left = this.childSimple( manager, caseName, seed, "101", "201", "301", 40L * UofsSmokePaths.MB );
         SimpleVolume right = this.childSimple( manager, caseName, seed, "102", "202", "302", 60L * UofsSmokePaths.MB );
         GUID spannedGuid = this.guid( seed, "901" );
-        SpannedVolume spanned = manager.createSpannedVolume(
+        SpannedVolume spanned = manager.createBlockSpannedVolume(
                 spannedGuid,
                 caseName + "-block-spanned",
                 Arrays.asList(
@@ -108,8 +109,8 @@ final class UofsVolumeFactory {
         );
         this.mContext.mappers.volumeMapper.update( VolumeRecord.fromVolume( spanned ) );
         UofsVolumeFixture fixture = new UofsVolumeFixture( caseName, spannedGuid, manager, null );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-101.bin" ) );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-102.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-101.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-102.bin" ) );
         return fixture;
     }
 
@@ -130,8 +131,8 @@ final class UofsVolumeFactory {
         );
         this.mContext.mappers.volumeMapper.update( VolumeRecord.fromVolume( striped ) );
         UofsVolumeFixture fixture = new UofsVolumeFixture( caseName, stripedGuid, manager, null );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-101.bin" ) );
-        fixture.addPhysicalFile( new File( this.mContext.root + "\\" + caseName + "\\child-102.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-101.bin" ) );
+        fixture.addPhysicalFile( new File( new File( this.mContext.root, caseName ), "child-102.bin" ) );
         return fixture;
     }
 
@@ -144,7 +145,7 @@ final class UofsVolumeFactory {
             String extentSuffix,
             long capacity
     ) throws Exception {
-        File physicalFile = new File( this.mContext.root + "\\" + caseName + "\\child-" + physicalSuffix + ".bin" );
+        File physicalFile = new File( new File( this.mContext.root, caseName ), "child-" + physicalSuffix + ".bin" );
         this.deleteFile( physicalFile );
         PhysicalAccessor physical = new LocalFilePhysicalAccessor(
                 this.guid( seed, physicalSuffix ),
@@ -155,8 +156,8 @@ final class UofsVolumeFactory {
                 UofsSmokePaths.ALLOCATION_UNIT
         );
         manager.registerPhysical( physical );
-        manager.persistPhysical( this.physicalRecord( physical, physicalFile.getPath(), VolumePhysicalType.LOCAL_FILE ) );
-        return manager.createSimpleVolume(
+        manager.persistPhysical( this.physicalRecord( physical, physicalFile.getPath(), VolumePhysicalType.BLOCK ) );
+        return manager.createBlockSimpleVolume(
                 this.guid( seed, volumeSuffix ),
                 caseName + "-child-volume-" + volumeSuffix,
                 VolumeExtent.forPhysical( this.guid( seed, extentSuffix ), null, physical, 0L, capacity, 0, VolumeExtentRole.SIMPLE_BACKING )
@@ -172,6 +173,13 @@ final class UofsVolumeFactory {
         physical.setGuid( accessor.getGuid() );
         physical.setName( accessor.getName() );
         physical.setPhysicalType( physicalType );
+        if ( physicalType == VolumePhysicalType.OBJECT ) {
+            physical.setSupportType( "TITAN_OBJECT" );
+            physical.setObjectMappedType( ObjectMappedType.OBJECT_ADDRESSABLE );
+        }
+        else {
+            physical.setSupportType( "TITAN_BLOCK" );
+        }
         physical.setStatus( VolumePhysicalStatus.READY );
         physical.setRootPath( rootPath );
         physical.setCapacityBytes( accessor.getCapacity() );

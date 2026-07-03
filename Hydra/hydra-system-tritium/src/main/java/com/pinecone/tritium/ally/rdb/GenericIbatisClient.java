@@ -23,6 +23,8 @@ import com.pinecone.framework.util.lang.GenericClassScopeSet;
 import com.pinecone.framework.util.lang.NamespaceCollector;
 import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
 import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
+import com.pinecone.slime.jelly.source.ibatis.transaction.GenericIbatisTransaction;
+import com.pinecone.slime.jelly.source.ibatis.transaction.IbatisTransaction;
 import com.pinecone.slime.source.DAOScanner;
 import com.pinecone.slime.source.DataAccessObject;
 import com.pinecone.slime.source.XMLResourceScanner;
@@ -47,6 +49,8 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
     protected DataSource                  mDataSource           ;
 
     protected Environment                 mEnvironment          ;
+
+    protected IbatisTransaction           mTransaction          ;
 
     @MapStructure( "Ibatis" )
     protected JSONObject                  mjoIbatisConf         ;
@@ -277,6 +281,14 @@ public class GenericIbatisClient extends ArchRelationalDatabase implements Ibati
         catch ( BindingException ignore ) {
             // Do nothing.
         }
+    }
+
+    @Override
+    public IbatisTransaction transaction() {
+        if ( this.mTransaction == null ) {
+            this.mTransaction = new GenericIbatisTransaction( this );
+        }
+        return this.mTransaction;
     }
 
     @Override

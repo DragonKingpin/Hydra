@@ -1,6 +1,10 @@
 package com.pinecone.hydra.storage.volume;
 
 import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocation;
+import com.pinecone.hydra.storage.file.fat.entity.FileChunkLocationType;
+import com.pinecone.hydra.storage.volume.block.BlockSimpleVolume;
+import com.pinecone.hydra.storage.volume.block.BlockSpannedVolume;
 import com.pinecone.hydra.storage.volume.block.BlockVolume;
 import com.pinecone.hydra.storage.volume.block.SimpleVolume;
 import com.pinecone.hydra.storage.volume.block.SpannedVolume;
@@ -8,29 +12,43 @@ import com.pinecone.hydra.storage.volume.block.StripedVolume;
 import com.pinecone.hydra.storage.volume.block.TitanBlockSimpleVolume;
 import com.pinecone.hydra.storage.volume.block.TitanBlockSpannedVolume;
 import com.pinecone.hydra.storage.volume.block.TitanStripedVolume;
-import com.pinecone.hydra.storage.volume.object.ObjectVolume;
 import com.pinecone.hydra.storage.volume.object.TitanObjectSimpleVolume;
 import com.pinecone.hydra.storage.volume.object.TitanObjectSpannedVolume;
 import com.pinecone.hydra.storage.volume.core.Volume;
+import com.pinecone.hydra.storage.volume.core.BuiltinStorageSupportType;
+import com.pinecone.hydra.storage.volume.core.ObjectMappedType;
+import com.pinecone.hydra.storage.volume.core.StorageSupportDescriptor;
 import com.pinecone.hydra.storage.volume.core.VolumeEvent;
 import com.pinecone.hydra.storage.volume.core.VolumeExtent;
 import com.pinecone.hydra.storage.volume.core.VolumeExtentRole;
+import com.pinecone.hydra.storage.volume.core.VolumeFreeIntent;
+import com.pinecone.hydra.storage.volume.core.VolumeFreeIntentStatus;
 import com.pinecone.hydra.storage.volume.core.VolumePhysical;
+import com.pinecone.hydra.storage.volume.core.VolumePhysicalSupportTrait;
+import com.pinecone.hydra.storage.volume.core.VolumePhysicalStatus;
 import com.pinecone.hydra.storage.volume.core.VolumePhysicalType;
 import com.pinecone.hydra.storage.volume.core.VolumeRecord;
+import com.pinecone.hydra.storage.volume.core.VolumeStatus;
 import com.pinecone.hydra.storage.volume.core.VolumeType;
 import com.pinecone.hydra.storage.volume.core.ArchVolume;
 import com.pinecone.hydra.storage.volume.core.VolumeAllocationMode;
 import com.pinecone.hydra.storage.volume.core.VolumeMappingMode;
-import com.pinecone.hydra.storage.volume.io.LocalDirectoryPhysicalAccessor;
 import com.pinecone.hydra.storage.volume.io.LocalFilePhysicalAccessor;
 import com.pinecone.hydra.storage.volume.io.LocalObjectDirectoryPhysicalAccessor;
 import com.pinecone.hydra.storage.volume.io.PhysicalAccessor;
+import com.pinecone.hydra.storage.volume.object.ObjectSimpleVolume;
+import com.pinecone.hydra.storage.volume.object.ObjectSpannedVolume;
+import com.pinecone.hydra.storage.volume.object.ObjectVolume;
 import com.pinecone.hydra.storage.volume.source.VolumeExtentManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeEventManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeFreeIntentManipulator;
+import com.pinecone.hydra.storage.volume.source.KernelStorageSupportTypeProvider;
+import com.pinecone.hydra.storage.volume.source.StorageSupportTypeProvider;
 import com.pinecone.hydra.storage.volume.source.VolumeManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumeMasterManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumeMountManipulator;
 import com.pinecone.hydra.storage.volume.source.VolumePhysicalManipulator;
+import com.pinecone.hydra.storage.volume.source.VolumePhysicalSupportTraitManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
 import com.pinecone.ulf.util.guid.GUIDs;
 
@@ -50,14 +68,19 @@ public class UniformVolumeManager implements VolumeManager {
     protected final Map<GUID, Volume>           mVolumes;
     protected VolumeManipulator                 mVolumeManipulator;
     protected VolumePhysicalManipulator         mPhysicalManipulator;
+    protected VolumePhysicalSupportTraitManipulator mPhysicalSupportTraitManipulator;
+    protected StorageSupportTypeProvider          mStorageSupportTypeProvider;
     protected VolumeExtentManipulator           mExtentManipulator;
+    protected VolumeMountManipulator            mMountManipulator;
     protected VolumeEventManipulator            mEventManipulator;
+    protected VolumeFreeIntentManipulator       mFreeIntentManipulator;
     protected VolumeConfig                      mConfig;
 
     public UniformVolumeManager() {
         this.mPhysicalAccessors = new LinkedHashMap<>();
         this.mVolumes           = new LinkedHashMap<>();
         this.mConfig            = new KernelVolumeConfig();
+        this.mStorageSupportTypeProvider = new KernelStorageSupportTypeProvider();
     }
 
     public UniformVolumeManager( VolumeConfig config ) {
@@ -114,8 +137,11 @@ public class UniformVolumeManager implements VolumeManager {
         VolumeMasterManipulator masterManipulator = (VolumeMasterManipulator) driver.getMasterManipulator();
         this.mVolumeManipulator = masterManipulator.getVolumeManipulator();
         this.mPhysicalManipulator = masterManipulator.getPhysicalManipulator();
+        this.mPhysicalSupportTraitManipulator = masterManipulator.getPhysicalSupportTraitManipulator();
         this.mExtentManipulator = masterManipulator.getExtentManipulator();
+        this.mMountManipulator = masterManipulator.getMountManipulator();
         this.mEventManipulator = masterManipulator.getEventManipulator();
+        this.mFreeIntentManipulator = masterManipulator.getFreeIntentManipulator();
     }
 
     @Override
@@ -131,12 +157,30 @@ public class UniformVolumeManager implements VolumeManager {
         this.mPhysicalManipulator = physicalManipulator;
     }
 
+    public void setPhysicalSupportTraitManipulator( VolumePhysicalSupportTraitManipulator physicalSupportTraitManipulator ) {
+        this.mPhysicalSupportTraitManipulator = physicalSupportTraitManipulator;
+    }
+
+    public void setStorageSupportTypeProvider( StorageSupportTypeProvider storageSupportTypeProvider ) {
+        this.mStorageSupportTypeProvider = storageSupportTypeProvider == null
+                ? new KernelStorageSupportTypeProvider()
+                : storageSupportTypeProvider;
+    }
+
     public void setExtentManipulator( VolumeExtentManipulator extentManipulator ) {
         this.mExtentManipulator = extentManipulator;
     }
 
+    public void setMountManipulator( VolumeMountManipulator mountManipulator ) {
+        this.mMountManipulator = mountManipulator;
+    }
+
     public void setEventManipulator( VolumeEventManipulator eventManipulator ) {
         this.mEventManipulator = eventManipulator;
+    }
+
+    public void setFreeIntentManipulator( VolumeFreeIntentManipulator freeIntentManipulator ) {
+        this.mFreeIntentManipulator = freeIntentManipulator;
     }
 
     @Override
@@ -168,6 +212,24 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
+    public PhysicalAccessor loadPhysicalAccessor( GUID physicalGuid ) throws IOException {
+        return this.loadPhysicalAccessor( physicalGuid, null );
+    }
+
+    @Override
+    public PhysicalAccessor loadPhysicalAccessor(
+            GUID physicalGuid,
+            VolumeAllocationMode allocationMode,
+            long allocationUnit
+    ) throws IOException {
+        VolumeRecord record = new VolumeRecord();
+        record.setGuid( physicalGuid );
+        record.setAllocationMode( allocationMode == null ? null : allocationMode.name() );
+        record.setAllocationUnit( allocationUnit );
+        return this.loadPhysicalAccessor( physicalGuid, record );
+    }
+
+    @Override
     public Optional<Volume> findVolume( GUID guid ) {
         return Optional.ofNullable( this.mVolumes.get( guid ) );
     }
@@ -182,19 +244,42 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
-    public SimpleVolume createSimpleVolume( GUID guid, String name, VolumeExtent backingExtent ) {
+    public BlockSimpleVolume createBlockSimpleVolume( GUID guid, String name, VolumeExtent backingExtent ) {
         backingExtent.setParentGuid( guid );
         backingExtent.setRole( VolumeExtentRole.SIMPLE_BACKING );
+        this.assertPhysicalType( backingExtent, VolumePhysicalType.BLOCK );
         this.checkPhysicalExtentAvailable( backingExtent );
-        SimpleVolume volume;
-        if ( backingExtent.getPhysicalAccessor() instanceof LocalObjectDirectoryPhysicalAccessor ) {
-            volume = new TitanObjectSimpleVolume( guid, name, backingExtent, this.mConfig );
-            ( (ArchVolume) volume ).setObjectRoot(
-                    Paths.get( ( (LocalObjectDirectoryPhysicalAccessor) backingExtent.getPhysicalAccessor() ).getRootPath().toString() ).toString()
-            );
-        }
-        else {
-            volume = new TitanBlockSimpleVolume( guid, name, backingExtent );
+        BlockSimpleVolume volume = new TitanBlockSimpleVolume( guid, name, backingExtent );
+        this.persistVolume( volume );
+        this.registerVolume( volume );
+        this.emitVolumeEvent( volume, "VOLUME_CREATED", "SUCCESS", this.volumePayload( volume ) );
+        return volume;
+    }
+
+    @Override
+    public ObjectSimpleVolume createObjectSimpleVolume( GUID guid, String name, VolumeExtent backingExtent ) {
+        backingExtent.setParentGuid( guid );
+        backingExtent.setRole( VolumeExtentRole.SIMPLE_BACKING );
+        this.assertPhysicalType( backingExtent, VolumePhysicalType.OBJECT );
+        this.checkPhysicalExtentAvailable( backingExtent );
+        ObjectSimpleVolume volume = new TitanObjectSimpleVolume( guid, name, backingExtent, this.mConfig );
+        ( (ArchVolume) volume ).setObjectRoot(
+                Paths.get( ( (LocalObjectDirectoryPhysicalAccessor) backingExtent.getPhysicalAccessor() ).getRootPath().toString() ).toString()
+        );
+        this.persistVolume( volume );
+        this.registerVolume( volume );
+        this.emitVolumeEvent( volume, "VOLUME_CREATED", "SUCCESS", this.volumePayload( volume ) );
+        return volume;
+    }
+
+    @Override
+    public BlockSpannedVolume createBlockSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents ) {
+        BlockSpannedVolume volume = new TitanBlockSpannedVolume( guid, name );
+        for ( VolumeExtent extent : extents ) {
+            extent.setParentGuid( guid );
+            extent.setRole( VolumeExtentRole.SPANNED_EXTENT );
+            this.assertBlockChild( extent );
+            volume.addExtent( extent );
         }
         this.persistVolume( volume );
         this.registerVolume( volume );
@@ -203,19 +288,12 @@ public class UniformVolumeManager implements VolumeManager {
     }
 
     @Override
-    public SpannedVolume createSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents ) {
-        List<VolumeExtent> extentList = new ArrayList<>();
-        boolean objectSpanned = false;
+    public ObjectSpannedVolume createObjectSpannedVolume( GUID guid, String name, Iterable<VolumeExtent> extents ) {
+        ObjectSpannedVolume volume = new TitanObjectSpannedVolume( guid, name );
         for ( VolumeExtent extent : extents ) {
-            extentList.add( extent );
-            objectSpanned = objectSpanned || extent.getChildVolume() instanceof ObjectVolume;
-        }
-        SpannedVolume volume = objectSpanned
-                ? new TitanObjectSpannedVolume( guid, name )
-                : new TitanBlockSpannedVolume( guid, name );
-        for ( VolumeExtent extent : extentList ) {
             extent.setParentGuid( guid );
             extent.setRole( VolumeExtentRole.SPANNED_EXTENT );
+            this.assertObjectSimpleChild( extent );
             volume.addExtent( extent );
         }
         this.persistVolume( volume );
@@ -230,6 +308,7 @@ public class UniformVolumeManager implements VolumeManager {
         for ( VolumeExtent extent : members ) {
             extent.setParentGuid( guid );
             extent.setRole( VolumeExtentRole.STRIPED_MEMBER );
+            this.assertBlockChild( extent );
             volume.addMember( extent );
         }
         this.persistVolume( volume );
@@ -240,12 +319,12 @@ public class UniformVolumeManager implements VolumeManager {
 
     @Override
     public int read( GUID volumeGuid, long position, ByteBuffer dst ) throws IOException {
-        return this.affirmBlockVolume( volumeGuid ).read( position, dst );
+        return this.loadBlockVolume( volumeGuid ).read( position, dst );
     }
 
     @Override
     public int write( GUID volumeGuid, long position, ByteBuffer src ) throws IOException {
-        BlockVolume volume = this.affirmBlockVolume( volumeGuid );
+        BlockVolume volume = this.loadBlockVolume( volumeGuid );
         int written = volume.write( position, src );
         this.syncCommittedBytes( volume );
         return written;
@@ -258,6 +337,72 @@ public class UniformVolumeManager implements VolumeManager {
             throw new IllegalArgumentException( "Volume is not block-addressable: " + guid );
         }
         return (BlockVolume) volume;
+    }
+
+    @Override
+    public void release( FileChunkLocation location ) throws IOException {
+        if ( location == null || location.getVolumeGuid() == null ) {
+            return;
+        }
+        Volume volume = this.loadVolume( location.getVolumeGuid() );
+        FileChunkLocationType locationType = this.resolveLocationType( volume, location );
+        if ( locationType == FileChunkLocationType.VOLUME_DIRECT_OBJECT ) {
+            this.releaseObject( volume, location );
+            return;
+        }
+        this.releaseBlockExtent( volume, location );
+    }
+
+    protected FileChunkLocationType resolveLocationType( Volume volume, FileChunkLocation location ) {
+        if ( location.getLocationType() != null ) {
+            return location.getLocationType();
+        }
+        if ( volume.getMappingMode() == VolumeMappingMode.VOLUME_DIRECT_OBJECT ) {
+            return FileChunkLocationType.VOLUME_DIRECT_OBJECT;
+        }
+        return FileChunkLocationType.VOLUME_BLOCK_EXTENT;
+    }
+
+    protected void releaseObject( Volume volume, FileChunkLocation location ) throws IOException {
+        if ( !( volume instanceof ObjectVolume ) ) {
+            throw new IllegalArgumentException( "Volume is not object-addressable: " + location.getVolumeGuid() );
+        }
+        String objectKey = location.getObjectKey();
+        if ( objectKey != null && !objectKey.isBlank() ) {
+            ( (ObjectVolume) volume ).deleteObject( objectKey );
+        }
+        this.refreshVolumeUsage( volume.getGuid() );
+    }
+
+    protected void releaseBlockExtent( Volume volume, FileChunkLocation location ) throws IOException {
+        this.recordBlockFreeIntent( volume, location );
+        this.refreshVolumeUsage( volume.getGuid() );
+    }
+
+    protected void recordBlockFreeIntent( Volume volume, FileChunkLocation location ) {
+        if ( this.mFreeIntentManipulator == null || location == null || location.getLengthBytes() <= 0L ) {
+            return;
+        }
+        if ( location.getGuid() != null && this.mFreeIntentManipulator.getBySourceLocationGuid( location.getGuid() ) != null ) {
+            return;
+        }
+        VolumeFreeIntent intent = new VolumeFreeIntent();
+        intent.setGuid( GUIDs.GUID128( UUID.randomUUID().toString() ) );
+        intent.setVolumeGuid( volume.getGuid() );
+        intent.setVolumeOffset( location.getVolumeOffset() );
+        intent.setLengthBytes( location.getLengthBytes() );
+        intent.setSourceLocationGuid( location.getGuid() );
+        intent.setStatus( VolumeFreeIntentStatus.PENDING );
+        intent.setMessage( "Recorded from UOFS FAT chunk location release." );
+        this.mFreeIntentManipulator.insert( intent );
+        this.emitVolumeEvent(
+                volume,
+                "VOLUME_BLOCK_FREE_INTENT_RECORDED",
+                "SUCCESS",
+                "{\"locationGuid\":\"" + location.getGuid()
+                        + "\",\"volumeOffset\":" + location.getVolumeOffset()
+                        + ",\"lengthBytes\":" + location.getLengthBytes() + "}"
+        );
     }
 
     @Override
@@ -274,7 +419,15 @@ public class UniformVolumeManager implements VolumeManager {
 
     @Override
     public void flush( GUID volumeGuid ) throws IOException {
-        this.affirmVolume( volumeGuid ).flush();
+        this.loadVolume( volumeGuid ).flush();
+    }
+
+    protected BlockVolume loadBlockVolume( GUID guid ) throws IOException {
+        Volume volume = this.loadVolume( guid );
+        if ( !( volume instanceof BlockVolume ) ) {
+            throw new IllegalArgumentException( "Volume is not block-addressable: " + guid );
+        }
+        return (BlockVolume) volume;
     }
 
     @Override
@@ -299,9 +452,15 @@ public class UniformVolumeManager implements VolumeManager {
                 }
                 VolumeExtent extent = extents.get( 0 );
                 extent.setPhysicalAccessor( this.loadPhysicalAccessor( extent.getPhysicalGuid(), record ) );
-                SimpleVolume volume = VolumeMappingMode.VOLUME_DIRECT_OBJECT.name().equals( record.getMappingMode() )
-                        ? new TitanObjectSimpleVolume( record.getGuid(), record.getName(), extent, this.mConfig )
-                        : new TitanBlockSimpleVolume( record.getGuid(), record.getName(), extent );
+                SimpleVolume volume;
+                if ( VolumeMappingMode.VOLUME_DIRECT_OBJECT.name().equals( record.getMappingMode() ) ) {
+                    this.assertPhysicalType( extent, VolumePhysicalType.OBJECT );
+                    volume = new TitanObjectSimpleVolume( record.getGuid(), record.getName(), extent, this.mConfig );
+                }
+                else {
+                    this.assertPhysicalType( extent, VolumePhysicalType.BLOCK );
+                    volume = new TitanBlockSimpleVolume( record.getGuid(), record.getName(), extent );
+                }
                 this.applyRecord( volume, record );
                 this.registerVolume( volume );
                 return volume;
@@ -347,7 +506,214 @@ public class UniformVolumeManager implements VolumeManager {
         return volumes;
     }
 
-    protected void persistVolume( Volume volume ) {
+    @Override
+    public long countVolumes(
+            String name,
+            VolumeType volumeType,
+            VolumeMappingMode mappingMode,
+            VolumeStatus status
+    ) {
+        this.requireVolumeManipulator();
+        return this.mVolumeManipulator.count( name, volumeType, mappingMode, status );
+    }
+
+    @Override
+    public List<VolumeRecord> listVolumeRecordPage(
+            String name,
+            VolumeType volumeType,
+            VolumeMappingMode mappingMode,
+            VolumeStatus status,
+            int offset,
+            int limit
+    ) {
+        this.requireVolumeManipulator();
+        return this.mVolumeManipulator.listPage( name, volumeType, mappingMode, status, offset, limit );
+    }
+
+    @Override
+    public VolumeRecord affirmVolumeRecord( GUID guid ) {
+        this.requireVolumeManipulator();
+        VolumeRecord record = this.mVolumeManipulator.get( guid );
+        if ( record == null ) {
+            throw new IllegalArgumentException( "Volume record not found: " + guid );
+        }
+        return record;
+    }
+
+    @Override
+    public List<VolumeExtent> getExtentsByParentGuid( GUID parentGuid ) {
+        this.requireExtentManipulator();
+        return this.mExtentManipulator.listByParentGuid( parentGuid );
+    }
+
+    @Override
+    public long countVolumeFreeIntents() {
+        if ( this.mFreeIntentManipulator == null ) {
+            return 0L;
+        }
+        return this.mFreeIntentManipulator.countAll();
+    }
+
+    @Override
+    public List<VolumeFreeIntent> listVolumeFreeIntentPage( int offset, int limit ) {
+        if ( this.mFreeIntentManipulator == null ) {
+            return List.of();
+        }
+        return this.mFreeIntentManipulator.listPage( offset, limit );
+    }
+
+    @Override
+    public List<VolumeFreeIntent> listVolumeFreeIntents( GUID volumeGuid ) {
+        if ( this.mFreeIntentManipulator == null || volumeGuid == null ) {
+            return List.of();
+        }
+        return this.mFreeIntentManipulator.listByVolumeGuid( volumeGuid );
+    }
+
+    @Override
+    public void retireVolume( GUID guid ) {
+        this.requireVolumeManipulator();
+        this.requireExtentManipulator();
+        VolumeRecord record = this.affirmVolumeRecord( guid );
+        record.setStatus( VolumeStatus.DELETED.name() );
+        this.mVolumeManipulator.update( record );
+        this.mExtentManipulator.removeByParentGuid( guid );
+        Volume cachedVolume = this.mVolumes.get( guid );
+        this.emitVolumeEvent( cachedVolume, "VOLUME_DELETED", "SUCCESS", "{\"guid\":\"" + guid + "\"}" );
+        this.mVolumes.remove( guid );
+    }
+
+    @Override
+    public void retirePhysical( GUID physicalGuid ) {
+        this.requirePhysicalManipulator();
+        VolumePhysical physical = this.affirmPhysicalRecord( physicalGuid );
+        long referenceCount = this.countPhysicalReferences( physicalGuid );
+        if ( referenceCount > 0L ) {
+            throw new IllegalStateException( "Physical volume is still referenced by logical volumes: " + physicalGuid );
+        }
+        physical.setStatus( VolumePhysicalStatus.DELETED );
+        this.mPhysicalManipulator.update( physical );
+        if ( this.mPhysicalSupportTraitManipulator != null ) {
+            VolumePhysicalSupportTrait trait = this.mPhysicalSupportTraitManipulator.getByPhysicalGuid( physicalGuid );
+            if ( trait != null ) {
+                trait.setStatus( "DELETED" );
+                this.mPhysicalSupportTraitManipulator.update( trait );
+            }
+        }
+        this.mPhysicalAccessors.remove( physicalGuid );
+    }
+
+    @Override
+    public long countPhysicals(
+            String name,
+            VolumePhysicalType physicalType,
+            VolumePhysicalStatus status,
+            GUID deviceGuid
+    ) {
+        this.requirePhysicalManipulator();
+        return this.mPhysicalManipulator.count( name, physicalType, status, deviceGuid );
+    }
+
+    @Override
+    public List<VolumePhysical> listPhysicalPage(
+            String name,
+            VolumePhysicalType physicalType,
+            VolumePhysicalStatus status,
+            GUID deviceGuid,
+            int offset,
+            int limit
+    ) {
+        this.requirePhysicalManipulator();
+        return this.mPhysicalManipulator.listPage( name, physicalType, status, deviceGuid, offset, limit );
+    }
+
+    @Override
+    public VolumePhysical affirmPhysicalRecord( GUID guid ) {
+        this.requirePhysicalManipulator();
+        VolumePhysical physical = this.mPhysicalManipulator.get( guid );
+        if ( physical == null ) {
+            throw new IllegalArgumentException( "Physical record not found: " + guid );
+        }
+        return physical;
+    }
+
+    @Override
+    public long countPhysicalReferences( GUID physicalGuid ) {
+        this.requireExtentManipulator();
+        return this.mExtentManipulator.countByPhysicalGuid( physicalGuid );
+    }
+
+    @Override
+    public List<VolumeRecord> listVolumeReferencesByPhysicalGuid( GUID physicalGuid, int limit ) {
+        this.requireExtentManipulator();
+        if ( physicalGuid == null || limit < 1 ) {
+            return List.of();
+        }
+        List<VolumeRecord> ret = new ArrayList<>();
+        Map<GUID, Boolean> seen = new LinkedHashMap<>();
+        for ( VolumeExtent extent : this.mExtentManipulator.listByPhysicalGuid( physicalGuid ) ) {
+            GUID parentGuid = extent.getParentGuid();
+            if ( parentGuid == null || seen.containsKey( parentGuid ) ) {
+                continue;
+            }
+            seen.put( parentGuid, Boolean.TRUE );
+            ret.add( this.affirmVolumeRecord( parentGuid ) );
+            if ( ret.size() >= limit ) {
+                break;
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public long countVolumeChildReferences( GUID volumeGuid ) {
+        this.requireExtentManipulator();
+        return this.mExtentManipulator.countByChildGuid( volumeGuid );
+    }
+
+    @Override
+    public long countVolumeMountReferences( GUID volumeGuid ) {
+        if ( this.mMountManipulator == null || volumeGuid == null ) {
+            return 0L;
+        }
+        return this.mMountManipulator.countByVolumeGuid( volumeGuid );
+    }
+
+    @Override
+    public List<StorageSupportDescriptor> listStorageSupportTypes() {
+        return this.mStorageSupportTypeProvider.listBuiltinSupportTypes();
+    }
+
+    @Override
+    public List<VolumePhysicalSupportTrait> listPhysicalSupportTraits() {
+        if ( this.mPhysicalSupportTraitManipulator == null ) {
+            return List.of();
+        }
+        return this.mPhysicalSupportTraitManipulator.listAll();
+    }
+
+    @Override
+    public VolumePhysicalSupportTrait getPhysicalSupportTraitByPhysicalGuid( GUID physicalGuid ) {
+        if ( this.mPhysicalSupportTraitManipulator == null || physicalGuid == null ) {
+            return null;
+        }
+        return this.mPhysicalSupportTraitManipulator.getByPhysicalGuid( physicalGuid );
+    }
+
+    @Override
+    public void persistPhysicalSupportTrait( VolumePhysicalSupportTrait trait ) {
+        if ( this.mPhysicalSupportTraitManipulator == null ) {
+            throw new IllegalStateException( "Volume physical support trait manipulator is not ready." );
+        }
+        if ( trait.getGuid() == null || this.mPhysicalSupportTraitManipulator.get( trait.getGuid() ) == null ) {
+            this.mPhysicalSupportTraitManipulator.insert( trait );
+            return;
+        }
+        this.mPhysicalSupportTraitManipulator.update( trait );
+    }
+
+    @Override
+    public void persistVolume( Volume volume ) {
         if ( this.mVolumeManipulator == null ) {
             return;
         }
@@ -413,7 +779,7 @@ public class UniformVolumeManager implements VolumeManager {
             archVolume.setAllocationMode( VolumeAllocationMode.THICK );
             this.emitThinPromotionEvent( archVolume, beforeMode, committedBytes );
         }
-        this.persistPhysicalUsage( backingExtent.getPhysicalGuid(), committedBytes );
+        this.persistPhysicalCommittedBytes( backingExtent.getPhysicalGuid(), committedBytes );
         this.persistVolumeRecord( archVolume );
         return committedBytes;
     }
@@ -460,7 +826,7 @@ public class UniformVolumeManager implements VolumeManager {
         }
     }
 
-    protected void persistPhysicalUsage( GUID physicalGuid, long usedBytes ) {
+    protected void persistPhysicalCommittedBytes( GUID physicalGuid, long committedBytes ) {
         if ( this.mPhysicalManipulator == null || physicalGuid == null ) {
             return;
         }
@@ -468,7 +834,7 @@ public class UniformVolumeManager implements VolumeManager {
         if ( physical == null ) {
             return;
         }
-        physical.setUsedBytes( usedBytes );
+        physical.setCommittedBytes( committedBytes );
         this.mPhysicalManipulator.update( physical );
     }
 
@@ -533,8 +899,28 @@ public class UniformVolumeManager implements VolumeManager {
                 + "}";
     }
 
-    protected PhysicalAccessor loadPhysicalAccessor( GUID physicalGuid ) throws IOException {
-        return this.loadPhysicalAccessor( physicalGuid, null );
+    protected void assertPhysicalType( VolumeExtent extent, VolumePhysicalType expectedType ) {
+        if ( extent == null || extent.getPhysicalAccessor() == null ) {
+            throw new IllegalArgumentException( "Volume extent requires physical backing" );
+        }
+        VolumePhysicalType actualType = extent.getPhysicalAccessor().getPhysicalType();
+        if ( actualType != expectedType ) {
+            throw new IllegalArgumentException(
+                    "Volume extent physical type mismatch, expected " + expectedType + " but got " + actualType
+            );
+        }
+    }
+
+    protected void assertBlockChild( VolumeExtent extent ) {
+        if ( extent == null || !( extent.getChildVolume() instanceof BlockVolume ) ) {
+            throw new IllegalArgumentException( "Volume extent requires block child volume" );
+        }
+    }
+
+    protected void assertObjectSimpleChild( VolumeExtent extent ) {
+        if ( extent == null || !( extent.getChildVolume() instanceof ObjectSimpleVolume ) ) {
+            throw new IllegalArgumentException( "Object spanned volume only accepts object simple child volumes" );
+        }
     }
 
     protected PhysicalAccessor loadPhysicalAccessor( GUID physicalGuid, VolumeRecord volumeRecord ) throws IOException {
@@ -550,52 +936,159 @@ public class UniformVolumeManager implements VolumeManager {
             throw new IllegalArgumentException( "Physical record not found: " + physicalGuid );
         }
         PhysicalAccessor accessor;
-        VolumeAllocationMode allocationMode = volumeRecord == null || volumeRecord.getAllocationMode() == null
-                ? VolumeAllocationMode.THICK
-                : VolumeAllocationMode.valueOf( volumeRecord.getAllocationMode() );
-        long allocationUnit = volumeRecord == null
-                ? this.mConfig.getDefaultAllocationUnit()
-                : volumeRecord.getAllocationUnit();
-        if ( physical.getPhysicalType() == VolumePhysicalType.LOCAL_DIR ) {
-            if (
-                    volumeRecord != null
-                            && VolumeMappingMode.VOLUME_DIRECT_OBJECT.name().equals( volumeRecord.getMappingMode() )
-            ) {
-                accessor = new LocalObjectDirectoryPhysicalAccessor(
-                        physical.getGuid(),
-                        physical.getName(),
-                        Paths.get( physical.getRootPath() ),
-                        physical.getCapacityBytes(),
-                        this.mConfig
-                );
-            }
-            else {
-                accessor = new LocalDirectoryPhysicalAccessor(
-                        physical.getGuid(),
-                        physical.getName(),
-                        Paths.get( physical.getRootPath() ),
-                        physical.getCapacityBytes(),
-                        allocationMode,
-                        allocationUnit,
-                        this.mConfig
-                );
-            }
+        VolumeAllocationMode allocationMode = volumeRecord != null && volumeRecord.getAllocationMode() != null
+                ? VolumeAllocationMode.valueOf( volumeRecord.getAllocationMode() )
+                : physical.getAllocationMode();
+        if ( allocationMode == null ) {
+            allocationMode = VolumeAllocationMode.THIN;
         }
-        else if ( physical.getPhysicalType() == VolumePhysicalType.LOCAL_FILE ) {
+        long allocationUnit = volumeRecord != null && volumeRecord.getAllocationUnit() > 0L
+                ? volumeRecord.getAllocationUnit()
+                : physical.getAllocationUnit();
+        if ( allocationUnit <= 0L ) {
+            allocationUnit = this.mConfig.getDefaultAllocationUnit();
+        }
+        this.validatePhysicalSupport( physical );
+        if ( physical.getPhysicalType() == VolumePhysicalType.BLOCK ) {
+            this.assertBuiltinSupportType( physical, BuiltinStorageSupportType.TITAN_BLOCK );
             accessor = new LocalFilePhysicalAccessor(
                     physical.getGuid(),
                     physical.getName(),
-                    Paths.get( physical.getRootPath() ),
+                    Paths.get( this.requireRootPath( physical ) ),
                     physical.getCapacityBytes(),
                     allocationMode,
                     allocationUnit
             );
         }
+        else if ( physical.getPhysicalType() == VolumePhysicalType.OBJECT ) {
+            this.assertObjectAccessorSupport( physical );
+            accessor = new LocalObjectDirectoryPhysicalAccessor(
+                    physical.getGuid(),
+                    physical.getName(),
+                    Paths.get( this.requireRootPath( physical ) ),
+                    physical.getCapacityBytes(),
+                    this.mConfig
+            );
+        }
         else {
-            throw new IllegalArgumentException( "Unsupported physical type: " + physical.getPhysicalType() );
+            throw new UnsupportedStorageAccessorException(
+                    "Physical type is registration-only and has no runtime accessor: " + physical.getPhysicalType()
+            );
         }
         this.registerPhysical( accessor );
         return accessor;
+    }
+
+    protected void validatePhysicalSupport( VolumePhysical physical ) {
+        if ( physical == null ) {
+            throw new IllegalArgumentException( "Physical record is required." );
+        }
+        if ( physical.getPhysicalType() == null ) {
+            throw new IllegalArgumentException( "Physical type is required: " + physical.getGuid() );
+        }
+        if ( this.isBlank( physical.getSupportType() ) ) {
+            throw new IllegalArgumentException( "Physical supportType is required: " + physical.getGuid() );
+        }
+        Optional<BuiltinStorageSupportType> builtin = BuiltinStorageSupportType.find( physical.getSupportType() );
+        if ( builtin.isPresent() ) {
+            BuiltinStorageSupportType supportType = builtin.get();
+            if ( supportType.getPhysicalType() != physical.getPhysicalType() ) {
+                throw new IllegalArgumentException(
+                        "Physical supportType " + supportType.name() + " requires physicalType "
+                                + supportType.getPhysicalType() + " but got " + physical.getPhysicalType()
+                );
+            }
+            if ( supportType.getObjectMappedType() != physical.getObjectMappedType() ) {
+                throw new IllegalArgumentException(
+                        "Physical supportType " + supportType.name() + " requires objectMappedType "
+                                + supportType.getObjectMappedType() + " but got " + physical.getObjectMappedType()
+                );
+            }
+            return;
+        }
+        VolumePhysicalSupportTrait trait = this.findPhysicalSupportTrait( physical );
+        if ( trait == null ) {
+            throw new IllegalArgumentException(
+                    "Custom physical support type requires hydra_volume_physical_support_trait: " + physical.getSupportType()
+            );
+        }
+        if ( !physical.getSupportType().equals( trait.getCode() ) ) {
+            throw new IllegalArgumentException(
+                    "Physical supportType must match trait code, supportType=" + physical.getSupportType()
+                            + ", traitCode=" + trait.getCode()
+            );
+        }
+        if ( physical.getPhysicalType() == VolumePhysicalType.OBJECT && physical.getObjectMappedType() == null ) {
+            throw new IllegalArgumentException( "Object mapped type is required for OBJECT physical: " + physical.getGuid() );
+        }
+    }
+
+    protected void assertBuiltinSupportType( VolumePhysical physical, BuiltinStorageSupportType expected ) {
+        BuiltinStorageSupportType actual = BuiltinStorageSupportType.find( physical.getSupportType() )
+                .orElseThrow( () -> new UnsupportedStorageAccessorException(
+                        "Runtime accessor requires builtin supportType " + expected.name()
+                                + " but got custom supportType " + physical.getSupportType()
+                ) );
+        if ( actual != expected ) {
+            throw new UnsupportedStorageAccessorException(
+                    "Runtime accessor requires supportType " + expected.name() + " but got " + actual.name()
+            );
+        }
+    }
+
+    protected void assertObjectAccessorSupport( VolumePhysical physical ) {
+        BuiltinStorageSupportType supportType = BuiltinStorageSupportType.find( physical.getSupportType() )
+                .orElseThrow( () -> new UnsupportedStorageAccessorException(
+                        "Custom OBJECT supportType has no runtime accessor yet: " + physical.getSupportType()
+                ) );
+        if ( supportType != BuiltinStorageSupportType.TITAN_OBJECT ) {
+            throw new UnsupportedStorageAccessorException(
+                    "OBJECT supportType has no runtime accessor yet: " + supportType.name()
+            );
+        }
+        if ( physical.getObjectMappedType() != ObjectMappedType.OBJECT_ADDRESSABLE ) {
+            throw new IllegalArgumentException(
+                    "Titan object physical requires OBJECT_ADDRESSABLE but got " + physical.getObjectMappedType()
+            );
+        }
+    }
+
+    protected VolumePhysicalSupportTrait findPhysicalSupportTrait( VolumePhysical physical ) {
+        if ( this.mPhysicalSupportTraitManipulator == null || physical == null || physical.getGuid() == null ) {
+            return null;
+        }
+        return this.mPhysicalSupportTraitManipulator.getByPhysicalGuid( physical.getGuid() );
+    }
+
+    protected boolean isBlank( String value ) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    protected String requireRootPath( VolumePhysical physical ) {
+        if ( physical.getRootPath() == null || physical.getRootPath().isBlank() ) {
+            throw new IllegalArgumentException(
+                    "Physical rootPath is required for runtime accessor: " + physical.getGuid()
+            );
+        }
+        return physical.getRootPath();
+    }
+
+    protected void requirePhysicalManipulator() {
+        if ( this.mPhysicalManipulator == null ) {
+            throw new IllegalStateException( "Volume physical manipulator is not configured" );
+        }
+    }
+
+    protected void requireVolumeManipulator() {
+        if ( this.mVolumeManipulator == null ) {
+            throw new IllegalStateException( "Volume manipulator is not configured" );
+        }
+    }
+
+    protected void requireExtentManipulator() {
+        if ( this.mExtentManipulator == null ) {
+            throw new IllegalStateException( "Volume extent manipulator is not configured" );
+        }
     }
 
     protected void checkPhysicalExtentAvailable( VolumeExtent targetExtent ) {

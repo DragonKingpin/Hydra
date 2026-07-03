@@ -145,18 +145,18 @@ public class Tritium extends Hydradom implements TritiumSystem, Slf4jTraceable {
     @Override
     protected void loadConfig() {
         try {
-            Map<String, String[] > map = this.getStartupCommandMap();
-            String[] args = map.get( "workingPath" );
-            if( args != null && args.length > 0 ) {
-                this.mWorkingPath =  Path.of( args[ 0 ] );
+            Map<String, String > map = this.getStartupCommandMap();
+            String workingPath = map.get( "workingPath" );
+            if( workingPath != null && !workingPath.isEmpty() ) {
+                this.mWorkingPath =  Path.of( workingPath );
             }
             else {
                 this.mWorkingPath      = Path.of( this.getRuntimeContextPath() );
             }
 
-            args = map.get( "config" );
-            if( args != null && args.length > 0 ) {
-                this.mPrimaryConfigPath = Path.of( args[ 0 ] );
+            String config = map.get( "config" );
+            if( config != null && !config.isEmpty() ) {
+                this.mPrimaryConfigPath = Path.of( config );
             }
             else {
                 this.mPrimaryConfigPath = this.getWorkingPath().resolve( this.fristQualifiedConfigPathString() );

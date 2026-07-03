@@ -80,7 +80,25 @@
         </dependency>
         <dependency>
             <groupId>com.walnut.odin</groupId>
+            <artifactId>odin-framework-formation</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.walnut.odin</groupId>
             <artifactId>odin-mapper-driver</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.walnut.odin</groupId>
+            <artifactId>odin-runtime-husky-control</artifactId>
+            <version>2.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.walnut.odin</groupId>
+            <artifactId>odin-runtime-grpc-control</artifactId>
             <version>2.5.1</version>
             <scope>compile</scope>
         </dependency>

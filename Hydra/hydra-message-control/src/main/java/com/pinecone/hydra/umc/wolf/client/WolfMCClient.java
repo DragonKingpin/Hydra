@@ -40,6 +40,8 @@ import com.pinecone.hydra.umc.msg.Medium;
 import com.pinecone.hydra.umc.msg.UMCMessage;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 import com.pinecone.hydra.umct.UMCTExpressHandler;
+import com.pinecone.hydra.umc.wolf.client.reconnect.GenericUlfReconnectSupervisor;
+import com.pinecone.hydra.umc.wolf.client.reconnect.UlfReconnectSupervisor;
 
 import java.io.IOException;
 
@@ -74,6 +76,10 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     protected UlfAsyncMsgHandleAdapter             mPrimeAsyncMessageHandler = new UnsetUlfAsyncMsgHandleAdapter( this ); // For all channels.
 
     protected List<ChannelEventHandler>            mChannelConnectedHandlers = new ArrayList<>();
+
+    protected UlfReconnectSupervisor               mReconnectSupervisor;
+
+    protected volatile boolean                     mbClosing = false;
 
     public WolfMCClient( long nodeId, String szName, Processum parentProcess, UlfMessageNode parent, Map<String, Object> joConf, ExtraHeadCoder extraHeadCoder ){
         super( nodeId, szName, parentProcess, parent, joConf, extraHeadCoder );
@@ -168,11 +174,33 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         return this.mBootstrap;
     }
 
+    public UlfReconnectSupervisor         getReconnectSupervisor() {
+        if ( this.mReconnectSupervisor == null ) {
+            this.mReconnectSupervisor = new GenericUlfReconnectSupervisor( this );
+        }
+
+        return this.mReconnectSupervisor;
+    }
+
+    public boolean                        isClosing() {
+        return this.mbClosing;
+    }
+
+    public boolean                        isReconnectAllowed() {
+        return this.getConnectionArguments().isAutoReconnect()
+                && !this.isClosing()
+                && !this.isShutdown()
+                && this.getEventLoopGroup() != null;
+    }
+
     public int                            getParallelChannels() {
         return this.getConnectionArguments().getParallelChannels();
     }
 
     protected void                        clear(){
+        if ( this.mReconnectSupervisor != null ) {
+            this.mReconnectSupervisor.clear();
+        }
         this.mChannelPool.clear();
     }
 
@@ -180,7 +208,8 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     public void                           close() throws ProvokeHandleException {
         this.mStateMutex.lock();
         try {
-            if( this.mExecutorGroup != null ) {
+            this.mbClosing = true;
+            if ( this.mExecutorGroup != null ) {
                 this.mExecutorGroup.shutdownGracefully();
                 this.clear();
                 this.mExecutorGroup = null;
@@ -202,6 +231,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
 
     @Override
     public void                           kill() {
+        this.mbClosing = true;
         try {
             this.close();
         }
@@ -231,6 +261,10 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
         for( ChannelEventHandler h : this.mChannelConnectedHandlers ) {
             h.afterEventTriggered( block, ctx );
         }
+    }
+
+    public void                           notifyReconnectChannelConnected( ChannelControlBlock block ) {
+        this.notifyChannelConnected( block, null );
     }
 
     protected MessengerNettyChannelControlBlock syncSpawnSoloChannel() throws IOException, UMCServiceException {
@@ -337,6 +371,7 @@ public class WolfMCClient extends ArchAsyncMessenger implements UlfClient {
     }
 
     protected void                        initNettySubsystem() throws IOException, UMCServiceException {
+        this.mbClosing = false;
         this.mExecutorGroup = new NioEventLoopGroup();
         this.mBootstrap     = new Bootstrap();
         Bootstrap bootstrap = this.mBootstrap;

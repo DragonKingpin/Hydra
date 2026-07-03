@@ -23,4 +23,8 @@ public interface FileSystemConfig extends StorageConfig {
     default int getSymbolicReparseMaxDepth() {
         return UofsSymbolicResolveConfig.DefaultMaxDepth;
     }
+
+    default int getRemoveAsyncThreshold() {
+        return 32;
+    }
 }

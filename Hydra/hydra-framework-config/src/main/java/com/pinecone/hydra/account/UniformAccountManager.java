@@ -42,6 +42,7 @@ import com.pinecone.hydra.account.source.UserNodeManipulator;
 import com.pinecone.ulf.util.guid.i64.GUID72;
 import com.pinecone.ulf.util.guid.GUIDs;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +91,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
                 this.pathResolver, this.imperialTree, this.folderManipulators.toArray( new GUIDNameManipulator[]{} ), this.fileManipulators.toArray( new GUIDNameManipulator[]{} )
         );
 
-        this.acNodeAllotment = new GenericACNodeAllotment( this );
+        this.acNodeAllotment = new GenericACNodeAllotment( this, this.userMasterManipulator );
     }
 
     public UniformAccountManager( Processum superiorProcess, KOIMasterManipulator masterManipulator, AccountManager parent, String name ) {
@@ -116,7 +117,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
-        return null;
+        throw new UnsupportedOperationException( "Account namespace handle query is not implemented." );
     }
 
     @Override
@@ -182,6 +183,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
         return ret;
     }
+
     @Override
     public Account affirmAccount(String path) {
         return (Account) this.affirmTreeNodeByPath( path, GenericAccount.class, GenericDomain.class );
@@ -199,12 +201,14 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public void insertCredential(Credential credential) {
+        this.affirmCredentialAuditFields( credential );
         this.credentialManipulator.insert( credential );
 
     }
 
     @Override
     public void insertRole(Role role) {
+        this.affirmRoleAuditFields( role );
         this.roleManipulator.insert( role );
     }
 
@@ -238,12 +242,13 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
     @Override
     public boolean queryAccountByGuid(GUID userGuid, String kernelCredential) {
         Account account = this.userNodeManipulator.queryUser( userGuid );
-        return account.getKernelCredential().equals(kernelCredential);
+        return account != null && Objects.equals( account.getKernelCredential(), kernelCredential );
 
     }
 
     @Override
     public void insertPrivilege(GenericPrivilege privilege) {
+        this.affirmPrivilegeAuditFields( privilege );
         this.privilegeManipulator.insert(privilege);
     }
 
@@ -254,12 +259,18 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public Object queryPrivilege(GUID72 guid72) {
-        return null;
+        throw new UnsupportedOperationException( "GUID72 privilege query is not implemented." );
     }
 
     @Override
     public List<GenericPrivilege> queryPrivilegeByName(String name) {
-        return null;
+        List<GenericPrivilege> privileges = new ArrayList<>();
+        for( GenericPrivilege privilege : this.queryAllPrivileges() ) {
+            if( Objects.equals( privilege.getName(), name ) ) {
+                privileges.add( privilege );
+            }
+        }
+        return privileges;
     }
 
     @Override
@@ -284,9 +295,16 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public boolean hasPermission(GUID userGuid, String requiredPrivilegeCode) {
+        if( requiredPrivilegeCode == null ) {
+            return false;
+        }
         List<GenericAuthorization> authorizations = this.authorizationManipulator.queryAuthorizationByUserGuid(userGuid);
         for( GenericAuthorization authorization : authorizations ) {
-            if( authorization.getPrivilegeToken().contains( requiredPrivilegeCode ) ) {
+            if( Objects.equals( authorization.getPrivilegeToken(), requiredPrivilegeCode ) ) {
+                return true;
+            }
+            Privilege privilege = authorization.getPrivilegeGuid() == null ? null : this.privilegeManipulator.queryPrivilege( authorization.getPrivilegeGuid() );
+            if( privilege != null && Objects.equals( privilege.getPrivilegeCode(), requiredPrivilegeCode ) ) {
                 return true;
             }
         }
@@ -295,6 +313,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public void insertAuthorization(GenericAuthorization authorization) {
+        this.affirmAuthorizationAuditFields( authorization );
         this.authorizationManipulator.insert( authorization );
     }
 
@@ -370,7 +389,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     @Override
     public void removeRole(int id) {
-        //this.roleManipulator.removeRole( id );
+        this.roleManipulator.removeRoleById( id );
     }
 
     @Override
@@ -404,7 +423,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
         return false;
     }
 
-    protected String getNS(GUID guid, String szSeparator ){
+    protected String getNS(GUID guid, String szSeparator ) {
         String path = this.imperialTree.getCachePath(guid);
         if ( path != null ) {
             return path;
@@ -427,7 +446,7 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
         return assemblePath;
     }
 
-    private String getNodeName(ImperialTreeNode node ){
+    private String getNodeName(ImperialTreeNode node ) {
         UOI type = node.getType();
         TreeNode newInstance = (TreeNode)type.newInstance();
         TreeNodeOperator operator = this.operatorFactory.getOperator( newInstance.getMetaType() );
@@ -437,5 +456,41 @@ public class UniformAccountManager extends ArchKOMTree implements AccountManager
 
     private boolean allNonNull( List<?> list ) {
         return list.stream().noneMatch( Objects::isNull );
+    }
+
+    private void affirmCredentialAuditFields( Credential credential ) {
+        LocalDateTime now = LocalDateTime.now();
+        if( credential.getGuid() == null ) {
+            credential.setGuid( this.getGuidAllocator().nextGUID() );
+            credential.setCreateTime( now );
+        }
+        credential.setUpdateTime( now );
+    }
+
+    private void affirmRoleAuditFields( Role role ) {
+        LocalDateTime now = LocalDateTime.now();
+        if( role.getGuid() == null ) {
+            role.setGuid( this.getGuidAllocator().nextGUID() );
+            role.setCreateTime( now );
+        }
+        role.setUpdateTime( now );
+    }
+
+    private void affirmPrivilegeAuditFields( Privilege privilege ) {
+        LocalDateTime now = LocalDateTime.now();
+        if( privilege.getGuid() == null ) {
+            privilege.setGuid( this.getGuidAllocator().nextGUID() );
+            privilege.setCreateTime( now );
+        }
+        privilege.setUpdateTime( now );
+    }
+
+    private void affirmAuthorizationAuditFields( GenericAuthorization authorization ) {
+        LocalDateTime now = LocalDateTime.now();
+        if( authorization.getGuid() == null ) {
+            authorization.setGuid( this.getGuidAllocator().nextGUID() );
+            authorization.setCreateTime( now );
+        }
+        authorization.setUpdateTime( now );
     }
 }

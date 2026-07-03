@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.account.ibatis.UserPathCacheMapper">
+
+    <resultMap id="AccountPathBindingMap" type="com.pinecone.hydra.unit.imperium.entity.CachePathBinding">
+        <id     column="id"        property="id"/>
+        <result column="guid"      property="guid"/>
+        <result column="path_hash" property="pathHash"/>
+        <result column="hash_slot" property="hashSlot"/>
+        <result column="path"      property="path"/>
+    </resultMap>
+
+    <delete id="remove">
+        DELETE FROM `hydra_account_node_cache_path`
+        WHERE `guid` = #{guid}
+    </delete>
+
+    <select id="listByPathHash" resultMap="AccountPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_account_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+    </select>
+
+    <select id="listByPathHashForUpdate" resultMap="AccountPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_account_node_cache_path`
+        WHERE `path_hash` = #{pathHash}
+        ORDER BY `hash_slot` ASC
+        FOR UPDATE
+    </select>
+
+    <select id="listByGuid" resultMap="AccountPathBindingMap">
+        SELECT
+            `id`,
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        FROM `hydra_account_node_cache_path`
+        WHERE `guid` = #{guid}
+        ORDER BY `id` ASC
+    </select>
+
+    <insert id="insertHashed">
+        INSERT INTO `hydra_account_node_cache_path`
+        (
+            `guid`,
+            `path_hash`,
+            `hash_slot`,
+            `path`
+        )
+        VALUES
+        (
+            #{guid},
+            #{pathHash},
+            #{hashSlot},
+            #{path}
+        )
+    </insert>
+
+    <update id="updateHashed">
+        UPDATE `hydra_account_node_cache_path`
+        SET
+            `guid` = #{guid},
+            `path_hash` = #{pathHash},
+            `hash_slot` = #{hashSlot},
+            `path` = #{path}
+        WHERE `id` = #{id}
+    </update>
+
+</mapper>

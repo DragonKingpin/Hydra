@@ -8,6 +8,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.service.kom.entity.ApplicationElement;
+import com.pinecone.hydra.service.kom.entity.ArchElementNode;
 import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.GenericApplicationElement;
 import com.pinecone.hydra.service.kom.entity.GenericNamespace;
@@ -109,49 +110,143 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         );
     }
 
-    protected ServiceTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
-        String[] parts = this.pathResolver.segmentPathParts( path );
-        String currentPath = "";
-        GUID parentGuid = GUIDs.Dummy128();
+    @Override
+    public ServiceMasterManipulator getServiceMasterManipulator() {
+        return this.serviceMasterManipulator;
+    }
 
-        ServiceTreeNode node = this.queryElement(path);
+    protected ServiceTreeNode affirmTreeNodeByPath( String path, Class<? > cnSup, Class<? > nsSup ) {
+        List<String > parts = this.pathResolver.resolvePathParts( path );
+        this.assertValidTreePath( path, parts );
+        String currentPath = "";
+        GUID parentGuid = null;
+        ElementNode parentElement = null;
+
+        String normalizedPath = this.pathResolver.assemblePath( parts );
+        ServiceTreeNode node = this.queryElement( normalizedPath );
         if ( node != null ){
+            this.assertMatchedNodeType( normalizedPath, node, cnSup );
             return node;
         }
 
         ServiceTreeNode ret = null;
-        for( int i = 0; i < parts.length; ++i ){
-            currentPath = currentPath + ( i > 0 ? this.getConfig().getPathNameSeparator() : "" ) + parts[ i ];
+        for( int i = 0; i < parts.size(); ++i ){
+            if ( i > 0 ) {
+                currentPath = currentPath + this.getConfig().getPathNameSeparator();
+            }
+            currentPath = currentPath + parts.get( i );
             node = this.queryElement( currentPath );
             if ( node == null){
-                if ( i == parts.length - 1 && cnSup != null ){
+                if ( i == parts.size() - 1 && cnSup != null ){
+                    this.assertCanAttach( parentElement, cnSup, currentPath );
                     ServoElement servoElement = (ServoElement) this.dynamicFactory.optNewInstance( cnSup, new Object[]{ this } );
-                    servoElement.setName( parts[i] );
+                    servoElement.setName( parts.get( i ) );
                     GUID guid = this.put( servoElement );
-                    this.affirmOwnedNode( parentGuid, guid );
+                    if ( parentGuid != null ) {
+                        this.affirmOwnedNode( parentGuid, guid );
+                    }
                     return servoElement;
                 }
                 else {
+                    this.assertCanAttach( parentElement, nsSup, currentPath );
                     Namespace namespace = (Namespace) this.dynamicFactory.optNewInstance( nsSup, new Object[]{ this } );
-                    namespace.setName( parts[i] );
+                    namespace.setName( parts.get( i ) );
                     GUID guid = this.put( namespace );
-                    if ( i != 0 ){
+                    if ( parentGuid != null ){
                         this.affirmOwnedNode( parentGuid, guid );
-                        parentGuid = guid;
-                    }
-                    else {
-                        parentGuid = guid;
                     }
 
+                    parentGuid = guid;
+                    parentElement = namespace.evinceElementNode();
                     ret = namespace;
                 }
             }
             else {
+                this.assertCanAttach( parentElement, node.evinceElementNode(), currentPath );
+                if ( i == parts.size() - 1 ) {
+                    this.assertMatchedNodeType( currentPath, node, cnSup );
+                }
                 parentGuid = node.getGuid();
+                parentElement = node.evinceElementNode();
             }
         }
 
         return ret;
+    }
+
+    protected void assertValidTreePath( String path, List<String > parts ) {
+        if ( parts == null || parts.isEmpty() ) {
+            throw new IllegalArgumentException( "Service tree path should not be root or blank: " + path );
+        }
+
+        for ( String part : parts ) {
+            if ( part == null || part.trim().isEmpty() ) {
+                throw new IllegalArgumentException( "Service tree path should not contain blank segment: " + path );
+            }
+        }
+    }
+
+    protected void assertMatchedNodeType( String path, ServiceTreeNode node, Class<? > cnSup ) {
+        ElementNode elementNode = node == null ? null : node.evinceElementNode();
+        if ( elementNode == null ) {
+            throw new IllegalArgumentException( "Service tree path does not point to an element node: " + path );
+        }
+
+        if ( cnSup == null ) {
+            if ( elementNode.evinceNamespace() == null ) {
+                throw new IllegalArgumentException( "Service tree path already exists but is not a namespace: " + path );
+            }
+        }
+        else if ( cnSup == GenericApplicationElement.class ) {
+            if ( elementNode.evinceApplicationElement() == null ) {
+                throw new IllegalArgumentException( "Service tree path already exists but is not an application: " + path );
+            }
+        }
+        else if ( cnSup == GenericServiceElement.class ) {
+            if ( elementNode.evinceServiceElement() == null ) {
+                throw new IllegalArgumentException( "Service tree path already exists but is not a service: " + path );
+            }
+        }
+    }
+
+    protected void assertCanAttach( ElementNode parentElement, Class<? > childClass, String path ) {
+        if ( childClass == GenericServiceElement.class ) {
+            this.assertCanAttachService( parentElement, path );
+            return;
+        }
+
+        if ( parentElement != null && parentElement.evinceApplicationElement() != null ) {
+            throw new IllegalArgumentException( "Application node can only contain service nodes: " + path );
+        }
+
+        if ( parentElement != null && parentElement.evinceServiceElement() != null ) {
+            throw new IllegalArgumentException( "Service node cannot contain child nodes: " + path );
+        }
+    }
+
+    protected void assertCanAttach( ElementNode parentElement, ElementNode childElement, String path ) {
+        if ( childElement == null ) {
+            throw new IllegalArgumentException( "Service tree child node is invalid: " + path );
+        }
+
+        if ( childElement.evinceServiceElement() != null ) {
+            this.assertCanAttachService( parentElement, path );
+            return;
+        }
+
+        if ( parentElement != null && parentElement.evinceApplicationElement() != null ) {
+            throw new IllegalArgumentException( "Application node can only contain service nodes: " + path );
+        }
+
+        if ( parentElement != null && parentElement.evinceServiceElement() != null ) {
+            throw new IllegalArgumentException( "Service node cannot contain child nodes: " + path );
+        }
+    }
+
+    protected void assertCanAttachService( ElementNode parentElement, String path ) {
+        if ( parentElement != null && parentElement.evinceServiceElement() != null ) {
+            throw new IllegalArgumentException( "Service node cannot contain child nodes: " + path );
+        }
     }
 
     @Override
@@ -166,12 +261,82 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
 
     @Override
     public ElementNode queryElement( String path ) {
+        List<String > parts = this.pathResolver.resolvePathParts( path );
+        this.assertValidTreePath( path, parts );
+
         GUID guid = this.queryGUIDByPath( path );
-        if( guid != null ) {
-            return this.get( guid ).evinceElementNode();
+        ElementNode node = this.queryElementByGuid( guid );
+        if ( node != null ) {
+            return node;
+        }
+
+        if ( guid != null ) {
+            this.imperialTree.removeCachePath( guid );
+        }
+
+        return this.queryElementByPathParts( parts );
+    }
+
+    protected ElementNode queryElementByGuid( GUID guid ) {
+        if ( guid == null ) {
+            return null;
+        }
+
+        ServiceTreeNode node = this.get( guid );
+        if ( node == null ) {
+            return null;
+        }
+
+        return node.evinceElementNode();
+    }
+
+    protected ElementNode queryElementByPathParts( List<String > parts ) {
+        GUID currentGuid = null;
+        for ( int i = 0; i < parts.size(); ++i ) {
+            currentGuid = this.queryChildGuid( currentGuid, parts.get( i ) );
+            if ( currentGuid == null ) {
+                return null;
+            }
+        }
+
+        return this.queryElementByGuid( currentGuid );
+    }
+
+    protected GUID queryChildGuid( GUID parentGuid, String childName ) {
+        for ( GUIDNameManipulator manipulator : this.folderManipulators ) {
+            GUID guid = this.queryChildGuid( manipulator, parentGuid, childName );
+            if ( guid != null ) {
+                return guid;
+            }
+        }
+
+        for ( GUIDNameManipulator manipulator : this.fileManipulators ) {
+            GUID guid = this.queryChildGuid( manipulator, parentGuid, childName );
+            if ( guid != null ) {
+                return guid;
+            }
         }
 
         return null;
+    }
+
+    protected GUID queryChildGuid( GUIDNameManipulator manipulator, GUID parentGuid, String childName ) {
+        List<GUID > guids = manipulator.getGuidsByName( childName );
+        for ( GUID guid : guids ) {
+            if ( this.isMatchedChildGuid( parentGuid, guid ) ) {
+                return guid;
+            }
+        }
+
+        return null;
+    }
+
+    protected boolean isMatchedChildGuid( GUID parentGuid, GUID guid ) {
+        if ( parentGuid == null ) {
+            return this.imperialTree.isRoot( guid );
+        }
+
+        return this.imperialTree.fetchParentGuids( guid ).contains( parentGuid );
     }
 
     @Override
@@ -220,7 +385,16 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
 
     @Override
     public ServiceTreeNode get( GUID guid ){
-        return (ServiceTreeNode) super.get( guid );
+        ServiceTreeNode node = (ServiceTreeNode) super.get( guid );
+        return this.applyServiceInstrument( node );
+    }
+
+    protected ServiceTreeNode applyServiceInstrument( ServiceTreeNode node ) {
+        if ( node instanceof ArchElementNode ) {
+            ( (ArchElementNode) node ).apply( this );
+        }
+
+        return node;
     }
 
     @Override
@@ -237,7 +411,7 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
-    public Object queryEntityHandleByNS(String path, String szBadSep, String szTargetSep) {
+    public Object queryEntityHandleByNS( String path, String szBadSep, String szTargetSep ) {
         return null;
     }
 
@@ -247,17 +421,71 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
-    public void createServiceInstance(ServiceInstanceEntry serviceInstanceEntry) {
-        this.serviceInstanceManipulator.initServiceInstance(serviceInstanceEntry);
+    public List<ServiceElement> fetchServices( ServiceElementQuery query ) {
+        return this.serviceNodeManipulator.fetchServices( query );
     }
 
     @Override
-    public ServiceInstanceEntry queryServiceInstance(GUID serviceId) {
+    public List<ServiceElement> fetchServicesByGuids( List<GUID> guids ) {
+        return this.serviceNodeManipulator.fetchServicesByGuids( guids );
+    }
+
+    @Override
+    public long countServices( ServiceElementQuery query ) {
+        return this.serviceNodeManipulator.countServices( query );
+    }
+
+    @Override
+    public ServiceElementPage fetchServicePage( ServiceElementQuery query ) {
+        ServiceElementQuery safeQuery = query;
+        if ( safeQuery == null ) {
+            safeQuery = new ServiceElementQuery();
+        }
+
+        List<ServiceElement> items = this.fetchServices( safeQuery );
+        long nTotal = this.countServices( safeQuery );
+        return new ServiceElementPage( items, nTotal, safeQuery.getOffset(), safeQuery.getLimit() );
+    }
+
+    @Override
+    public void createServiceInstance( ServiceInstanceEntry serviceInstanceEntry ) {
+        this.serviceInstanceManipulator.initServiceInstance( serviceInstanceEntry );
+    }
+
+    @Override
+    public ServiceInstanceEntry queryServiceInstance( GUID serviceId ) {
         return this.serviceInstanceManipulator.queryServiceInstance( serviceId );
     }
 
     @Override
-    public void updateServiceInstance(ServiceInstanceEntry element) {
+    public List<ServiceInstanceEntry> fetchServiceInstances( ServiceInstanceQuery query ) {
+        return this.serviceInstanceManipulator.fetchServiceInstances( query );
+    }
+
+    @Override
+    public long countServiceInstances( ServiceInstanceQuery query ) {
+        return this.serviceInstanceManipulator.countServiceInstances( query );
+    }
+
+    @Override
+    public List<ServiceInstanceEntry> fetchServiceInstancesByServiceGuid( GUID serviceGuid ) {
+        return this.serviceInstanceManipulator.fetchServiceInstancesByServiceGuid( serviceGuid );
+    }
+
+    @Override
+    public ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query ) {
+        ServiceInstanceQuery safeQuery = query;
+        if ( safeQuery == null ) {
+            safeQuery = new ServiceInstanceQuery();
+        }
+
+        List<ServiceInstanceEntry> items = this.fetchServiceInstances( safeQuery );
+        long nTotal = this.countServiceInstances( safeQuery );
+        return new ServiceInstancePage( items, nTotal, safeQuery.getOffset(), safeQuery.getLimit() );
+    }
+
+    @Override
+    public void updateServiceInstance( ServiceInstanceEntry element ) {
         this.serviceInstanceManipulator.updateServiceInstance( element );
     }
 }

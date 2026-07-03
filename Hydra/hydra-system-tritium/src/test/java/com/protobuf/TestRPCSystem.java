@@ -2,7 +2,9 @@ package com.protobuf;
 
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mc.JesusChrist;
@@ -27,7 +29,6 @@ import com.pinecone.hydra.umct.mapping.MappingDigest;
 import com.pinecone.hydra.umct.husky.compiler.BytecodeIfaceCompiler;
 import com.pinecone.hydra.umct.husky.compiler.DynamicMethodPrototype;
 import com.pinecone.hydra.umct.husky.compiler.MethodDigest;
-import com.pinecone.tritium.messagron.Messagron;
 
 import javassist.ClassPool;
 
@@ -59,8 +60,6 @@ class Jeff extends JesusChrist {
     }
 
     private void testProtoRPCServer() throws Exception {
-        Messagron messagron = new Messagron( "", this, new JSONMaptron() );
-
         WolfMCServer wolf1 = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         WolfAppointServer wolf = new WolfAppointServer( wolf1 );
@@ -191,8 +190,6 @@ class Jeff extends JesusChrist {
     }
 
     private void testProtoRPCServerController() throws Exception {
-        Messagron messagron = new Messagron( "", this, new JSONMaptron() );
-
         WolfMCServer wolf1 = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
         WolfAppointServer wolf = new WolfAppointServer( wolf1 );
@@ -223,8 +220,6 @@ class Jeff extends JesusChrist {
     }
 
     private void testDuplex() throws Exception {
-        Messagron messagron = new Messagron( "", this, new JSONMaptron() );
-
         WolfMCServer wolfKing = new WolfMCServer( "", this, new JSONMaptron("{host: \"0.0.0.0\",\n" +
                 "port: 5777, SocketTimeout: 800, KeepAliveTimeout: 3600, MaximumConnections: 1e6}") );
 
@@ -284,6 +279,24 @@ class Jeff extends JesusChrist {
         monkey.name = "monkey";
         rabbit.setMonkey( monkey );
         rabbit.setMonkeys( new Monkey[] { monkey, monkey } );
+
+        Monkey redMonkey = new Monkey();
+        redMonkey.name = "red-monkey";
+
+        Monkey blueMonkey = new Monkey();
+        blueMonkey.name = "blue-monkey";
+
+        Map<String, Monkey> stringMonkeyMap = new LinkedHashMap<>();
+        stringMonkeyMap.put( "red", redMonkey );
+        stringMonkeyMap.put( "blue", blueMonkey );
+        rabbit.setStringMonkeyMap( stringMonkeyMap );
+
+        Map<Long, Monkey> longMonkeyMap = new LinkedHashMap<>();
+        longMonkeyMap.put( 100L, redMonkey );
+        longMonkeyMap.put( 200L, blueMonkey );
+        rabbit.setLongMonkeyMap( longMonkeyMap );
+
+        rabbit.setMonkeyList( List.of( redMonkey, blueMonkey ) );
 
         Rabbit sub = new Rabbit();
         sub.setName( "haha" );

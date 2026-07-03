@@ -12,6 +12,9 @@ public interface Journal extends Pinenut {
     GUID getGuid();
     void setGuid( GUID guid );
 
+    GUID getBucketGuid();
+    void setBucketGuid( GUID bucketGuid );
+
     JournalType getJournalType();
     void setJournalType( JournalType journalType );
 

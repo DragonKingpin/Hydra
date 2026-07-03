@@ -1,10 +1,15 @@
 package com.acorn.skynet.device.conduct;
 
+import java.util.Collection;
+
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.device.kom.DeviceInstrument;
 import com.pinecone.hydra.device.kom.entity.ElementNode;
+import com.pinecone.hydra.device.kom.instance.DeviceInstanceEntry;
 import com.pinecone.hydra.device.registry.DeviceControlException;
+import com.pinecone.hydra.device.registry.DeviceControlRPCException;
 import com.pinecone.hydra.device.registry.server.DeviceManager;
+import com.pinecone.hydra.device.registry.server.transport.DeviceControlTransport;
 import com.pinecone.hydra.system.component.LogStatuses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +126,54 @@ public class SkyCollectiveDeviceRegiment implements CollectiveDeviceRegiment {
     public void startDeviceManager() throws DeviceControlException {
         this.mDeviceManager.startDeviceManager();
         this.infoLifecycle( "Skynet Collective Device Regiment Vitalization", LogStatuses.StatusDone );
+    }
+
+    @Override
+    public DeviceInstanceEntry queryDeviceRuntime( GUID deviceGuid ) {
+        return this.mDeviceManager.deviceRuntimeService().queryDeviceRuntime( deviceGuid );
+    }
+
+    @Override
+    public DeviceInstanceEntry queryDeviceInstance( GUID instanceGuid ) {
+        return this.mDeviceManager.deviceRuntimeService().queryDeviceInstance( instanceGuid );
+    }
+
+    @Override
+    public Collection<DeviceInstanceEntry> fetchDeviceRuntimes() {
+        return this.mDeviceManager.deviceRuntimeService().fetchDeviceRuntimes();
+    }
+
+    @Override
+    public void shutdownDeviceInstance( GUID instanceGuid, String reason ) throws DeviceControlException {
+        if ( instanceGuid == null ) {
+            throw new IllegalArgumentException( "Device instance guid is required." );
+        }
+
+        DeviceInstanceEntry instance = this.queryDeviceInstance( instanceGuid );
+        if ( instance == null ) {
+            throw new DeviceControlException( "Device instance does not exist: " + instanceGuid );
+        }
+
+        for ( DeviceControlTransport transport : this.mDeviceManager.getTransports() ) {
+            if ( !transport.containsClient( instance.getClientId() ) ) {
+                continue;
+            }
+
+            try {
+                transport.shutdownClientDevice( instance.getClientId(), instanceGuid, reason );
+                return;
+            }
+            catch ( DeviceControlRPCException e ) {
+                throw new DeviceControlException( e );
+            }
+        }
+
+        throw new DeviceControlException( "Device instance client is not connected: " + instanceGuid );
+    }
+
+    @Override
+    public void stopDeviceManager() {
+        this.mDeviceManager.stopDeviceManager();
     }
 
     protected boolean isBlank( String szValue ) {

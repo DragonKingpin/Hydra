@@ -23,6 +23,15 @@
         <result column="tag_guid" property="tagGuid"/>
     </resultMap>
 
+    <resultMap id="DeviceNodeOwnershipMap" type="com.pinecone.hydra.device.kom.entity.DeviceNodeOwnershipEntry">
+        <id     column="guid"                property="guid"/>
+        <result column="owner_device_guid"   property="ownerDeviceGuid"/>
+        <result column="base_data_guid"      property="baseDataGuid"/>
+        <result column="node_metadata_guid"  property="nodeMetadataGuid"/>
+        <result column="is_device_node"      property="deviceNode"/>
+        <result column="type"                property="type"/>
+    </resultMap>
+
     <insert id="insertRootNode">
         INSERT INTO `hydra_device_node_tree`
         (
@@ -40,16 +49,20 @@
         INSERT INTO `hydra_device_nodes`
         (
             `guid`,
+            `owner_device_guid`,
             `type`,
             `base_data_guid`,
-            `node_metadata_guid`
+            `node_metadata_guid`,
+            `is_device_node`
         )
         VALUES
         (
             #{guid},
+            NULL,
             #{type},
             #{baseDataGuid},
-            #{nodeMetaGuid}
+            #{nodeMetaGuid},
+            1
         )
     </insert>
 
@@ -57,9 +70,11 @@
         SELECT
             `id`,
             `guid`,
+            `owner_device_guid`,
             `type`,
             `base_data_guid`,
-            `node_metadata_guid`
+            `node_metadata_guid`,
+            `is_device_node`
         FROM `hydra_device_nodes`
         WHERE `guid` = #{guid}
     </select>
@@ -147,6 +162,48 @@
     <update id="updateType">
         UPDATE `hydra_device_nodes`
         SET `type` = #{type}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="queryDeviceNodeOwnership" resultMap="DeviceNodeOwnershipMap">
+        SELECT
+            `guid`,
+            `owner_device_guid`,
+            `base_data_guid`,
+            `node_metadata_guid`,
+            `is_device_node`,
+            `type`
+        FROM `hydra_device_nodes`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="fetchOwnedDeviceGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT
+            `guid`
+        FROM `hydra_device_nodes`
+        WHERE `owner_device_guid` = #{ownerDeviceGuid}
+          AND `is_device_node` = 1
+    </select>
+
+    <select id="fetchOwnedDeviceNodes" resultMap="DeviceNodeOwnershipMap">
+        SELECT
+            `guid`,
+            `owner_device_guid`,
+            `base_data_guid`,
+            `node_metadata_guid`,
+            `is_device_node`,
+            `type`
+        FROM `hydra_device_nodes`
+        WHERE `owner_device_guid` = #{ownerDeviceGuid}
+          AND `is_device_node` = 1
+        ORDER BY `id` ASC
+    </select>
+
+    <update id="updateDeviceNodeOwnership">
+        UPDATE `hydra_device_nodes`
+        SET
+            `owner_device_guid` = #{ownerDeviceGuid},
+            `is_device_node` = #{deviceNode}
         WHERE `guid` = #{guid}
     </update>
 
@@ -273,6 +330,35 @@
             `guid`
         FROM `hydra_device_node_tree`
         WHERE `tag_guid` = #{tagGuid}
+    </select>
+
+    <sql id="HardlinkFilter">
+        <where>
+            `linked_type` = 'Hard'
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    `tag_name` LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`parent_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                    OR CAST(`tag_guid` AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="listHardlinks" resultType="com.pinecone.hydra.unit.imperium.entity.HardlinkEntry">
+        SELECT `guid` AS targetNodeGuid, `parent_guid` AS parentNodeGuid, `linked_type` AS linkedType,
+               `tag_name` AS tagName, `tag_guid` AS tagGuid, `create_time` AS createTime, `update_time` AS updateTime
+        FROM `hydra_device_node_tree`
+        <include refid="HardlinkFilter"/>
+        ORDER BY `id` DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countHardlinks" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_device_node_tree`
+        <include refid="HardlinkFilter"/>
     </select>
 
 </mapper>

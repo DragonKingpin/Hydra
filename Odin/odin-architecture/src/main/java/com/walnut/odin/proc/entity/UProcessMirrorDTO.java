@@ -1,6 +1,11 @@
 package com.walnut.odin.proc.entity;
 
 import com.pinecone.framework.system.prototype.Pinenut;
+import com.pinecone.framework.util.json.JSON;
+import com.walnut.odin.proc.RemoteImageResolutionMode;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class UProcessMirrorDTO implements Pinenut {
 
@@ -18,6 +23,7 @@ public class UProcessMirrorDTO implements Pinenut {
 
     private String      mszImageAddress;
     private boolean     mbImageAddressURI;
+    private String      mImageResolutionMode = RemoteImageResolutionMode.REQUIRE_SERVER_IMAGE.name();
 
     public UProcessMirrorDTO( String name, long localPID, String processId, String startupArguments, String environmentVariables ) {
         this.mszName               = name;
@@ -49,6 +55,18 @@ public class UProcessMirrorDTO implements Pinenut {
 
     public boolean isImageAddressURI() {
         return this.mbImageAddressURI;
+    }
+
+    public String getImageResolutionMode() {
+        return this.mImageResolutionMode;
+    }
+
+    public void setImageResolutionMode( String imageResolutionMode ) {
+        this.mImageResolutionMode = RemoteImageResolutionMode.parse( imageResolutionMode ).name();
+    }
+
+    public RemoteImageResolutionMode optImageResolutionMode() {
+        return RemoteImageResolutionMode.parse( this.mImageResolutionMode );
     }
 
     public String getName() {
@@ -99,5 +117,19 @@ public class UProcessMirrorDTO implements Pinenut {
         this.mEnvironmentVariables = environmentVariables;
     }
 
+    @Override
+    public String toJSONString() {
+        Map<String, Object> json = new LinkedHashMap<>();
+        json.put( "name", this.mszName );
+        json.put( "localPID", this.mnLocalPID );
+        json.put( "parentPID", this.mszParentPID );
+        json.put( "PID", this.mszProcessId );
+        json.put( "startupArguments", this.mStartupArguments );
+        json.put( "environmentVariables", this.mEnvironmentVariables );
+        json.put( "imageAddress", this.mszImageAddress );
+        json.put( "imageAddressURI", this.mbImageAddressURI );
+        json.put( "imageResolutionMode", this.mImageResolutionMode );
+        return JSON.stringify( json );
+    }
 
 }

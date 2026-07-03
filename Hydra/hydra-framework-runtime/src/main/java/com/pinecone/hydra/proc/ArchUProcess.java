@@ -13,6 +13,7 @@ import com.pinecone.framework.system.executum.Processum;
 import com.pinecone.framework.system.executum.TaskManager;
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.proc.entity.ElementNode;
+import com.pinecone.hydra.proc.image.EntryPointRunnable;
 import com.pinecone.hydra.proc.image.ExecutionImage;
 import com.pinecone.hydra.proc.ns.ProcSpace;
 import com.pinecone.hydra.proc.tomb.ResurgentTombstone;
@@ -32,28 +33,32 @@ public abstract class ArchUProcess implements UProcess {
     protected ProcessManager         mProcessManager;
 
     protected ExecutionImage         mExecutionImage;
+    protected EntryPointRunnable     mEntryPoint;
 
-    protected Map<String, String[]>  mStartupArgs;
-    protected Map<String, String[]>  mEnvironmentVars;
+    protected Map<String, String>  mStartupArgs;
+    protected Map<String, String>  mEnvironmentVars;
 
     protected ControllableLevel      mControllableLevel;
+    protected UProcessStatus         mStatus;
     protected LocalDateTime          mEndTime;
     protected LocalDateTime          mLastUpdateTime;
 
     public ArchUProcess(
             @Nullable Processum localProcess, GUID guid, String szName,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
         this.mLocalProcess      = localProcess;
         this.mProcessManager    = processManager;
         this.mProcessID         = guid;
         this.mExecutionImage    = image;
+        this.mEntryPoint        = entryPoint;
         this.mProcSpace         = procSpace;
         this.mRuntimeTombstone  = new ResurgentTombstone();
         this.mStartupArgs       = startupArgs;
         this.mEnvironmentVars   = environmentVars;
         this.mControllableLevel = image.getControllableLevel();
+        this.mStatus            = UProcessStatus.Created;
         this.mActionTape        = new GenericProcessActionTape();
 
         if ( this.mLocalProcess == null ) {
@@ -67,18 +72,18 @@ public abstract class ArchUProcess implements UProcess {
 
     public ArchUProcess(
             @Nullable Processum localSystemProc, String szName,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, procSpace, startupArgs, environmentVars );
+        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), szName, parent, processManager, image, entryPoint, procSpace, startupArgs, environmentVars );
     }
 
     public ArchUProcess(
             Processum localSystemProc,
-            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, ProcSpace procSpace,
-            Map<String, String[]> startupArgs, Map<String, String[]> environmentVars
+            @Nullable UProcess parent, ProcessManager processManager, ExecutionImage image, EntryPointRunnable entryPoint, ProcSpace procSpace,
+            Map<String, String> startupArgs, Map<String, String> environmentVars
     ) {
-        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, procSpace, startupArgs, environmentVars );
+        this( localSystemProc, processManager.getGuidAllocator().nextGUID(), localSystemProc.getName(), parent, processManager, image, entryPoint, procSpace, startupArgs, environmentVars );
     }
 
     @Override
@@ -89,6 +94,16 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public ProcessActionTape actionTape() {
         return this.mActionTape;
+    }
+
+    @Override
+    public void applyStatus( UProcessStatus status ) {
+        this.mStatus = status == null ? UProcessStatus.Unknown : status;
+    }
+
+    @Override
+    public UProcessStatus getStatus() {
+        return this.mStatus;
     }
 
     @Override
@@ -108,7 +123,11 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public UProcess parentProcess() {
-        return (UProcess) this.parentExecutum();
+        Executum parent = this.parentExecutum();
+        if ( parent instanceof UProcess ) {
+            return (UProcess) parent;
+        }
+        return null;
     }
 
     @Override
@@ -128,8 +147,9 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public GUID getParentProcessId() {
-        if ( this.parentProcess() != null ) {
-            return this.parentProcess().getGuid();
+        UProcess parent = this.parentProcess();
+        if ( parent != null ) {
+            return parent.getGuid();
         }
 
         return null;
@@ -137,8 +157,9 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public long getParentLocalPID() {
-        if ( this.parentProcess() != null ) {
-            return this.parentProcess().getLocalPID();
+        UProcess parent = this.parentProcess();
+        if ( parent != null ) {
+            return parent.getLocalPID();
         }
         return -1;
     }
@@ -154,12 +175,12 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
-    public Map<String, String[]> getStartupArguments() {
+    public Map<String, String> getStartupArguments() {
         return this.mStartupArgs;
     }
 
     @Override
-    public Map<String, String[]> getEnvironmentVariables() {
+    public Map<String, String> getEnvironmentVariables() {
         return this.mEnvironmentVars;
     }
 
@@ -171,6 +192,11 @@ public abstract class ArchUProcess implements UProcess {
     @Override
     public ExecutionImage getExecutionImage() {
         return this.mExecutionImage;
+    }
+
+    @Override
+    public EntryPointRunnable getEntryPoint() {
+        return this.mEntryPoint;
     }
 
     @Override
@@ -190,7 +216,7 @@ public abstract class ArchUProcess implements UProcess {
 
     @Override
     public void triggerUpdateTerminationStatus() {
-        if ( this.getState() != Thread.State.TERMINATED ) {
+        if ( !this.getStatus().isTerminal() ) {
             throw new IllegalStateException( "Bad time to trigger, I am still alive!" );
         }
 
@@ -266,12 +292,18 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
+    public Thread.State getState() {
+        return this.mLocalProcess.getState();
+    }
+
+    @Override
     public boolean isTerminated() {
         return this.mLocalProcess.isTerminated();
     }
 
     @Override
     public void start() {
+        this.applyStatus( UProcessStatus.Activated );
         this.mLocalProcess.start();
     }
 
@@ -306,11 +338,6 @@ public abstract class ArchUProcess implements UProcess {
     }
 
     @Override
-    public Thread.State getState() {
-        return this.mLocalProcess.getState();
-    }
-
-    @Override
     public int getExceptionRestartTime() {
         return this.mLocalProcess.getExceptionRestartTime();
     }
@@ -331,3 +358,4 @@ public abstract class ArchUProcess implements UProcess {
     }
 
 }
+

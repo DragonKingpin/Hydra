@@ -2,7 +2,6 @@ package com.pinecone.hydra.storage.file.operator;
 
 import com.pinecone.framework.system.ProxyProvokeHandleException;
 import com.pinecone.framework.util.id.GUID;
-import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.hydra.storage.file.KOMFileSystem;
 import com.pinecone.hydra.storage.file.entity.ExternalSymbolic;
 import com.pinecone.hydra.storage.file.entity.FileTreeNode;
@@ -33,13 +32,10 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator {
     public GUID insert(TreeNode treeNode) {
         ExternalSymbolic externalSymbolic = (ExternalSymbolic) treeNode;
         ImperialTreeNode imperialTreeNode = this.affirmPreinsertionInitialize( treeNode );
-        GuidAllocator guidAllocator = this.fileSystem.getGuidAllocator();
         GUID guid = externalSymbolic.getGuid();
 
-        GUID fileMetaGuid = guidAllocator.nextGUID();
-
         imperialTreeNode.setBaseDataGUID(null);
-        imperialTreeNode.setNodeMetadataGUID(fileMetaGuid);
+        imperialTreeNode.setNodeMetadataGUID(null);
         this.imperialTree.insert(imperialTreeNode);
         this.externalSymbolicManipulator.insert( externalSymbolic );
 
@@ -66,7 +62,8 @@ public class GenericExternalSymbolicOperator extends ArchFileSystemOperator {
 
     @Override
     public void rename(GUID fileGuid, String newName) {
-
+        this.externalSymbolicManipulator.rename( fileGuid, newName );
+        this.imperialTree.removeCachePath( fileGuid );
     }
 
     @Override

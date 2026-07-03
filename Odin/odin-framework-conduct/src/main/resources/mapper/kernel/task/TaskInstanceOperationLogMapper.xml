@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.walnut.odin.task.mapper.TaskInstanceOperationLogMapper">
+
+    <resultMap id="TaskInstanceOperationLogMap" type="com.walnut.odin.conduct.entity.GenericTaskInstanceOperationLog">
+        <id column="id" property="id"/>
+        <result column="guid" property="guid"/>
+        <result column="task_guid" property="taskGuid"/>
+        <result column="instance_guid" property="instanceGuid"/>
+        <result column="instance_name" property="instanceName"/>
+        <result column="operation_type" property="operationType"/>
+        <result column="operation_source" property="operationSource"/>
+        <result column="user_identifier" property="userIdentifier"/>
+        <result column="user_name" property="userName"/>
+        <result column="message" property="message"/>
+        <result column="payload" property="payload"/>
+        <result column="operation_time" property="operationTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="TaskInstanceOperationLogColumns">
+        id,
+        guid,
+        task_guid,
+        instance_guid,
+        instance_name,
+        operation_type,
+        operation_source,
+        user_identifier,
+        user_name,
+        message,
+        payload,
+        operation_time,
+        create_time,
+        update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.walnut.odin.conduct.entity.TaskInstanceOperationLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO odin_task_instance_operation_log (
+            guid,
+            task_guid,
+            instance_guid,
+            instance_name,
+            operation_type,
+            operation_source,
+            user_identifier,
+            user_name,
+            message,
+            payload,
+            operation_time
+        ) VALUES (
+            #{guid},
+            #{taskGuid},
+            #{instanceGuid},
+            #{instanceName},
+            #{operationType},
+            #{operationSource},
+            #{userIdentifier},
+            #{userName},
+            #{message},
+            #{payload},
+            #{operationTime}
+        )
+    </insert>
+
+    <select id="fetchByInstanceGuid" resultMap="TaskInstanceOperationLogMap">
+        SELECT
+            <include refid="TaskInstanceOperationLogColumns"/>
+        FROM odin_task_instance_operation_log
+        WHERE instance_guid = #{instanceGuid}
+        ORDER BY operation_time DESC, id DESC
+    </select>
+
+    <delete id="deleteByTaskGuids">
+        DELETE FROM odin_task_instance_operation_log
+        WHERE task_guid IN
+        <foreach collection="taskGuids" item="taskGuid" open="(" separator="," close=")">
+            #{taskGuid}
+        </foreach>
+    </delete>
+
+</mapper>

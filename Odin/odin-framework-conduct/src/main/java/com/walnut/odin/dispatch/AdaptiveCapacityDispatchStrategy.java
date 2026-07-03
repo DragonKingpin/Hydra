@@ -34,11 +34,16 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         this.mnHeapThreshold = nHeapThreshold > 0 ? nHeapThreshold : DEFAULT_HEAP_THRESHOLD;
     }
 
-    protected Map<String, ProcessorSlot> buildProcessorSlots( Collection<TaskExecutionProcessor> processors ) {
+    protected Map<String, ProcessorSlot> buildProcessorSlots(
+            Collection<TaskExecutionProcessor> processors, boolean bIncludeExclusive
+    ) {
         Map<String, ProcessorSlot> slotMap = new HashMap<>();
+        if ( processors == null || processors.isEmpty() ) {
+            return slotMap;
+        }
 
         for ( TaskExecutionProcessor processor : processors ) {
-            if ( processor.isExclusive() ) {
+            if ( processor.isExclusive() && !bIncludeExclusive ) {
                 continue;
             }
 
@@ -73,7 +78,7 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
             else {
                 szTarget = context.getAffinityProcessorName();
                 if ( szTarget == null ) {
-                    TaskExecutionProcessor p = dispatcher.getAffinityTasks( context.getTaskId() );
+                    TaskExecutionProcessor p = dispatcher.getAffinityTask( context );
                     if ( p != null ) {
                         szTarget = p.getName();
                     }
@@ -100,6 +105,17 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
                 if ( bStrong ) {
                     throw new TaskDispatchException(
                             "Designated processor `" + szTarget + "` capacity exceeded."
+                    );
+                }
+                remaining.add( context );
+                continue;
+            }
+
+            if ( !this.canRun( slot, context ) ) {
+                if ( bStrong ) {
+                    throw new TaskDispatchException(
+                            "Designated processor `" + szTarget + "` cannot run exec_arch `"
+                                    + this.getExecArch( context ) + "`."
                     );
                 }
                 remaining.add( context );
@@ -134,24 +150,23 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
     ) throws TaskDispatchException {
         Map<TaskExecutionProcessor, Collection<TaskLaunchContext>> plan = new HashMap<>();
 
-        if ( processors == null || processors.isEmpty() ) {
-            return plan;
-        }
         if ( contexts == null || contexts.isEmpty() ) {
             return plan;
         }
 
-        Map<String, ProcessorSlot> slotMap = this.buildProcessorSlots( processors );
-        if ( slotMap.isEmpty() ) {
+        Map<String, ProcessorSlot> boundSlotMap = this.buildProcessorSlots( processors, true );
+        Map<String, ProcessorSlot> normalSlotMap = this.buildProcessorSlots( processors, false );
+        if ( normalSlotMap.isEmpty() ) {
+            this.handleBindingContexts( contexts, boundSlotMap, plan, dispatcher );
             return plan;
         }
 
-        List<TaskLaunchContext> remaining = this.handleBindingContexts( contexts, slotMap, plan, dispatcher );
+        List<TaskLaunchContext> remaining = this.handleBindingContexts( contexts, boundSlotMap, plan, dispatcher );
         if ( remaining.isEmpty() ) {
             return plan;
         }
 
-        this.dispatchNormal( slotMap, remaining, plan );
+        this.dispatchNormal( normalSlotMap, remaining, plan );
         return plan;
     }
 
@@ -169,13 +184,17 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
                     continue;
                 }
 
+                if ( !this.canRun( slot, context ) ) {
+                    continue;
+                }
+
                 if ( best == null || this.compareSlot( slot, best ) < 0 ) {
                     best = slot;
                 }
             }
 
             if ( best == null ) {
-                break;
+                continue;
             }
 
             plan.computeIfAbsent( best.mProcessor, k -> new ArrayList<>() ).add( context );
@@ -196,9 +215,21 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         }
 
         for ( TaskLaunchContext context : contexts ) {
-            ProcessorSlot slot = heap.poll();
+            List<ProcessorSlot> skipped = new ArrayList<>();
+            ProcessorSlot slot = null;
+            while ( !heap.isEmpty() ) {
+                ProcessorSlot polled = heap.poll();
+                if ( this.canRun( polled, context ) ) {
+                    slot = polled;
+                    break;
+                }
+                skipped.add( polled );
+            }
+            for ( ProcessorSlot skippedSlot : skipped ) {
+                heap.offer( skippedSlot );
+            }
             if ( slot == null ) {
-                break;
+                continue;
             }
 
             plan.computeIfAbsent( slot.mProcessor, k -> new ArrayList<>() ).add( context );
@@ -221,5 +252,19 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
         }
 
         return a.mProcessor.getName().compareTo( b.mProcessor.getName() );
+    }
+
+    protected boolean canRun( ProcessorSlot slot, TaskLaunchContext context ) {
+        if ( slot == null || slot.mProcessor == null || context == null ) {
+            return false;
+        }
+        return ExecutionArchitects.canRun( slot.mProcessor.getExecCaps(), this.getExecArch( context ) );
+    }
+
+    protected String getExecArch( TaskLaunchContext context ) {
+        if ( context == null || context.getTaskInstance() == null ) {
+            return ExecutionArchitecture.ANY.name();
+        }
+        return context.getTaskInstance().getExecArch();
     }
 }

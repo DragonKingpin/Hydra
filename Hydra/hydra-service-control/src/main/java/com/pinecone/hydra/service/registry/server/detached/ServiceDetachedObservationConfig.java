@@ -13,6 +13,8 @@ public class ServiceDetachedObservationConfig implements Pinenut {
 
     public static final int DefaultExpireAsyncThreads = 2;
 
+    public static final int DefaultStartupRecoveryPageSize = 100;
+
     public static final String DefaultMissingAfterReconnectPolicy = "Offline";
 
     protected boolean enable;
@@ -23,6 +25,8 @@ public class ServiceDetachedObservationConfig implements Pinenut {
 
     protected int expireAsyncThreads;
 
+    protected int startupRecoveryPageSize;
+
     protected String missingAfterReconnectPolicy;
 
     public ServiceDetachedObservationConfig() {
@@ -30,6 +34,7 @@ public class ServiceDetachedObservationConfig implements Pinenut {
         this.graceMillis = DefaultGraceMillis;
         this.sweepMillis = DefaultSweepMillis;
         this.expireAsyncThreads = DefaultExpireAsyncThreads;
+        this.startupRecoveryPageSize = DefaultStartupRecoveryPageSize;
         this.missingAfterReconnectPolicy = DefaultMissingAfterReconnectPolicy;
     }
 
@@ -51,6 +56,10 @@ public class ServiceDetachedObservationConfig implements Pinenut {
         this.expireAsyncThreads = this.normalizePositiveInt(
                 config.optInt( "expireAsyncThreads", this.expireAsyncThreads ),
                 DefaultExpireAsyncThreads
+        );
+        this.startupRecoveryPageSize = this.normalizePositiveInt(
+                config.optInt( "startupRecoveryPageSize", this.startupRecoveryPageSize ),
+                DefaultStartupRecoveryPageSize
         );
         this.missingAfterReconnectPolicy = config.optString(
                 "missingAfterReconnectPolicy",
@@ -80,6 +89,10 @@ public class ServiceDetachedObservationConfig implements Pinenut {
 
     public int getExpireAsyncThreads() {
         return this.expireAsyncThreads;
+    }
+
+    public int getStartupRecoveryPageSize() {
+        return this.startupRecoveryPageSize;
     }
 
     public String getMissingAfterReconnectPolicy() {

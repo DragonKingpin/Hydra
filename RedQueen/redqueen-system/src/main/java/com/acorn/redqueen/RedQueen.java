@@ -113,11 +113,12 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
         ServiceDetachedObservationConfig config = new ServiceDetachedObservationConfig( detachedObservationConfig );
         this.mServiceManager.configureDetachedObservation( config );
         this.getLogger().info(
-                "[ServiceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
+                "[ServiceControl] [DetachedObservation] (Enable: `{}`, GraceMillis: `{}`, SweepMillis: `{}`, ExpireAsyncThreads: `{}`, StartupRecoveryPageSize: `{}`, MissingAfterReconnectPolicy: `{}`) <Configured>",
                 config.isEnable(),
                 config.getGraceMillis(),
                 config.getSweepMillis(),
                 config.getExpireAsyncThreads(),
+                config.getStartupRecoveryPageSize(),
                 config.getMissingAfterReconnectPolicy()
         );
     }

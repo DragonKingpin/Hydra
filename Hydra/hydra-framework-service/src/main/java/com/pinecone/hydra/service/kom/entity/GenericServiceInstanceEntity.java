@@ -6,6 +6,8 @@ import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import java.time.LocalDateTime;
 
 public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
+    protected Long mId;
+
     protected GUID mGuid;
 
     protected GUID mServiceGuid;
@@ -57,6 +59,16 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     protected GUID mDeployGuid;
 
     protected String mIp;
+
+    @Override
+    public Long getId() {
+        return this.mId;
+    }
+
+    @Override
+    public void setId( Long id ) {
+        this.mId = id;
+    }
 
     @Override
     public void setGuid( GUID guid ) {

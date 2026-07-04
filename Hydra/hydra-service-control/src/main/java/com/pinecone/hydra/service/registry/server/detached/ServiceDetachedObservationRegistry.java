@@ -36,6 +36,13 @@ public class ServiceDetachedObservationRegistry implements Pinenut {
         return this.entries.remove( clientId );
     }
 
+    public boolean remove( ServiceDetachedObservationEntry entry ) {
+        if ( entry == null || entry.getClientId() == null ) {
+            return false;
+        }
+        return this.entries.remove( entry.getClientId(), entry );
+    }
+
     public Collection<ServiceDetachedObservationEntry> snapshotExpired( long nowMillis ) {
         ArrayList<ServiceDetachedObservationEntry> expired = new ArrayList<>();
         for ( ServiceDetachedObservationEntry entry : this.entries.values() ) {

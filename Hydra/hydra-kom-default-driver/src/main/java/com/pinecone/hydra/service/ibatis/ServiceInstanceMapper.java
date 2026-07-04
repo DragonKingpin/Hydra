@@ -9,6 +9,7 @@ import com.pinecone.slime.jelly.source.ibatis.IbatisDataAccessObject;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -53,8 +54,29 @@ public interface ServiceInstanceMapper extends ServiceInstanceManipulator {
         return (List) this.fetchServiceInstancesByServiceGuid0( serviceGuid );
     }
 
+    List<GenericServiceInstanceEntity> fetchServiceInstancesByStatusAfterId0(
+            @Param( "status" ) String status,
+            @Param( "lastId" ) long lastId,
+            @Param( "limit" ) int limit
+    );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit ) {
+        return (List) this.fetchServiceInstancesByStatusAfterId0( status, lastId, limit );
+    }
+
     @Override
     void updateServiceInstance(ServiceInstanceEntry element);
+
+    @Override
+    int updateServiceInstanceStatusIfCurrentStatus(
+            @Param( "instanceGuid" ) GUID instanceGuid,
+            @Param( "expectedStatus" ) String expectedStatus,
+            @Param( "status" ) String status,
+            @Param( "offlineTime" ) LocalDateTime offlineTime,
+            @Param( "latestEndTime" ) LocalDateTime latestEndTime
+    );
 
     @Override
     void deleteServiceInstancesByServiceGuid( @Param( "serviceGuid" ) GUID serviceGuid );

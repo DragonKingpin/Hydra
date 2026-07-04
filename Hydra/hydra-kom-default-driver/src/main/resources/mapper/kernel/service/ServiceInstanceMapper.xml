@@ -6,6 +6,7 @@
 <mapper namespace="com.pinecone.hydra.service.ibatis.ServiceInstanceMapper">
 
     <resultMap id="ServiceInstanceMap" type="com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity">
+        <id     column="id"                 property="id"/>
         <id     column="guid"               property="guid"/>
         <result column="service_guid"       property="serviceGuid"/>
         <result column="deploy_guid"        property="deployGuid"/>
@@ -33,6 +34,7 @@
     </resultMap>
 
     <sql id="ServiceInstanceFields">
+        `id`,
         `guid`,
         `service_guid`,
         `deploy_guid`,
@@ -188,6 +190,16 @@
         ORDER BY `register_time` DESC, `guid` DESC
     </select>
 
+    <select id="fetchServiceInstancesByStatusAfterId0" resultMap="ServiceInstanceMap">
+        SELECT
+        <include refid="ServiceInstanceFields"/>
+        FROM `hydra_service_instances`
+        WHERE `status` = #{status}
+          AND `id` <![CDATA[ > ]]> #{lastId}
+        ORDER BY `id` ASC
+        LIMIT #{limit}
+    </select>
+
     <update id="updateServiceInstance" parameterType="com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry">
         UPDATE `hydra_service_instances`
         SET
@@ -215,6 +227,16 @@
             `latest_end_time` = #{latestEndTime},
             `metadata_json` = #{metadataJson}
         WHERE `guid` = #{guid}
+    </update>
+
+    <update id="updateServiceInstanceStatusIfCurrentStatus">
+        UPDATE `hydra_service_instances`
+        SET
+            `status` = #{status},
+            `offline_time` = #{offlineTime},
+            `latest_end_time` = #{latestEndTime}
+        WHERE `guid` = #{instanceGuid}
+          AND `status` = #{expectedStatus}
     </update>
 
     <delete id="deleteServiceInstancesByServiceGuid">

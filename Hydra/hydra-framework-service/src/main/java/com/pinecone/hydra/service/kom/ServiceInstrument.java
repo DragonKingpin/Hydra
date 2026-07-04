@@ -10,6 +10,7 @@ import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ServiceInstrument extends ReparseKOMTree {
@@ -50,8 +51,18 @@ public interface ServiceInstrument extends ReparseKOMTree {
 
     List<ServiceInstanceEntry> fetchServiceInstancesByServiceGuid( GUID serviceGuid );
 
+    List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit );
+
     ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query );
 
     void updateServiceInstance( ServiceInstanceEntry element );
+
+    int updateServiceInstanceStatusIfCurrentStatus(
+            GUID instanceGuid,
+            String expectedStatus,
+            String status,
+            LocalDateTime offlineTime,
+            LocalDateTime latestEndTime
+    );
 
 }

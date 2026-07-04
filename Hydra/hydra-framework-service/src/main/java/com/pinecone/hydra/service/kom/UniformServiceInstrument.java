@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.kom;
 
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
@@ -473,6 +474,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
+    public List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit ) {
+        return this.serviceInstanceManipulator.fetchServiceInstancesByStatusAfterId( status, lastId, limit );
+    }
+
+    @Override
     public ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query ) {
         ServiceInstanceQuery safeQuery = query;
         if ( safeQuery == null ) {
@@ -487,5 +493,22 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     @Override
     public void updateServiceInstance( ServiceInstanceEntry element ) {
         this.serviceInstanceManipulator.updateServiceInstance( element );
+    }
+
+    @Override
+    public int updateServiceInstanceStatusIfCurrentStatus(
+            GUID instanceGuid,
+            String expectedStatus,
+            String status,
+            LocalDateTime offlineTime,
+            LocalDateTime latestEndTime
+    ) {
+        return this.serviceInstanceManipulator.updateServiceInstanceStatusIfCurrentStatus(
+                instanceGuid,
+                expectedStatus,
+                status,
+                offlineTime,
+                latestEndTime
+        );
     }
 }

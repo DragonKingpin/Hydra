@@ -17,6 +17,8 @@ public interface ServiceMasterManipulator extends KOIMasterManipulator {
 
     ServiceInstanceManipulator getServiceInstanceManipulator();
 
+    ServiceRuntimeNodeManipulator getServiceRuntimeNodeManipulator();
+
     TireOwnerManipulator getTireOwnerManipulator();
 
     ServiceMappingTransaction transaction();

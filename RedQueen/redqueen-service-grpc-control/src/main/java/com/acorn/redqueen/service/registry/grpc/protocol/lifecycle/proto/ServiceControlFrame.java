@@ -29,221 +29,6 @@ private static final long serialVersionUID = 0L;
     return new ServiceControlFrame();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet
-  getUnknownFields() {
-    return this.unknownFields;
-  }
-  private ServiceControlFrame(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            frameGuid_ = s;
-            break;
-          }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            correlationGuid_ = s;
-            break;
-          }
-          case 24: {
-
-            clientId_ = input.readInt64();
-            break;
-          }
-          case 34: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            sessionGuid_ = s;
-            break;
-          }
-          case 40: {
-
-            createTimeMillis_ = input.readInt64();
-            break;
-          }
-          case 48: {
-            int rawValue = input.readEnum();
-
-            frameType_ = rawValue;
-            break;
-          }
-          case 82: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientMuster.Builder subBuilder = null;
-            if (bodyCase_ == 10) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientMuster) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientMuster.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientMuster) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 10;
-            break;
-          }
-          case 90: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady.Builder subBuilder = null;
-            if (bodyCase_ == 11) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 11;
-            break;
-          }
-          case 98: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceCommand.Builder subBuilder = null;
-            if (bodyCase_ == 12) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceCommand) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceCommand.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceCommand) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 12;
-            break;
-          }
-          case 106: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted.Builder subBuilder = null;
-            if (bodyCase_ == 13) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 13;
-            break;
-          }
-          case 114: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Heartbeat.Builder subBuilder = null;
-            if (bodyCase_ == 14) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Heartbeat) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Heartbeat.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Heartbeat) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 14;
-            break;
-          }
-          case 122: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.DeregisterCommand.Builder subBuilder = null;
-            if (bodyCase_ == 15) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.DeregisterCommand) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.DeregisterCommand.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.DeregisterCommand) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 15;
-            break;
-          }
-          case 130: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Deregistered.Builder subBuilder = null;
-            if (bodyCase_ == 16) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Deregistered) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Deregistered.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.Deregistered) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 16;
-            break;
-          }
-          case 138: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceCommand.Builder subBuilder = null;
-            if (bodyCase_ == 17) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceCommand) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceCommand.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceCommand) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 17;
-            break;
-          }
-          case 146: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceAccepted.Builder subBuilder = null;
-            if (bodyCase_ == 18) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceAccepted) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceAccepted.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ShutdownServiceAccepted) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 18;
-            break;
-          }
-          case 154: {
-            com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame.Builder subBuilder = null;
-            if (bodyCase_ == 19) {
-              subBuilder = ((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame) body_).toBuilder();
-            }
-            body_ =
-                input.readMessage(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom((com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame) body_);
-              body_ = subBuilder.buildPartial();
-            }
-            bodyCase_ = 19;
-            break;
-          }
-          default: {
-            if (!parseUnknownField(
-                input, unknownFields, extensionRegistry, tag)) {
-              done = true;
-            }
-            break;
-          }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(
-          e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-    }
-  }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
     return com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlProto.internal_static_ServiceControlFrame_descriptor;
@@ -258,6 +43,7 @@ private static final long serialVersionUID = 0L;
   }
 
   private int bodyCase_ = 0;
+  @SuppressWarnings("serial")
   private java.lang.Object body_;
   public enum BodyCase
       implements com.google.protobuf.Internal.EnumLite,
@@ -315,7 +101,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int FRAMEGUID_FIELD_NUMBER = 1;
-  private volatile java.lang.Object frameGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object frameGuid_ = "";
   /**
    * <code>string frameGuid = 1;</code>
    * @return The frameGuid.
@@ -353,7 +140,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int CORRELATIONGUID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object correlationGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object correlationGuid_ = "";
   /**
    * <code>string correlationGuid = 2;</code>
    * @return The correlationGuid.
@@ -391,7 +179,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int CLIENTID_FIELD_NUMBER = 3;
-  private long clientId_;
+  private long clientId_ = 0L;
   /**
    * <code>int64 clientId = 3;</code>
    * @return The clientId.
@@ -402,7 +190,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int SESSIONGUID_FIELD_NUMBER = 4;
-  private volatile java.lang.Object sessionGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object sessionGuid_ = "";
   /**
    * <code>string sessionGuid = 4;</code>
    * @return The sessionGuid.
@@ -440,7 +229,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int CREATETIMEMILLIS_FIELD_NUMBER = 5;
-  private long createTimeMillis_;
+  private long createTimeMillis_ = 0L;
   /**
    * <code>int64 createTimeMillis = 5;</code>
    * @return The createTimeMillis.
@@ -451,7 +240,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int FRAMETYPE_FIELD_NUMBER = 6;
-  private int frameType_;
+  private int frameType_ = 0;
   /**
    * <code>.ServiceControlFrameType frameType = 6;</code>
    * @return The enum numeric value on the wire for frameType.
@@ -464,8 +253,7 @@ private static final long serialVersionUID = 0L;
    * @return The frameType.
    */
   @java.lang.Override public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType getFrameType() {
-    @SuppressWarnings("deprecation")
-    com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType result = com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.valueOf(frameType_);
+    com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType result = com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.forNumber(frameType_);
     return result == null ? com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.UNRECOGNIZED : result;
   }
 
@@ -793,16 +581,16 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!getFrameGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(frameGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, frameGuid_);
     }
-    if (!getCorrelationGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(correlationGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, correlationGuid_);
     }
     if (clientId_ != 0L) {
       output.writeInt64(3, clientId_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 4, sessionGuid_);
     }
     if (createTimeMillis_ != 0L) {
@@ -841,7 +629,7 @@ private static final long serialVersionUID = 0L;
     if (bodyCase_ == 19) {
       output.writeMessage(19, (com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame) body_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -850,17 +638,17 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!getFrameGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(frameGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, frameGuid_);
     }
-    if (!getCorrelationGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(correlationGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, correlationGuid_);
     }
     if (clientId_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(3, clientId_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, sessionGuid_);
     }
     if (createTimeMillis_ != 0L) {
@@ -911,7 +699,7 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(19, (com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrame) body_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -982,7 +770,7 @@ private static final long serialVersionUID = 0L;
       case 0:
       default:
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -1051,7 +839,7 @@ private static final long serialVersionUID = 0L;
       case 0:
       default:
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -1100,11 +888,13 @@ private static final long serialVersionUID = 0L;
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1168,34 +958,54 @@ private static final long serialVersionUID = 0L;
 
     // Construct using com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame.newBuilder()
     private Builder() {
-      maybeForceBuilderInitialization();
+
     }
 
     private Builder(
         com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3
-              .alwaysUseFieldBuilders) {
-      }
+
     }
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       frameGuid_ = "";
-
       correlationGuid_ = "";
-
       clientId_ = 0L;
-
       sessionGuid_ = "";
-
       createTimeMillis_ = 0L;
-
       frameType_ = 0;
-
+      if (clientMusterBuilder_ != null) {
+        clientMusterBuilder_.clear();
+      }
+      if (clientReadyBuilder_ != null) {
+        clientReadyBuilder_.clear();
+      }
+      if (registerServiceBuilder_ != null) {
+        registerServiceBuilder_.clear();
+      }
+      if (registerAcceptedBuilder_ != null) {
+        registerAcceptedBuilder_.clear();
+      }
+      if (heartbeatBuilder_ != null) {
+        heartbeatBuilder_.clear();
+      }
+      if (deregisterBuilder_ != null) {
+        deregisterBuilder_.clear();
+      }
+      if (deregisteredBuilder_ != null) {
+        deregisteredBuilder_.clear();
+      }
+      if (shutdownServiceBuilder_ != null) {
+        shutdownServiceBuilder_.clear();
+      }
+      if (shutdownAcceptedBuilder_ != null) {
+        shutdownAcceptedBuilder_.clear();
+      }
+      if (errorBuilder_ != null) {
+        errorBuilder_.clear();
+      }
       bodyCase_ = 0;
       body_ = null;
       return this;
@@ -1224,85 +1034,77 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame buildPartial() {
       com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame result = new com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame(this);
-      result.frameGuid_ = frameGuid_;
-      result.correlationGuid_ = correlationGuid_;
-      result.clientId_ = clientId_;
-      result.sessionGuid_ = sessionGuid_;
-      result.createTimeMillis_ = createTimeMillis_;
-      result.frameType_ = frameType_;
-      if (bodyCase_ == 10) {
-        if (clientMusterBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = clientMusterBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 11) {
-        if (clientReadyBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = clientReadyBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 12) {
-        if (registerServiceBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = registerServiceBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 13) {
-        if (registerAcceptedBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = registerAcceptedBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 14) {
-        if (heartbeatBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = heartbeatBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 15) {
-        if (deregisterBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = deregisterBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 16) {
-        if (deregisteredBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = deregisteredBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 17) {
-        if (shutdownServiceBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = shutdownServiceBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 18) {
-        if (shutdownAcceptedBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = shutdownAcceptedBuilder_.build();
-        }
-      }
-      if (bodyCase_ == 19) {
-        if (errorBuilder_ == null) {
-          result.body_ = body_;
-        } else {
-          result.body_ = errorBuilder_.build();
-        }
-      }
-      result.bodyCase_ = bodyCase_;
+      if (bitField0_ != 0) { buildPartial0(result); }
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.frameGuid_ = frameGuid_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.correlationGuid_ = correlationGuid_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.clientId_ = clientId_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.sessionGuid_ = sessionGuid_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.createTimeMillis_ = createTimeMillis_;
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.frameType_ = frameType_;
+      }
+    }
+
+    private void buildPartialOneofs(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame result) {
+      result.bodyCase_ = bodyCase_;
+      result.body_ = this.body_;
+      if (bodyCase_ == 10 &&
+          clientMusterBuilder_ != null) {
+        result.body_ = clientMusterBuilder_.build();
+      }
+      if (bodyCase_ == 11 &&
+          clientReadyBuilder_ != null) {
+        result.body_ = clientReadyBuilder_.build();
+      }
+      if (bodyCase_ == 12 &&
+          registerServiceBuilder_ != null) {
+        result.body_ = registerServiceBuilder_.build();
+      }
+      if (bodyCase_ == 13 &&
+          registerAcceptedBuilder_ != null) {
+        result.body_ = registerAcceptedBuilder_.build();
+      }
+      if (bodyCase_ == 14 &&
+          heartbeatBuilder_ != null) {
+        result.body_ = heartbeatBuilder_.build();
+      }
+      if (bodyCase_ == 15 &&
+          deregisterBuilder_ != null) {
+        result.body_ = deregisterBuilder_.build();
+      }
+      if (bodyCase_ == 16 &&
+          deregisteredBuilder_ != null) {
+        result.body_ = deregisteredBuilder_.build();
+      }
+      if (bodyCase_ == 17 &&
+          shutdownServiceBuilder_ != null) {
+        result.body_ = shutdownServiceBuilder_.build();
+      }
+      if (bodyCase_ == 18 &&
+          shutdownAcceptedBuilder_ != null) {
+        result.body_ = shutdownAcceptedBuilder_.build();
+      }
+      if (bodyCase_ == 19 &&
+          errorBuilder_ != null) {
+        result.body_ = errorBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -1351,10 +1153,12 @@ private static final long serialVersionUID = 0L;
       if (other == com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame.getDefaultInstance()) return this;
       if (!other.getFrameGuid().isEmpty()) {
         frameGuid_ = other.frameGuid_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getCorrelationGuid().isEmpty()) {
         correlationGuid_ = other.correlationGuid_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.getClientId() != 0L) {
@@ -1362,6 +1166,7 @@ private static final long serialVersionUID = 0L;
       }
       if (!other.getSessionGuid().isEmpty()) {
         sessionGuid_ = other.sessionGuid_;
+        bitField0_ |= 0x00000008;
         onChanged();
       }
       if (other.getCreateTimeMillis() != 0L) {
@@ -1415,7 +1220,7 @@ private static final long serialVersionUID = 0L;
           break;
         }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -1430,17 +1235,130 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              frameGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000001;
+              break;
+            } // case 10
+            case 18: {
+              correlationGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000002;
+              break;
+            } // case 18
+            case 24: {
+              clientId_ = input.readInt64();
+              bitField0_ |= 0x00000004;
+              break;
+            } // case 24
+            case 34: {
+              sessionGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 34
+            case 40: {
+              createTimeMillis_ = input.readInt64();
+              bitField0_ |= 0x00000010;
+              break;
+            } // case 40
+            case 48: {
+              frameType_ = input.readEnum();
+              bitField0_ |= 0x00000020;
+              break;
+            } // case 48
+            case 82: {
+              input.readMessage(
+                  getClientMusterFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 10;
+              break;
+            } // case 82
+            case 90: {
+              input.readMessage(
+                  getClientReadyFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 11;
+              break;
+            } // case 90
+            case 98: {
+              input.readMessage(
+                  getRegisterServiceFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 12;
+              break;
+            } // case 98
+            case 106: {
+              input.readMessage(
+                  getRegisterAcceptedFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 13;
+              break;
+            } // case 106
+            case 114: {
+              input.readMessage(
+                  getHeartbeatFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 14;
+              break;
+            } // case 114
+            case 122: {
+              input.readMessage(
+                  getDeregisterFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 15;
+              break;
+            } // case 122
+            case 130: {
+              input.readMessage(
+                  getDeregisteredFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 16;
+              break;
+            } // case 130
+            case 138: {
+              input.readMessage(
+                  getShutdownServiceFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 17;
+              break;
+            } // case 138
+            case 146: {
+              input.readMessage(
+                  getShutdownAcceptedFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 18;
+              break;
+            } // case 146
+            case 154: {
+              input.readMessage(
+                  getErrorFieldBuilder().getBuilder(),
+                  extensionRegistry);
+              bodyCase_ = 19;
+              break;
+            } // case 154
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
     private int bodyCase_ = 0;
@@ -1458,6 +1376,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
 
+    private int bitField0_;
 
     private java.lang.Object frameGuid_ = "";
     /**
@@ -1500,11 +1419,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setFrameGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       frameGuid_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1513,8 +1430,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearFrameGuid() {
-      
       frameGuid_ = getDefaultInstance().getFrameGuid();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1525,12 +1442,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setFrameGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       frameGuid_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1576,11 +1491,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setCorrelationGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       correlationGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1589,8 +1502,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearCorrelationGuid() {
-      
       correlationGuid_ = getDefaultInstance().getCorrelationGuid();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1601,12 +1514,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setCorrelationGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       correlationGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1626,8 +1537,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setClientId(long value) {
-      
+
       clientId_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -1636,7 +1548,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearClientId() {
-      
+      bitField0_ = (bitField0_ & ~0x00000004);
       clientId_ = 0L;
       onChanged();
       return this;
@@ -1683,11 +1595,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       sessionGuid_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1696,8 +1606,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearSessionGuid() {
-      
       sessionGuid_ = getDefaultInstance().getSessionGuid();
+      bitField0_ = (bitField0_ & ~0x00000008);
       onChanged();
       return this;
     }
@@ -1708,12 +1618,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       sessionGuid_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1733,8 +1641,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setCreateTimeMillis(long value) {
-      
+
       createTimeMillis_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1743,7 +1652,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearCreateTimeMillis() {
-      
+      bitField0_ = (bitField0_ & ~0x00000010);
       createTimeMillis_ = 0L;
       onChanged();
       return this;
@@ -1763,8 +1672,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setFrameTypeValue(int value) {
-      
       frameType_ = value;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1774,8 +1683,7 @@ private static final long serialVersionUID = 0L;
      */
     @java.lang.Override
     public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType getFrameType() {
-      @SuppressWarnings("deprecation")
-      com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType result = com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.valueOf(frameType_);
+      com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType result = com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.forNumber(frameType_);
       return result == null ? com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrameType.UNRECOGNIZED : result;
     }
     /**
@@ -1787,7 +1695,7 @@ private static final long serialVersionUID = 0L;
       if (value == null) {
         throw new NullPointerException();
       }
-      
+      bitField0_ |= 0x00000020;
       frameType_ = value.getNumber();
       onChanged();
       return this;
@@ -1797,7 +1705,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearFrameType() {
-      
+      bitField0_ = (bitField0_ & ~0x00000020);
       frameType_ = 0;
       onChanged();
       return this;
@@ -1877,8 +1785,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 10) {
           clientMusterBuilder_.mergeFrom(value);
+        } else {
+          clientMusterBuilder_.setMessage(value);
         }
-        clientMusterBuilder_.setMessage(value);
       }
       bodyCase_ = 10;
       return this;
@@ -1940,7 +1849,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 10;
-      onChanged();;
+      onChanged();
       return clientMusterBuilder_;
     }
 
@@ -2018,8 +1927,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 11) {
           clientReadyBuilder_.mergeFrom(value);
+        } else {
+          clientReadyBuilder_.setMessage(value);
         }
-        clientReadyBuilder_.setMessage(value);
       }
       bodyCase_ = 11;
       return this;
@@ -2081,7 +1991,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 11;
-      onChanged();;
+      onChanged();
       return clientReadyBuilder_;
     }
 
@@ -2159,8 +2069,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 12) {
           registerServiceBuilder_.mergeFrom(value);
+        } else {
+          registerServiceBuilder_.setMessage(value);
         }
-        registerServiceBuilder_.setMessage(value);
       }
       bodyCase_ = 12;
       return this;
@@ -2222,7 +2133,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 12;
-      onChanged();;
+      onChanged();
       return registerServiceBuilder_;
     }
 
@@ -2300,8 +2211,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 13) {
           registerAcceptedBuilder_.mergeFrom(value);
+        } else {
+          registerAcceptedBuilder_.setMessage(value);
         }
-        registerAcceptedBuilder_.setMessage(value);
       }
       bodyCase_ = 13;
       return this;
@@ -2363,7 +2275,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 13;
-      onChanged();;
+      onChanged();
       return registerAcceptedBuilder_;
     }
 
@@ -2441,8 +2353,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 14) {
           heartbeatBuilder_.mergeFrom(value);
+        } else {
+          heartbeatBuilder_.setMessage(value);
         }
-        heartbeatBuilder_.setMessage(value);
       }
       bodyCase_ = 14;
       return this;
@@ -2504,7 +2417,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 14;
-      onChanged();;
+      onChanged();
       return heartbeatBuilder_;
     }
 
@@ -2582,8 +2495,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 15) {
           deregisterBuilder_.mergeFrom(value);
+        } else {
+          deregisterBuilder_.setMessage(value);
         }
-        deregisterBuilder_.setMessage(value);
       }
       bodyCase_ = 15;
       return this;
@@ -2645,7 +2559,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 15;
-      onChanged();;
+      onChanged();
       return deregisterBuilder_;
     }
 
@@ -2723,8 +2637,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 16) {
           deregisteredBuilder_.mergeFrom(value);
+        } else {
+          deregisteredBuilder_.setMessage(value);
         }
-        deregisteredBuilder_.setMessage(value);
       }
       bodyCase_ = 16;
       return this;
@@ -2786,7 +2701,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 16;
-      onChanged();;
+      onChanged();
       return deregisteredBuilder_;
     }
 
@@ -2864,8 +2779,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 17) {
           shutdownServiceBuilder_.mergeFrom(value);
+        } else {
+          shutdownServiceBuilder_.setMessage(value);
         }
-        shutdownServiceBuilder_.setMessage(value);
       }
       bodyCase_ = 17;
       return this;
@@ -2927,7 +2843,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 17;
-      onChanged();;
+      onChanged();
       return shutdownServiceBuilder_;
     }
 
@@ -3005,8 +2921,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 18) {
           shutdownAcceptedBuilder_.mergeFrom(value);
+        } else {
+          shutdownAcceptedBuilder_.setMessage(value);
         }
-        shutdownAcceptedBuilder_.setMessage(value);
       }
       bodyCase_ = 18;
       return this;
@@ -3068,7 +2985,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 18;
-      onChanged();;
+      onChanged();
       return shutdownAcceptedBuilder_;
     }
 
@@ -3146,8 +3063,9 @@ private static final long serialVersionUID = 0L;
       } else {
         if (bodyCase_ == 19) {
           errorBuilder_.mergeFrom(value);
+        } else {
+          errorBuilder_.setMessage(value);
         }
-        errorBuilder_.setMessage(value);
       }
       bodyCase_ = 19;
       return this;
@@ -3209,7 +3127,7 @@ private static final long serialVersionUID = 0L;
         body_ = null;
       }
       bodyCase_ = 19;
-      onChanged();;
+      onChanged();
       return errorBuilder_;
     }
     @java.lang.Override
@@ -3245,7 +3163,18 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new ServiceControlFrame(input, extensionRegistry);
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
     }
   };
 

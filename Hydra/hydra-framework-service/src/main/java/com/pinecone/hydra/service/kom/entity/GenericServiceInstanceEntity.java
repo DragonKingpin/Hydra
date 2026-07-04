@@ -58,6 +58,10 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
 
     protected GUID mDeployGuid;
 
+    protected GUID mRuntimeNodeGuid;
+
+    protected String mszRuntimeNodeId;
+
     protected String mIp;
 
     @Override
@@ -322,6 +326,26 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     @Override
     public void setDeployGuid( GUID deployGuid ) {
         this.mDeployGuid = deployGuid;
+    }
+
+    @Override
+    public GUID getRuntimeNodeGuid() {
+        return this.mRuntimeNodeGuid;
+    }
+
+    @Override
+    public void setRuntimeNodeGuid( GUID runtimeNodeGuid ) {
+        this.mRuntimeNodeGuid = runtimeNodeGuid;
+    }
+
+    @Override
+    public String getRuntimeNodeId() {
+        return this.mszRuntimeNodeId;
+    }
+
+    @Override
+    public void setRuntimeNodeId( String runtimeNodeId ) {
+        this.mszRuntimeNodeId = runtimeNodeId;
     }
 
     @Override

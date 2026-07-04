@@ -121,6 +121,14 @@ public interface ServiceInstanceEntry extends Pinenut {
 
     void setDeployGuid( GUID deployGuid );
 
+    GUID getRuntimeNodeGuid();
+
+    void setRuntimeNodeGuid( GUID runtimeNodeGuid );
+
+    String getRuntimeNodeId();
+
+    void setRuntimeNodeId( String runtimeNodeId );
+
     String getIp();
 
     void setIp( String ip );

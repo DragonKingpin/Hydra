@@ -6,6 +6,7 @@ import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.system.ko.kom.ReparseKOMTree;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
@@ -54,6 +55,22 @@ public interface ServiceInstrument extends ReparseKOMTree {
     List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit );
 
     ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query );
+
+    void createServiceRuntimeNode( ServiceRuntimeNodeEntry entry );
+
+    void updateServiceRuntimeNodeProfile( ServiceRuntimeNodeEntry entry );
+
+    void refreshServiceRuntimeNodeRuntime( ServiceRuntimeNodeEntry entry );
+
+    ServiceRuntimeNodeEntry queryServiceRuntimeNode( GUID guid );
+
+    ServiceRuntimeNodeEntry queryServiceRuntimeNodeByServiceGuidAndNodeId( GUID serviceGuid, String nodeId );
+
+    List<ServiceRuntimeNodeEntry> fetchServiceRuntimeNodes( ServiceRuntimeNodeQuery query );
+
+    long countServiceRuntimeNodes( ServiceRuntimeNodeQuery query );
+
+    ServiceRuntimeNodePage fetchServiceRuntimeNodePage( ServiceRuntimeNodeQuery query );
 
     void updateServiceInstance( ServiceInstanceEntry element );
 

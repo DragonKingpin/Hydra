@@ -8,8 +8,10 @@ import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
+import com.pinecone.hydra.service.kom.entity.GenericServiceRuntimeNodeEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
@@ -637,6 +639,20 @@ public class UniformServiceManager implements ServiceManager {
         }
         entry.setLastHeartbeatTime( time );
         entry.setLatestStartTime( time );
+        ServiceRuntimeNodeEntry runtimeNode = this.resolveRuntimeNodeForRegistration(
+                serviceDTO,
+                entry.getServiceGuid(),
+                entry.getGuid(),
+                time
+        );
+        if ( runtimeNode != null ) {
+            entry.setRuntimeNodeGuid( runtimeNode.getGuid() );
+            entry.setRuntimeNodeId( runtimeNode.getNodeId() );
+        }
+        else {
+            entry.setRuntimeNodeGuid( null );
+            entry.setRuntimeNodeId( null );
+        }
         if ( bIncreaseConnectionCount ) {
             entry.setConnectionCount( entry.getConnectionCount() + 1 );
         }
@@ -665,6 +681,7 @@ public class UniformServiceManager implements ServiceManager {
                 element.setLatestEndTime( time );
             }
             this.mServiceInstrument.updateServiceInstance( element );
+            this.syncRuntimeNodeAfterInstanceStatus( element, status );
         }
 
         return element;
@@ -874,13 +891,18 @@ public class UniformServiceManager implements ServiceManager {
 
     protected int updateDetachedServiceInstanceStatus( GUID id, ServiceInstanceStatus status ) {
         LocalDateTime terminalTime = this.isTerminalInstanceStatus( status ) ? LocalDateTime.now() : null;
-        return this.mServiceInstrument.updateServiceInstanceStatusIfCurrentStatus(
+        int nUpdated = this.mServiceInstrument.updateServiceInstanceStatusIfCurrentStatus(
                 id,
                 ServiceInstanceStatus.Detached.getName(),
                 status.getName(),
                 terminalTime,
                 terminalTime
         );
+        if ( nUpdated > 0 ) {
+            ServiceInstanceEntry instance = this.mServiceInstrument.queryServiceInstance( id );
+            this.syncRuntimeNodeAfterInstanceStatus( instance, status );
+        }
+        return nUpdated;
     }
 
     protected Collection<ServiceInstance> removeRuntimeServiceInstance(
@@ -1189,6 +1211,16 @@ public class UniformServiceManager implements ServiceManager {
         instanceEntity.setLatestStartTime( registerTime );
         instanceEntity.setGuid( guid );
         instanceEntity.setServiceGuid( serviceId );
+        ServiceRuntimeNodeEntry runtimeNode = this.resolveRuntimeNodeForRegistration(
+                serviceDTO,
+                serviceId,
+                guid,
+                registerTime
+        );
+        if ( runtimeNode != null ) {
+            instanceEntity.setRuntimeNodeGuid( runtimeNode.getGuid() );
+            instanceEntity.setRuntimeNodeId( runtimeNode.getNodeId() );
+        }
         instanceEntity.setVersion( serviceDTO.getVersion() );
         instanceEntity.setZone( serviceDTO.getZone() );
         if ( serviceDTO.getWeight() != null ) {
@@ -1199,6 +1231,81 @@ public class UniformServiceManager implements ServiceManager {
         this.mServiceInstrument.createServiceInstance( instanceEntity );
 
         return instanceEntity;
+    }
+
+    protected ServiceRuntimeNodeEntry resolveRuntimeNodeForRegistration(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceGuid,
+            GUID instanceGuid,
+            LocalDateTime registerTime
+    ) {
+        String szNodeId = serviceDTO == null ? null : serviceDTO.getRuntimeNodeId();
+        if ( szNodeId == null || szNodeId.isBlank() ) {
+            return null;
+        }
+
+        String szRuntimeNodeId = szNodeId.trim();
+        ServiceRuntimeNodeEntry runtimeNode = this.mServiceInstrument.queryServiceRuntimeNodeByServiceGuidAndNodeId(
+                serviceGuid,
+                szRuntimeNodeId
+        );
+        if ( runtimeNode == null ) {
+            runtimeNode = new GenericServiceRuntimeNodeEntity();
+            runtimeNode.setGuid( this.mGuidAllocator.nextGUID() );
+            runtimeNode.setServiceGuid( serviceGuid );
+            runtimeNode.setNodeId( szRuntimeNodeId );
+            this.applyRuntimeNodeRegistration( runtimeNode, serviceDTO, instanceGuid, registerTime );
+            this.mServiceInstrument.createServiceRuntimeNode( runtimeNode );
+            return runtimeNode;
+        }
+
+        this.applyRuntimeNodeRegistration( runtimeNode, serviceDTO, instanceGuid, registerTime );
+        this.mServiceInstrument.refreshServiceRuntimeNodeRuntime( runtimeNode );
+        return runtimeNode;
+    }
+
+    protected void applyRuntimeNodeRegistration(
+            ServiceRuntimeNodeEntry runtimeNode,
+            RegisterServiceDTO serviceDTO,
+            GUID instanceGuid,
+            LocalDateTime registerTime
+    ) {
+        String szNodeId = runtimeNode.getNodeId();
+        String szAlias = serviceDTO == null ? null : serviceDTO.getRuntimeNodeAlias();
+        runtimeNode.setAlias( this.notBlankOrDefault( szAlias, szNodeId ) );
+        runtimeNode.setStatus( ServiceInstanceStatus.Online.getName() );
+        runtimeNode.setVersion( serviceDTO == null ? null : serviceDTO.getVersion() );
+        runtimeNode.setZone( serviceDTO == null ? null : serviceDTO.getZone() );
+        String szMetadataJson = serviceDTO == null ? null : serviceDTO.getRuntimeNodeMetadataJson();
+        if ( szMetadataJson != null && !szMetadataJson.isBlank() ) {
+            runtimeNode.setMetadataJson( szMetadataJson );
+        }
+        runtimeNode.setLatestInstanceGuid( instanceGuid );
+        runtimeNode.setLatestStartTime( registerTime );
+        runtimeNode.setLastHeartbeatTime( registerTime );
+    }
+
+    protected void syncRuntimeNodeAfterInstanceStatus(
+            ServiceInstanceEntry instance,
+            ServiceInstanceStatus status
+    ) {
+        if ( instance == null || instance.getRuntimeNodeGuid() == null ) {
+            return;
+        }
+
+        ServiceRuntimeNodeEntry runtimeNode = this.mServiceInstrument.queryServiceRuntimeNode( instance.getRuntimeNodeGuid() );
+        if ( runtimeNode == null || !Objects.equals( runtimeNode.getLatestInstanceGuid(), instance.getGuid() ) ) {
+            return;
+        }
+
+        runtimeNode.setStatus( status.getName() );
+        if ( this.isTerminalInstanceStatus( status ) ) {
+            runtimeNode.setLatestEndTime( instance.getLatestEndTime() );
+        }
+        if ( instance.getLastHeartbeatTime() != null ) {
+            runtimeNode.setLastHeartbeatTime( instance.getLastHeartbeatTime() );
+        }
+        this.mServiceInstrument.refreshServiceRuntimeNodeRuntime( runtimeNode );
     }
 
     protected String notBlankOrDefault( String szValue, String szDefault ) {

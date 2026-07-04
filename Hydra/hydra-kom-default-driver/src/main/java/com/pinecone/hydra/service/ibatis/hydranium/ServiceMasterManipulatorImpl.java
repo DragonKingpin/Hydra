@@ -8,12 +8,14 @@ import com.pinecone.hydra.service.ibatis.ServiceNamespaceMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathCacheMapper;
+import com.pinecone.hydra.service.ibatis.ServiceRuntimeNodeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceTreeMapper;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceRuntimeNodeManipulator;
 import com.pinecone.hydra.service.mapper.transaction.ServiceMappingTransaction;
 import com.pinecone.hydra.service.mapper.transaction.ServiceTransactionalMappingDriver;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -51,6 +53,10 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     @Resource
     @Structure( type = ServiceInstanceMapper.class )
     ServiceInstanceManipulator serviceInstanceManipulator;
+
+    @Resource
+    @Structure( type = ServiceRuntimeNodeMapper.class )
+    ServiceRuntimeNodeManipulator serviceRuntimeNodeManipulator;
 
     @Resource
     @Structure( type = ServiceNodeOwnerMapper.class )
@@ -102,6 +108,11 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     }
 
     @Override
+    public ServiceRuntimeNodeManipulator getServiceRuntimeNodeManipulator() {
+        return this.serviceRuntimeNodeManipulator;
+    }
+
+    @Override
     public ServiceMappingTransaction transaction() {
         return this.serviceMappingDriver.transaction();
     }
@@ -110,6 +121,7 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
     public void purgeServiceNode( GUID serviceGuid ) {
         this.transaction().required( scope -> {
             scope.mapper( ServiceInstanceMapper.class ).deleteServiceInstancesByServiceGuid( serviceGuid );
+            scope.mapper( ServiceRuntimeNodeMapper.class ).deleteServiceRuntimeNodesByServiceGuid( serviceGuid );
             scope.mapper( ServicePathCacheMapper.class ).remove( serviceGuid );
             scope.mapper( ServiceNodeOwnerMapper.class ).removeBySubordinate( serviceGuid );
             scope.mapper( ServiceTreeMapper.class ).removeTreeNode( serviceGuid );

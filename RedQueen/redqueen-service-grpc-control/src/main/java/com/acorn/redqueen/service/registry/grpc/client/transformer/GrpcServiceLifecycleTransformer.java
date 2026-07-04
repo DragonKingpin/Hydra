@@ -73,6 +73,9 @@ public class GrpcServiceLifecycleTransformer implements Pinenut {
                 builder.setWeight( command.getWeight() );
             }
             builder.setMetadataJson( this.safe( command.getMetadataJson() ) );
+            builder.setRuntimeNodeId( this.safe( command.getRuntimeNodeId() ) );
+            builder.setRuntimeNodeAlias( this.safe( command.getRuntimeNodeAlias() ) );
+            builder.setRuntimeNodeMetadataJson( this.safe( command.getRuntimeNodeMetadataJson() ) );
         }
 
         return this.baseFrame( nClientId, szSessionGuid, "", ServiceControlFrameType.REGISTER_SERVICE )

@@ -30,6 +30,9 @@ public class ServiceLegionaryJoinFactory implements Pinenut {
         instruction.setZone( request.getZone() );
         instruction.setWeight( request.getWeight() );
         instruction.setMetadataJson( request.getMetadataJson() );
+        instruction.setRuntimeNodeId( request.getRuntimeNodeId() );
+        instruction.setRuntimeNodeAlias( request.getRuntimeNodeAlias() );
+        instruction.setRuntimeNodeMetadataJson( request.getRuntimeNodeMetadataJson() );
         return instruction;
     }
 

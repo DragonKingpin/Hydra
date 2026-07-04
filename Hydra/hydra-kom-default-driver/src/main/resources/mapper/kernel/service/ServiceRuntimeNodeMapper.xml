@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinecone.hydra.service.ibatis.ServiceRuntimeNodeMapper">
+
+    <resultMap id="ServiceRuntimeNodeMap" type="com.pinecone.hydra.service.kom.entity.GenericServiceRuntimeNodeEntity">
+        <id     column="id"                  property="id"/>
+        <id     column="guid"                property="guid"/>
+        <result column="service_guid"        property="serviceGuid"/>
+        <result column="node_id"             property="nodeId"/>
+        <result column="alias"               property="alias"/>
+        <result column="status"              property="status"/>
+        <result column="version"             property="version"/>
+        <result column="zone"                property="zone"/>
+        <result column="metadata_json"       property="metadataJson"/>
+        <result column="latest_instance_guid" property="latestInstanceGuid"/>
+        <result column="latest_start_time"   property="latestStartTime"/>
+        <result column="latest_end_time"     property="latestEndTime"/>
+        <result column="last_heartbeat_time" property="lastHeartbeatTime"/>
+        <result column="create_time"         property="createTime"/>
+        <result column="update_time"         property="updateTime"/>
+    </resultMap>
+
+    <sql id="ServiceRuntimeNodeFields">
+        `id`,
+        `guid`,
+        `service_guid`,
+        `node_id`,
+        `alias`,
+        `status`,
+        `version`,
+        `zone`,
+        `metadata_json`,
+        `latest_instance_guid`,
+        `latest_start_time`,
+        `latest_end_time`,
+        `last_heartbeat_time`,
+        `create_time`,
+        `update_time`
+    </sql>
+
+    <sql id="ServiceRuntimeNodeQueryWhere">
+        <where>
+            <if test="query.guid != null">
+                AND `guid` = #{query.guid}
+            </if>
+            <if test="query.serviceGuid != null">
+                AND `service_guid` = #{query.serviceGuid}
+            </if>
+            <if test="query.nodeId != null and query.nodeId != ''">
+                AND `node_id` = #{query.nodeId}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                AND `status` = #{query.status}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (
+                    `guid` = #{query.keyword}
+                    OR `service_guid` = #{query.keyword}
+                    OR `node_id` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `alias` LIKE CONCAT('%', #{query.keyword}, '%')
+                    OR `latest_instance_guid` = #{query.keyword}
+                )
+            </if>
+        </where>
+    </sql>
+
+    <insert id="createServiceRuntimeNode" parameterType="com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry">
+        INSERT INTO `hydra_service_runtime_node`
+        (
+            `guid`,
+            `service_guid`,
+            `node_id`,
+            `alias`,
+            `status`,
+            `version`,
+            `zone`,
+            `metadata_json`,
+            `latest_instance_guid`,
+            `latest_start_time`,
+            `latest_end_time`,
+            `last_heartbeat_time`
+        )
+        VALUES
+        (
+            #{guid},
+            #{serviceGuid},
+            #{nodeId},
+            #{alias},
+            #{status},
+            #{version},
+            #{zone},
+            #{metadataJson},
+            #{latestInstanceGuid},
+            #{latestStartTime},
+            #{latestEndTime},
+            #{lastHeartbeatTime}
+        )
+    </insert>
+
+    <update id="updateServiceRuntimeNodeProfile" parameterType="com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry">
+        UPDATE `hydra_service_runtime_node`
+        SET
+            `alias` = #{alias},
+            `version` = #{version},
+            `zone` = #{zone},
+            `metadata_json` = #{metadataJson}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <update id="refreshServiceRuntimeNodeRuntime" parameterType="com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry">
+        UPDATE `hydra_service_runtime_node`
+        SET
+            `alias` = #{alias},
+            `status` = #{status},
+            `version` = #{version},
+            `zone` = #{zone},
+            `metadata_json` = #{metadataJson},
+            `latest_instance_guid` = #{latestInstanceGuid},
+            `latest_start_time` = #{latestStartTime},
+            `latest_end_time` = #{latestEndTime},
+            `last_heartbeat_time` = #{lastHeartbeatTime}
+        WHERE `guid` = #{guid}
+    </update>
+
+    <select id="queryServiceRuntimeNode" resultMap="ServiceRuntimeNodeMap">
+        SELECT
+        <include refid="ServiceRuntimeNodeFields"/>
+        FROM `hydra_service_runtime_node`
+        WHERE `guid` = #{guid}
+    </select>
+
+    <select id="queryServiceRuntimeNodeByServiceGuidAndNodeId" resultMap="ServiceRuntimeNodeMap">
+        SELECT
+        <include refid="ServiceRuntimeNodeFields"/>
+        FROM `hydra_service_runtime_node`
+        WHERE `service_guid` = #{serviceGuid}
+          AND `node_id` = #{nodeId}
+    </select>
+
+    <select id="fetchServiceRuntimeNodes0" resultMap="ServiceRuntimeNodeMap">
+        SELECT
+        <include refid="ServiceRuntimeNodeFields"/>
+        FROM `hydra_service_runtime_node`
+        <include refid="ServiceRuntimeNodeQueryWhere"/>
+        ORDER BY `update_time` DESC, `guid` DESC
+        LIMIT #{query.offset}, #{query.limit}
+    </select>
+
+    <select id="countServiceRuntimeNodes0" resultType="long">
+        SELECT COUNT(*)
+        FROM `hydra_service_runtime_node`
+        <include refid="ServiceRuntimeNodeQueryWhere"/>
+    </select>
+
+    <delete id="deleteServiceRuntimeNodesByServiceGuid">
+        DELETE FROM `hydra_service_runtime_node`
+        WHERE `service_guid` = #{serviceGuid}
+    </delete>
+
+</mapper>

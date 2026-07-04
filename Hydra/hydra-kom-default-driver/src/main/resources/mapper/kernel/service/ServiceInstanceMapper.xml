@@ -10,6 +10,8 @@
         <id     column="guid"               property="guid"/>
         <result column="service_guid"       property="serviceGuid"/>
         <result column="deploy_guid"        property="deployGuid"/>
+        <result column="runtime_node_guid"  property="runtimeNodeGuid"/>
+        <result column="runtime_node_id"    property="runtimeNodeId"/>
         <result column="client_id"          property="clientId"/>
         <result column="transport_type"     property="transportType"/>
         <result column="remote_address"     property="remoteAddress"/>
@@ -38,6 +40,8 @@
         `guid`,
         `service_guid`,
         `deploy_guid`,
+        `runtime_node_guid`,
+        `runtime_node_id`,
         `client_id`,
         `transport_type`,
         `remote_address`,
@@ -75,6 +79,31 @@
             <if test="query.deployGuid != null">
                 AND `deploy_guid` = #{query.deployGuid}
             </if>
+            <if test="query.runtimeNodeGuid != null">
+                AND `runtime_node_guid` = #{query.runtimeNodeGuid}
+            </if>
+            <if test="query.runtimeNodeId != null and query.runtimeNodeId != ''">
+                AND `runtime_node_id` = #{query.runtimeNodeId}
+            </if>
+            <if test="query.runtimeNodeDeclared != null and query.runtimeNodeDeclared">
+                AND `runtime_node_id` IS NOT NULL
+                AND `runtime_node_id` != ''
+            </if>
+            <if test="query.runtimeNodeDeclared != null and !query.runtimeNodeDeclared">
+                AND (`runtime_node_id` IS NULL OR `runtime_node_id` = '')
+            </if>
+            <if test="query.runtimeNodeKeyword != null and query.runtimeNodeKeyword != ''">
+                AND (
+                    `runtime_node_guid` = #{query.runtimeNodeKeyword}
+                    OR `runtime_node_id` LIKE CONCAT('%', #{query.runtimeNodeKeyword}, '%')
+                    OR `runtime_node_guid` IN (
+                        SELECT `guid`
+                        FROM `hydra_service_runtime_node`
+                        WHERE `node_id` LIKE CONCAT('%', #{query.runtimeNodeKeyword}, '%')
+                           OR `alias` LIKE CONCAT('%', #{query.runtimeNodeKeyword}, '%')
+                    )
+                )
+            </if>
             <if test="query.ip != null and query.ip != ''">
                 AND `endpoint_host` = #{query.ip}
             </if>
@@ -109,6 +138,8 @@
             `guid`,
             `service_guid`,
             `deploy_guid`,
+            `runtime_node_guid`,
+            `runtime_node_id`,
             `client_id`,
             `transport_type`,
             `remote_address`,
@@ -136,6 +167,8 @@
             #{guid},
             #{serviceGuid},
             #{deployGuid},
+            #{runtimeNodeGuid},
+            #{runtimeNodeId},
             #{clientId},
             #{transportType},
             #{remoteAddress},
@@ -205,6 +238,8 @@
         SET
             `service_guid` = #{serviceGuid},
             `deploy_guid` = #{deployGuid},
+            `runtime_node_guid` = #{runtimeNodeGuid},
+            `runtime_node_id` = #{runtimeNodeId},
             `client_id` = #{clientId},
             `transport_type` = #{transportType},
             `remote_address` = #{remoteAddress},

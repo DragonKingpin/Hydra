@@ -74,6 +74,9 @@ message RegisterServiceCommand {
   int64 heartbeatIntervalMillis = 13;
   int64 leaseTimeoutMillis = 14;
   string instanceGuid = 15;
+  string runtimeNodeId = 16;
+  string runtimeNodeAlias = 17;
+  string runtimeNodeMetadataJson = 18;
 }
 
 message RegisterServiceAccepted {

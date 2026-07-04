@@ -106,7 +106,7 @@ public final class ServiceControlProto {
       "\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"e\n\013ClientReady\022" +
       "\020\n\010clientId\030\001 \001(\003\022\023\n\013sessionGuid\030\002 \001(\t\022\025" +
       "\n\rremoteAddress\030\003 \001(\t\022\030\n\020serverTimeMilli" +
-      "s\030\004 \001(\003\"\334\002\n\026RegisterServiceCommand\022\023\n\013se" +
+      "s\030\004 \001(\003\"\256\003\n\026RegisterServiceCommand\022\023\n\013se" +
       "rviceGuid\030\001 \001(\t\022\022\n\ndeployGuid\030\002 \001(\t\022\030\n\020e" +
       "ndpointProtocol\030\003 \001(\t\022\024\n\014endpointHost\030\004 " +
       "\001(\t\022\024\n\014endpointPort\030\005 \001(\005\022\024\n\014endpointPat" +
@@ -114,32 +114,34 @@ public final class ServiceControlProto {
       "ion\030\010 \001(\t\022\014\n\004zone\030\t \001(\t\022\016\n\006weight\030\n \001(\005\022" +
       "\014\n\004tags\030\013 \003(\t\022\024\n\014metadataJson\030\014 \001(\t\022\037\n\027h" +
       "eartbeatIntervalMillis\030\r \001(\003\022\032\n\022leaseTim" +
-      "eoutMillis\030\016 \001(\003\022\024\n\014instanceGuid\030\017 \001(\t\"\237" +
-      "\001\n\027RegisterServiceAccepted\022\024\n\014instanceGu" +
-      "id\030\001 \001(\t\022\023\n\013serviceGuid\030\002 \001(\t\022\023\n\013session" +
-      "Guid\030\003 \001(\t\022\016\n\006status\030\004 \001(\t\022\032\n\022registerTi" +
-      "meMillis\030\005 \001(\003\022\030\n\020expireTimeMillis\030\006 \001(\003" +
-      "\"\\\n\tHeartbeat\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n\006s" +
-      "tatus\030\002 \001(\t\022\030\n\020clientTimeMillis\030\003 \001(\003\022\017\n" +
-      "\007message\030\004 \001(\t\"9\n\021DeregisterCommand\022\024\n\014i" +
-      "nstanceGuid\030\001 \001(\t\022\016\n\006reason\030\002 \001(\t\"D\n\014Der" +
-      "egistered\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n\006statu" +
-      "s\030\002 \001(\t\022\016\n\006reason\030\003 \001(\t\">\n\026ShutdownServi" +
-      "ceCommand\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n\006reaso" +
-      "n\030\002 \001(\t\"?\n\027ShutdownServiceAccepted\022\024\n\014in" +
-      "stanceGuid\030\001 \001(\t\022\016\n\006reason\030\002 \001(\t\";\n\nErro" +
-      "rFrame\022\014\n\004code\030\001 \001(\t\022\017\n\007message\030\002 \001(\t\022\016\n" +
-      "\006detail\030\003 \001(\t*\341\001\n\027ServiceControlFrameTyp" +
-      "e\022\013\n\007UNKNOWN\020\000\022\021\n\rCLIENT_MUSTER\020\001\022\020\n\014CLI" +
-      "ENT_READY\020\002\022\024\n\020REGISTER_SERVICE\020\003\022\025\n\021REG" +
-      "ISTER_ACCEPTED\020\004\022\r\n\tHEARTBEAT\020\005\022\016\n\nDEREG" +
-      "ISTER\020\006\022\020\n\014DEREGISTERED\020\007\022\024\n\020SHUTDOWN_SE" +
-      "RVICE\020\010\022\025\n\021SHUTDOWN_ACCEPTED\020\t\022\t\n\005ERROR\020" +
-      "\n2K\n\016ServiceControl\0229\n\007Control\022\024.Service" +
-      "ControlFrame\032\024.ServiceControlFrame(\0010\001BZ" +
-      "\nAcom.acorn.redqueen.service.registry.gr" +
-      "pc.protocol.lifecycle.protoB\023ServiceCont" +
-      "rolProtoP\001b\006proto3"
+      "eoutMillis\030\016 \001(\003\022\024\n\014instanceGuid\030\017 \001(\t\022\025" +
+      "\n\rruntimeNodeId\030\020 \001(\t\022\030\n\020runtimeNodeAlia" +
+      "s\030\021 \001(\t\022\037\n\027runtimeNodeMetadataJson\030\022 \001(\t" +
+      "\"\237\001\n\027RegisterServiceAccepted\022\024\n\014instance" +
+      "Guid\030\001 \001(\t\022\023\n\013serviceGuid\030\002 \001(\t\022\023\n\013sessi" +
+      "onGuid\030\003 \001(\t\022\016\n\006status\030\004 \001(\t\022\032\n\022register" +
+      "TimeMillis\030\005 \001(\003\022\030\n\020expireTimeMillis\030\006 \001" +
+      "(\003\"\\\n\tHeartbeat\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n" +
+      "\006status\030\002 \001(\t\022\030\n\020clientTimeMillis\030\003 \001(\003\022" +
+      "\017\n\007message\030\004 \001(\t\"9\n\021DeregisterCommand\022\024\n" +
+      "\014instanceGuid\030\001 \001(\t\022\016\n\006reason\030\002 \001(\t\"D\n\014D" +
+      "eregistered\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n\006sta" +
+      "tus\030\002 \001(\t\022\016\n\006reason\030\003 \001(\t\">\n\026ShutdownSer" +
+      "viceCommand\022\024\n\014instanceGuid\030\001 \001(\t\022\016\n\006rea" +
+      "son\030\002 \001(\t\"?\n\027ShutdownServiceAccepted\022\024\n\014" +
+      "instanceGuid\030\001 \001(\t\022\016\n\006reason\030\002 \001(\t\";\n\nEr" +
+      "rorFrame\022\014\n\004code\030\001 \001(\t\022\017\n\007message\030\002 \001(\t\022" +
+      "\016\n\006detail\030\003 \001(\t*\341\001\n\027ServiceControlFrameT" +
+      "ype\022\013\n\007UNKNOWN\020\000\022\021\n\rCLIENT_MUSTER\020\001\022\020\n\014C" +
+      "LIENT_READY\020\002\022\024\n\020REGISTER_SERVICE\020\003\022\025\n\021R" +
+      "EGISTER_ACCEPTED\020\004\022\r\n\tHEARTBEAT\020\005\022\016\n\nDER" +
+      "EGISTER\020\006\022\020\n\014DEREGISTERED\020\007\022\024\n\020SHUTDOWN_" +
+      "SERVICE\020\010\022\025\n\021SHUTDOWN_ACCEPTED\020\t\022\t\n\005ERRO" +
+      "R\020\n2K\n\016ServiceControl\0229\n\007Control\022\024.Servi" +
+      "ceControlFrame\032\024.ServiceControlFrame(\0010\001" +
+      "BZ\nAcom.acorn.redqueen.service.registry." +
+      "grpc.protocol.lifecycle.protoB\023ServiceCo" +
+      "ntrolProtoP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -174,7 +176,7 @@ public final class ServiceControlProto {
     internal_static_RegisterServiceCommand_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_RegisterServiceCommand_descriptor,
-        new java.lang.String[] { "ServiceGuid", "DeployGuid", "EndpointProtocol", "EndpointHost", "EndpointPort", "EndpointPath", "EndpointAddress", "Version", "Zone", "Weight", "Tags", "MetadataJson", "HeartbeatIntervalMillis", "LeaseTimeoutMillis", "InstanceGuid", });
+        new java.lang.String[] { "ServiceGuid", "DeployGuid", "EndpointProtocol", "EndpointHost", "EndpointPort", "EndpointPath", "EndpointAddress", "Version", "Zone", "Weight", "Tags", "MetadataJson", "HeartbeatIntervalMillis", "LeaseTimeoutMillis", "InstanceGuid", "RuntimeNodeId", "RuntimeNodeAlias", "RuntimeNodeMetadataJson", });
     internal_static_RegisterServiceAccepted_descriptor =
       getDescriptor().getMessageTypes().get(4);
     internal_static_RegisterServiceAccepted_fieldAccessorTable = new

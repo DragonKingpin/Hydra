@@ -142,6 +142,9 @@ public class GrpcServiceControlTransport implements ServiceControlTransport {
             dto.setWeight( command.getWeight() );
         }
         dto.setMetadataJson( command.getMetadataJson() );
+        dto.setRuntimeNodeId( command.getRuntimeNodeId() );
+        dto.setRuntimeNodeAlias( command.getRuntimeNodeAlias() );
+        dto.setRuntimeNodeMetadataJson( command.getRuntimeNodeMetadataJson() );
         String szInstanceGuid = this.mServiceManager.serviceLifecycleService().registerService( dto );
         session.bindInstance( szInstanceGuid );
         return szInstanceGuid;

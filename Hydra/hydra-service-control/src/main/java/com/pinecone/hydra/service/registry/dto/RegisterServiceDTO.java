@@ -32,6 +32,12 @@ public class RegisterServiceDTO implements Pinenut {
 
     protected String metadataJson;
 
+    protected String runtimeNodeId;
+
+    protected String runtimeNodeAlias;
+
+    protected String runtimeNodeMetadataJson;
+
     public RegisterServiceDTO() {
 
     }
@@ -160,6 +166,30 @@ public class RegisterServiceDTO implements Pinenut {
 
     public void setMetadataJson( String metadataJson ) {
         this.metadataJson = metadataJson;
+    }
+
+    public String getRuntimeNodeId() {
+        return this.runtimeNodeId;
+    }
+
+    public void setRuntimeNodeId( String runtimeNodeId ) {
+        this.runtimeNodeId = runtimeNodeId;
+    }
+
+    public String getRuntimeNodeAlias() {
+        return this.runtimeNodeAlias;
+    }
+
+    public void setRuntimeNodeAlias( String runtimeNodeAlias ) {
+        this.runtimeNodeAlias = runtimeNodeAlias;
+    }
+
+    public String getRuntimeNodeMetadataJson() {
+        return this.runtimeNodeMetadataJson;
+    }
+
+    public void setRuntimeNodeMetadataJson( String runtimeNodeMetadataJson ) {
+        this.runtimeNodeMetadataJson = runtimeNodeMetadataJson;
     }
 
 }

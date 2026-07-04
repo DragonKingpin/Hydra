@@ -25,6 +25,14 @@ public class ServiceInstanceQuery implements Pinenut {
 
     protected GUID mDeployGuid;
 
+    protected GUID mRuntimeNodeGuid;
+
+    protected String mszRuntimeNodeId;
+
+    protected String mszRuntimeNodeKeyword;
+
+    protected Boolean mRuntimeNodeDeclared;
+
     protected String mszIp;
 
     protected LocalDateTime mLatestStartTimeStart;
@@ -93,6 +101,38 @@ public class ServiceInstanceQuery implements Pinenut {
 
     public void setDeployGuid( GUID deployGuid ) {
         this.mDeployGuid = deployGuid;
+    }
+
+    public GUID getRuntimeNodeGuid() {
+        return this.mRuntimeNodeGuid;
+    }
+
+    public void setRuntimeNodeGuid( GUID runtimeNodeGuid ) {
+        this.mRuntimeNodeGuid = runtimeNodeGuid;
+    }
+
+    public String getRuntimeNodeId() {
+        return this.mszRuntimeNodeId;
+    }
+
+    public void setRuntimeNodeId( String runtimeNodeId ) {
+        this.mszRuntimeNodeId = runtimeNodeId;
+    }
+
+    public String getRuntimeNodeKeyword() {
+        return this.mszRuntimeNodeKeyword;
+    }
+
+    public void setRuntimeNodeKeyword( String runtimeNodeKeyword ) {
+        this.mszRuntimeNodeKeyword = runtimeNodeKeyword;
+    }
+
+    public Boolean getRuntimeNodeDeclared() {
+        return this.mRuntimeNodeDeclared;
+    }
+
+    public void setRuntimeNodeDeclared( Boolean runtimeNodeDeclared ) {
+        this.mRuntimeNodeDeclared = runtimeNodeDeclared;
     }
 
     public String getIp() {

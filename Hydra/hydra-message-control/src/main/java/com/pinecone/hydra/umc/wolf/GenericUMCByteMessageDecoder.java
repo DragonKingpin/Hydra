@@ -48,7 +48,7 @@ public class GenericUMCByteMessageDecoder extends ByteToMessageDecoder {
 //        ByteBuf bufs = in.copy();
 //        byte[] bfs = new byte[ bufs.readableBytes() ];
 //        bufs.readBytes( bfs );
-//        int occurrences = countOccurrences(bfs, "UMC/1.1".getBytes());
+//        int occurrences = countOccurrences(bfs, UMCHeadV1.ProtocolSignature);
 //        int kf = countOccurrences(bfs, "afd".getBytes());
 //        if ( kf > 0 ) {
 //            IC += occurrences;

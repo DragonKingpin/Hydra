@@ -11,7 +11,7 @@ public interface UMCProtocol extends MsgProtocol {
 
     String getVersion();
 
-    String getSignature();
+    byte[] getSignature();
 
     void release();
 

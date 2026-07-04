@@ -4,20 +4,20 @@ import java.io.IOException;
 
 import com.pinecone.hydra.umc.msg.GenericEMCBytesDecoder;
 import com.pinecone.hydra.umc.msg.UMCHead;
+import com.pinecone.hydra.umc.msg.UMCProtocolMagic;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 public class UMBBytesDecoder extends GenericEMCBytesDecoder {
     @Override
     public UMCHead decode( byte[] buf, ExtraHeadCoder extraHeadCoder ) throws IOException {
-        UMCHead head = super.decode( buf, extraHeadCoder );
-        if ( head != null ) {
-            return head;
+        if ( !UMCProtocolMagic.isUniformMessage( buf ) ) {
+            return null;
         }
 
-        if ( this.isQualified( buf, UMBPHeadV1.ProtocolSignature ) ) {
+        if ( UMCProtocolMagic.variantOf( buf ) == UMCProtocolMagic.VARIANT_UMBP ) {
             return UMBPHeadV1.decode( buf, UMBPHeadV1.ProtocolSignature, extraHeadCoder );
         }
 
-        return null;
+        return super.decode( buf, extraHeadCoder );
     }
 }

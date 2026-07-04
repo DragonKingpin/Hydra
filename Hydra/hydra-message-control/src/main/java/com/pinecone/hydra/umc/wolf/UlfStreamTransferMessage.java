@@ -29,6 +29,6 @@ public class UlfStreamTransferMessage extends ArchStreamTransferMessage {
     }
 
     public UlfStreamTransferMessage( Object exHead, InputStream inStream ) {
-        this( exHead, ExtraEncode.Prototype, inStream, 0 );
+        this( exHead, ExtraEncode.Blob, inStream, 0 );
     }
 }

@@ -6,10 +6,13 @@ import com.pinecone.hydra.umb.broadcast.BroadcastNode;
 import com.pinecone.hydra.umb.broadcast.UNT;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     protected static Properties newDefaultProperties( KConfig kafkaConfig ) {
@@ -68,14 +71,14 @@ public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     @Override
     public void sendPrototypeMessage( String topic, String ns, K name, V body ) throws UMBClientException {
         ProducerRecord<K, V > producerRecord = new ProducerRecord<>( topic, name, body );
-        this.kafkaProducer.send( producerRecord );
+        this.sendRecord( producerRecord );
     }
 
     @SuppressWarnings( "unchecked" )
     @Override
     public void sendMessage( String topic, String ns, String name, byte[] body ) throws UMBClientException {
         ProducerRecord<String, byte[]> producerRecord = new ProducerRecord<>( topic, name, body );
-        this.kafkaProducer.send( (ProducerRecord<K, V >) producerRecord );
+        this.sendRecord( (ProducerRecord<K, V >) producerRecord );
     }
 
     @Override
@@ -86,5 +89,19 @@ public class UlfBroadcastProducer<K, V > implements KBroadcastProducer<K, V > {
     @Override
     public void sendMessage( UNT unt, String name, byte[] body ) throws UMBClientException {
         this.sendMessage( unt.getTopic(), unt.getNamespace(), name, body );
+    }
+
+    protected RecordMetadata sendRecord( ProducerRecord<K, V> producerRecord ) throws UMBClientException {
+        try {
+            Future<RecordMetadata> future = this.kafkaProducer.send( producerRecord );
+            return future.get();
+        }
+        catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+            throw new UMBClientException( e );
+        }
+        catch ( ExecutionException e ) {
+            throw new UMBClientException( e );
+        }
     }
 }

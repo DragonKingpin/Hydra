@@ -20,7 +20,7 @@ public class GenericExtraHeadDecoder implements ExtraHeadDecoder {
                 jo.jsonDecode( new String( raw ) );
                 return jo;
             }
-            case Binary: {
+            case UlfBJson: {
                 ByteArrayInputStream       is = new ByteArrayInputStream( raw );
                 UlfJSONDecompiler decompiler = new UlfJSONDecompiler( is );
 
@@ -33,11 +33,11 @@ public class GenericExtraHeadDecoder implements ExtraHeadDecoder {
                 }
 
                 throw new ExtraHeadMarshalingException(
-                        "Illegal decompiler Binary json, requires Map<String, Object > but " + o.getClass().getSimpleName() + " found."
+                        "Illegal decompiler UlfBJson, requires Map<String, Object > but " + o.getClass().getSimpleName() + " found."
                 );
             }
             case Iussum:
-            case Prototype: {
+            case Blob: {
                 return raw;
             }
         }

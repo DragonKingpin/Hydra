@@ -47,11 +47,11 @@ public abstract class ArchBytesTransferMessage extends ArchUMCMessage implements
     }
 
     public ArchBytesTransferMessage( Object exHead, byte[] sBytesBody ) {
-        this( exHead, ExtraEncode.Prototype, sBytesBody, 0 );
+        this( exHead, ExtraEncode.Blob, sBytesBody, 0 );
     }
 
     public ArchBytesTransferMessage( Object exHead, String szStringBody ) {
-        this( exHead, ExtraEncode.Prototype, szStringBody, 0 );
+        this( exHead, ExtraEncode.Blob, szStringBody, 0 );
     }
 
 

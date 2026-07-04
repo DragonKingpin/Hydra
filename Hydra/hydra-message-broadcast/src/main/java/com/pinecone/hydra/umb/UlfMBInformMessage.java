@@ -12,7 +12,7 @@ public class UlfMBInformMessage extends ArchUMCMessage implements InformMessage 
     public static UMCHead newUMCHead( Object exHead ) {
         UMBPHeadV1 head = new UMBPHeadV1();
         head.setExtraHead( exHead );
-        head.setExtraEncode( ExtraEncode.Prototype );
+        head.setExtraEncode( ExtraEncode.Blob );
         return head;
     }
 
@@ -25,7 +25,7 @@ public class UlfMBInformMessage extends ArchUMCMessage implements InformMessage 
     public static UMCHead newUMCHead( Object exHead, int controlBits ) {
         UMCCHeadV1 head = UlfMBInformMessage.newUMCHead( controlBits );
         head.setExtraHead( exHead );
-        head.setExtraEncode( ExtraEncode.Prototype );
+        head.setExtraEncode( ExtraEncode.Blob );
         return head;
     }
 

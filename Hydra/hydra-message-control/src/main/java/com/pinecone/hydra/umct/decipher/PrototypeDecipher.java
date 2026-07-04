@@ -134,7 +134,7 @@ public class PrototypeDecipher implements HeaderDecipher {
             return (UMCMessage) that;
         }
         if ( that == null ) {
-            return new UlfInformMessage( null, ExtraEncode.Prototype );
+            return new UlfInformMessage( null, ExtraEncode.Blob );
         }
 
         Descriptors.Descriptor retDes = (Descriptors.Descriptor) descriptor;

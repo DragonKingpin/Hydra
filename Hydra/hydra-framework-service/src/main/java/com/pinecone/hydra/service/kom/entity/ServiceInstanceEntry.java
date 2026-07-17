@@ -6,6 +6,10 @@ import com.pinecone.framework.util.id.GUID;
 import java.time.LocalDateTime;
 
 public interface ServiceInstanceEntry extends Pinenut {
+    Long getId();
+
+    void setId( Long id );
+
     void setGuid( GUID guid );
 
     GUID getGuid();
@@ -116,6 +120,14 @@ public interface ServiceInstanceEntry extends Pinenut {
     GUID getDeployGuid();
 
     void setDeployGuid( GUID deployGuid );
+
+    GUID getRuntimeNodeGuid();
+
+    void setRuntimeNodeGuid( GUID runtimeNodeGuid );
+
+    String getRuntimeNodeId();
+
+    void setRuntimeNodeId( String runtimeNodeId );
 
     String getIp();
 

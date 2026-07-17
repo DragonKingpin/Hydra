@@ -27,69 +27,6 @@ private static final long serialVersionUID = 0L;
     return new ClientReady();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet
-  getUnknownFields() {
-    return this.unknownFields;
-  }
-  private ClientReady(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 8: {
-
-            clientId_ = input.readInt64();
-            break;
-          }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            sessionGuid_ = s;
-            break;
-          }
-          case 26: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            remoteAddress_ = s;
-            break;
-          }
-          case 32: {
-
-            serverTimeMillis_ = input.readInt64();
-            break;
-          }
-          default: {
-            if (!parseUnknownField(
-                input, unknownFields, extensionRegistry, tag)) {
-              done = true;
-            }
-            break;
-          }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(
-          e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-    }
-  }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
     return com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlProto.internal_static_ClientReady_descriptor;
@@ -104,7 +41,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int CLIENTID_FIELD_NUMBER = 1;
-  private long clientId_;
+  private long clientId_ = 0L;
   /**
    * <code>int64 clientId = 1;</code>
    * @return The clientId.
@@ -115,7 +52,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int SESSIONGUID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object sessionGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object sessionGuid_ = "";
   /**
    * <code>string sessionGuid = 2;</code>
    * @return The sessionGuid.
@@ -153,7 +91,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int REMOTEADDRESS_FIELD_NUMBER = 3;
-  private volatile java.lang.Object remoteAddress_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object remoteAddress_ = "";
   /**
    * <code>string remoteAddress = 3;</code>
    * @return The remoteAddress.
@@ -191,7 +130,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int SERVERTIMEMILLIS_FIELD_NUMBER = 4;
-  private long serverTimeMillis_;
+  private long serverTimeMillis_ = 0L;
   /**
    * <code>int64 serverTimeMillis = 4;</code>
    * @return The serverTimeMillis.
@@ -218,16 +157,16 @@ private static final long serialVersionUID = 0L;
     if (clientId_ != 0L) {
       output.writeInt64(1, clientId_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, sessionGuid_);
     }
-    if (!getRemoteAddressBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(remoteAddress_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 3, remoteAddress_);
     }
     if (serverTimeMillis_ != 0L) {
       output.writeInt64(4, serverTimeMillis_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -240,17 +179,17 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(1, clientId_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, sessionGuid_);
     }
-    if (!getRemoteAddressBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(remoteAddress_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, remoteAddress_);
     }
     if (serverTimeMillis_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(4, serverTimeMillis_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -273,7 +212,7 @@ private static final long serialVersionUID = 0L;
         .equals(other.getRemoteAddress())) return false;
     if (getServerTimeMillis()
         != other.getServerTimeMillis()) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -294,7 +233,7 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + SERVERTIMEMILLIS_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
         getServerTimeMillis());
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -343,11 +282,13 @@ private static final long serialVersionUID = 0L;
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -411,30 +352,22 @@ private static final long serialVersionUID = 0L;
 
     // Construct using com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady.newBuilder()
     private Builder() {
-      maybeForceBuilderInitialization();
+
     }
 
     private Builder(
         com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3
-              .alwaysUseFieldBuilders) {
-      }
+
     }
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       clientId_ = 0L;
-
       sessionGuid_ = "";
-
       remoteAddress_ = "";
-
       serverTimeMillis_ = 0L;
-
       return this;
     }
 
@@ -461,12 +394,25 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady buildPartial() {
       com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady result = new com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady(this);
-      result.clientId_ = clientId_;
-      result.sessionGuid_ = sessionGuid_;
-      result.remoteAddress_ = remoteAddress_;
-      result.serverTimeMillis_ = serverTimeMillis_;
+      if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.clientId_ = clientId_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.sessionGuid_ = sessionGuid_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.remoteAddress_ = remoteAddress_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.serverTimeMillis_ = serverTimeMillis_;
+      }
     }
 
     @java.lang.Override
@@ -518,16 +464,18 @@ private static final long serialVersionUID = 0L;
       }
       if (!other.getSessionGuid().isEmpty()) {
         sessionGuid_ = other.sessionGuid_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (!other.getRemoteAddress().isEmpty()) {
         remoteAddress_ = other.remoteAddress_;
+        bitField0_ |= 0x00000004;
         onChanged();
       }
       if (other.getServerTimeMillis() != 0L) {
         setServerTimeMillis(other.getServerTimeMillis());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -542,19 +490,53 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8: {
+              clientId_ = input.readInt64();
+              bitField0_ |= 0x00000001;
+              break;
+            } // case 8
+            case 18: {
+              sessionGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000002;
+              break;
+            } // case 18
+            case 26: {
+              remoteAddress_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000004;
+              break;
+            } // case 26
+            case 32: {
+              serverTimeMillis_ = input.readInt64();
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 32
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ClientReady) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+    private int bitField0_;
 
     private long clientId_ ;
     /**
@@ -571,8 +553,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setClientId(long value) {
-      
+
       clientId_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -581,7 +564,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearClientId() {
-      
+      bitField0_ = (bitField0_ & ~0x00000001);
       clientId_ = 0L;
       onChanged();
       return this;
@@ -628,11 +611,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       sessionGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -641,8 +622,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearSessionGuid() {
-      
       sessionGuid_ = getDefaultInstance().getSessionGuid();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -653,12 +634,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       sessionGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -704,11 +683,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setRemoteAddress(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       remoteAddress_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -717,8 +694,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearRemoteAddress() {
-      
       remoteAddress_ = getDefaultInstance().getRemoteAddress();
+      bitField0_ = (bitField0_ & ~0x00000004);
       onChanged();
       return this;
     }
@@ -729,12 +706,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setRemoteAddressBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       remoteAddress_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -754,8 +729,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setServerTimeMillis(long value) {
-      
+
       serverTimeMillis_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -764,7 +740,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearServerTimeMillis() {
-      
+      bitField0_ = (bitField0_ & ~0x00000008);
       serverTimeMillis_ = 0L;
       onChanged();
       return this;
@@ -802,7 +778,18 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new ClientReady(input, extensionRegistry);
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
     }
   };
 

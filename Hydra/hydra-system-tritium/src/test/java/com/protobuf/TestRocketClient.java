@@ -104,7 +104,7 @@ class Garrison extends Tritium {
     }
 
     public void testWolfMCTB() throws Exception {
-        String nameSrvAddr = "localhost:9876";
+        String nameSrvAddr = "b-serverkingpin:9876";
         String groupName = "UCDNFileServiceTransmitGroup";
         String topic = "ucdn-file-cloud-distribute-topic";
         String tags = "*";

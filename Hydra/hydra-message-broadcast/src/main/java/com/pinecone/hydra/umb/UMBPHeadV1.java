@@ -3,7 +3,6 @@ package com.pinecone.hydra.umb;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Map;
 
 import com.pinecone.framework.system.prototype.ObjectiveBean;
@@ -19,6 +18,7 @@ import com.pinecone.hydra.umc.msg.StreamTerminateException;
 import com.pinecone.hydra.umc.msg.UMCHead;
 import com.pinecone.hydra.umc.msg.UMCHeadV1;
 import com.pinecone.hydra.umc.msg.UMCMethod;
+import com.pinecone.hydra.umc.msg.UMCProtocolMagic;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 /**
@@ -36,13 +36,13 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
  */
 public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
     public static final String     ProtocolVersion   = "1.1";
-    public static final String     ProtocolSignature = "UMC-BP/" + UMBPHeadV1.ProtocolVersion;
+    public static final byte[]     ProtocolSignature = UMCProtocolMagic.UMBP_V1;
     public static final int        StructBlockSize   = Integer.BYTES + Byte.BYTES;
-    public static final int        HeadBlockSize     = UMBPHeadV1.ProtocolSignature.length() + UMBPHeadV1.StructBlockSize;
+    public static final int        HeadBlockSize     = UMCProtocolMagic.length( UMBPHeadV1.ProtocolSignature ) + UMBPHeadV1.StructBlockSize;
     public static final ByteOrder  BinByteOrder      = UMCHeadV1.BinByteOrder;
     public static final int        HeadFieldsSize    = 3;
 
-    protected String                 szSignature                                ; // :0
+    protected byte[]                 signature                                  ; // :0
     protected int                    nExtraHeadLength  = 2                      ; // :1 sizeof( int32 ) = 4
     protected ExtraEncode            extraEncode       = ExtraEncode.Undefined  ; // :2 sizeof( ExtraEncode/byte ) = 1
 
@@ -52,7 +52,7 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
 
 
     public UMBPHeadV1(  ) {
-        this.szSignature = UMBPHeadV1.ProtocolSignature;
+        this.signature = UMCProtocolMagic.copyOf( UMBPHeadV1.ProtocolSignature );
         this.dyExtraHead = new LinkedTreeMap<>();
     }
 
@@ -71,8 +71,8 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
 
 
     @Override
-    protected void setSignature            ( String signature                         ) {
-        this.szSignature = signature;
+    protected void setSignature            ( byte[] signature                         ) {
+        this.signature = UMCProtocolMagic.copyOf( signature );
     }
 
     @Override
@@ -147,7 +147,7 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
             if( this.extraEncode == ExtraEncode.JSONString ) {
                 this.extraHead  = "{}".getBytes();
             }
-            else if( this.extraEncode == ExtraEncode.Prototype ) {
+            else if( this.extraEncode == ExtraEncode.Blob ) {
                 this.extraHead         = null;
                 this.nExtraHeadLength  = 0;
                 return;
@@ -188,13 +188,13 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
     }
 
     @Override
-    public String          getSignature() {
-        return this.szSignature;
+    public byte[]          getSignature() {
+        return UMCProtocolMagic.copyOf( this.signature );
     }
 
     @Override
     public int             getSignatureLength() {
-        return this.getSignature().length();
+        return this.signature.length;
     }
 
     @Override
@@ -342,7 +342,7 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
         ByteBuffer byteBuffer = ByteBuffer.allocate( UMCHeadV1.ReadBufferSize + head.getExtraHeadLength() );
         byteBuffer.order( BinByteOrder );
 
-        byteBuffer.put( head.getSignature().getBytes() );
+        UMCProtocolMagic.put( byteBuffer, head.signature );
 
         int nBufLength = head.getSignatureLength();
         byteBuffer.putInt( head.nExtraHeadLength );
@@ -365,15 +365,15 @@ public class UMBPHeadV1 extends AbstractUMCHead implements UMBHead {
         return new EncodePair( byteBuffer, nBufLength );
     }
 
-    public static UMCHead decode( byte[] buf, String szSignature, ExtraHeadCoder extraHeadCoder ) throws IOException {
-        int nBufSize = szSignature.length() + UMBPHeadV1.StructBlockSize;
+    public static UMCHead decode( byte[] buf, byte[] signature, ExtraHeadCoder extraHeadCoder ) throws IOException {
+        int nBufSize = signature.length + UMBPHeadV1.StructBlockSize;
 
         if ( buf.length < nBufSize ) {
             throw new StreamTerminateException( "StreamEndException:[UMBPProtocol] Stream is ended." );
         }
 
-        int nReadAt = szSignature.length();
-        if ( !Arrays.equals( buf, 0, szSignature.length(), szSignature.getBytes(), 0, szSignature.length() )  ) {
+        int nReadAt = signature.length;
+        if ( !UMCProtocolMagic.matches( buf, signature ) ) {
             throw new IOException( "[UMBPProtocol] Illegal protocol signature." );
         }
 

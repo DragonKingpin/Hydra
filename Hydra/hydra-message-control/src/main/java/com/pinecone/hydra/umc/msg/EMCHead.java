@@ -24,7 +24,7 @@ import com.pinecone.framework.system.prototype.Pinenut;
  *  ********************************************************************************************************************
  */
 public interface EMCHead extends Pinenut {
-    String          getSignature();
+    byte[]          getSignature();
 
     int             getSignatureLength();
 

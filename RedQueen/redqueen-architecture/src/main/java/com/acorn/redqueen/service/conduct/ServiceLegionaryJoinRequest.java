@@ -27,6 +27,12 @@ public class ServiceLegionaryJoinRequest implements Pinenut {
 
     protected String mszMetadataJson;
 
+    protected String mszRuntimeNodeId;
+
+    protected String mszRuntimeNodeAlias;
+
+    protected String mszRuntimeNodeMetadataJson;
+
     public GUID getServiceGuid() {
         return this.mServiceGuid;
     }
@@ -113,6 +119,30 @@ public class ServiceLegionaryJoinRequest implements Pinenut {
 
     public void setMetadataJson( String szMetadataJson ) {
         this.mszMetadataJson = szMetadataJson;
+    }
+
+    public String getRuntimeNodeId() {
+        return this.mszRuntimeNodeId;
+    }
+
+    public void setRuntimeNodeId( String szRuntimeNodeId ) {
+        this.mszRuntimeNodeId = szRuntimeNodeId;
+    }
+
+    public String getRuntimeNodeAlias() {
+        return this.mszRuntimeNodeAlias;
+    }
+
+    public void setRuntimeNodeAlias( String szRuntimeNodeAlias ) {
+        this.mszRuntimeNodeAlias = szRuntimeNodeAlias;
+    }
+
+    public String getRuntimeNodeMetadataJson() {
+        return this.mszRuntimeNodeMetadataJson;
+    }
+
+    public void setRuntimeNodeMetadataJson( String szRuntimeNodeMetadataJson ) {
+        this.mszRuntimeNodeMetadataJson = szRuntimeNodeMetadataJson;
     }
 
 }

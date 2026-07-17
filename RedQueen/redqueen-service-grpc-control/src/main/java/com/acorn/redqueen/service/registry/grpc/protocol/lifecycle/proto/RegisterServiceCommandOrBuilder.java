@@ -175,4 +175,40 @@ public interface RegisterServiceCommandOrBuilder extends
    */
   com.google.protobuf.ByteString
       getInstanceGuidBytes();
+
+  /**
+   * <code>string runtimeNodeId = 16;</code>
+   * @return The runtimeNodeId.
+   */
+  java.lang.String getRuntimeNodeId();
+  /**
+   * <code>string runtimeNodeId = 16;</code>
+   * @return The bytes for runtimeNodeId.
+   */
+  com.google.protobuf.ByteString
+      getRuntimeNodeIdBytes();
+
+  /**
+   * <code>string runtimeNodeAlias = 17;</code>
+   * @return The runtimeNodeAlias.
+   */
+  java.lang.String getRuntimeNodeAlias();
+  /**
+   * <code>string runtimeNodeAlias = 17;</code>
+   * @return The bytes for runtimeNodeAlias.
+   */
+  com.google.protobuf.ByteString
+      getRuntimeNodeAliasBytes();
+
+  /**
+   * <code>string runtimeNodeMetadataJson = 18;</code>
+   * @return The runtimeNodeMetadataJson.
+   */
+  java.lang.String getRuntimeNodeMetadataJson();
+  /**
+   * <code>string runtimeNodeMetadataJson = 18;</code>
+   * @return The bytes for runtimeNodeMetadataJson.
+   */
+  com.google.protobuf.ByteString
+      getRuntimeNodeMetadataJsonBytes();
 }

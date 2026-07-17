@@ -7,6 +7,8 @@ public class ServiceDetachedObservationEntry implements Pinenut {
 
     protected Long clientId;
 
+    protected long observationId;
+
     protected GUID instanceGuid;
 
     protected GUID serviceGuid;
@@ -19,6 +21,7 @@ public class ServiceDetachedObservationEntry implements Pinenut {
 
     public ServiceDetachedObservationEntry(
             Long clientId,
+            long observationId,
             GUID instanceGuid,
             GUID serviceGuid,
             long detachedAtMillis,
@@ -26,6 +29,7 @@ public class ServiceDetachedObservationEntry implements Pinenut {
             Object caused
     ) {
         this.clientId = clientId;
+        this.observationId = observationId;
         this.instanceGuid = instanceGuid;
         this.serviceGuid = serviceGuid;
         this.detachedAtMillis = detachedAtMillis;
@@ -35,6 +39,10 @@ public class ServiceDetachedObservationEntry implements Pinenut {
 
     public Long getClientId() {
         return this.clientId;
+    }
+
+    public long getObservationId() {
+        return this.observationId;
     }
 
     public GUID getInstanceGuid() {

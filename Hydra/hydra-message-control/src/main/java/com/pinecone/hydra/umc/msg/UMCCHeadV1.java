@@ -25,7 +25,7 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
  *  **********************************************************
  */
 public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
-    public static final String     ProtocolSignature = "UMC-C/" + UMCHeadV1.ProtocolVersion;
+    public static final byte[]     ProtocolSignature = UMCProtocolMagic.UMCC_V1;
 
     public static final int        BitmapAt          = 1;
 
@@ -34,7 +34,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
     protected long                 fieldIndexBitmap                           ; // :1 sizeof( int64 ) = 8, Field index-control bitmap.
 
 
-    public static final HeadField FieldSignature       = new HeadField( "signature"       , 0, ProtocolSignature.length() );
+    public static final HeadField FieldSignature       = new HeadField( "signature"       , 0, UMCProtocolMagic.length( ProtocolSignature ) );
     public static final HeadField FieldExtraHeadLength = new HeadField( "extraHeadLength" , 1, Integer.BYTES );
     public static final HeadField FieldExtraEncode     = new HeadField( "extraEncode"     , 2, Byte.BYTES    );
     public static final HeadField FieldBodyLength      = new HeadField( "bodyLength"      , 3, Long.BYTES    );
@@ -99,19 +99,19 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
         this( UMCCHeadV1.ProtocolSignature );
     }
 
-    public UMCCHeadV1( String szSignature ) {
-        super( szSignature, UMCMethod.INFORM );
+    public UMCCHeadV1( byte[] signature ) {
+        super( signature, UMCMethod.INFORM );
         this.enableDefaultFields();
     }
 
-    public UMCCHeadV1( String szSignature, UMCMethod umcMethod ) {
-        super( szSignature, umcMethod, 0 );
+    public UMCCHeadV1( byte[] signature, UMCMethod umcMethod ) {
+        super( signature, umcMethod, 0 );
         this.enableDefaultFields();
         this.fieldIndexBitmap = BitSet64.setBit( this.fieldIndexBitmap, FieldMethod.index );
     }
 
-    public UMCCHeadV1( String szSignature, UMCMethod umcMethod, long fieldIndexBitmap ) {
-        super( szSignature, umcMethod, 0 );
+    public UMCCHeadV1( byte[] signature, UMCMethod umcMethod, long fieldIndexBitmap ) {
+        super( signature, umcMethod, 0 );
         this.fieldIndexBitmap = fieldIndexBitmap;
     }
 
@@ -327,7 +327,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
 
 
         return JSONEncoder.stringifyMapFormat( new KeyValue[]{
-                new KeyValue<>( "Signature"        , this.getSignature()                                             ),
+                new KeyValue<>( "Signature"        , UMCProtocolMagic.stringify( this.getSignature() )               ),
 
                 new KeyValue<>( "FieldIndexBitmap" , JSONString.wrapRaw(
                         BitSet64.toIndexJSONString( this.fieldIndexBitmap ) )
@@ -377,7 +377,7 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
         byteBuffer.order( UMCHeadV1.BinByteOrder );
 
         int nBufLength = head.getSignatureLength();
-        byteBuffer.put( head.getSignature().getBytes() );
+        UMCProtocolMagic.put( byteBuffer, head.signature );
 
         byteBuffer.putLong( head.fieldIndexBitmap );
         nBufLength += Long.BYTES;
@@ -449,13 +449,13 @@ public class UMCCHeadV1 extends UMCHeadV1 implements UMCCHead {
         return new EncodePair( byteBuffer, nBufLength );
     }
 
-    public static UMCCHead decode( byte[] buf, String szSignature, ExtraHeadCoder extraHeadCoder ) throws IOException {
-        if ( buf.length < szSignature.length() ) { // Signature size is minimum.
+    public static UMCCHead decode( byte[] buf, byte[] signature, ExtraHeadCoder extraHeadCoder ) throws IOException {
+        if ( buf.length < signature.length ) { // Signature size is minimum.
             throw new StreamTerminateException( "StreamEndException:[UMC-CProtocol] Stream is ended." );
         }
 
-        int nReadAt = szSignature.length();
-        if ( !Arrays.equals( buf, 0, szSignature.length(), szSignature.getBytes(), 0, szSignature.length() )  ) {
+        int nReadAt = signature.length;
+        if ( !UMCProtocolMagic.matches( buf, signature ) ) {
             throw new IOException( "[UMC-CProtocol] Illegal protocol signature." );
         }
 

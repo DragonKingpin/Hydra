@@ -44,7 +44,7 @@ public abstract class ArchUMCMessage implements UMCMessage {
     }
 
     protected ArchUMCMessage( Object protoExHead, UMCMethod method, int controlBits ) {
-        this( protoExHead, ExtraEncode.Prototype, method, controlBits );
+        this( protoExHead, ExtraEncode.Blob, method, controlBits );
     }
 
     protected ArchUMCMessage( Object protoExHead, UMCMethod method ) {

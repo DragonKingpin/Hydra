@@ -13,16 +13,16 @@ import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
  *  Copyright © 2008 - 2028 Bean Nuts Foundation All rights reserved.
  *  **********************************************************
  *  UlfUMC Message Struct:
- *  const char* lpszSignature
+ *  byte[3]     magic
  *  byteEnum    method
  *  uint32      nExtraHeadLength
  *  uint64      nBodyLength
  *  Atom*       lpjoExtraHead // JSON5 String / JSONObject
  *  Stream      bodyStream
  *  **********************************************************
- *  UlfUMC/1.1 0xFF0xFFFFFFFF0xFFFFFFFFFFFFFFFF{Key:"Val"...}
+ *  0x55 0x01 0x01 0xFF0xFFFFFFFF0xFFFFFFFFFFFFFFFF{Key:"Val"...}
  *  **********************************************************
- *  UlfUMC/1.1 0xFF0xFFFFFFFF0xFFFFFFFFFFFFFFFF{Key:"Val"...}
+ *  0x55 0x01 0x01 0xFF0xFFFFFFFF0xFFFFFFFFFFFFFFFF{Key:"Val"...}
  *  MsgBody
  *  **********************************************************
  */
@@ -31,7 +31,7 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
 
     protected String           mszVersion      = UMCHeadV1.ProtocolVersion;
 
-    protected String           mszSignature    = UMCHeadV1.ProtocolSignature;
+    protected byte[]           signature       = UMCHeadV1.ProtocolSignature;
 
     protected OutputStream     mOutputStream   ;
 
@@ -66,8 +66,8 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
     }
 
     @Override
-    public String getSignature() {
-        return this.mszSignature;
+    public byte[] getSignature() {
+        return UMCProtocolMagic.copyOf( this.signature );
     }
 
     protected UMCHeadV1 newHead() {
@@ -82,7 +82,7 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
 
         this.mMessageSource   = null;
         this.mszVersion       = null;
-        this.mszSignature     = null;
+        this.signature        = null;
         this.mOutputStream    = null;
         this.mInputStream     = null;
     }
@@ -109,14 +109,14 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
     }
 
     protected UMCHead readMsgHead() throws IOException {
-        int nBufSize = ArchUMCProtocol.basicHeadLength( this.mszSignature );
+        int nBufSize = ArchUMCProtocol.basicHeadLength( this.signature );
         byte[] buf = new byte[ nBufSize ];
 
         if ( this.mInputStream.read( buf ) < nBufSize ) {
             throw new StreamTerminateException("StreamEndException:[UMCProtocol] Stream is ended.");
         }
 
-        UMCHeadV1 head = (UMCHeadV1)ArchUMCProtocol.onlyReadMsgBasicHead( buf, this.mszSignature, this.getExtraHeadCoder() );
+        UMCHeadV1 head = (UMCHeadV1)ArchUMCProtocol.onlyReadMsgBasicHead( buf, this.signature, this.getExtraHeadCoder() );
 
         byte[] headBuf = new byte[ head.nExtraHeadLength ];
         if ( this.mInputStream.read( headBuf ) < head.nExtraHeadLength ) {
@@ -134,11 +134,11 @@ public abstract class ArchUMCProtocol implements UMCProtocol {
         return head;
     }
 
-    public static int basicHeadLength( String szSignature ) {
-        return szSignature.length() + UMCHeadV1.StructBlockSize;
+    public static int basicHeadLength( byte[] signature ) {
+        return signature.length + UMCHeadV1.StructBlockSize;
     }
 
-    public static UMCHead onlyReadMsgBasicHead( byte[] buf, String szSignature, ExtraHeadCoder extraHeadCoder ) throws IOException {
-        return UMCHeadV1.decode( buf, szSignature, extraHeadCoder );
+    public static UMCHead onlyReadMsgBasicHead( byte[] buf, byte[] signature, ExtraHeadCoder extraHeadCoder ) throws IOException {
+        return UMCHeadV1.decode( buf, signature, extraHeadCoder );
     }
 }

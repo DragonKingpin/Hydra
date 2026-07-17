@@ -1,6 +1,7 @@
 package com.pinecone.hydra.service.kom;
 
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.pinecone.framework.system.Nullable;
@@ -16,6 +17,7 @@ import com.pinecone.hydra.service.kom.entity.GenericServiceElement;
 import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry;
 import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
 import com.pinecone.hydra.service.kom.entity.ServoElement;
 import com.pinecone.hydra.service.kom.operator.GenericElementOperatorFactory;
@@ -24,6 +26,7 @@ import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceMasterManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNodeManipulator;
+import com.pinecone.hydra.service.kom.source.ServiceRuntimeNodeManipulator;
 import com.pinecone.hydra.system.identifier.KOPathResolver;
 import com.pinecone.hydra.system.ko.dao.GUIDNameManipulator;
 import com.pinecone.hydra.system.ko.driver.KOIMappingDriver;
@@ -54,6 +57,8 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
 
     protected ServiceInstanceManipulator    serviceInstanceManipulator;
 
+    protected ServiceRuntimeNodeManipulator serviceRuntimeNodeManipulator;
+
     protected List<GUIDNameManipulator >    folderManipulators;
 
     protected List<GUIDNameManipulator >    fileManipulators;
@@ -68,6 +73,7 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
         this.applicationNodeManipulator  = this.serviceMasterManipulator.getApplicationNodeManipulator();
         this.serviceNodeManipulator      = this.serviceMasterManipulator.getServiceNodeManipulator();
         this.serviceInstanceManipulator  = this.serviceMasterManipulator.getServiceInstanceManipulator();
+        this.serviceRuntimeNodeManipulator = this.serviceMasterManipulator.getServiceRuntimeNodeManipulator();
         KOISkeletonMasterManipulator skeletonMasterManipulator = this.serviceMasterManipulator.getSkeletonMasterManipulator();
         TreeMasterManipulator        treeMasterManipulator     = (TreeMasterManipulator) skeletonMasterManipulator;
         this.imperialTree                = new RegimentedImperialTree(treeMasterManipulator);
@@ -473,6 +479,11 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
+    public List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit ) {
+        return this.serviceInstanceManipulator.fetchServiceInstancesByStatusAfterId( status, lastId, limit );
+    }
+
+    @Override
     public ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query ) {
         ServiceInstanceQuery safeQuery = query;
         if ( safeQuery == null ) {
@@ -485,7 +496,71 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
+    public void createServiceRuntimeNode( ServiceRuntimeNodeEntry entry ) {
+        this.serviceRuntimeNodeManipulator.createServiceRuntimeNode( entry );
+    }
+
+    @Override
+    public void updateServiceRuntimeNodeProfile( ServiceRuntimeNodeEntry entry ) {
+        this.serviceRuntimeNodeManipulator.updateServiceRuntimeNodeProfile( entry );
+    }
+
+    @Override
+    public void refreshServiceRuntimeNodeRuntime( ServiceRuntimeNodeEntry entry ) {
+        this.serviceRuntimeNodeManipulator.refreshServiceRuntimeNodeRuntime( entry );
+    }
+
+    @Override
+    public ServiceRuntimeNodeEntry queryServiceRuntimeNode( GUID guid ) {
+        return this.serviceRuntimeNodeManipulator.queryServiceRuntimeNode( guid );
+    }
+
+    @Override
+    public ServiceRuntimeNodeEntry queryServiceRuntimeNodeByServiceGuidAndNodeId( GUID serviceGuid, String nodeId ) {
+        return this.serviceRuntimeNodeManipulator.queryServiceRuntimeNodeByServiceGuidAndNodeId( serviceGuid, nodeId );
+    }
+
+    @Override
+    public List<ServiceRuntimeNodeEntry> fetchServiceRuntimeNodes( ServiceRuntimeNodeQuery query ) {
+        return this.serviceRuntimeNodeManipulator.fetchServiceRuntimeNodes( query );
+    }
+
+    @Override
+    public long countServiceRuntimeNodes( ServiceRuntimeNodeQuery query ) {
+        return this.serviceRuntimeNodeManipulator.countServiceRuntimeNodes( query );
+    }
+
+    @Override
+    public ServiceRuntimeNodePage fetchServiceRuntimeNodePage( ServiceRuntimeNodeQuery query ) {
+        ServiceRuntimeNodeQuery safeQuery = query;
+        if ( safeQuery == null ) {
+            safeQuery = new ServiceRuntimeNodeQuery();
+        }
+
+        List<ServiceRuntimeNodeEntry> items = this.fetchServiceRuntimeNodes( safeQuery );
+        long nTotal = this.countServiceRuntimeNodes( safeQuery );
+        return new ServiceRuntimeNodePage( items, nTotal, safeQuery.getOffset(), safeQuery.getLimit() );
+    }
+
+    @Override
     public void updateServiceInstance( ServiceInstanceEntry element ) {
         this.serviceInstanceManipulator.updateServiceInstance( element );
+    }
+
+    @Override
+    public int updateServiceInstanceStatusIfCurrentStatus(
+            GUID instanceGuid,
+            String expectedStatus,
+            String status,
+            LocalDateTime offlineTime,
+            LocalDateTime latestEndTime
+    ) {
+        return this.serviceInstanceManipulator.updateServiceInstanceStatusIfCurrentStatus(
+                instanceGuid,
+                expectedStatus,
+                status,
+                offlineTime,
+                latestEndTime
+        );
     }
 }

@@ -6,25 +6,23 @@ import com.pinecone.framework.util.json.JSONException;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 public class GenericEMCBytesDecoder implements EMCBytesDecoder {
-    protected boolean isQualified ( byte[] buf, String szSignature ) throws IOException {
-        if ( buf.length < szSignature.length() ) { // Signature size is minimum.
-            throw new StreamTerminateException( "StreamEndException:[EMCBytesDecoder] Stream is ended." );
-        }
-
-        byte[] des = szSignature.getBytes();  // UMC | UMC-C | UMC-BP
-        return buf[ 4 ] ==  des[ 4 ] && buf[ 5 ] ==  des[ 5 ] && buf[ 6 ] ==  des[ 6 ];
-    }
-
     @Override
     public UMCHead decode( byte[] buf, ExtraHeadCoder extraHeadCoder ) throws IOException {
-        if ( this.isQualified( buf, UMCHeadV1.ProtocolSignature ) ) {
-            return UMCHeadV1.decode( buf, UMCHeadV1.ProtocolSignature, extraHeadCoder );
-        }
-        else if ( this.isQualified( buf, UMCCHeadV1.ProtocolSignature ) ) {
-            return UMCCHeadV1.decode( buf, UMCCHeadV1.ProtocolSignature, extraHeadCoder );
+        if ( !UMCProtocolMagic.isUniformMessage( buf ) ) {
+            return null;
         }
 
-        return null;
+        switch ( UMCProtocolMagic.variantOf( buf ) ) {
+            case UMCProtocolMagic.VARIANT_UMC: {
+                return UMCHeadV1.decode( buf, UMCHeadV1.ProtocolSignature, extraHeadCoder );
+            }
+            case UMCProtocolMagic.VARIANT_UMCC: {
+                return UMCCHeadV1.decode( buf, UMCCHeadV1.ProtocolSignature, extraHeadCoder );
+            }
+            default: {
+                return null;
+            }
+        }
     }
 
     @Override

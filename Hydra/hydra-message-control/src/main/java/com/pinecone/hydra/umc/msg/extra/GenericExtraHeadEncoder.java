@@ -16,7 +16,7 @@ public class GenericExtraHeadEncoder implements ExtraHeadEncoder {
             case JSONString: {
                 return JSON.stringify( raw ).getBytes();
             }
-            case Binary: {
+            case UlfBJson: {
                 UlfJSONCompiler compiler = new UlfJSONCompiler();
                 ByteArrayOutputStream  os = new ByteArrayOutputStream();
 
@@ -30,7 +30,7 @@ public class GenericExtraHeadEncoder implements ExtraHeadEncoder {
                 return os.toByteArray();
             }
             case Iussum:
-            case Prototype: {
+            case Blob: {
                 return (byte[]) raw;
             }
         }

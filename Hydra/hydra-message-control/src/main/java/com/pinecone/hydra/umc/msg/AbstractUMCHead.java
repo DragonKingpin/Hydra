@@ -9,7 +9,7 @@ import com.pinecone.framework.util.json.JSONObject;
 import com.pinecone.hydra.umc.msg.extra.ExtraHeadCoder;
 
 public abstract class AbstractUMCHead implements UMCHead {
-    protected abstract void setSignature            ( String signature       );
+    protected abstract void setSignature            ( byte[] signature       );
 
     protected abstract void setBodyLength           ( long length            );
 
@@ -69,7 +69,7 @@ public abstract class AbstractUMCHead implements UMCHead {
         String szExtraHead = this.jsonifyExtraHead();
 
         return JSONEncoder.stringifyMapFormat( new KeyValue[]{
-                new KeyValue<>( "Signature"      , this.getSignature()                                               ),
+                new KeyValue<>( "Signature"      , UMCProtocolMagic.stringify( this.getSignature() )                 ),
                 new KeyValue<>( "ExtraHeadLength", this.getExtraHeadLength()                                         ),
                 new KeyValue<>( "ExtraEncode"    , this.getExtraEncode().getName()                                   ),
                 new KeyValue<>( "BodyLength"     , this.getBodyLength()                                              ),

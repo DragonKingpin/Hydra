@@ -216,5 +216,5 @@ public interface ServiceControlFrameOrBuilder extends
    */
   com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ErrorFrameOrBuilder getErrorOrBuilder();
 
-  public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame.BodyCase getBodyCase();
+  com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlFrame.BodyCase getBodyCase();
 }

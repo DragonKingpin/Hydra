@@ -8,8 +8,10 @@ import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
+import com.pinecone.hydra.service.kom.entity.GenericServiceRuntimeNodeEntity;
 import com.pinecone.hydra.service.kom.entity.ServiceElement;
 import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
+import com.pinecone.hydra.service.kom.entity.ServiceRuntimeNodeEntry;
 import com.pinecone.hydra.service.registry.ClientServiceRegisterException;
 import com.pinecone.hydra.service.registry.dto.RegisterServiceDTO;
 import com.pinecone.hydra.service.registry.ServiceControlRPCException;
@@ -51,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -74,6 +77,7 @@ public class UniformServiceManager implements ServiceManager {
     protected ServiceDetachedObservationConfig                                              mDetachedObservationConfig;
     protected ScheduledExecutorService                                                      mDetachedObservationSweeper;
     protected ExecutorService                                                               mDetachedExpirationExecutor;
+    protected final AtomicLong                                                              mDetachedObservationSequence;
 
     private final Logger mLogger;
 
@@ -113,6 +117,7 @@ public class UniformServiceManager implements ServiceManager {
         this.mTransportRegistry         = new UniformServiceControlTransportRegistry();
         this.mDetachedObservationConfig = new ServiceDetachedObservationConfig();
         this.mDetachedObservationRegistry = new ServiceDetachedObservationRegistry();
+        this.mDetachedObservationSequence = new AtomicLong();
 
 
         this.mServiceLifecycleService   = new ServiceLifecycleService( this );
@@ -302,6 +307,7 @@ public class UniformServiceManager implements ServiceManager {
 
     @Override
     public void startService() throws ServiceControlRPCException {
+        this.settleDetachedServiceInstancesFromStorage();
         for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
             if ( !transport.isStarted() ) {
                 transport.startService();
@@ -633,6 +639,20 @@ public class UniformServiceManager implements ServiceManager {
         }
         entry.setLastHeartbeatTime( time );
         entry.setLatestStartTime( time );
+        ServiceRuntimeNodeEntry runtimeNode = this.resolveRuntimeNodeForRegistration(
+                serviceDTO,
+                entry.getServiceGuid(),
+                entry.getGuid(),
+                time
+        );
+        if ( runtimeNode != null ) {
+            entry.setRuntimeNodeGuid( runtimeNode.getGuid() );
+            entry.setRuntimeNodeId( runtimeNode.getNodeId() );
+        }
+        else {
+            entry.setRuntimeNodeGuid( null );
+            entry.setRuntimeNodeId( null );
+        }
         if ( bIncreaseConnectionCount ) {
             entry.setConnectionCount( entry.getConnectionCount() + 1 );
         }
@@ -661,6 +681,7 @@ public class UniformServiceManager implements ServiceManager {
                 element.setLatestEndTime( time );
             }
             this.mServiceInstrument.updateServiceInstance( element );
+            this.syncRuntimeNodeAfterInstanceStatus( element, status );
         }
 
         return element;
@@ -691,11 +712,13 @@ public class UniformServiceManager implements ServiceManager {
             }
 
             long nowMillis = System.currentTimeMillis();
+            long observationId = this.mDetachedObservationSequence.incrementAndGet();
             GUID instanceGuid = (GUID) instance.getId();
             GUID serviceGuid = (GUID) instance.getServiceId();
             this.mDetachedObservationRegistry.put(
                     new ServiceDetachedObservationEntry(
                             clientId,
+                            observationId,
                             instanceGuid,
                             serviceGuid,
                             nowMillis,
@@ -706,12 +729,14 @@ public class UniformServiceManager implements ServiceManager {
             this.transportRegistry().detachClient( clientId );
             this.updateServiceInstanceStatus( instanceGuid, ServiceInstanceStatus.Detached );
             this.getLogger().info(
-                    "Service instance detached, { clientId: {}, instanceId: {}, serviceId: {}, graceMillis: {} }. <Detached>",
+                    "Service instance detached, { clientId: {}, observationId: {}, instanceId: {}, serviceId: {}, graceMillis: {}, deadlineMillis: {} }. <Detached>",
                     new Object[]{
                             clientId,
+                            observationId,
                             instanceGuid,
                             serviceGuid,
-                            this.mDetachedObservationConfig.getGraceMillis()
+                            this.mDetachedObservationConfig.getGraceMillis(),
+                            nowMillis + this.mDetachedObservationConfig.getGraceMillis()
                     }
             );
             this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Detached, caused );
@@ -725,21 +750,89 @@ public class UniformServiceManager implements ServiceManager {
         }
 
         this.getLogger().info(
-                "Detached service instance recovered, { clientId: {}, instanceId: {}, serviceId: {} }. <Recovered>",
-                new Object[]{ clientId, instanceGuid, serviceGuid }
+                "Detached service instance recovered, { clientId: {}, observationId: {}, instanceId: {}, serviceId: {} }. <Recovered>",
+                new Object[]{ clientId, detached.getObservationId(), instanceGuid, serviceGuid }
         );
         this.triggerServiceEvent( clientId, instanceGuid, serviceGuid, InstanceLifecycleEvent.Recovered, caused );
+    }
+
+    protected void settleDetachedServiceInstancesFromStorage() {
+        if ( !this.mDetachedObservationConfig.isEnable() ) {
+            return;
+        }
+
+        long nLastId = 0L;
+        int nRecovered = 0;
+        int nPageSize = this.mDetachedObservationConfig.getStartupRecoveryPageSize();
+        ServiceInstanceStatus status = this.resolveDetachedMissingStatus();
+
+        while ( true ) {
+            List<ServiceInstanceEntry> entries = this.mServiceInstrument.fetchServiceInstancesByStatusAfterId(
+                    ServiceInstanceStatus.Detached.getName(),
+                    nLastId,
+                    nPageSize
+            );
+            if ( entries == null || entries.isEmpty() ) {
+                break;
+            }
+
+            for ( ServiceInstanceEntry entry : entries ) {
+                if ( entry.getId() != null && entry.getId() > nLastId ) {
+                    nLastId = entry.getId();
+                }
+                if ( this.settleDetachedStorageEntry( entry, status ) ) {
+                    nRecovered++;
+                }
+            }
+
+            if ( entries.size() < nPageSize ) {
+                break;
+            }
+        }
+
+        if ( nRecovered > 0 ) {
+            this.getLogger().info(
+                    "[ServiceControl] [DetachedObservation] (Recovered: `{}`, Status: `{}`) <StorageRecovered>",
+                    nRecovered,
+                    status.getName()
+            );
+        }
+    }
+
+    protected boolean settleDetachedStorageEntry( ServiceInstanceEntry entry, ServiceInstanceStatus status ) {
+        if ( entry == null || entry.getGuid() == null ) {
+            return false;
+        }
+        if ( !ServiceInstanceStatus.Detached.getName().equals( entry.getStatus() ) ) {
+            return false;
+        }
+        if ( this.updateDetachedServiceInstanceStatus( entry.getGuid(), status ) < 1 ) {
+            return false;
+        }
+
+        this.getLogger().info(
+                "Detached service instance settled from storage, { instanceId: {}, serviceId: {}, status: {} }. <{}>",
+                new Object[]{
+                        entry.getGuid(),
+                        entry.getServiceGuid(),
+                        status.getName(),
+                        status.getName()
+                }
+        );
+        return true;
     }
 
     protected void settleDetachedServiceInstance( ServiceDetachedObservationEntry entry ) {
         if ( entry == null || entry.getClientId() == null ) {
             return;
         }
-        if ( this.mDetachedObservationRegistry.remove( entry.getClientId() ) == null ) {
-            return;
-        }
 
         synchronized ( this.mServiceRegistry ) {
+            ServiceDetachedObservationEntry current = this.mDetachedObservationRegistry.get( entry.getClientId() );
+            if ( current != entry || entry.getDeadlineMillis() > System.currentTimeMillis() ) {
+                return;
+            }
+
             ServiceInstance instance = this.mCIdInstanceRegistry.get( entry.getClientId() );
             if ( instance == null || !Objects.equals( instance.getId(), entry.getInstanceGuid() ) ) {
                 return;
@@ -747,11 +840,13 @@ public class UniformServiceManager implements ServiceManager {
 
             ServiceInstanceStatus status = this.resolveDetachedMissingStatus();
             InstanceLifecycleEvent event = this.resolveDetachedMissingEvent( status );
+            this.mDetachedObservationRegistry.remove( entry );
             this.removeRuntimeServiceInstance( instance, entry.getClientId(), status );
             this.getLogger().info(
-                    "Detached service instance settled, { clientId: {}, instanceId: {}, serviceId: {}, status: {} }. <{}>",
+                    "Detached service instance settled, { clientId: {}, observationId: {}, instanceId: {}, serviceId: {}, status: {} }. <{}>",
                     new Object[]{
                             entry.getClientId(),
+                            entry.getObservationId(),
                             entry.getInstanceGuid(),
                             entry.getServiceGuid(),
                             status.getName(),
@@ -792,6 +887,22 @@ public class UniformServiceManager implements ServiceManager {
             return InstanceLifecycleEvent.Expired;
         }
         return InstanceLifecycleEvent.Offline;
+    }
+
+    protected int updateDetachedServiceInstanceStatus( GUID id, ServiceInstanceStatus status ) {
+        LocalDateTime terminalTime = this.isTerminalInstanceStatus( status ) ? LocalDateTime.now() : null;
+        int nUpdated = this.mServiceInstrument.updateServiceInstanceStatusIfCurrentStatus(
+                id,
+                ServiceInstanceStatus.Detached.getName(),
+                status.getName(),
+                terminalTime,
+                terminalTime
+        );
+        if ( nUpdated > 0 ) {
+            ServiceInstanceEntry instance = this.mServiceInstrument.queryServiceInstance( id );
+            this.syncRuntimeNodeAfterInstanceStatus( instance, status );
+        }
+        return nUpdated;
     }
 
     protected Collection<ServiceInstance> removeRuntimeServiceInstance(
@@ -840,7 +951,17 @@ public class UniformServiceManager implements ServiceManager {
         Collection<ServiceDetachedObservationEntry> expired =
                 this.mDetachedObservationRegistry.snapshotExpired( System.currentTimeMillis() );
         for ( ServiceDetachedObservationEntry entry : expired ) {
-            this.mDetachedExpirationExecutor.submit( () -> this.settleDetachedServiceInstance( entry ) );
+            this.mDetachedExpirationExecutor.submit( () -> {
+                try {
+                    this.settleDetachedServiceInstance( entry );
+                }
+                catch ( Throwable e ) {
+                    this.getLogger().warn(
+                            "Detached service instance settlement failed, { clientId: {}, observationId: {}, instanceId: {} }. <Failed>",
+                            new Object[]{ entry.getClientId(), entry.getObservationId(), entry.getInstanceGuid(), e }
+                    );
+                }
+            } );
         }
     }
 
@@ -1090,6 +1211,16 @@ public class UniformServiceManager implements ServiceManager {
         instanceEntity.setLatestStartTime( registerTime );
         instanceEntity.setGuid( guid );
         instanceEntity.setServiceGuid( serviceId );
+        ServiceRuntimeNodeEntry runtimeNode = this.resolveRuntimeNodeForRegistration(
+                serviceDTO,
+                serviceId,
+                guid,
+                registerTime
+        );
+        if ( runtimeNode != null ) {
+            instanceEntity.setRuntimeNodeGuid( runtimeNode.getGuid() );
+            instanceEntity.setRuntimeNodeId( runtimeNode.getNodeId() );
+        }
         instanceEntity.setVersion( serviceDTO.getVersion() );
         instanceEntity.setZone( serviceDTO.getZone() );
         if ( serviceDTO.getWeight() != null ) {
@@ -1100,6 +1231,81 @@ public class UniformServiceManager implements ServiceManager {
         this.mServiceInstrument.createServiceInstance( instanceEntity );
 
         return instanceEntity;
+    }
+
+    protected ServiceRuntimeNodeEntry resolveRuntimeNodeForRegistration(
+            RegisterServiceDTO serviceDTO,
+            GUID serviceGuid,
+            GUID instanceGuid,
+            LocalDateTime registerTime
+    ) {
+        String szNodeId = serviceDTO == null ? null : serviceDTO.getRuntimeNodeId();
+        if ( szNodeId == null || szNodeId.isBlank() ) {
+            return null;
+        }
+
+        String szRuntimeNodeId = szNodeId.trim();
+        ServiceRuntimeNodeEntry runtimeNode = this.mServiceInstrument.queryServiceRuntimeNodeByServiceGuidAndNodeId(
+                serviceGuid,
+                szRuntimeNodeId
+        );
+        if ( runtimeNode == null ) {
+            runtimeNode = new GenericServiceRuntimeNodeEntity();
+            runtimeNode.setGuid( this.mGuidAllocator.nextGUID() );
+            runtimeNode.setServiceGuid( serviceGuid );
+            runtimeNode.setNodeId( szRuntimeNodeId );
+            this.applyRuntimeNodeRegistration( runtimeNode, serviceDTO, instanceGuid, registerTime );
+            this.mServiceInstrument.createServiceRuntimeNode( runtimeNode );
+            return runtimeNode;
+        }
+
+        this.applyRuntimeNodeRegistration( runtimeNode, serviceDTO, instanceGuid, registerTime );
+        this.mServiceInstrument.refreshServiceRuntimeNodeRuntime( runtimeNode );
+        return runtimeNode;
+    }
+
+    protected void applyRuntimeNodeRegistration(
+            ServiceRuntimeNodeEntry runtimeNode,
+            RegisterServiceDTO serviceDTO,
+            GUID instanceGuid,
+            LocalDateTime registerTime
+    ) {
+        String szNodeId = runtimeNode.getNodeId();
+        String szAlias = serviceDTO == null ? null : serviceDTO.getRuntimeNodeAlias();
+        runtimeNode.setAlias( this.notBlankOrDefault( szAlias, szNodeId ) );
+        runtimeNode.setStatus( ServiceInstanceStatus.Online.getName() );
+        runtimeNode.setVersion( serviceDTO == null ? null : serviceDTO.getVersion() );
+        runtimeNode.setZone( serviceDTO == null ? null : serviceDTO.getZone() );
+        String szMetadataJson = serviceDTO == null ? null : serviceDTO.getRuntimeNodeMetadataJson();
+        if ( szMetadataJson != null && !szMetadataJson.isBlank() ) {
+            runtimeNode.setMetadataJson( szMetadataJson );
+        }
+        runtimeNode.setLatestInstanceGuid( instanceGuid );
+        runtimeNode.setLatestStartTime( registerTime );
+        runtimeNode.setLastHeartbeatTime( registerTime );
+    }
+
+    protected void syncRuntimeNodeAfterInstanceStatus(
+            ServiceInstanceEntry instance,
+            ServiceInstanceStatus status
+    ) {
+        if ( instance == null || instance.getRuntimeNodeGuid() == null ) {
+            return;
+        }
+
+        ServiceRuntimeNodeEntry runtimeNode = this.mServiceInstrument.queryServiceRuntimeNode( instance.getRuntimeNodeGuid() );
+        if ( runtimeNode == null || !Objects.equals( runtimeNode.getLatestInstanceGuid(), instance.getGuid() ) ) {
+            return;
+        }
+
+        runtimeNode.setStatus( status.getName() );
+        if ( this.isTerminalInstanceStatus( status ) ) {
+            runtimeNode.setLatestEndTime( instance.getLatestEndTime() );
+        }
+        if ( instance.getLastHeartbeatTime() != null ) {
+            runtimeNode.setLastHeartbeatTime( instance.getLastHeartbeatTime() );
+        }
+        this.mServiceInstrument.refreshServiceRuntimeNodeRuntime( runtimeNode );
     }
 
     protected String notBlankOrDefault( String szValue, String szDefault ) {

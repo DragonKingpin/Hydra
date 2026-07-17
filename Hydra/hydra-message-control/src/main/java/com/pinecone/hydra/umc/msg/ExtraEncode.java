@@ -3,8 +3,8 @@ package com.pinecone.hydra.umc.msg;
 public enum ExtraEncode {
     Undefined        ( 0x01, "Undefined"        ),
     JSONString       ( 0x02, "JSONString"       ),
-    Binary           ( 0x03, "Binary"           ), // Bson
-    Prototype        ( 0x04, "Prototype"        ), // Prototype Raw Binary
+    UlfBJson         ( 0x03, "UlfBJson"         ), // Ulf Binary JSON
+    Blob             ( 0x04, "Blob"             ), // Raw binary blob
     Iussum           ( 0x05, "Iussum"           ), // Reduced instruction
     Custom           ( 0xFF, "Custom"           );
 
@@ -12,7 +12,7 @@ public enum ExtraEncode {
 
     private final String name;
 
-    ExtraEncode( int value, String name ){
+    ExtraEncode( int value, String name ) {
         this.value = value;
         this.name  = name;
     }

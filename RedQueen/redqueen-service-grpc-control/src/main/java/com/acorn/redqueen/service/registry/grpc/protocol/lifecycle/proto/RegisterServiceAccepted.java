@@ -29,81 +29,6 @@ private static final long serialVersionUID = 0L;
     return new RegisterServiceAccepted();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet
-  getUnknownFields() {
-    return this.unknownFields;
-  }
-  private RegisterServiceAccepted(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            instanceGuid_ = s;
-            break;
-          }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            serviceGuid_ = s;
-            break;
-          }
-          case 26: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            sessionGuid_ = s;
-            break;
-          }
-          case 34: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            status_ = s;
-            break;
-          }
-          case 40: {
-
-            registerTimeMillis_ = input.readInt64();
-            break;
-          }
-          case 48: {
-
-            expireTimeMillis_ = input.readInt64();
-            break;
-          }
-          default: {
-            if (!parseUnknownField(
-                input, unknownFields, extensionRegistry, tag)) {
-              done = true;
-            }
-            break;
-          }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(
-          e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-    }
-  }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
     return com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.ServiceControlProto.internal_static_RegisterServiceAccepted_descriptor;
@@ -118,7 +43,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int INSTANCEGUID_FIELD_NUMBER = 1;
-  private volatile java.lang.Object instanceGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object instanceGuid_ = "";
   /**
    * <code>string instanceGuid = 1;</code>
    * @return The instanceGuid.
@@ -156,7 +82,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int SERVICEGUID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object serviceGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object serviceGuid_ = "";
   /**
    * <code>string serviceGuid = 2;</code>
    * @return The serviceGuid.
@@ -194,7 +121,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int SESSIONGUID_FIELD_NUMBER = 3;
-  private volatile java.lang.Object sessionGuid_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object sessionGuid_ = "";
   /**
    * <code>string sessionGuid = 3;</code>
    * @return The sessionGuid.
@@ -232,7 +160,8 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int STATUS_FIELD_NUMBER = 4;
-  private volatile java.lang.Object status_;
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object status_ = "";
   /**
    * <code>string status = 4;</code>
    * @return The status.
@@ -270,7 +199,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int REGISTERTIMEMILLIS_FIELD_NUMBER = 5;
-  private long registerTimeMillis_;
+  private long registerTimeMillis_ = 0L;
   /**
    * <code>int64 registerTimeMillis = 5;</code>
    * @return The registerTimeMillis.
@@ -281,7 +210,7 @@ private static final long serialVersionUID = 0L;
   }
 
   public static final int EXPIRETIMEMILLIS_FIELD_NUMBER = 6;
-  private long expireTimeMillis_;
+  private long expireTimeMillis_ = 0L;
   /**
    * <code>int64 expireTimeMillis = 6;</code>
    * @return The expireTimeMillis.
@@ -305,16 +234,16 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (!getInstanceGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(instanceGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, instanceGuid_);
     }
-    if (!getServiceGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(serviceGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, serviceGuid_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 3, sessionGuid_);
     }
-    if (!getStatusBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(status_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 4, status_);
     }
     if (registerTimeMillis_ != 0L) {
@@ -323,7 +252,7 @@ private static final long serialVersionUID = 0L;
     if (expireTimeMillis_ != 0L) {
       output.writeInt64(6, expireTimeMillis_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -332,16 +261,16 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (!getInstanceGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(instanceGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, instanceGuid_);
     }
-    if (!getServiceGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(serviceGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, serviceGuid_);
     }
-    if (!getSessionGuidBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sessionGuid_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, sessionGuid_);
     }
-    if (!getStatusBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(status_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, status_);
     }
     if (registerTimeMillis_ != 0L) {
@@ -352,7 +281,7 @@ private static final long serialVersionUID = 0L;
       size += com.google.protobuf.CodedOutputStream
         .computeInt64Size(6, expireTimeMillis_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -379,7 +308,7 @@ private static final long serialVersionUID = 0L;
         != other.getRegisterTimeMillis()) return false;
     if (getExpireTimeMillis()
         != other.getExpireTimeMillis()) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -404,7 +333,7 @@ private static final long serialVersionUID = 0L;
     hash = (37 * hash) + EXPIRETIMEMILLIS_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
         getExpireTimeMillis());
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -453,11 +382,13 @@ private static final long serialVersionUID = 0L;
     return com.google.protobuf.GeneratedMessageV3
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3
         .parseDelimitedWithIOException(PARSER, input);
   }
+
   public static com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -521,34 +452,24 @@ private static final long serialVersionUID = 0L;
 
     // Construct using com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted.newBuilder()
     private Builder() {
-      maybeForceBuilderInitialization();
+
     }
 
     private Builder(
         com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3
-              .alwaysUseFieldBuilders) {
-      }
+
     }
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       instanceGuid_ = "";
-
       serviceGuid_ = "";
-
       sessionGuid_ = "";
-
       status_ = "";
-
       registerTimeMillis_ = 0L;
-
       expireTimeMillis_ = 0L;
-
       return this;
     }
 
@@ -575,14 +496,31 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted buildPartial() {
       com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted result = new com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted(this);
-      result.instanceGuid_ = instanceGuid_;
-      result.serviceGuid_ = serviceGuid_;
-      result.sessionGuid_ = sessionGuid_;
-      result.status_ = status_;
-      result.registerTimeMillis_ = registerTimeMillis_;
-      result.expireTimeMillis_ = expireTimeMillis_;
+      if (bitField0_ != 0) { buildPartial0(result); }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.instanceGuid_ = instanceGuid_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.serviceGuid_ = serviceGuid_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.sessionGuid_ = sessionGuid_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.status_ = status_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.registerTimeMillis_ = registerTimeMillis_;
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.expireTimeMillis_ = expireTimeMillis_;
+      }
     }
 
     @java.lang.Override
@@ -631,18 +569,22 @@ private static final long serialVersionUID = 0L;
       if (other == com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted.getDefaultInstance()) return this;
       if (!other.getInstanceGuid().isEmpty()) {
         instanceGuid_ = other.instanceGuid_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getServiceGuid().isEmpty()) {
         serviceGuid_ = other.serviceGuid_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (!other.getSessionGuid().isEmpty()) {
         sessionGuid_ = other.sessionGuid_;
+        bitField0_ |= 0x00000004;
         onChanged();
       }
       if (!other.getStatus().isEmpty()) {
         status_ = other.status_;
+        bitField0_ |= 0x00000008;
         onChanged();
       }
       if (other.getRegisterTimeMillis() != 0L) {
@@ -651,7 +593,7 @@ private static final long serialVersionUID = 0L;
       if (other.getExpireTimeMillis() != 0L) {
         setExpireTimeMillis(other.getExpireTimeMillis());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -666,19 +608,63 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10: {
+              instanceGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000001;
+              break;
+            } // case 10
+            case 18: {
+              serviceGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000002;
+              break;
+            } // case 18
+            case 26: {
+              sessionGuid_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000004;
+              break;
+            } // case 26
+            case 34: {
+              status_ = input.readStringRequireUtf8();
+              bitField0_ |= 0x00000008;
+              break;
+            } // case 34
+            case 40: {
+              registerTimeMillis_ = input.readInt64();
+              bitField0_ |= 0x00000010;
+              break;
+            } // case 40
+            case 48: {
+              expireTimeMillis_ = input.readInt64();
+              bitField0_ |= 0x00000020;
+              break;
+            } // case 48
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.acorn.redqueen.service.registry.grpc.protocol.lifecycle.proto.RegisterServiceAccepted) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+    private int bitField0_;
 
     private java.lang.Object instanceGuid_ = "";
     /**
@@ -721,11 +707,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setInstanceGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       instanceGuid_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -734,8 +718,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearInstanceGuid() {
-      
       instanceGuid_ = getDefaultInstance().getInstanceGuid();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -746,12 +730,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setInstanceGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       instanceGuid_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -797,11 +779,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setServiceGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       serviceGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -810,8 +790,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearServiceGuid() {
-      
       serviceGuid_ = getDefaultInstance().getServiceGuid();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -822,12 +802,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setServiceGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       serviceGuid_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -873,11 +851,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuid(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       sessionGuid_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -886,8 +862,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearSessionGuid() {
-      
       sessionGuid_ = getDefaultInstance().getSessionGuid();
+      bitField0_ = (bitField0_ & ~0x00000004);
       onChanged();
       return this;
     }
@@ -898,12 +874,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setSessionGuidBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       sessionGuid_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -949,11 +923,9 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setStatus(
         java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
+      if (value == null) { throw new NullPointerException(); }
       status_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -962,8 +934,8 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearStatus() {
-      
       status_ = getDefaultInstance().getStatus();
+      bitField0_ = (bitField0_ & ~0x00000008);
       onChanged();
       return this;
     }
@@ -974,12 +946,10 @@ private static final long serialVersionUID = 0L;
      */
     public Builder setStatusBytes(
         com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
+      if (value == null) { throw new NullPointerException(); }
+      checkByteStringIsUtf8(value);
       status_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -999,8 +969,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setRegisterTimeMillis(long value) {
-      
+
       registerTimeMillis_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1009,7 +980,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearRegisterTimeMillis() {
-      
+      bitField0_ = (bitField0_ & ~0x00000010);
       registerTimeMillis_ = 0L;
       onChanged();
       return this;
@@ -1030,8 +1001,9 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder setExpireTimeMillis(long value) {
-      
+
       expireTimeMillis_ = value;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1040,7 +1012,7 @@ private static final long serialVersionUID = 0L;
      * @return This builder for chaining.
      */
     public Builder clearExpireTimeMillis() {
-      
+      bitField0_ = (bitField0_ & ~0x00000020);
       expireTimeMillis_ = 0L;
       onChanged();
       return this;
@@ -1078,7 +1050,18 @@ private static final long serialVersionUID = 0L;
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new RegisterServiceAccepted(input, extensionRegistry);
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
     }
   };
 

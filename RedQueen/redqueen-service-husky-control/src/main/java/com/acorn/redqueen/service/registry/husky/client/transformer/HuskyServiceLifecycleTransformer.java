@@ -36,6 +36,9 @@ public class HuskyServiceLifecycleTransformer implements Pinenut {
         dto.setZone( instruction.getZone() );
         dto.setWeight( instruction.getWeight() );
         dto.setMetadataJson( instruction.getMetadataJson() );
+        dto.setRuntimeNodeId( instruction.getRuntimeNodeId() );
+        dto.setRuntimeNodeAlias( instruction.getRuntimeNodeAlias() );
+        dto.setRuntimeNodeMetadataJson( instruction.getRuntimeNodeMetadataJson() );
         return dto;
     }
 

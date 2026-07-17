@@ -45,11 +45,11 @@ public class UlfBytesTransferMessage extends ArchBytesTransferMessage {
     }
 
     public UlfBytesTransferMessage( Object exHead, byte[] sBytesBody ) {
-        this( exHead, ExtraEncode.Prototype, sBytesBody, 0 );
+        this( exHead, ExtraEncode.Blob, sBytesBody, 0 );
     }
 
     public UlfBytesTransferMessage( Object exHead, String szStringBody ) {
-        this( exHead, ExtraEncode.Prototype, szStringBody, 0 );
+        this( exHead, ExtraEncode.Blob, szStringBody, 0 );
     }
 
 }

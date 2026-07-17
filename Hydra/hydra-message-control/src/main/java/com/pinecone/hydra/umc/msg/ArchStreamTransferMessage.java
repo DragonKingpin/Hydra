@@ -34,7 +34,7 @@ public class ArchStreamTransferMessage extends ArchUMCMessage implements Transfe
     }
 
     public ArchStreamTransferMessage( Object exHead, InputStream inStream ) {
-        this( exHead, ExtraEncode.Prototype, inStream, 0 );
+        this( exHead, ExtraEncode.Blob, inStream, 0 );
     }
 
 

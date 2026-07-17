@@ -6,6 +6,8 @@ import com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry;
 import java.time.LocalDateTime;
 
 public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
+    protected Long mId;
+
     protected GUID mGuid;
 
     protected GUID mServiceGuid;
@@ -56,7 +58,21 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
 
     protected GUID mDeployGuid;
 
+    protected GUID mRuntimeNodeGuid;
+
+    protected String mszRuntimeNodeId;
+
     protected String mIp;
+
+    @Override
+    public Long getId() {
+        return this.mId;
+    }
+
+    @Override
+    public void setId( Long id ) {
+        this.mId = id;
+    }
 
     @Override
     public void setGuid( GUID guid ) {
@@ -310,6 +326,26 @@ public class GenericServiceInstanceEntity implements ServiceInstanceEntry {
     @Override
     public void setDeployGuid( GUID deployGuid ) {
         this.mDeployGuid = deployGuid;
+    }
+
+    @Override
+    public GUID getRuntimeNodeGuid() {
+        return this.mRuntimeNodeGuid;
+    }
+
+    @Override
+    public void setRuntimeNodeGuid( GUID runtimeNodeGuid ) {
+        this.mRuntimeNodeGuid = runtimeNodeGuid;
+    }
+
+    @Override
+    public String getRuntimeNodeId() {
+        return this.mszRuntimeNodeId;
+    }
+
+    @Override
+    public void setRuntimeNodeId( String runtimeNodeId ) {
+        this.mszRuntimeNodeId = runtimeNodeId;
     }
 
     @Override

@@ -1,4 +1,4 @@
-# Bean Nuts Hazelnut Hydra <br> 九头龙，一个人的大厂
+# Hydra, give you power <br> 九头龙，一个人的大厂
 <p align="center">
   <strong>
   真超级个体, 一个人公司, 一个人集团, 一个人中台, 大规模AI、数据、任务调度工业架构, 大规模控制, 

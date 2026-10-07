@@ -119,7 +119,7 @@ class AdaptiveCapacityDispatchStrategyExclusiveTest {
                 ( proxy, method, args ) -> {
                     String szMethodName = method.getName();
                     if ( "getExecArch".equals( szMethodName ) ) {
-                        return ExecutionArchitecture.ANY.name();
+                        return ExecutionArchitecture.GENERIC_IMAGE.name();
                     }
                     if ( "getName".equals( szMethodName ) ) {
                         return taskName;
@@ -306,7 +306,7 @@ class AdaptiveCapacityDispatchStrategyExclusiveTest {
 
         @Override
         public String getExecCaps() {
-            return "[\"ANY\"]";
+            return "[\"GENERIC_IMAGE\"]";
         }
 
         @Override

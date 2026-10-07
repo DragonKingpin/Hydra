@@ -26,6 +26,7 @@ import com.walnut.odin.processor.anonymous.GenericAnonymousTaskProcessorMetadata
 import com.walnut.odin.processor.anonymous.RavenAnonymousTaskProcessorRegistry;
 import com.walnut.odin.processor.event.GenericTaskProcessorEventHookRegistry;
 import com.walnut.odin.processor.event.TaskProcessorEventHookRegistry;
+import com.walnut.odin.processor.metadata.TaskProcessorRegisterMetadataSpec;
 import com.walnut.odin.processor.runtime.GenericTaskProcessorRuntime;
 import com.walnut.odin.processor.runtime.TaskProcessorRuntime;
 import com.walnut.odin.task.RavenTaskInstance;
@@ -135,6 +136,8 @@ public class RavenTaskDispatcher implements TaskDispatcher {
             throw new RegimentJoinRejectionException( "Local processor `" + szProcessorName + "` cannot bind RPC control client." );
         }
 
+        entity.setExecCaps( ExecutionArchitects.normalizeExecCaps( entity.getExecCaps() ) );
+        this.validateDeclaredCapabilities( entity, metadata );
         entity.setControlClientId( nClientId );
         this.refreshDynamicMetadataCache( entity, metadata );
         TaskExecutionProcessor processor = new RavenTaskExecutionProcessor(
@@ -145,6 +148,25 @@ public class RavenTaskDispatcher implements TaskDispatcher {
         );
         this.registerProcessor( processor );
         return entity;
+    }
+
+    protected void validateDeclaredCapabilities( TaskProcessorEntity entity, Map<String, String> metadata ) {
+        if ( metadata == null || !metadata.containsKey( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS ) ) {
+            return;
+        }
+        List<String> declared;
+        try {
+            declared = ExecutionArchitects.parseExecCaps( metadata.get( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS ) );
+        }
+        catch ( IllegalArgumentException e ) {
+            throw new RegimentJoinRejectionException( "Processor `" + entity.getName() + "` declared invalid execution capabilities: " + e.getMessage() );
+        }
+        List<String> unsupported = new ArrayList<>( ExecutionArchitects.parseExecCaps( entity.getExecCaps() ) );
+        unsupported.removeAll( declared );
+        if ( !unsupported.isEmpty() ) {
+            throw new RegimentJoinRejectionException( "Processor `" + entity.getName()
+                    + "` configured capabilities exceed its declared capabilities: " + unsupported );
+        }
     }
 
     protected void refreshDynamicMetadataCache( TaskProcessorEntity entity, Map<String, String> metadata ) {

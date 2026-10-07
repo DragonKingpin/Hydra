@@ -37,6 +37,24 @@ import com.walnut.odin.task.troll.TaskExecutionLauncher;
 class GenericTaskProcessorRuntimeTest {
 
     @Test
+    void anonymousRegistrationRejectsInvalidCapabilitiesBeforePublishingRegistration() {
+        for ( String caps : java.util.Arrays.asList( null, "", "[\"ANY\"]", "[\"JVM\"]", "SCRIPT,NATIVE" ) ) {
+            StubDispatcher dispatcher = new StubDispatcher();
+            GenericTaskProcessorRuntime runtime = new GenericTaskProcessorRuntime( dispatcher, new GenericAnonymousTaskProcessorMetadataParser() );
+            List<TaskProcessorEvent> events = new ArrayList<>();
+            dispatcher.processorEventHookRegistry().addHooker( events::add );
+            Map<String, String> metadata = new LinkedHashMap<>();
+            metadata.put( TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT, TaskProcessorRegisterMetadataSpec.ESTABLISHMENT_ANONYMOUS );
+            metadata.put( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, caps );
+            Assertions.assertThrows( IllegalArgumentException.class, () -> runtime.register(
+                    GenericTaskProcessorRegisterContext.of( "invalid", 2048L, metadata ) ) );
+            Assertions.assertNull( dispatcher.anonymousProcessorRegistry().getByClientId( 2048L ) );
+            Assertions.assertTrue( events.stream().anyMatch( event -> event.getType() == TaskProcessorEventType.JoinRejected ) );
+            Assertions.assertFalse( events.stream().anyMatch( event -> event.getType() == TaskProcessorEventType.Registered ) );
+        }
+    }
+
+    @Test
     void anonymousProcessorRegistersOutsideDispatchPool() {
         StubDispatcher dispatcher = new StubDispatcher();
         GenericTaskProcessorRuntime runtime = new GenericTaskProcessorRuntime(
@@ -53,7 +71,7 @@ class GenericTaskProcessorRuntimeTest {
         );
         metadata.put( TaskProcessorRegisterMetadataSpec.KEY_ALIAS, "heist-private-worker-1" );
         metadata.put( TaskProcessorRegisterMetadataSpec.KEY_BIZ_PATH, "/infra/odin/heist/manhattan" );
-        metadata.put( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, "[\"JVM\",\"SCRIPT\"]" );
+        metadata.put( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, "[\"NATIVE_JAR\",\"SCRIPT\"]" );
 
         TaskProcessorRegisterResult result = runtime.register(
                 GenericTaskProcessorRegisterContext.of( "missing-db-processor", 2048L, metadata )
@@ -109,7 +127,7 @@ class GenericTaskProcessorRuntimeTest {
                 registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT )
         );
         Assertions.assertEquals(
-                "ANY",
+                "[\"NATIVE_JAR\",\"GENERIC_IMAGE\"]",
                 registered.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS )
         );
         Assertions.assertEquals(
@@ -139,6 +157,7 @@ class GenericTaskProcessorRuntimeTest {
                 TaskProcessorRegisterMetadataSpec.KEY_ESTABLISHMENT,
                 TaskProcessorRegisterMetadataSpec.ESTABLISHMENT_ANONYMOUS
         );
+        metadata.put( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS, "[]" );
         runtime.register( GenericTaskProcessorRegisterContext.of( "anonymous", 2048L, metadata ) );
         runtime.register( GenericTaskProcessorRegisterContext.of( "incorporated", 4096L, Collections.emptyMap() ) );
 
@@ -169,7 +188,7 @@ class GenericTaskProcessorRuntimeTest {
                 .findFirst()
                 .orElseThrow();
         Assertions.assertEquals(
-                "ANY",
+                "[\"NATIVE_JAR\",\"GENERIC_IMAGE\"]",
                 detached.getMetadata().get( TaskProcessorRegisterMetadataSpec.KEY_EXEC_CAPS )
         );
         Assertions.assertEquals(
@@ -228,7 +247,7 @@ class GenericTaskProcessorRuntimeTest {
             entity.setControlClientId( nClientId );
             entity.setClusterPath( "/test" );
             entity.setClusterName( "test" );
-            entity.setExecCaps( "ANY" );
+            entity.setExecCaps( "[\"NATIVE_JAR\",\"GENERIC_IMAGE\"]" );
             entity.setEnable( true );
             entity.setQueueName( szProcessorName + "-queue" );
             entity.setQueueMaxCapacity( 1 );

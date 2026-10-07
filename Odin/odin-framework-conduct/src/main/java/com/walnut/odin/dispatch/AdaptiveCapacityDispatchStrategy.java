@@ -263,7 +263,7 @@ public class AdaptiveCapacityDispatchStrategy implements DispatchStrategy {
 
     protected String getExecArch( TaskLaunchContext context ) {
         if ( context == null || context.getTaskInstance() == null ) {
-            return ExecutionArchitecture.ANY.name();
+            return null;
         }
         return context.getTaskInstance().getExecArch();
     }

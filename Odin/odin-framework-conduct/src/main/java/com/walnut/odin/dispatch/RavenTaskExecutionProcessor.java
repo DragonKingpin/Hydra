@@ -63,7 +63,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
         this.mszClusterPath              = processorEntity.getClusterPath();
         this.mszClusterName              = processorEntity.getClusterName();
         this.mnControlClientId           = processorEntity.getControlClientId();
-        this.mszExecCaps                 = processorEntity.getExecCaps();
+        this.mszExecCaps                 = ExecutionArchitects.normalizeExecCaps( processorEntity.getExecCaps() );
         this.mbLocal                     = processorEntity.isLocal();
         this.mnPriority                  = processorEntity.getPriority();
         this.mbExclusive                 = processorEntity.isExclusive();
@@ -194,6 +194,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public UProcess directlyCreate( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.requireExecutionCapability( instance );
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
@@ -209,6 +210,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public UProcess directlyCreatePrepared( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.requireExecutionCapability( instance );
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
@@ -224,6 +226,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public UProcess directlyLaunch( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.requireExecutionCapability( instance );
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
@@ -239,6 +242,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public UProcess directlyLaunchPrepared( RavenTaskInstance instance, LaunchFeature feature ) throws InstanceLaunchException {
+        this.requireExecutionCapability( instance );
         this.prepareSysEventHandle( feature );
 
         if ( this.mbLocal ) {
@@ -254,6 +258,7 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
     @Override
     public UProcess directlyStartPrepared( TaskLaunchContext context ) throws InstanceLaunchException {
+        this.requireExecutionCapability( context == null ? null : context.getTaskInstance() );
         LaunchFeature feature = context.getLaunchFeature();
         this.prepareSysEventHandle( feature, context );
 
@@ -270,6 +275,14 @@ public class RavenTaskExecutionProcessor implements TaskExecutionProcessor {
 
 
 
+
+    protected void requireExecutionCapability( RavenTaskInstance instance ) throws InstanceLaunchException {
+        String architecture = instance == null ? null : instance.getExecArch();
+        if ( !ExecutionArchitects.canRun( this.mszExecCaps, architecture ) ) {
+            throw new InstanceLaunchException( "Processor `" + this.mszName
+                    + "` cannot run execution architecture `" + architecture + "`." );
+        }
+    }
 
     protected Collection<TaskLaunchContext> subtractContext( Collection<TaskLaunchContext> source, Collection<TaskLaunchContext> consumed ) {
         if ( source == null || source.isEmpty() ) {

@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.deploy.Server;
-import com.walnut.odin.dispatch.ExecutionArchitects;
 import com.walnut.odin.dispatch.TaskQueueMeta;
 
 public class GenericTaskProcessorEntity implements TaskProcessorEntity {
@@ -111,7 +110,7 @@ public class GenericTaskProcessorEntity implements TaskProcessorEntity {
 
     @Override
     public String getExecCaps() {
-        return ExecutionArchitects.normalizeExecCaps( this.mszExecCaps );
+        return this.mszExecCaps;
     }
 
     @Override

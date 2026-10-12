@@ -19,6 +19,7 @@
         <result column="level"                 property="level"/>
         <result column="description"           property="description"/>
         <result column="extra_information"     property="extraInformation"/>
+        <result column="network_metadata_json" property="networkMetadataJson"/>
         <result column="create_time"           property="createTime"/>
         <result column="update_time"           property="updateTime"/>
     </resultMap>
@@ -37,6 +38,7 @@
         <result column="level"                 property="level"/>
         <result column="description"           property="description"/>
         <result column="extra_information"     property="extraInformation"/>
+        <result column="network_metadata_json" property="networkMetadataJson"/>
         <result column="create_time"           property="createTime"/>
         <result column="update_time"           property="updateTime"/>
     </resultMap>
@@ -55,6 +57,7 @@
         `level`,
         `description`,
         `extra_information`,
+        `network_metadata_json`,
         `create_time`,
         `update_time`
     </sql>
@@ -115,7 +118,8 @@
             `primary_impl_lang`,
             `level`,
             `description`,
-            `extra_information`
+            `extra_information`,
+            `network_metadata_json`
         )
         VALUES
         (
@@ -130,7 +134,8 @@
             #{primaryImplLang},
             #{level},
             #{description},
-            #{extraInformation}
+            #{extraInformation},
+            #{networkMetadataJson}
         )
     </insert>
 
@@ -159,7 +164,8 @@
             `primary_impl_lang` = #{primaryImplLang},
             `level` = #{level},
             `description` = #{description},
-            `extra_information` = #{extraInformation}
+            `extra_information` = #{extraInformation},
+            `network_metadata_json` = #{networkMetadataJson}
         WHERE `guid` = #{guid}
     </update>
 

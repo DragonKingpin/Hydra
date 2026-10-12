@@ -33,6 +33,9 @@ public interface ServoElement extends ElementNode, ServiceFamilyNode {
     String getResourceType();
     void setResourceType( String resourceType );
 
+    String getNetworkMetadataJson();
+    void setNetworkMetadataJson( String networkMetadataJson );
+
     LocalDateTime getCreateTime();
     void setCreateTime( LocalDateTime createTime );
 

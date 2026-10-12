@@ -14,6 +14,7 @@ public abstract class ArchServoElement extends ArchElementNode implements ServoE
     protected String                     type;
     protected String                     alias;
     protected String                     resourceType;
+    protected String                     networkMetadataJson;
     protected LocalDateTime              createTime;
     protected LocalDateTime              updateTime;
 
@@ -112,6 +113,16 @@ public abstract class ArchServoElement extends ArchElementNode implements ServoE
     @Override
     public void setResourceType( String resourceType ) {
         this.resourceType = resourceType;
+    }
+
+    @Override
+    public String getNetworkMetadataJson() {
+        return this.networkMetadataJson;
+    }
+
+    @Override
+    public void setNetworkMetadataJson( String networkMetadataJson ) {
+        this.networkMetadataJson = networkMetadataJson;
     }
 
     @Override

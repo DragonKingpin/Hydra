@@ -484,6 +484,16 @@ public class UniformServiceInstrument extends ArchReparseKOMTree implements Serv
     }
 
     @Override
+    public List<ServiceInstanceEntry> fetchOnlineServiceInstancesBefore( LocalDateTime cutoff, long lastId, int limit ) {
+        return this.serviceInstanceManipulator.fetchOnlineServiceInstancesBefore( cutoff, lastId, limit );
+    }
+
+    @Override
+    public int markServiceInstanceOfflineIfUnchanged( ServiceInstanceEntry expected, LocalDateTime offlineTime, String reason ) {
+        return this.serviceInstanceManipulator.markServiceInstanceOfflineIfUnchanged( expected, offlineTime, reason );
+    }
+
+    @Override
     public ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query ) {
         ServiceInstanceQuery safeQuery = query;
         if ( safeQuery == null ) {

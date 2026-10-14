@@ -19,6 +19,7 @@ import com.pinecone.hydra.service.kom.ServiceInstrument;
 import com.pinecone.hydra.service.kom.UniformServiceInstrument;
 import com.pinecone.hydra.service.registry.ServiceControlException;
 import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
+import com.pinecone.hydra.service.registry.server.reconciliation.ServiceInstanceReconciliationConfig;
 import com.pinecone.hydra.service.registry.server.ServiceManager;
 import com.pinecone.hydra.service.registry.server.inspection.ServiceControlInspection;
 import com.pinecone.hydra.service.registry.server.UniformServiceManager;
@@ -100,6 +101,7 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
         this.mServiceInstrument = new UniformServiceInstrument( serviceMappingDriver );
         this.mServiceManager = new UniformServiceManager( this.mServiceInstrument );
         this.configure_service_detached_observation();
+        this.configure_service_instance_reconciliation();
 
         this.infoLifecycle( "<RedQueen> Constructing component `ServiceInstrument`.", LogStatuses.StatusDone );
     }
@@ -120,6 +122,24 @@ public class RedQueen extends ArchModularizedSubsystem implements ServiceCentral
                 config.getExpireAsyncThreads(),
                 config.getStartupRecoveryPageSize(),
                 config.getMissingAfterReconnectPolicy()
+        );
+    }
+
+    protected void configure_service_instance_reconciliation() {
+        JSONObject controlConfig = ( (JSONObject) this.mSubsystemConfig ).optJSONObject( "serviceControl" );
+        JSONObject reconciliationConfig = null;
+        if ( controlConfig != null ) {
+            reconciliationConfig = controlConfig.optJSONObject( "instanceReconciliation" );
+            if ( controlConfig.containsKey( "enableLeaseScanner" ) ) {
+                this.getLogger().warn( "[ServiceControl] enableLeaseScanner is not implemented; configure instanceReconciliation explicitly." );
+            }
+        }
+        ServiceInstanceReconciliationConfig config = new ServiceInstanceReconciliationConfig( reconciliationConfig );
+        this.mServiceManager.configureInstanceReconciliation( config );
+        this.getLogger().info(
+                "[ServiceControl] [InstanceReconciliation] (Enable: `{}`, ExclusiveRegistry: `{}`, ScanMillis: `{}`, MinimumOnlineAgeMillis: `{}`, MissingGraceMillis: `{}`) <Configured>",
+                config.isEnable(), config.isExclusiveRegistry(), config.getScanIntervalMillis(),
+                config.getMinimumOnlineAgeMillis(), config.getMissingGraceMillis()
         );
     }
 

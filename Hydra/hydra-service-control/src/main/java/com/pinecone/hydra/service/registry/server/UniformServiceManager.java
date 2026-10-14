@@ -6,6 +6,7 @@ import com.pinecone.framework.util.id.GuidAllocator;
 import com.pinecone.framework.util.id.Identification;
 import com.pinecone.hydra.service.ServiceInstance;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
+import com.pinecone.hydra.service.kom.ServiceInstanceQuery;
 import com.pinecone.hydra.service.entity.USII;
 import com.pinecone.hydra.service.kom.entity.GenericServiceInstanceEntity;
 import com.pinecone.hydra.service.kom.entity.GenericServiceRuntimeNodeEntity;
@@ -25,6 +26,8 @@ import com.pinecone.hydra.service.registry.event.InstanceLifecycleEventHandler;
 import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationConfig;
 import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationEntry;
 import com.pinecone.hydra.service.registry.server.detached.ServiceDetachedObservationRegistry;
+import com.pinecone.hydra.service.registry.server.reconciliation.ServiceInstanceObservation;
+import com.pinecone.hydra.service.registry.server.reconciliation.ServiceInstanceReconciliationConfig;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransport;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportRegistry;
 import com.pinecone.hydra.service.registry.server.transport.ServiceControlTransportType;
@@ -78,6 +81,17 @@ public class UniformServiceManager implements ServiceManager {
     protected ScheduledExecutorService                                                      mDetachedObservationSweeper;
     protected ExecutorService                                                               mDetachedExpirationExecutor;
     protected final AtomicLong                                                              mDetachedObservationSequence;
+
+    protected ServiceInstanceReconciliationConfig mInstanceReconciliationConfig = new ServiceInstanceReconciliationConfig();
+    protected final Map<GUID, ServiceInstanceObservation> mInstanceObservations = new LinkedHashMap<>();
+    protected ScheduledExecutorService mInstanceReconciliationSweeper;
+    protected long mInstanceReconciliationCursor;
+    protected LocalDateTime mInstanceReconciliationCutoff;
+    protected boolean mInstanceReconciliationStarted;
+    protected long mInstanceReconciliationGeneration;
+
+    protected static final String ReconciliationOfflineReason =
+            "Instance has no active registration session after reconciliation grace period.";
 
     private final Logger mLogger;
 
@@ -192,6 +206,22 @@ public class UniformServiceManager implements ServiceManager {
             return;
         }
         this.mDetachedObservationConfig = config;
+    }
+
+    @Override
+    public void configureInstanceReconciliation( ServiceInstanceReconciliationConfig config ) {
+        synchronized ( this.mServiceRegistry ) {
+            if ( this.mInstanceReconciliationStarted ) {
+                throw new IllegalStateException( "Stop service control before changing instance reconciliation configuration." );
+            }
+            if ( config == null ) {
+                config = new ServiceInstanceReconciliationConfig();
+            }
+            if ( config.isEnable() && !config.isExclusiveRegistry() ) {
+                throw new IllegalArgumentException( "Instance reconciliation requires an exclusively owned registry." );
+            }
+            this.mInstanceReconciliationConfig = config;
+        }
     }
 
 
@@ -315,10 +345,12 @@ public class UniformServiceManager implements ServiceManager {
         }
         this.vitalizeRPCSubsystem();
         this.startDetachedObservationSweeper();
+        this.startInstanceReconciliation();
     }
 
     @Override
     public void terminateService() throws IllegalStateException {
+        this.stopInstanceReconciliation();
         this.stopDetachedObservationSweeper();
         for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
             if ( !transport.isTerminated() ) {
@@ -404,21 +436,24 @@ public class UniformServiceManager implements ServiceManager {
 
     @Override
     public void registerServiceInstance( ServiceInstance instance ) {
-        Identification primaryKey = instance.getUSII().getServiceId();
-        Long clientId   = instance.getUSII().getClientId();
+        synchronized ( this.mServiceRegistry ) {
+            this.mInstanceObservations.remove( instance.getId() );
+            Identification primaryKey = instance.getUSII().getServiceId();
+            Long clientId = instance.getUSII().getClientId();
 
-        this.mCIdInstanceRegistry.put( clientId, instance );
-        this.mInstanceRegistry.put( instance.getId(), new ClientInstance( clientId, instance ) );
+            this.mCIdInstanceRegistry.put( clientId, instance );
+            this.mInstanceRegistry.put( instance.getId(), new ClientInstance( clientId, instance ) );
 
-        this.mServiceRegistry.compute( primaryKey, ( key, ins ) -> {
-            if ( ins == null ) {
-                ins = new ConcurrentHashMap<>();
-            }
-            ins.put( clientId, instance );
-            return ins;
-        } );
+            this.mServiceRegistry.compute( primaryKey, ( key, ins ) -> {
+                if ( ins == null ) {
+                    ins = new ConcurrentHashMap<>();
+                }
+                ins.put( clientId, instance );
+                return ins;
+            } );
 
-        this.triggerServiceEvent( clientId, instance.getId(), InstanceLifecycleEvent.Registered, instance );
+            this.triggerServiceEvent( clientId, instance.getId(), InstanceLifecycleEvent.Registered, instance );
+        }
     }
 
     @Override
@@ -473,6 +508,7 @@ public class UniformServiceManager implements ServiceManager {
                             existing
                     );
                 }
+                this.mInstanceObservations.remove( existingGuid );
                 return existingGuid;
             }
 
@@ -1005,6 +1041,297 @@ public class UniformServiceManager implements ServiceManager {
         if ( this.mDetachedExpirationExecutor != null ) {
             this.mDetachedExpirationExecutor.shutdownNow();
             this.mDetachedExpirationExecutor = null;
+        }
+    }
+
+    protected void startInstanceReconciliation() {
+        synchronized ( this.mServiceRegistry ) {
+            if ( !this.mInstanceReconciliationConfig.isEnable() || this.mInstanceReconciliationStarted ) {
+                return;
+            }
+            this.mInstanceReconciliationStarted = true;
+            this.mInstanceReconciliationGeneration++;
+            long generation = this.mInstanceReconciliationGeneration;
+            this.mInstanceReconciliationSweeper = Executors.newSingleThreadScheduledExecutor( runnable -> {
+                Thread thread = new Thread( runnable, "RedQueen-ServiceInstanceReconciliation" );
+                thread.setDaemon( true );
+                return thread;
+            } );
+            this.mInstanceReconciliationSweeper.scheduleWithFixedDelay(
+                    () -> this.sweepServiceInstanceReconciliation( generation ),
+                    this.mInstanceReconciliationConfig.getScanIntervalMillis(),
+                    this.mInstanceReconciliationConfig.getScanIntervalMillis(),
+                    TimeUnit.MILLISECONDS
+            );
+            this.getLogger().info(
+                    "[ServiceControl] [InstanceReconciliation] (ScanMillis: `{}`, MinimumOnlineAgeMillis: `{}`, MissingGraceMillis: `{}`, ExclusiveRegistry: `true`) <Started>",
+                    this.mInstanceReconciliationConfig.getScanIntervalMillis(),
+                    this.mInstanceReconciliationConfig.getMinimumOnlineAgeMillis(),
+                    this.mInstanceReconciliationConfig.getMissingGraceMillis()
+            );
+        }
+    }
+
+    protected void stopInstanceReconciliation() {
+        synchronized ( this.mServiceRegistry ) {
+            this.mInstanceReconciliationStarted = false;
+            this.mInstanceReconciliationGeneration++;
+            if ( this.mInstanceReconciliationSweeper != null ) {
+                this.mInstanceReconciliationSweeper.shutdownNow();
+                this.mInstanceReconciliationSweeper = null;
+            }
+            this.mInstanceObservations.clear();
+            this.mInstanceReconciliationCursor = 0L;
+            this.mInstanceReconciliationCutoff = null;
+        }
+    }
+
+    protected LocalDateTime reconciliationTime() {
+        return LocalDateTime.now();
+    }
+
+    protected long reconciliationNanos() {
+        return System.nanoTime();
+    }
+
+    protected boolean reconciliationTransportsReady() {
+        if ( this.mTransportRegistry.transports().isEmpty() ) {
+            return false;
+        }
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( !transport.isStarted() || transport.isTerminated() ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected void sweepServiceInstanceReconciliation() {
+        long generation;
+        synchronized ( this.mServiceRegistry ) {
+            generation = this.mInstanceReconciliationGeneration;
+        }
+        this.sweepServiceInstanceReconciliation( generation );
+    }
+
+    protected void sweepServiceInstanceReconciliation( long generation ) {
+        List<GUID> pending;
+        synchronized ( this.mServiceRegistry ) {
+            if ( !this.isReconciliationGenerationActive( generation ) ) {
+                return;
+            }
+            pending = new ArrayList<>( this.mInstanceObservations.keySet() );
+        }
+        try {
+            synchronized ( this.mServiceRegistry ) {
+                if ( !this.isReconciliationGenerationActive( generation ) ) {
+                    return;
+                }
+                if ( !this.reconciliationTransportsReady() ) {
+                    this.mInstanceObservations.clear();
+                    return;
+                }
+                if ( this.mInstanceReconciliationCutoff == null ) {
+                    this.mInstanceReconciliationCutoff = this.reconciliationTime().minusNanos(
+                            TimeUnit.MILLISECONDS.toNanos( this.mInstanceReconciliationConfig.getMinimumOnlineAgeMillis() )
+                    );
+                }
+            }
+
+            for ( GUID guid : pending ) {
+                synchronized ( this.mServiceRegistry ) {
+                    if ( !this.isReconciliationGenerationActive( generation ) ) {
+                        return;
+                    }
+                    this.checkServiceInstanceReconciliation( guid );
+                }
+            }
+
+            // Keep a fixed age cutoff and a moving cursor across bounded sweeps.
+            for ( int page = 0; page < ServiceInstanceReconciliationConfig.MaximumPagesPerSweep; page++ ) {
+                long cursor;
+                LocalDateTime cutoff;
+                synchronized ( this.mServiceRegistry ) {
+                    if ( !this.isReconciliationGenerationActive( generation )
+                            || this.mInstanceObservations.size() >= ServiceInstanceReconciliationConfig.MaximumObservations ) {
+                        return;
+                    }
+                    cursor = this.mInstanceReconciliationCursor;
+                    cutoff = this.mInstanceReconciliationCutoff;
+                }
+                List<ServiceInstanceEntry> entries = this.mServiceInstrument.fetchOnlineServiceInstancesBefore(
+                        cutoff, cursor, ServiceInstanceReconciliationConfig.PageSize
+                );
+                if ( entries == null ) {
+                    throw new IllegalStateException( "Instance reconciliation query returned null." );
+                }
+                for ( ServiceInstanceEntry entry : entries ) {
+                    synchronized ( this.mServiceRegistry ) {
+                        if ( !this.isReconciliationGenerationActive( generation ) ) {
+                            return;
+                        }
+                        if ( this.mInstanceObservations.size() >= ServiceInstanceReconciliationConfig.MaximumObservations ) {
+                            return;
+                        }
+                        if ( entry.getId() == null || entry.getId() <= this.mInstanceReconciliationCursor ) {
+                            throw new IllegalStateException( "Instance reconciliation cursor did not advance." );
+                        }
+                        if ( !this.mInstanceObservations.containsKey( entry.getGuid() ) ) {
+                            this.checkServiceInstanceReconciliation( entry.getGuid() );
+                        }
+                        this.mInstanceReconciliationCursor = entry.getId();
+                    }
+                }
+                synchronized ( this.mServiceRegistry ) {
+                    if ( !this.isReconciliationGenerationActive( generation ) ) {
+                        return;
+                    }
+                    if ( entries.size() < ServiceInstanceReconciliationConfig.PageSize ) {
+                        this.mInstanceReconciliationCursor = 0L;
+                        this.mInstanceReconciliationCutoff = null;
+                        return;
+                    }
+                }
+            }
+        }
+        catch ( Exception exception ) {
+            synchronized ( this.mServiceRegistry ) {
+                if ( this.isReconciliationGenerationActive( generation ) ) {
+                    this.mInstanceObservations.entrySet().removeIf( entry -> !entry.getValue().isSettled() );
+                }
+            }
+            this.getLogger().warn( "[ServiceControl] [InstanceReconciliation] Sweep failed; no failure is treated as proof of death.", exception );
+        }
+    }
+
+    protected boolean isReconciliationGenerationActive( long generation ) {
+        return this.mInstanceReconciliationStarted && this.mInstanceReconciliationGeneration == generation;
+    }
+
+    protected void checkServiceInstanceReconciliation( GUID guid ) {
+        try {
+            ServiceInstanceEntry current = this.mServiceInstrument.queryServiceInstance( guid );
+            ServiceInstanceObservation observation = this.mInstanceObservations.get( guid );
+            if ( observation != null && observation.isSettled() && observation.matchesRegistration( current )
+                    && ServiceInstanceStatus.Offline.getName().equals( current.getStatus() )
+                    && ReconciliationOfflineReason.equals( current.getStatusReason() ) ) {
+                this.finishServiceInstanceReconciliation( current );
+                return;
+            }
+            LocalDateTime cutoff = this.reconciliationTime().minusNanos(
+                    TimeUnit.MILLISECONDS.toNanos( this.mInstanceReconciliationConfig.getMinimumOnlineAgeMillis() )
+            );
+            if ( current == null || !ServiceInstanceStatus.Online.getName().equals( current.getStatus() )
+                    || current.getRegisterTime() == null || current.getRegisterTime().isAfter( cutoff )
+                    || (current.getLatestStartTime() != null && current.getLatestStartTime().isAfter( cutoff ))
+                    || this.hasReconciliationConnection( current ) ) {
+                this.mInstanceObservations.remove( guid );
+                return;
+            }
+            long nowNanos = this.reconciliationNanos();
+            if ( observation == null || !observation.matchesRegistration( current ) ) {
+                this.mInstanceObservations.put( guid, new ServiceInstanceObservation( current, nowNanos ) );
+                this.getLogger().info( "[ServiceControl] [InstanceReconciliation] (Instance: `{}`, ClientId: `{}`) <Observing>", guid, current.getClientId() );
+                return;
+            }
+            if ( nowNanos - observation.getFirstMissingNanos()
+                    < TimeUnit.MILLISECONDS.toNanos( this.mInstanceReconciliationConfig.getMissingGraceMillis() ) ) {
+                return;
+            }
+            LocalDateTime offlineTime = this.reconciliationTime();
+            int updated = this.mServiceInstrument.markServiceInstanceOfflineIfUnchanged( current, offlineTime, ReconciliationOfflineReason );
+            if ( updated == 0 ) {
+                this.mInstanceObservations.remove( guid );
+                return;
+            }
+            observation.markSettled();
+            current.setStatus( ServiceInstanceStatus.Offline.getName() );
+            current.setStatusReason( ReconciliationOfflineReason );
+            current.setOfflineTime( offlineTime );
+            current.setLatestEndTime( offlineTime );
+            this.finishServiceInstanceReconciliation( current );
+        }
+        catch ( Exception exception ) {
+            ServiceInstanceObservation observation = this.mInstanceObservations.get( guid );
+            if ( observation != null && !observation.isSettled() ) {
+                this.mInstanceObservations.remove( guid );
+            }
+            this.getLogger().warn( "[ServiceControl] [InstanceReconciliation] Check failed for instance " + guid, exception );
+        }
+    }
+
+    protected boolean hasReconciliationConnection( ServiceInstanceEntry entry ) {
+        boolean knownTransport = false;
+        for ( ServiceControlTransport transport : this.mTransportRegistry.transports() ) {
+            if ( transport.transportType().name().equalsIgnoreCase( entry.getTransportType() ) ) {
+                if ( !transport.isStarted() || transport.isTerminated() ) {
+                    throw new IllegalStateException( "Cannot verify unavailable transport: " + entry.getTransportType() );
+                }
+                knownTransport = true;
+            }
+        }
+        if ( !knownTransport ) {
+            throw new IllegalStateException( "Cannot verify unconfigured transport: " + entry.getTransportType() );
+        }
+        if ( entry.getClientId() == null || !this.mTransportRegistry.hasClient( entry.getClientId() ) ) {
+            return false;
+        }
+        ServiceInstance instance = this.mCIdInstanceRegistry.get( entry.getClientId() );
+        if ( instance == null ) {
+            // A connected client may still be registering. Do not infer death from partial state.
+            return true;
+        }
+        return Objects.equals( instance.getId(), entry.getGuid() );
+    }
+
+    protected void finishServiceInstanceReconciliation( ServiceInstanceEntry entry ) {
+        this.syncReconciledRuntimeNode( entry );
+        ClientInstance indexed = this.mInstanceRegistry.get( entry.getGuid() );
+        if ( indexed != null && Objects.equals( indexed.getClientId(), entry.getClientId() ) ) {
+            this.mInstanceRegistry.remove( entry.getGuid(), indexed );
+        }
+        if ( entry.getClientId() != null ) {
+            ServiceInstance instance = this.mCIdInstanceRegistry.get( entry.getClientId() );
+            if ( instance != null && Objects.equals( instance.getId(), entry.getGuid() ) ) {
+                this.mCIdInstanceRegistry.remove( entry.getClientId(), instance );
+            }
+            ConcurrentMap<Long, ServiceInstance> instances = this.mServiceRegistry.get( entry.getServiceGuid() );
+            if ( instances != null ) {
+                ServiceInstance stale = instances.get( entry.getClientId() );
+                if ( stale != null && Objects.equals( stale.getId(), entry.getGuid() ) ) {
+                    instances.remove( entry.getClientId(), stale );
+                }
+                if ( instances.isEmpty() ) {
+                    this.mServiceRegistry.remove( entry.getServiceGuid(), instances );
+                }
+            }
+            ServiceDetachedObservationEntry detached = this.mDetachedObservationRegistry.get( entry.getClientId() );
+            if ( detached != null && Objects.equals( detached.getInstanceGuid(), entry.getGuid() ) ) {
+                this.mDetachedObservationRegistry.remove( detached );
+            }
+        }
+        this.mInstanceObservations.remove( entry.getGuid() );
+        this.getLogger().info( "[ServiceControl] [InstanceReconciliation] (Instance: `{}`, ClientId: `{}`) <Offline>", entry.getGuid(), entry.getClientId() );
+        this.triggerServiceEvent( entry.getClientId(), entry.getGuid(), entry.getServiceGuid(), InstanceLifecycleEvent.Offline, entry );
+    }
+
+    protected void syncReconciledRuntimeNode( ServiceInstanceEntry entry ) {
+        if ( entry.getRuntimeNodeGuid() == null ) {
+            return;
+        }
+        ServiceRuntimeNodeEntry node = this.mServiceInstrument.queryServiceRuntimeNode( entry.getRuntimeNodeGuid() );
+        if ( node == null || node.getLatestInstanceGuid() == null ) {
+            return;
+        }
+        ServiceInstanceQuery query = new ServiceInstanceQuery();
+        query.setRuntimeNodeGuid( node.getGuid() );
+        query.setStatus( ServiceInstanceStatus.Online.getName() );
+        if ( this.mServiceInstrument.countServiceInstances( query ) > 0 ) {
+            return;
+        }
+        ServiceInstanceEntry latest = this.mServiceInstrument.queryServiceInstance( node.getLatestInstanceGuid() );
+        if ( latest != null && ServiceInstanceStatus.Offline.getName().equals( latest.getStatus() ) ) {
+            this.syncRuntimeNodeAfterInstanceStatus( latest, ServiceInstanceStatus.Offline );
         }
     }
 

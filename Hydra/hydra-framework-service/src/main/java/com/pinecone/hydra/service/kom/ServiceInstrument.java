@@ -54,6 +54,10 @@ public interface ServiceInstrument extends ReparseKOMTree {
 
     List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit );
 
+    List<ServiceInstanceEntry> fetchOnlineServiceInstancesBefore( LocalDateTime cutoff, long lastId, int limit );
+
+    int markServiceInstanceOfflineIfUnchanged( ServiceInstanceEntry expected, LocalDateTime offlineTime, String reason );
+
     ServiceInstancePage fetchServiceInstancePage( ServiceInstanceQuery query );
 
     void createServiceRuntimeNode( ServiceRuntimeNodeEntry entry );

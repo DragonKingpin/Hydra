@@ -69,6 +69,25 @@ public interface ServiceInstanceMapper extends ServiceInstanceManipulator {
     @Override
     void updateServiceInstance(ServiceInstanceEntry element);
 
+    List<GenericServiceInstanceEntity> fetchOnlineServiceInstancesBefore0(
+            @Param( "cutoff" ) LocalDateTime cutoff,
+            @Param( "lastId" ) long lastId,
+            @Param( "limit" ) int limit
+    );
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    default List<ServiceInstanceEntry> fetchOnlineServiceInstancesBefore( LocalDateTime cutoff, long lastId, int limit ) {
+        return (List) this.fetchOnlineServiceInstancesBefore0( cutoff, lastId, limit );
+    }
+
+    @Override
+    int markServiceInstanceOfflineIfUnchanged(
+            @Param( "expected" ) ServiceInstanceEntry expected,
+            @Param( "offlineTime" ) LocalDateTime offlineTime,
+            @Param( "reason" ) String reason
+    );
+
     @Override
     int updateServiceInstanceStatusIfCurrentStatus(
             @Param( "instanceGuid" ) GUID instanceGuid,

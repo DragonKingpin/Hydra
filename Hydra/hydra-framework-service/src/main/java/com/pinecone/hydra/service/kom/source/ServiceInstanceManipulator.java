@@ -21,6 +21,10 @@ public interface ServiceInstanceManipulator extends Pinenut {
 
     List<ServiceInstanceEntry> fetchServiceInstancesByStatusAfterId( String status, long lastId, int limit );
 
+    List<ServiceInstanceEntry> fetchOnlineServiceInstancesBefore( LocalDateTime cutoff, long lastId, int limit );
+
+    int markServiceInstanceOfflineIfUnchanged( ServiceInstanceEntry expected, LocalDateTime offlineTime, String reason );
+
     void updateServiceInstance( ServiceInstanceEntry element );
 
     int updateServiceInstanceStatusIfCurrentStatus(

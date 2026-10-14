@@ -233,6 +233,47 @@
         LIMIT #{limit}
     </select>
 
+    <select id="fetchOnlineServiceInstancesBefore0" resultMap="ServiceInstanceMap">
+        SELECT
+        <include refid="ServiceInstanceFields"/>
+        FROM `hydra_service_instances`
+        WHERE `status` = 'Online'
+          AND `register_time` <![CDATA[ <= ]]> #{cutoff}
+          AND (
+              `latest_start_time` IS NULL
+              OR `latest_start_time` <![CDATA[ <= ]]> #{cutoff}
+          )
+          AND `id` <![CDATA[ > ]]> #{lastId}
+        ORDER BY `id` ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="markServiceInstanceOfflineIfUnchanged">
+        UPDATE `hydra_service_instances`
+        SET
+            `status` = 'Offline',
+            `status_reason` = #{reason},
+            `offline_time` = #{offlineTime},
+            `latest_end_time` = #{offlineTime}
+        WHERE `guid` = #{expected.guid}
+          AND `status` = 'Online'
+          AND `service_guid` = #{expected.serviceGuid}
+          AND (
+              `client_id` = #{expected.clientId}
+              OR (`client_id` IS NULL AND #{expected.clientId} IS NULL)
+          )
+          AND `register_time` = #{expected.registerTime}
+          AND (
+              `latest_start_time` = #{expected.latestStartTime}
+              OR (`latest_start_time` IS NULL AND #{expected.latestStartTime} IS NULL)
+          )
+          AND (
+              `last_heartbeat_time` = #{expected.lastHeartbeatTime}
+              OR (`last_heartbeat_time` IS NULL AND #{expected.lastHeartbeatTime} IS NULL)
+          )
+          AND `connection_count` = #{expected.connectionCount}
+    </update>
+
     <update id="updateServiceInstance" parameterType="com.pinecone.hydra.service.kom.entity.ServiceInstanceEntry">
         UPDATE `hydra_service_instances`
         SET

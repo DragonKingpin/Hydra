@@ -26,4 +26,8 @@ public class MappingDriver extends ArchMappingDriver implements KOIMappingDriver
     public KOIMasterManipulator getMasterManipulator() {
         return this.mKOIMasterManipulator;
     }
+
+    protected IbatisClient businessClient() {
+        return this.mIbatisClient;
+    }
 }

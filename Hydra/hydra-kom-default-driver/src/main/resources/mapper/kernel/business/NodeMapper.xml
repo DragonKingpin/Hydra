@@ -25,6 +25,15 @@
         )
     </insert>
 
+    <select id="getForUpdate" resultMap="NodeMap">
+        SELECT id, guid, type, name, code, description, owner, extra_information, create_time, update_time
+        FROM hydra_business_nodes WHERE guid = #{guid} FOR UPDATE
+    </select>
+
+    <update id="touch">
+        UPDATE hydra_business_nodes SET update_time = CURRENT_TIMESTAMP WHERE guid = #{guid}
+    </update>
+
     <delete id="remove">
         DELETE FROM hydra_business_nodes WHERE guid = #{guid}
     </delete>

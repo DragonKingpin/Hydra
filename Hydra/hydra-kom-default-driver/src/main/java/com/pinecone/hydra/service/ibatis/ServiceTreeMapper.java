@@ -29,6 +29,8 @@ public interface ServiceTreeMapper extends TrieTreeManipulator {
 
     GUIDImperialTrieNode getNodeExtendsFromMeta(@Param("guid") GUID guid );
 
+    GUIDImperialTrieNode getNodeForUpdate( @Param("guid") GUID guid );
+
     boolean contains( @Param("key") GUID key );
 
     @Override
@@ -73,6 +75,8 @@ public interface ServiceTreeMapper extends TrieTreeManipulator {
     List<GUIDImperialTrieNode> getChildren(@Param("guid") GUID guid );
 
     List<GUID > fetchChildrenGuids( @Param("parentGuid") GUID parentGuid );
+
+    List<GUID> fetchChildrenGuidsForUpdate( @Param("parentGuid") GUID parentGuid );
 
     List<GUID > fetchParentGuids( @Param("guid") GUID guid );
 

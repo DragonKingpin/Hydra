@@ -4,8 +4,9 @@ import java.util.Collection;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.service.kom.ServiceInstrument;
-import com.pinecone.hydra.service.kom.entity.Namespace;
+import com.pinecone.hydra.service.kom.entity.ElementNode;
 import com.pinecone.hydra.service.kom.entity.ServiceTreeNode;
+import com.acorn.redqueen.service.deletion.ServiceDirectoryDeleteSafetyReport.ReasonCode;
 
 public class RedServiceDirectoryDeleteService implements ServiceDirectoryDeleteService {
 
@@ -36,17 +37,24 @@ public class RedServiceDirectoryDeleteService implements ServiceDirectoryDeleteS
             throw new IllegalArgumentException( "Service directory not found: " + guid );
         }
 
-        Namespace namespace = node.evinceElementNode() == null ? null : node.evinceElementNode().evinceNamespace();
+        ElementNode element = node.evinceElementNode();
         ServiceDirectoryDeleteSafetyReport report = new ServiceDirectoryDeleteSafetyReport();
         report.setGuid( guid );
         report.setName( node.getName() );
         report.setType( node.getMetaType() );
         report.setPath( this.requireServiceInstrument().getPath( guid ) );
 
-        if ( namespace == null ) {
+        if ( this.isRootPath( report.getPath() ) ) {
+            report.setReasonCode( ReasonCode.RootProtected );
+            report.setMessage( "Service root directory cannot be deleted." );
+            return report;
+        }
+
+        if ( element == null || ( element.evinceNamespace() == null && element.evinceApplicationElement() == null ) ) {
             report.setChildCount( 0 );
             report.setDeletable( false );
-            report.setMessage( "Service directory purge target is not a namespace." );
+            report.setReasonCode( ReasonCode.UnsupportedType );
+            report.setMessage( "Service directory purge target is not a namespace or application." );
             return report;
         }
 
@@ -58,9 +66,11 @@ public class RedServiceDirectoryDeleteService implements ServiceDirectoryDeleteS
         report.setChildCount( childCount );
         report.setDeletable( report.getChildCount() == 0 );
         if ( report.isDeletable() ) {
+            report.setReasonCode( ReasonCode.Empty );
             report.setMessage( "Service directory purge safety check passed." );
         }
         else {
+            report.setReasonCode( ReasonCode.NotEmpty );
             report.setMessage( "Service directory is not empty." );
         }
 
@@ -74,6 +84,16 @@ public class RedServiceDirectoryDeleteService implements ServiceDirectoryDeleteS
 
     @Override
     public ServiceDirectoryDeleteSafetyReport checkDirectoryPurge( String path ) {
+        if ( path == null || path.trim().isEmpty() ) {
+            throw new IllegalArgumentException( "Service directory purge check missing path." );
+        }
+        if ( this.isRootPath( path ) ) {
+            ServiceDirectoryDeleteSafetyReport report = new ServiceDirectoryDeleteSafetyReport();
+            report.setPath( "/" );
+            report.setReasonCode( ReasonCode.RootProtected );
+            report.setMessage( "Service root directory cannot be deleted." );
+            return report;
+        }
         GUID guid = this.requireServiceInstrument().queryGUIDByPath( path );
         if ( guid == null ) {
             throw new IllegalArgumentException( "Service directory not found: " + path );
@@ -94,11 +114,15 @@ public class RedServiceDirectoryDeleteService implements ServiceDirectoryDeleteS
 
     @Override
     public ServiceDirectoryDeleteSafetyReport purgeDirectory( String path ) {
-        GUID guid = this.requireServiceInstrument().queryGUIDByPath( path );
-        if ( guid == null ) {
-            throw new IllegalArgumentException( "Service directory not found: " + path );
+        ServiceDirectoryDeleteSafetyReport report = this.checkDirectoryPurge( path );
+        if ( !report.isDeletable() ) {
+            throw new IllegalArgumentException( report.getMessage() );
         }
-        return this.purgeDirectory( guid );
+        return this.purgeDirectory( report.getGuid() );
+    }
+
+    protected boolean isRootPath( String path ) {
+        return path != null && path.trim().replace( '\\', '/' ).matches( "/+" );
     }
 
     protected ServiceDirectoryDeleteChild toDirectoryDeleteChild( GUID childGuid ) {

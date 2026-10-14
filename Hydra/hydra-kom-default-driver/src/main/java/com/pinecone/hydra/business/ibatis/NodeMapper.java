@@ -14,6 +14,10 @@ import org.apache.ibatis.annotations.Param;
 @IbatisDataAccessObject
 public interface NodeMapper extends NodeManipulator {
 
+    GenericElementNode getForUpdate( @Param("guid") GUID guid );
+
+    void touch( @Param("guid") GUID guid );
+
     @Override
     void insert( ElementNode node );
 

@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import com.pinecone.hydra.business.entity.tag.NodeTag;
+import com.pinecone.hydra.business.support.tag.BusinessTags;
 
 import com.pinecone.framework.system.Nullable;
 import com.pinecone.framework.system.executum.Processum;
@@ -285,11 +288,13 @@ public class UniformBusinessInstrument extends ArchKOMTree implements BusinessIn
         }
 
         ElementNode node = (ElementNode) treeNode;
+        ElementNode previous = this.get( node.getGuid() );
         node.setUpdateTime( LocalDateTime.now() );
-        this.mNodeManipulator.update( node );
-        this.updateTypedNode( node );
-        this.invalidatePath( node.getGuid() );
-        this.rebuildPath( node.getGuid() );
+        this.mMasterManipulator.updateElement( node );
+        if ( previous == null || !Objects.equals( previous.getName(), node.getName() ) ) {
+            this.invalidatePath( node.getGuid() );
+            this.rebuildPath( node.getGuid() );
+        }
     }
 
     protected void updateTypedNode( ElementNode node ) {
@@ -319,14 +324,38 @@ public class UniformBusinessInstrument extends ArchKOMTree implements BusinessIn
 
     @Override
     public void remove( GUID guid ) {
-        ElementNode node = this.get( guid );
-        if ( node != null ) {
-            this.removeTypedNode( node );
-        }
+        this.mMasterManipulator.removeElement( guid );
+    }
 
-        this.mNodeManipulator.remove( guid );
-        this.mTreeManipulator.remove( guid );
-        this.mPathManipulator.remove( guid );
+    @Override
+    public List<NodeTag> fetchNodeTags( List<GUID> nodeGuids ) {
+        if ( nodeGuids == null || nodeGuids.isEmpty() ) return List.of();
+        return this.mMasterManipulator.getNodeTagManipulator().fetchByNodeGuids( nodeGuids );
+    }
+
+    @Override
+    public void replaceNodeTags( GUID guid, List<String> tags ) {
+        this.mMasterManipulator.replaceNodeTags( guid, BusinessTags.normalizeAll( tags ) );
+    }
+
+    @Override
+    public List<String> fetchTagCandidates( String prefix, int limit ) {
+        if ( limit < 1 || limit > 100 ) throw new IllegalArgumentException( "Tag candidate limit must be between 1 and 100." );
+        return this.mMasterManipulator.getNodeTagManipulator().fetchCandidates(
+                BusinessTags.prefixPattern( prefix ), limit );
+    }
+
+    @Override
+    public List<GUID> findNodeGuidsByTag( String tag, int offset, int limit ) {
+        if ( offset < 0 || limit < 1 || limit > 100 ) throw new IllegalArgumentException( "Invalid tag search page." );
+        return this.mMasterManipulator.getNodeTagManipulator().findNodeGuids(
+                BusinessTags.normalize( tag ), offset, limit );
+    }
+
+    @Override
+    public long countNodesByTag( String tag ) {
+        return this.mMasterManipulator.getNodeTagManipulator().countNodes(
+                BusinessTags.normalize( tag ) );
     }
 
     protected void removeTypedNode( ElementNode node ) {

@@ -1,6 +1,20 @@
 package com.pinecone.hydra.business.ibatis.hydranium;
 
 import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
+
+import com.pinecone.framework.util.id.GUID;
+import com.pinecone.hydra.business.entity.ElementNode;
+import com.pinecone.hydra.business.entity.GenericElementNode;
+import com.pinecone.hydra.business.entity.tag.NodeTag;
+import com.pinecone.hydra.business.ibatis.tag.NodeTagMapper;
+import com.pinecone.hydra.business.source.tag.NodeTagManipulator;
+import com.pinecone.hydra.business.support.tag.BusinessTags;
+import com.pinecone.slime.jelly.source.ibatis.IbatisClient;
+import com.pinecone.slime.jelly.source.ibatis.transaction.IbatisTransaction;
 
 import javax.annotation.Resource;
 
@@ -55,11 +69,86 @@ public class MasterManipulatorImpl implements MasterManipulator, TreeMasterManip
 
     protected BusinessTreeSkeleton mBusinessTreeSkeleton;
 
+    @Resource
+    @Structure( type = NodeTagMapper.class )
+    protected NodeTagManipulator mNodeTagManipulator;
+
+    protected IbatisClient mBusinessClient;
+
     public MasterManipulatorImpl() {
     }
 
     public MasterManipulatorImpl( KOIMappingDriver driver ) {
+        this.mBusinessClient = ( (MappingDriver) driver ).businessClient();
         driver.autoConstruct( MasterManipulatorImpl.class, Map.of(), this );
+    }
+
+    @Override
+    public NodeTagManipulator getNodeTagManipulator() { return this.mNodeTagManipulator; }
+
+    protected IbatisTransaction transaction() { return this.mBusinessClient.transaction(); }
+
+    @Override
+    public void replaceNodeTags( GUID guid, List<String> tags ) {
+        List<String> normalized = BusinessTags.normalizeAll( tags );
+        this.transaction().required( scope -> {
+            NodeMapper nodes = scope.mapper( NodeMapper.class );
+            if ( guid == null || nodes.getForUpdate( guid ) == null ) {
+                throw new IllegalArgumentException( "Business node does not exist." );
+            }
+            NodeTagMapper mapper = scope.mapper( NodeTagMapper.class );
+            Set<String> existing = mapper.fetchByNodeGuids( List.of( guid ) ).stream()
+                    .map( NodeTag::getTag ).collect( Collectors.toSet() );
+            Set<String> requested = new LinkedHashSet<>( normalized );
+            if ( existing.equals( requested ) ) return null;
+            for ( String tag : existing ) {
+                if ( !requested.contains( tag ) ) mapper.removeTag( guid, tag );
+            }
+            for ( String tag : requested ) {
+                if ( !existing.contains( tag ) ) mapper.insert( guid, tag );
+            }
+            nodes.touch( guid );
+            return null;
+        } );
+    }
+
+    @Override
+    public void removeElement( GUID guid ) {
+        this.transaction().required( scope -> {
+            NodeMapper nodes = scope.mapper( NodeMapper.class );
+            GenericElementNode node = nodes.getForUpdate( guid );
+            if ( node == null ) return null;
+            TreeMapper tree = scope.mapper( TreeMapper.class );
+            if ( !tree.fetchChildrenGuids( guid ).isEmpty() ) {
+                throw new IllegalArgumentException( "Cannot remove business node with children." );
+            }
+            scope.mapper( NodeTagMapper.class ).removeByNodeGuid( guid );
+            Map<String, Runnable> removers = Map.of(
+                    "Scenario", () -> scope.mapper( ScenarioMapper.class ).remove( guid ),
+                    "Project", () -> scope.mapper( ProjectMapper.class ).remove( guid ),
+                    "Idea", () -> scope.mapper( IdeaMapper.class ).remove( guid ) );
+            Runnable removeTyped = removers.get( node.getType() );
+            if ( removeTyped != null ) removeTyped.run();
+            scope.mapper( PathMapper.class ).remove( guid );
+            tree.remove( guid );
+            nodes.remove( guid );
+            return null;
+        } );
+    }
+
+    @Override
+    public void updateElement( ElementNode node ) {
+        this.transaction().required( scope -> {
+            NodeMapper nodes = scope.mapper( NodeMapper.class );
+            if ( nodes.getForUpdate( node.getGuid() ) == null ) {
+                throw new IllegalArgumentException( "Business node does not exist." );
+            }
+            nodes.update( node );
+            if ( node.evinceScenarioElement() != null ) scope.mapper( ScenarioMapper.class ).update( node.evinceScenarioElement() );
+            if ( node.evinceProjectElement() != null ) scope.mapper( ProjectMapper.class ).update( node.evinceProjectElement() );
+            if ( node.evinceIdeaElement() != null ) scope.mapper( IdeaMapper.class ).update( node.evinceIdeaElement() );
+            return null;
+        } );
     }
 
     @Override

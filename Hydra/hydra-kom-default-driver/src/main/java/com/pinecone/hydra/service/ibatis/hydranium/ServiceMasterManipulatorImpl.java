@@ -10,6 +10,8 @@ import com.pinecone.hydra.service.ibatis.ServiceNodeOwnerMapper;
 import com.pinecone.hydra.service.ibatis.ServicePathCacheMapper;
 import com.pinecone.hydra.service.ibatis.ServiceRuntimeNodeMapper;
 import com.pinecone.hydra.service.ibatis.ServiceTreeMapper;
+import com.pinecone.hydra.service.kom.entity.ApplicationElement;
+import com.pinecone.hydra.service.kom.entity.Namespace;
 import com.pinecone.hydra.service.kom.source.ApplicationNodeManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceInstanceManipulator;
 import com.pinecone.hydra.service.kom.source.ServiceNamespaceManipulator;
@@ -133,10 +135,33 @@ public class ServiceMasterManipulatorImpl implements ServiceMasterManipulator {
 
     @Override
     public void purgeServiceDirectory( GUID directoryGuid ) {
+        if ( directoryGuid == null ) {
+            throw new IllegalArgumentException( "Service directory purge missing guid." );
+        }
         this.transaction().required( scope -> {
+            ServiceTreeMapper tree = scope.mapper( ServiceTreeMapper.class );
+            if ( tree.getNodeForUpdate( directoryGuid ) == null ) {
+                throw new IllegalArgumentException( "Service directory not found: " + directoryGuid );
+            }
+            Namespace namespace = scope.mapper( ServiceNamespaceMapper.class ).getNamespace( directoryGuid );
+            ApplicationElement application = scope.mapper( ApplicationNodeMapper.class ).getApplicationNode( directoryGuid );
+            if ( ( namespace == null ) == ( application == null ) ) {
+                throw new IllegalArgumentException( "Service directory purge requires a namespace or application." );
+            }
+            // Recheck inside the delete transaction; the UI preflight is not an authorization to cascade.
+            if ( !tree.fetchChildrenGuidsForUpdate( directoryGuid ).isEmpty() ) {
+                throw new IllegalArgumentException( "Service directory is not empty." );
+            }
             scope.mapper( ServicePathCacheMapper.class ).remove( directoryGuid );
             scope.mapper( ServiceNodeOwnerMapper.class ).removeBySubordinate( directoryGuid );
-            scope.mapper( ServiceNamespaceMapper.class ).remove( directoryGuid );
+            tree.removeTreeNode( directoryGuid );
+            tree.removeNodeMeta( directoryGuid );
+            if ( namespace != null ) {
+                scope.mapper( ServiceNamespaceMapper.class ).remove( directoryGuid );
+            }
+            else {
+                scope.mapper( ApplicationNodeMapper.class ).remove( directoryGuid );
+            }
             return null;
         } );
     }

@@ -8,6 +8,10 @@ import com.pinecone.framework.util.id.GUID;
 
 public class ServiceDirectoryDeleteSafetyReport implements Pinenut {
 
+    public enum ReasonCode {
+        Empty, NotEmpty, UnsupportedType, RootProtected
+    }
+
     protected GUID guid;
 
     protected String path;
@@ -23,6 +27,16 @@ public class ServiceDirectoryDeleteSafetyReport implements Pinenut {
     protected boolean deletable;
 
     protected String message;
+
+    protected ReasonCode reasonCode;
+
+    public ReasonCode getReasonCode() {
+        return this.reasonCode;
+    }
+
+    public void setReasonCode( ReasonCode reasonCode ) {
+        this.reasonCode = reasonCode;
+    }
 
     public GUID getGuid() {
         return this.guid;

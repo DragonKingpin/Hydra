@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.pinecone.framework.util.id.GUID;
 import com.pinecone.hydra.business.entity.ElementNode;
+import com.pinecone.hydra.business.entity.tag.NodeTag;
 import com.pinecone.hydra.business.entity.IdeaElement;
 import com.pinecone.hydra.business.entity.ProjectElement;
 import com.pinecone.hydra.business.entity.ScenarioElement;
@@ -12,6 +13,16 @@ import com.pinecone.hydra.system.ko.kom.KOMInstrument;
 import com.pinecone.hydra.unit.imperium.entity.TreeNode;
 
 public interface BusinessInstrument extends KOMInstrument {
+
+    List<NodeTag> fetchNodeTags( List<GUID> nodeGuids );
+
+    void replaceNodeTags( GUID guid, List<String> tags );
+
+    List<String> fetchTagCandidates( String prefix, int limit );
+
+    List<GUID> findNodeGuidsByTag( String tag, int offset, int limit );
+
+    long countNodesByTag( String tag );
 
     BusinessConfig KERNEL_BUSINESS_CONFIG = new KernelBusinessConfig();
 

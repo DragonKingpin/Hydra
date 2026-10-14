@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pinecone.hydra.business.ibatis.tag.NodeTagMapper">
+    <resultMap id="NodeTagMap" type="com.pinecone.hydra.business.entity.tag.NodeTag">
+        <result column="node_guid" property="nodeGuid"/>
+        <result column="tag" property="tag"/>
+    </resultMap>
+    <select id="fetchByNodeGuids" resultMap="NodeTagMap">
+        SELECT node_guid, tag FROM hydra_business_node_tags
+        WHERE node_guid IN
+        <foreach collection="nodeGuids" item="guid" open="(" separator="," close=")">#{guid}</foreach>
+        ORDER BY node_guid, tag
+    </select>
+    <select id="fetchCandidates" resultType="string">
+        SELECT DISTINCT ntag.tag
+        FROM hydra_business_node_tags AS ntag
+        INNER JOIN hydra_business_nodes AS node ON node.guid = ntag.node_guid
+        WHERE ntag.tag LIKE #{pattern} ESCAPE '!'
+        ORDER BY ntag.tag LIMIT #{limit}
+    </select>
+    <select id="findNodeGuids" resultType="com.pinecone.framework.util.id.GUID">
+        SELECT ntag.node_guid
+        FROM hydra_business_node_tags AS ntag
+        INNER JOIN hydra_business_nodes AS node ON node.guid = ntag.node_guid
+        WHERE ntag.tag = #{tag}
+        ORDER BY ntag.node_guid LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="countNodes" resultType="long">
+        SELECT COUNT(*)
+        FROM hydra_business_node_tags AS ntag
+        INNER JOIN hydra_business_nodes AS node ON node.guid = ntag.node_guid
+        WHERE ntag.tag = #{tag}
+    </select>
+    <insert id="insert">
+        INSERT INTO hydra_business_node_tags (node_guid, tag) VALUES (#{nodeGuid}, #{tag})
+    </insert>
+    <delete id="removeTag">
+        DELETE FROM hydra_business_node_tags WHERE node_guid = #{nodeGuid} AND tag = #{tag}
+    </delete>
+    <delete id="removeByNodeGuid">
+        DELETE FROM hydra_business_node_tags WHERE node_guid = #{nodeGuid}
+    </delete>
+</mapper>
